@@ -2,10 +2,12 @@ import { notFound } from "next/navigation";
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { ManagerContractFleetView } from "@/components/manager/contract-fleet-view";
-import { backendFetchList } from "@/lib/api/backend";
+import { ManagerContractClientInvoiceView } from "@/components/manager/contract-client-invoice-view";
+import { backendFetch, backendFetchList } from "@/lib/api/backend";
 import { requireManager } from "@/lib/api/guard";
 import {
   countryLabel,
+  type ClientInvoiceDetail,
   type ContractListItem,
   type SimCardListItem,
   type SmartphoneListItem,
@@ -33,10 +35,12 @@ export default async function ManagerContractDetailPage({
     notFound();
   }
 
-  const [smartphones, simCards] = await Promise.all([
+  const [smartphones, simCards, invoiceResponse] = await Promise.all([
     backendFetchList<SmartphoneListItem>(`/api/contracts/${contractId}/smartphones`),
     backendFetchList<SimCardListItem>(`/api/contracts/${contractId}/sim-cards`),
+    backendFetch(`/api/contracts/${contractId}/client-invoice`),
   ]);
+  const invoice = invoiceResponse.ok ? ((await invoiceResponse.json()) as ClientInvoiceDetail) : null;
 
   const title = `${contract.clientName} — ${contract.agentName}`;
 
@@ -47,12 +51,15 @@ export default async function ManagerContractDetailPage({
       viewerLabel="Manager"
     >
       <Breadcrumb items={[{ label: "Contracts", href: "/manager/contracts" }, { label: title }]} />
-      <ManagerContractFleetView
-        contractId={contract.id}
-        currency={contract.currency}
-        smartphones={smartphones}
-        simCards={simCards}
-      />
+      <div className="flex flex-col gap-5">
+        <ManagerContractClientInvoiceView contractId={contract.id} invoice={invoice} />
+        <ManagerContractFleetView
+          contractId={contract.id}
+          currency={contract.currency}
+          smartphones={smartphones}
+          simCards={simCards}
+        />
+      </div>
     </SurfacePage>
   );
 }

@@ -10,8 +10,50 @@ services:
       POSTGRES_PASSWORD: remote_support
     ports:
       - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U remote_support"]
       interval: 2s
       timeout: 3s
       retries: 30
+
+  # Full app stack (backend + frontend) for quick manual testing against a real
+  # Postgres — `docker compose up --build` and open http://localhost:3000. Log
+  # in as manager@example.com / ChangeMe123!, agent@example.com /
+  # AgentDemo123!, or tester@example.com / TesterDemo123! (seeded by V2/V3
+  # Flyway migrations).
+  backend:
+    build:
+      context: ./backend
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/remote_support
+      DB_USERNAME: remote_support
+      DB_PASSWORD: remote_support
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      # Same unauthenticated liveness endpoint scripts/run-backend-for-e2e.sh polls
+      # (HealthController), not actuator's /actuator/health.
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/health | grep -q '\"status\":\"UP\"'"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      BACKEND_URL: http://backend:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

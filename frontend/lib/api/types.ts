@@ -240,8 +240,12 @@ export interface CarrierInvoiceFileListItem {
   uploadedAt: string;
 }
 
-// Mirrors backend/.../dto/ClientInvoiceResponse.java — baseAmount/feeLines/totalAmount are
-// computed live by the backend on every fetch, never stored (client-invoice-generation ticket).
+// Mirrors backend/.../dto/ClientInvoiceResponse.java. While `status` is DRAFT,
+// baseAmount/feeLines/totalAmount are computed live by the backend on every fetch
+// (client-invoice-generation ticket); from SENT onward they are read from the frozen snapshot
+// instead (client-invoice-submission-and-visibility ticket) — the shape is identical either way,
+// only where the backend sourced the numbers changes. sentAt/approvedAt are null until each
+// transition happens.
 export interface ClientInvoiceDetail {
   id: string;
   contractId: string;
@@ -252,4 +256,6 @@ export interface ClientInvoiceDetail {
   feeLines: FeeListItem[];
   totalAmount: number;
   files: CarrierInvoiceFileListItem[];
+  sentAt: string | null;
+  approvedAt: string | null;
 }

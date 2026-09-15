@@ -2,15 +2,31 @@ package com.remotesupport.backend.domain;
 
 /**
  * A Client Invoice's lifecycle (spec.md Solution: "Lifecycle: draft (the Agent is assembling it)
- * -> sent (submitted by the Agent) -> approved (locked by the Manager)"). Every value the
- * eventual state machine needs is declared now (client-invoice-generation ticket note: mirrors
- * {@link RequestStatus}'s pre-declaration — declare the enum wide enough for
- * client-invoice-submission-and-visibility's {@code sent}/{@code approved} transitions without a
- * schema change) even though this ticket only ever writes {@code DRAFT}; the transition rules
- * themselves (send, approve) are that later ticket's concern, out of scope here.
+ * -> sent (submitted by the Agent) -> approved (locked by the Manager)"). {@code DRAFT} was the
+ * only value the client-invoice-generation ticket ever wrote; this ticket
+ * (client-invoice-submission-and-visibility) adds the {@code SENT}/{@code APPROVED} transitions
+ * themselves.
  */
 public enum ClientInvoiceStatus {
   DRAFT,
   SENT,
-  APPROVED
+  APPROVED;
+
+  /**
+   * Whether moving from this status directly to {@code target} is a valid Client Invoice
+   * transition (ticket AC: "Agent can send a draft Client Invoice, moving it to status sent" /
+   * "Manager can approve it, moving it to status approved" / "Manager cannot approve a Client
+   * Invoice still in draft"). Both {@code DRAFT -> SENT} (the Agent's send) and {@code SENT ->
+   * APPROVED} (the Manager's approval) are single forward steps with no way back — there is no
+   * "un-send" or "un-approve" in spec.md's lifecycle. Mirrors {@link RequestStatus#canTransitionTo}
+   * and {@link SmartphoneStatus}'s shape: {@code APPROVED} is terminal, exactly like {@code
+   * RequestStatus.COMPLETED}/{@code CANCELLED}.
+   */
+  public boolean canTransitionTo(ClientInvoiceStatus target) {
+    return switch (this) {
+      case DRAFT -> target == SENT;
+      case SENT -> target == APPROVED;
+      case APPROVED -> false;
+    };
+  }
 }

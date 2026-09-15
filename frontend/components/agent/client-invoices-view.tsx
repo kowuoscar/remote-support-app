@@ -9,8 +9,9 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { IconAlertTriangle, IconDownload, IconInvoices, IconPaperclip } from "@/components/icons";
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
+import { SendClientInvoiceControl } from "@/components/agent/send-client-invoice-control";
 import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from "@/lib/status";
-import { formatDateShort } from "@/lib/format";
+import { formatDate, formatDateShort } from "@/lib/format";
 import { FEE_TYPE_LABEL, type ClientInvoiceDetail } from "@/lib/api/types";
 
 function billingMonthLabel(billingMonth: string): string {
@@ -72,10 +73,31 @@ export function AgentClientInvoicesView({
                 </Badge>
               </div>
               <p className="mt-1 text-[13px] text-ink-mute">
-                This Contract&rsquo;s postpaid base amount plus this month&rsquo;s Fees
+                {invoice.status === "DRAFT"
+                  ? "This Contract’s postpaid base amount plus this month’s Fees — still being assembled"
+                  : "Sent to the Manager and Client — numbers are locked to what was sent"}
               </p>
+              {invoice.sentAt ? (
+                <p className="mt-0.5 text-[12px] text-ink-mute">
+                  Sent {formatDate(invoice.sentAt)}
+                  {invoice.approvedAt ? ` · Approved ${formatDate(invoice.approvedAt)}` : ""}
+                </p>
+              ) : null}
             </div>
-            <AttachCarrierInvoiceFileControl contractId={contractId} />
+            {invoice.status === "DRAFT" ? (
+              <div className="flex flex-col items-end gap-2">
+                <AttachCarrierInvoiceFileControl contractId={contractId} />
+                <SendClientInvoiceControl contractId={contractId} />
+              </div>
+            ) : (
+              <a
+                href={`/api/contracts/${contractId}/client-invoice/pdf`}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-hairline-strong bg-canvas px-3 py-1.5 text-[13px] font-medium text-ink hover:bg-canvas-soft"
+              >
+                <IconDownload className="h-3.5 w-3.5" />
+                Download PDF
+              </a>
+            )}
           </div>
 
           <dl className="grid grid-cols-2 gap-4 rounded-lg border border-hairline bg-canvas-soft p-4 sm:grid-cols-3">

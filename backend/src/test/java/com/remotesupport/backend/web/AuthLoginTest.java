@@ -31,7 +31,36 @@ class AuthLoginTest extends IntegrationTest {
                     """
                         .formatted(SEEDED_USERNAME, SEEDED_PASSWORD)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.token").value(not(org.hamcrest.Matchers.emptyOrNullString())));
+        .andExpect(jsonPath("$.token").value(not(org.hamcrest.Matchers.emptyOrNullString())))
+        .andExpect(jsonPath("$.role").value("MANAGER"));
+  }
+
+  @Test
+  void loginWithSeededAgentCredentialsReturnsAgentRole() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {"username":"agent@example.com","password":"AgentDemo123!"}
+                    """))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.role").value("AGENT"));
+  }
+
+  @Test
+  void loginWithSeededTesterCredentialsReturnsTesterRole() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {"username":"tester@example.com","password":"TesterDemo123!"}
+                    """))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.role").value("TESTER"));
   }
 
   @Test

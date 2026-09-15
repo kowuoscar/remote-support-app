@@ -1,3 +1,7 @@
 package com.remotesupport.backend.dto;
 
-public record LoginResponse(String token) {}
+/**
+ * The role rides alongside the token so a client can route to a role-appropriate landing page
+ * without decoding the JWT itself.
+ */
+public record LoginResponse(String token, String role) {}

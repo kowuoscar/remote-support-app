@@ -31,7 +31,8 @@ class AuthLoginTest extends IntegrationTest {
                     """
                         .formatted(SEEDED_USERNAME, SEEDED_PASSWORD)))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.token").value(not(org.hamcrest.Matchers.emptyOrNullString())));
+        .andExpect(jsonPath("$.token").value(not(org.hamcrest.Matchers.emptyOrNullString())))
+        .andExpect(jsonPath("$.role").value("MANAGER"));
   }
 
   @Test

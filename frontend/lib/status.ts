@@ -6,7 +6,12 @@ import type {
   SimStatus,
   SmartphoneStatus,
 } from "@/lib/demo/types";
-import type { RequestStatusValue, SimCardStatusValue, SmartphoneStatusValue } from "@/lib/api/types";
+import type {
+  ClientInvoiceStatusValue,
+  RequestStatusValue,
+  SimCardStatusValue,
+  SmartphoneStatusValue,
+} from "@/lib/api/types";
 
 export const requestStatusTone: Record<RequestStatus, Tone> = {
   Submitted: "info",
@@ -59,6 +64,21 @@ export const clientInvoiceStatusLabel: Record<ClientInvoiceStatus, string> = {
   draft: "Draft",
   sent: "Awaiting approval",
   approved: "Approved",
+};
+
+// Same tones/labels as clientInvoiceStatusTone/clientInvoiceStatusLabel above, keyed by the real
+// backend enum value instead of the demo data's lowercase label (client-invoice-generation
+// ticket: the real Client Invoices view consumes ClientInvoiceDetail, not demo/types).
+export const clientInvoiceStatusToneByValue: Record<ClientInvoiceStatusValue, Tone> = {
+  DRAFT: "neutral",
+  SENT: "warning",
+  APPROVED: "success",
+};
+
+export const clientInvoiceStatusLabelByValue: Record<ClientInvoiceStatusValue, string> = {
+  DRAFT: "Draft",
+  SENT: "Awaiting approval",
+  APPROVED: "Approved",
 };
 
 export const agentInvoiceStatusTone: Record<AgentInvoiceStatus, Tone> = {

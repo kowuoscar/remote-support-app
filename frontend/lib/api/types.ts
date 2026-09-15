@@ -51,3 +51,61 @@ export interface ContractListItem {
   country: string;
   currency: string;
 }
+
+// Mirrors backend/.../domain/SmartphoneStatus.java
+export type SmartphoneStatusValue = "ACTIVE" | "IN_REPAIR" | "RETIRED";
+
+// Mirrors backend/.../domain/SimCardStatus.java
+export type SimCardStatusValue = "ACTIVE" | "RETIRED";
+
+// Mirrors backend/.../domain/SimCardFlavor.java
+export type SimCardFlavorValue = "POSTPAID" | "PREPAID";
+
+export const SMARTPHONE_STATUS_LABEL: Record<SmartphoneStatusValue, string> = {
+  ACTIVE: "Active",
+  IN_REPAIR: "In Repair",
+  RETIRED: "Retired",
+};
+
+export const SIM_CARD_STATUS_LABEL: Record<SimCardStatusValue, string> = {
+  ACTIVE: "Active",
+  RETIRED: "Retired",
+};
+
+export const SIM_CARD_FLAVOR_LABEL: Record<SimCardFlavorValue, string> = {
+  POSTPAID: "Postpaid",
+  PREPAID: "Prepaid",
+};
+
+/** Mirrors backend/.../domain/SmartphoneStatus.java#canTransitionTo. */
+export function nextSmartphoneStatuses(current: SmartphoneStatusValue): SmartphoneStatusValue[] {
+  switch (current) {
+    case "ACTIVE":
+      return ["IN_REPAIR", "RETIRED"];
+    case "IN_REPAIR":
+      return ["ACTIVE", "RETIRED"];
+    case "RETIRED":
+      return [];
+  }
+}
+
+// Mirrors backend/.../dto/SmartphoneResponse.java
+export interface SmartphoneListItem {
+  id: string;
+  contractId: string;
+  model: string;
+  serial: string;
+  assignedTo: string | null;
+  status: SmartphoneStatusValue;
+}
+
+// Mirrors backend/.../dto/SimCardResponse.java
+export interface SimCardListItem {
+  id: string;
+  contractId: string;
+  number: string;
+  carrier: string | null;
+  flavor: SimCardFlavorValue;
+  monthlyFeeAmount: number | null;
+  status: SimCardStatusValue;
+}

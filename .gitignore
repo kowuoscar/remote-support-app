@@ -1,0 +1,5 @@
+# Impeccable: machine-local overrides and ephemeral review/build artifacts.
+.impeccable/config.local.json
+.impeccable/review/
+.impeccable/build/
+.impeccable/mocks/

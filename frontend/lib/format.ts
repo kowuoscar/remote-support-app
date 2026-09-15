@@ -34,6 +34,35 @@ export function formatDate(iso: string): string {
   });
 }
 
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+/**
+ * Turns a "Month YYYY" label (e.g. "August 2026") into a sortable number.
+ * `localeCompare`/string comparison on these labels sorts alphabetically
+ * ("August" > "July" > "September" as strings), not chronologically — this
+ * is the fix for that.
+ */
+export function monthLabelSortKey(label: string): number {
+  const [monthName, yearStr] = label.split(" ");
+  const monthIndex = monthNames.indexOf(monthName);
+  const year = Number(yearStr);
+  if (monthIndex === -1 || Number.isNaN(year)) return 0;
+  return year * 12 + monthIndex;
+}
+
 export function formatDateShort(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {
     month: "short",

@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Money } from "@/components/ui/money";
 import { IconDownload, IconInvoices, IconPaperclip } from "@/components/icons";
 import { clientInvoiceStatusLabel, clientInvoiceStatusTone } from "@/lib/status";
+import { monthLabelSortKey } from "@/lib/format";
 import type { ClientInvoiceRecord } from "@/lib/demo/types";
 
 export function ClientInvoicesView({
@@ -26,7 +27,7 @@ export function ClientInvoicesView({
     () =>
       invoices
         .filter((inv) => inv.contractId === contractId && inv.status !== "draft")
-        .sort((a, b) => b.month.localeCompare(a.month)),
+        .sort((a, b) => monthLabelSortKey(b.month) - monthLabelSortKey(a.month)),
     [invoices, contractId],
   );
 

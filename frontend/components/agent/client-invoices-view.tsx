@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Money } from "@/components/ui/money";
 import { IconPaperclip } from "@/components/icons";
 import { clientInvoiceStatusLabel, clientInvoiceStatusTone } from "@/lib/status";
+import { monthLabelSortKey } from "@/lib/format";
 import type { ClientInvoiceRecord } from "@/lib/demo/types";
 
 export function AgentClientInvoicesView({
@@ -23,7 +24,7 @@ export function AgentClientInvoicesView({
     () =>
       invoices
         .filter((inv) => inv.contractId === contractId)
-        .sort((a, b) => b.month.localeCompare(a.month)),
+        .sort((a, b) => monthLabelSortKey(b.month) - monthLabelSortKey(a.month)),
     [invoices, contractId],
   );
 

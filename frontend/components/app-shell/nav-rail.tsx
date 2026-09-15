@@ -39,7 +39,12 @@ export function NavRail({
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-50 flex w-60 shrink-0 flex-col border-r border-hairline bg-canvas-soft transition-transform duration-200 ease-out",
-          "md:static md:z-auto md:translate-x-0",
+          // At md+ the rail leaves fixed-overlay mode and instead pins itself
+          // to the viewport top for the height of one viewport while the
+          // document scrolls past it — full rail height, no internal scroll
+          // container, so a full-page capture (or a real user's scroll)
+          // includes everything below the fold.
+          "md:sticky md:inset-y-auto md:top-0 md:z-auto md:h-dvh md:shrink-0 md:translate-x-0 md:self-start",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >

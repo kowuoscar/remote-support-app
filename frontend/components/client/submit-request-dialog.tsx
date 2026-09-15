@@ -111,7 +111,7 @@ export function SubmitRequestDialog({ contracts }: { contracts: ContractOption[]
               <textarea
                 rows={3}
                 placeholder="Anything your Agent should know before they start…"
-                className="resize-none rounded-lg border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus-visible:border-primary"
+                className="resize-none rounded-lg border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink placeholder:text-ink-mute focus-visible:border-primary"
               />
             </label>
 

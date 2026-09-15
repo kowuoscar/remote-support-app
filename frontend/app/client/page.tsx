@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Money } from "@/components/ui/money";
 import { IconArrowRight } from "@/components/icons";
 import { clientInvoiceStatusLabel, clientInvoiceStatusTone } from "@/lib/status";
+import { monthLabelSortKey } from "@/lib/format";
 import {
   clientContracts,
   clientInvoices,
@@ -30,7 +31,7 @@ export default function ClientDashboardPage() {
   const latestByContract = clientContracts.map((contract) => {
     const invoicesForContract = clientInvoices
       .filter((inv) => inv.contractId === contract.id && inv.status !== "draft")
-      .sort((a, b) => b.month.localeCompare(a.month));
+      .sort((a, b) => monthLabelSortKey(b.month) - monthLabelSortKey(a.month));
     return { contract, latest: invoicesForContract[0] };
   });
 

@@ -15,7 +15,16 @@ export default defineConfig({
   reporter: [["list"]],
   expect: {
     toHaveScreenshot: {
-      maxDiffPixelRatio: 0.02,
+      // Tight on purpose: this is a token-driven design system, so a real
+      // regression (a color, a status badge, an amount) is often a small
+      // fraction of a full-page image. NOTE: when intentionally updating
+      // the baseline, delete the affected files under __screenshots__/
+      // before re-running --update-snapshots — Playwright only rewrites a
+      // snapshot that differs from the stored one by MORE than this
+      // threshold, so a small-but-real content change (e.g. one status
+      // badge changing) can silently fail to update an existing baseline
+      // otherwise.
+      maxDiffPixelRatio: 0.005,
       animations: "disabled",
     },
   },

@@ -1,7 +1,7 @@
 ---
 id: tester-request-submission
 title: Tester submits a Request; Agent sees it in their queue
-status: in-progress
+status: done
 depends_on: [fleet-management]
 labels: [backend, frontend, requests]
 ---

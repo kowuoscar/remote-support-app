@@ -30,6 +30,11 @@ services:
       DB_URL: jdbc:postgresql://postgres:5432/remote_support
       DB_USERNAME: remote_support
       DB_PASSWORD: remote_support
+      # JWT_SECRET intentionally unset: application.yml's dev-only default is fine for
+      # local manual testing. Set it here if you need tokens stable across rebuilds.
+      # Carrier invoice uploads (CARRIER_INVOICES_DIR) live on the container's writable
+      # layer, not a volume, so they don't survive a rebuild — matches this compose
+      # file's "quick manual testing" scope; add a bind mount if that becomes a problem.
     ports:
       - "8080:8080"
     depends_on:

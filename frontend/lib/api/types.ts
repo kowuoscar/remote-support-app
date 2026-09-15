@@ -119,10 +119,31 @@ export type RequestTypeValue =
   | "PROVISION_SIM"
   | "REPAIR";
 
-// Mirrors backend/.../domain/RequestStatus.java. Only SUBMITTED is ever produced by the
-// tester-request-submission ticket — the rest exist so agent-request-fulfillment's status
-// transitions don't need a new label added to this map.
+// Mirrors backend/.../domain/RequestStatus.java.
 export type RequestStatusValue = "SUBMITTED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+
+/**
+ * Mirrors backend/.../domain/RequestStatus.java#canTransitionTo — the single forward-progress
+ * step an Agent can take next (agent-request-fulfillment ticket AC: "Agent can move a Request
+ * from Submitted to In Progress, and from In Progress to Completed"), or `null` once terminal.
+ * Cancelling is a separate action (needs a reason), not part of this forward path.
+ */
+export function nextRequestStatus(current: RequestStatusValue): RequestStatusValue | null {
+  switch (current) {
+    case "SUBMITTED":
+      return "IN_PROGRESS";
+    case "IN_PROGRESS":
+      return "COMPLETED";
+    case "COMPLETED":
+    case "CANCELLED":
+      return null;
+  }
+}
+
+/** Whether a Request in this status can still be cancelled (mirrors RequestStatus#canTransitionTo). */
+export function canCancelRequest(current: RequestStatusValue): boolean {
+  return current === "SUBMITTED" || current === "IN_PROGRESS";
+}
 
 export const REQUEST_TYPE_LABEL: Record<RequestTypeValue, string> = {
   REBOOT: "Reboot",
@@ -148,5 +169,21 @@ export interface RequestListItem {
   status: RequestStatusValue;
   raisedByTesterId: string;
   raisedByUsername: string;
+  // agent-request-fulfillment ticket: whether an Agent logged this Request proactively, on a
+  // Tester's behalf, rather than the Tester submitting it themselves — and, when so, who actually
+  // logged it (the Agent's own username, distinct from raisedByUsername, the Tester it's for).
+  agentAuthored: boolean;
+  loggedByUsername: string;
+  cancellationReason: string | null;
   createdAt: string;
+}
+
+// Mirrors backend/.../dto/TesterResponse.java, as returned by GET /api/contracts/{id}/testers
+// (agent-request-fulfillment ticket) — the picker an Agent uses to name whose behalf a
+// proactively-logged Request is raised on.
+export interface ContractTesterListItem {
+  id: string;
+  clientId: string;
+  username: string;
+  isPrimaryContact: boolean;
 }

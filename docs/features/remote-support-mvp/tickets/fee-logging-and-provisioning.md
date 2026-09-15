@@ -1,7 +1,7 @@
 ---
 id: fee-logging-and-provisioning
 title: Agent logs Fees traced to Requests; provisioning updates the Fleet
-status: in-progress
+status: done
 depends_on: [agent-request-fulfillment]
 labels: [backend, frontend, fees, fleet]
 ---

@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.remotesupport.backend.domain.Fee;
 import com.remotesupport.backend.repository.FeeRepository;
 import com.remotesupport.backend.support.IntegrationTest;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.UUID;
@@ -331,6 +332,272 @@ class ClientInvoiceApiTest extends IntegrationTest {
             multipart("/api/contracts/" + contractId + "/client-invoice/files")
                 .file(new MockMultipartFile("file", "invoice.pdf", "application/pdf", "x".getBytes()))
                 .header("Authorization", "Bearer " + testerToken))
+        .andExpect(status().isForbidden());
+  }
+
+  // --- AC: send transition, snapshot correctness, editability lock -----------------------------
+
+  @Test
+  void agentSendsADraftClientInvoiceMovingItToSent() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Solene Cosmetics");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"))
+        .andExpect(jsonPath("$.sentAt").isNotEmpty());
+  }
+
+  @Test
+  void sendingAClientInvoiceThatIsAlreadySentIsRejected() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Kessler & Vance LLP");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  void aManagerCannotSendAClientInvoiceOnlyTheContractsOwnAgentCan() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Bright Path Clinics");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + managerToken));
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void anAgentOnADifferentContractCannotSendItsClientInvoice() throws Exception {
+    String managerToken = managerToken();
+    UUID otherClient = createClient(managerToken, "Meridian Logistics");
+    UUID otherAgentId =
+        createAgent(managerToken, "Priya Nair", com.remotesupport.backend.domain.Country.PHILIPPINES);
+    UUID otherContract = createContract(managerToken, otherClient, otherAgentId);
+    mockMvc.perform(get("/api/contracts/" + otherContract + "/client-invoice").header("Authorization", "Bearer " + managerToken));
+
+    mockMvc
+        .perform(
+            post("/api/contracts/" + otherContract + "/client-invoice/send")
+                .header("Authorization", "Bearer " + agentToken()))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void aSentClientInvoiceCanNoLongerAcceptNewCarrierInvoiceFiles() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Harbor & Finch Realty");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(
+            multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                .file(new MockMultipartFile("file", "late-invoice.pdf", "application/pdf", "late".getBytes()))
+                .header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  void sendingSnapshotsTheTotalSoALaterFeeNeverChangesTheSentInvoice() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Aurora Retail Group");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
+    String agentToken = agentToken();
+
+    addSimCard(managerToken, contractId, "+1-555-0199", "POSTPAID", "25.00");
+    UUID topupRequestId = submitRequest(testerToken, contractId, "TOPUP");
+    logFee(agentToken, contractId, topupRequestId, "TOPUP", "45.00");
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.baseAmount").value(25.00))
+        .andExpect(jsonPath("$.totalAmount").value(70.00))
+        .andExpect(jsonPath("$.feeLines.length()").value(1));
+
+    // A Fee logged against this same Contract/month *after* sending must never change the sent
+    // invoice's already-frozen numbers — the whole point of the snapshot-on-send decision
+    // (ClientInvoice's Javadoc / CONTEXT.md).
+    UUID repairRequestId = submitRequest(testerToken, contractId, "REPAIR");
+    logFee(agentToken, contractId, repairRequestId, "REPAIR", "999.00");
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"))
+        .andExpect(jsonPath("$.baseAmount").value(25.00))
+        .andExpect(jsonPath("$.totalAmount").value(70.00))
+        .andExpect(jsonPath("$.feeLines.length()").value(1));
+
+    // A subsequently-retired Postpaid SIM must not move the already-frozen base amount either.
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + testerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.baseAmount").value(25.00))
+        .andExpect(jsonPath("$.totalAmount").value(70.00));
+  }
+
+  // --- AC: Tester visibility gated on non-draft status ------------------------------------------
+
+  @Test
+  void aTesterCanViewASentClientInvoiceReadOnly() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Meridian Logistics");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example", "Passw0rd!23");
+    String agentToken = agentToken();
+
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + testerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"));
+  }
+
+  @Test
+  void aTesterFromADifferentClientCannotViewASentClientInvoice() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Solene Cosmetics");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    UUID otherClientId = createClient(managerToken, "Meridian Logistics");
+    String otherTesterToken =
+        createTesterAndLogin(managerToken, otherClientId, "priya.raman@meridian.example", "Passw0rd!23");
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + otherTesterToken))
+        .andExpect(status().isForbidden());
+  }
+
+  // --- AC: on-demand PDF ---------------------------------------------------------------------
+
+  @Test
+  void aTesterGeneratesAPdfOfASentClientInvoiceReflectingTheSnapshot() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Kessler & Vance LLP");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "charlotte.finch@kesslervance.example", "Passw0rd!23");
+    String agentToken = agentToken();
+
+    addSimCard(managerToken, contractId, "+1-555-0177", "POSTPAID", "30.00");
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    MvcResult pdfResult =
+        mockMvc
+            .perform(
+                get("/api/contracts/" + contractId + "/client-invoice/pdf").header("Authorization", "Bearer " + testerToken))
+            .andExpect(status().isOk())
+            .andExpect(header().string("Content-Type", "application/pdf"))
+            .andReturn();
+
+    byte[] pdfBytes = pdfResult.getResponse().getContentAsByteArray();
+    assertThat(new String(pdfBytes, 0, 5, StandardCharsets.US_ASCII)).isEqualTo("%PDF-");
+    assertThat(pdfBytes.length).isGreaterThan(100);
+  }
+
+  @Test
+  void generatingAPdfForAStillDraftClientInvoiceIsRejected() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Bright Path Clinics");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+
+    mockMvc
+        .perform(
+            get("/api/contracts/" + contractId + "/client-invoice/pdf").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isConflict());
+  }
+
+  // --- AC: Manager review and approval ----------------------------------------------------------
+
+  @Test
+  void managerApprovesASentClientInvoice() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Harbor & Finch Realty");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/approve").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("APPROVED"))
+        .andExpect(jsonPath("$.approvedAt").isNotEmpty());
+  }
+
+  @Test
+  void managerCannotApproveAClientInvoiceStillInDraft() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Aurora Retail Group");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + managerToken));
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/approve").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isConflict());
+  }
+
+  @Test
+  void anAgentCannotApproveAClientInvoiceOnlyAManagerCan() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Meridian Logistics");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/approve").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isForbidden());
   }
 }

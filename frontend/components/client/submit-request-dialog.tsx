@@ -1,30 +1,71 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import type { ContractOption } from "@/components/ui/contract-switcher";
-import type { RequestType } from "@/lib/demo/types";
+import { REQUEST_TYPE_LABEL, type RequestTypeValue } from "@/lib/api/types";
 
-const requestTypes: RequestType[] = [
-  "Reboot",
-  "Topup",
-  "SIM Swap",
-  "Provision Smartphone",
-  "Provision SIM",
-  "Repair",
+const requestTypes: RequestTypeValue[] = [
+  "REBOOT",
+  "TOPUP",
+  "SIM_SWAP",
+  "PROVISION_SMARTPHONE",
+  "PROVISION_SIM",
+  "REPAIR",
 ];
 
+/**
+ * Tester Request submission (tester-request-submission ticket AC: "Tester can submit a Request
+ * ... against one of their Client's Contracts"). A dialog, not an inline form: matches the
+ * established pattern for every other "add a thing" action in this app (Add client, Add
+ * smartphone, Add contract — fleet-management/manager-entity-setup tickets), and a Request
+ * submission is exactly that shape — a few required fields, no protected background task to
+ * interrupt.
+ */
 export function SubmitRequestDialog({ contracts }: { contracts: ContractOption[] }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const router = useRouter();
   const [submitted, setSubmitted] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState(false);
 
   function open() {
     setSubmitted(false);
+    setError(false);
     dialogRef.current?.showModal();
   }
 
   function close() {
     dialogRef.current?.close();
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const contractId = String(formData.get("contractId"));
+    const type = String(formData.get("type"));
+
+    setPending(true);
+    setError(false);
+    try {
+      const response = await fetch(`/api/contracts/${contractId}/requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type }),
+      });
+      if (!response.ok) {
+        setError(true);
+        setPending(false);
+        return;
+      }
+      setSubmitted(true);
+      setPending(false);
+      router.refresh();
+    } catch {
+      setError(true);
+      setPending(false);
+    }
   }
 
   return (
@@ -62,13 +103,7 @@ export function SubmitRequestDialog({ contracts }: { contracts: ContractOption[]
             </Button>
           </div>
         ) : (
-          <form
-            className="flex flex-col gap-4 p-6"
-            onSubmit={(event) => {
-              event.preventDefault();
-              setSubmitted(true);
-            }}
-          >
+          <form className="flex flex-col gap-4 p-6" onSubmit={handleSubmit}>
             <div>
               <h2 className="text-base font-semibold text-ink">Submit a Request</h2>
               <p className="text-[13px] text-ink-mute">
@@ -79,6 +114,7 @@ export function SubmitRequestDialog({ contracts }: { contracts: ContractOption[]
             <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
               Contract
               <select
+                name="contractId"
                 required
                 defaultValue={contracts[0]?.id}
                 className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
@@ -94,33 +130,29 @@ export function SubmitRequestDialog({ contracts }: { contracts: ContractOption[]
             <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
               Request type
               <select
+                name="type"
                 required
                 defaultValue={requestTypes[0]}
                 className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
               >
                 {requestTypes.map((type) => (
                   <option key={type} value={type}>
-                    {type}
+                    {REQUEST_TYPE_LABEL[type]}
                   </option>
                 ))}
               </select>
             </label>
 
-            <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-              Note (optional)
-              <textarea
-                rows={3}
-                placeholder="Anything your Agent should know before they start…"
-                className="resize-none rounded-lg border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink placeholder:text-ink-mute focus-visible:border-primary"
-              />
-            </label>
+            {error ? (
+              <p className="text-[13px] text-danger">Couldn&rsquo;t submit the Request. Try again.</p>
+            ) : null}
 
             <div className="flex justify-end gap-2 pt-1">
               <Button type="button" variant="secondary" onClick={close}>
                 Cancel
               </Button>
-              <Button type="submit" variant="primary">
-                Submit Request
+              <Button type="submit" variant="primary" loading={pending}>
+                {pending ? "Submitting…" : "Submit Request"}
               </Button>
             </div>
           </form>

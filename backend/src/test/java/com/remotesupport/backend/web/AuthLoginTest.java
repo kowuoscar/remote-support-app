@@ -36,6 +36,34 @@ class AuthLoginTest extends IntegrationTest {
   }
 
   @Test
+  void loginWithSeededAgentCredentialsReturnsAgentRole() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {"username":"agent@example.com","password":"AgentDemo123!"}
+                    """))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.role").value("AGENT"));
+  }
+
+  @Test
+  void loginWithSeededTesterCredentialsReturnsTesterRole() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {"username":"tester@example.com","password":"TesterDemo123!"}
+                    """))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.role").value("TESTER"));
+  }
+
+  @Test
   void loginWithInvalidCredentialsIsRejected() throws Exception {
     mockMvc
         .perform(

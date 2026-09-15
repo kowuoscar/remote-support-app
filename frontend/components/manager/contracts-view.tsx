@@ -4,10 +4,27 @@ import { useMemo, useState } from "react";
 import { SearchInput } from "@/components/ui/search-input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
-import { IconSearch } from "@/components/icons";
-import type { Contract } from "@/lib/demo/types";
+import { IconContracts, IconSearch } from "@/components/icons";
+import { CreateContractDialog } from "@/components/manager/create-contract-dialog";
+import type { AgentListItem, ClientListItem } from "@/lib/api/types";
 
-export function ManagerContractsView({ contracts }: { contracts: Contract[] }) {
+export interface ContractRow {
+  id: string;
+  clientName: string;
+  agentName: string;
+  country: string;
+  currency: string;
+}
+
+export function ManagerContractsView({
+  contracts,
+  clients,
+  agents,
+}: {
+  contracts: ContractRow[];
+  clients: ClientListItem[];
+  agents: AgentListItem[];
+}) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -23,14 +40,23 @@ export function ManagerContractsView({ contracts }: { contracts: Contract[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <SearchInput value={query} onChange={setQuery} placeholder="Search client, agent or country…" />
-        <span className="shrink-0 text-[13px] text-ink-mute">
-          {filtered.length} of {contracts.length}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="shrink-0 text-[13px] text-ink-mute">
+            {filtered.length} of {contracts.length}
+          </span>
+          <CreateContractDialog clients={clients} agents={agents} />
+        </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {contracts.length === 0 ? (
+        <EmptyState
+          icon={<IconContracts className="h-5 w-5" />}
+          title="No contracts yet"
+          description="Add a contract to link one client to one agent — its currency is copied from the agent automatically."
+        />
+      ) : filtered.length === 0 ? (
         <EmptyState
           icon={<IconSearch className="h-5 w-5" />}
           title={`No contracts match “${query}”`}

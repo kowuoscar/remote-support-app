@@ -1,7 +1,7 @@
 ---
 id: backend-bootstrap
 title: Bootstrap the Spring Boot API, tenant-scoped schema and JWT auth
-status: in-progress
+status: done
 depends_on: []
 labels: [backend, infra]
 ---

@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
 
 interface Surface {
   slug: "manager" | "agent" | "client";
@@ -19,6 +20,18 @@ const breakpoints = [
 const themes = ["light", "dark"] as const;
 
 async function gotoAndSettle(page: Page, path: string) {
+  // The three surfaces sit behind middleware.ts's session-cookie gate (auth-login-flow). This
+  // suite renders demo data with no backend running at all (see playwright.config.ts), so it
+  // sets a placeholder session cookie directly rather than driving a real login — middleware
+  // only checks the cookie's *presence*, never its validity (the backend is the real authority
+  // on that, exercised separately by tests/e2e/login.spec.ts against a live backend).
+  await page.context().addCookies([
+    {
+      name: SESSION_COOKIE_NAME,
+      value: "visual-regression-placeholder-session",
+      url: "http://127.0.0.1:4173",
+    },
+  ]);
   await page.goto(path);
   // Dashboards demonstrate the Operate-mode skeleton-loading convention;
   // wait for the real content to land before capturing.

@@ -23,11 +23,18 @@ import lombok.Setter;
  * provenance directly queryable (fee-logging-and-provisioning ticket cares whether a Request was
  * proactive) without joining back through {@code raisedByUser} to its role.
  *
- * <p>Deliberately has no reference to a specific Smartphone/SIM Card yet. A Repair or SIM Swap
- * will eventually need one (fee-logging-and-provisioning ticket: "retiring the unit it
- * replaces"), but which Fleet table it points to is ambiguous today (Smartphone vs. SIM Card) and
- * no acceptance criterion here needs it — a nullable FK is trivial for that ticket to add later,
- * so it isn't guessed at now.
+ * <p>{@code replacesSmartphoneId}/{@code replacesSimCardId} (fee-logging-and-provisioning ticket):
+ * which existing Fleet unit, if any, this Request retires when it completes. Only ever set for a
+ * {@code PROVISION_SMARTPHONE}/{@code PROVISION_SIM} Request respectively, and only when the Agent
+ * named a unit being replaced — null for a first-time provisioning with nothing to retire. Plain
+ * {@code UUID} columns rather than a {@code @ManyToOne} to {@link Smartphone}/{@link SimCard}: a
+ * Request never needs to navigate to the replaced unit as an object, only to know its id (the
+ * provisioning side-effect looks the row up directly by id + Contract, exactly like every other
+ * Fleet-status write), so the extra association mapping would buy nothing. The database still
+ * enforces referential integrity via a foreign key (V10 migration). Modeled as two nullable
+ * columns rather than one polymorphic reference: a Request's {@code type} already disambiguates
+ * which one (if either) can be set, so a single "kind + id" column would only add a second field
+ * to keep in sync for no real savings.
  */
 @Entity
 @Table(name = "requests")
@@ -67,6 +74,12 @@ public class Request {
 
   @Column(name = "cancellation_reason")
   private String cancellationReason;
+
+  @Column(name = "replaces_smartphone_id")
+  private UUID replacesSmartphoneId;
+
+  @Column(name = "replaces_sim_card_id")
+  private UUID replacesSimCardId;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;

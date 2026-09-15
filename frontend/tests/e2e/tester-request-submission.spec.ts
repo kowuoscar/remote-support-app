@@ -83,7 +83,11 @@ async function submitRequest(page: Page, requestTypeLabel: string) {
   await page.getByRole("button", { name: "Close" }).click();
 }
 
-const RUN_ID = Date.now();
+// Date.now() alone can collide across spec files: Playwright's collection phase can
+// import several spec files within the same millisecond, and more than one file in this
+// suite picks the same literal client name (e.g. "Aurora Retail Group") for its first
+// test, so an exact RUN_ID match produces a real duplicate row, not just a slow test.
+const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 const REQUEST_TYPE_LABELS = [
   "Reboot",
   "Topup",

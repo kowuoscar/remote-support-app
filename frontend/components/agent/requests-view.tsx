@@ -10,12 +10,15 @@ import { formatRelativeAge } from "@/lib/format";
 import { requestStatusToneByValue } from "@/lib/status";
 import { RequestStatusControl } from "@/components/agent/request-status-control";
 import { LogRequestDialog } from "@/components/agent/log-request-dialog";
+import { LogFeeDialog } from "@/components/agent/log-fee-dialog";
 import {
   REQUEST_STATUS_LABEL,
   REQUEST_TYPE_LABEL,
   type ContractTesterListItem,
   type RequestListItem,
   type RequestStatusValue,
+  type SimCardListItem,
+  type SmartphoneListItem,
 } from "@/lib/api/types";
 
 const statusFilters: (RequestStatusValue | "All")[] = [
@@ -38,13 +41,20 @@ export function AgentRequestsView({
   requests,
   contracts,
   testersByContract,
+  smartphonesByContract = {},
+  simCardsByContract = {},
 }: {
   requests: RequestListItem[];
   contracts: ContractOption[];
   testersByContract: Record<string, ContractTesterListItem[]>;
+  smartphonesByContract?: Record<string, SmartphoneListItem[]>;
+  simCardsByContract?: Record<string, SimCardListItem[]>;
 }) {
   const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
   const [status, setStatus] = useState<RequestStatusValue | "All">("All");
+  const currency = contracts.find((c) => c.id === contractId)?.currency ?? "";
+  const activeSmartphones = (smartphonesByContract[contractId] ?? []).filter((p) => p.status === "ACTIVE");
+  const activeSimCards = (simCardsByContract[contractId] ?? []).filter((s) => s.status === "ACTIVE");
 
   const filtered = useMemo(() => {
     return requests
@@ -90,7 +100,14 @@ export function AgentRequestsView({
           </div>
         </div>
         {contractId ? (
-          <LogRequestDialog contractId={contractId} testers={testersByContract[contractId] ?? []} />
+          <div className="flex items-center gap-2">
+            <LogRequestDialog contractId={contractId} testers={testersByContract[contractId] ?? []} />
+            <LogFeeDialog
+              contractId={contractId}
+              currency={currency}
+              testers={testersByContract[contractId] ?? []}
+            />
+          </div>
         ) : null}
       </div>
 
@@ -142,6 +159,10 @@ export function AgentRequestsView({
                       contractId={request.contractId}
                       requestId={request.id}
                       status={request.status}
+                      type={request.type}
+                      currency={currency}
+                      activeSmartphones={activeSmartphones}
+                      activeSimCards={activeSimCards}
                     />
                   </Td>
                 </Tr>

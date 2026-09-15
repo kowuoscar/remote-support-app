@@ -45,7 +45,7 @@ A Request the Agent logs directly, on a Tester's behalf, rather than one the Tes
 _Avoid_: Ad-hoc, walk-in.
 
 **Fee**:
-A billable line item an Agent logs against a Contract, always tracing back to the Request that caused it. A reboot or a like-for-like SIM swap never produces a Fee; a topup, a provisioning, or a repair does.
+A billable line item an Agent logs against a Contract, always tracing back to the Request that caused it — enforced as a non-nullable foreign key, not just a service-layer rule, so there is no code path that creates one without a Request. A reboot or a like-for-like SIM swap never produces a Fee; a topup, a provisioning, or a repair does. Its `feeType` mirrors that same four-way subset of Request types (`FeeType`, deliberately narrower than the six-value `RequestType`, so a Reboot/SIM-Swap Fee can't even be constructed). A SIM swap that really did require provisioning a new physical SIM is not modeled as a Fee attached to the SIM Swap Request itself — it is logged as its own Provision SIM Fee (proactive if no Provision SIM Request already exists), alongside the original swap. Currency is always copied from its Contract at creation (the Agent never picks a different one). Carries an explicit `billingMonth` (the first day of the month, set from `createdAt` at creation time) rather than one derived from `createdAt` at query time — the stored column keeps "this Contract's Fees for month X" a plain equality filter for `client-invoice-generation`'s monthly aggregation, and is the column a future backdating feature (an Agent attributing a Fee logged a few days into a month to the prior month's invoice) would use, without a schema change.
 _Avoid_: Charge, cost.
 
 **Client Invoice**:

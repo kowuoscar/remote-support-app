@@ -1,5 +1,6 @@
 package com.remotesupport.backend.logging;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +79,50 @@ public final class AuditLog {
         contractId,
         requestType,
         startingStatus,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * An Agent logging a Fee against a Request (fee-logging-and-provisioning ticket Observability:
+   * "Fee-logged ... events logged with Contract, Request id, amount, actor").
+   */
+  public static void feeLogged(
+      UUID feeId,
+      UUID contractId,
+      UUID requestId,
+      String feeType,
+      BigDecimal amount,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action=FEE_LOGGED entity=Fee entityId={} contractId={} requestId={} feeType={} "
+            + "amount={} actorUserId={} tenantId={}",
+        feeId,
+        contractId,
+        requestId,
+        feeType,
+        amount,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A new Smartphone/SIM Card added to a Contract's Fleet as the side-effect of completing a
+   * Provision Request (fee-logging-and-provisioning ticket Observability: "Fleet-item-provisioned
+   * ... events logged with Contract, Request id ... actor"). Distinct from {@link #created} so a
+   * log scan can tell a Manager's direct Fleet addition from one that happened as a byproduct of
+   * fulfilling a Request.
+   */
+  public static void fleetItemProvisioned(
+      String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=FLEET_ITEM_PROVISIONED entity={} entityId={} contractId={} requestId={} "
+            + "actorUserId={} tenantId={}",
+        entity,
+        entityId,
+        contractId,
+        requestId,
         actorUserId,
         tenantId);
   }

@@ -21,7 +21,11 @@ async function login(page: import("@playwright/test").Page, username: string, pa
 
 // A unique suffix per run so re-runs against a persistent dev database (reuseExistingServer)
 // don't collide on the primary-contact-per-client constraint or a repeated username.
-const RUN_ID = Date.now();
+// Date.now() alone can collide across spec files: Playwright's collection phase can
+// import several spec files within the same millisecond, and more than one file in this
+// suite picks the same literal client name (e.g. "Aurora Retail Group") for its first
+// test, so an exact RUN_ID match produces a real duplicate row, not just a slow test.
+const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 
 test.describe("manager entity setup", () => {
   test("manager creates a client, an agent and a contract, and sees them listed", async ({

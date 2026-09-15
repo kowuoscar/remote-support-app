@@ -6,6 +6,8 @@ import {
   type ContractListItem,
   type ContractTesterListItem,
   type RequestListItem,
+  type SimCardListItem,
+  type SmartphoneListItem,
 } from "@/lib/api/types";
 
 export const metadata = { title: "Requests" };
@@ -26,22 +28,41 @@ export default async function AgentRequestsPage() {
   ]);
   const me = meResponse.ok ? ((await meResponse.json()) as { username?: string }) : {};
 
-  const [requestsByContract, testersByContractArrays] = await Promise.all([
-    Promise.all(
-      contracts.map((contract) =>
-        backendFetchList<RequestListItem>(`/api/contracts/${contract.id}/requests`),
+  const [requestsByContract, testersByContractArrays, smartphonesByContractArrays, simCardsByContractArrays] =
+    await Promise.all([
+      Promise.all(
+        contracts.map((contract) =>
+          backendFetchList<RequestListItem>(`/api/contracts/${contract.id}/requests`),
+        ),
       ),
-    ),
-    Promise.all(
-      contracts.map((contract) =>
-        backendFetchList<ContractTesterListItem>(`/api/contracts/${contract.id}/testers`),
+      Promise.all(
+        contracts.map((contract) =>
+          backendFetchList<ContractTesterListItem>(`/api/contracts/${contract.id}/testers`),
+        ),
       ),
-    ),
-  ]);
+      // fee-logging-and-provisioning ticket: completing a Provision Smartphone/SIM Request lets
+      // the Agent optionally name an existing unit it retires — fetched up front alongside
+      // Testers so RequestStatusControl's completion form can offer it as a picker with no
+      // additional round-trip.
+      Promise.all(
+        contracts.map((contract) =>
+          backendFetchList<SmartphoneListItem>(`/api/contracts/${contract.id}/smartphones`),
+        ),
+      ),
+      Promise.all(
+        contracts.map((contract) =>
+          backendFetchList<SimCardListItem>(`/api/contracts/${contract.id}/sim-cards`),
+        ),
+      ),
+    ]);
 
   const testersByContract: Record<string, ContractTesterListItem[]> = {};
+  const smartphonesByContract: Record<string, SmartphoneListItem[]> = {};
+  const simCardsByContract: Record<string, SimCardListItem[]> = {};
   contracts.forEach((contract, index) => {
     testersByContract[contract.id] = testersByContractArrays[index];
+    smartphonesByContract[contract.id] = smartphonesByContractArrays[index];
+    simCardsByContract[contract.id] = simCardsByContractArrays[index];
   });
 
   return (
@@ -59,6 +80,8 @@ export default async function AgentRequestsPage() {
           currency: c.currency,
         }))}
         testersByContract={testersByContract}
+        smartphonesByContract={smartphonesByContract}
+        simCardsByContract={simCardsByContract}
       />
     </SurfacePage>
   );

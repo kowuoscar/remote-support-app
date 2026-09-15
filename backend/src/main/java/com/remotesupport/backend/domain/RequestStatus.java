@@ -12,5 +12,20 @@ public enum RequestStatus {
   SUBMITTED,
   IN_PROGRESS,
   COMPLETED,
-  CANCELLED
+  CANCELLED;
+
+  /**
+   * Whether moving from this status directly to {@code target} is a valid Request transition
+   * (agent-request-fulfillment ticket AC: "Agent can move a Request from Submitted to In
+   * Progress, and from In Progress to Completed" / "Agent can cancel a Request"). {@code
+   * COMPLETED} and {@code CANCELLED} are both terminal — mirrors {@code SmartphoneStatus}'s
+   * {@code RETIRED}.
+   */
+  public boolean canTransitionTo(RequestStatus target) {
+    return switch (this) {
+      case SUBMITTED -> target == IN_PROGRESS || target == CANCELLED;
+      case IN_PROGRESS -> target == COMPLETED || target == CANCELLED;
+      case COMPLETED, CANCELLED -> false;
+    };
+  }
 }

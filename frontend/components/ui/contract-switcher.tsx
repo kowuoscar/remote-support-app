@@ -8,6 +8,7 @@ export interface ContractOption {
   id: string;
   label: string;
   meta?: string;
+  currency?: string;
 }
 
 /**

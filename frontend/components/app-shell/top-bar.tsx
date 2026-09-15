@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { LogoutButton } from "@/components/app-shell/logout-button";
 import { MobileNavToggle } from "@/components/app-shell/mobile-nav-toggle";
 import { IconChevronRight } from "@/components/icons";
 
@@ -31,6 +32,7 @@ export function TopBar({
         <span className="hidden items-center gap-1 rounded-full border border-hairline bg-canvas-soft px-3 py-1 text-[12px] text-ink-mute sm:inline-flex">
           {viewerLabel}
         </span>
+        <LogoutButton />
         <ThemeToggle />
       </div>
     </header>

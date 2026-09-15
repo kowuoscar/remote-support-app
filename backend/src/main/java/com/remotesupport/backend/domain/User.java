@@ -14,7 +14,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/** A login belonging to exactly one {@link Tenant}, with exactly one {@link Role}. */
+/**
+ * A login belonging to exactly one {@link Tenant}, with exactly one {@link Role}.
+ *
+ * <p>{@code agent} links an {@code AGENT}-role User to the {@link Agent} record it corresponds
+ * to, the same shape {@link Tester} already uses the other way around ({@code testers.user_id}).
+ * It exists because an Agent, unlike a Tester, is created standalone by the Manager before any
+ * login exists for it (fleet-management ticket prefactor) — nullable, and only ever populated
+ * for {@code AGENT}-role rows.
+ */
 @Entity
 @Table(name = "users")
 @Getter
@@ -37,6 +45,10 @@ public class User {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private Role role;
+
+  @ManyToOne(optional = true)
+  @JoinColumn(name = "agent_id")
+  private Agent agent;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;

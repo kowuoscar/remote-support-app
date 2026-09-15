@@ -9,14 +9,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.remotesupport.backend.dto.ClientCreateRequest;
 import com.remotesupport.backend.dto.TesterCreateRequest;
 import com.remotesupport.backend.support.IntegrationTest;
+import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.web.servlet.MvcResult;
 
 /**
  * Tester creation and listing, nested under a Client (manager-entity-setup ticket): a Tester is
@@ -25,24 +23,10 @@ import org.springframework.test.web.servlet.MvcResult;
  */
 class TesterApiTest extends IntegrationTest {
 
-  private String createClient(String managerToken, String name) throws Exception {
-    MvcResult result =
-        mockMvc
-            .perform(
-                post("/api/clients")
-                    .header("Authorization", "Bearer " + managerToken)
-                    .contentType(APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(new ClientCreateRequest(name))))
-            .andExpect(status().isCreated())
-            .andReturn();
-    JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
-    return body.get("id").asText();
-  }
-
   @Test
   void managerCanCreateAndListTestersUnderAClient() throws Exception {
     String token = managerToken();
-    String clientId = createClient(token, "Meridian Logistics");
+    UUID clientId = createClient(token, "Meridian Logistics");
 
     mockMvc
         .perform(
@@ -66,7 +50,7 @@ class TesterApiTest extends IntegrationTest {
   @Test
   void aSecondPrimaryContactForTheSameClientIsRejected() throws Exception {
     String token = managerToken();
-    String clientId = createClient(token, "Kessler & Vance LLP");
+    UUID clientId = createClient(token, "Kessler & Vance LLP");
 
     mockMvc.perform(
         post("/api/clients/" + clientId + "/testers")
@@ -105,7 +89,7 @@ class TesterApiTest extends IntegrationTest {
   @Test
   void agentAndTesterCannotCreateOrListTesters() throws Exception {
     String managerToken = managerToken();
-    String clientId = createClient(managerToken, "Aurora Retail Group");
+    UUID clientId = createClient(managerToken, "Aurora Retail Group");
 
     for (String token : new String[] {agentToken(), testerToken()}) {
       mockMvc
@@ -135,7 +119,7 @@ class TesterApiTest extends IntegrationTest {
 
     try {
       String token = managerToken();
-      String clientId = createClient(token, "Bright Path Clinics");
+      UUID clientId = createClient(token, "Bright Path Clinics");
 
       mockMvc.perform(
           post("/api/clients/" + clientId + "/testers")

@@ -10,16 +10,12 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.remotesupport.backend.domain.Country;
-import com.remotesupport.backend.dto.AgentCreateRequest;
-import com.remotesupport.backend.dto.ClientCreateRequest;
 import com.remotesupport.backend.dto.ContractCreateRequest;
 import com.remotesupport.backend.support.IntegrationTest;
-import java.math.BigDecimal;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.web.servlet.MvcResult;
 
 /**
  * Contract creation and listing (manager-entity-setup ticket): a Contract links exactly one
@@ -28,34 +24,6 @@ import org.springframework.test.web.servlet.MvcResult;
  * may an Agent.
  */
 class ContractApiTest extends IntegrationTest {
-
-  private UUID createClient(String token, String name) throws Exception {
-    MvcResult result =
-        mockMvc
-            .perform(
-                post("/api/clients")
-                    .header("Authorization", "Bearer " + token)
-                    .contentType(APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(new ClientCreateRequest(name))))
-            .andExpect(status().isCreated())
-            .andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
-  }
-
-  private UUID createAgent(String token, String name, Country country) throws Exception {
-    MvcResult result =
-        mockMvc
-            .perform(
-                post("/api/agents")
-                    .header("Authorization", "Bearer " + token)
-                    .contentType(APPLICATION_JSON)
-                    .content(
-                        objectMapper.writeValueAsString(
-                            new AgentCreateRequest(name, country, new BigDecimal("2000.00")))))
-            .andExpect(status().isCreated())
-            .andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
-  }
 
   @Test
   void managerCanCreateAContractWithCurrencyCopiedFromTheAgent() throws Exception {
@@ -146,7 +114,7 @@ class ContractApiTest extends IntegrationTest {
   }
 
   @Test
-  void agentAndTesterCannotCreateOrListContracts() throws Exception {
+  void agentAndTesterCannotCreateContracts() throws Exception {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Harbor & Finch Realty");
     UUID agentId = createAgent(managerToken, "Owen Whitfield", Country.UNITED_KINGDOM);
@@ -160,11 +128,66 @@ class ContractApiTest extends IntegrationTest {
                   .content(
                       objectMapper.writeValueAsString(new ContractCreateRequest(clientId, agentId))))
           .andExpect(status().isForbidden());
-
-      mockMvc
-          .perform(get("/api/contracts").header("Authorization", "Bearer " + token))
-          .andExpect(status().isForbidden());
     }
+  }
+
+  /**
+   * fleet-management ticket: an Agent needs to see their own Contracts to switch between them
+   * when viewing Fleet, but never another Agent's (spec.md Access control: "every actor sees
+   * only their own Contracts").
+   */
+  @Test
+  void anAgentSeesOnlyTheirOwnContractsWhenListing() throws Exception {
+    String managerToken = managerToken();
+    UUID ownClient = createClient(managerToken, "Aurora Retail Group");
+    UUID otherClient = createClient(managerToken, "Meridian Logistics");
+    UUID otherAgent = createAgent(managerToken, "Someone Else", Country.SPAIN);
+
+    createContract(managerToken, ownClient, SEEDED_AGENT_ID);
+    createContract(managerToken, otherClient, otherAgent);
+
+    mockMvc
+        .perform(get("/api/contracts").header("Authorization", "Bearer " + agentToken()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].clientId").value(ownClient.toString()))
+        .andExpect(jsonPath("$[0].agentId").value(SEEDED_AGENT_ID.toString()));
+  }
+
+  /** Same as above, for a Tester and their Client's Contracts. */
+  @Test
+  void aTesterSeesOnlyTheirOwnClientsContractsWhenListing() throws Exception {
+    String managerToken = managerToken();
+    UUID ownClient = createClient(managerToken, "Kessler & Vance LLP");
+    UUID otherClient = createClient(managerToken, "Bright Path Clinics");
+    UUID agentId = createAgent(managerToken, "Priya Nair", Country.PHILIPPINES);
+
+    createContract(managerToken, ownClient, agentId);
+    createContract(managerToken, otherClient, agentId);
+
+    String testerToken =
+        createTesterAndLogin(managerToken, ownClient, "helena.voss@kessler.example", "Passw0rd!23");
+
+    mockMvc
+        .perform(get("/api/contracts").header("Authorization", "Bearer " + testerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].clientId").value(ownClient.toString()));
+  }
+
+  @Test
+  void anUnlinkedAgentOrTesterSeesNoContracts() throws Exception {
+    // The seeded tester@example.com login has no Tester row (no Client link); the seeded
+    // agent@example.com resolves to a real Agent (V5) but that Agent holds no Contracts yet.
+    mockMvc
+        .perform(get("/api/contracts").header("Authorization", "Bearer " + agentToken()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(0));
+
+    mockMvc
+        .perform(get("/api/contracts").header("Authorization", "Bearer " + testerToken()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(0));
   }
 
   @Test

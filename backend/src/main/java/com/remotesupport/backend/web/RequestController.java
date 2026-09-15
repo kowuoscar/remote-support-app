@@ -55,6 +55,7 @@ public class RequestController {
   private final UserRepository userRepository;
   private final FleetAccessGuard fleetAccessGuard;
   private final RequestAccessGuard requestAccessGuard;
+  private final ProvisioningService provisioningService;
 
   public RequestController(
       ContractRepository contractRepository,
@@ -62,13 +63,15 @@ public class RequestController {
       TesterRepository testerRepository,
       UserRepository userRepository,
       FleetAccessGuard fleetAccessGuard,
-      RequestAccessGuard requestAccessGuard) {
+      RequestAccessGuard requestAccessGuard,
+      ProvisioningService provisioningService) {
     this.contractRepository = contractRepository;
     this.requestRepository = requestRepository;
     this.testerRepository = testerRepository;
     this.userRepository = userRepository;
     this.fleetAccessGuard = fleetAccessGuard;
     this.requestAccessGuard = requestAccessGuard;
+    this.provisioningService = provisioningService;
   }
 
   @PostMapping
@@ -161,6 +164,16 @@ public class RequestController {
     request.setRaisedByUser(raisedByUser);
     request.setAgentAuthored(true);
     request.setStatus(startingStatus);
+
+    provisioningService.applyIfNeeded(
+        contract,
+        request,
+        requestBody.newSmartphone(),
+        requestBody.newSimCard(),
+        requestBody.replacesSmartphoneId(),
+        requestBody.replacesSimCardId(),
+        principal);
+
     requestRepository.save(request);
 
     AuditLog.requestLoggedByAgent(
@@ -211,6 +224,16 @@ public class RequestController {
     }
 
     request.setStatus(newStatus);
+
+    provisioningService.applyIfNeeded(
+        contract,
+        request,
+        requestBody.newSmartphone(),
+        requestBody.newSimCard(),
+        requestBody.replacesSmartphoneId(),
+        requestBody.replacesSimCardId(),
+        principal);
+
     requestRepository.save(request);
 
     AuditLog.statusChanged(

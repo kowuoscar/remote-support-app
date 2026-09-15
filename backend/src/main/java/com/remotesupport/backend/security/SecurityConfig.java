@@ -94,6 +94,16 @@ public class SecurityConfig {
                     // FleetAccessGuard in ContractTestersController, same shape as Fleet/Requests.
                     .requestMatchers(HttpMethod.GET, "/api/contracts/*/testers")
                     .authenticated()
+                    // fee-logging-and-provisioning ticket: only the Contract's own Agent (or a
+                    // Manager) may log a Fee (spec.md Access control: "Agent: full CRUD on ...
+                    // Fees ... within their own Contracts"); Contract ownership itself is
+                    // enforced in FeeController/RequestAccessGuard, same shape as Requests above.
+                    // Viewing stays open to any authenticated role at the matcher level, scoped
+                    // per-Contract like everything else nested under one.
+                    .requestMatchers(HttpMethod.POST, "/api/contracts/*/fees")
+                    .hasAnyRole("MANAGER", "AGENT")
+                    .requestMatchers("/api/contracts/*/fees/**")
+                    .authenticated()
                     // Manager-only entity setup (manager-entity-setup ticket): Client, Tester
                     // (nested under /api/clients/{id}/testers), Agent and Contract creation and
                     // listing are all Manager-only; an Agent or Tester request is rejected 403.

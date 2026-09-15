@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { SearchInput } from "@/components/ui/search-input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
-import { IconSearch } from "@/components/icons";
+import { IconClients, IconSearch } from "@/components/icons";
+import { CreateClientDialog } from "@/components/manager/create-client-dialog";
 
 export interface ClientRow {
   id: string;
@@ -26,14 +28,23 @@ export function ManagerClientsView({ clients }: { clients: ClientRow[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <SearchInput value={query} onChange={setQuery} placeholder="Search clients or contacts…" />
-        <span className="shrink-0 text-[13px] text-ink-mute">
-          {filtered.length} of {clients.length}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="shrink-0 text-[13px] text-ink-mute">
+            {filtered.length} of {clients.length}
+          </span>
+          <CreateClientDialog />
+        </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {clients.length === 0 ? (
+        <EmptyState
+          icon={<IconClients className="h-5 w-5" />}
+          title="No clients yet"
+          description="Add your first client to start supporting a new customer — Testers and Contracts hang off it once it exists."
+        />
+      ) : filtered.length === 0 ? (
         <EmptyState
           icon={<IconSearch className="h-5 w-5" />}
           title={`No clients match “${query}”`}
@@ -52,7 +63,14 @@ export function ManagerClientsView({ clients }: { clients: ClientRow[] }) {
             <Tbody>
               {filtered.map((client) => (
                 <Tr key={client.id}>
-                  <Td className="font-medium text-ink">{client.name}</Td>
+                  <Td className="font-medium text-ink">
+                    <Link
+                      href={`/manager/clients/${client.id}`}
+                      className="hover:text-primary hover:underline"
+                    >
+                      {client.name}
+                    </Link>
+                  </Td>
                   <Td className="text-ink-secondary">{client.primaryContact}</Td>
                   <Td className="tnum text-right text-ink-secondary">{client.contractCount}</Td>
                 </Tr>

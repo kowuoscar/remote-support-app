@@ -20,6 +20,10 @@ _Avoid_: Customer, account.
 An individual user belonging to a Client, with their own login, who submits task requests and views the fleet assigned to them.
 _Avoid_: End user, client user.
 
+**Primary Contact**:
+A single Tester per Client, flagged by the Manager as the one to reach for account-level questions. A visible designation, not an extra permission — every Tester at a Client still sees all of that Client's data. Modeled as a boolean flag on Tester (`isPrimaryContact`), enforced to at most one per Client, rather than a separate `primaryContactId` on Client — the flag lives on the entity the designation is actually about.
+_Avoid_: Admin, owner.
+
 **Contract**:
 The billing and operational relationship between one Client and one Agent. A Client can hold several Contracts (e.g. one per country/Agent); an Agent can hold several Contracts (typically with different Clients in their own country). Each Contract owns its own Fleet.
 _Avoid_: Engagement, account.

@@ -56,6 +56,20 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers("/api/health", "/api/auth/login", "/actuator/health")
                     .permitAll()
+                    // Spring Boot's ErrorPageFilter forwards a sendError() (e.g. AccessDeniedHandler's
+                    // 403) to /error as an internal dispatch. On a real servlet container (unlike
+                    // MockMvc, which never exercises this) that forward re-runs this filter chain,
+                    // but JwtAuthenticationFilter doesn't re-authenticate it, so an unguarded
+                    // `.anyRequest().authenticated()` would deny the anonymous /error request and
+                    // silently clobber the original 403 into a misleading 401. /error must be
+                    // permitAll so the real status (set before the forward) is the one that ships.
+                    .requestMatchers("/error")
+                    .permitAll()
+                    // Manager-only entity setup (manager-entity-setup ticket): Client, Tester
+                    // (nested under /api/clients/{id}/testers), Agent and Contract creation and
+                    // listing are all Manager-only; an Agent or Tester request is rejected 403.
+                    .requestMatchers("/api/clients/**", "/api/agents/**", "/api/contracts/**")
+                    .hasRole("MANAGER")
                     .anyRequest()
                     .authenticated())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

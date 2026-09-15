@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-15T01:39:36Z",
+  "title": "Design System: Remote Support Operate Console",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Electric Indigo",
+        "canonical": "#533afd",
+        "tonalRamp": ["#1b1052", "#2c1c85", "#3a24bd", "#4730e0", "#533afd", "#7c6bfd", "#a89dfe", "#d6ceff"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Deep Navy Ink",
+        "canonical": "#0b1220",
+        "tonalRamp": ["#0b1220", "#1a2438", "#2b3550", "#45506a", "#5c6b8e", "#8390af", "#b7bfd1", "#e6e9f2"]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Near-White Canvas",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#0a0d14", "#10141e", "#141926", "#171d2b", "#e3e6ee", "#f6f7fb", "#fbfcfe", "#ffffff"]
+      },
+      "success": { "role": "semantic-success", "displayName": "Signal Green", "canonical": "#0f7a53", "tonalRamp": ["#063622", "#0b5a3d", "#0f7a53", "#189866", "#35c290", "#7fdcb6", "#c3f0dd", "#e4f5ed"] },
+      "warning": { "role": "semantic-warning", "displayName": "Signal Amber", "canonical": "#9a5b0a", "tonalRamp": ["#3f2404", "#6a3c07", "#9a5b0a", "#c17812", "#e3a33e", "#efc180", "#f8e0bc", "#fbf0dc"] },
+      "danger": { "role": "semantic-danger", "displayName": "Signal Red", "canonical": "#c22a3e", "tonalRamp": ["#4a0f18", "#7a1826", "#a5202f", "#c22a3e", "#e05064", "#f16b7a", "#f8a5ae", "#fceaed"] },
+      "info": { "role": "semantic-info", "displayName": "Signal Blue", "canonical": "#2f5fd6", "tonalRamp": ["#122252", "#1c3585", "#2447ab", "#2f5fd6", "#5f83e5", "#6f9bff", "#aec4fb", "#eaf0fd"] }
+    },
+    "typographyMeta": {
+      "stat": { "displayName": "Stat Number", "purpose": "Single primary number per stat card, indigo when it's the card's headline metric, tabular figures always." },
+      "title": { "displayName": "Page Title", "purpose": "Top-bar page heading only." },
+      "label": { "displayName": "Label / Caption", "purpose": "Stat-card labels, table column headers, badges." }
+    },
+    "shadows": [
+      { "name": "elevated", "value": "0 12px 32px rgba(13, 22, 41, 0.14), 0 2px 8px rgba(13, 22, 41, 0.06)", "purpose": "Dialogs and open dropdown/listbox panels (light theme)." },
+      { "name": "elevated-dark", "value": "0 12px 32px rgba(0, 0, 0, 0.48), 0 2px 8px rgba(0, 0, 0, 0.24)", "purpose": "Dialogs and open dropdown/listbox panels (dark theme)." },
+      { "name": "elevated-strong", "value": "0 20px 48px rgba(13, 22, 41, 0.22), 0 4px 12px rgba(13, 22, 41, 0.08)", "purpose": "Reserved higher-emphasis overlay token; defined but not yet exercised beyond Panel." }
+    ],
+    "motion": [
+      { "name": "rail-slide", "value": "transform 200ms ease-out", "purpose": "Off-canvas nav drawer slide-in/out below md." },
+      { "name": "state-transition", "value": "color/background-color 150ms (Tailwind default transition-colors)", "purpose": "Hover/active state changes on buttons, nav items, table rows." },
+      { "name": "reduced-motion", "value": "animation-duration/transition-duration: 0.01ms !important under prefers-reduced-motion: reduce", "purpose": "Global reduced-motion override." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single pill-shaped primary commit action per screen (Approve, Send Invoice, Submit Request).",
+      "html": "<button class=\"ds-btn-primary\">Approve</button>",
+      "css": ".ds-btn-primary { background: #533afd; color: #ffffff; border: none; border-radius: 9999px; height: 36px; padding: 0 16px; font-size: 14px; font-weight: 500; font-family: InterVariable, ui-sans-serif, system-ui, sans-serif; transition: background-color 150ms; } .ds-btn-primary:hover { background: #4730e0; } .ds-btn-primary:active { background: #3a24bd; } .ds-btn-primary:focus-visible { outline: 2px solid #533afd; outline-offset: 2px; } .ds-btn-primary:disabled { background: rgba(83,58,253,0.4); cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Default non-primary commit action; hairline border, 8px radius.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary { background: #ffffff; color: #0b1220; border: 1px solid #d1d6e2; border-radius: 8px; height: 36px; padding: 0 16px; font-size: 14px; font-weight: 500; font-family: InterVariable, ui-sans-serif, system-ui, sans-serif; transition: background-color 150ms; } .ds-btn-secondary:hover { background: #f6f7fb; } .ds-btn-secondary:focus-visible { outline: 2px solid #533afd; outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Pill-shaped tone badge with leading dot; tone driven by centralized status maps, six semantic tones.",
+      "html": "<span class=\"ds-badge ds-badge-success\"><span class=\"ds-badge-dot\"></span>Approved</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; border-radius: 9999px; padding: 2px 10px; font-size: 12px; font-weight: 500; line-height: 20px; font-family: InterVariable, ui-sans-serif, system-ui, sans-serif; } .ds-badge-success { background: #e4f5ed; color: #0f7a53; } .ds-badge-dot { width: 6px; height: 6px; border-radius: 9999px; background: #0f7a53; }"
+    },
+    {
+      "name": "Stat Card",
+      "kind": "card",
+      "refersTo": "stat-card",
+      "description": "Dashboard-only hero metric card; primary number in indigo with tabular figures, the deliberate exception to the hero-metric-template ban elsewhere.",
+      "html": "<div class=\"ds-stat-card\"><span class=\"ds-stat-label\">Pending approvals</span><span class=\"ds-stat-value\">12</span><span class=\"ds-stat-meta\">Oldest 6 days</span></div>",
+      "css": ".ds-stat-card { display: flex; flex-direction: column; gap: 8px; padding: 20px; border: 1px solid #e3e6ee; border-radius: 12px; background: #ffffff; font-family: InterVariable, ui-sans-serif, system-ui, sans-serif; } .ds-stat-label { font-size: 13px; font-weight: 500; color: #5c6b8e; } .ds-stat-value { font-size: 28px; font-weight: 600; line-height: 1.15; color: #533afd; font-variant-numeric: tabular-nums; } .ds-stat-meta { font-size: 13px; color: #5c6b8e; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat hairline-bordered surface at rest, no shadow.",
+      "html": "<div class=\"ds-card\">Content</div>",
+      "css": ".ds-card { border-radius: 12px; border: 1px solid #e3e6ee; background: #ffffff; }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "8px-radius text input with leading inline SVG search icon; border shifts to primary on focus.",
+      "html": "<div class=\"ds-search\"><svg class=\"ds-search-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"M21 21l-4.35-4.35\"/></svg><input class=\"ds-search-input\" type=\"text\" placeholder=\"Search\"/></div>",
+      "css": ".ds-search { position: relative; width: 100%; max-width: 320px; } .ds-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #8390af; pointer-events: none; } .ds-search-input { height: 36px; width: 100%; border-radius: 8px; border: 1px solid #d1d6e2; background: #ffffff; padding: 0 12px 0 36px; font-size: 14px; color: #0b1220; font-family: InterVariable, ui-sans-serif, system-ui, sans-serif; } .ds-search-input:focus-visible { outline: none; border-color: #533afd; } .ds-search-input::placeholder { color: #5c6b8e; }"
+    },
+    {
+      "name": "Nav Rail Item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Left-rail navigation row; active state uses the soft-indigo tone on icon and label, matching selection language app-wide.",
+      "html": "<a class=\"ds-nav-item ds-nav-item-active\" href=\"#\" aria-current=\"page\"><svg class=\"ds-nav-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"3.5\" y=\"3.5\" width=\"7.5\" height=\"7.5\" rx=\"1.5\"/><rect x=\"13\" y=\"3.5\" width=\"7.5\" height=\"4.5\" rx=\"1.5\"/></svg>Dashboard</a>",
+      "css": ".ds-nav-item { display: flex; align-items: center; gap: 10px; border-radius: 8px; padding: 8px 12px; font-size: 14px; font-weight: 500; font-family: InterVariable, ui-sans-serif, system-ui, sans-serif; color: #45506a; text-decoration: none; transition: background-color 150ms, color 150ms; } .ds-nav-item:hover { background: #f6f7fb; color: #0b1220; } .ds-nav-item-active { background: #edebff; color: #4730e0; } .ds-nav-icon { width: 18px; height: 18px; flex-shrink: 0; }"
+    },
+    {
+      "name": "Contract Switcher",
+      "kind": "custom",
+      "refersTo": "contract-switcher",
+      "description": "Signature component: a dropdown (never a tab) scoping Requests/Fleet/Invoices to one Contract at a time; open panel matches the elevated overlay + soft-indigo selection language.",
+      "html": "<div class=\"ds-switcher\"><button class=\"ds-switcher-trigger\" aria-haspopup=\"listbox\">Acme Corp — Contract A<svg class=\"ds-switcher-chevron\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M6 9l6 6 6-6\"/></svg></button></div>",
+      "css": ".ds-switcher-trigger { display: inline-flex; min-width: 220px; align-items: center; justify-content: space-between; gap: 8px; border-radius: 8px; border: 1px solid #d1d6e2; background: #ffffff; padding: 8px 12px; font-size: 14px; color: #0b1220; font-family: InterVariable, ui-sans-serif, system-ui, sans-serif; } .ds-switcher-trigger:hover { background: #f6f7fb; } .ds-switcher-chevron { width: 16px; height: 16px; color: #5c6b8e; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Financial Control Room",
+    "overview": "This is an internal, invoice-heavy Operate tool for three roles (Manager, Agent, Client Tester) sharing one tenant. Its visual world is code-led and pinned against Stripe's console register, adapted — not copied — into a Restrained internal-tool key: Stripe's own marketing gradient-mesh and editorial color range never shipped here; what carried over is the discipline of a near-white canvas, deep-navy ink, one electric-indigo accent held in reserve, and hairline-bordered flat surfaces that let numbers and status do the talking. All three surfaces (Manager Console, Agent Console, Client Portal) share one shell, one component vocabulary and one token set; only navigation items and page composition differ per role, per each surface's direction contract.\n\nThe system refuses the generic entity-list-of-lists admin template and the marketing-style welcome dashboard. Each surface leads with money and status (pending approvals, billed/payout totals, open Requests, invoice state) ahead of raw CRUD tables. Dashboard stat cards are a deliberate, brief-earned exception to an hero-metric-template ban elsewhere in the system — confined to the dashboard, not proliferated onto every page.",
+    "keyCharacteristics": [
+      "Near-white / near-black canvas with deep-navy ink; one electric-indigo accent (#533afd light / #6c5cec dark) reserved for primary stat numbers, current selection and primary actions.",
+      "Flat hairline-bordered surfaces at rest; soft shadow appears only on elevated overlays (dialogs, dropdown panels).",
+      "Self-hosted Inter variable font end to end; tabular figures on every monetary and numeric value via the .tnum utility.",
+      "Compact 8px-radius controls everywhere; true pill shape reserved for the single primary commit action per screen (Approve, Send Invoice, Submit Request).",
+      "One shared left rail (240px, off-canvas drawer below md) and top bar across all three surfaces; only the nav item list and page content vary by role.",
+      "Custom stroke-based SVG icon set (24px grid, 1.75 stroke, round caps) — no icon fonts, no emoji."
+    ],
+    "rules": [
+      { "name": "The Reserved Indigo Rule", "body": "Indigo appears in exactly three roles per screen — the primary stat number, current selection/active nav, and the one pill-shaped primary action — never as a decorative fill, header rule, or secondary accent. Its rarity is the point of the \"financial control room\" register.", "section": "colors" },
+      { "name": "The Two-Border-Tokens Rule", "body": "Every border in the system draws from hairline or hairline-strong only; no ad hoc border colors.", "section": "colors" },
+      { "name": "The Tabular Everywhere Rule", "body": "Every monetary or numeric value (Money, stat-card values) carries font-variant-numeric: tabular-nums via the shared .tnum utility — no exceptions, so columns of numbers always align.", "section": "typography" },
+      { "name": "The Flat-At-Rest Rule", "body": "Surfaces are flat (hairline border only) at rest. Shadow is reserved for the overlay z-layer, never applied to inline cards or table rows.", "section": "elevation" },
+      { "name": "The Pill-Is-Primary Rule", "body": "Full-pill radius signals \"the one primary action on this screen\" (or a status badge). Any other control — including a \"row\" action styled with the soft-indigo tone — stays at the 8px control radius. A screen with two pill buttons is a defect, not a variant.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do reserve indigo for exactly the primary stat number, current selection, and the one pill primary-action per screen.",
+      "Do apply .tnum tabular figures to every monetary and numeric display value.",
+      "Do use the 8px control radius for every button, input, and row element except the single primary pill action.",
+      "Do keep the nav rail width, item styling, and active-state treatment identical across Manager, Agent and Client surfaces — only the item list changes per role.",
+      "Do use a dropdown, never a tab set, when a screen needs Contract-scoping (Agent, Client with multiple Contracts).",
+      "Do keep shadow confined to the overlay layer (dialogs, open dropdown panels); cards and table rows stay flat."
+    ],
+    "donts": [
+      "Don't apply shadow to inline cards, stat cards, or table rows — shadow signals \"elevated/temporary,\" not \"static content.\"",
+      "Don't add a second pill-shaped control to a screen that already has a primary action.",
+      "Don't introduce a border color outside the hairline/hairline-strong tokens.",
+      "Don't use icon fonts, emoji, or a second icon library alongside the custom stroke-based SVG set.",
+      "Don't surface a draft invoice to the Client Portal — invoice visibility rules are a product constraint the visual system must respect, not a styling choice to route around."
+    ]
+  }
+}

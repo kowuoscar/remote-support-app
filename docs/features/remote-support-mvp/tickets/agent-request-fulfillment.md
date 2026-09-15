@@ -1,7 +1,7 @@
 ---
 id: agent-request-fulfillment
 title: Agent progresses a Request and logs proactive Requests
-status: ready-for-agent
+status: in-progress
 depends_on: [tester-request-submission]
 labels: [backend, frontend, requests]
 ---

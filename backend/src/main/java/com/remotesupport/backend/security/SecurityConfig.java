@@ -104,6 +104,18 @@ public class SecurityConfig {
                     .hasAnyRole("MANAGER", "AGENT")
                     .requestMatchers("/api/contracts/*/fees/**")
                     .authenticated()
+                    // client-invoice-generation ticket: a draft Client Invoice must stay
+                    // invisible to a Tester entirely (AC: "A Tester should NOT be able to see a
+                    // draft Client Invoice at all") — unlike Fleet/Requests/Fees above, this
+                    // route is Manager/Agent-only at the matcher level itself, not just in
+                    // ClientInvoiceAccessGuard, since there's no "sent" state yet for a Tester to
+                    // ever legitimately reach. client-invoice-submission-and-visibility is the
+                    // ticket that opens Tester read access once the invoice is sent, and will
+                    // need to loosen this matcher to do so. Per-Contract ownership itself is
+                    // enforced in ClientInvoiceController/ClientInvoiceAccessGuard, same shape as
+                    // every other Contract-scoped resource.
+                    .requestMatchers("/api/contracts/*/client-invoice/**")
+                    .hasAnyRole("MANAGER", "AGENT")
                     // Manager-only entity setup (manager-entity-setup ticket): Client, Tester
                     // (nested under /api/clients/{id}/testers), Agent and Contract creation and
                     // listing are all Manager-only; an Agent or Tester request is rejected 403.

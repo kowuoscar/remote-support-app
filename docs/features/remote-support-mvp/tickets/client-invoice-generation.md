@@ -1,7 +1,7 @@
 ---
 id: client-invoice-generation
 title: Agent builds a Contract's draft Client Invoice for the month
-status: in-progress
+status: done
 depends_on: [fee-logging-and-provisioning]
 labels: [backend, frontend, invoicing]
 ---

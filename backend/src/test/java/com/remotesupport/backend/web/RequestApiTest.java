@@ -588,13 +588,16 @@ class RequestApiTest extends IntegrationTest {
       String agentToken = agentToken();
       UUID testerId = findTesterId(agentToken, contractId, "charlotte.finch@harborfinch.example");
 
+      // fee-logging-and-provisioning ticket: completing a Provision SIM Request — even
+      // immediately, via an Agent-proactive creation — requires the new unit's details.
       mockMvc.perform(
           post("/api/contracts/" + contractId + "/requests")
               .header("Authorization", "Bearer " + agentToken)
               .contentType(APPLICATION_JSON)
               .content(
                   """
-                  {"type":"PROVISION_SIM","testerId":"%s","startingStatus":"COMPLETED"}
+                  {"type":"PROVISION_SIM","testerId":"%s","startingStatus":"COMPLETED",
+                   "newSimCard":{"number":"+1-555-0177","flavor":"PREPAID"}}
                   """
                       .formatted(testerId)));
 

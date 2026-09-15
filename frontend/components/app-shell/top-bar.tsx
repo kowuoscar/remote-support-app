@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { MobileNavToggle } from "@/components/app-shell/mobile-nav-toggle";
 import { IconChevronRight } from "@/components/icons";
 
 export function TopBar({
@@ -15,12 +16,15 @@ export function TopBar({
   viewerLabel: string;
 }) {
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-hairline px-6">
-      <div className="min-w-0">
-        <h1 className="truncate text-[15px] font-semibold text-ink">{title}</h1>
-        {subtitle ? (
-          <p className="truncate text-[12px] text-ink-mute">{subtitle}</p>
-        ) : null}
+    <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-hairline px-4 sm:px-6">
+      <div className="flex min-w-0 items-center gap-1">
+        <MobileNavToggle />
+        <div className="min-w-0">
+          <h1 className="truncate text-[15px] font-semibold text-ink">{title}</h1>
+          {subtitle ? (
+            <p className="truncate text-[12px] text-ink-mute">{subtitle}</p>
+          ) : null}
+        </div>
       </div>
       <div className="flex shrink-0 items-center gap-3">
         {actions}

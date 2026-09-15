@@ -25,9 +25,11 @@ export default function ClientDashboardPage() {
     (r) => r.status === "Submitted" || r.status === "In Progress",
   );
 
+  // A Client Invoice is visible to Testers only once the Agent has sent it —
+  // drafts never appear here, matching the Invoices list.
   const latestByContract = clientContracts.map((contract) => {
     const invoicesForContract = clientInvoices
-      .filter((inv) => inv.contractId === contract.id)
+      .filter((inv) => inv.contractId === contract.id && inv.status !== "draft")
       .sort((a, b) => b.month.localeCompare(a.month));
     return { contract, latest: invoicesForContract[0] };
   });

@@ -56,6 +56,11 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers("/api/health", "/api/auth/login", "/actuator/health")
                     .permitAll()
+                    // Manager-only entity setup (manager-entity-setup ticket): Client, Tester
+                    // (nested under /api/clients/{id}/testers), Agent and Contract creation and
+                    // listing are all Manager-only; an Agent or Tester request is rejected 403.
+                    .requestMatchers("/api/clients/**", "/api/agents/**", "/api/contracts/**")
+                    .hasRole("MANAGER")
                     .anyRequest()
                     .authenticated())
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

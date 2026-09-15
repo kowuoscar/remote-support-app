@@ -187,3 +187,34 @@ export interface ContractTesterListItem {
   username: string;
   isPrimaryContact: boolean;
 }
+
+// Mirrors backend/.../domain/FeeType.java — the four RequestTypeValues that can carry a Fee
+// (fee-logging-and-provisioning ticket). A Reboot or a like-for-like SIM Swap is never one of
+// these; a swap that really needed a new physical SIM is logged as PROVISION_SIM instead.
+export type FeeTypeValue = "TOPUP" | "PROVISION_SMARTPHONE" | "PROVISION_SIM" | "REPAIR";
+
+export const FEE_TYPE_LABEL: Record<FeeTypeValue, string> = {
+  TOPUP: "Topup",
+  PROVISION_SMARTPHONE: "Provision Smartphone",
+  PROVISION_SIM: "Provision SIM",
+  REPAIR: "Repair",
+};
+
+/** Mirrors backend/.../domain/FeeType.java#requestTypeCanCarryFee. */
+export function requestTypeCanCarryFee(type: RequestTypeValue): type is FeeTypeValue {
+  return type === "TOPUP" || type === "PROVISION_SMARTPHONE" || type === "PROVISION_SIM" || type === "REPAIR";
+}
+
+// Mirrors backend/.../dto/FeeResponse.java
+export interface FeeListItem {
+  id: string;
+  contractId: string;
+  requestId: string;
+  requestType: RequestTypeValue;
+  feeType: FeeTypeValue;
+  amount: number;
+  currency: string;
+  description: string | null;
+  billingMonth: string;
+  createdAt: string;
+}

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:visual": "playwright test",
-    "test:visual:update": "playwright test --update-snapshots"
+    "test:visual:update": "playwright test --update-snapshots",
+    "test:e2e": "playwright test --config=playwright.e2e.config.ts"
   },
   "dependencies": {
     "next": "16.3.5",

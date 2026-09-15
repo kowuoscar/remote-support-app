@@ -131,9 +131,21 @@ public class SecurityConfig {
                     // as every other Contract-scoped resource's per-request ownership check.
                     .requestMatchers("/api/contracts/*/client-invoice/**")
                     .authenticated()
+                    // agent-standing-amounts-and-invoice-generation ticket: an Agent needs to
+                    // view/build their own Agent Invoice (spec.md Access control: "Manager: ...
+                    // approves both invoice types" / "Agent: ... authors ... their own Agent
+                    // Invoice"), which doesn't fit the Manager-only /api/agents/** rule below.
+                    // Ownership of this specific Agent is enforced in
+                    // AgentInvoiceController/AgentInvoiceAccessGuard, same shape as Client
+                    // Invoice above. Must precede the broader Manager-only matcher so it wins.
+                    .requestMatchers("/api/agents/*/invoice")
+                    .authenticated()
                     // Manager-only entity setup (manager-entity-setup ticket): Client, Tester
                     // (nested under /api/clients/{id}/testers), Agent and Contract creation and
                     // listing are all Manager-only; an Agent or Tester request is rejected 403.
+                    // This also covers /api/agents/{id}/standing-amounts (Manager-only, ticket
+                    // AC: "Standing-amount changes are Manager-only") since it isn't matched
+                    // above.
                     .requestMatchers("/api/clients/**", "/api/agents/**", "/api/contracts/**")
                     .hasRole("MANAGER")
                     .anyRequest()

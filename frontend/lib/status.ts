@@ -7,6 +7,7 @@ import type {
   SmartphoneStatus,
 } from "@/lib/demo/types";
 import type {
+  AgentInvoiceStatusValue as RealAgentInvoiceStatusValue,
   ClientInvoiceStatusValue,
   RequestStatusValue,
   SimCardStatusValue,
@@ -93,4 +94,22 @@ export const agentInvoiceStatusLabel: Record<AgentInvoiceStatus, string> = {
   sent: "Awaiting approval",
   approved: "Approved",
   paid: "Paid",
+};
+
+// Same tones/labels as agentInvoiceStatusTone/agentInvoiceStatusLabel above, keyed by the real
+// backend enum value instead of the demo data's lowercase label
+// (agent-standing-amounts-and-invoice-generation ticket: the real Agent Invoice view consumes
+// AgentInvoiceDetail, not demo/types) — mirrors clientInvoiceStatusToneByValue's precedent.
+export const agentInvoiceStatusToneByValue: Record<RealAgentInvoiceStatusValue, Tone> = {
+  DRAFT: "neutral",
+  SENT: "warning",
+  APPROVED: "info",
+  PAID: "success",
+};
+
+export const agentInvoiceStatusLabelByValue: Record<RealAgentInvoiceStatusValue, string> = {
+  DRAFT: "Draft",
+  SENT: "Awaiting approval",
+  APPROVED: "Approved",
+  PAID: "Paid",
 };

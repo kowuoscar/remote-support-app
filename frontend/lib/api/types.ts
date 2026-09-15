@@ -259,3 +259,45 @@ export interface ClientInvoiceDetail {
   sentAt: string | null;
   approvedAt: string | null;
 }
+
+// Mirrors backend/.../domain/StandingAmountType.java
+export type StandingAmountTypeValue = "SALARY" | "ROLLOUT_ADVANCE";
+
+// Mirrors backend/.../domain/AgentInvoiceStatus.java. DRAFT is the only value this ticket
+// (agent-standing-amounts-and-invoice-generation) ever writes — SENT/APPROVED/PAID are declared
+// now so agent-invoice-submission-and-approval doesn't need a frontend type change either.
+export type AgentInvoiceStatusValue = "DRAFT" | "SENT" | "APPROVED" | "PAID";
+
+// Mirrors backend/.../dto/AgentInvoiceResponse.java. Every line is computed live by the backend
+// on every fetch (this ticket only ever writes DRAFT, so there's nothing frozen to serve yet,
+// unlike ClientInvoiceDetail). rolloutAdvanceRepayment is negative-or-zero,
+// rolloutAdvanceNewAdvance is positive-or-zero; totalAmount sums all four lines.
+export interface AgentInvoiceDetail {
+  id: string;
+  agentId: string;
+  billingMonth: string;
+  status: AgentInvoiceStatusValue;
+  currency: string;
+  localSupportFees: number;
+  salary: number;
+  rolloutAdvanceRepayment: number;
+  rolloutAdvanceNewAdvance: number;
+  totalAmount: number;
+}
+
+// Mirrors backend/.../dto/AgentStandingAmountsResponse.java — the salary/Rollout Advance amounts
+// currently in effect for an Agent (i.e. resolved for the calendar month in progress).
+export interface AgentStandingAmounts {
+  salaryAmount: number;
+  rolloutAdvanceAmount: number;
+}
+
+// Mirrors backend/.../dto/AgentStandingAmountResponse.java — confirms what a Manager's standing-
+// amount update scheduled, and from which month it takes effect.
+export interface AgentStandingAmountChange {
+  id: string;
+  agentId: string;
+  amountType: StandingAmountTypeValue;
+  amount: number;
+  effectiveMonth: string;
+}

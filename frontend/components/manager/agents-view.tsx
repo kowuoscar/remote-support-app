@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { SearchInput } from "@/components/ui/search-input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
@@ -64,7 +65,11 @@ export function ManagerAgentsView({ agents }: { agents: AgentRow[] }) {
             <Tbody>
               {filtered.map((agent) => (
                 <Tr key={agent.id}>
-                  <Td className="font-medium text-ink">{agent.name}</Td>
+                  <Td className="font-medium text-ink">
+                    <Link href={`/manager/agents/${agent.id}`} className="hover:text-primary hover:underline">
+                      {agent.name}
+                    </Link>
+                  </Td>
                   <Td className="text-ink-secondary">{agent.country}</Td>
                   <Td className="tnum text-ink-secondary">{agent.currency}</Td>
                   <Td className="tnum text-right text-ink-secondary">{agent.contractCount}</Td>

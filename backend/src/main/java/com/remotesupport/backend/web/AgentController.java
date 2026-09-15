@@ -1,6 +1,7 @@
 package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.Agent;
+import com.remotesupport.backend.domain.StandingAmountType;
 import com.remotesupport.backend.dto.AgentCreateRequest;
 import com.remotesupport.backend.dto.AgentResponse;
 import com.remotesupport.backend.logging.AuditLog;
@@ -10,6 +11,8 @@ import com.remotesupport.backend.repository.TenantRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import jakarta.validation.Valid;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -32,14 +35,17 @@ public class AgentController {
   private final AgentRepository agentRepository;
   private final ContractRepository contractRepository;
   private final TenantRepository tenantRepository;
+  private final StandingAmountService standingAmountService;
 
   public AgentController(
       AgentRepository agentRepository,
       ContractRepository contractRepository,
-      TenantRepository tenantRepository) {
+      TenantRepository tenantRepository,
+      StandingAmountService standingAmountService) {
     this.agentRepository = agentRepository;
     this.contractRepository = contractRepository;
     this.tenantRepository = tenantRepository;
+    this.standingAmountService = standingAmountService;
   }
 
   @PostMapping
@@ -55,6 +61,18 @@ public class AgentController {
     agent.setSalaryAmount(request.salaryAmount());
     agent.setCreatedAt(Instant.now());
     agentRepository.save(agent);
+
+    // The salary supplied at creation is this Agent's initial standing salary, effective
+    // immediately (the calendar month it was created in) — writes the same StandingAmountType.
+    // SALARY history AgentStandingAmountController's updates append to, so
+    // AgentInvoiceController's resolution never needs a special-cased fallback (see
+    // AgentStandingAmount's Javadoc).
+    standingAmountService.record(
+        agent,
+        StandingAmountType.SALARY,
+        agent.getSalaryAmount(),
+        LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1),
+        principal.userId());
 
     AuditLog.created("Agent", agent.getId(), principal.userId(), principal.tenantId());
 

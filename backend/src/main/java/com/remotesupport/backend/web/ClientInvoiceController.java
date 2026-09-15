@@ -6,9 +6,6 @@ import com.remotesupport.backend.domain.ClientInvoiceFeeSnapshot;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Fee;
-import com.remotesupport.backend.domain.SimCard;
-import com.remotesupport.backend.domain.SimCardFlavor;
-import com.remotesupport.backend.domain.SimCardStatus;
 import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
 import com.remotesupport.backend.dto.FeeResponse;
@@ -18,7 +15,6 @@ import com.remotesupport.backend.repository.ClientInvoiceFeeSnapshotRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.FeeRepository;
-import com.remotesupport.backend.repository.SimCardRepository;
 import com.remotesupport.backend.security.ClientInvoiceAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import java.io.IOException;
@@ -63,7 +59,7 @@ import org.springframework.web.multipart.MultipartFile;
  * see {@link #createDraft}.
  *
  * <p><b>Live while DRAFT, frozen from SENT onward.</b> While {@code DRAFT}, the base amount and
- * Fee lines are computed fresh from {@link SimCardRepository}/{@link FeeRepository} on every
+ * Fee lines are computed fresh via {@link ContractAmountService} on every
  * {@code GET} (client-invoice-generation ticket, unchanged by this one — the Regression this
  * ticket must not break). {@link #send} snapshots both the moment the Agent sends: {@code
  * ClientInvoice#snapshotBaseAmount} and the Fee-line membership into {@link
@@ -78,8 +74,8 @@ public class ClientInvoiceController {
 
   private final ContractRepository contractRepository;
   private final ClientInvoiceRepository clientInvoiceRepository;
-  private final SimCardRepository simCardRepository;
   private final FeeRepository feeRepository;
+  private final ContractAmountService contractAmountService;
   private final CarrierInvoiceFileRepository carrierInvoiceFileRepository;
   private final ClientInvoiceFeeSnapshotRepository clientInvoiceFeeSnapshotRepository;
   private final ClientInvoiceAccessGuard clientInvoiceAccessGuard;
@@ -89,8 +85,8 @@ public class ClientInvoiceController {
   public ClientInvoiceController(
       ContractRepository contractRepository,
       ClientInvoiceRepository clientInvoiceRepository,
-      SimCardRepository simCardRepository,
       FeeRepository feeRepository,
+      ContractAmountService contractAmountService,
       CarrierInvoiceFileRepository carrierInvoiceFileRepository,
       ClientInvoiceFeeSnapshotRepository clientInvoiceFeeSnapshotRepository,
       ClientInvoiceAccessGuard clientInvoiceAccessGuard,
@@ -98,8 +94,8 @@ public class ClientInvoiceController {
       ClientInvoicePdfRenderer pdfRenderer) {
     this.contractRepository = contractRepository;
     this.clientInvoiceRepository = clientInvoiceRepository;
-    this.simCardRepository = simCardRepository;
     this.feeRepository = feeRepository;
+    this.contractAmountService = contractAmountService;
     this.carrierInvoiceFileRepository = carrierInvoiceFileRepository;
     this.clientInvoiceFeeSnapshotRepository = clientInvoiceFeeSnapshotRepository;
     this.clientInvoiceAccessGuard = clientInvoiceAccessGuard;
@@ -330,7 +326,7 @@ public class ClientInvoiceController {
    * the same request/transaction as the status change.
    */
   private void snapshot(Contract contract, ClientInvoice invoice) {
-    invoice.setSnapshotBaseAmount(computeBaseAmount(contract.getId()));
+    invoice.setSnapshotBaseAmount(contractAmountService.baseAmount(contract.getId()));
 
     List<Fee> fees =
         feeRepository.findByContractIdAndBillingMonthOrderByCreatedAtAsc(contract.getId(), invoice.getBillingMonth());
@@ -349,7 +345,7 @@ public class ClientInvoiceController {
     UUID contractId = invoice.getContract().getId();
     boolean frozen = invoice.getStatus() != ClientInvoiceStatus.DRAFT;
 
-    BigDecimal baseAmount = frozen ? invoice.getSnapshotBaseAmount() : computeBaseAmount(contractId);
+    BigDecimal baseAmount = frozen ? invoice.getSnapshotBaseAmount() : contractAmountService.baseAmount(contractId);
     List<FeeResponse> feeLines = frozen ? snapshottedFeeLines(invoice) : liveFeeLines(invoice);
     BigDecimal feesTotal =
         feeLines.stream().map(FeeResponse::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -396,20 +392,6 @@ public class ClientInvoiceController {
         .sorted(Comparator.comparing(Fee::getCreatedAt))
         .map(FeeResponse::of)
         .toList();
-  }
-
-  /**
-   * spec.md Solution: base amount = "the sum of the monthly fee of every Postpaid SIM active in
-   * the Contract's Fleet at the time of viewing" — a Retired Postpaid SIM (even one that was
-   * Active earlier this month) and every Prepaid SIM (which never carries a monthly fee) are both
-   * excluded. Only ever called for a {@code DRAFT} invoice's live view, or once, at send time, to
-   * populate the snapshot — never for an already-frozen read (see {@link #buildResponse}).
-   */
-  private BigDecimal computeBaseAmount(UUID contractId) {
-    return simCardRepository.findByContractIdOrderByCreatedAtAsc(contractId).stream()
-        .filter(sim -> sim.getFlavor() == SimCardFlavor.POSTPAID && sim.getStatus() == SimCardStatus.ACTIVE)
-        .map(SimCard::getMonthlyFeeAmount)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
   private Optional<ClientInvoice> findCurrentMonthInvoice(Contract contract) {

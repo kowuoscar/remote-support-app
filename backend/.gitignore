@@ -2,3 +2,6 @@ target/
 *.class
 .idea/
 *.iml
+# CarrierInvoiceFileStorage's default local dev/test storage dir (client-invoice-generation
+# ticket) — never committed, mirrors how nothing under target/ is either.
+data/

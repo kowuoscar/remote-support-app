@@ -12,12 +12,22 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  servlet:
+    multipart:
+      # Carrier invoice PDFs (client-invoice-generation ticket) can run a few MB; Spring's own
+      # 1MB/10MB defaults are too small for a scanned invoice.
+      max-file-size: 20MB
+      max-request-size: 20MB
 
 app:
   jwt:
     # Dev-only default secret. Override with JWT_SECRET in every real environment.
     secret: ${JWT_SECRET:dev-only-secret-key-change-me-0123456789abcdef}
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+  file-storage:
+    # Carrier invoice file bytes (client-invoice-generation ticket) — see
+    # CarrierInvoiceFileStorage's Javadoc for why the filesystem, not a DB blob column.
+    carrier-invoices-dir: ${CARRIER_INVOICES_DIR:./data/carrier-invoice-files}
 
 management:
   endpoints:

@@ -218,3 +218,38 @@ export interface FeeListItem {
   billingMonth: string;
   createdAt: string;
 }
+
+// Mirrors backend/.../domain/ClientInvoiceStatus.java. DRAFT is the only value this ticket
+// (client-invoice-generation) ever writes — SENT/APPROVED are declared now so
+// client-invoice-submission-and-visibility doesn't need a frontend type change either.
+export type ClientInvoiceStatusValue = "DRAFT" | "SENT" | "APPROVED";
+
+export const CLIENT_INVOICE_STATUS_LABEL: Record<ClientInvoiceStatusValue, string> = {
+  DRAFT: "Draft",
+  SENT: "Awaiting approval",
+  APPROVED: "Approved",
+};
+
+// Mirrors backend/.../dto/CarrierInvoiceFileResponse.java
+export interface CarrierInvoiceFileListItem {
+  id: string;
+  clientInvoiceId: string;
+  filename: string;
+  contentType: string;
+  sizeBytes: number;
+  uploadedAt: string;
+}
+
+// Mirrors backend/.../dto/ClientInvoiceResponse.java — baseAmount/feeLines/totalAmount are
+// computed live by the backend on every fetch, never stored (client-invoice-generation ticket).
+export interface ClientInvoiceDetail {
+  id: string;
+  contractId: string;
+  billingMonth: string;
+  status: ClientInvoiceStatusValue;
+  currency: string;
+  baseAmount: number;
+  feeLines: FeeListItem[];
+  totalAmount: number;
+  files: CarrierInvoiceFileListItem[];
+}

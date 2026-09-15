@@ -246,6 +246,16 @@ export function IconSmartphone(props: IconProps) {
   );
 }
 
+export function IconLogOut(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M9.5 4.5H6A1.5 1.5 0 0 0 4.5 6v12A1.5 1.5 0 0 0 6 19.5h3.5" />
+      <path d="M14.5 8.5 19 12l-4.5 3.5" />
+      <path d="M19 12H9.5" />
+    </svg>
+  );
+}
+
 export function IconSim(props: IconProps) {
   return (
     <svg {...base} {...props}>

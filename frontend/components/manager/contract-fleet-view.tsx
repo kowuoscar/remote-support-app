@@ -1,13 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { Money } from "@/components/ui/money";
-import { IconContracts, IconSim, IconSmartphone } from "@/components/icons";
+import { IconSim, IconSmartphone } from "@/components/icons";
 import { simCardStatusToneByValue, smartphoneStatusToneByValue } from "@/lib/status";
 import {
   SIM_CARD_FLAVOR_LABEL,
@@ -16,55 +14,42 @@ import {
   type SimCardListItem,
   type SmartphoneListItem,
 } from "@/lib/api/types";
-import { SimCardStatusControl, SmartphoneStatusControl } from "@/components/agent/fleet-status-controls";
+import { CreateSmartphoneDialog } from "@/components/manager/create-smartphone-dialog";
+import { CreateSimCardDialog } from "@/components/manager/create-sim-card-dialog";
 
-export function AgentFleetView({
+/**
+ * A Contract's Fleet, on its detail view (fleet-management ticket ACs: "Manager can add a
+ * Smartphone/SIM Card to a Contract's Fleet"). Mirrors ManagerTestersView's "detail-view CRUD
+ * scoped to one owning record" shape.
+ */
+export function ManagerContractFleetView({
+  contractId,
+  currency,
   smartphones,
   simCards,
-  contracts,
 }: {
+  contractId: string;
+  currency: string;
   smartphones: SmartphoneListItem[];
   simCards: SimCardListItem[];
-  contracts: ContractOption[];
 }) {
-  const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
-
-  const phones = useMemo(
-    () => smartphones.filter((p) => p.contractId === contractId),
-    [smartphones, contractId],
-  );
-  const sims = useMemo(
-    () => simCards.filter((s) => s.contractId === contractId),
-    [simCards, contractId],
-  );
-  const currency = contracts.find((c) => c.id === contractId)?.currency ?? "";
-
-  if (contracts.length === 0) {
-    return (
-      <EmptyState
-        icon={<IconContracts className="h-5 w-5" />}
-        title="No contracts yet"
-        description="Once a manager creates a contract for you, its fleet of smartphones and SIM cards shows up here."
-      />
-    );
-  }
-
   return (
     <div className="flex flex-col gap-5">
-      <ContractSwitcher contracts={contracts} value={contractId} onChange={setContractId} />
-
       <Card className="p-0">
         <div className="flex items-center gap-2 border-b border-hairline px-5 py-3.5">
           <IconSmartphone className="h-4 w-4 text-ink-mute" />
           <h2 className="text-sm font-semibold text-ink">Smartphones</h2>
-          <span className="tnum ml-auto text-[13px] text-ink-mute">{phones.length}</span>
+          <span className="tnum text-[13px] text-ink-mute">{smartphones.length}</span>
+          <div className="ml-auto">
+            <CreateSmartphoneDialog contractId={contractId} />
+          </div>
         </div>
-        {phones.length === 0 ? (
+        {smartphones.length === 0 ? (
           <div className="px-5 py-8">
             <EmptyState
               icon={<IconSmartphone className="h-5 w-5" />}
-              title="No smartphones on this contract yet"
-              description="A manager provisions smartphones onto this contract's fleet."
+              title="No smartphones yet"
+              description="Add this contract's first smartphone — it starts Active."
             />
           </div>
         ) : (
@@ -76,11 +61,10 @@ export function AgentFleetView({
                   <Th>Serial</Th>
                   <Th>Assigned to</Th>
                   <Th>Status</Th>
-                  <Th>Change status</Th>
                 </Tr>
               </Thead>
               <Tbody>
-                {phones.map((phone) => (
+                {smartphones.map((phone) => (
                   <Tr key={phone.id}>
                     <Td className="font-medium text-ink">{phone.model}</Td>
                     <Td className="tnum text-ink-secondary">{phone.serial}</Td>
@@ -89,13 +73,6 @@ export function AgentFleetView({
                       <Badge tone={smartphoneStatusToneByValue[phone.status]}>
                         {SMARTPHONE_STATUS_LABEL[phone.status]}
                       </Badge>
-                    </Td>
-                    <Td>
-                      <SmartphoneStatusControl
-                        contractId={contractId}
-                        smartphoneId={phone.id}
-                        status={phone.status}
-                      />
                     </Td>
                   </Tr>
                 ))}
@@ -109,14 +86,17 @@ export function AgentFleetView({
         <div className="flex items-center gap-2 border-b border-hairline px-5 py-3.5">
           <IconSim className="h-4 w-4 text-ink-mute" />
           <h2 className="text-sm font-semibold text-ink">SIM Cards</h2>
-          <span className="tnum ml-auto text-[13px] text-ink-mute">{sims.length}</span>
+          <span className="tnum text-[13px] text-ink-mute">{simCards.length}</span>
+          <div className="ml-auto">
+            <CreateSimCardDialog contractId={contractId} currency={currency} />
+          </div>
         </div>
-        {sims.length === 0 ? (
+        {simCards.length === 0 ? (
           <div className="px-5 py-8">
             <EmptyState
               icon={<IconSim className="h-5 w-5" />}
-              title="No SIM cards on this contract yet"
-              description="A manager provisions SIM cards onto this contract's fleet."
+              title="No SIM cards yet"
+              description="Add this contract's first SIM card — Postpaid needs a monthly fee, Prepaid doesn't."
             />
           </div>
         ) : (
@@ -129,11 +109,10 @@ export function AgentFleetView({
                   <Th>Flavor</Th>
                   <Th className="text-right">Monthly fee</Th>
                   <Th>Status</Th>
-                  <Th>Change status</Th>
                 </Tr>
               </Thead>
               <Tbody>
-                {sims.map((sim) => (
+                {simCards.map((sim) => (
                   <Tr key={sim.id}>
                     <Td className="tnum font-medium text-ink">{sim.number}</Td>
                     <Td className="text-ink-secondary">{sim.carrier ?? "—"}</Td>
@@ -149,9 +128,6 @@ export function AgentFleetView({
                       <Badge tone={simCardStatusToneByValue[sim.status]}>
                         {SIM_CARD_STATUS_LABEL[sim.status]}
                       </Badge>
-                    </Td>
-                    <Td>
-                      <SimCardStatusControl contractId={contractId} simCardId={sim.id} status={sim.status} />
                     </Td>
                   </Tr>
                 ))}

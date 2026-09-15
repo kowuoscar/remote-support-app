@@ -15,20 +15,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * A login belonging to exactly one {@link Tenant}, with exactly one {@link Role}.
- *
- * <p>{@code agent} links an {@code AGENT}-role User to the {@link Agent} record it corresponds
- * to, the same shape {@link Tester} already uses the other way around ({@code testers.user_id}).
- * It exists because an Agent, unlike a Tester, is created standalone by the Manager before any
- * login exists for it (fleet-management ticket prefactor) — nullable, and only ever populated
- * for {@code AGENT}-role rows.
+ * A Smartphone provisioned under one {@link Contract}'s Fleet (spec.md Solution). Fleet has no
+ * separate table — Smartphone references its owning Contract directly.
  */
 @Entity
-@Table(name = "users")
+@Table(name = "smartphones")
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+public class Smartphone {
 
   @Id private UUID id;
 
@@ -36,19 +31,22 @@ public class User {
   @JoinColumn(name = "tenant_id", nullable = false)
   private Tenant tenant;
 
-  @Column(nullable = false)
-  private String username;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "contract_id", nullable = false)
+  private Contract contract;
 
-  @Column(name = "password_hash", nullable = false)
-  private String passwordHash;
+  @Column(nullable = false)
+  private String model;
+
+  @Column(nullable = false)
+  private String serial;
+
+  @Column(name = "assigned_to")
+  private String assignedTo;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private Role role;
-
-  @ManyToOne(optional = true)
-  @JoinColumn(name = "agent_id")
-  private Agent agent;
+  private SmartphoneStatus status;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;

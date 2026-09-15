@@ -6,6 +6,7 @@ import type {
   SimStatus,
   SmartphoneStatus,
 } from "@/lib/demo/types";
+import type { SimCardStatusValue, SmartphoneStatusValue } from "@/lib/api/types";
 
 export const requestStatusTone: Record<RequestStatus, Tone> = {
   Submitted: "info",
@@ -23,6 +24,20 @@ export const smartphoneStatusTone: Record<SmartphoneStatus, Tone> = {
 export const simStatusTone: Record<SimStatus, Tone> = {
   Active: "success",
   Retired: "neutral",
+};
+
+// Same tones as smartphoneStatusTone/simStatusTone above, keyed by the real backend enum value
+// instead of the demo data's human-readable label (fleet-management ticket: real Fleet views
+// consume SmartphoneListItem/SimCardListItem, not demo/types).
+export const smartphoneStatusToneByValue: Record<SmartphoneStatusValue, Tone> = {
+  ACTIVE: "success",
+  IN_REPAIR: "warning",
+  RETIRED: "neutral",
+};
+
+export const simCardStatusToneByValue: Record<SimCardStatusValue, Tone> = {
+  ACTIVE: "success",
+  RETIRED: "neutral",
 };
 
 export const clientInvoiceStatusTone: Record<ClientInvoiceStatus, Tone> = {

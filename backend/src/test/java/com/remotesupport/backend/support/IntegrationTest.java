@@ -6,6 +6,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.remotesupport.backend.domain.Country;
+import com.remotesupport.backend.dto.AgentCreateRequest;
+import com.remotesupport.backend.dto.ClientCreateRequest;
+import com.remotesupport.backend.dto.ContractCreateRequest;
+import com.remotesupport.backend.dto.TesterCreateRequest;
+import java.math.BigDecimal;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,6 +58,12 @@ public abstract class IntegrationTest {
   public static final String TESTER_USERNAME = "tester@example.com";
   public static final String TESTER_PASSWORD = "TesterDemo123!";
 
+  // The Agent row (V5 migration) the seeded agent@example.com login resolves to — "Jordan
+  // Ellis", United States/USD. Tests that need a real Contract for the seeded Agent token use
+  // this id directly rather than re-deriving it by name.
+  public static final UUID SEEDED_AGENT_ID =
+      UUID.fromString("55555555-5555-5555-5555-555555555555");
+
   @ServiceConnection
   static final PostgreSQLContainer<?> POSTGRES =
       new PostgreSQLContainer<>(DockerImageName.parse("postgres:16-alpine"));
@@ -91,5 +104,67 @@ public abstract class IntegrationTest {
 
   protected String testerToken() throws Exception {
     return loginAs(TESTER_USERNAME, TESTER_PASSWORD);
+  }
+
+  /** Creates a Client as the Manager and returns its id — shared fixture-building across tests. */
+  protected UUID createClient(String managerToken, String name) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/clients")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new ClientCreateRequest(name))))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /** Creates an Agent as the Manager and returns its id — shared fixture-building across tests. */
+  protected UUID createAgent(String managerToken, String name, Country country) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/agents")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(
+                            new AgentCreateRequest(name, country, new BigDecimal("2000.00")))))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /** Creates a Contract linking a Client and an Agent, as the Manager, and returns its id. */
+  protected UUID createContract(String managerToken, UUID clientId, UUID agentId) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/contracts")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new ContractCreateRequest(clientId, agentId))))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /**
+   * Creates a Tester under the given Client, as the Manager, then logs in as that Tester and
+   * returns its bearer token — for tests that need a Tester scoped to a specific Client rather
+   * than the unlinked seeded {@code tester@example.com} login.
+   */
+  protected String createTesterAndLogin(
+      String managerToken, UUID clientId, String username, String password) throws Exception {
+    mockMvc
+        .perform(
+            post("/api/clients/" + clientId + "/testers")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(new TesterCreateRequest(username, password, false))))
+        .andExpect(status().isCreated());
+    return loginAs(username, password);
   }
 }

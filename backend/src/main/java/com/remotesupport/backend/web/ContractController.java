@@ -10,6 +10,7 @@ import com.remotesupport.backend.repository.AgentRepository;
 import com.remotesupport.backend.repository.ClientRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.TenantRepository;
+import com.remotesupport.backend.security.CallerIdentityResolver;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import jakarta.validation.Valid;
 import java.time.Instant;
@@ -37,16 +38,19 @@ public class ContractController {
   private final ClientRepository clientRepository;
   private final AgentRepository agentRepository;
   private final TenantRepository tenantRepository;
+  private final CallerIdentityResolver callerIdentityResolver;
 
   public ContractController(
       ContractRepository contractRepository,
       ClientRepository clientRepository,
       AgentRepository agentRepository,
-      TenantRepository tenantRepository) {
+      TenantRepository tenantRepository,
+      CallerIdentityResolver callerIdentityResolver) {
     this.contractRepository = contractRepository;
     this.clientRepository = clientRepository;
     this.agentRepository = agentRepository;
     this.tenantRepository = tenantRepository;
+    this.callerIdentityResolver = callerIdentityResolver;
   }
 
   @PostMapping
@@ -76,10 +80,35 @@ public class ContractController {
     return ResponseEntity.status(HttpStatus.CREATED).body(ContractResponse.of(contract));
   }
 
+  /**
+   * Manager sees every Contract in the tenant; an Agent only their own (matched via the
+   * fleet-management ticket's Agent-to-User link); a Tester only their Client's — the same
+   * scoping Fleet visibility uses, needed here so a Contract switcher has something to switch
+   * between (spec.md Access control: "every actor sees only their own Contracts...").
+   */
   @GetMapping
   public List<ContractResponse> list(@AuthenticationPrincipal AuthenticatedPrincipal principal) {
-    return contractRepository.findByTenantIdOrderByCreatedAtAsc(principal.tenantId()).stream()
-        .map(ContractResponse::of)
-        .toList();
+    List<Contract> contracts =
+        switch (principal.role()) {
+          case "MANAGER" -> contractRepository.findByTenantIdOrderByCreatedAtAsc(principal.tenantId());
+          case "AGENT" ->
+              callerIdentityResolver
+                  .resolveAgentId(principal)
+                  .map(
+                      agentId ->
+                          contractRepository.findByTenantIdAndAgentIdOrderByCreatedAtAsc(
+                              principal.tenantId(), agentId))
+                  .orElseGet(List::of);
+          case "TESTER" ->
+              callerIdentityResolver
+                  .resolveClientId(principal)
+                  .map(
+                      clientId ->
+                          contractRepository.findByTenantIdAndClientIdOrderByCreatedAtAsc(
+                              principal.tenantId(), clientId))
+                  .orElseGet(List::of);
+          default -> List.of();
+        };
+    return contracts.stream().map(ContractResponse::of).toList();
   }
 }

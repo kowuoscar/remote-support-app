@@ -3,6 +3,7 @@ package com.remotesupport.backend.security;
 import com.remotesupport.backend.logging.RequestLoggingFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -65,6 +66,18 @@ public class SecurityConfig {
                     // permitAll so the real status (set before the forward) is the one that ships.
                     .requestMatchers("/error")
                     .permitAll()
+                    // fleet-management ticket: an Agent/Tester needs their own scoped Contract
+                    // list (to switch between Contracts when viewing Fleet) and Fleet access
+                    // itself, but neither Manager-only ownership rule below fits a per-resource
+                    // "is this my Contract" check — that's enforced in ContractController/the
+                    // Fleet controllers themselves. These matchers must precede the broader
+                    // Manager-only ones so they win (first match wins).
+                    .requestMatchers(HttpMethod.GET, "/api/contracts")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.POST, "/api/contracts/*/smartphones", "/api/contracts/*/sim-cards")
+                    .hasRole("MANAGER")
+                    .requestMatchers("/api/contracts/*/smartphones/**", "/api/contracts/*/sim-cards/**")
+                    .authenticated()
                     // Manager-only entity setup (manager-entity-setup ticket): Client, Tester
                     // (nested under /api/clients/{id}/testers), Agent and Contract creation and
                     // listing are all Manager-only; an Agent or Tester request is rejected 403.

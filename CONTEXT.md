@@ -5,7 +5,7 @@ A platform for a business that hires local support people in different countries
 ## Language
 
 **Agent** (Local Support Agent):
-A person hired remotely in a specific country who supplies smartphones and SIM cards to a Client's Testers and executes support tasks (topups, reboots, SIM swaps) on request. Submits a monthly invoice claiming salary and reimbursable expenses.
+A person hired remotely in a specific country who supplies smartphones and SIM cards to a Client's Testers and executes support tasks (topups, reboots, SIM swaps) on request. Submits a monthly invoice claiming salary and reimbursable expenses. An Agent record is created standalone by the Manager; it may separately be linked to one login (a User with role `AGENT`), the same relationship a Tester has to its Client but the other way around — the Agent exists first, the login link is optional and added later.
 _Avoid_: Rep, field agent, support worker.
 
 **Company Manager**:

@@ -1,7 +1,7 @@
 ---
 id: auth-login-flow
 title: Log in through the real UI and reach a role-appropriate shell
-status: in-progress
+status: done
 depends_on: [backend-bootstrap, design-system]
 labels: [frontend, backend, auth]
 ---

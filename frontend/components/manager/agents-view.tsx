@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import { SearchInput } from "@/components/ui/search-input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
-import { IconSearch } from "@/components/icons";
+import { IconAgents, IconSearch } from "@/components/icons";
+import { CreateAgentDialog } from "@/components/manager/create-agent-dialog";
 
 export interface AgentRow {
   id: string;
@@ -27,14 +28,23 @@ export function ManagerAgentsView({ agents }: { agents: AgentRow[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <SearchInput value={query} onChange={setQuery} placeholder="Search agents or countries…" />
-        <span className="shrink-0 text-[13px] text-ink-mute">
-          {filtered.length} of {agents.length}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="shrink-0 text-[13px] text-ink-mute">
+            {filtered.length} of {agents.length}
+          </span>
+          <CreateAgentDialog />
+        </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {agents.length === 0 ? (
+        <EmptyState
+          icon={<IconAgents className="h-5 w-5" />}
+          title="No agents yet"
+          description="Add your first agent with their country and standing salary — currency follows the country automatically."
+        />
+      ) : filtered.length === 0 ? (
         <EmptyState
           icon={<IconSearch className="h-5 w-5" />}
           title={`No agents match “${query}”`}

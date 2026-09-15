@@ -49,8 +49,12 @@ A billable line item an Agent logs against a Contract, always tracing back to th
 _Avoid_: Charge, cost.
 
 **Client Invoice**:
-The monthly statement an Agent prepares for one Contract: its postpaid base amount plus that month's Fees, with carrier invoices attached as supporting files. Lifecycle: draft → sent → approved. Visible read-only to the Client once sent.
+The monthly statement an Agent prepares for one Contract: its postpaid base amount plus that month's Fees, with carrier invoices attached as supporting files. Lifecycle: draft → sent → approved. Visible read-only to the Client once sent. One per Contract per calendar month, identified by a first-of-month `billingMonth`. Base amount and Fee lines are never stored on the entity itself — both are computed live (base amount from every currently-Active Postpaid SIM in the Fleet, Fee lines from that Contract's Fees for that `billingMonth`) on every read, per spec.md's "at the time of viewing" (client-invoice-generation ticket). Get-or-create on first view: an Agent opening "this Contract's Client Invoice for the current month" gets one created in `draft` automatically if none exists yet — there is no separate create step, the same "no separate create step" shape a proactive Fee's auto-created linking Request already established.
 _Avoid_: Bill.
+
+**Carrier Invoice File**:
+One file (typically a carrier-issued PDF) an Agent attaches to a Client Invoice draft as supporting documentation for its postpaid charges. Stored on the backend's local filesystem (client-invoice-generation ticket) — an opaque path only the backend ever resolves — with filename/content-type/size recorded as row metadata; not modeled as its own billing entity, matching spec.md's "opaque supporting documents, not modeled entities". A Client Invoice can carry several.
+_Avoid_: Attachment (too generic — every Client Invoice file is specifically a carrier's own invoice).
 
 **Agent Invoice**:
 The monthly invoice an Agent sends to the Company Manager: full reimbursement of every Fee (postpaid base + additional) across all of the Agent's Contracts that month, plus salary, plus the Rollout Advance adjustment. Lifecycle: draft → sent → approved → paid.

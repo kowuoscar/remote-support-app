@@ -10,6 +10,16 @@ import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: false,
+  // agent-invoice-submission-and-approval ticket: only the seeded Agent (agent@example.com /
+  // "Jordan Ellis") has a login, so any spec exercising its own Agent Invoice — a resource keyed
+  // by (Agent, calendar month), not something a test can spin up fresh like a Client Invoice's
+  // Contract — necessarily shares that one row with every other spec that reads it (e.g.
+  // agent-standing-amounts-and-invoice-generation.spec.ts). Running spec *files* in parallel
+  // across workers let one file's send/override/approve interleave with another file's
+  // before/after read of the same invoice, producing a real (observed) flaky failure. Serializing
+  // the whole run removes that hazard for this and any future spec touching shared seeded state,
+  // at the cost of overall suite runtime.
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"]],

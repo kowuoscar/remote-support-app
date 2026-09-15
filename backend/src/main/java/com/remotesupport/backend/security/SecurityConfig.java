@@ -78,6 +78,14 @@ public class SecurityConfig {
                     .hasRole("MANAGER")
                     .requestMatchers("/api/contracts/*/smartphones/**", "/api/contracts/*/sim-cards/**")
                     .authenticated()
+                    // tester-request-submission ticket: only a Tester submits a Request (spec.md
+                    // Access control); viewing a Contract's Requests is scoped per-Contract like
+                    // Fleet, so it stays open to any authenticated role and is enforced in
+                    // RequestController/RequestAccessGuard, same as the Fleet matchers above.
+                    .requestMatchers(HttpMethod.POST, "/api/contracts/*/requests")
+                    .hasRole("TESTER")
+                    .requestMatchers("/api/contracts/*/requests/**")
+                    .authenticated()
                     // Manager-only entity setup (manager-entity-setup ticket): Client, Tester
                     // (nested under /api/clients/{id}/testers), Agent and Contract creation and
                     // listing are all Manager-only; an Agent or Tester request is rejected 403.

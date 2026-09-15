@@ -42,4 +42,19 @@ public final class AuditLog {
         actorUserId,
         tenantId);
   }
+
+  /**
+   * A Request's submission (tester-request-submission ticket Observability: "Request-submitted
+   * event logged with Contract, Request type, actor").
+   */
+  public static void requestSubmitted(
+      UUID requestId, UUID contractId, String requestType, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=REQUEST_SUBMITTED entity=Request entityId={} contractId={} requestType={} actorUserId={} tenantId={}",
+        requestId,
+        contractId,
+        requestType,
+        actorUserId,
+        tenantId);
+  }
 }

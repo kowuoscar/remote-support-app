@@ -1,0 +1,260 @@
+@import "tailwindcss";
+
+/*
+ * Restrained palette — near-white / near-black canvas, deep-navy / near-white
+ * ink, one electric-indigo accent (Stripe-derived, `#533afd` family).
+ * Light values live on :root; dark values apply automatically under
+ * prefers-color-scheme, and can be forced either way via [data-theme] on
+ * <html> (set by the theme toggle). Every color Tailwind utility below
+ * (bg-canvas, text-ink, border-hairline, …) resolves through these
+ * variables, so no `dark:` variant is needed anywhere in the app.
+ */
+
+:root {
+  color-scheme: light;
+
+  --canvas: #ffffff;
+  --canvas-soft: #f6f7fb;
+  --canvas-raised: #ffffff;
+  --canvas-overlay: #ffffff;
+
+  --ink: #0b1220;
+  --ink-secondary: #45506a;
+  --ink-mute: #767f95;
+  --ink-faint: #a3aabb;
+
+  --hairline: #e3e6ee;
+  --hairline-strong: #d1d6e2;
+
+  --primary: #533afd;
+  --primary-hover: #4730e0;
+  --primary-press: #3a24bd;
+  --on-primary: #ffffff;
+  --primary-soft-bg: #edebff;
+  --primary-soft-text: #4730e0;
+
+  --success: #0f7a53;
+  --success-bg: #e4f5ed;
+  --warning: #9a5b0a;
+  --warning-bg: #fbf0dc;
+  --danger: #c22a3e;
+  --danger-bg: #fceaed;
+  --info: #2f5fd6;
+  --info-bg: #eaf0fd;
+
+  --shadow-elevated: 0 12px 32px rgba(13, 22, 41, 0.14), 0 2px 8px rgba(13, 22, 41, 0.06);
+  --shadow-elevated-strong: 0 20px 48px rgba(13, 22, 41, 0.22), 0 4px 12px rgba(13, 22, 41, 0.08);
+
+  --focus-ring: #533afd;
+
+  --scrollbar-thumb: #c7cbd9;
+  --scrollbar-thumb-hover: #a9aec2;
+  --scrollbar-track: transparent;
+
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --canvas: #0a0d14;
+    --canvas-soft: #10141e;
+    --canvas-raised: #141926;
+    --canvas-overlay: #171d2b;
+
+    --ink: #f3f5f9;
+    --ink-secondary: #b7bfd1;
+    --ink-mute: #838ca1;
+    --ink-faint: #545d72;
+
+    --hairline: #232a3a;
+    --hairline-strong: #2d3547;
+
+    --primary: #7c6bff;
+    --primary-hover: #8d7dff;
+    --primary-press: #6a58f2;
+    --on-primary: #ffffff;
+    --primary-soft-bg: rgba(124, 107, 255, 0.16);
+    --primary-soft-text: #ad9fff;
+
+    --success: #35c290;
+    --success-bg: rgba(53, 194, 144, 0.14);
+    --warning: #e3a33e;
+    --warning-bg: rgba(227, 163, 62, 0.14);
+    --danger: #f16b7a;
+    --danger-bg: rgba(241, 107, 122, 0.14);
+    --info: #6f9bff;
+    --info-bg: rgba(111, 155, 255, 0.14);
+
+    --shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.48), 0 2px 8px rgba(0, 0, 0, 0.24);
+    --shadow-elevated-strong: 0 24px 56px rgba(0, 0, 0, 0.6), 0 6px 16px rgba(0, 0, 0, 0.3);
+
+    --focus-ring: #9d90ff;
+
+    --scrollbar-thumb: #333c52;
+    --scrollbar-thumb-hover: #454f6b;
+    --scrollbar-track: transparent;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --canvas: #0a0d14;
+  --canvas-soft: #10141e;
+  --canvas-raised: #141926;
+  --canvas-overlay: #171d2b;
+
+  --ink: #f3f5f9;
+  --ink-secondary: #b7bfd1;
+  --ink-mute: #838ca1;
+  --ink-faint: #545d72;
+
+  --hairline: #232a3a;
+  --hairline-strong: #2d3547;
+
+  --primary: #7c6bff;
+  --primary-hover: #8d7dff;
+  --primary-press: #6a58f2;
+  --on-primary: #ffffff;
+  --primary-soft-bg: rgba(124, 107, 255, 0.16);
+  --primary-soft-text: #ad9fff;
+
+  --success: #35c290;
+  --success-bg: rgba(53, 194, 144, 0.14);
+  --warning: #e3a33e;
+  --warning-bg: rgba(227, 163, 62, 0.14);
+  --danger: #f16b7a;
+  --danger-bg: rgba(241, 107, 122, 0.14);
+  --info: #6f9bff;
+  --info-bg: rgba(111, 155, 255, 0.14);
+
+  --shadow-elevated: 0 12px 32px rgba(0, 0, 0, 0.48), 0 2px 8px rgba(0, 0, 0, 0.24);
+  --shadow-elevated-strong: 0 24px 56px rgba(0, 0, 0, 0.6), 0 6px 16px rgba(0, 0, 0, 0.3);
+
+  --focus-ring: #9d90ff;
+
+  --scrollbar-thumb: #333c52;
+  --scrollbar-thumb-hover: #454f6b;
+  --scrollbar-track: transparent;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-canvas: var(--canvas);
+  --color-canvas-soft: var(--canvas-soft);
+  --color-canvas-raised: var(--canvas-raised);
+  --color-canvas-overlay: var(--canvas-overlay);
+
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-mute: var(--ink-mute);
+  --color-ink-faint: var(--ink-faint);
+
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-press: var(--primary-press);
+  --color-on-primary: var(--on-primary);
+  --color-primary-soft-bg: var(--primary-soft-bg);
+  --color-primary-soft-text: var(--primary-soft-text);
+
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+
+  --shadow-elevated: var(--shadow-elevated);
+  --shadow-elevated-strong: var(--shadow-elevated-strong);
+}
+
+* {
+  border-color: var(--hairline);
+}
+
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100%;
+  background: var(--canvas);
+  color: var(--ink);
+  font-feature-settings: "cv05", "cv11";
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Browser surfaces carry the design too. */
+
+::selection {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+html {
+  caret-color: var(--primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove the default ring only where a component draws its own focus treatment. */
+.focus-ring-inset:focus-visible {
+  outline-offset: -2px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+/* Tabular figures for every monetary / numeric value. */
+.tnum {
+  font-feature-settings: "tnum" 1, "cv05" 1;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

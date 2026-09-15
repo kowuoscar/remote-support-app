@@ -106,6 +106,12 @@ test.describe("fleet management", () => {
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
     await expect(page.getByRole("cell", { name: "Pixel 8" })).toBeVisible();
 
+    await page.getByRole("button", { name: "Add SIM card" }).first().click();
+    await page.getByLabel("Number").fill(`+1-555-agent-${RUN_ID}`);
+    await page.getByLabel("Flavor").selectOption("PREPAID");
+    await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
+    await expect(page.getByRole("cell", { name: `+1-555-agent-${RUN_ID}` })).toBeVisible();
+
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await expect(page).toHaveURL(/\/agent$/);
@@ -116,12 +122,34 @@ test.describe("fleet management", () => {
     await expect(page.getByRole("row", { name: /Pixel 8/ })).toBeVisible();
     await expect(page.getByRole("row", { name: /Pixel 8/ })).toContainText("Active");
 
-    await page
+    // Regression check for the "stuck pending" bug: the status <select> is a Client Component
+    // instance that survives the parent Server Component's re-render on router.refresh(), so a
+    // successful change must reset its own pending/disabled state rather than relying on a full
+    // remount. Changing status twice in a row is the only way to catch a reset that's missing on
+    // the success path — a single change looks identical whether or not the bug is present.
+    const smartphoneStatusSelect = page
       .getByRole("row", { name: /Pixel 8/ })
-      .getByLabel("Change smartphone status")
-      .selectOption("IN_REPAIR");
+      .getByLabel("Change smartphone status");
 
+    await smartphoneStatusSelect.selectOption("IN_REPAIR");
     await expect(page.getByRole("row", { name: /Pixel 8/ })).toContainText("In Repair");
+    await expect(smartphoneStatusSelect).toBeEnabled();
+
+    await smartphoneStatusSelect.selectOption("ACTIVE");
+    await expect(page.getByRole("row", { name: /Pixel 8/ })).toContainText("Active");
+    await expect(smartphoneStatusSelect).toBeEnabled();
+
+    // Same regression check for the SIM Card toggle button: retire, then reactivate.
+    const simCardRow = page.getByRole("row", { name: new RegExp(`\\+1-555-agent-${RUN_ID}`) });
+    await expect(simCardRow).toContainText("Active");
+
+    await simCardRow.getByRole("button", { name: "Retire" }).click();
+    await expect(simCardRow).toContainText("Retired");
+    await expect(simCardRow.getByRole("button", { name: "Reactivate" })).toBeEnabled();
+
+    await simCardRow.getByRole("button", { name: "Reactivate" }).click();
+    await expect(simCardRow).toContainText("Active");
+    await expect(simCardRow.getByRole("button", { name: "Retire" })).toBeEnabled();
   });
 
   test("a tester sees their client's fleet", async ({ page }) => {

@@ -46,6 +46,11 @@ export function SmartphoneStatusControl({
         setPending(false);
         return;
       }
+      // Reset immediately rather than relying on router.refresh() to remount this component: the
+      // parent Server Component re-renders with fresh props, but this Client Component instance
+      // (same key) stays mounted, so a stale `pending` would otherwise stay stuck forever and
+      // permanently disable the next action.
+      setPending(false);
       router.refresh();
     } catch {
       setError(true);
@@ -114,6 +119,11 @@ export function SimCardStatusControl({
         setPending(false);
         return;
       }
+      // Reset immediately rather than relying on router.refresh() to remount this component: the
+      // parent Server Component re-renders with fresh props, but this Client Component instance
+      // (same key) stays mounted, so a stale `pending` would otherwise stay stuck forever and
+      // permanently disable the next action.
+      setPending(false);
       router.refresh();
     } catch {
       setError(true);

@@ -1,6 +1,7 @@
 package com.remotesupport.backend.logging;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,6 +115,33 @@ public final class AuditLog {
    * log scan can tell a Manager's direct Fleet addition from one that happened as a byproduct of
    * fulfilling a Request.
    */
+  /**
+   * A Manager changing an Agent's standing salary or standing Rollout Advance
+   * (agent-standing-amounts-and-invoice-generation ticket Observability: "standing-amount change
+   * events logged with Agent id, old/new value, effective month, actor (Manager)"). {@code
+   * effectiveMonth} is always the invoice month *after* the one in progress when the change was
+   * made — see {@link com.remotesupport.backend.domain.AgentStandingAmount}'s Javadoc.
+   */
+  public static void standingAmountChanged(
+      UUID agentId,
+      String amountType,
+      BigDecimal oldAmount,
+      BigDecimal newAmount,
+      LocalDate effectiveMonth,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action=STANDING_AMOUNT_CHANGED entity=Agent entityId={} amountType={} oldAmount={} "
+            + "newAmount={} effectiveMonth={} actorUserId={} tenantId={}",
+        agentId,
+        amountType,
+        oldAmount,
+        newAmount,
+        effectiveMonth,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

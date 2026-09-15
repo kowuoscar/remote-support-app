@@ -85,7 +85,11 @@ async function submitRequestAsTester(page: Page, requestTypeLabel: string) {
   await page.getByRole("button", { name: "Close" }).click();
 }
 
-const RUN_ID = Date.now();
+// Date.now() alone can collide across spec files: Playwright's collection phase can
+// import several spec files within the same millisecond, and more than one file in this
+// suite picks the same literal client name (e.g. "Aurora Retail Group") for its first
+// test, so an exact RUN_ID match produces a real duplicate row, not just a slow test.
+const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 
 test.describe("agent request fulfillment", () => {
   test("an agent progresses a request from submitted through in progress to completed", async ({
@@ -99,14 +103,17 @@ test.describe("agent request fulfillment", () => {
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "Topup");
+    // Reboot, not Topup: this test is about the plain status-progression mechanics, and
+    // fee-logging-and-provisioning ticket makes completing a fee-eligible type (Topup included)
+    // prompt for a Fee amount first — covered by its own suite (fee-logging-and-provisioning.spec.ts).
+    await submitRequestAsTester(page, "Reboot");
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/requests");
     await selectContractInSwitcher(page, clientName);
 
-    const row = page.getByRole("row", { name: /Topup/ });
+    const row = page.getByRole("row", { name: /Reboot/ });
     await expect(row).toContainText("Submitted");
 
     await row.getByRole("button", { name: "Mark In Progress" }).click();
@@ -164,10 +171,14 @@ test.describe("agent request fulfillment", () => {
     await selectContractInSwitcher(page, clientName);
 
     await page.getByRole("button", { name: "Log a request" }).click();
-    await page.getByLabel("Tester").selectOption({ label: testerEmail });
-    await page.getByLabel("Request type").selectOption({ label: "Repair" });
-    await page.getByRole("radio", { name: /Completed/ }).check();
-    await page.getByRole("dialog").getByRole("button", { name: "Log request" }).click();
+    // fee-logging-and-provisioning ticket added a second dialog ("Log a fee") to this same page
+    // with its own "Tester" field — both <dialog> elements exist in the DOM at once (only one
+    // open), so scope to the open one rather than the page as a whole.
+    const dialog = page.locator("dialog[open]");
+    await dialog.getByLabel("Tester").selectOption({ label: testerEmail });
+    await dialog.getByLabel("Request type").selectOption({ label: "Repair" });
+    await dialog.getByRole("radio", { name: /Completed/ }).check();
+    await dialog.getByRole("button", { name: "Log request" }).click();
 
     const row = page.getByRole("row", { name: /Repair/ });
     await expect(row).toContainText("Completed");

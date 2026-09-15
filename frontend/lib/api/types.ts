@@ -263,15 +263,18 @@ export interface ClientInvoiceDetail {
 // Mirrors backend/.../domain/StandingAmountType.java
 export type StandingAmountTypeValue = "SALARY" | "ROLLOUT_ADVANCE";
 
-// Mirrors backend/.../domain/AgentInvoiceStatus.java. DRAFT is the only value this ticket
-// (agent-standing-amounts-and-invoice-generation) ever writes — SENT/APPROVED/PAID are declared
-// now so agent-invoice-submission-and-approval doesn't need a frontend type change either.
+// Mirrors backend/.../domain/AgentInvoiceStatus.java. agent-invoice-submission-and-approval
+// ticket completes the lifecycle — agent-standing-amounts-and-invoice-generation only ever wrote
+// DRAFT.
 export type AgentInvoiceStatusValue = "DRAFT" | "SENT" | "APPROVED" | "PAID";
 
-// Mirrors backend/.../dto/AgentInvoiceResponse.java. Every line is computed live by the backend
-// on every fetch (this ticket only ever writes DRAFT, so there's nothing frozen to serve yet,
-// unlike ClientInvoiceDetail). rolloutAdvanceRepayment is negative-or-zero,
-// rolloutAdvanceNewAdvance is positive-or-zero; totalAmount sums all four lines.
+// Mirrors backend/.../dto/AgentInvoiceResponse.java. While `status` is DRAFT, every line is
+// computed live by the backend on every fetch; from SENT onward they're read from the frozen
+// snapshot instead (agent-invoice-submission-and-approval ticket; ADR 0003) — the shape is
+// identical either way, mirroring ClientInvoiceDetail's own live/frozen split.
+// rolloutAdvanceRepayment is negative-or-zero, rolloutAdvanceNewAdvance is positive-or-zero;
+// totalAmount sums all four lines. sentAt/approvedAt/paidAt are null until each transition
+// happens.
 export interface AgentInvoiceDetail {
   id: string;
   agentId: string;
@@ -283,6 +286,9 @@ export interface AgentInvoiceDetail {
   rolloutAdvanceRepayment: number;
   rolloutAdvanceNewAdvance: number;
   totalAmount: number;
+  sentAt: string | null;
+  approvedAt: string | null;
+  paidAt: string | null;
 }
 
 // Mirrors backend/.../dto/AgentStandingAmountsResponse.java — the salary/Rollout Advance amounts

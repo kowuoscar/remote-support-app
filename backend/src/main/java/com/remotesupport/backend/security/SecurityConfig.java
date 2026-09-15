@@ -138,7 +138,21 @@ public class SecurityConfig {
                     // Ownership of this specific Agent is enforced in
                     // AgentInvoiceController/AgentInvoiceAccessGuard, same shape as Client
                     // Invoice above. Must precede the broader Manager-only matcher so it wins.
-                    .requestMatchers("/api/agents/*/invoice")
+                    //
+                    // agent-invoice-submission-and-approval ticket adds the sub-actions below:
+                    // sending is the Agent's own act (mirrors Client Invoice's /send matcher);
+                    // override/approve/mark-paid are the Manager's alone. Per-resource ownership
+                    // (and, for override/approve/paid, the status precondition) is re-checked in
+                    // AgentInvoiceController/AgentInvoiceAccessGuard either way.
+                    .requestMatchers(HttpMethod.POST, "/api/agents/*/invoice/send")
+                    .hasRole("AGENT")
+                    .requestMatchers(
+                        HttpMethod.POST,
+                        "/api/agents/*/invoice/override",
+                        "/api/agents/*/invoice/approve",
+                        "/api/agents/*/invoice/paid")
+                    .hasRole("MANAGER")
+                    .requestMatchers("/api/agents/*/invoice", "/api/agents/*/invoice/**")
                     .authenticated()
                     // Manager-only entity setup (manager-entity-setup ticket): Client, Tester
                     // (nested under /api/clients/{id}/testers), Agent and Contract creation and

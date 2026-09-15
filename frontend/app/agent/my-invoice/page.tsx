@@ -51,7 +51,7 @@ export default async function AgentMyInvoicePage() {
           </div>
         </Card>
       ) : (
-        <AgentInvoiceView invoice={invoice} />
+        <AgentInvoiceView invoice={invoice} showSendAction />
       )}
     </SurfacePage>
   );

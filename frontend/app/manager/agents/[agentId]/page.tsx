@@ -3,18 +3,25 @@ import { SurfacePage } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { Card } from "@/components/ui/card";
 import { AgentStandingAmountsView } from "@/components/manager/agent-standing-amounts-view";
+import { ManagerAgentInvoiceView } from "@/components/manager/manager-agent-invoice-view";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
 import { requireManager } from "@/lib/api/guard";
-import { countryLabel, type AgentListItem, type AgentStandingAmounts } from "@/lib/api/types";
+import { countryLabel, type AgentInvoiceDetail, type AgentListItem, type AgentStandingAmounts } from "@/lib/api/types";
 
 export const metadata = { title: "Agent" };
 
 /**
- * An Agent's detail view, added for the Manager to review the Agent and set their standing
+ * An Agent's detail view, added for the Manager to review the Agent, set their standing
  * salary/Rollout Advance (spec.md user stories 5-6; agent-standing-amounts-and-invoice-generation
- * ticket). Mirrors how `/manager/clients/[clientId]` and `/manager/contracts/[contractId]` were
- * added in prior tickets: there's no single-Agent GET endpoint, so (like those) this finds the
- * Agent in the full list rather than adding one just for this page.
+ * ticket), and review/override/approve/mark-paid their current-month Agent Invoice (spec.md user
+ * stories 9-12; agent-invoice-submission-and-approval ticket). Mirrors how
+ * `/manager/clients/[clientId]` and `/manager/contracts/[contractId]` were added in prior
+ * tickets: there's no single-Agent GET endpoint, so (like those) this finds the Agent in the full
+ * list rather than adding one just for this page. The Agent Invoice fetch reuses
+ * {@code GET /api/agents/{agentId}/invoice}'s get-or-create semantics (a Manager viewing this
+ * page is itself "first access" for a month with no invoice yet — same as the Agent's own
+ * `/agent/my-invoice`), so there's always a current-month invoice to review once any Fee/standing
+ * amount exists.
  */
 export default async function ManagerAgentDetailPage({
   params,
@@ -24,9 +31,10 @@ export default async function ManagerAgentDetailPage({
   await requireManager();
   const { agentId } = await params;
 
-  const [agents, standingAmountsResponse] = await Promise.all([
+  const [agents, standingAmountsResponse, invoiceResponse] = await Promise.all([
     backendFetchList<AgentListItem>("/api/agents"),
     backendFetch(`/api/agents/${agentId}/standing-amounts`),
+    backendFetch(`/api/agents/${agentId}/invoice`),
   ]);
 
   const agent = agents.find((a) => a.id === agentId);
@@ -36,6 +44,9 @@ export default async function ManagerAgentDetailPage({
 
   const standingAmounts: AgentStandingAmounts | null = standingAmountsResponse.ok
     ? ((await standingAmountsResponse.json()) as AgentStandingAmounts)
+    : null;
+  const invoice: AgentInvoiceDetail | null = invoiceResponse.ok
+    ? ((await invoiceResponse.json()) as AgentInvoiceDetail)
     : null;
 
   return (
@@ -69,6 +80,8 @@ export default async function ManagerAgentDetailPage({
             rolloutAdvanceAmount={standingAmounts.rolloutAdvanceAmount}
           />
         ) : null}
+
+        <ManagerAgentInvoiceView agentId={agent.id} invoice={invoice} />
       </div>
     </SurfacePage>
   );

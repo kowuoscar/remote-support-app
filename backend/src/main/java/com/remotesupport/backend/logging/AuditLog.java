@@ -142,6 +142,28 @@ public final class AuditLog {
         tenantId);
   }
 
+  /**
+   * A Manager overriding one Agent Invoice's Salary or Rollout Advance (new-advance) line at
+   * approval time (agent-invoice-submission-and-approval ticket Observability: "override events
+   * logged with Agent Invoice id, actor, old/new value"). Distinct from {@link #statusChanged} —
+   * an override never changes the invoice's status — and from {@link #standingAmountChanged},
+   * which is for the Agent's standing rate itself; this is strictly a one-invoice edit and never
+   * touches {@code agent_standing_amounts} (see {@code AgentInvoiceController#override}'s
+   * Javadoc).
+   */
+  public static void agentInvoiceOverridden(
+      UUID invoiceId, String field, BigDecimal oldValue, BigDecimal newValue, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=AGENT_INVOICE_OVERRIDDEN entity=AgentInvoice entityId={} field={} oldValue={} "
+            + "newValue={} actorUserId={} tenantId={}",
+        invoiceId,
+        field,
+        oldValue,
+        newValue,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

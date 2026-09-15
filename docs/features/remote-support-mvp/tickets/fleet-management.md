@@ -1,7 +1,7 @@
 ---
 id: fleet-management
 title: Manage a Contract's Fleet of Smartphones and SIM Cards
-status: in-progress
+status: done
 depends_on: [manager-entity-setup]
 labels: [backend, frontend, fleet]
 ---

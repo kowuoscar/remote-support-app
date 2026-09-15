@@ -59,6 +59,15 @@
       <scope>runtime</scope>
     </dependency>
 
+    <!-- On-demand Client Invoice PDF rendering (client-invoice-submission-and-visibility
+         ticket): a lightweight, dependency-light Java PDF library, generating bytes fresh from
+         the invoice snapshot on every request rather than storing any PDF at rest. -->
+    <dependency>
+      <groupId>org.apache.pdfbox</groupId>
+      <artifactId>pdfbox</artifactId>
+      <version>3.0.3</version>
+    </dependency>
+
     <dependency>
       <groupId>io.jsonwebtoken</groupId>
       <artifactId>jjwt-api</artifactId>

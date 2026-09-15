@@ -152,7 +152,7 @@ export function SubmitRequestDialog({ contracts }: { contracts: ContractOption[]
                 Cancel
               </Button>
               <Button type="submit" variant="primary" loading={pending}>
-                Submit Request
+                {pending ? "Submitting…" : "Submit Request"}
               </Button>
             </div>
           </form>

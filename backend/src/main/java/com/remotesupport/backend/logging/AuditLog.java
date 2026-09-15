@@ -26,4 +26,20 @@ public final class AuditLog {
         actorUserId,
         tenantId);
   }
+
+  /**
+   * Fleet status transitions (fleet-management ticket Observability: "status-change events
+   * logged with resource id, old/new status, actor").
+   */
+  public static void statusChanged(
+      String entity, UUID entityId, String oldStatus, String newStatus, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=STATUS_CHANGE entity={} entityId={} oldStatus={} newStatus={} actorUserId={} tenantId={}",
+        entity,
+        entityId,
+        oldStatus,
+        newStatus,
+        actorUserId,
+        tenantId);
+  }
 }

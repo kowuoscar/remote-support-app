@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { SearchInput } from "@/components/ui/search-input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
@@ -76,7 +77,14 @@ export function ManagerContractsView({
             <Tbody>
               {filtered.map((contract) => (
                 <Tr key={contract.id}>
-                  <Td className="font-medium text-ink">{contract.clientName}</Td>
+                  <Td className="font-medium text-ink">
+                    <Link
+                      href={`/manager/contracts/${contract.id}`}
+                      className="hover:text-primary hover:underline"
+                    >
+                      {contract.clientName}
+                    </Link>
+                  </Td>
                   <Td className="text-ink-secondary">{contract.agentName}</Td>
                   <Td className="text-ink-secondary">{contract.country}</Td>
                   <Td className="tnum text-right text-ink-secondary">{contract.currency}</Td>

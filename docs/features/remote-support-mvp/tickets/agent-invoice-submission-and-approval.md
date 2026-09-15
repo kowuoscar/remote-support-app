@@ -1,7 +1,7 @@
 ---
 id: agent-invoice-submission-and-approval
 title: Agent sends their monthly invoice; Manager overrides, approves and pays
-status: ready-for-agent
+status: done
 depends_on: [agent-standing-amounts-and-invoice-generation]
 labels: [backend, frontend, invoicing, payroll]
 ---

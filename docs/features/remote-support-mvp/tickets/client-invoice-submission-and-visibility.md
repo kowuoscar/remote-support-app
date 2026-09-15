@@ -1,7 +1,7 @@
 ---
 id: client-invoice-submission-and-visibility
 title: Send a Client Invoice, make it visible to the Client, and approve it
-status: ready-for-agent
+status: done
 depends_on: [client-invoice-generation]
 labels: [backend, frontend, invoicing]
 ---

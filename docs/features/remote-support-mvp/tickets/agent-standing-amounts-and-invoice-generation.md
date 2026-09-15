@@ -1,7 +1,7 @@
 ---
 id: agent-standing-amounts-and-invoice-generation
 title: Manager sets standing salary/advance; Agent's monthly invoice assembles
-status: ready-for-agent
+status: done
 depends_on: [client-invoice-submission-and-visibility]
 labels: [backend, frontend, invoicing, payroll]
 ---

@@ -1,7 +1,7 @@
 ---
 id: manager-entity-setup
 title: Manager creates Clients, Testers, Agents and Contracts
-status: ready-for-agent
+status: done
 depends_on: [auth-login-flow]
 labels: [backend, frontend, manager]
 ---

@@ -1,7 +1,7 @@
 ---
 id: design-system
 title: Commit the visual world and its guardrails
-status: ready-for-human
+status: done
 depends_on: []
 labels: [frontend, design-system]
 ---

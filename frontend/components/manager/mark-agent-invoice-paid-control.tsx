@@ -1,0 +1,51 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { IconAlertTriangle, IconCoins } from "@/components/icons";
+
+/**
+ * Manager marks an approved Agent Invoice as paid (agent-invoice-submission-and-approval ticket
+ * AC: "Manager can mark an approved Agent Invoice as paid, moving it to status paid; no payment
+ * is executed by the app"). Purely a status flag the Manager sets once payment has happened
+ * outside the app (spec.md Non-goals: no payment-processor integration) — same single-confirm
+ * shape as ApproveAgentInvoiceControl.
+ */
+export function MarkAgentInvoicePaidControl({ agentId }: { agentId: string }) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function markPaid() {
+    setPending(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/agents/${agentId}/invoice/paid`, { method: "POST" });
+      if (!response.ok) {
+        setError("Couldn't mark as paid. Try again.");
+        setPending(false);
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError("Couldn't reach the server. Check your connection and try again.");
+      setPending(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-end gap-1.5">
+      <Button type="button" variant="primary" size="sm" loading={pending} onClick={markPaid}>
+        <IconCoins className="h-4 w-4" />
+        Mark paid
+      </Button>
+      {error ? (
+        <p role="alert" className="flex items-center gap-1.5 text-[12px] text-danger">
+          <IconAlertTriangle className="h-3.5 w-3.5 shrink-0" />
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}

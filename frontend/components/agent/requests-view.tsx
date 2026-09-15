@@ -7,26 +7,37 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { IconInbox } from "@/components/icons";
 import { formatRelativeAge } from "@/lib/format";
-import { requestStatusTone } from "@/lib/status";
-import type { RequestRecord, RequestStatus } from "@/lib/demo/types";
+import { requestStatusToneByValue } from "@/lib/status";
+import {
+  REQUEST_STATUS_LABEL,
+  REQUEST_TYPE_LABEL,
+  type RequestListItem,
+  type RequestStatusValue,
+} from "@/lib/api/types";
 
-const statusFilters: (RequestStatus | "All")[] = [
+const statusFilters: (RequestStatusValue | "All")[] = [
   "All",
-  "Submitted",
-  "In Progress",
-  "Completed",
-  "Cancelled",
+  "SUBMITTED",
+  "IN_PROGRESS",
+  "COMPLETED",
+  "CANCELLED",
 ];
 
+/**
+ * Read-only for this ticket (tester-request-submission ticket AC: "Agent can see incoming
+ * Requests for their own Contracts, filtered by Contract"). Status changes are
+ * agent-request-fulfillment's scope — no "Updated" column yet since nothing here ever changes
+ * status after creation.
+ */
 export function AgentRequestsView({
   requests,
   contracts,
 }: {
-  requests: RequestRecord[];
+  requests: RequestListItem[];
   contracts: ContractOption[];
 }) {
   const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
-  const [status, setStatus] = useState<RequestStatus | "All">("All");
+  const [status, setStatus] = useState<RequestStatusValue | "All">("All");
 
   const filtered = useMemo(() => {
     return requests
@@ -34,6 +45,16 @@ export function AgentRequestsView({
       .filter((r) => status === "All" || r.status === status)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [requests, contractId, status]);
+
+  if (contracts.length === 0) {
+    return (
+      <EmptyState
+        icon={<IconInbox className="h-5 w-5" />}
+        title="No contracts yet"
+        description="Once a manager creates a contract for you, incoming Requests show up here."
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -55,7 +76,7 @@ export function AgentRequestsView({
                 status === value ? "bg-canvas text-ink shadow-sm" : "text-ink-mute hover:text-ink"
               }`}
             >
-              {value}
+              {value === "All" ? "All" : REQUEST_STATUS_LABEL[value]}
             </button>
           ))}
         </div>
@@ -76,22 +97,20 @@ export function AgentRequestsView({
                 <Th>Raised by</Th>
                 <Th>Status</Th>
                 <Th>Created</Th>
-                <Th>Updated</Th>
               </Tr>
             </Thead>
             <Tbody>
               {filtered.map((request) => (
                 <Tr key={request.id}>
-                  <Td className="font-medium text-ink">{request.type}</Td>
-                  <Td className="text-ink-secondary">{request.raisedBy}</Td>
+                  <Td className="font-medium text-ink">{REQUEST_TYPE_LABEL[request.type]}</Td>
+                  <Td className="text-ink-secondary">{request.raisedByUsername}</Td>
                   <Td>
-                    <Badge tone={requestStatusTone[request.status]}>{request.status}</Badge>
+                    <Badge tone={requestStatusToneByValue[request.status]}>
+                      {REQUEST_STATUS_LABEL[request.status]}
+                    </Badge>
                   </Td>
                   <Td className="whitespace-nowrap text-ink-mute">
                     {formatRelativeAge(request.createdAt)}
-                  </Td>
-                  <Td className="whitespace-nowrap text-ink-mute">
-                    {formatRelativeAge(request.updatedAt)}
                   </Td>
                 </Tr>
               ))}

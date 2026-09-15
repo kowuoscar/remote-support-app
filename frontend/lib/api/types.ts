@@ -109,3 +109,44 @@ export interface SimCardListItem {
   monthlyFeeAmount: number | null;
   status: SimCardStatusValue;
 }
+
+// Mirrors backend/.../domain/RequestType.java
+export type RequestTypeValue =
+  | "REBOOT"
+  | "TOPUP"
+  | "SIM_SWAP"
+  | "PROVISION_SMARTPHONE"
+  | "PROVISION_SIM"
+  | "REPAIR";
+
+// Mirrors backend/.../domain/RequestStatus.java. Only SUBMITTED is ever produced by the
+// tester-request-submission ticket — the rest exist so agent-request-fulfillment's status
+// transitions don't need a new label added to this map.
+export type RequestStatusValue = "SUBMITTED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+
+export const REQUEST_TYPE_LABEL: Record<RequestTypeValue, string> = {
+  REBOOT: "Reboot",
+  TOPUP: "Topup",
+  SIM_SWAP: "SIM Swap",
+  PROVISION_SMARTPHONE: "Provision Smartphone",
+  PROVISION_SIM: "Provision SIM",
+  REPAIR: "Repair",
+};
+
+export const REQUEST_STATUS_LABEL: Record<RequestStatusValue, string> = {
+  SUBMITTED: "Submitted",
+  IN_PROGRESS: "In Progress",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
+};
+
+// Mirrors backend/.../dto/RequestResponse.java
+export interface RequestListItem {
+  id: string;
+  contractId: string;
+  type: RequestTypeValue;
+  status: RequestStatusValue;
+  raisedByTesterId: string;
+  raisedByUsername: string;
+  createdAt: string;
+}

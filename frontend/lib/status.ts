@@ -6,7 +6,7 @@ import type {
   SimStatus,
   SmartphoneStatus,
 } from "@/lib/demo/types";
-import type { SimCardStatusValue, SmartphoneStatusValue } from "@/lib/api/types";
+import type { RequestStatusValue, SimCardStatusValue, SmartphoneStatusValue } from "@/lib/api/types";
 
 export const requestStatusTone: Record<RequestStatus, Tone> = {
   Submitted: "info",
@@ -38,6 +38,15 @@ export const smartphoneStatusToneByValue: Record<SmartphoneStatusValue, Tone> = 
 export const simCardStatusToneByValue: Record<SimCardStatusValue, Tone> = {
   ACTIVE: "success",
   RETIRED: "neutral",
+};
+
+// Same tones as requestStatusTone above, keyed by the real backend enum value
+// (tester-request-submission ticket: real Request views consume RequestListItem, not demo/types).
+export const requestStatusToneByValue: Record<RequestStatusValue, Tone> = {
+  SUBMITTED: "info",
+  IN_PROGRESS: "warning",
+  COMPLETED: "success",
+  CANCELLED: "neutral",
 };
 
 export const clientInvoiceStatusTone: Record<ClientInvoiceStatus, Tone> = {

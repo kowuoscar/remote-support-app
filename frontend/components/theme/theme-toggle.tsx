@@ -1,29 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 function resolveIsDark(): boolean {
-  if (typeof document === "undefined") return false;
   const explicit = document.documentElement.getAttribute("data-theme");
   if (explicit === "dark") return true;
   if (explicit === "light") return false;
   return window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
-export function ThemeToggle() {
-  const [isDark, setIsDark] = useState<boolean | null>(null);
+function subscribe(callback: () => void) {
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  media.addEventListener("change", callback);
+  const observer = new MutationObserver(callback);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme"],
+  });
+  return () => {
+    media.removeEventListener("change", callback);
+    observer.disconnect();
+  };
+}
 
-  useEffect(() => {
-    setIsDark(resolveIsDark());
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => {
-      if (!document.documentElement.getAttribute("data-theme")) {
-        setIsDark(media.matches);
-      }
-    };
-    media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
-  }, []);
+function getServerSnapshot() {
+  return false;
+}
+
+export function ThemeToggle() {
+  // useSyncExternalStore renders `getServerSnapshot` for SSR and the first
+  // client render, then switches to the live DOM/media-query value after
+  // hydration — no effect, no hydration mismatch.
+  const isDark = useSyncExternalStore(subscribe, resolveIsDark, getServerSnapshot);
 
   function toggle() {
     const next = resolveIsDark() ? "light" : "dark";
@@ -34,7 +42,6 @@ export function ThemeToggle() {
       // Private browsing / storage disabled — theme still applies for this
       // page view via the DOM attribute.
     }
-    setIsDark(next === "dark");
   }
 
   return (
@@ -42,7 +49,7 @@ export function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
-      aria-pressed={isDark ?? undefined}
+      aria-pressed={isDark}
       className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-hairline text-ink-mute transition-colors hover:border-hairline-strong hover:text-ink active:bg-canvas-soft disabled:opacity-50"
     >
       {isDark ? (

@@ -21,14 +21,14 @@ export default function AgentMyInvoicePage() {
       <Card className="p-0">
         <div className="border-b border-hairline px-5 py-4">
           <h2 className="text-sm font-semibold text-ink">{currentMonthLabel}</h2>
-          <p className="text-[13px] text-ink-mute">This month's invoice</p>
+          <p className="text-[13px] text-ink-mute">This month&rsquo;s invoice</p>
         </div>
         <div className="p-5">
           <EmptyState
             icon={<IconMyInvoice className="h-5 w-5" />}
             title="You haven't started this month's invoice yet"
-            description="Local Support Fees accrue automatically as you log Fees against your Contracts through the month. Start the invoice when you're ready to review your salary and Rollout Advance lines before submitting."
-            action={<Button variant="primary">Start {currentMonthLabel}'s invoice</Button>}
+            description="Local Support Fees accrue automatically as you log Fees against your Contracts through the month. Start the invoice when you&rsquo;re ready to review your salary and Rollout Advance lines before submitting."
+            action={<Button variant="primary">Start {currentMonthLabel}&rsquo;s invoice</Button>}
           />
         </div>
       </Card>

@@ -37,8 +37,12 @@ The two SIM Card billing flavors. A Postpaid SIM carries a fixed monthly fee tha
 _Avoid_: Plan type.
 
 **Request**:
-A support action a Tester submits, or the Agent logs on the Tester's behalf: reboot, topup, SIM swap, smartphone/SIM provisioning, or repair. Tracked to completion; carries no monetary amount by itself.
+A support action a Tester submits, or the Agent logs on the Tester's behalf: reboot, topup, SIM swap, smartphone/SIM provisioning, or repair. Tracked to completion (Submitted → In Progress → Completed, or Cancelled with a reason); carries no monetary amount by itself.
 _Avoid_: Ticket, task.
+
+**Proactive** (of a Request):
+A Request the Agent logs directly, on a Tester's behalf, rather than one the Tester submitted themselves — starting at Submitted or immediately at Completed, the Agent's call. Distinct from "Tester-authored"; the two are queryable independently of who it's *for* (every Request, proactive or not, still names the Tester it's raised on behalf of). A proactively-logged Fee (fee-logging-and-provisioning ticket) is the same idea one level up: no pre-existing Request, so one is auto-created to keep the Fee traceable.
+_Avoid_: Ad-hoc, walk-in.
 
 **Fee**:
 A billable line item an Agent logs against a Contract, always tracing back to the Request that caused it. A reboot or a like-for-like SIM swap never produces a Fee; a topup, a provisioning, or a repair does.

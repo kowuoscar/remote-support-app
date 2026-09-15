@@ -39,4 +39,42 @@ public class RequestAccessGuard {
       throw new AccessDeniedException("Not your Client's Contract");
     }
   }
+
+  /**
+   * Only the Contract's own Agent (or a Manager, for tenant-wide oversight — same shape as
+   * {@link FleetAccessGuard#requireCanChangeStatus}) may change a Request's status
+   * (agent-request-fulfillment ticket AC: "Only the Contract's Agent can change that Request's
+   * status; a Tester cannot change status"). A Tester or any other Agent's Contract is rejected.
+   */
+  public void requireCanChangeStatus(Contract contract, AuthenticatedPrincipal principal) {
+    switch (principal.role()) {
+      case "MANAGER" -> {}
+      case "AGENT" -> requireOwnsContractAsAgent(contract, principal);
+      default -> throw new AccessDeniedException("Not allowed to change this Request's status");
+    }
+  }
+
+  /**
+   * Only the Contract's own Agent (or a Manager) may log a Request proactively on a Tester's
+   * behalf (agent-request-fulfillment ticket AC: "Agent can log a Request directly ... for one of
+   * their own Contracts").
+   */
+  public void requireCanLogProactively(Contract contract, AuthenticatedPrincipal principal) {
+    switch (principal.role()) {
+      case "MANAGER" -> {}
+      case "AGENT" -> requireOwnsContractAsAgent(contract, principal);
+      default -> throw new AccessDeniedException("Not allowed to log a Request on this Contract");
+    }
+  }
+
+  private void requireOwnsContractAsAgent(Contract contract, AuthenticatedPrincipal principal) {
+    boolean owns =
+        callerIdentityResolver
+            .resolveAgentId(principal)
+            .map(agentId -> agentId.equals(contract.getAgent().getId()))
+            .orElse(false);
+    if (!owns) {
+      throw new AccessDeniedException("Not your Contract");
+    }
+  }
 }

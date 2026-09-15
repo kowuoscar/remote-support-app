@@ -11,6 +11,9 @@ public record RequestResponse(
     String status,
     UUID raisedByTesterId,
     String raisedByUsername,
+    boolean agentAuthored,
+    String loggedByUsername,
+    String cancellationReason,
     Instant createdAt) {
 
   public static RequestResponse of(Request request) {
@@ -21,6 +24,9 @@ public record RequestResponse(
         request.getStatus().name(),
         request.getTester().getId(),
         request.getTester().getUser().getUsername(),
+        request.isAgentAuthored(),
+        request.getRaisedByUser().getUsername(),
+        request.getCancellationReason(),
         request.getCreatedAt());
   }
 }

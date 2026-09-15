@@ -57,4 +57,28 @@ public final class AuditLog {
         actorUserId,
         tenantId);
   }
+
+  /**
+   * An Agent logging a Request proactively, on a Tester's behalf (agent-request-fulfillment
+   * ticket Observability), distinct from {@link #requestSubmitted} so a log scan can tell a
+   * Tester-authored submission from an Agent-authored one, and see which starting status the
+   * Agent chose (Submitted or immediately Completed).
+   */
+  public static void requestLoggedByAgent(
+      UUID requestId,
+      UUID contractId,
+      String requestType,
+      String startingStatus,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action=REQUEST_LOGGED_BY_AGENT entity=Request entityId={} contractId={} "
+            + "requestType={} startingStatus={} actorUserId={} tenantId={}",
+        requestId,
+        contractId,
+        requestType,
+        startingStatus,
+        actorUserId,
+        tenantId);
+  }
 }

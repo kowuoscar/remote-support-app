@@ -8,9 +8,12 @@ import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/ta
 import { IconInbox } from "@/components/icons";
 import { formatRelativeAge } from "@/lib/format";
 import { requestStatusToneByValue } from "@/lib/status";
+import { RequestStatusControl } from "@/components/agent/request-status-control";
+import { LogRequestDialog } from "@/components/agent/log-request-dialog";
 import {
   REQUEST_STATUS_LABEL,
   REQUEST_TYPE_LABEL,
+  type ContractTesterListItem,
   type RequestListItem,
   type RequestStatusValue,
 } from "@/lib/api/types";
@@ -24,17 +27,21 @@ const statusFilters: (RequestStatusValue | "All")[] = [
 ];
 
 /**
- * Read-only for this ticket (tester-request-submission ticket AC: "Agent can see incoming
- * Requests for their own Contracts, filtered by Contract"). Status changes are
- * agent-request-fulfillment's scope — no "Updated" column yet since nothing here ever changes
- * status after creation.
+ * agent-request-fulfillment ticket AC: "Agent can move a Request from Submitted to In Progress,
+ * and from In Progress to Completed" / "can cancel a Request ... with a reason" / "can log a
+ * Request directly ... for one of their own Contracts". Status changes are inline row actions
+ * (RequestStatusControl, mirroring fleet-status-controls.tsx); logging a new Request is scoped to
+ * whichever Contract is selected in the switcher (LogRequestDialog), the same "Contract chosen,
+ * then act within it" shape as the Fleet "Add smartphone" dialogs.
  */
 export function AgentRequestsView({
   requests,
   contracts,
+  testersByContract,
 }: {
   requests: RequestListItem[];
   contracts: ContractOption[];
+  testersByContract: Record<string, ContractTesterListItem[]>;
 }) {
   const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
   const [status, setStatus] = useState<RequestStatusValue | "All">("All");
@@ -59,27 +66,32 @@ export function AgentRequestsView({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <ContractSwitcher contracts={contracts} value={contractId} onChange={setContractId} />
-        <div
-          role="tablist"
-          aria-label="Filter by status"
-          className="inline-flex flex-wrap items-center gap-1 rounded-lg border border-hairline bg-canvas-soft p-1"
-        >
-          {statusFilters.map((value) => (
-            <button
-              key={value}
-              role="tab"
-              type="button"
-              aria-selected={status === value}
-              onClick={() => setStatus(value)}
-              className={`rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
-                status === value ? "bg-canvas text-ink shadow-sm" : "text-ink-mute hover:text-ink"
-              }`}
-            >
-              {value === "All" ? "All" : REQUEST_STATUS_LABEL[value]}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3">
+          <ContractSwitcher contracts={contracts} value={contractId} onChange={setContractId} />
+          <div
+            role="tablist"
+            aria-label="Filter by status"
+            className="inline-flex flex-wrap items-center gap-1 rounded-lg border border-hairline bg-canvas-soft p-1"
+          >
+            {statusFilters.map((value) => (
+              <button
+                key={value}
+                role="tab"
+                type="button"
+                aria-selected={status === value}
+                onClick={() => setStatus(value)}
+                className={`rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
+                  status === value ? "bg-canvas text-ink shadow-sm" : "text-ink-mute hover:text-ink"
+                }`}
+              >
+                {value === "All" ? "All" : REQUEST_STATUS_LABEL[value]}
+              </button>
+            ))}
+          </div>
         </div>
+        {contractId ? (
+          <LogRequestDialog contractId={contractId} testers={testersByContract[contractId] ?? []} />
+        ) : null}
       </div>
 
       {filtered.length === 0 ? (
@@ -97,20 +109,40 @@ export function AgentRequestsView({
                 <Th>Raised by</Th>
                 <Th>Status</Th>
                 <Th>Created</Th>
+                <Th>Actions</Th>
               </Tr>
             </Thead>
             <Tbody>
               {filtered.map((request) => (
                 <Tr key={request.id}>
                   <Td className="font-medium text-ink">{REQUEST_TYPE_LABEL[request.type]}</Td>
-                  <Td className="text-ink-secondary">{request.raisedByUsername}</Td>
+                  <Td className="text-ink-secondary">
+                    {request.raisedByUsername}
+                    {request.agentAuthored ? (
+                      <span className="block text-[12px] text-ink-mute">
+                        Logged by {request.loggedByUsername}
+                      </span>
+                    ) : null}
+                  </Td>
                   <Td>
                     <Badge tone={requestStatusToneByValue[request.status]}>
                       {REQUEST_STATUS_LABEL[request.status]}
                     </Badge>
+                    {request.status === "CANCELLED" && request.cancellationReason ? (
+                      <span className="mt-1 block max-w-[220px] text-[12px] text-ink-mute">
+                        {request.cancellationReason}
+                      </span>
+                    ) : null}
                   </Td>
                   <Td className="whitespace-nowrap text-ink-mute">
                     {formatRelativeAge(request.createdAt)}
+                  </Td>
+                  <Td>
+                    <RequestStatusControl
+                      contractId={request.contractId}
+                      requestId={request.id}
+                      status={request.status}
+                    />
                   </Td>
                 </Tr>
               ))}

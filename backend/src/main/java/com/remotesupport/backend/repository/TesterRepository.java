@@ -15,4 +15,6 @@ public interface TesterRepository extends JpaRepository<Tester, UUID> {
   long countByClientId(UUID clientId);
 
   Optional<Tester> findByUserId(UUID userId);
+
+  Optional<Tester> findByIdAndClientId(UUID id, UUID clientId);
 }

@@ -1,6 +1,6 @@
 ---
 feature: remote-support-mvp
-status: approved
+status: implemented
 date: 2026-09-15
 ---
 

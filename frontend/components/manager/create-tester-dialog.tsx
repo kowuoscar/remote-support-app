@@ -3,8 +3,10 @@
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { IconAlertTriangle, IconPlus } from "@/components/icons";
+import { IconPlus } from "@/components/icons";
+import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
+import { DialogShell, type DialogShellHandle } from "@/components/manager/dialog-shell";
+import { LoginCredentialFields } from "@/components/manager/login-credential-fields";
 
 /**
  * Manager creates a Tester under a specific Client (manager-entity-setup ticket): lives on the
@@ -12,8 +14,8 @@ import { IconAlertTriangle, IconPlus } from "@/components/icons";
  * Client. Creates the Tester's own login (username/password) in the same step, following the
  * same auth pattern as the seeded users.
  */
-export function CreateTesterDialog({ clientId }: { clientId: string }) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
+export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>) {
+  const shellRef = useRef<DialogShellHandle>(null);
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -26,11 +28,11 @@ export function CreateTesterDialog({ clientId }: { clientId: string }) {
     setPassword("");
     setIsPrimaryContact(false);
     setError(null);
-    dialogRef.current?.showModal();
+    shellRef.current?.open();
   }
 
   function close() {
-    dialogRef.current?.close();
+    shellRef.current?.close();
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -70,14 +72,7 @@ export function CreateTesterDialog({ clientId }: { clientId: string }) {
         <IconPlus className="h-4 w-4" />
         Add tester
       </Button>
-      <dialog
-        ref={dialogRef}
-        onCancel={close}
-        onClick={(event) => {
-          if (event.target === dialogRef.current) close();
-        }}
-        className="m-auto w-[min(420px,90vw)] rounded-xl border border-hairline bg-canvas-overlay p-0 shadow-elevated-strong backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
-      >
+      <DialogShell ref={shellRef} submitting={submitting} widthClassName="w-[min(420px,90vw)]">
         <form className="flex flex-col gap-4 p-6" onSubmit={handleSubmit}>
           <div>
             <h2 className="text-base font-semibold text-ink">Add a tester</h2>
@@ -86,42 +81,19 @@ export function CreateTesterDialog({ clientId }: { clientId: string }) {
             </p>
           </div>
 
-          {error ? (
-            <div
-              role="alert"
-              className="flex items-start gap-2 rounded-lg bg-danger-bg px-3 py-2.5 text-[13px] text-danger"
-            >
-              <IconAlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{error}</span>
-            </div>
-          ) : null}
+          {error ? <DialogErrorAlert message={error} /> : null}
 
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Email
-            <Input
-              type="email"
-              autoFocus
-              required
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              disabled={submitting}
-              invalid={Boolean(error)}
-              placeholder="tom.reyes@client.example"
-            />
-          </label>
-
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Temporary password
-            <Input
-              type="password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              disabled={submitting}
-              invalid={Boolean(error)}
-              placeholder="••••••••"
-            />
-          </label>
+          <LoginCredentialFields
+            username={username}
+            onUsernameChange={setUsername}
+            password={password}
+            onPasswordChange={setPassword}
+            emailPlaceholder="tom.reyes@client.example"
+            disabled={submitting}
+            emailInvalid={Boolean(error)}
+            passwordInvalid={Boolean(error)}
+            autoFocusEmail
+          />
 
           <label className="flex items-center gap-2 text-[13px] font-medium text-ink-secondary">
             <input
@@ -143,7 +115,7 @@ export function CreateTesterDialog({ clientId }: { clientId: string }) {
             </Button>
           </div>
         </form>
-      </dialog>
+      </DialogShell>
     </>
   );
 }

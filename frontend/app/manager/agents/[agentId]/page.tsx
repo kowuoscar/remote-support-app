@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { Card } from "@/components/ui/card";
-import { CreateAgentLoginDialog } from "@/components/manager/create-agent-login-dialog";
+import { AgentSignInEmail } from "@/components/manager/agent-sign-in-email";
 import { AgentStandingAmountsView } from "@/components/manager/agent-standing-amounts-view";
 import { ManagerAgentInvoiceView } from "@/components/manager/manager-agent-invoice-view";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
@@ -71,17 +71,7 @@ export default async function ManagerAgentDetailPage({
             <p className="text-[12px] font-medium uppercase tracking-wide text-ink-mute">Contracts</p>
             <p className="mt-1 text-sm text-ink">{agent.contractCount}</p>
           </div>
-          <div className="min-w-0">
-            <p className="text-[12px] font-medium uppercase tracking-wide text-ink-mute">Sign-in email</p>
-            {agent.loginUsername ? (
-              <p className="mt-1 text-sm break-all text-ink">{agent.loginUsername}</p>
-            ) : (
-              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                <p className="text-sm text-ink-mute">No login</p>
-                <CreateAgentLoginDialog agentId={agent.id} agentName={agent.name} />
-              </div>
-            )}
-          </div>
+          <AgentSignInEmail agentId={agent.id} agentName={agent.name} loginUsername={agent.loginUsername} />
         </Card>
 
         {standingAmounts ? (

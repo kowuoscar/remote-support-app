@@ -1,24 +1,42 @@
 "use client";
 
 import { useId, useRef, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { IconAlertTriangle } from "@/components/icons";
+import { LoginCredentialFields } from "@/components/manager/login-credential-fields";
+import { readErrorCode } from "@/lib/api/errors";
+
+type SubmitError = {
+  message: string;
+  field: "email" | "password" | null;
+  /** A way out when retrying can't help, e.g. the Agent is gone. */
+  link?: { href: string; label: string };
+};
 
 /**
  * Manager gives a login to an Agent that has none (create-login-for-existing-agent ticket),
  * from the Agent's detail view. Only rendered while the Agent has no login, so the action is
- * never offered twice; the backend rejects a second login regardless. Same Email and Temporary
- * password fields, types, placeholders and copy as `CreateAgentDialog` and `CreateTesterDialog`.
+ * never offered twice; the backend rejects a second login regardless, and its 409 `code` tells
+ * that apart from an email already in use. Same `LoginCredentialFields` as `CreateAgentDialog`
+ * and `CreateTesterDialog`. `onCreated` hands the new login's email back to the caller, which
+ * owns what happens to focus once this trigger unmounts.
  */
-export function CreateAgentLoginDialog({ agentId, agentName }: { agentId: string; agentName: string }) {
+export function CreateAgentLoginDialog({
+  agentId,
+  agentName,
+  onCreated,
+}: {
+  agentId: string;
+  agentName: string;
+  onCreated: (loginUsername: string) => void;
+}) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const titleId = useId();
-  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<{ message: string; emailConflict: boolean } | null>(null);
+  const [error, setError] = useState<SubmitError | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   function open() {
@@ -34,6 +52,12 @@ export function CreateAgentLoginDialog({ agentId, agentName }: { agentId: string
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    // `required` accepts a password of only spaces; the backend rejects it as blank.
+    if (password.trim() === "") {
+      setError({ message: "The temporary password can't be only spaces.", field: "password" });
+      passwordRef.current?.focus();
+      return;
+    }
     setError(null);
     setSubmitting(true);
 
@@ -45,26 +69,17 @@ export function CreateAgentLoginDialog({ agentId, agentName }: { agentId: string
       });
 
       if (!response.ok) {
-        setError({
-          emailConflict: response.status === 409,
-          message:
-            response.status === 409
-              ? "That email is already in use, or this agent already has a login. Choose another email and try again."
-              : response.status === 404
-                ? "This agent no longer exists."
-                : response.status === 400
-                  ? "Enter both an email and a temporary password."
-                  : "Couldn't create the login. Try again.",
-        });
+        setError(await errorFor(response));
         setSubmitting(false);
         return;
       }
 
+      const created = (await response.json()) as { loginUsername: string };
       setSubmitting(false);
       close();
-      router.refresh();
+      onCreated(created.loginUsername);
     } catch {
-      setError({ message: "Couldn't reach the server. Check your connection and try again.", emailConflict: false });
+      setError({ message: "Couldn't reach the server. Check your connection and try again.", field: null });
       setSubmitting(false);
     }
   }
@@ -77,9 +92,11 @@ export function CreateAgentLoginDialog({ agentId, agentName }: { agentId: string
       <dialog
         ref={dialogRef}
         aria-labelledby={titleId}
-        onCancel={close}
+        onCancel={(event) => {
+          if (submitting) event.preventDefault();
+        }}
         onClick={(event) => {
-          if (event.target === dialogRef.current) close();
+          if (event.target === dialogRef.current && !submitting) close();
         }}
         className="m-auto w-[min(420px,90vw)] rounded-xl border border-hairline bg-canvas-overlay p-0 shadow-elevated-strong backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
       >
@@ -97,40 +114,32 @@ export function CreateAgentLoginDialog({ agentId, agentName }: { agentId: string
               className="flex items-start gap-2 rounded-lg bg-danger-bg px-3 py-2.5 text-[13px] text-danger"
             >
               <IconAlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{error.message}</span>
+              <span>
+                {error.message}
+                {error.link ? (
+                  <>
+                    {" "}
+                    <Link href={error.link.href} className="font-medium underline underline-offset-2">
+                      {error.link.label}
+                    </Link>
+                  </>
+                ) : null}
+              </span>
             </div>
           ) : null}
 
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Email
-            <Input
-              type="email"
-              name="username"
-              autoFocus
-              required
-              autoComplete="off"
-              spellCheck={false}
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              disabled={submitting}
-              invalid={error?.emailConflict ?? false}
-              placeholder="tom.reyes@client.example"
-            />
-          </label>
-
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Temporary password
-            <Input
-              type="password"
-              name="password"
-              required
-              autoComplete="new-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              disabled={submitting}
-              placeholder="••••••••"
-            />
-          </label>
+          <LoginCredentialFields
+            username={username}
+            onUsernameChange={setUsername}
+            password={password}
+            onPasswordChange={setPassword}
+            emailPlaceholder="camille.duforet@agents.example"
+            disabled={submitting}
+            emailInvalid={error?.field === "email"}
+            passwordInvalid={error?.field === "password"}
+            autoFocusEmail
+            passwordRef={passwordRef}
+          />
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="secondary" onClick={close} disabled={submitting}>
@@ -144,4 +153,26 @@ export function CreateAgentLoginDialog({ agentId, agentName }: { agentId: string
       </dialog>
     </>
   );
+}
+
+async function errorFor(response: Response): Promise<SubmitError> {
+  if (response.status === 409) {
+    return (await readErrorCode(response)) === "USERNAME_TAKEN"
+      ? { message: "That email is already in use. Choose another one and try again.", field: "email" }
+      : {
+          message: "This agent already has a login. Refresh the page to see it.",
+          field: null,
+        };
+  }
+  if (response.status === 404) {
+    return {
+      message: "This agent no longer exists.",
+      field: null,
+      link: { href: "/manager/agents", label: "Back to the Agents list" },
+    };
+  }
+  if (response.status === 400) {
+    return { message: "Enter both an email and a temporary password.", field: null };
+  }
+  return { message: "Couldn't create the login. Try again.", field: null };
 }

@@ -3,8 +3,8 @@
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { IconAlertTriangle, IconPlus } from "@/components/icons";
+import { LoginCredentialFields } from "@/components/manager/login-credential-fields";
 
 /**
  * Manager creates a Tester under a specific Client (manager-entity-setup ticket): lives on the
@@ -96,32 +96,17 @@ export function CreateTesterDialog({ clientId }: { clientId: string }) {
             </div>
           ) : null}
 
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Email
-            <Input
-              type="email"
-              autoFocus
-              required
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              disabled={submitting}
-              invalid={Boolean(error)}
-              placeholder="tom.reyes@client.example"
-            />
-          </label>
-
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Temporary password
-            <Input
-              type="password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              disabled={submitting}
-              invalid={Boolean(error)}
-              placeholder="••••••••"
-            />
-          </label>
+          <LoginCredentialFields
+            username={username}
+            onUsernameChange={setUsername}
+            password={password}
+            onPasswordChange={setPassword}
+            emailPlaceholder="tom.reyes@client.example"
+            disabled={submitting}
+            emailInvalid={Boolean(error)}
+            passwordInvalid={Boolean(error)}
+            autoFocusEmail
+          />
 
           <label className="flex items-center gap-2 text-[13px] font-medium text-ink-secondary">
             <input

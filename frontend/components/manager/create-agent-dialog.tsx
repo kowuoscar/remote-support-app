@@ -1,13 +1,15 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconAlertTriangle, IconPlus } from "@/components/icons";
+import { LoginCredentialFields } from "@/components/manager/login-credential-fields";
+import { readErrorCode } from "@/lib/api/errors";
 import { COUNTRIES, type Country } from "@/lib/api/types";
 
-type SubmitError = { message: string; field: "salary" | "login" | null };
+type SubmitError = { message: string; field: "email" | "password" | null };
 
 /**
  * Manager creates an Agent (manager-entity-setup ticket). Currency is never a field the Manager
@@ -15,11 +17,13 @@ type SubmitError = { message: string; field: "salary" | "login" | null };
  * (which fixes their currency)"), so there's no way to submit a mismatched pair.
  *
  * The Agent's login is created in the same step, from an email and temporary password
- * (create-agent-with-login ticket): the same fields, types, placeholders and helper copy as
- * `CreateTesterDialog`, so no Agent a Manager creates is ever unable to sign in.
+ * (create-agent-with-login ticket): the same `LoginCredentialFields` as `CreateTesterDialog`,
+ * grouped under a "Sign-in" sub-heading, so no Agent a Manager creates is ever unable to sign in.
  */
 export function CreateAgentDialog() {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const signInHintId = useId();
   const router = useRouter();
   const [name, setName] = useState("");
   const [country, setCountry] = useState<Country>(COUNTRIES[0].value);
@@ -47,6 +51,12 @@ export function CreateAgentDialog() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    // `required` accepts a password of only spaces; the backend rejects it as blank.
+    if (password.trim() === "") {
+      setError({ message: "The temporary password can't be only spaces.", field: "password" });
+      passwordRef.current?.focus();
+      return;
+    }
     setError(null);
     setSubmitting(true);
 
@@ -58,13 +68,14 @@ export function CreateAgentDialog() {
       });
 
       if (!response.ok) {
+        const code = response.status === 409 ? await readErrorCode(response) : null;
         setError(
-          response.status === 409
-            ? { message: "That email is already in use. Choose another one and try again.", field: "login" }
+          code === "USERNAME_TAKEN"
+            ? { message: "That email is already in use. Choose another one and try again.", field: "email" }
             : response.status === 400
               ? {
                   message: "Check the agent's details — every field is required, and salary can't be negative.",
-                  field: "salary",
+                  field: null,
                 }
               : { message: "Couldn't create the agent. Try again.", field: null },
         );
@@ -89,9 +100,11 @@ export function CreateAgentDialog() {
       </Button>
       <dialog
         ref={dialogRef}
-        onCancel={close}
+        onCancel={(event) => {
+          if (submitting) event.preventDefault();
+        }}
         onClick={(event) => {
-          if (event.target === dialogRef.current) close();
+          if (event.target === dialogRef.current && !submitting) close();
         }}
         className="m-auto w-[min(440px,90vw)] rounded-xl border border-hairline bg-canvas-overlay p-0 shadow-elevated-strong backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
       >
@@ -99,8 +112,7 @@ export function CreateAgentDialog() {
           <div>
             <h2 className="text-base font-semibold text-ink">Add an agent</h2>
             <p className="text-[13px] text-ink-mute">
-              Currency follows the agent&rsquo;s country automatically. Creates their login. They can
-              sign in with this email and password right away.
+              Currency follows the agent&rsquo;s country automatically.
             </p>
           </div>
 
@@ -154,7 +166,6 @@ export function CreateAgentDialog() {
                 value={salaryAmount}
                 onChange={(event) => setSalaryAmount(event.target.value)}
                 disabled={submitting}
-                invalid={error?.field === "salary"}
                 placeholder="2400.00"
               />
             </label>
@@ -166,35 +177,27 @@ export function CreateAgentDialog() {
             </label>
           </div>
 
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Email
-            <Input
-              type="email"
-              name="username"
-              required
-              autoComplete="off"
-              spellCheck={false}
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              disabled={submitting}
-              invalid={error?.field === "login"}
-              placeholder="tom.reyes@client.example"
-            />
-          </label>
+          <fieldset aria-describedby={signInHintId} className="min-w-0 border-t border-hairline pt-4">
+            {/* Floated so it lays out as an ordinary heading instead of notching the top border. */}
+            <legend className="float-left w-full text-sm font-semibold text-ink">Sign-in</legend>
+            <p id={signInHintId} className="clear-left pt-0.5 text-[13px] text-ink-mute">
+              They can sign in with this email and password right away.
+            </p>
 
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Temporary password
-            <Input
-              type="password"
-              name="password"
-              required
-              autoComplete="new-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              disabled={submitting}
-              placeholder="••••••••"
-            />
-          </label>
+            <div className="mt-4 flex flex-col gap-4">
+              <LoginCredentialFields
+                username={username}
+                onUsernameChange={setUsername}
+                password={password}
+                onPasswordChange={setPassword}
+                emailPlaceholder="camille.duforet@agents.example"
+                disabled={submitting}
+                emailInvalid={error?.field === "email"}
+                passwordInvalid={error?.field === "password"}
+                passwordRef={passwordRef}
+              />
+            </div>
+          </fieldset>
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="secondary" onClick={close} disabled={submitting}>

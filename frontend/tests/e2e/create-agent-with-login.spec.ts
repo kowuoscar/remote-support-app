@@ -68,6 +68,32 @@ test.describe("create agent with login", () => {
     await expect(page.getByRole("dialog").getByRole("alert")).toContainText(
       "That email is already in use",
     );
+    await expect(page.getByRole("dialog").getByLabel("Email")).toHaveAttribute("aria-invalid", "true");
+
+    await page.goto("/manager/agents");
+    await expect(page.getByRole("link", { name: agentName })).toHaveCount(0);
+  });
+
+  test("a temporary password of only spaces is refused on the password field and creates no agent", async ({
+    page,
+  }) => {
+    await login(page, MANAGER.username, MANAGER.password);
+    await expect(page).toHaveURL(/\/manager$/);
+
+    const agentName = `Blank Password ${RUN_ID}`;
+
+    await page.goto("/manager/agents");
+    await page.getByRole("button", { name: "Add agent" }).first().click();
+    const dialog = page.getByRole("dialog");
+    await dialog.getByLabel("Agent name").fill(agentName);
+    await dialog.getByLabel("Standing monthly salary").fill("1000");
+    await dialog.getByLabel("Email").fill(`blank.password+${RUN_ID}@agents.example`);
+    await dialog.getByLabel("Temporary password").fill("   ");
+    await dialog.getByRole("button", { name: "Add agent" }).click();
+
+    await expect(dialog.getByRole("alert")).toContainText("can't be only spaces");
+    await expect(dialog.getByLabel("Temporary password")).toHaveAttribute("aria-invalid", "true");
+    await expect(dialog.getByLabel("Standing monthly salary")).not.toHaveAttribute("aria-invalid", "true");
 
     await page.goto("/manager/agents");
     await expect(page.getByRole("link", { name: agentName })).toHaveCount(0);

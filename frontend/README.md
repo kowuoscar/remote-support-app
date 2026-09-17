@@ -20,6 +20,18 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Tests
+
+Three suites, each at its own seam:
+
+| Suite | Command | Needs | Covers |
+|---|---|---|---|
+| Component | `npm test` (`npm run test:watch` while iterating) | Nothing — jsdom, `fetch` and Next.js navigation are mocked | Client components: rendered states, pending, inline errors |
+| Visual | `npm run test:visual` (`npm run test:visual:update` to re-baseline) | Chromium via Playwright; builds and serves the app on port 4173 with demo data, no backend | Golden screenshots of the Manager, Agent and Client surfaces |
+| E2E | `npm run test:e2e` | Docker (PostgreSQL) and the backend, both started by the config | Golden-path journeys against the real API |
+
+Component tests are Vitest + Testing Library files named `*.test.tsx`, placed next to the component they cover. `tests/component/setup.ts` mocks `next/navigation` for every test; assert refreshes and navigation through `mockRouter` from `tests/component/next-navigation.ts`, and fake the API with `stubFetch` / `stubPendingFetch` from `tests/component/fetch.ts`. Assert what a user can observe — roles, names, text, disabled state — never component internals. Async server components are not rendered here; the E2E suite covers them.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

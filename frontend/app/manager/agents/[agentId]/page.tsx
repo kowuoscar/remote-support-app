@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { Card } from "@/components/ui/card";
+import { AgentSignInEmail } from "@/components/manager/agent-sign-in-email";
 import { AgentStandingAmountsView } from "@/components/manager/agent-standing-amounts-view";
 import { ManagerAgentInvoiceView } from "@/components/manager/manager-agent-invoice-view";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
@@ -70,6 +71,7 @@ export default async function ManagerAgentDetailPage({
             <p className="text-[12px] font-medium uppercase tracking-wide text-ink-mute">Contracts</p>
             <p className="mt-1 text-sm text-ink">{agent.contractCount}</p>
           </div>
+          <AgentSignInEmail agentId={agent.id} agentName={agent.name} loginUsername={agent.loginUsername} />
         </Card>
 
         {standingAmounts ? (

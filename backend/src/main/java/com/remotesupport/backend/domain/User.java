@@ -21,7 +21,8 @@ import lombok.Setter;
  * to, the same shape {@link Tester} already uses the other way around ({@code testers.user_id}).
  * It exists because an Agent, unlike a Tester, is created standalone by the Manager before any
  * login exists for it (fleet-management ticket prefactor) — nullable, and only ever populated
- * for {@code AGENT}-role rows.
+ * for {@code AGENT}-role rows. At most one User links to a given Agent (V16's unique index;
+ * agent-login-on-creation spec).
  */
 @Entity
 @Table(name = "users")

@@ -193,7 +193,7 @@ Two radius steps carry the whole system: `8px` (`rounded-lg`, Tailwind) for ever
 - **Secondary:** `bg-canvas`, `text-ink`, `border-hairline-strong`, hover fills `canvas-soft`.
 - **Ghost:** transparent, `text-ink-secondary`, hover fills `canvas-soft` and darkens text to `ink`.
 - **Danger:** `bg-danger`, white text, brightness-shift on hover/active.
-- **Row** (dense inline table actions): soft-indigo tone (`primary-soft-bg`/`primary-soft-text`) at the 8px control radius — indigo used here as a low-emphasis tint, not the reserved primary-action pill.
+- **Row** (inline record actions): soft-indigo tone (`primary-soft-bg`/`primary-soft-text`) at the 8px control radius — indigo used here as a low-emphasis tint, not the reserved primary-action pill.
 
 ### Badges
 - **Style:** pill-shaped (`rounded-full`), small dot + label, `px-2.5 py-0.5`, `text-xs font-medium`. Six tones map 1:1 to semantic colors (`success`/`warning`/`danger`/`info`/`neutral`/`primary`), driven centrally by `lib/status.ts`'s status→tone maps (Request, Smartphone, SIM, Client Invoice, Agent Invoice statuses) so status color is never chosen ad hoc per screen.

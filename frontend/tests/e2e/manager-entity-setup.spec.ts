@@ -52,6 +52,8 @@ test.describe("manager entity setup", () => {
     await page.getByLabel("Agent name").fill(agentName);
     await page.getByLabel("Country").selectOption("FRANCE");
     await page.getByLabel("Standing monthly salary").fill("2400");
+    await page.getByLabel("Email").fill(`camille.duforet+${RUN_ID}@agents.example`);
+    await page.getByLabel("Temporary password").fill("Passw0rd!23");
     await expect(page.getByRole("dialog").getByText("EUR")).toBeVisible();
     await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
     await expect(page.getByRole("row", { name: new RegExp(agentName) })).toBeVisible();
@@ -124,7 +126,13 @@ test.describe("manager entity setup", () => {
       const response = await fetch("/api/agents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "Should not be created", country: "FRANCE", salaryAmount: 100 }),
+        body: JSON.stringify({
+          name: "Should not be created",
+          country: "FRANCE",
+          salaryAmount: 100,
+          username: "should.not.be.created@agents.example",
+          password: "Passw0rd!23",
+        }),
       });
       return response.status;
     });

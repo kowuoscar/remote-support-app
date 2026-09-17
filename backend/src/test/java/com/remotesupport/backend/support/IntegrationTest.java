@@ -20,6 +20,7 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -75,6 +76,18 @@ public abstract class IntegrationTest {
   @Autowired protected MockMvc mockMvc;
   @Autowired protected ObjectMapper objectMapper;
 
+  /**
+   * POSTs a JSON body with a bearer token — the shape behind most write requests in this suite,
+   * for tests that chain their own {@code andExpect}s rather than wanting a created id back.
+   */
+  protected ResultActions postJson(String url, String token, Object body) throws Exception {
+    return mockMvc.perform(
+        post(url)
+            .header("Authorization", "Bearer " + token)
+            .contentType(APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(body)));
+  }
+
   /** Logs in as the given seeded user and returns the bearer token, ready for an Authorization header. */
   protected String loginAs(String username, String password) throws Exception {
     MvcResult result =
@@ -120,7 +133,11 @@ public abstract class IntegrationTest {
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
   }
 
-  /** Creates an Agent as the Manager and returns its id — shared fixture-building across tests. */
+  /**
+   * Creates an Agent as the Manager and returns its id — shared fixture-building across tests.
+   * Every Agent is created together with its login (create-agent-with-login ticket); this helper
+   * gives it a unique throwaway email, for tests that never sign in as that Agent.
+   */
   protected UUID createAgent(String managerToken, String name, Country country) throws Exception {
     MvcResult result =
         mockMvc
@@ -130,7 +147,12 @@ public abstract class IntegrationTest {
                     .contentType(APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
-                            new AgentCreateRequest(name, country, new BigDecimal("2000.00")))))
+                            new AgentCreateRequest(
+                                name,
+                                country,
+                                new BigDecimal("2000.00"),
+                                "agent-" + UUID.randomUUID() + "@agents.example",
+                                "Passw0rd!23"))))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());

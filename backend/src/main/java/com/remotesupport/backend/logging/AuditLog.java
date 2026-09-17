@@ -30,6 +30,19 @@ public final class AuditLog {
   }
 
   /**
+   * A login created for an Agent (agent-login-on-creation spec user story 13): who gave which
+   * Agent access, through which User. Never carries the password.
+   */
+  public static void agentLoginCreated(UUID agentId, UUID userId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=AGENT_LOGIN_CREATED entity=User entityId={} agentId={} actorUserId={} tenantId={}",
+        userId,
+        agentId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
    * Fleet status transitions (fleet-management ticket Observability: "status-change events
    * logged with resource id, old/new status, actor").
    */

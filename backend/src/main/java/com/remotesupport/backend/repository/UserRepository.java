@@ -9,4 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface UserRepository extends JpaRepository<User, UUID> {
 
   Optional<User> findByUsername(String username);
+
+  boolean existsByTenantIdAndUsername(UUID tenantId, String username);
+
+  /** The login linked to an Agent — at most one (V16's unique index). */
+  Optional<User> findByAgentId(UUID agentId);
 }

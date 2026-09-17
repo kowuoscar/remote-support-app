@@ -120,7 +120,11 @@ public abstract class IntegrationTest {
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
   }
 
-  /** Creates an Agent as the Manager and returns its id — shared fixture-building across tests. */
+  /**
+   * Creates an Agent as the Manager and returns its id — shared fixture-building across tests.
+   * Every Agent is created together with its login (create-agent-with-login ticket); this helper
+   * gives it a unique throwaway email, for tests that never sign in as that Agent.
+   */
   protected UUID createAgent(String managerToken, String name, Country country) throws Exception {
     MvcResult result =
         mockMvc
@@ -130,7 +134,12 @@ public abstract class IntegrationTest {
                     .contentType(APPLICATION_JSON)
                     .content(
                         objectMapper.writeValueAsString(
-                            new AgentCreateRequest(name, country, new BigDecimal("2000.00")))))
+                            new AgentCreateRequest(
+                                name,
+                                country,
+                                new BigDecimal("2000.00"),
+                                "agent-" + UUID.randomUUID() + "@agents.example",
+                                "Passw0rd!23"))))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());

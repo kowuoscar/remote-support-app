@@ -2,12 +2,14 @@ package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.Agent;
 import com.remotesupport.backend.domain.StandingAmountType;
+import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.dto.AgentCreateRequest;
 import com.remotesupport.backend.dto.AgentResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.AgentRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.TenantRepository;
+import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import jakarta.validation.Valid;
 import java.time.Instant;
@@ -18,6 +20,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,23 +38,39 @@ public class AgentController {
   private final AgentRepository agentRepository;
   private final ContractRepository contractRepository;
   private final TenantRepository tenantRepository;
+  private final UserRepository userRepository;
   private final StandingAmountService standingAmountService;
+  private final AgentLoginService agentLoginService;
 
   public AgentController(
       AgentRepository agentRepository,
       ContractRepository contractRepository,
       TenantRepository tenantRepository,
-      StandingAmountService standingAmountService) {
+      UserRepository userRepository,
+      StandingAmountService standingAmountService,
+      AgentLoginService agentLoginService) {
     this.agentRepository = agentRepository;
     this.contractRepository = contractRepository;
     this.tenantRepository = tenantRepository;
+    this.userRepository = userRepository;
     this.standingAmountService = standingAmountService;
+    this.agentLoginService = agentLoginService;
   }
 
+  /**
+   * Creates the Agent, its initial standing salary and its login in one transaction
+   * (agent-login-on-creation spec, "One request, one transaction"): a username conflict leaves no
+   * Agent, standing amount or User behind.
+   */
   @PostMapping
+  @Transactional
   public ResponseEntity<AgentResponse> create(
       @Valid @RequestBody AgentCreateRequest request,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    // Checked before any write; a concurrent request taking the username in between still fails
+    // inside agentLoginService.create and rolls the whole transaction back.
+    agentLoginService.requireUsernameAvailable(principal.tenantId(), request.username());
+
     Agent agent = new Agent();
     agent.setId(UUID.randomUUID());
     agent.setTenant(tenantRepository.getReferenceById(principal.tenantId()));
@@ -74,15 +93,24 @@ public class AgentController {
         LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1),
         principal.userId());
 
+    User login =
+        agentLoginService.create(agent, request.username(), request.password(), principal.userId());
+
     AuditLog.created("Agent", agent.getId(), principal.userId(), principal.tenantId());
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(AgentResponse.of(agent, 0));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(AgentResponse.of(agent, 0, login.getUsername()));
   }
 
   @GetMapping
   public List<AgentResponse> list(@AuthenticationPrincipal AuthenticatedPrincipal principal) {
     return agentRepository.findByTenantIdOrderByNameAsc(principal.tenantId()).stream()
-        .map(agent -> AgentResponse.of(agent, contractRepository.countByAgentId(agent.getId())))
+        .map(
+            agent ->
+                AgentResponse.of(
+                    agent,
+                    contractRepository.countByAgentId(agent.getId()),
+                    userRepository.findByAgentId(agent.getId()).map(User::getUsername).orElse(null)))
         .toList();
   }
 }

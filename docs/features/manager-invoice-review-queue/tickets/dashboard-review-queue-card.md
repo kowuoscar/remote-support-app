@@ -1,7 +1,7 @@
 ---
 id: dashboard-review-queue-card
 title: Show the real Review Queue on the Manager Dashboard
-status: in-progress
+status: done
 depends_on: [client-invoice-review-page]
 labels: [frontend, invoicing]
 ---
@@ -12,12 +12,12 @@ Replaces the Dashboard's sample "Pending approvals" data with the Review Queue. 
 
 ## Acceptance criteria
 
-- [ ] The Pending approvals card and its count stat show the real Review Queue size
-- [ ] The card lists at most the 4 longest-waiting items, each linking to its detail page
-- [ ] When nothing is waiting, the card says so
-- [ ] If the Review Queue can't be loaded, only the card shows an unavailable state; the rest of the Dashboard renders
-- [ ] The Dashboard's other figures are unchanged
-- [ ] The card region is masked in the manager visual goldens, re-baselined in the same commit, and the visual suite still runs without a backend
+- [x] The Pending approvals card and its count stat show the real Review Queue size
+- [x] The card lists at most the 4 longest-waiting items, each linking to its detail page
+- [x] When nothing is waiting, the card says so
+- [x] If the Review Queue can't be loaded, only the card shows an unavailable state; the rest of the Dashboard renders
+- [x] The Dashboard's other figures are unchanged
+- [x] The card region is masked in the manager visual goldens, re-baselined in the same commit, and the visual suite still runs without a backend
 
 ## Tests
 

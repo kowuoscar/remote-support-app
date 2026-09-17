@@ -1,7 +1,7 @@
 ---
 id: create-agent-with-login
 title: Manager creates an Agent together with its login
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [backend, frontend, manager, auth]
 ---

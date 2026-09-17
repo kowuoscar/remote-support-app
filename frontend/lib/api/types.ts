@@ -310,18 +310,33 @@ export interface AgentStandingAmountChange {
 
 // Mirrors backend/.../dto/ReviewQueueItemResponse.java — one invoice waiting on a Manager action
 // (CONTEXT.md "Review Queue"). totalAmount is always the invoice's frozen snapshot; waitingSince is
-// when it entered the status it is waiting in, and the backend orders the queue by it.
-export type ReviewQueueKind = "CLIENT_INVOICE";
+// when it entered the status it is waiting in (sentAt, or approvedAt for an approved Agent
+// Invoice), and the backend orders the queue by it.
+export type ReviewQueueKind = "CLIENT_INVOICE" | "AGENT_INVOICE";
 
-export interface ReviewQueueItem {
-  kind: ReviewQueueKind;
+interface ReviewQueueItemBase {
   id: string;
-  status: ClientInvoiceStatusValue;
   billingMonth: string;
-  contractId: string;
-  clientName: string;
   agentName: string;
   currency: string;
   totalAmount: number;
   waitingSince: string;
 }
+
+export interface ClientInvoiceQueueItem extends ReviewQueueItemBase {
+  kind: "CLIENT_INVOICE";
+  status: ClientInvoiceStatusValue;
+  contractId: string;
+  clientName: string;
+  agentId: null;
+}
+
+export interface AgentInvoiceQueueItem extends ReviewQueueItemBase {
+  kind: "AGENT_INVOICE";
+  status: AgentInvoiceStatusValue;
+  contractId: null;
+  clientName: null;
+  agentId: string;
+}
+
+export type ReviewQueueItem = ClientInvoiceQueueItem | AgentInvoiceQueueItem;

@@ -4,15 +4,21 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { IconAlertTriangle, IconCoins } from "@/components/icons";
+import { agentInvoiceActionUrl, type AgentInvoiceTarget } from "@/components/manager/agent-invoice-target";
+import type { AgentInvoiceDetail } from "@/lib/api/types";
 
 /**
  * Manager marks an approved Agent Invoice as paid (agent-invoice-submission-and-approval ticket
  * AC: "Manager can mark an approved Agent Invoice as paid, moving it to status paid; no payment
  * is executed by the app"). Purely a status flag the Manager sets once payment has happened
  * outside the app (spec.md Non-goals: no payment-processor integration) — same single-confirm
- * shape as ApproveAgentInvoiceControl.
+ * shape as ApproveAgentInvoiceControl. `onPaid` receives the paid invoice so a detail view can
+ * show its final state in place.
  */
-export function MarkAgentInvoicePaidControl({ agentId }: { agentId: string }) {
+export function MarkAgentInvoicePaidControl({
+  onPaid,
+  ...target
+}: AgentInvoiceTarget & { onPaid?: (invoice: AgentInvoiceDetail) => void }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,11 +27,18 @@ export function MarkAgentInvoicePaidControl({ agentId }: { agentId: string }) {
     setPending(true);
     setError(null);
     try {
-      const response = await fetch(`/api/agents/${agentId}/invoice/paid`, { method: "POST" });
+      const response = await fetch(agentInvoiceActionUrl(target as AgentInvoiceTarget, "paid"), { method: "POST" });
       if (!response.ok) {
-        setError("Couldn't mark as paid. Try again.");
+        setError(
+          response.status === 409
+            ? "This invoice is no longer awaiting payment. Refresh to see its current status."
+            : "Couldn't mark as paid. Try again.",
+        );
         setPending(false);
         return;
+      }
+      if (onPaid) {
+        onPaid((await response.json()) as AgentInvoiceDetail);
       }
       router.refresh();
     } catch {

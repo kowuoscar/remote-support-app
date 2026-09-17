@@ -28,10 +28,11 @@ import org.springframework.stereotype.Component;
 
 /**
  * What every Client Invoice route does once it has found its invoice, whether it was addressed as
- * "this Contract's invoice for the current month" ({@link ClientInvoiceController}) or by its own
- * id ({@link ClientInvoiceByIdController}): the response shape with its live-while-draft,
- * frozen-from-sent reads (ADR 0001), the approve transition, the PDF and the Carrier Invoice
- * Files. The two controllers differ only in how they find the invoice and who may call them.
+ * "this Contract's invoice for the current month" ({@link ClientInvoiceController}, which today
+ * carries no Manager action) or by its own id ({@link ClientInvoiceByIdController}, the only
+ * place a Manager approves): the response shape with its live-while-draft, frozen-from-sent reads
+ * (ADR 0001), the approve transition, the PDF and the Carrier Invoice Files. The two controllers
+ * differ only in how they find the invoice and who may call them.
  */
 @Component
 public class ClientInvoiceService {

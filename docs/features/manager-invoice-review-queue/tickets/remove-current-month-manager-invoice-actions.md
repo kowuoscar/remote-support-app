@@ -1,7 +1,7 @@
 ---
 id: remove-current-month-manager-invoice-actions
 title: Remove the Manager's current-month invoice action routes
-status: in-progress
+status: done
 depends_on: [invoice-summaries-on-contract-and-agent-pages]
 labels: [backend, invoicing]
 ---
@@ -12,10 +12,10 @@ Contract step: once nothing calls them, the Manager's actions addressed by Contr
 
 ## Acceptance criteria
 
-- [ ] The current-month Client Invoice approve route (addressed by Contract) no longer exists
-- [ ] The current-month Agent Invoice override, approve and paid routes (addressed by Agent) no longer exist
-- [ ] The current-month read, send and Carrier Invoice File routes still work for the Agent and Tester flows, and the Manager's Contract/Agent summaries
-- [ ] No frontend code or test references a removed route
+- [x] The current-month Client Invoice approve route (addressed by Contract) no longer exists
+- [x] The current-month Agent Invoice override, approve and paid routes (addressed by Agent) no longer exist
+- [x] The current-month read, send and Carrier Invoice File routes still work for the Agent and Tester flows, and the Manager's Contract/Agent summaries
+- [x] No frontend code or test references a removed route
 
 ## Tests
 

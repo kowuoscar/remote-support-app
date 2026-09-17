@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  * Advance line, applied at approval-review time (spec.md user story 10; agent-invoice-submission-
  * and-approval ticket AC: "Manager can override the Salary or Rollout Advance value on that one
  * invoice at approval time, without changing the Agent's standing amount used by future
- * invoices"). Both fields are optional — {@code AgentInvoiceController#override} rejects a request
+ * invoices"). Both fields are optional — {@code AgentInvoiceService#override} rejects a request
  * with neither set (400) — so a Manager can override just Salary, just the Rollout Advance, or
  * both in one call.
  *

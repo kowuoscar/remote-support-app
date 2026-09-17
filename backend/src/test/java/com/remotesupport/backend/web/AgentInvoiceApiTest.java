@@ -191,11 +191,16 @@ class AgentInvoiceApiTest extends IntegrationTest {
     UUID contract3 = createContract(managerToken, client3, SEEDED_AGENT_ID);
     addSimCard(managerToken, contract3, "+1-555-0300", "POSTPAID", "15.00");
     mockMvc.perform(get("/api/contracts/" + contract3 + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    MvcResult sent3 =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contract3 + "/client-invoice/send")
+                    .header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    UUID invoice3 = UUID.fromString(objectMapper.readTree(sent3.getResponse().getContentAsString()).get("id").asText());
     mockMvc
-        .perform(post("/api/contracts/" + contract3 + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
-    mockMvc
-        .perform(post("/api/contracts/" + contract3 + "/client-invoice/approve").header("Authorization", "Bearer " + managerToken))
+        .perform(post("/api/client-invoices/" + invoice3 + "/approve").header("Authorization", "Bearer " + managerToken))
         .andExpect(status().isOk());
     // Contract 3's Client Invoice is APPROVED — total: 15 + 0 = 15.
 
@@ -534,20 +539,25 @@ class AgentInvoiceApiTest extends IntegrationTest {
         .andExpect(status().isForbidden());
   }
 
-  // --- AC: per-invoice Manager override ------------------------------------------------------
+  // --- Contract step: the Manager's current-month action routes are gone ----------------------
 
+  /**
+   * remove-current-month-manager-invoice-actions ticket: a Manager overrides, approves and marks
+   * paid by the invoice's own id and nothing else, so the three current-month routes addressed by
+   * Agent id are deleted rather than merely left uncalled. The rules they used to carry — the
+   * {@code SENT -> APPROVED -> PAID} transitions and their preconditions, the override's isolation
+   * from standing amounts and from every other invoice, and Manager-only access — are asserted
+   * against the by-id routes in {@link AgentInvoiceByIdApiTest}.
+   */
   @Test
-  void managerOverridesSalaryAndNewAdvanceOnASentInvoiceWithoutTouchingStandingAmounts() throws Exception {
+  void theCurrentMonthOverrideApproveAndPaidRoutesAreGone() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
-
     mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken));
     mockMvc
         .perform(
             post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk());
-
-    long standingAmountRowsBefore = agentStandingAmountRepository.count();
 
     mockMvc
         .perform(
@@ -555,227 +565,24 @@ class AgentInvoiceApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + managerToken)
                 .contentType(APPLICATION_JSON)
                 .content("""
-                    {"salary":3200.00,"rolloutAdvanceNewAdvance":150.00}
+                    {"salary":3200.00}
                     """))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.salary").value(3200.00))
-        .andExpect(jsonPath("$.rolloutAdvanceNewAdvance").value(150.00))
-        .andExpect(jsonPath("$.localSupportFees").value(0))
-        .andExpect(jsonPath("$.totalAmount").value(3350.00));
-
-    // Regression (agent-standing-amounts-and-invoice-generation): the Agent's standing amounts —
-    // and therefore every other/future invoice resolved against them — are completely untouched.
-    // No new history row was written, and what's "currently in effect" hasn't moved.
-    assertThat(agentStandingAmountRepository.count()).isEqualTo(standingAmountRowsBefore);
+        .andExpect(status().isNotFound());
     mockMvc
         .perform(
-            get("/api/agents/" + SEEDED_AGENT_ID + "/standing-amounts").header("Authorization", "Bearer " + managerToken))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.salaryAmount").value(2500.00))
-        .andExpect(jsonPath("$.rolloutAdvanceAmount").value(0));
+            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/approve")
+                .header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isNotFound());
+    mockMvc
+        .perform(
+            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/paid").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isNotFound());
 
-    // The override persisted on the invoice itself, not just echoed in that one response.
+    // None of them half-happened: the invoice is exactly as the Agent sent it.
     mockMvc
         .perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.salary").value(3200.00))
-        .andExpect(jsonPath("$.rolloutAdvanceNewAdvance").value(150.00))
-        .andExpect(jsonPath("$.totalAmount").value(3350.00));
-  }
-
-  @Test
-  void overridingOnlySalaryLeavesTheRolloutAdvanceLinesUntouched() throws Exception {
-    String managerToken = managerToken();
-    String agentToken = agentToken();
-    mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
-
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/override")
-                .header("Authorization", "Bearer " + managerToken)
-                .contentType(APPLICATION_JSON)
-                .content("""
-                    {"salary":2600.00}
-                    """))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.salary").value(2600.00))
-        .andExpect(jsonPath("$.rolloutAdvanceRepayment").value(0))
-        .andExpect(jsonPath("$.rolloutAdvanceNewAdvance").value(0));
-  }
-
-  @Test
-  void overridingWithNeitherFieldSetIsRejected() throws Exception {
-    String managerToken = managerToken();
-    String agentToken = agentToken();
-    mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
-
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/override")
-                .header("Authorization", "Bearer " + managerToken)
-                .contentType(APPLICATION_JSON)
-                .content("{}"))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  void overridingAnInvoiceStillInDraftIsRejected() throws Exception {
-    String managerToken = managerToken();
-    String agentToken = agentToken();
-    mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken));
-
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/override")
-                .header("Authorization", "Bearer " + managerToken)
-                .contentType(APPLICATION_JSON)
-                .content("""
-                    {"salary":3000.00}
-                    """))
-        .andExpect(status().isConflict());
-  }
-
-  @Test
-  void onlyAManagerCanOverrideAnAgentInvoice() throws Exception {
-    String agentToken = agentToken();
-    mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
-
-    for (String token : new String[] {agentToken, testerToken()}) {
-      mockMvc
-          .perform(
-              post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/override")
-                  .header("Authorization", "Bearer " + token)
-                  .contentType(APPLICATION_JSON)
-                  .content("""
-                      {"salary":3000.00}
-                      """))
-          .andExpect(status().isForbidden());
-    }
-  }
-
-  // --- AC: approve transition and its draft-rejection precondition ---------------------------
-
-  @Test
-  void managerApprovesASentAgentInvoiceMovingItToApproved() throws Exception {
-    String managerToken = managerToken();
-    String agentToken = agentToken();
-    mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
-
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/approve")
-                .header("Authorization", "Bearer " + managerToken))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.status").value("APPROVED"))
-        .andExpect(jsonPath("$.approvedAt").isNotEmpty());
-  }
-
-  @Test
-  void managerCannotApproveAnAgentInvoiceStillInDraft() throws Exception {
-    String managerToken = managerToken();
-    mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + managerToken));
-
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/approve")
-                .header("Authorization", "Bearer " + managerToken))
-        .andExpect(status().isConflict());
-  }
-
-  @Test
-  void onlyAManagerCanApproveAnAgentInvoice() throws Exception {
-    String agentToken = agentToken();
-    mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
-
-    for (String token : new String[] {agentToken, testerToken()}) {
-      mockMvc
-          .perform(
-              post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/approve").header("Authorization", "Bearer " + token))
-          .andExpect(status().isForbidden());
-    }
-  }
-
-  // --- AC: paid transition and its approved-only precondition ---------------------------------
-
-  @Test
-  void managerMarksAnApprovedAgentInvoiceAsPaid() throws Exception {
-    String managerToken = managerToken();
-    String agentToken = agentToken();
-    mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/approve")
-                .header("Authorization", "Bearer " + managerToken))
-        .andExpect(status().isOk());
-
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/paid").header("Authorization", "Bearer " + managerToken))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.status").value("PAID"))
-        .andExpect(jsonPath("$.paidAt").isNotEmpty());
-  }
-
-  @Test
-  void managerCannotMarkAnAgentInvoicePaidBeforeItIsApproved() throws Exception {
-    String managerToken = managerToken();
-    String agentToken = agentToken();
-    mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
-
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/paid").header("Authorization", "Bearer " + managerToken))
-        .andExpect(status().isConflict());
-  }
-
-  @Test
-  void onlyAManagerCanMarkAnAgentInvoicePaid() throws Exception {
-    String managerToken = managerToken();
-    String agentToken = agentToken();
-    mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/approve")
-                .header("Authorization", "Bearer " + managerToken))
-        .andExpect(status().isOk());
-
-    for (String token : new String[] {agentToken, testerToken()}) {
-      mockMvc
-          .perform(post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/paid").header("Authorization", "Bearer " + token))
-          .andExpect(status().isForbidden());
-    }
+        .andExpect(jsonPath("$.status").value("SENT"))
+        .andExpect(jsonPath("$.salary").value(2500.00));
   }
 
   // --- AC: a Client/Tester can never view any Agent Invoice, at any status --------------------
@@ -796,48 +603,33 @@ class AgentInvoiceApiTest extends IntegrationTest {
         .andExpect(status().isForbidden());
 
     mockMvc.perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
+    MvcResult sent =
+        mockMvc
+            .perform(
+                post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send")
+                    .header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    UUID invoiceId = UUID.fromString(objectMapper.readTree(sent.getResponse().getContentAsString()).get("id").asText());
 
-    // SENT
+    // SENT. The Manager's own actions live on the by-id routes now (a Tester's 403 on those is
+    // AgentInvoiceByIdApiTest's business); what this test still owns is that the current-month
+    // view stays shut to a Tester at every status the invoice passes through.
     mockMvc
         .perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + testerToken))
         .andExpect(status().isForbidden());
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/override")
-                .header("Authorization", "Bearer " + testerToken)
-                .contentType(APPLICATION_JSON)
-                .content("""
-                    {"salary":1.00}
-                    """))
-        .andExpect(status().isForbidden());
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/approve")
-                .header("Authorization", "Bearer " + testerToken))
-        .andExpect(status().isForbidden());
 
     mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/approve")
-                .header("Authorization", "Bearer " + managerToken))
+        .perform(post("/api/agent-invoices/" + invoiceId + "/approve").header("Authorization", "Bearer " + managerToken))
         .andExpect(status().isOk());
 
     // APPROVED
     mockMvc
         .perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + testerToken))
         .andExpect(status().isForbidden());
-    mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/paid").header("Authorization", "Bearer " + testerToken))
-        .andExpect(status().isForbidden());
 
     mockMvc
-        .perform(
-            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/paid").header("Authorization", "Bearer " + managerToken))
+        .perform(post("/api/agent-invoices/" + invoiceId + "/paid").header("Authorization", "Bearer " + managerToken))
         .andExpect(status().isOk());
 
     // PAID
@@ -848,9 +640,12 @@ class AgentInvoiceApiTest extends IntegrationTest {
 
   // --- Observability ---------------------------------------------------------------------------
 
+  /**
+   * The send transition's audit entry. Override/approve/paid are audited on the by-id routes —
+   * see {@link AgentInvoiceByIdApiTest}.
+   */
   @Test
-  void sendOverrideApproveAndPaidTransitionsAllLogAuditEntries() throws Exception {
-    String managerToken = managerToken();
+  void theSendTransitionLogsAnAuditEntry() throws Exception {
     String agentToken = agentToken();
 
     ListAppender<ILoggingEvent> appender = new ListAppender<>();
@@ -866,37 +661,12 @@ class AgentInvoiceApiTest extends IntegrationTest {
               post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send")
                   .header("Authorization", "Bearer " + agentToken))
           .andExpect(status().isOk());
-      mockMvc
-          .perform(
-              post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/override")
-                  .header("Authorization", "Bearer " + managerToken)
-                  .contentType(APPLICATION_JSON)
-                  .content("""
-                      {"salary":2750.00,"rolloutAdvanceNewAdvance":100.00}
-                      """))
-          .andExpect(status().isOk());
-      mockMvc
-          .perform(
-              post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/approve")
-                  .header("Authorization", "Bearer " + managerToken))
-          .andExpect(status().isOk());
-      mockMvc
-          .perform(
-              post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/paid")
-                  .header("Authorization", "Bearer " + managerToken))
-          .andExpect(status().isOk());
 
       String logged =
           appender.list.stream().map(ILoggingEvent::getFormattedMessage).reduce("", String::concat);
 
       assertThat(logged).contains("action=STATUS_CHANGE entity=AgentInvoice");
       assertThat(logged).contains("oldStatus=DRAFT newStatus=SENT");
-      assertThat(logged).contains("oldStatus=SENT newStatus=APPROVED");
-      assertThat(logged).contains("oldStatus=APPROVED newStatus=PAID");
-
-      assertThat(logged).contains("action=AGENT_INVOICE_OVERRIDDEN entity=AgentInvoice");
-      assertThat(logged).contains("field=salary oldValue=2500.00 newValue=2750.00");
-      assertThat(logged).contains("field=rolloutAdvanceNewAdvance oldValue=0 newValue=100.00");
     } finally {
       auditLogger.detachAppender(appender);
     }

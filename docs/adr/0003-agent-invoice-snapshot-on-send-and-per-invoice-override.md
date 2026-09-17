@@ -77,3 +77,13 @@ these two fields for this reason.
 - This is hard to reverse once real sent Agent Invoices exist in production, for the same reason
   ADR 0001 is: switching back to live computation would change already-communicated numbers out
   from under a Manager who saw something different.
+
+---
+
+_Note, 2026-09-17 (`remove-current-month-manager-invoice-actions`):_ the override endpoint named
+above, `POST /api/agents/{agentId}/invoice/override`, no longer exists. The decision itself is
+unchanged — the Manager's override still overwrites the invoice's own snapshot columns in place,
+still only while `SENT`, and still never touches `AgentStandingAmount`. Only its address moved: it
+is now `POST /api/agent-invoices/{invoiceId}/override`, addressed by the invoice's own id so it
+reaches an invoice of any billing month, not just the current one (manager-invoice-review-queue
+spec).

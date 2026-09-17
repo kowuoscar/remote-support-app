@@ -125,10 +125,10 @@ class ReviewQueueApiTest extends IntegrationTest {
 
     UUID approvedContract =
         createContract(managerToken, createClient(managerToken, "Bright Path Clinics"), SEEDED_AGENT_ID);
-    sendClientInvoice(agentToken, approvedContract);
+    UUID approvedInvoiceId = sendClientInvoice(agentToken, approvedContract);
     mockMvc
         .perform(
-            post("/api/contracts/" + approvedContract + "/client-invoice/approve")
+            post("/api/client-invoices/" + approvedInvoiceId + "/approve")
                 .header("Authorization", "Bearer " + managerToken))
         .andExpect(status().isOk());
 

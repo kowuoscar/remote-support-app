@@ -3,14 +3,12 @@ package com.remotesupport.backend.web;
 import com.remotesupport.backend.domain.Agent;
 import com.remotesupport.backend.domain.AgentInvoice;
 import com.remotesupport.backend.domain.AgentInvoiceStatus;
-import com.remotesupport.backend.dto.AgentInvoiceOverrideRequest;
 import com.remotesupport.backend.dto.AgentInvoiceResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.AgentInvoiceRepository;
 import com.remotesupport.backend.repository.AgentRepository;
 import com.remotesupport.backend.security.AgentInvoiceAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
-import jakarta.validation.Valid;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -20,15 +18,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * An Agent's own monthly Agent Invoice (spec.md Solution's Agent Invoice entity;
  * agent-standing-amounts-and-invoice-generation ticket, user stories 25-26, completed by
- * agent-invoice-submission-and-approval's send/override/approve/paid transitions, user stories
- * 9-12, 27-28). One per Agent per calendar month, get-or-created on first access — the exact same
+ * agent-invoice-submission-and-approval's send transition, user stories 9, 27). One per Agent per
+ * calendar month, get-or-created on first access — the exact same
  * shape {@link ClientInvoiceController} established for Client Invoices (see its Javadoc): {@code
  * GET} is idempotent-with-a-side-effect, and a second concurrent first-view racing to create the
  * same month's draft is resolved by the unique {@code (agent_id, billing_month)} constraint (V14
@@ -51,9 +48,11 @@ import org.springframework.web.bind.annotation.RestController;
  * logged afterwards nor a mid-cycle standing-amount change can silently move a total the Manager
  * is reviewing or has already approved.
  *
- * <p>What happens once the invoice is found is shared with {@link AgentInvoiceByIdController}
- * through {@link AgentInvoiceService}; this controller only finds "this Agent's invoice for the
- * current month" and checks who may act on it.
+ * <p><b>The Manager acts by invoice id, never here.</b> Override, approve and mark-paid live in
+ * {@link AgentInvoiceByIdController} alone, so each exists exactly once and reaches an invoice of
+ * any billing month (manager-invoice-review-queue spec). What is left here is the Agent's own
+ * surface — view/build this month's draft, and send it — plus the Manager's read-only oversight
+ * of it. The behaviour behind both controllers is shared through {@link AgentInvoiceService}.
  */
 @RestController
 @RequestMapping("/api/agents/{agentId}/invoice")
@@ -97,56 +96,6 @@ public class AgentInvoiceController {
     // get-or-create, exactly like GET (class Javadoc): an Agent who never happened to open the
     // draft view first can still send directly, with no separate "build the draft" step.
     return agentInvoiceService.send(getOrCreateDraftForCurrentMonth(agent, principal), principal);
-  }
-
-  /**
-   * A Manager overriding one line of this Agent's current-month sent Agent Invoice (ticket AC:
-   * "Manager can override the Salary or Rollout Advance value on that one invoice at approval
-   * time, without changing the Agent's standing amount used by future invoices"). See {@link
-   * AgentInvoiceService#override} for the rules.
-   */
-  @PostMapping("/override")
-  public AgentInvoiceResponse override(
-      @PathVariable UUID agentId,
-      @Valid @RequestBody AgentInvoiceOverrideRequest request,
-      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
-    Agent agent = findAgent(agentId, principal);
-    agentInvoiceAccessGuard.requireCanOverride(principal);
-
-    if (request.salary() == null && request.rolloutAdvanceNewAdvance() == null) {
-      throw new InvalidRequestException(
-          "Provide at least one of salary or rolloutAdvanceNewAdvance to override");
-    }
-    return agentInvoiceService.override(findCurrentMonthInvoice(agent), request, principal);
-  }
-
-  /** Approves this Agent's current-month sent Agent Invoice; a draft is a 409. */
-  @PostMapping("/approve")
-  public AgentInvoiceResponse approve(
-      @PathVariable UUID agentId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
-    Agent agent = findAgent(agentId, principal);
-    agentInvoiceAccessGuard.requireCanApprove(principal);
-
-    return agentInvoiceService.approve(findCurrentMonthInvoice(agent), principal);
-  }
-
-  /**
-   * Marks this Agent's current-month approved Agent Invoice as paid (ticket AC: "no payment is
-   * executed by the app").
-   */
-  @PostMapping("/paid")
-  public AgentInvoiceResponse markPaid(
-      @PathVariable UUID agentId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
-    Agent agent = findAgent(agentId, principal);
-    agentInvoiceAccessGuard.requireCanMarkPaid(principal);
-
-    return agentInvoiceService.markPaid(findCurrentMonthInvoice(agent), principal);
-  }
-
-  private AgentInvoice findCurrentMonthInvoice(Agent agent) {
-    return agentInvoiceRepository
-        .findByAgentIdAndBillingMonth(agent.getId(), currentBillingMonth())
-        .orElseThrow(() -> new NotFoundException("No Agent Invoice for this Agent this month"));
   }
 
   private AgentInvoice getOrCreateDraftForCurrentMonth(Agent agent, AuthenticatedPrincipal principal) {

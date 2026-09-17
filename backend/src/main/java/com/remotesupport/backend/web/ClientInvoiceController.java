@@ -42,8 +42,10 @@ import org.springframework.web.multipart.MultipartFile;
  * entity; client-invoice-generation and client-invoice-submission-and-visibility tickets, user
  * stories 22-24, 34-35, 7-8). One per Contract per month, spanning the whole {@code DRAFT ->
  * SENT -> APPROVED} lifecycle: building/attaching files ({@code DRAFT} only), sending (the
- * Contract's own Agent), Client visibility and on-demand PDF (from {@code SENT} onward), and
- * Manager approval ({@code SENT -> APPROVED}).
+ * Contract's own Agent), and Client visibility and on-demand PDF (from {@code SENT} onward). The
+ * Manager's approval is <b>not</b> here: it is addressed by the invoice's own id, in {@link
+ * ClientInvoiceByIdController}, so it exists exactly once for invoices of every billing month
+ * (manager-invoice-review-queue spec).
  *
  * <p><b>Get-or-create semantics (Manager/Agent only).</b> {@code GET} is deliberately
  * idempotent-with-a-side-effect for a Manager/Agent caller: the ticket's AC is "created in status
@@ -144,28 +146,6 @@ public class ClientInvoiceController {
         principal.tenantId());
 
     return clientInvoiceService.toResponse(invoice);
-  }
-
-  /**
-   * Approves this Contract's current-month sent Client Invoice (ticket AC: "Manager can review a
-   * sent Client Invoice ... and approve it, moving it to status approved" / "Manager cannot
-   * approve a Client Invoice still in draft"). The precondition is enforced the same way
-   * {@link com.remotesupport.backend.domain.RequestStatus}/{@link
-   * com.remotesupport.backend.domain.SmartphoneStatus} invalid transitions already are: a clean
-   * {@link ConflictException} (409), not a silent no-op or a 500.
-   */
-  @PostMapping("/approve")
-  public ClientInvoiceResponse approve(
-      @PathVariable UUID contractId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
-    Contract contract = findContract(contractId, principal);
-    clientInvoiceAccessGuard.requireCanApprove(principal);
-
-    ClientInvoice invoice =
-        clientInvoiceRepository
-            .findByContractIdAndBillingMonth(contract.getId(), currentBillingMonth())
-            .orElseThrow(() -> new NotFoundException("No Client Invoice for this Contract this month"));
-
-    return clientInvoiceService.approve(invoice, principal);
   }
 
   /**

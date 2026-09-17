@@ -18,8 +18,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * What every Agent Invoice route does once it has found its invoice, whether it was addressed as
- * "this Agent's invoice for the current month" ({@link AgentInvoiceController}) or by its own id
- * ({@link AgentInvoiceByIdController}): the response shape with its live-while-draft,
+ * "this Agent's invoice for the current month" ({@link AgentInvoiceController}, which today is
+ * only the Agent's own view/build and send) or by its own id ({@link AgentInvoiceByIdController},
+ * which carries every Manager action): the response shape with its live-while-draft,
  * frozen-from-sent reads (ADR 0003), the send snapshot, the Manager's per-invoice override and the
  * approve and mark-paid transitions, each with its audit event. The two controllers differ only in
  * how they find the invoice and who may call them — the same split {@link ClientInvoiceService}

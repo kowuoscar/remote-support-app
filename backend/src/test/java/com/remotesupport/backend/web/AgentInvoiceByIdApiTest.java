@@ -177,6 +177,27 @@ class AgentInvoiceByIdApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.rolloutAdvanceAmount").value(0));
   }
 
+  /**
+   * A partial override touches only the line it names — ported here from the removed current-month
+   * override route (remove-current-month-manager-invoice-actions ticket).
+   */
+  @Test
+  void overridingOnlySalaryByIdLeavesTheRolloutAdvanceLinesUntouched() throws Exception {
+    String managerToken = managerToken();
+    UUID invoiceId = send(agentToken());
+
+    mockMvc
+        .perform(
+            override(invoiceId, """
+                {"salary":2600.00}
+                """)
+                .header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.salary").value(2600.00))
+        .andExpect(jsonPath("$.rolloutAdvanceRepayment").value(0))
+        .andExpect(jsonPath("$.rolloutAdvanceNewAdvance").value(0));
+  }
+
   @Test
   void overridingByIdWithNeitherFieldIsRejected() throws Exception {
     UUID invoiceId = send(agentToken());

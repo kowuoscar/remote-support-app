@@ -1,7 +1,7 @@
 ---
 id: create-agent-with-login
 title: Manager creates an Agent together with its login
-status: in-progress
+status: done
 depends_on: []
 labels: [backend, frontend, manager, auth]
 ---
@@ -15,14 +15,14 @@ user stories 1-5 and 10-13. Constraints are in spec.md `## Constraints`.
 
 ## Acceptance criteria
 
-- [ ] The Manager's create-Agent dialog requires an email and a temporary password, alongside name, country and salary
-- [ ] On success, the new Agent can sign in immediately with those credentials and lands on the Agent Console, seeing only their own Contracts
-- [ ] Creating an Agent with an email already in use is rejected with a clear "email already in use" message, and no Agent (nor its standing salary) is created
-- [ ] Creating an Agent without an email or password is rejected, and no Agent is created
-- [ ] Each Agent in the Agent list response carries its login email, or null when it has none
-- [ ] The Agent's detail view shows the email the Agent signs in with
-- [ ] No Agent can ever be linked to more than one login
-- [ ] Only a Manager can create an Agent; Agent and Tester callers are rejected
+- [x] The Manager's create-Agent dialog requires an email and a temporary password, alongside name, country and salary
+- [x] On success, the new Agent can sign in immediately with those credentials and lands on the Agent Console, seeing only their own Contracts
+- [x] Creating an Agent with an email already in use is rejected with a clear "email already in use" message, and no Agent (nor its standing salary) is created
+- [x] Creating an Agent without an email or password is rejected, and no Agent is created
+- [x] Each Agent in the Agent list response carries its login email, or null when it has none
+- [x] The Agent's detail view shows the email the Agent signs in with
+- [x] No Agent can ever be linked to more than one login
+- [x] Only a Manager can create an Agent; Agent and Tester callers are rejected
 
 ## Tests
 

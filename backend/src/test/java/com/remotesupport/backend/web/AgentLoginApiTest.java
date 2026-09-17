@@ -71,7 +71,8 @@ class AgentLoginApiTest extends IntegrationTest {
         .andExpect(status().isCreated());
 
     postLogin(token, agentId, loginBody("second.login@agents.example", PASSWORD))
-        .andExpect(status().isConflict());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("AGENT_ALREADY_HAS_LOGIN"));
 
     assertLoginUsername(token, agentId, "first.login@agents.example");
   }
@@ -79,7 +80,15 @@ class AgentLoginApiTest extends IntegrationTest {
   @Test
   void creatingALoginForTheSeededAgentWhichAlreadyHasOneIsRejected() throws Exception {
     postLogin(managerToken(), SEEDED_AGENT_ID, loginBody("another@agents.example", PASSWORD))
-        .andExpect(status().isConflict());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("AGENT_ALREADY_HAS_LOGIN"));
+  }
+
+  @Test
+  void anAgentWithALoginIsRejectedAsSuchEvenWhenTheUsernameIsAlsoTaken() throws Exception {
+    postLogin(managerToken(), SEEDED_AGENT_ID, loginBody(MANAGER_USERNAME, PASSWORD))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("AGENT_ALREADY_HAS_LOGIN"));
   }
 
   @Test
@@ -88,7 +97,8 @@ class AgentLoginApiTest extends IntegrationTest {
     UUID agentId = insertLoginLessAgent(managerTenantId(), "Name Clash");
 
     postLogin(token, agentId, loginBody(MANAGER_USERNAME, PASSWORD))
-        .andExpect(status().isConflict());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
 
     assertLoginUsername(token, agentId, null);
   }

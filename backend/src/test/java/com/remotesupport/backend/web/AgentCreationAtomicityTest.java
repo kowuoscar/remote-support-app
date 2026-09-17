@@ -55,7 +55,8 @@ class AgentCreationAtomicityTest extends IntegrationTest {
     Snapshot before = snapshot();
 
     postAgent(token, agentBody(name, MANAGER_USERNAME))
-        .andExpect(status().isConflict());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
 
     assertNothingCreated(token, name, before);
   }
@@ -70,7 +71,8 @@ class AgentCreationAtomicityTest extends IntegrationTest {
     Snapshot before = snapshot();
 
     postAgent(token, agentBody(name, taken))
-        .andExpect(status().isConflict());
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
 
     assertNothingCreated(token, name, before);
   }

@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -109,7 +110,7 @@ public class AgentController {
   /**
    * Gives an existing Agent that has none its login (agent-login-on-creation spec, "Login for an
    * existing Agent"): 404 outside the caller's tenant, 409 when the Agent already has a login or
-   * the username is taken.
+   * the username is taken — told apart by the body's {@code code}.
    */
   @PostMapping("/{agentId}/login")
   @Transactional
@@ -145,5 +146,16 @@ public class AgentController {
                     contractRepository.countByAgentId(agent.getId()),
                     loginUsernames.get(agent.getId())))
         .toList();
+  }
+
+  /**
+   * Both login-creation 409s carry a {@code code} ({@code USERNAME_TAKEN} or {@code
+   * AGENT_ALREADY_HAS_LOGIN}) so the client can tell "choose another email" from "this page is
+   * stale" — a plain {@link ConflictException} body carries no message.
+   */
+  @ExceptionHandler(AgentLoginConflictException.class)
+  public ResponseEntity<Map<String, String>> agentLoginConflict(AgentLoginConflictException e) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(Map.of("code", e.reason().name(), "message", e.getMessage()));
   }
 }

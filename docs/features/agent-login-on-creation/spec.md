@@ -171,8 +171,14 @@ what a user can do in the browser — never repository calls or entity state.
      sign-in works; on an Agent that already has one → 409; on an unknown
      Agent → 404.
      Since the API can no longer create a login-less Agent, the fixture for
-     that case inserts the Agent directly in test setup — the only place
-     setup bypasses the API.
+     that case inserts the Agent directly into the database — in this
+     backend test and in the create-login e2e spec's fixture, the only two
+     places setup bypasses the API.
+   - Atomicity is proven outside the shared, rolled-back test transaction
+     (which would hide a partial commit): a duplicate-username create leaves
+     no Agent, standing amount or User behind. A leftover standing amount or
+     User isn't observable through the API, so this one test reads the
+     database directly, and deletes what it committed.
 2. **Frontend browser seam** — the existing Playwright e2e suite against the
    full stack. Prior art: the manager-entity-setup e2e spec and the login e2e
    spec. Case: a Manager creates an Agent with email and temporary password

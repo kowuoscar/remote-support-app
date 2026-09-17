@@ -25,8 +25,9 @@ import org.springframework.test.web.servlet.ResultActions;
  * Giving an existing, login-less Agent its login (create-login-for-existing-agent ticket).
  *
  * <p>The API can no longer create an Agent without a login, so the login-less Agent fixture is
- * inserted directly — the only place setup bypasses the API (agent-login-on-creation spec,
- * Testing decisions). The insert joins the test's rolled-back transaction.
+ * inserted directly — with the create-login e2e spec's fixture, the only places setup bypasses
+ * the API (agent-login-on-creation spec, Testing decisions). The insert joins the test's
+ * rolled-back transaction.
  */
 class AgentLoginApiTest extends IntegrationTest {
 

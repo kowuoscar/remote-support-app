@@ -39,6 +39,17 @@ async function gotoAndSettle(page: Page, path: string) {
   await page.evaluate(() => document.fonts.ready);
 }
 
+/**
+ * Regions that read the real backend, which this suite never runs: they render their unavailable
+ * state here, so they're masked rather than frozen into a golden (manager-invoice-review-queue
+ * spec, Testing decisions 4). The Manager Dashboard's Pending approvals card and its count stat
+ * both read the Review Queue.
+ */
+function backendDrivenRegions(page: Page, surface: Surface) {
+  if (surface.slug !== "manager") return [];
+  return [page.getByTestId("pending-approvals-stat"), page.getByTestId("pending-approvals-card")];
+}
+
 for (const surface of surfaces) {
   for (const breakpoint of breakpoints) {
     for (const theme of themes) {
@@ -49,7 +60,7 @@ for (const surface of surfaces) {
 
         await expect(page).toHaveScreenshot(
           `${surface.slug}-${breakpoint.name}-${theme}.png`,
-          { fullPage: true },
+          { fullPage: true, mask: backendDrivenRegions(page, surface) },
         );
       });
     }

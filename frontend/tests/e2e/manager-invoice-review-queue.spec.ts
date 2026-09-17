@@ -49,6 +49,41 @@ async function selectContractInSwitcher(page: Page, clientName: string) {
   }
 }
 
+/** Sends the current month's Client Invoice for `clientName`'s Contract as the seeded Agent. */
+async function sendClientInvoiceAsAgent(page: Page, clientName: string) {
+  await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+  await page.goto("/agent/client-invoices");
+  await selectContractInSwitcher(page, clientName);
+  await page.getByRole("button", { name: "Send Client Invoice" }).click();
+  await page.getByRole("button", { name: "Confirm send" }).click();
+  await expect(page.getByText("Awaiting approval")).toBeVisible();
+  await logout(page);
+}
+
+/**
+ * Approves every waiting Client Invoice except `keepSubject`'s, so that one is among the few the
+ * Dashboard card shows however many earlier runs left waiting in this database.
+ */
+async function approveOtherWaitingClientInvoices(page: Page, keepSubject: string) {
+  for (;;) {
+    await page.goto("/manager/invoices");
+    await expect(page.getByRole("tablist", { name: "Filter the Review Queue by invoice type" })).toBeVisible();
+    let target = null;
+    for (const link of await page.getByRole("link", { name: /^Review Client Invoice: / }).all()) {
+      const name = await link.getAttribute("aria-label");
+      if (!name?.startsWith(`Review Client Invoice: ${keepSubject},`)) {
+        target = link;
+        break;
+      }
+    }
+    if (!target) return;
+    await target.click();
+    await expect(page).toHaveURL(/\/manager\/invoices\/client\/.+/);
+    await page.getByRole("button", { name: "Approve" }).click();
+    await expect(page.getByText("Approved", { exact: true })).toBeVisible();
+  }
+}
+
 const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 
 test.describe("manager invoice review queue", () => {
@@ -96,5 +131,25 @@ test.describe("manager invoice review queue", () => {
     await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Invoices" }).click();
     await expect(page).toHaveURL(/\/manager\/invoices$/);
     await expect(page.getByRole("row", { name: new RegExp(subject) })).toHaveCount(0);
+  });
+
+  test("a manager opens a sent invoice from the dashboard's pending approvals card", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Lantern Row ${RUN_ID}`;
+    await createClientAndContractWithSeededAgent(page, clientName);
+    await logout(page);
+
+    await sendClientInvoiceAsAgent(page, clientName);
+
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const subject = `${clientName} — ${SEEDED_AGENT_NAME}`;
+    await approveOtherWaitingClientInvoices(page, subject);
+
+    await page.goto("/manager");
+    const card = page.getByRole("list", { name: "Pending approvals" });
+    await card.getByRole("link", { name: new RegExp(subject) }).click();
+
+    await expect(page).toHaveURL(/\/manager\/invoices\/client\/.+/);
+    await expect(page.getByRole("heading", { name: subject })).toBeVisible();
   });
 });

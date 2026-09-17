@@ -12,7 +12,8 @@ export function ManagerDashboardStats({
   agentCount,
   contractCount,
 }: {
-  pendingApprovalsCount: number;
+  /** The Review Queue's size, or `null` when it couldn't be loaded. */
+  pendingApprovalsCount: number | null;
   billedThisMonth: number;
   payoutThisMonth: number;
   clientCount: number;
@@ -41,9 +42,14 @@ export function ManagerDashboardStats({
     >
       <StatCard
         label="Pending approvals"
-        value={pendingApprovalsCount}
+        value={pendingApprovalsCount ?? "—"}
         primary
-        meta="Client + Agent Invoices awaiting review"
+        meta={
+          pendingApprovalsCount === null
+            ? "Couldn’t load the Review Queue"
+            : "Client + Agent Invoices awaiting review"
+        }
+        data-testid="pending-approvals-stat"
       />
       <StatCard
         label="Billed this month"

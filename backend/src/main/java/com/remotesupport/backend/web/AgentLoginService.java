@@ -40,12 +40,16 @@ public class AgentLoginService {
   }
 
   /**
-   * Throws {@link ConflictException} (409) when the username is already in use in the Agent's
-   * tenant. The check runs first for a clean 409; the {@code users} unique constraint (and V16's
-   * one-login-per-Agent index) back it up against a concurrent request.
+   * Throws {@link ConflictException} (409) when the Agent already has a login, or the username is
+   * already in use in the Agent's tenant. Both checks run first for a clean 409; V16's
+   * one-login-per-Agent index and the {@code users} unique constraint back them up against a
+   * concurrent request.
    */
   public User create(Agent agent, String username, String password, UUID actorUserId) {
     UUID tenantId = agent.getTenant().getId();
+    if (userRepository.existsByAgentId(agent.getId())) {
+      throw new ConflictException("Agent " + agent.getId() + " already has a login");
+    }
     requireUsernameAvailable(tenantId, username);
 
     User user = new User();
@@ -59,7 +63,8 @@ public class AgentLoginService {
     try {
       userRepository.saveAndFlush(user);
     } catch (DataIntegrityViolationException e) {
-      throw new ConflictException("Username " + username + " is already in use");
+      throw new ConflictException(
+          "Username " + username + " is already in use, or Agent " + agent.getId() + " already has a login");
     }
 
     AuditLog.agentLoginCreated(agent.getId(), user.getId(), actorUserId, tenantId);

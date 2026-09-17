@@ -14,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   /** The login linked to an Agent — at most one (V16's unique index). */
   Optional<User> findByAgentId(UUID agentId);
+
+  boolean existsByAgentId(UUID agentId);
 }

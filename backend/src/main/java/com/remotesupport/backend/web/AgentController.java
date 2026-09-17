@@ -4,6 +4,7 @@ import com.remotesupport.backend.domain.Agent;
 import com.remotesupport.backend.domain.StandingAmountType;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.dto.AgentCreateRequest;
+import com.remotesupport.backend.dto.AgentLoginCreateRequest;
 import com.remotesupport.backend.dto.AgentResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.AgentRepository;
@@ -22,13 +23,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Manager-only Agent CRUD (create + list). An Agent's currency is derived from its country, never
+ * Manager-only Agent CRUD (create + list), and giving a login-less Agent its login. An Agent's currency is derived from its country, never
  * chosen independently by the Manager (spec.md: "a country (which fixes their currency)").
  */
 @RestController
@@ -100,6 +102,31 @@ public class AgentController {
 
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(AgentResponse.of(agent, 0, login.getUsername()));
+  }
+
+  /**
+   * Gives an existing Agent that has none its login (agent-login-on-creation spec, "Login for an
+   * existing Agent"): 404 outside the caller's tenant, 409 when the Agent already has a login or
+   * the username is taken.
+   */
+  @PostMapping("/{agentId}/login")
+  @Transactional
+  public ResponseEntity<AgentResponse> createLogin(
+      @PathVariable UUID agentId,
+      @Valid @RequestBody AgentLoginCreateRequest request,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    Agent agent =
+        agentRepository
+            .findByIdAndTenantId(agentId, principal.tenantId())
+            .orElseThrow(() -> new NotFoundException("No agent with id " + agentId));
+
+    User login =
+        agentLoginService.create(agent, request.username(), request.password(), principal.userId());
+
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(
+            AgentResponse.of(
+                agent, contractRepository.countByAgentId(agent.getId()), login.getUsername()));
   }
 
   @GetMapping

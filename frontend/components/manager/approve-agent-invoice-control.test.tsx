@@ -10,13 +10,13 @@ describe("ApproveAgentInvoiceControl", () => {
     mockRouter.refresh.mockReset();
   });
 
-  it("approves the Agent Invoice on a single click, shows it pending, then refreshes", async () => {
+  it("approves the Agent Invoice by its id on a single click, shows it pending, then refreshes", async () => {
     const { fetchMock, respond } = stubPendingFetch();
-    render(<ApproveAgentInvoiceControl agentId="agent-1" />);
+    render(<ApproveAgentInvoiceControl invoiceId="invoice-1" />);
 
     await userEvent.click(screen.getByRole("button", { name: "Approve" }));
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/agents/agent-1/invoice/approve", { method: "POST" });
+    expect(fetchMock).toHaveBeenCalledWith("/api/agent-invoices/invoice-1/approve", { method: "POST" });
     expect(screen.getByRole("button", { name: "Approve" })).toBeDisabled();
 
     respond(200);
@@ -27,7 +27,7 @@ describe("ApproveAgentInvoiceControl", () => {
 
   it("shows an inline error and lets the Manager retry on a 500 response", async () => {
     stubFetch(500);
-    render(<ApproveAgentInvoiceControl agentId="agent-1" />);
+    render(<ApproveAgentInvoiceControl invoiceId="invoice-1" />);
 
     await userEvent.click(screen.getByRole("button", { name: "Approve" }));
 
@@ -38,7 +38,7 @@ describe("ApproveAgentInvoiceControl", () => {
 
   it("tells the Manager to refresh when the invoice is no longer awaiting approval (409)", async () => {
     stubFetch(409);
-    render(<ApproveAgentInvoiceControl agentId="agent-1" />);
+    render(<ApproveAgentInvoiceControl invoiceId="invoice-1" />);
 
     await userEvent.click(screen.getByRole("button", { name: "Approve" }));
 
@@ -48,7 +48,7 @@ describe("ApproveAgentInvoiceControl", () => {
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
-  it("approves an Agent Invoice by its own id and hands the approved invoice back", async () => {
+  it("hands the approved invoice back", async () => {
     const approved = { id: "invoice-1", status: "APPROVED" };
     const fetchMock = stubFetch(200, approved);
     const onApproved = vi.fn();

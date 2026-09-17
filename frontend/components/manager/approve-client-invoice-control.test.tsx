@@ -10,13 +10,13 @@ describe("ApproveClientInvoiceControl", () => {
     mockRouter.refresh.mockReset();
   });
 
-  it("approves the Contract's Client Invoice on a single click, shows it pending, then refreshes", async () => {
+  it("approves the Client Invoice by its id on a single click, shows it pending, then refreshes", async () => {
     const { fetchMock, respond } = stubPendingFetch();
-    render(<ApproveClientInvoiceControl contractId="contract-1" />);
+    render(<ApproveClientInvoiceControl invoiceId="invoice-1" />);
 
     await userEvent.click(screen.getByRole("button", { name: "Approve" }));
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/contracts/contract-1/client-invoice/approve", { method: "POST" });
+    expect(fetchMock).toHaveBeenCalledWith("/api/client-invoices/invoice-1/approve", { method: "POST" });
     expect(screen.getByRole("button", { name: "Approve" })).toBeDisabled();
 
     respond(200);
@@ -27,7 +27,7 @@ describe("ApproveClientInvoiceControl", () => {
 
   it("shows an inline error and lets the Manager retry on a 500 response", async () => {
     stubFetch(500);
-    render(<ApproveClientInvoiceControl contractId="contract-1" />);
+    render(<ApproveClientInvoiceControl invoiceId="invoice-1" />);
 
     await userEvent.click(screen.getByRole("button", { name: "Approve" }));
 
@@ -38,7 +38,7 @@ describe("ApproveClientInvoiceControl", () => {
 
   it("tells the Manager to refresh when the invoice is no longer awaiting approval (409)", async () => {
     stubFetch(409);
-    render(<ApproveClientInvoiceControl contractId="contract-1" />);
+    render(<ApproveClientInvoiceControl invoiceId="invoice-1" />);
 
     await userEvent.click(screen.getByRole("button", { name: "Approve" }));
 
@@ -48,7 +48,7 @@ describe("ApproveClientInvoiceControl", () => {
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
-  it("approves a Client Invoice by its own id and hands the approved invoice back", async () => {
+  it("hands the approved invoice back", async () => {
     const approved = { id: "invoice-1", status: "APPROVED" };
     const fetchMock = stubFetch(200, approved);
     const onApproved = vi.fn();

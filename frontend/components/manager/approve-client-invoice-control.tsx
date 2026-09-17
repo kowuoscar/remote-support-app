@@ -7,19 +7,6 @@ import { IconAlertTriangle, IconCheckCircle } from "@/components/icons";
 import type { ClientInvoiceDetail } from "@/lib/api/types";
 
 /**
- * Which Client Invoice to approve: by its own id (the Client Invoice detail page, any billing
- * month), or as a Contract's current-month invoice (the Contract page, until
- * invoice-summaries-on-contract-and-agent-pages moves that review to the detail page).
- */
-type Target = { invoiceId: string; contractId?: never } | { contractId: string; invoiceId?: never };
-
-function approveUrl(target: Target): string {
-  return target.invoiceId !== undefined
-    ? `/api/client-invoices/${target.invoiceId}/approve`
-    : `/api/contracts/${target.contractId}/client-invoice/approve`;
-}
-
-/**
  * Manager approves a sent Client Invoice (client-invoice-submission-and-visibility ticket AC:
  * "Manager can approve it, moving it to status approved"). A single confirm click is enough here
  * (unlike SendClientInvoiceControl's two-step confirm): approving happens only after the Manager
@@ -29,9 +16,12 @@ function approveUrl(target: Target): string {
  * view can show its final state in place.
  */
 export function ApproveClientInvoiceControl({
+  invoiceId,
   onApproved,
-  ...target
-}: Target & { onApproved?: (invoice: ClientInvoiceDetail) => void }) {
+}: {
+  invoiceId: string;
+  onApproved?: (invoice: ClientInvoiceDetail) => void;
+}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +30,7 @@ export function ApproveClientInvoiceControl({
     setPending(true);
     setError(null);
     try {
-      const response = await fetch(approveUrl(target as Target), { method: "POST" });
+      const response = await fetch(`/api/client-invoices/${invoiceId}/approve`, { method: "POST" });
       if (!response.ok) {
         setError(
           response.status === 409

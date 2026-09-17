@@ -1,7 +1,7 @@
 ---
 id: invoice-summaries-on-contract-and-agent-pages
 title: Replace invoice review on the Contract and Agent pages with a summary linking to the detail page
-status: in-progress
+status: done
 depends_on: [client-invoice-review-page, agent-invoice-review-page]
 labels: [frontend, invoicing]
 ---
@@ -12,11 +12,11 @@ Migrate step: review actions move to one place, the invoice detail page. Impleme
 
 ## Acceptance criteria
 
-- [ ] The Contract page shows its current month's Client Invoice as a compact summary (month, status, total) with an "Open invoice" link to its detail page, and no approve action
-- [ ] The Agent page shows its current month's Agent Invoice as the same kind of summary with an "Open invoice" link, and no override/approve/mark-paid action; standing amounts stay on the page
-- [ ] The link works whatever the invoice's status, including draft
-- [ ] The Manager frontend no longer calls any current-month Manager action route (Client Invoice approve; Agent Invoice override/approve/paid)
-- [ ] `client-invoice-submission-and-visibility.spec.ts` and `agent-invoice-submission-and-approval.spec.ts` perform the Manager's review through the Review Queue / summary link and the detail page, not on the Contract or Agent page
+- [x] The Contract page shows its current month's Client Invoice as a compact summary (month, status, total) with an "Open invoice" link to its detail page, and no approve action
+- [x] The Agent page shows its current month's Agent Invoice as the same kind of summary with an "Open invoice" link, and no override/approve/mark-paid action; standing amounts stay on the page
+- [x] The link works whatever the invoice's status, including draft
+- [x] The Manager frontend no longer calls any current-month Manager action route (Client Invoice approve; Agent Invoice override/approve/paid)
+- [x] `client-invoice-submission-and-visibility.spec.ts` and `agent-invoice-submission-and-approval.spec.ts` perform the Manager's review through the Review Queue / summary link and the detail page, not on the Contract or Agent page
 
 ## Tests
 

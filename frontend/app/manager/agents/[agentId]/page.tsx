@@ -3,7 +3,7 @@ import { SurfacePage } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { Card } from "@/components/ui/card";
 import { AgentStandingAmountsView } from "@/components/manager/agent-standing-amounts-view";
-import { ManagerAgentInvoiceView } from "@/components/manager/manager-agent-invoice-view";
+import { InvoiceSummaryCard } from "@/components/manager/invoice-summary-card";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
 import { requireManager } from "@/lib/api/guard";
 import { countryLabel, type AgentInvoiceDetail, type AgentListItem, type AgentStandingAmounts } from "@/lib/api/types";
@@ -11,17 +11,14 @@ import { countryLabel, type AgentInvoiceDetail, type AgentListItem, type AgentSt
 export const metadata = { title: "Agent" };
 
 /**
- * An Agent's detail view, added for the Manager to review the Agent, set their standing
+ * An Agent's detail view, added for the Manager to review the Agent and set their standing
  * salary/Rollout Advance (spec.md user stories 5-6; agent-standing-amounts-and-invoice-generation
- * ticket), and review/override/approve/mark-paid their current-month Agent Invoice (spec.md user
- * stories 9-12; agent-invoice-submission-and-approval ticket). Mirrors how
- * `/manager/clients/[clientId]` and `/manager/contracts/[contractId]` were added in prior
- * tickets: there's no single-Agent GET endpoint, so (like those) this finds the Agent in the full
- * list rather than adding one just for this page. The Agent Invoice fetch reuses
- * {@code GET /api/agents/{agentId}/invoice}'s get-or-create semantics (a Manager viewing this
- * page is itself "first access" for a month with no invoice yet — same as the Agent's own
- * `/agent/my-invoice`), so there's always a current-month invoice to review once any Fee/standing
- * amount exists.
+ * ticket). There's no single-Agent GET endpoint, so (like `/manager/clients/[clientId]` and
+ * `/manager/contracts/[contractId]`) this finds the Agent in the full list. The current-month Agent
+ * Invoice shows only as a summary linking to the invoice's detail page, where the Manager
+ * overrides, approves and marks it paid (manager-invoice-review-queue spec, Contract and Agent
+ * pages). Its read keeps `GET /api/agents/{agentId}/invoice`'s get-or-create semantics, so there's
+ * always a current-month invoice to link to.
  */
 export default async function ManagerAgentDetailPage({
   params,
@@ -81,7 +78,7 @@ export default async function ManagerAgentDetailPage({
           />
         ) : null}
 
-        <ManagerAgentInvoiceView agentId={agent.id} invoice={invoice} />
+        {invoice ? <InvoiceSummaryCard kind="AGENT_INVOICE" invoice={invoice} /> : null}
       </div>
     </SurfacePage>
   );

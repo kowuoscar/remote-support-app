@@ -6,7 +6,7 @@ import { mockRouter } from "@/tests/component/next-navigation";
 import { AgentInvoiceOverrideControl } from "./agent-invoice-override-control";
 
 function renderControl() {
-  render(<AgentInvoiceOverrideControl agentId="agent-1" salary={1000} rolloutAdvanceNewAdvance={0} currency="EUR" />);
+  render(<AgentInvoiceOverrideControl invoiceId="invoice-1" salary={1000} rolloutAdvanceNewAdvance={0} currency="EUR" />);
   const salaryInput = screen.getByRole("spinbutton", { name: /Override Salary \(EUR\)/ });
   const salaryForm = salaryInput.closest("form")!;
   return {
@@ -29,7 +29,7 @@ describe("AgentInvoiceOverrideControl", () => {
     await userEvent.type(salaryInput, "1250.5");
     await userEvent.click(salaryButton);
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/agents/agent-1/invoice/override", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/agent-invoices/invoice-1/override", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ salary: 1250.5 }),
@@ -46,7 +46,7 @@ describe("AgentInvoiceOverrideControl", () => {
 
   it("overrides the Rollout Advance new-advance line independently of Salary", async () => {
     const fetchMock = stubFetch(200);
-    render(<AgentInvoiceOverrideControl agentId="agent-1" salary={1000} rolloutAdvanceNewAdvance={0} currency="EUR" />);
+    render(<AgentInvoiceOverrideControl invoiceId="invoice-1" salary={1000} rolloutAdvanceNewAdvance={0} currency="EUR" />);
     const input = screen.getByRole("spinbutton", { name: /Override Rollout Advance \(new\) \(EUR\)/ });
 
     await userEvent.clear(input);
@@ -55,7 +55,7 @@ describe("AgentInvoiceOverrideControl", () => {
 
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(
-        "/api/agents/agent-1/invoice/override",
+        "/api/agent-invoices/invoice-1/override",
         expect.objectContaining({ body: JSON.stringify({ rolloutAdvanceNewAdvance: 300 }) }),
       ),
     );
@@ -86,7 +86,7 @@ describe("AgentInvoiceOverrideControl", () => {
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
-  it("overrides an Agent Invoice by its own id and hands the updated invoice back", async () => {
+  it("hands the updated invoice back", async () => {
     const updated = { id: "invoice-1", status: "SENT", salary: 1400 };
     const fetchMock = stubFetch(200, updated);
     const onOverridden = vi.fn();

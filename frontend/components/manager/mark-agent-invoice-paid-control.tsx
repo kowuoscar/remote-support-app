@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { IconAlertTriangle, IconCoins } from "@/components/icons";
-import { agentInvoiceActionUrl, type AgentInvoiceTarget } from "@/components/manager/agent-invoice-target";
 import type { AgentInvoiceDetail } from "@/lib/api/types";
 
 /**
@@ -16,9 +15,12 @@ import type { AgentInvoiceDetail } from "@/lib/api/types";
  * show its final state in place.
  */
 export function MarkAgentInvoicePaidControl({
+  invoiceId,
   onPaid,
-  ...target
-}: AgentInvoiceTarget & { onPaid?: (invoice: AgentInvoiceDetail) => void }) {
+}: {
+  invoiceId: string;
+  onPaid?: (invoice: AgentInvoiceDetail) => void;
+}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export function MarkAgentInvoicePaidControl({
     setPending(true);
     setError(null);
     try {
-      const response = await fetch(agentInvoiceActionUrl(target as AgentInvoiceTarget, "paid"), { method: "POST" });
+      const response = await fetch(`/api/agent-invoices/${invoiceId}/paid`, { method: "POST" });
       if (!response.ok) {
         setError(
           response.status === 409

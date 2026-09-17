@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { IconAlertTriangle, IconCheckCircle } from "@/components/icons";
-import { agentInvoiceActionUrl, type AgentInvoiceTarget } from "@/components/manager/agent-invoice-target";
 import type { AgentInvoiceDetail } from "@/lib/api/types";
 
 /**
@@ -16,9 +15,12 @@ import type { AgentInvoiceDetail } from "@/lib/api/types";
  * receives the approved invoice so a detail view can show its new state in place.
  */
 export function ApproveAgentInvoiceControl({
+  invoiceId,
   onApproved,
-  ...target
-}: AgentInvoiceTarget & { onApproved?: (invoice: AgentInvoiceDetail) => void }) {
+}: {
+  invoiceId: string;
+  onApproved?: (invoice: AgentInvoiceDetail) => void;
+}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,9 +29,7 @@ export function ApproveAgentInvoiceControl({
     setPending(true);
     setError(null);
     try {
-      const response = await fetch(agentInvoiceActionUrl(target as AgentInvoiceTarget, "approve"), {
-        method: "POST",
-      });
+      const response = await fetch(`/api/agent-invoices/${invoiceId}/approve`, { method: "POST" });
       if (!response.ok) {
         setError(
           response.status === 409

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconAlertTriangle } from "@/components/icons";
-import { agentInvoiceActionUrl, type AgentInvoiceTarget } from "@/components/manager/agent-invoice-target";
 import type { AgentInvoiceDetail } from "@/lib/api/types";
 
 function errorMessage(status: number): string {
@@ -20,14 +19,14 @@ function errorMessage(status: number): string {
 }
 
 function OverrideField({
-  target,
+  invoiceId,
   field,
   label,
   current,
   currency,
   onOverridden,
 }: {
-  target: AgentInvoiceTarget;
+  invoiceId: string;
   field: "salary" | "rolloutAdvanceNewAdvance";
   label: string;
   current: number;
@@ -48,7 +47,7 @@ function OverrideField({
     setSubmitting(true);
 
     try {
-      const response = await fetch(agentInvoiceActionUrl(target, "override"), {
+      const response = await fetch(`/api/agent-invoices/${invoiceId}/override`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: Number(amount) }),
@@ -118,10 +117,10 @@ function OverrideField({
  * approval ticket AC: "Manager can override the Salary or Rollout Advance value on that one
  * invoice ... without changing the Agent's standing amount used by future invoices"). Each field
  * submits independently ({@code field} distinguishes which of the two the request overrides), the
- * same shape AgentStandingAmountsView already established for the two standing-amount fields one
- * section up on the same page — except this edits *this invoice's own snapshot only*, never
- * `AgentStandingAmount`, which is why the copy below says so explicitly rather than assuming that
- * distinction is obvious next to a standing-amounts form.
+ * same shape AgentStandingAmountsView established for the two standing-amount fields — except
+ * this edits *this invoice's own snapshot only*, never `AgentStandingAmount`, which is why the
+ * copy below says so explicitly. The invoice is addressed by its own id, so any billing month
+ * works.
  *
  * <p>Only Salary and the Rollout Advance <b>new advance</b> line are exposed — never the
  * repayment line, which simply settles an amount already fixed on the Agent's prior invoice (see
@@ -133,9 +132,10 @@ export function AgentInvoiceOverrideControl({
   salary,
   rolloutAdvanceNewAdvance,
   currency,
+  invoiceId,
   onOverridden,
-  ...target
-}: AgentInvoiceTarget & {
+}: {
+  invoiceId: string;
   salary: number;
   rolloutAdvanceNewAdvance: number;
   currency: string;
@@ -148,7 +148,7 @@ export function AgentInvoiceOverrideControl({
       </p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <OverrideField
-          target={target as AgentInvoiceTarget}
+          invoiceId={invoiceId}
           field="salary"
           label="Override Salary"
           current={salary}
@@ -156,7 +156,7 @@ export function AgentInvoiceOverrideControl({
           onOverridden={onOverridden}
         />
         <OverrideField
-          target={target as AgentInvoiceTarget}
+          invoiceId={invoiceId}
           field="rolloutAdvanceNewAdvance"
           label="Override Rollout Advance (new)"
           current={rolloutAdvanceNewAdvance}

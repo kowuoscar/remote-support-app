@@ -1,7 +1,7 @@
 ---
 id: remove-current-month-manager-invoice-actions
 title: Remove the Manager's current-month invoice action routes
-status: ready-for-agent
+status: in-progress
 depends_on: [invoice-summaries-on-contract-and-agent-pages]
 labels: [backend, invoicing]
 ---

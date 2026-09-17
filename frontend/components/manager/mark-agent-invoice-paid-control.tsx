@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { IconAlertTriangle, IconCoins } from "@/components/icons";
+import { usePostAction } from "@/lib/use-post-action";
 import type { AgentInvoiceDetail } from "@/lib/api/types";
 
 /**
@@ -17,41 +16,19 @@ import type { AgentInvoiceDetail } from "@/lib/api/types";
 export function MarkAgentInvoicePaidControl({
   invoiceId,
   onPaid,
-}: {
+}: Readonly<{
   invoiceId: string;
   onPaid?: (invoice: AgentInvoiceDetail) => void;
-}) {
-  const router = useRouter();
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  async function markPaid() {
-    setPending(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/agent-invoices/${invoiceId}/paid`, { method: "POST" });
-      if (!response.ok) {
-        setError(
-          response.status === 409
-            ? "This invoice is no longer awaiting payment. Refresh to see its current status."
-            : "Couldn't mark as paid. Try again.",
-        );
-        setPending(false);
-        return;
-      }
-      if (onPaid) {
-        onPaid((await response.json()) as AgentInvoiceDetail);
-      }
-      router.refresh();
-    } catch {
-      setError("Couldn't reach the server. Check your connection and try again.");
-      setPending(false);
-    }
-  }
+}>) {
+  const { pending, error, run } = usePostAction<AgentInvoiceDetail>(
+    `/api/agent-invoices/${invoiceId}/paid`,
+    "This invoice is no longer awaiting payment. Refresh to see its current status.",
+    "Couldn't mark as paid. Try again.",
+  );
 
   return (
     <div className="flex flex-col items-end gap-1.5">
-      <Button type="button" variant="primary" size="sm" loading={pending} onClick={markPaid}>
+      <Button type="button" variant="primary" size="sm" loading={pending} onClick={() => run(onPaid)}>
         <IconCoins className="h-4 w-4" />
         Mark paid
       </Button>

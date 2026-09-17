@@ -7,6 +7,7 @@ import com.remotesupport.backend.dto.AgentCreateRequest;
 import com.remotesupport.backend.dto.AgentLoginCreateRequest;
 import com.remotesupport.backend.dto.AgentResponse;
 import com.remotesupport.backend.logging.AuditLog;
+import com.remotesupport.backend.repository.AgentLogin;
 import com.remotesupport.backend.repository.AgentRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.TenantRepository;
@@ -17,7 +18,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,8 +33,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Manager-only Agent CRUD (create + list), and giving a login-less Agent its login. An Agent's currency is derived from its country, never
- * chosen independently by the Manager (spec.md: "a country (which fixes their currency)").
+ * Manager-only Agent CRUD (create + list), and giving a login-less Agent its login. An Agent's
+ * currency is derived from its country, never chosen independently by the Manager (spec.md: "a
+ * country (which fixes their currency)").
  */
 @RestController
 @RequestMapping("/api/agents")
@@ -62,17 +66,15 @@ public class AgentController {
   /**
    * Creates the Agent, its initial standing salary and its login in one transaction
    * (agent-login-on-creation spec, "One request, one transaction"): a username conflict leaves no
-   * Agent, standing amount or User behind.
+   * Agent, standing amount or User behind. There is deliberately no username pre-check: the
+   * conflict is detected by the {@code users} unique constraint after the Agent and its standing
+   * amount are written, and this transaction is what removes them (AgentCreationAtomicityTest).
    */
   @PostMapping
   @Transactional
   public ResponseEntity<AgentResponse> create(
       @Valid @RequestBody AgentCreateRequest request,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
-    // Checked before any write; a concurrent request taking the username in between still fails
-    // inside agentLoginService.create and rolls the whole transaction back.
-    agentLoginService.requireUsernameAvailable(principal.tenantId(), request.username());
-
     Agent agent = new Agent();
     agent.setId(UUID.randomUUID());
     agent.setTenant(tenantRepository.getReferenceById(principal.tenantId()));
@@ -119,6 +121,7 @@ public class AgentController {
         agentRepository
             .findByIdAndTenantId(agentId, principal.tenantId())
             .orElseThrow(() -> new NotFoundException("No agent with id " + agentId));
+    agentLoginService.requireLoginCreatable(agent, request.username());
 
     User login =
         agentLoginService.create(agent, request.username(), request.password(), principal.userId());
@@ -131,13 +134,16 @@ public class AgentController {
 
   @GetMapping
   public List<AgentResponse> list(@AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    Map<UUID, String> loginUsernames =
+        userRepository.findAgentLoginsByTenantId(principal.tenantId()).stream()
+            .collect(Collectors.toMap(AgentLogin::agentId, AgentLogin::username));
     return agentRepository.findByTenantIdOrderByNameAsc(principal.tenantId()).stream()
         .map(
             agent ->
                 AgentResponse.of(
                     agent,
                     contractRepository.countByAgentId(agent.getId()),
-                    userRepository.findByAgentId(agent.getId()).map(User::getUsername).orElse(null)))
+                    loginUsernames.get(agent.getId())))
         .toList();
   }
 }

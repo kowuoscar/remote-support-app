@@ -5,6 +5,7 @@ import com.remotesupport.backend.domain.Role;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.UserRepository;
+import com.remotesupport.backend.web.AgentLoginConflictException.Reason;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,6 +21,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class AgentLoginService {
 
+  // V1's users unique constraint and V16's one-login-per-Agent index, as Postgres names them in a
+  // violation — how a conflict caught at flush time is told apart.
+  private static final String USERNAME_CONSTRAINT = "uq_users_tenant_username";
+  private static final String ONE_LOGIN_PER_AGENT_INDEX = "uq_users_one_login_per_agent";
+
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
@@ -29,29 +35,26 @@ public class AgentLoginService {
   }
 
   /**
-   * Throws {@link ConflictException} (409) when the username is already in use in the tenant. A
-   * caller about to write other rows alongside the login calls this before writing anything, so
-   * the common conflict never reaches a rollback at all.
+   * Throws {@link AgentLoginConflictException} (409) when the Agent already has a login, or the
+   * username is already in use in the Agent's tenant. For a caller with nothing written yet (giving
+   * an existing Agent its login), so the common conflicts answer cleanly without a failed insert.
    */
-  public void requireUsernameAvailable(UUID tenantId, String username) {
-    if (userRepository.existsByTenantIdAndUsername(tenantId, username)) {
-      throw new ConflictException("Username " + username + " is already in use");
+  public void requireLoginCreatable(Agent agent, String username) {
+    if (userRepository.existsByAgentId(agent.getId())) {
+      throw agentAlreadyHasLogin(agent);
+    }
+    if (userRepository.existsByTenantIdAndUsername(agent.getTenant().getId(), username)) {
+      throw usernameTaken(username);
     }
   }
 
   /**
-   * Throws {@link ConflictException} (409) when the Agent already has a login, or the username is
-   * already in use in the Agent's tenant. Both checks run first for a clean 409; V16's
-   * one-login-per-Agent index and the {@code users} unique constraint back them up against a
-   * concurrent request.
+   * Writes the login and flushes, so a conflict surfaces here, inside the caller's transaction:
+   * V16's one-login-per-Agent index and the {@code users} unique constraint are what reject it,
+   * mapped to an {@link AgentLoginConflictException} (409) naming which one. The exception rolls
+   * back everything the caller wrote before this call.
    */
   public User create(Agent agent, String username, String password, UUID actorUserId) {
-    UUID tenantId = agent.getTenant().getId();
-    if (userRepository.existsByAgentId(agent.getId())) {
-      throw new ConflictException("Agent " + agent.getId() + " already has a login");
-    }
-    requireUsernameAvailable(tenantId, username);
-
     User user = new User();
     user.setId(UUID.randomUUID());
     user.setTenant(agent.getTenant());
@@ -63,11 +66,32 @@ public class AgentLoginService {
     try {
       userRepository.saveAndFlush(user);
     } catch (DataIntegrityViolationException e) {
-      throw new ConflictException(
-          "Username " + username + " is already in use, or Agent " + agent.getId() + " already has a login");
+      throw toConflict(e, agent, username);
     }
 
-    AuditLog.agentLoginCreated(agent.getId(), user.getId(), actorUserId, tenantId);
+    AuditLog.agentLoginCreated(agent.getId(), user.getId(), actorUserId, agent.getTenant().getId());
     return user;
+  }
+
+  private static RuntimeException toConflict(
+      DataIntegrityViolationException e, Agent agent, String username) {
+    String detail = String.valueOf(e.getMostSpecificCause().getMessage());
+    if (detail.contains(USERNAME_CONSTRAINT)) {
+      return usernameTaken(username);
+    }
+    if (detail.contains(ONE_LOGIN_PER_AGENT_INDEX)) {
+      return agentAlreadyHasLogin(agent);
+    }
+    return e;
+  }
+
+  private static AgentLoginConflictException usernameTaken(String username) {
+    return new AgentLoginConflictException(
+        Reason.USERNAME_TAKEN, "Username " + username + " is already in use");
+  }
+
+  private static AgentLoginConflictException agentAlreadyHasLogin(Agent agent) {
+    return new AgentLoginConflictException(
+        Reason.AGENT_ALREADY_HAS_LOGIN, "Agent " + agent.getId() + " already has a login");
   }
 }

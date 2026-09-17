@@ -25,7 +25,8 @@ import org.springframework.test.web.servlet.ResultActions;
  * Agent creation and listing (manager-entity-setup ticket): an Agent's currency is fixed
  * deterministically by its country, never chosen independently (spec.md: "a person hired in one
  * country (which fixes their currency)"). Creating an Agent also creates its login, all or
- * nothing (agent-login-on-creation spec, create-agent-with-login ticket).
+ * nothing (agent-login-on-creation spec, create-agent-with-login ticket). A username conflict is
+ * covered by {@link AgentCreationAtomicityTest}, outside this class's rolled-back transaction.
  */
 class AgentApiTest extends IntegrationTest {
 
@@ -127,28 +128,6 @@ class AgentApiTest extends IntegrationTest {
     postAgent(token, body).andExpect(status().isBadRequest());
 
     assertNoAgentNamed(token, "No Password Agent");
-  }
-
-  @Test
-  void creatingAnAgentWithAUsernameAlreadyInUseIsRejectedAndCreatesNoAgent() throws Exception {
-    String token = managerToken();
-    postAgent(token, agentBody("First Holder", "taken@agents.example"))
-        .andExpect(status().isCreated());
-
-    postAgent(token, agentBody("Second Holder", "taken@agents.example"))
-        .andExpect(status().isConflict());
-
-    assertNoAgentNamed(token, "Second Holder");
-  }
-
-  @Test
-  void creatingAnAgentWithAnotherUsersUsernameIsRejectedAndCreatesNoAgent() throws Exception {
-    String token = managerToken();
-
-    postAgent(token, agentBody("Manager Name Clash", MANAGER_USERNAME))
-        .andExpect(status().isConflict());
-
-    assertNoAgentNamed(token, "Manager Name Clash");
   }
 
   @Test

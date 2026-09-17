@@ -1,7 +1,7 @@
 ---
 id: create-login-for-existing-agent
 title: Manager gives a login to an Agent that has none
-status: ready-for-agent
+status: in-progress
 depends_on: [create-agent-with-login]
 labels: [backend, frontend, manager, auth]
 ---

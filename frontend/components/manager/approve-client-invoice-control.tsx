@@ -4,6 +4,20 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { IconAlertTriangle, IconCheckCircle } from "@/components/icons";
+import type { ClientInvoiceDetail } from "@/lib/api/types";
+
+/**
+ * Which Client Invoice to approve: by its own id (the Client Invoice detail page, any billing
+ * month), or as a Contract's current-month invoice (the Contract page, until
+ * invoice-summaries-on-contract-and-agent-pages moves that review to the detail page).
+ */
+type Target = { invoiceId: string; contractId?: never } | { contractId: string; invoiceId?: never };
+
+function approveUrl(target: Target): string {
+  return target.invoiceId !== undefined
+    ? `/api/client-invoices/${target.invoiceId}/approve`
+    : `/api/contracts/${target.contractId}/client-invoice/approve`;
+}
 
 /**
  * Manager approves a sent Client Invoice (client-invoice-submission-and-visibility ticket AC:
@@ -11,9 +25,13 @@ import { IconAlertTriangle, IconCheckCircle } from "@/components/icons";
  * (unlike SendClientInvoiceControl's two-step confirm): approving happens only after the Manager
  * has already reviewed the invoice and its carrier files on this same page, so the reviewing
  * itself is the deliberate step — the click is the natural conclusion of that review, not a
- * surprise action reachable from a list.
+ * surprise action reachable from a list. `onApproved` receives the approved invoice so a detail
+ * view can show its final state in place.
  */
-export function ApproveClientInvoiceControl({ contractId }: { contractId: string }) {
+export function ApproveClientInvoiceControl({
+  onApproved,
+  ...target
+}: Target & { onApproved?: (invoice: ClientInvoiceDetail) => void }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,11 +40,18 @@ export function ApproveClientInvoiceControl({ contractId }: { contractId: string
     setPending(true);
     setError(null);
     try {
-      const response = await fetch(`/api/contracts/${contractId}/client-invoice/approve`, { method: "POST" });
+      const response = await fetch(approveUrl(target as Target), { method: "POST" });
       if (!response.ok) {
-        setError("Couldn't approve. Try again.");
+        setError(
+          response.status === 409
+            ? "This invoice is no longer awaiting approval. Refresh to see its current status."
+            : "Couldn't approve. Try again.",
+        );
         setPending(false);
         return;
+      }
+      if (onApproved) {
+        onApproved((await response.json()) as ClientInvoiceDetail);
       }
       router.refresh();
     } catch {

@@ -8,9 +8,9 @@ import { backendFetch } from "@/lib/api/backend";
  * authenticated Client/Agent/Tester session can otherwise reach `/manager/**` in the browser. The
  * backend is the real authority on role, so this asks it via `/api/me` and sends a non-Manager
  * (or unauthenticated/expired-token) visitor back to `/login` rather than rendering a page they
- * have no data for. Scoped to the pages that call it (Clients/Agents/Contracts, wired to the real
- * backend in this ticket) rather than the shared `ManagerLayout`, so the still-demo-data dashboard
- * and Invoices page keep working in the visual-regression suite, which runs with no backend at all.
+ * have no data for. Scoped to the pages that call it (every backend-driven Manager page) rather
+ * than the shared `ManagerLayout`, so the still-demo-data dashboard keeps working in the
+ * visual-regression suite, which runs with no backend at all.
  */
 export async function requireManager(): Promise<void> {
   const response = await backendFetch("/api/me");

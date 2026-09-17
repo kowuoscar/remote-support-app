@@ -81,3 +81,19 @@ export function formatRelativeAge(iso: string, now: Date = new Date()): string {
   if (months === 1) return "1 month ago";
   return `${months} months ago`;
 }
+
+/** "August 2026" for a first-of-month ISO date, parsed as UTC so it never slips a month back. */
+export function formatBillingMonth(billingMonth: string): string {
+  return new Date(`${billingMonth}T00:00:00Z`).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+/** How long something has waited, in whole days: "Today", "1 day", "12 days". */
+export function formatWaitingTime(sinceIso: string, nowIso: string): string {
+  const days = Math.floor((new Date(nowIso).getTime() - new Date(sinceIso).getTime()) / (1000 * 60 * 60 * 24));
+  if (days <= 0) return "Today";
+  return days === 1 ? "1 day" : `${days} days`;
+}

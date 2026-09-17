@@ -8,7 +8,6 @@ import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Fee;
 import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
-import com.remotesupport.backend.dto.FeeResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
 import com.remotesupport.backend.repository.ClientInvoiceFeeSnapshotRepository;
@@ -19,16 +18,13 @@ import com.remotesupport.backend.security.ClientInvoiceAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -64,8 +60,9 @@ import org.springframework.web.multipart.MultipartFile;
  * ticket must not break). {@link #send} snapshots both the moment the Agent sends: {@code
  * ClientInvoice#snapshotBaseAmount} and the Fee-line membership into {@link
  * ClientInvoiceFeeSnapshot} rows. Every {@code GET} from {@code SENT} onward serves that snapshot
- * — see {@link #buildResponse} — so a Fee logged against the same Contract/month afterwards can
- * never silently change a total the Manager already approved or the Client was already shown. See
+ * — see {@link ClientInvoiceService#toResponse} — so a Fee logged against the same Contract/month
+ * afterwards can never silently change a total the Manager already approved or the Client was
+ * already shown. See
  * {@link ClientInvoice}'s Javadoc and CONTEXT.md's "Client Invoice" entry for the full reasoning.
  */
 @RestController
@@ -80,7 +77,7 @@ public class ClientInvoiceController {
   private final ClientInvoiceFeeSnapshotRepository clientInvoiceFeeSnapshotRepository;
   private final ClientInvoiceAccessGuard clientInvoiceAccessGuard;
   private final CarrierInvoiceFileStorage fileStorage;
-  private final ClientInvoicePdfRenderer pdfRenderer;
+  private final ClientInvoiceService clientInvoiceService;
 
   public ClientInvoiceController(
       ContractRepository contractRepository,
@@ -91,7 +88,7 @@ public class ClientInvoiceController {
       ClientInvoiceFeeSnapshotRepository clientInvoiceFeeSnapshotRepository,
       ClientInvoiceAccessGuard clientInvoiceAccessGuard,
       CarrierInvoiceFileStorage fileStorage,
-      ClientInvoicePdfRenderer pdfRenderer) {
+      ClientInvoiceService clientInvoiceService) {
     this.contractRepository = contractRepository;
     this.clientInvoiceRepository = clientInvoiceRepository;
     this.feeRepository = feeRepository;
@@ -100,7 +97,7 @@ public class ClientInvoiceController {
     this.clientInvoiceFeeSnapshotRepository = clientInvoiceFeeSnapshotRepository;
     this.clientInvoiceAccessGuard = clientInvoiceAccessGuard;
     this.fileStorage = fileStorage;
-    this.pdfRenderer = pdfRenderer;
+    this.clientInvoiceService = clientInvoiceService;
   }
 
   @GetMapping
@@ -108,7 +105,7 @@ public class ClientInvoiceController {
       @PathVariable UUID contractId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
     ClientInvoice invoice = resolveInvoiceForView(contract, principal);
-    return buildResponse(invoice);
+    return clientInvoiceService.toResponse(invoice);
   }
 
   /**
@@ -146,7 +143,7 @@ public class ClientInvoiceController {
         principal.userId(),
         principal.tenantId());
 
-    return buildResponse(invoice);
+    return clientInvoiceService.toResponse(invoice);
   }
 
   /**
@@ -168,24 +165,7 @@ public class ClientInvoiceController {
             .findByContractIdAndBillingMonth(contract.getId(), currentBillingMonth())
             .orElseThrow(() -> new NotFoundException("No Client Invoice for this Contract this month"));
 
-    ClientInvoiceStatus oldStatus = invoice.getStatus();
-    if (!oldStatus.canTransitionTo(ClientInvoiceStatus.APPROVED)) {
-      throw new ConflictException("Cannot approve a Client Invoice from status " + oldStatus);
-    }
-
-    invoice.setStatus(ClientInvoiceStatus.APPROVED);
-    invoice.setApprovedAt(Instant.now());
-    clientInvoiceRepository.save(invoice);
-
-    AuditLog.statusChanged(
-        "ClientInvoice",
-        invoice.getId(),
-        oldStatus.name(),
-        ClientInvoiceStatus.APPROVED.name(),
-        principal.userId(),
-        principal.tenantId());
-
-    return buildResponse(invoice);
+    return clientInvoiceService.approve(invoice, principal);
   }
 
   /**
@@ -199,19 +179,7 @@ public class ClientInvoiceController {
   public ResponseEntity<byte[]> pdf(
       @PathVariable UUID contractId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
-    ClientInvoice invoice = resolveInvoiceForView(contract, principal);
-    if (invoice.getStatus() == ClientInvoiceStatus.DRAFT) {
-      throw new ConflictException("Cannot generate a PDF for a Client Invoice still in draft");
-    }
-
-    byte[] pdfBytes = pdfRenderer.render(contract, buildResponse(invoice));
-
-    return ResponseEntity.ok()
-        .contentType(MediaType.APPLICATION_PDF)
-        .header(
-            HttpHeaders.CONTENT_DISPOSITION,
-            "attachment; filename=\"client-invoice-" + invoice.getBillingMonth() + ".pdf\"")
-        .body(pdfBytes);
+    return clientInvoiceService.pdf(resolveInvoiceForView(contract, principal));
   }
 
   @PostMapping("/files")
@@ -263,10 +231,7 @@ public class ClientInvoiceController {
   public List<CarrierInvoiceFileResponse> listFiles(
       @PathVariable UUID contractId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
-    ClientInvoice invoice = resolveInvoiceForView(contract, principal);
-    return carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoice.getId()).stream()
-        .map(CarrierInvoiceFileResponse::of)
-        .toList();
+    return clientInvoiceService.files(resolveInvoiceForView(contract, principal));
   }
 
   @GetMapping("/files/{fileId}")
@@ -275,24 +240,7 @@ public class ClientInvoiceController {
       @PathVariable UUID fileId,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
-    ClientInvoice invoice = resolveInvoiceForView(contract, principal);
-
-    CarrierInvoiceFile file =
-        carrierInvoiceFileRepository
-            .findByIdAndClientInvoiceId(fileId, invoice.getId())
-            .orElseThrow(() -> new NotFoundException("No carrier invoice file with id " + fileId));
-
-    byte[] content;
-    try {
-      content = fileStorage.read(file.getStoragePath());
-    } catch (IOException e) {
-      throw new UncheckedIOException("Failed to read carrier invoice file", e);
-    }
-
-    return ResponseEntity.ok()
-        .contentType(MediaType.parseMediaType(file.getContentType()))
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-        .body(content);
+    return clientInvoiceService.downloadFile(resolveInvoiceForView(contract, principal), fileId);
   }
 
   /**
@@ -339,59 +287,6 @@ public class ClientInvoiceController {
       line.setCreatedAt(Instant.now());
       clientInvoiceFeeSnapshotRepository.save(line);
     }
-  }
-
-  private ClientInvoiceResponse buildResponse(ClientInvoice invoice) {
-    UUID contractId = invoice.getContract().getId();
-    boolean frozen = invoice.getStatus() != ClientInvoiceStatus.DRAFT;
-
-    BigDecimal baseAmount = frozen ? invoice.getSnapshotBaseAmount() : contractAmountService.baseAmount(contractId);
-    List<FeeResponse> feeLines = frozen ? snapshottedFeeLines(invoice) : liveFeeLines(invoice);
-    BigDecimal feesTotal =
-        feeLines.stream().map(FeeResponse::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
-
-    List<CarrierInvoiceFileResponse> files =
-        carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoice.getId()).stream()
-            .map(CarrierInvoiceFileResponse::of)
-            .toList();
-
-    return new ClientInvoiceResponse(
-        invoice.getId(),
-        contractId,
-        invoice.getBillingMonth(),
-        invoice.getStatus().name(),
-        invoice.getCurrency().name(),
-        baseAmount,
-        feeLines,
-        baseAmount.add(feesTotal),
-        files,
-        invoice.getSentAt(),
-        invoice.getApprovedAt());
-  }
-
-  private List<FeeResponse> liveFeeLines(ClientInvoice invoice) {
-    return feeRepository
-        .findByContractIdAndBillingMonthOrderByCreatedAtAsc(invoice.getContract().getId(), invoice.getBillingMonth())
-        .stream()
-        .map(FeeResponse::of)
-        .toList();
-  }
-
-  /**
-   * The frozen Fee lines for a {@code SENT}/{@code APPROVED} invoice: every {@link Fee} pinned by
-   * a {@link ClientInvoiceFeeSnapshot} row, resolved through {@link FeeRepository} (never
-   * duplicated locally — see that entity's Javadoc for why), ordered exactly like the live view
-   * (oldest first) so switching from live to frozen never reorders what the Agent already saw.
-   */
-  private List<FeeResponse> snapshottedFeeLines(ClientInvoice invoice) {
-    List<UUID> feeIds =
-        clientInvoiceFeeSnapshotRepository.findByClientInvoiceId(invoice.getId()).stream()
-            .map(line -> line.getFee().getId())
-            .toList();
-    return feeRepository.findAllById(feeIds).stream()
-        .sorted(Comparator.comparing(Fee::getCreatedAt))
-        .map(FeeResponse::of)
-        .toList();
   }
 
   private Optional<ClientInvoice> findCurrentMonthInvoice(Contract contract) {

@@ -160,6 +160,11 @@ public class SecurityConfig {
                     // This also covers /api/agents/{id}/standing-amounts (Manager-only, ticket
                     // AC: "Standing-amount changes are Manager-only") since it isn't matched
                     // above.
+                    // manager-invoice-review-queue spec: the Review Queue and every Client Invoice
+                    // addressed by its own id are Manager-only. Tenant scoping (an unknown or
+                    // other-tenant id is 404) is enforced in the controllers.
+                    .requestMatchers("/api/review-queue", "/api/client-invoices/**")
+                    .hasRole("MANAGER")
                     .requestMatchers("/api/clients/**", "/api/agents/**", "/api/contracts/**")
                     .hasRole("MANAGER")
                     .anyRequest()

@@ -1,7 +1,7 @@
 ---
 id: agent-invoice-review-page
 title: Manager reviews, overrides, approves and marks paid an Agent Invoice from the Review Queue
-status: ready-for-agent
+status: done
 depends_on: [client-invoice-review-page]
 labels: [backend, frontend, invoicing, payroll]
 ---
@@ -10,16 +10,23 @@ labels: [backend, frontend, invoicing, payroll]
 
 Second Review Queue slice: Agent Invoices join the queue and get their by-id routes and detail page. Implements spec.md Solution (Review Queue membership for Agent Invoices, invoice by id — Agent Invoice, Agent Invoice detail page) and user stories 4, 14-21, 23.
 
+Implementation notes:
+
+- Override, approve and mark paid show distinct 409 copy ("This invoice is no longer awaiting approval/payment…"), mirroring the Client Invoice approve control.
+- Queue rows carry a "Waiting for" column (Approval / Payment) so a sent and an approved Agent Invoice are told apart; the type filter is reflected in `?type=client|agent`.
+- The e2e journey rolls the seeded Agent's current-month Agent Invoice into an earlier billing month (psql on the e2e Postgres) before sending: Jordan Ellis is the only Agent with a login, and `agent-invoice-submission-and-approval.spec.ts` leaves that invoice paid earlier in the same run.
+- The Agent page keeps its current-month override/approve/paid, via the same controls addressed by Agent id, until `invoice-summaries-on-contract-and-agent-pages`.
+
 ## Acceptance criteria
 
-- [ ] The Review Queue also lists every Agent Invoice in `sent` or `approved`, any billing month, ordered with Client Invoices by how long each has waited (`sentAt` for `sent`, `approvedAt` for `approved`)
-- [ ] The All / Client Invoices / Agent Invoices filter narrows the queue
-- [ ] The Agent Invoice detail page shows Local Support Fees, Salary, both Rollout Advance lines, total, status and timestamps, for any billing month
-- [ ] While `sent`, the Manager can override Salary and/or the new-advance line and approve; while `approved`, mark paid; each updates the page in place
-- [ ] Override, approve and mark paid work on a past billing month's Agent Invoice
-- [ ] A paid Agent Invoice no longer appears in the Review Queue; an approved one stays until paid
-- [ ] A draft or paid Agent Invoice renders read-only; a failed action shows an inline error and changes nothing
-- [ ] Agent and Tester get 403 on every Agent Invoice by-id route; unknown or other-tenant id is 404; no by-id route creates an invoice
+- [x] The Review Queue also lists every Agent Invoice in `sent` or `approved`, any billing month, ordered with Client Invoices by how long each has waited (`sentAt` for `sent`, `approvedAt` for `approved`)
+- [x] The All / Client Invoices / Agent Invoices filter narrows the queue
+- [x] The Agent Invoice detail page shows Local Support Fees, Salary, both Rollout Advance lines, total, status and timestamps, for any billing month
+- [x] While `sent`, the Manager can override Salary and/or the new-advance line and approve; while `approved`, mark paid; each updates the page in place
+- [x] Override, approve and mark paid work on a past billing month's Agent Invoice
+- [x] A paid Agent Invoice no longer appears in the Review Queue; an approved one stays until paid
+- [x] A draft or paid Agent Invoice renders read-only; a failed action shows an inline error and changes nothing
+- [x] Agent and Tester get 403 on every Agent Invoice by-id route; unknown or other-tenant id is 404; no by-id route creates an invoice
 
 ## Tests
 

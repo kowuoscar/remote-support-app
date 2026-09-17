@@ -6,7 +6,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.remotesupport.backend.domain.AgentInvoice;
 import com.remotesupport.backend.domain.ClientInvoice;
+import com.remotesupport.backend.repository.AgentInvoiceRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
@@ -29,6 +31,7 @@ import org.springframework.test.web.servlet.MvcResult;
 class ReviewQueueApiTest extends IntegrationTest {
 
   @Autowired private ClientInvoiceRepository clientInvoiceRepository;
+  @Autowired private AgentInvoiceRepository agentInvoiceRepository;
   @Autowired private OtherTenantFixture otherTenantFixture;
 
   private UUID sendClientInvoice(String agentToken, UUID contractId) throws Exception {
@@ -75,6 +78,35 @@ class ReviewQueueApiTest extends IntegrationTest {
     invoice.setSentAt(sentAt);
     invoice.setBillingMonth(invoice.getBillingMonth().minusMonths(monthsBack));
     clientInvoiceRepository.saveAndFlush(invoice);
+  }
+
+  /** The seeded Agent sends their current-month Agent Invoice. */
+  private UUID sendAgentInvoice(String agentToken) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /**
+   * Moves an Agent Invoice {@code monthsBack} billing months into the past, which also frees the
+   * seeded Agent's current month so another invoice can be sent in the same test.
+   */
+  private void backdateAgentInvoice(UUID invoiceId, Instant sentAt, Instant approvedAt, int monthsBack) {
+    AgentInvoice invoice = agentInvoiceRepository.findById(invoiceId).orElseThrow();
+    invoice.setSentAt(sentAt);
+    if (approvedAt != null) {
+      invoice.setApprovedAt(approvedAt);
+    }
+    invoice.setBillingMonth(invoice.getBillingMonth().minusMonths(monthsBack));
+    agentInvoiceRepository.saveAndFlush(invoice);
+  }
+
+  private void managerPosts(String managerToken, String path) throws Exception {
+    mockMvc.perform(post(path).header("Authorization", "Bearer " + managerToken)).andExpect(status().isOk());
   }
 
   // --- Membership -----------------------------------------------------------------------------
@@ -131,6 +163,67 @@ class ReviewQueueApiTest extends IntegrationTest {
                 .value(LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1).minusMonths(2).toString()));
   }
 
+  @Test
+  void sentAndApprovedAgentInvoicesAreInTheQueueWhileDraftAndPaidOnesAreNot() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    Instant now = Instant.now();
+
+    UUID paid = sendAgentInvoice(agentToken);
+    managerPosts(managerToken, "/api/agent-invoices/" + paid + "/approve");
+    managerPosts(managerToken, "/api/agent-invoices/" + paid + "/paid");
+    backdateAgentInvoice(paid, now.minus(90, ChronoUnit.DAYS), now.minus(80, ChronoUnit.DAYS), 3);
+
+    UUID approved = sendAgentInvoice(agentToken);
+    managerPosts(managerToken, "/api/agent-invoices/" + approved + "/approve");
+    backdateAgentInvoice(approved, now.minus(60, ChronoUnit.DAYS), now.minus(50, ChronoUnit.DAYS), 2);
+
+    UUID sent = sendAgentInvoice(agentToken);
+    backdateAgentInvoice(sent, now.minus(30, ChronoUnit.DAYS), null, 1);
+
+    // This month's invoice, opened but never sent.
+    mockMvc
+        .perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(get("/api/review-queue").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(2))
+        .andExpect(jsonPath("$[0].kind").value("AGENT_INVOICE"))
+        .andExpect(jsonPath("$[0].id").value(approved.toString()))
+        .andExpect(jsonPath("$[0].status").value("APPROVED"))
+        .andExpect(jsonPath("$[0].billingMonth")
+            .value(LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1).minusMonths(2).toString()))
+        .andExpect(jsonPath("$[0].agentId").value(SEEDED_AGENT_ID.toString()))
+        .andExpect(jsonPath("$[0].agentName").value("Jordan Ellis"))
+        .andExpect(jsonPath("$[0].contractId").isEmpty())
+        .andExpect(jsonPath("$[0].clientName").isEmpty())
+        .andExpect(jsonPath("$[0].currency").value("USD"))
+        .andExpect(jsonPath("$[0].totalAmount").value(2500.00))
+        .andExpect(jsonPath("$[1].kind").value("AGENT_INVOICE"))
+        .andExpect(jsonPath("$[1].id").value(sent.toString()))
+        .andExpect(jsonPath("$[1].status").value("SENT"));
+  }
+
+  @Test
+  void anAgentInvoiceLeavesTheQueueOnlyOnceItIsPaid() throws Exception {
+    String managerToken = managerToken();
+    UUID invoiceId = sendAgentInvoice(agentToken());
+
+    managerPosts(managerToken, "/api/agent-invoices/" + invoiceId + "/approve");
+    mockMvc
+        .perform(get("/api/review-queue").header("Authorization", "Bearer " + managerToken))
+        .andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].id").value(invoiceId.toString()))
+        .andExpect(jsonPath("$[0].status").value("APPROVED"));
+
+    managerPosts(managerToken, "/api/agent-invoices/" + invoiceId + "/paid");
+    mockMvc
+        .perform(get("/api/review-queue").header("Authorization", "Bearer " + managerToken))
+        .andExpect(jsonPath("$.length()").value(0));
+  }
+
   // --- Order ----------------------------------------------------------------------------------
 
   @Test
@@ -163,6 +256,43 @@ class ReviewQueueApiTest extends IntegrationTest {
         .andExpect(jsonPath("$[1].id").value(sentTwoDaysAgo.toString()))
         .andExpect(jsonPath("$[2].id").value(firstTie))
         .andExpect(jsonPath("$[3].id").value(secondTie));
+  }
+
+  @Test
+  void clientAndAgentInvoicesInterleaveByWaitingSinceWithAnApprovedAgentInvoiceWaitingSinceApproval()
+      throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
+
+    // Sent 20 days ago but approved 2 days ago: it has been waiting (to be paid) for 2 days.
+    UUID approvedAgentInvoice = sendAgentInvoice(agentToken);
+    managerPosts(managerToken, "/api/agent-invoices/" + approvedAgentInvoice + "/approve");
+    backdateAgentInvoice(approvedAgentInvoice, now.minus(20, ChronoUnit.DAYS), now.minus(2, ChronoUnit.DAYS), 1);
+
+    UUID sentAgentInvoice = sendAgentInvoice(agentToken);
+    backdateAgentInvoice(sentAgentInvoice, now.minus(4, ChronoUnit.DAYS), null, 0);
+
+    UUID clientSentFiveDaysAgo =
+        sendClientInvoice(agentToken, createContract(managerToken, createClient(managerToken, "A Co"), SEEDED_AGENT_ID));
+    UUID clientSentThreeDaysAgo =
+        sendClientInvoice(agentToken, createContract(managerToken, createClient(managerToken, "B Co"), SEEDED_AGENT_ID));
+    UUID clientSentOneDayAgo =
+        sendClientInvoice(agentToken, createContract(managerToken, createClient(managerToken, "C Co"), SEEDED_AGENT_ID));
+    backdate(clientSentFiveDaysAgo, now.minus(5, ChronoUnit.DAYS), 0);
+    backdate(clientSentThreeDaysAgo, now.minus(3, ChronoUnit.DAYS), 0);
+    backdate(clientSentOneDayAgo, now.minus(1, ChronoUnit.DAYS), 0);
+
+    mockMvc
+        .perform(get("/api/review-queue").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(5))
+        .andExpect(jsonPath("$[0].id").value(clientSentFiveDaysAgo.toString()))
+        .andExpect(jsonPath("$[1].id").value(sentAgentInvoice.toString()))
+        .andExpect(jsonPath("$[2].id").value(clientSentThreeDaysAgo.toString()))
+        .andExpect(jsonPath("$[3].id").value(approvedAgentInvoice.toString()))
+        .andExpect(jsonPath("$[3].waitingSince").value(now.minus(2, ChronoUnit.DAYS).toString()))
+        .andExpect(jsonPath("$[4].id").value(clientSentOneDayAgo.toString()));
   }
 
   // --- Totals ---------------------------------------------------------------------------------
@@ -208,11 +338,44 @@ class ReviewQueueApiTest extends IntegrationTest {
         .andExpect(jsonPath("$[0].totalAmount").value(0));
   }
 
+  @Test
+  void anAgentInvoiceQueueTotalIsItsSnapshotIncludingAManagerOverride() throws Exception {
+    String managerToken = managerToken();
+    UUID invoiceId = sendAgentInvoice(agentToken());
+
+    // A standing-amount change after sending never moves the frozen total...
+    mockMvc
+        .perform(
+            post("/api/agents/" + SEEDED_AGENT_ID + "/standing-amounts")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"amountType":"SALARY","amount":9000.00}
+                    """))
+        .andExpect(status().isCreated());
+    // ...but the Manager's override on this invoice does.
+    mockMvc
+        .perform(
+            post("/api/agent-invoices/" + invoiceId + "/override")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"rolloutAdvanceNewAdvance":150.00}
+                    """))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(get("/api/review-queue").header("Authorization", "Bearer " + managerToken))
+        .andExpect(jsonPath("$[0].id").value(invoiceId.toString()))
+        .andExpect(jsonPath("$[0].totalAmount").value(2650.00));
+  }
+
   // --- Access and tenancy ---------------------------------------------------------------------
 
   @Test
   void anotherTenantsSentInvoicesAreNeverInTheQueue() throws Exception {
     otherTenantFixture.sentClientInvoiceInAnotherTenant();
+    otherTenantFixture.sentAgentInvoiceInAnotherTenant();
 
     mockMvc
         .perform(get("/api/review-queue").header("Authorization", "Bearer " + managerToken()))

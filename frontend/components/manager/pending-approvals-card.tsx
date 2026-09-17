@@ -17,12 +17,10 @@ interface QueueEntry {
 
 /**
  * How one Review Queue item reads on the card, decided by its `kind`: a Client Invoice is about a
- * Contract (Client — Agent), an Agent Invoice about its Agent. `kind` is widened to a string so an
- * Agent Invoice renders the moment the backend returns one.
+ * Contract (Client — Agent), an Agent Invoice about its Agent.
  */
 function describeEntry(item: ReviewQueueItem): QueueEntry {
-  const kind: string = item.kind;
-  if (kind === "AGENT_INVOICE") {
+  if (item.kind === "AGENT_INVOICE") {
     return {
       href: `/manager/invoices/agent/${item.id}`,
       kindLabel: "Agent Invoice",

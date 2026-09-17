@@ -13,6 +13,7 @@ function clientInvoice(id: string, clientName: string, waitingSince = "2026-09-1
     billingMonth: "2026-08-01",
     contractId: `contract-${id}`,
     clientName,
+    agentId: null,
     agentName: "Jordan Ellis",
     currency: "USD",
     totalAmount: 70,
@@ -52,17 +53,19 @@ describe("PendingApprovalsCard", () => {
   });
 
   it("links an Agent Invoice to its own detail page, with the Agent as its subject", () => {
-    const agentInvoice = {
+    const agentInvoice: ReviewQueueItem = {
       kind: "AGENT_INVOICE",
       id: "agent-invoice-1",
       status: "APPROVED",
       billingMonth: "2026-08-01",
+      contractId: null,
+      clientName: null,
       agentId: "agent-1",
       agentName: "Camille Duforet",
       currency: "EUR",
       totalAmount: 5520.5,
       waitingSince: "2026-09-16T09:00:00Z",
-    } as unknown as ReviewQueueItem;
+    };
 
     render(<PendingApprovalsCard items={[agentInvoice]} now={NOW} />);
 

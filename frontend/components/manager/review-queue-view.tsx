@@ -9,8 +9,9 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconArrowRight, IconInbox } from "@/components/icons";
 import { formatBillingMonth, formatDate, formatWaitingTime } from "@/lib/format";
 import type { ReviewQueueItem, ReviewQueueKind } from "@/lib/api/types";
+import { reviewQueueFilterSearch, type ReviewQueueFilter } from "@/lib/review-queue-filter";
 
-type Filter = "ALL" | ReviewQueueKind | "AGENT_INVOICE";
+type Filter = ReviewQueueFilter;
 
 const FILTERS: { value: Filter; label: string }[] = [
   { value: "ALL", label: "All" },
@@ -20,24 +21,49 @@ const FILTERS: { value: Filter; label: string }[] = [
 
 const KIND_LABEL: Record<ReviewQueueKind, string> = {
   CLIENT_INVOICE: "Client Invoice",
+  AGENT_INVOICE: "Agent Invoice",
 };
 
+/** A Client Invoice is for a Contract ("Client — Agent"); an Agent Invoice is for its Agent. */
 function subject(item: ReviewQueueItem): string {
-  return `${item.clientName} — ${item.agentName}`;
+  return item.kind === "CLIENT_INVOICE" ? `${item.clientName} — ${item.agentName}` : item.agentName;
 }
 
 function detailHref(item: ReviewQueueItem): string {
-  return `/manager/invoices/client/${item.id}`;
+  return item.kind === "CLIENT_INVOICE"
+    ? `/manager/invoices/client/${item.id}`
+    : `/manager/invoices/agent/${item.id}`;
+}
+
+/** Only an approved Agent Invoice waits for payment; everything else in the queue waits for approval. */
+function awaiting(item: ReviewQueueItem): { label: string; since: string } {
+  return item.kind === "AGENT_INVOICE" && item.status === "APPROVED"
+    ? { label: "Payment", since: "Approved" }
+    : { label: "Approval", since: "Sent" };
 }
 
 /**
  * The Manager's Review Queue (CONTEXT.md; manager-invoice-review-queue spec, Invoices page): every
  * invoice waiting on a Manager action, in the backend's longest-waiting-first order, each row
  * opening that invoice's detail page where the action is taken. `now` is passed in by the server
- * page so "how long it has waited" renders the same on server and client.
+ * page so "how long it has waited" renders the same on server and client. The type filter is
+ * reflected in `?type=` so a filtered queue survives a reload and can be linked.
  */
-export function ReviewQueueView({ items, now }: { items: ReviewQueueItem[]; now: string }) {
-  const [filter, setFilter] = useState<Filter>("ALL");
+export function ReviewQueueView({
+  items,
+  now,
+  initialFilter = "ALL",
+}: {
+  items: ReviewQueueItem[];
+  now: string;
+  initialFilter?: ReviewQueueFilter;
+}) {
+  const [filter, setFilter] = useState<Filter>(initialFilter);
+
+  function selectFilter(next: Filter) {
+    setFilter(next);
+    window.history.replaceState(null, "", reviewQueueFilterSearch(next) || window.location.pathname);
+  }
 
   const filtered = useMemo(
     () => (filter === "ALL" ? items : items.filter((item) => item.kind === filter)),
@@ -57,7 +83,7 @@ export function ReviewQueueView({ items, now }: { items: ReviewQueueItem[]; now:
             role="tab"
             type="button"
             aria-selected={filter === value}
-            onClick={() => setFilter(value)}
+            onClick={() => selectFilter(value)}
             className={`rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors ${
               filter === value ? "bg-canvas text-ink shadow-sm" : "text-ink-mute hover:text-ink"
             }`}
@@ -81,6 +107,7 @@ export function ReviewQueueView({ items, now }: { items: ReviewQueueItem[]; now:
                 <Th>Waiting</Th>
                 <Th>Type</Th>
                 <Th>Subject</Th>
+                <Th>Waiting for</Th>
                 <Th>Billing month</Th>
                 <Th className="text-right">Total</Th>
                 {/* relative: keeps the sr-only label inside the table's scroll container on narrow screens */}
@@ -93,7 +120,10 @@ export function ReviewQueueView({ items, now }: { items: ReviewQueueItem[]; now:
               {filtered.map((item) => (
                 <Tr key={item.id}>
                   <Td className="whitespace-nowrap">
-                    <time dateTime={item.waitingSince} title={`Sent ${formatDate(item.waitingSince)}`}>
+                    <time
+                      dateTime={item.waitingSince}
+                      title={`${awaiting(item).since} ${formatDate(item.waitingSince)}`}
+                    >
                       {formatWaitingTime(item.waitingSince, now)}
                     </time>
                   </Td>
@@ -101,6 +131,7 @@ export function ReviewQueueView({ items, now }: { items: ReviewQueueItem[]; now:
                     <Badge tone="info">{KIND_LABEL[item.kind]}</Badge>
                   </Td>
                   <Td className="whitespace-nowrap font-medium text-ink">{subject(item)}</Td>
+                  <Td className="whitespace-nowrap text-ink-secondary">{awaiting(item).label}</Td>
                   <Td className="whitespace-nowrap text-ink-mute">{formatBillingMonth(item.billingMonth)}</Td>
                   <Td className="text-right">
                     <Money amount={item.totalAmount} currency={item.currency} />

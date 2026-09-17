@@ -243,6 +243,8 @@ test.describe("agent request fulfillment", () => {
     await page.getByLabel("Agent name").fill(otherAgentName);
     await page.getByLabel("Country").selectOption("PHILIPPINES");
     await page.getByLabel("Standing monthly salary").fill("1500");
+    await page.getByLabel("Email").fill(`priya.nair+${RUN_ID}@agents.example`);
+    await page.getByLabel("Temporary password").fill("Passw0rd!23");
     await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
     await expect(page.getByRole("row", { name: new RegExp(otherAgentName) })).toBeVisible();
 

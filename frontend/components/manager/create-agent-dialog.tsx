@@ -7,10 +7,16 @@ import { Input } from "@/components/ui/input";
 import { IconAlertTriangle, IconPlus } from "@/components/icons";
 import { COUNTRIES, type Country } from "@/lib/api/types";
 
+type SubmitError = { message: string; field: "salary" | "login" | null };
+
 /**
  * Manager creates an Agent (manager-entity-setup ticket). Currency is never a field the Manager
  * fills in — it's shown read-only, derived live from the selected country (spec.md: "a country
  * (which fixes their currency)"), so there's no way to submit a mismatched pair.
+ *
+ * The Agent's login is created in the same step, from an email and temporary password
+ * (create-agent-with-login ticket): the same fields, types, placeholders and helper copy as
+ * `CreateTesterDialog`, so no Agent a Manager creates is ever unable to sign in.
  */
 export function CreateAgentDialog() {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -18,7 +24,9 @@ export function CreateAgentDialog() {
   const [name, setName] = useState("");
   const [country, setCountry] = useState<Country>(COUNTRIES[0].value);
   const [salaryAmount, setSalaryAmount] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<SubmitError | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const currency = COUNTRIES.find((c) => c.value === country)?.currency ?? "";
@@ -27,6 +35,8 @@ export function CreateAgentDialog() {
     setName("");
     setCountry(COUNTRIES[0].value);
     setSalaryAmount("");
+    setUsername("");
+    setPassword("");
     setError(null);
     dialogRef.current?.showModal();
   }
@@ -44,14 +54,19 @@ export function CreateAgentDialog() {
       const response = await fetch("/api/agents", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, country, salaryAmount: Number(salaryAmount) }),
+        body: JSON.stringify({ name, country, salaryAmount: Number(salaryAmount), username, password }),
       });
 
       if (!response.ok) {
         setError(
-          response.status === 400
-            ? "Check the agent's name and salary — salary can't be negative."
-            : "Couldn't create the agent. Try again.",
+          response.status === 409
+            ? { message: "That email is already in use. Choose another one and try again.", field: "login" }
+            : response.status === 400
+              ? {
+                  message: "Check the agent's details — every field is required, and salary can't be negative.",
+                  field: "salary",
+                }
+              : { message: "Couldn't create the agent. Try again.", field: null },
         );
         setSubmitting(false);
         return;
@@ -61,7 +76,7 @@ export function CreateAgentDialog() {
       close();
       router.refresh();
     } catch {
-      setError("Couldn't reach the server. Check your connection and try again.");
+      setError({ message: "Couldn't reach the server. Check your connection and try again.", field: null });
       setSubmitting(false);
     }
   }
@@ -84,7 +99,8 @@ export function CreateAgentDialog() {
           <div>
             <h2 className="text-base font-semibold text-ink">Add an agent</h2>
             <p className="text-[13px] text-ink-mute">
-              Currency follows the agent&rsquo;s country automatically.
+              Currency follows the agent&rsquo;s country automatically. Creates their login. They can
+              sign in with this email and password right away.
             </p>
           </div>
 
@@ -94,7 +110,7 @@ export function CreateAgentDialog() {
               className="flex items-start gap-2 rounded-lg bg-danger-bg px-3 py-2.5 text-[13px] text-danger"
             >
               <IconAlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{error}</span>
+              <span>{error.message}</span>
             </div>
           ) : null}
 
@@ -138,7 +154,7 @@ export function CreateAgentDialog() {
                 value={salaryAmount}
                 onChange={(event) => setSalaryAmount(event.target.value)}
                 disabled={submitting}
-                invalid={Boolean(error)}
+                invalid={error?.field === "salary"}
                 placeholder="2400.00"
               />
             </label>
@@ -149,6 +165,36 @@ export function CreateAgentDialog() {
               </div>
             </label>
           </div>
+
+          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+            Email
+            <Input
+              type="email"
+              name="username"
+              required
+              autoComplete="off"
+              spellCheck={false}
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              disabled={submitting}
+              invalid={error?.field === "login"}
+              placeholder="tom.reyes@client.example"
+            />
+          </label>
+
+          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+            Temporary password
+            <Input
+              type="password"
+              name="password"
+              required
+              autoComplete="new-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              disabled={submitting}
+              placeholder="••••••••"
+            />
+          </label>
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="secondary" onClick={close} disabled={submitting}>

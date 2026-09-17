@@ -70,6 +70,14 @@ export default async function ManagerAgentDetailPage({
             <p className="text-[12px] font-medium uppercase tracking-wide text-ink-mute">Contracts</p>
             <p className="mt-1 text-sm text-ink">{agent.contractCount}</p>
           </div>
+          <div className="min-w-0">
+            <p className="text-[12px] font-medium uppercase tracking-wide text-ink-mute">Sign-in email</p>
+            {agent.loginUsername ? (
+              <p className="mt-1 text-sm break-all text-ink">{agent.loginUsername}</p>
+            ) : (
+              <p className="mt-1 text-sm text-ink-mute">No login</p>
+            )}
+          </div>
         </Card>
 
         {standingAmounts ? (

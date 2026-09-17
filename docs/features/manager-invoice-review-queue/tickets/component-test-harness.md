@@ -1,7 +1,7 @@
 ---
 id: component-test-harness
 title: Stand up the frontend component test seam on the invoice action controls
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [frontend, testing]
 ---

@@ -1,8 +1,6 @@
 package com.remotesupport.backend.web;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,7 +17,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 
 /**
  * Agent creation and listing (manager-entity-setup ticket): an Agent's currency is fixed
@@ -43,12 +40,7 @@ class AgentApiTest extends IntegrationTest {
             "camille.duforet@agents.example",
             PASSWORD);
 
-    mockMvc
-        .perform(
-            post("/api/agents")
-                .header("Authorization", "Bearer " + token)
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+    postJson("/api/agents", token, request)
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.name").value("Camille Duforet"))
         .andExpect(jsonPath("$.country").value("FRANCE"))
@@ -77,15 +69,7 @@ class AgentApiTest extends IntegrationTest {
             "ana.lima@agents.example",
             PASSWORD);
 
-    MvcResult created =
-        mockMvc
-            .perform(
-                post("/api/agents")
-                    .header("Authorization", "Bearer " + token)
-                    .contentType(APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isCreated())
-            .andReturn();
+    MvcResult created = postJson("/api/agents", token, request).andExpect(status().isCreated()).andReturn();
     String agentId =
         objectMapper.readTree(created.getResponse().getContentAsString()).get("id").asText();
 
@@ -114,7 +98,7 @@ class AgentApiTest extends IntegrationTest {
     Map<String, Object> body = agentBody("No Username Agent", "unused@agents.example");
     body.remove("username");
 
-    postAgent(token, body).andExpect(status().isBadRequest());
+    postJson("/api/agents", token, body).andExpect(status().isBadRequest());
 
     assertNoAgentNamed(token, "No Username Agent");
   }
@@ -125,7 +109,7 @@ class AgentApiTest extends IntegrationTest {
     Map<String, Object> body = agentBody("No Password Agent", "nopassword@agents.example");
     body.remove("password");
 
-    postAgent(token, body).andExpect(status().isBadRequest());
+    postJson("/api/agents", token, body).andExpect(status().isBadRequest());
 
     assertNoAgentNamed(token, "No Password Agent");
   }
@@ -148,21 +132,11 @@ class AgentApiTest extends IntegrationTest {
             "priya.nair@agents.example",
             PASSWORD);
 
-    mockMvc
-        .perform(
-            post("/api/agents")
-                .header("Authorization", "Bearer " + token)
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(mexican)))
+    postJson("/api/agents", token, mexican)
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.currency").value("MXN"));
 
-    mockMvc
-        .perform(
-            post("/api/agents")
-                .header("Authorization", "Bearer " + token)
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(filipino)))
+    postJson("/api/agents", token, filipino)
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.currency").value("PHP"));
   }
@@ -178,13 +152,7 @@ class AgentApiTest extends IntegrationTest {
             "negative.salary@agents.example",
             PASSWORD);
 
-    mockMvc
-        .perform(
-            post("/api/agents")
-                .header("Authorization", "Bearer " + token)
-                .contentType(APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isBadRequest());
+    postJson("/api/agents", token, request).andExpect(status().isBadRequest());
   }
 
   @Test
@@ -198,13 +166,7 @@ class AgentApiTest extends IntegrationTest {
             PASSWORD);
 
     for (String token : new String[] {agentToken(), testerToken()}) {
-      mockMvc
-          .perform(
-              post("/api/agents")
-                  .header("Authorization", "Bearer " + token)
-                  .contentType(APPLICATION_JSON)
-                  .content(objectMapper.writeValueAsString(request)))
-          .andExpect(status().isForbidden());
+      postJson("/api/agents", token, request).andExpect(status().isForbidden());
 
       mockMvc
           .perform(get("/api/agents").header("Authorization", "Bearer " + token))
@@ -221,7 +183,7 @@ class AgentApiTest extends IntegrationTest {
 
     try {
       String token = managerToken();
-      postAgent(token, agentBody("Owen Whitfield", "owen.whitfield@agents.example"))
+      postJson("/api/agents", token, agentBody("Owen Whitfield", "owen.whitfield@agents.example"))
           .andExpect(status().isCreated());
 
       String logged =
@@ -243,14 +205,6 @@ class AgentApiTest extends IntegrationTest {
     body.put("username", username);
     body.put("password", PASSWORD);
     return body;
-  }
-
-  private ResultActions postAgent(String token, Map<String, Object> body) throws Exception {
-    return mockMvc.perform(
-        post("/api/agents")
-            .header("Authorization", "Bearer " + token)
-            .contentType(APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(body)));
   }
 
   private void assertNoAgentNamed(String token, String name) throws Exception {

@@ -1,8 +1,6 @@
 package com.remotesupport.backend.web;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -15,7 +13,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +51,7 @@ class AgentCreationAtomicityTest extends IntegrationTest {
     String name = NAME_PREFIX + "Manager Name Clash";
     Snapshot before = snapshot();
 
-    postAgent(token, agentBody(name, MANAGER_USERNAME))
+    postJson("/api/agents", token, agentBody(name, MANAGER_USERNAME))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
 
@@ -65,12 +62,12 @@ class AgentCreationAtomicityTest extends IntegrationTest {
   void aUsernameHeldByAnotherAgentLeavesNoAgentStandingAmountOrUserBehind() throws Exception {
     String token = managerToken();
     String taken = "taken-" + UUID.randomUUID() + "@agents.example";
-    postAgent(token, agentBody(NAME_PREFIX + "First Holder", taken))
+    postJson("/api/agents", token, agentBody(NAME_PREFIX + "First Holder", taken))
         .andExpect(status().isCreated());
     String name = NAME_PREFIX + "Second Holder";
     Snapshot before = snapshot();
 
-    postAgent(token, agentBody(name, taken))
+    postJson("/api/agents", token, agentBody(name, taken))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
 
@@ -112,13 +109,5 @@ class AgentCreationAtomicityTest extends IntegrationTest {
     body.put("username", username);
     body.put("password", PASSWORD);
     return body;
-  }
-
-  private ResultActions postAgent(String token, Map<String, Object> body) throws Exception {
-    return mockMvc.perform(
-        post("/api/agents")
-            .header("Authorization", "Bearer " + token)
-            .contentType(APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(body)));
   }
 }

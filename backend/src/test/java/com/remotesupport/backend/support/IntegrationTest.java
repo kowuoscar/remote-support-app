@@ -20,6 +20,7 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -74,6 +75,18 @@ public abstract class IntegrationTest {
 
   @Autowired protected MockMvc mockMvc;
   @Autowired protected ObjectMapper objectMapper;
+
+  /**
+   * POSTs a JSON body with a bearer token — the shape behind most write requests in this suite,
+   * for tests that chain their own {@code andExpect}s rather than wanting a created id back.
+   */
+  protected ResultActions postJson(String url, String token, Object body) throws Exception {
+    return mockMvc.perform(
+        post(url)
+            .header("Authorization", "Bearer " + token)
+            .contentType(APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(body)));
+  }
 
   /** Logs in as the given seeded user and returns the bearer token, ready for an Authorization header. */
   protected String loginAs(String username, String password) throws Exception {

@@ -1,9 +1,7 @@
 package com.remotesupport.backend.web;
 
 import static org.hamcrest.Matchers.contains;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -198,11 +196,7 @@ class AgentLoginApiTest extends IntegrationTest {
 
   private ResultActions postLogin(String token, UUID agentId, Map<String, Object> body)
       throws Exception {
-    return mockMvc.perform(
-        post("/api/agents/" + agentId + "/login")
-            .header("Authorization", "Bearer " + token)
-            .contentType(APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(body)));
+    return postJson("/api/agents/" + agentId + "/login", token, body);
   }
 
   private void assertLoginUsername(String token, UUID agentId, String expected) throws Exception {

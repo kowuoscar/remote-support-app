@@ -1,7 +1,7 @@
 ---
 id: client-invoice-review-page
 title: Manager reviews and approves a Client Invoice from the Review Queue
-status: in-progress
+status: done
 depends_on: [component-test-harness]
 labels: [backend, frontend, invoicing]
 ---
@@ -10,18 +10,23 @@ labels: [backend, frontend, invoicing]
 
 First tracer bullet of the Review Queue: the queue endpoint and page, the Client Invoice by-id routes, and its detail page. Implements spec.md Solution (Backend: Review Queue, invoice by id — Client Invoice; Frontend: Invoices page, Client Invoice detail page) and user stories 1-13, 22-24, 28-29.
 
+Implementation notes:
+
+- The approve control shows distinct copy for a 409 ("This invoice is no longer awaiting approval. Refresh to see its current status.") so a Manager beaten to it by another Manager knows to refresh (user story 24).
+- The Contract page keeps its current-month approve, via the same control addressed by Contract id, until `invoice-summaries-on-contract-and-agent-pages`.
+
 ## Acceptance criteria
 
-- [ ] Manager's Invoices page lists every Client Invoice in `sent` across all Contracts and billing months, longest waiting first, from the backend — the sample data and the review modal are gone
-- [ ] Each row shows type, subject (Client — Agent), billing month, total and how long it has waited, and links to that invoice's detail page
-- [ ] The empty state shows when nothing is waiting
-- [ ] The Client Invoice detail page shows the full invoice (base amount, Fee lines, total, status, timestamps), its Carrier Invoice Files for download, and its PDF, for any billing month
-- [ ] Manager can approve a `sent` Client Invoice from the detail page, including one from a past billing month; the page updates in place to the final read-only state
-- [ ] An approved invoice no longer appears in the Review Queue
-- [ ] A Client Invoice in a status with no Manager action (draft, approved) renders read-only
-- [ ] A failed approval (409 or other) shows an inline error and changes nothing
-- [ ] The detail page links back to the Invoices page
-- [ ] Agent and Tester cannot use the Review Queue or any Client Invoice by-id route (403); an unknown or other-tenant id is 404; no by-id route ever creates an invoice
+- [x] Manager's Invoices page lists every Client Invoice in `sent` across all Contracts and billing months, longest waiting first, from the backend — the sample data and the review modal are gone
+- [x] Each row shows type, subject (Client — Agent), billing month, total and how long it has waited, and links to that invoice's detail page
+- [x] The empty state shows when nothing is waiting
+- [x] The Client Invoice detail page shows the full invoice (base amount, Fee lines, total, status, timestamps), its Carrier Invoice Files for download, and its PDF, for any billing month
+- [x] Manager can approve a `sent` Client Invoice from the detail page, including one from a past billing month; the page updates in place to the final read-only state
+- [x] An approved invoice no longer appears in the Review Queue
+- [x] A Client Invoice in a status with no Manager action (draft, approved) renders read-only
+- [x] A failed approval (409 or other) shows an inline error and changes nothing
+- [x] The detail page links back to the Invoices page
+- [x] Agent and Tester cannot use the Review Queue or any Client Invoice by-id route (403); an unknown or other-tenant id is 404; no by-id route ever creates an invoice
 
 ## Tests
 

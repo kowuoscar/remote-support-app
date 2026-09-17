@@ -1,7 +1,7 @@
 ---
 id: invoice-summaries-on-contract-and-agent-pages
 title: Replace invoice review on the Contract and Agent pages with a summary linking to the detail page
-status: ready-for-agent
+status: in-progress
 depends_on: [client-invoice-review-page, agent-invoice-review-page]
 labels: [frontend, invoicing]
 ---

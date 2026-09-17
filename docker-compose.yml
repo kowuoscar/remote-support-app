@@ -22,7 +22,8 @@ services:
   # Postgres — `docker compose up --build` and open http://localhost:3000. Log
   # in as manager@example.com / ChangeMe123!, agent@example.com /
   # AgentDemo123!, or tester@example.com / TesterDemo123! (seeded by V2/V3
-  # Flyway migrations).
+  # Flyway migrations). To see the Manager's invoice review screens with real
+  # data, run scripts/seed-demo-invoice-review.sh once the stack is up.
   backend:
     build:
       context: ./backend

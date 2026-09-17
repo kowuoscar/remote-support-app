@@ -5,90 +5,127 @@
 #
 # Jordan Ellis (agent@example.com) is the only seeded Agent with a login, so it's the only Agent
 # whose invoice can be sent. Invoices are keyed to the *current* calendar month, which is why this
-# is a script against a running backend rather than a Flyway migration: re-run it next month and
-# it seeds that month's invoices. It's idempotent within a month — existing entities are reused,
-# and invoices already sent/approved are left alone.
+# is a script against a running backend rather than a Flyway migration (migrations also run in the
+# Testcontainers integration tests, and seeded invoices would go stale the next month).
 #
-# Usage: scripts/seed-demo-invoice-review.sh [backend-url]   (default http://localhost:8080)
+# Idempotent: existing entities are reused, and an invoice already sent/approved/paid is left
+# alone. That makes the review screen one-shot per month — once you approve an invoice, re-running
+# won't bring it back to SENT; wait for the next month or reset with `docker compose down -v`.
+#
+# Sending Jordan's Agent Invoice also makes frontend/tests/e2e/agent-invoice-submission-and-approval
+# fail against the same database this month, since that test expects the invoice in draft.
+#
+# Requires curl and jq. Run after `docker compose up`:
+#   scripts/seed-demo-invoice-review.sh [backend-url]   (default http://localhost:8080)
+#   FRONTEND_URL=… overrides the printed review links   (default http://localhost:3000)
 set -euo pipefail
 
 API="${1:-http://localhost:8080}"
-AGENT_ID="55555555-5555-5555-5555-555555555555"
+FRONTEND_URL="${FRONTEND_URL:-http://localhost:3000}"
 CLIENT_NAME="Northwind Labs"
 TESTER_USERNAME="tester@northwind-labs.example"
 TESTER_PASSWORD="NorthwindDemo123!"
 
-login() {
-  curl -sf -X POST "$API/api/auth/login" -H 'Content-Type: application/json' \
-    -d "{\"username\":\"$1\",\"password\":\"$2\"}" | jq -r .token
-}
+command -v jq >/dev/null || { echo "✗ jq is required" >&2; exit 1; }
 
-# call <token> <method> <path> [json-body]
-call() {
-  local token="$1" method="$2" path="$3" body="${4:-}"
-  local args=(-sS -X "$method" "$API$path" -H "Authorization: Bearer $token" -w '\n%{http_code}')
-  [[ -n "$body" ]] && args+=(-H 'Content-Type: application/json' -d "$body")
-  local out code
-  out="$(curl "${args[@]}")"
+# request <label> <curl args...> — prints the response body, exits with the body on HTTP >= 400.
+request() {
+  local label="$1" out code
+  shift
+  out="$(curl -sS -w '\n%{http_code}' "$@")"
   code="${out##*$'\n'}"
   out="${out%$'\n'*}"
   if [[ "$code" -ge 400 ]]; then
-    echo "✗ $method $path → $code: $out" >&2
+    echo "✗ $label → $code: $out" >&2
     exit 1
   fi
   printf '%s' "$out"
 }
 
+# call <token> <method> <path> [json-body]
+call() {
+  local token="$1" method="$2" path="$3" body="${4:-}"
+  local args=(-X "$method" "$API$path" -H "Authorization: Bearer $token")
+  [[ -n "$body" ]] && args+=(-H 'Content-Type: application/json' -d "$body")
+  request "$method $path" "${args[@]}"
+}
+
+login() {
+  local body
+  body="$(jq -n --arg u "$1" --arg p "$2" '{username: $u, password: $p}')"
+  request "login $1" -X POST "$API/api/auth/login" -H 'Content-Type: application/json' -d "$body" | jq -r .token
+}
+
+# find_or_create <token> <list-path> <jq-filter> <create-path> <create-body> <label>
+# Every value substituted before a test is assigned first: `set -e` doesn't fire inside `[[ ]]`.
+find_or_create() {
+  local list id
+  list="$(call "$1" GET "$2")"
+  id="$(jq -r "$3 | .id" <<<"$list" | head -1)"
+  if [[ -z "$id" ]]; then
+    id="$(call "$1" POST "$4" "$5" | jq -r .id)"
+    echo "✓ created $6" >&2
+  fi
+  printf '%s' "$id"
+}
+
 MANAGER="$(login manager@example.com 'ChangeMe123!')"
 AGENT="$(login agent@example.com 'AgentDemo123!')"
+AGENT_ID="$(call "$AGENT" GET /api/me | jq -r .agentId)"
 
 # --- Manager: Client, Tester, Contract with Jordan Ellis -------------------------------------
-CLIENT_ID="$(call "$MANAGER" GET /api/clients | jq -r --arg n "$CLIENT_NAME" '.[] | select(.name == $n) | .id' | head -1)"
-if [[ -z "$CLIENT_ID" ]]; then
-  CLIENT_ID="$(call "$MANAGER" POST /api/clients "{\"name\":\"$CLIENT_NAME\"}" | jq -r .id)"
-  echo "✓ created Client $CLIENT_NAME"
-fi
+CLIENT_ID="$(find_or_create "$MANAGER" /api/clients \
+  ".[] | select(.name == \"$CLIENT_NAME\")" \
+  /api/clients "$(jq -n --arg n "$CLIENT_NAME" '{name: $n}')" "Client $CLIENT_NAME")"
 
-TESTER_ID="$(call "$MANAGER" GET "/api/clients/$CLIENT_ID/testers" | jq -r --arg u "$TESTER_USERNAME" '.[] | select(.username == $u) | .id' | head -1)"
-if [[ -z "$TESTER_ID" ]]; then
-  TESTER_ID="$(call "$MANAGER" POST "/api/clients/$CLIENT_ID/testers" \
-    "{\"username\":\"$TESTER_USERNAME\",\"password\":\"$TESTER_PASSWORD\",\"isPrimaryContact\":true}" | jq -r .id)"
-  echo "✓ created Tester $TESTER_USERNAME"
-fi
+TESTER_ID="$(find_or_create "$MANAGER" "/api/clients/$CLIENT_ID/testers" \
+  ".[] | select(.username == \"$TESTER_USERNAME\")" \
+  "/api/clients/$CLIENT_ID/testers" \
+  "$(jq -n --arg u "$TESTER_USERNAME" --arg p "$TESTER_PASSWORD" '{username: $u, password: $p, isPrimaryContact: true}')" \
+  "Tester $TESTER_USERNAME")"
 
-CONTRACT_ID="$(call "$MANAGER" GET /api/contracts | jq -r --arg c "$CLIENT_ID" --arg a "$AGENT_ID" '.[] | select(.clientId == $c and .agentId == $a) | .id' | head -1)"
-if [[ -z "$CONTRACT_ID" ]]; then
-  CONTRACT_ID="$(call "$MANAGER" POST /api/contracts "{\"clientId\":\"$CLIENT_ID\",\"agentId\":\"$AGENT_ID\"}" | jq -r .id)"
-  echo "✓ created Contract $CLIENT_NAME — Jordan Ellis"
-fi
+CONTRACT_ID="$(find_or_create "$MANAGER" /api/contracts \
+  ".[] | select(.clientId == \"$CLIENT_ID\" and .agentId == \"$AGENT_ID\")" \
+  /api/contracts "$(jq -n --arg c "$CLIENT_ID" --arg a "$AGENT_ID" '{clientId: $c, agentId: $a}')" \
+  "Contract $CLIENT_NAME — Jordan Ellis")"
 
-# --- Manager: Fleet (only on an empty Fleet) ----------------------------------------------------
-if [[ "$(call "$MANAGER" GET "/api/contracts/$CONTRACT_ID/sim-cards" | jq length)" == "0" ]]; then
+# --- Manager: Fleet (each kind only when that list is empty) ---------------------------------
+SMARTPHONES="$(call "$MANAGER" GET "/api/contracts/$CONTRACT_ID/smartphones")"
+if [[ "$(jq length <<<"$SMARTPHONES")" == "0" ]]; then
   call "$MANAGER" POST "/api/contracts/$CONTRACT_ID/smartphones" '{"model":"Pixel 9","serial":"NW-PX9-0001","assignedTo":"Northwind QA"}' >/dev/null
   call "$MANAGER" POST "/api/contracts/$CONTRACT_ID/smartphones" '{"model":"iPhone 16","serial":"NW-IP16-0002","assignedTo":"Northwind QA"}' >/dev/null
+  echo "✓ added 2 smartphones"
+fi
+
+SIM_CARDS="$(call "$MANAGER" GET "/api/contracts/$CONTRACT_ID/sim-cards")"
+if [[ "$(jq length <<<"$SIM_CARDS")" == "0" ]]; then
   call "$MANAGER" POST "/api/contracts/$CONTRACT_ID/sim-cards" '{"number":"+1 415 555 0101","carrier":"Verizon","flavor":"POSTPAID","monthlyFeeAmount":65.00}' >/dev/null
   call "$MANAGER" POST "/api/contracts/$CONTRACT_ID/sim-cards" '{"number":"+1 415 555 0102","carrier":"T-Mobile","flavor":"POSTPAID","monthlyFeeAmount":50.00}' >/dev/null
   call "$MANAGER" POST "/api/contracts/$CONTRACT_ID/sim-cards" '{"number":"+1 415 555 0103","carrier":"Mint Mobile","flavor":"PREPAID"}' >/dev/null
-  echo "✓ added Fleet: 2 smartphones, 2 postpaid SIMs (\$115/mo), 1 prepaid SIM"
+  echo "✓ added 2 postpaid SIMs (\$115/mo) and 1 prepaid SIM"
 fi
 
-# --- Agent: Fees, carrier invoice file, send both invoices -----------------------------------
-CLIENT_INVOICE_STATUS="$(call "$AGENT" GET "/api/contracts/$CONTRACT_ID/client-invoice" | jq -r .status)"
+# --- Agent: this month's Fees, carrier invoice file, send both invoices ----------------------
+# The draft Client Invoice's feeLines/files are this month's only (the /fees list spans all months).
+CLIENT_INVOICE="$(call "$AGENT" GET "/api/contracts/$CONTRACT_ID/client-invoice")"
+CLIENT_INVOICE_STATUS="$(jq -r .status <<<"$CLIENT_INVOICE")"
 if [[ "$CLIENT_INVOICE_STATUS" == "DRAFT" ]]; then
-  if [[ "$(call "$AGENT" GET "/api/contracts/$CONTRACT_ID/fees" | jq length)" == "0" ]]; then
+  if [[ "$(jq '.feeLines | length' <<<"$CLIENT_INVOICE")" == "0" ]]; then
     call "$AGENT" POST "/api/contracts/$CONTRACT_ID/fees" \
-      "{\"feeType\":\"TOPUP\",\"amount\":25.00,\"description\":\"Prepaid top-up for Mint Mobile SIM\",\"testerId\":\"$TESTER_ID\"}" >/dev/null
+      "$(jq -n --arg t "$TESTER_ID" '{feeType: "TOPUP", amount: 25.00, description: "Prepaid top-up for Mint Mobile SIM", testerId: $t}')" >/dev/null
     call "$AGENT" POST "/api/contracts/$CONTRACT_ID/fees" \
-      "{\"feeType\":\"REPAIR\",\"amount\":140.00,\"description\":\"Pixel 9 screen replacement\",\"testerId\":\"$TESTER_ID\"}" >/dev/null
+      "$(jq -n --arg t "$TESTER_ID" '{feeType: "REPAIR", amount: 140.00, description: "Pixel 9 screen replacement", testerId: $t}')" >/dev/null
     echo "✓ logged Fees: top-up \$25, repair \$140"
   fi
 
-  if [[ "$(call "$AGENT" GET "/api/contracts/$CONTRACT_ID/client-invoice/files" | jq length)" == "0" ]]; then
-    PDF="$(mktemp -t verizon-invoice).pdf"
+  if [[ "$(jq '.files | length' <<<"$CLIENT_INVOICE")" == "0" ]]; then
+    TMP_DIR="$(mktemp -d)"
+    trap 'rm -rf "$TMP_DIR"' EXIT
+    PDF="$TMP_DIR/carrier-invoice.pdf"
     printf '%%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]>>endobj\ntrailer<</Root 1 0 R>>\n%%%%EOF\n' >"$PDF"
-    curl -sf -X POST "$API/api/contracts/$CONTRACT_ID/client-invoice/files" -H "Authorization: Bearer $AGENT" \
+    request "upload carrier invoice file" -X POST "$API/api/contracts/$CONTRACT_ID/client-invoice/files" \
+      -H "Authorization: Bearer $AGENT" \
       -F "file=@$PDF;type=application/pdf;filename=verizon-invoice-$(date +%Y-%m).pdf" >/dev/null
-    rm -f "$PDF"
     echo "✓ attached carrier invoice file"
   fi
 
@@ -98,7 +135,8 @@ else
   echo "• Client Invoice already $CLIENT_INVOICE_STATUS — left as is"
 fi
 
-AGENT_INVOICE_STATUS="$(call "$AGENT" GET "/api/agents/$AGENT_ID/invoice" | jq -r .status)"
+AGENT_INVOICE="$(call "$AGENT" GET "/api/agents/$AGENT_ID/invoice")"
+AGENT_INVOICE_STATUS="$(jq -r .status <<<"$AGENT_INVOICE")"
 if [[ "$AGENT_INVOICE_STATUS" == "DRAFT" ]]; then
   call "$AGENT" POST "/api/agents/$AGENT_ID/invoice/send" >/dev/null
   echo "✓ sent Agent Invoice"
@@ -108,5 +146,5 @@ fi
 
 echo
 echo "Log in as manager@example.com / ChangeMe123! and review:"
-echo "  Client Invoice: http://localhost:3000/manager/contracts/$CONTRACT_ID"
-echo "  Agent Invoice:  http://localhost:3000/manager/agents/$AGENT_ID"
+echo "  Client Invoice: $FRONTEND_URL/manager/contracts/$CONTRACT_ID"
+echo "  Agent Invoice:  $FRONTEND_URL/manager/agents/$AGENT_ID"

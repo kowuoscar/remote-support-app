@@ -1,7 +1,7 @@
 ---
 id: create-login-for-existing-agent
 title: Manager gives a login to an Agent that has none
-status: in-progress
+status: done
 depends_on: [create-agent-with-login]
 labels: [backend, frontend, manager, auth]
 ---
@@ -16,13 +16,13 @@ shared login creation and the one-login-per-Agent index delivered by
 
 ## Acceptance criteria
 
-- [ ] An Agent without a login shows a "No login" state on its detail view, with a "Create login" action
-- [ ] Creating a login there (email + temporary password) lets the Agent sign in immediately, and the detail view then shows that email
-- [ ] The "Create login" action is not offered for an Agent that already has a login
-- [ ] Creating a login for an Agent that already has one is rejected, even when called directly against the API
-- [ ] An email already in use is rejected with a clear message, and the Agent stays without a login
-- [ ] Creating a login for an Agent that doesn't exist in the caller's tenant is reported as not found
-- [ ] Only a Manager can create an Agent's login; Agent and Tester callers are rejected
+- [x] An Agent without a login shows a "No login" state on its detail view, with a "Create login" action
+- [x] Creating a login there (email + temporary password) lets the Agent sign in immediately, and the detail view then shows that email
+- [x] The "Create login" action is not offered for an Agent that already has a login
+- [x] Creating a login for an Agent that already has one is rejected, even when called directly against the API
+- [x] An email already in use is rejected with a clear message, and the Agent stays without a login
+- [x] Creating a login for an Agent that doesn't exist in the caller's tenant is reported as not found
+- [x] Only a Manager can create an Agent's login; Agent and Tester callers are rejected
 
 ## Tests
 

@@ -29,7 +29,7 @@ import lombok.Setter;
  * snapshot*} columns once, in the same request as the {@code DRAFT -> SENT} transition; every read
  * from {@code SENT} onward serves them instead of recomputing. {@code snapshotSalary} and {@code
  * snapshotRolloutAdvanceNewAdvance} are the two a Manager may subsequently overwrite via {@code
- * AgentInvoiceController#override} — see that method's Javadoc and CONTEXT.md's "Agent Invoice"
+ * AgentInvoiceByIdController#override} — see {@code AgentInvoiceService#override} and CONTEXT.md's "Agent Invoice"
  * entry for why only those two, and why the override never touches {@link AgentStandingAmount}.
  */
 @Entity
@@ -78,7 +78,7 @@ public class AgentInvoice {
   /**
    * The Local Support Fees line frozen at send time; {@code null} while still {@code DRAFT}
    * (computed live instead — see the class Javadoc). Never overridable (only Salary and the new
-   * advance are, per {@code AgentInvoiceController#override}).
+   * advance are, per {@code AgentInvoiceService#override}).
    */
   @Column(name = "snapshot_local_support_fees")
   private BigDecimal snapshotLocalSupportFees;

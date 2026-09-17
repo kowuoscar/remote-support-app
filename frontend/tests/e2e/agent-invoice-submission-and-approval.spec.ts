@@ -3,7 +3,8 @@ import { test, expect, type Page } from "@playwright/test";
 /**
  * The Agent Invoice's send/override/approve/paid lifecycle end to end
  * (agent-invoice-submission-and-approval ticket): the Agent sends their own draft, a Manager
- * reviews it from the Agent's detail page, overrides the Salary line, approves it, then marks it
+ * opens it from the Agent page's invoice summary and, on the invoice's detail page
+ * (manager-invoice-review-queue spec), overrides the Salary line, approves it, then marks it
  * paid — driven against a real backend + Postgres (see playwright.e2e.config.ts), at the
  * accessibility-tree level per spec.md's Testing decisions. Mirrors
  * client-invoice-submission-and-visibility.spec.ts's pattern/helpers.
@@ -60,15 +61,25 @@ test.describe("agent invoice submission and approval", () => {
 
     await logout(page);
 
-    // Manager reviews it from the Agent's own detail page, overrides the Salary line, then
-    // approves.
+    // Manager opens it from the Agent page's summary — which offers no review action of its own —
+    // then overrides the Salary line and approves it on the invoice's detail page.
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     await page.goto("/manager/agents");
     await page.getByRole("link", { name: "Jordan Ellis" }).click();
     await expect(page).toHaveURL(/\/manager\/agents\/.+/);
-    await expect(page.getByText("Review this invoice")).toBeVisible();
+    const agentPageUrl = page.url();
+    const summary = page.getByRole("region", { name: "Agent Invoice" });
+    await expect(summary.getByText("Awaiting approval")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Approve" })).toHaveCount(0);
+    await expect(page.getByLabel(/Override Salary/)).toHaveCount(0);
+    // Standing amounts stay on the Agent page.
+    await expect(page.getByText("Standing amounts")).toBeVisible();
+    await summary.getByRole("link", { name: "Open invoice" }).click();
+    await expect(page).toHaveURL(/\/manager\/invoices\/agent\/.+/);
+    await expect(page.getByRole("heading", { name: "Jordan Ellis" })).toBeVisible();
+    const detailUrl = page.url();
 
-    const salaryLine = page.locator("dt", { hasText: "Salary" }).locator("xpath=following-sibling::dd[1]");
+    const salaryLine = page.locator("dt", { hasText: /^Salary$/ }).locator("xpath=following-sibling::dd[1]");
     const originalSalaryText = await salaryLine.textContent();
 
     const salaryOverrideInput = page.getByLabel(/Override Salary/);
@@ -76,22 +87,27 @@ test.describe("agent invoice submission and approval", () => {
     await salaryOverrideInput.fill("3333.00");
     const [overrideResponse] = await Promise.all([
       page.waitForResponse(
-        (resp) => resp.url().includes("/invoice/override") && resp.request().method() === "POST",
+        (resp) =>
+          resp.url().includes("/api/agent-invoices/") &&
+          resp.url().endsWith("/override") &&
+          resp.request().method() === "POST",
       ),
       overrideForm.getByRole("button", { name: "Override" }).click(),
     ]);
     expect(overrideResponse.status()).toBe(200);
     await expect(overrideForm.getByText("Applied to this invoice only.")).toBeVisible();
 
-    // The override lands on the invoice's own Salary line — a different figure than before —
-    // and never touches the standing-amounts form above it on this same page (ticket AC: "without
-    // changing the Agent's standing amount used by future invoices").
+    // The override lands on the invoice's own Salary line — a different figure than before (ticket
+    // AC: "without changing the Agent's standing amount used by future invoices").
     await expect(salaryLine).not.toHaveText(originalSalaryText ?? "");
     await expect(salaryLine).toHaveText(/3,333\.00/);
 
     const [approveResponse] = await Promise.all([
       page.waitForResponse(
-        (resp) => resp.url().includes("/invoice/approve") && resp.request().method() === "POST",
+        (resp) =>
+          resp.url().includes("/api/agent-invoices/") &&
+          resp.url().endsWith("/approve") &&
+          resp.request().method() === "POST",
       ),
       page.getByRole("button", { name: "Approve" }).click(),
     ]);
@@ -103,7 +119,10 @@ test.describe("agent invoice submission and approval", () => {
     // Manager marks it paid — purely a status flag, no payment executed by the app.
     const [paidResponse] = await Promise.all([
       page.waitForResponse(
-        (resp) => resp.url().includes("/invoice/paid") && resp.request().method() === "POST",
+        (resp) =>
+          resp.url().includes("/api/agent-invoices/") &&
+          resp.url().endsWith("/paid") &&
+          resp.request().method() === "POST",
       ),
       page.getByRole("button", { name: "Mark paid" }).click(),
     ]);
@@ -111,6 +130,12 @@ test.describe("agent invoice submission and approval", () => {
 
     await expect(page.getByText("Paid", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Mark paid" })).toHaveCount(0);
+
+    // The Agent page's summary reflects the final status and still links to the same invoice.
+    await page.goto(agentPageUrl);
+    await expect(summary.getByText("Paid", { exact: true })).toBeVisible();
+    await summary.getByRole("link", { name: "Open invoice" }).click();
+    await expect(page).toHaveURL(detailUrl);
 
     await logout(page);
 

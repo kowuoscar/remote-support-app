@@ -550,54 +550,46 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .andExpect(status().isConflict());
   }
 
-  // --- AC: Manager review and approval ----------------------------------------------------------
+  // --- Contract step: the Manager's current-month approve route is gone -------------------------
 
+  /**
+   * remove-current-month-manager-invoice-actions ticket: a Manager approves a Client Invoice by
+   * the invoice's own id and nothing else, so the old {@code POST
+   * /api/contracts/{contractId}/client-invoice/approve} route is deleted rather than merely left
+   * uncalled. The rules it used to carry — the {@code SENT -> APPROVED} transition, the 409 on a
+   * draft, and Manager-only access — are asserted against the by-id route in {@link
+   * ClientInvoiceByIdApiTest}.
+   */
   @Test
-  void managerApprovesASentClientInvoice() throws Exception {
+  void theCurrentMonthApproveRouteIsGoneAndApprovingBacksOntoTheInvoiceId() throws Exception {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Harbor & Finch Realty");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String agentToken = agentToken();
 
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
+    MvcResult sent =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contractId + "/client-invoice/send")
+                    .header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    UUID invoiceId = UUID.fromString(objectMapper.readTree(sent.getResponse().getContentAsString()).get("id").asText());
 
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/approve").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isNotFound());
+
+    // The invoice is untouched: the route is gone, not silently succeeding somewhere else.
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(jsonPath("$.status").value("SENT"));
+
+    // ... and the by-id route is how it gets approved now.
+    mockMvc
+        .perform(post("/api/client-invoices/" + invoiceId + "/approve").header("Authorization", "Bearer " + managerToken))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.status").value("APPROVED"))
-        .andExpect(jsonPath("$.approvedAt").isNotEmpty());
-  }
-
-  @Test
-  void managerCannotApproveAClientInvoiceStillInDraft() throws Exception {
-    String managerToken = managerToken();
-    UUID clientId = createClient(managerToken, "Aurora Retail Group");
-    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-
-    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + managerToken));
-
-    mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/approve").header("Authorization", "Bearer " + managerToken))
-        .andExpect(status().isConflict());
-  }
-
-  @Test
-  void anAgentCannotApproveAClientInvoiceOnlyAManagerCan() throws Exception {
-    String managerToken = managerToken();
-    UUID clientId = createClient(managerToken, "Meridian Logistics");
-    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    String agentToken = agentToken();
-
-    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
-
-    mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/approve").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isForbidden());
+        .andExpect(jsonPath("$.status").value("APPROVED"));
   }
 }

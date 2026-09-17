@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { ManagerContractFleetView } from "@/components/manager/contract-fleet-view";
-import { ManagerContractClientInvoiceView } from "@/components/manager/contract-client-invoice-view";
+import { InvoiceSummaryCard } from "@/components/manager/invoice-summary-card";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
 import { requireManager } from "@/lib/api/guard";
 import {
@@ -19,7 +19,9 @@ export const metadata = { title: "Contract" };
  * A Contract's detail view, added for its Fleet (fleet-management ticket ACs: "Manager can add a
  * Smartphone/SIM Card to a Contract's Fleet") — mirrors how `/manager/clients/[clientId]` was
  * added in manager-entity-setup for Testers. There's no single-Contract GET endpoint yet, so
- * (like that ticket's Client detail view) this finds the Contract in the full list.
+ * (like that ticket's Client detail view) this finds the Contract in the full list. Its
+ * current-month Client Invoice shows only as a summary linking to the invoice's detail page, where
+ * the Manager reviews it (manager-invoice-review-queue spec, Contract and Agent pages).
  */
 export default async function ManagerContractDetailPage({
   params,
@@ -52,7 +54,7 @@ export default async function ManagerContractDetailPage({
     >
       <Breadcrumb items={[{ label: "Contracts", href: "/manager/contracts" }, { label: title }]} />
       <div className="flex flex-col gap-5">
-        <ManagerContractClientInvoiceView contractId={contract.id} invoice={invoice} />
+        {invoice ? <InvoiceSummaryCard kind="CLIENT_INVOICE" invoice={invoice} /> : null}
         <ManagerContractFleetView
           contractId={contract.id}
           currency={contract.currency}

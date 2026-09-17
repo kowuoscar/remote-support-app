@@ -1,25 +1,40 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconAlertTriangle } from "@/components/icons";
+import type { AgentInvoiceDetail } from "@/lib/api/types";
+
+function errorMessage(status: number): string {
+  switch (status) {
+    case 400:
+      return "Enter an amount that isn't negative.";
+    case 409:
+      return "This invoice is no longer awaiting approval, so its lines can't change. Refresh to see its current status.";
+    default:
+      return "Couldn't save. Try again.";
+  }
+}
 
 function OverrideField({
-  agentId,
+  invoiceId,
   field,
   label,
   current,
   currency,
+  onOverridden,
 }: {
-  agentId: string;
+  invoiceId: string;
   field: "salary" | "rolloutAdvanceNewAdvance";
   label: string;
   current: number;
   currency: string;
+  onOverridden?: (invoice: AgentInvoiceDetail) => void;
 }) {
   const router = useRouter();
+  const inputId = useId();
   const [amount, setAmount] = useState(String(current));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,16 +47,19 @@ function OverrideField({
     setSubmitting(true);
 
     try {
-      const response = await fetch(`/api/agents/${agentId}/invoice/override`, {
+      const response = await fetch(`/api/agent-invoices/${invoiceId}/override`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ [field]: Number(amount) }),
       });
 
       if (!response.ok) {
-        setError(response.status === 400 ? "Enter an amount that isn't negative." : "Couldn't save. Try again.");
+        setError(errorMessage(response.status));
         setSubmitting(false);
         return;
+      }
+      if (onOverridden) {
+        onOverridden((await response.json()) as AgentInvoiceDetail);
       }
 
       setConfirmed(true);
@@ -58,31 +76,37 @@ function OverrideField({
       onSubmit={handleSubmit}
       className="flex flex-col gap-2 rounded-lg border border-hairline bg-canvas-soft p-3.5"
     >
-      <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+      <label htmlFor={inputId} className="text-[13px] font-medium text-ink-secondary">
         {label} ({currency})
-        <div className="flex items-center gap-2">
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            required
-            value={amount}
-            onChange={(event) => setAmount(event.target.value)}
-            disabled={submitting}
-            invalid={Boolean(error)}
-          />
-          <Button type="submit" variant="secondary" size="sm" loading={submitting}>
-            Override
-          </Button>
-        </div>
       </label>
+      <div className="flex items-center gap-2">
+        <Input
+          id={inputId}
+          name={field}
+          autoComplete="off"
+          inputMode="decimal"
+          type="number"
+          min="0"
+          step="0.01"
+          required
+          value={amount}
+          onChange={(event) => setAmount(event.target.value)}
+          disabled={submitting}
+          invalid={Boolean(error)}
+        />
+        <Button type="submit" variant="secondary" size="sm" loading={submitting}>
+          Override
+        </Button>
+      </div>
       {error ? (
         <p role="alert" className="flex items-center gap-1.5 text-[12px] text-danger">
           <IconAlertTriangle className="h-3.5 w-3.5 shrink-0" />
           {error}
         </p>
       ) : null}
-      {confirmed ? <p className="text-[12px] text-success">Applied to this invoice only.</p> : null}
+      <p role="status" className="text-[12px] text-success empty:hidden">
+        {confirmed ? "Applied to this invoice only." : null}
+      </p>
     </form>
   );
 }
@@ -93,26 +117,29 @@ function OverrideField({
  * approval ticket AC: "Manager can override the Salary or Rollout Advance value on that one
  * invoice ... without changing the Agent's standing amount used by future invoices"). Each field
  * submits independently ({@code field} distinguishes which of the two the request overrides), the
- * same shape AgentStandingAmountsView already established for the two standing-amount fields one
- * section up on the same page — except this edits *this invoice's own snapshot only*, never
- * `AgentStandingAmount`, which is why the copy below says so explicitly rather than assuming that
- * distinction is obvious next to a standing-amounts form.
+ * same shape AgentStandingAmountsView established for the two standing-amount fields — except
+ * this edits *this invoice's own snapshot only*, never `AgentStandingAmount`, which is why the
+ * copy below says so explicitly. The invoice is addressed by its own id, so any billing month
+ * works.
  *
  * <p>Only Salary and the Rollout Advance <b>new advance</b> line are exposed — never the
  * repayment line, which simply settles an amount already fixed on the Agent's prior invoice (see
  * CONTEXT.md's "Agent Invoice" entry / ADR 0003 for the full reasoning), mirroring the backend's
- * {@code AgentInvoiceOverrideRequest}.
+ * {@code AgentInvoiceOverrideRequest}. `onOverridden` receives the updated invoice so a detail view
+ * can show the new lines and total in place.
  */
 export function AgentInvoiceOverrideControl({
-  agentId,
   salary,
   rolloutAdvanceNewAdvance,
   currency,
+  invoiceId,
+  onOverridden,
 }: {
-  agentId: string;
+  invoiceId: string;
   salary: number;
   rolloutAdvanceNewAdvance: number;
   currency: string;
+  onOverridden?: (invoice: AgentInvoiceDetail) => void;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -120,13 +147,21 @@ export function AgentInvoiceOverrideControl({
         Applies only to this invoice — never changes the Agent&rsquo;s standing salary or Rollout Advance.
       </p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <OverrideField agentId={agentId} field="salary" label="Override Salary" current={salary} currency={currency} />
         <OverrideField
-          agentId={agentId}
+          invoiceId={invoiceId}
+          field="salary"
+          label="Override Salary"
+          current={salary}
+          currency={currency}
+          onOverridden={onOverridden}
+        />
+        <OverrideField
+          invoiceId={invoiceId}
           field="rolloutAdvanceNewAdvance"
           label="Override Rollout Advance (new)"
           current={rolloutAdvanceNewAdvance}
           currency={currency}
+          onOverridden={onOverridden}
         />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 
@@ -13,15 +13,16 @@ export function StatCard({
   primary = false,
   meta,
   className,
+  ...props
 }: {
   label: string;
   value: ReactNode;
   primary?: boolean;
   meta?: ReactNode;
   className?: string;
-}) {
+} & Omit<HTMLAttributes<HTMLDivElement>, "children">) {
   return (
-    <Card className={cn("flex flex-col gap-2 p-5", className)}>
+    <Card className={cn("flex flex-col gap-2 p-5", className)} {...props}>
       <span className="text-[13px] font-medium text-ink-mute">{label}</span>
       <span
         className={cn(

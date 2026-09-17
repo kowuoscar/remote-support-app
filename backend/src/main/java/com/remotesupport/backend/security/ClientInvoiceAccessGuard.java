@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 /**
  * Per-resource Client Invoice authorization (client-invoice-generation ticket AC: "only the
  * Contract's Agent can build/view its draft"; client-invoice-submission-and-visibility ticket:
- * send, Client visibility, Manager approval; spec.md Access control). Same "Manager: any
+ * send and Client visibility; spec.md Access control). Manager approval isn't here: it is a
+ * by-id route, Manager-only at the matcher level (SecurityConfig). Same "Manager: any
  * Contract, Agent: only their own" shape as {@link FleetAccessGuard#requireCanChangeStatus} and
  * {@link RequestAccessGuard#requireCanChangeStatus} — reused rather than re-derived.
  */
@@ -66,13 +67,6 @@ public class ClientInvoiceAccessGuard {
       case "AGENT" -> requireOwnsContractAsAgent(contract, principal);
       case "TESTER" -> requireOwnsContractAsTesterAndVisible(contract, status, principal);
       default -> throw new AccessDeniedException("Not allowed to view this Contract's Client Invoice");
-    }
-  }
-
-  /** Only a Manager may approve a Client Invoice (ticket AC; spec.md Access control). */
-  public void requireCanApprove(AuthenticatedPrincipal principal) {
-    if (!"MANAGER".equals(principal.role())) {
-      throw new AccessDeniedException("Only a Manager can approve a Client Invoice");
     }
   }
 

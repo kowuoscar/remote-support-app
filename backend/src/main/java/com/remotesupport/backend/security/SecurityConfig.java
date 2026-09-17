@@ -113,9 +113,8 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/contracts/*/client-invoice/send")
                     .hasRole("AGENT")
                     // Approval is the Manager's act alone (spec.md Access control: "Manager ...
-                    // approves"); an Agent never approves their own Client Invoice.
-                    .requestMatchers(HttpMethod.POST, "/api/contracts/*/client-invoice/approve")
-                    .hasRole("MANAGER")
+                    // approves") and is addressed by invoice id, under /api/client-invoices/**
+                    // below — there is no approve route nested under a Contract.
                     // Attaching a carrier invoice file stays Manager/Agent-only — unchanged from
                     // client-invoice-generation (only a DRAFT ever accepts new files, enforced in
                     // ClientInvoiceController#uploadFile).
@@ -139,19 +138,13 @@ public class SecurityConfig {
                     // AgentInvoiceController/AgentInvoiceAccessGuard, same shape as Client
                     // Invoice above. Must precede the broader Manager-only matcher so it wins.
                     //
-                    // agent-invoice-submission-and-approval ticket adds the sub-actions below:
-                    // sending is the Agent's own act (mirrors Client Invoice's /send matcher);
-                    // override/approve/mark-paid are the Manager's alone. Per-resource ownership
-                    // (and, for override/approve/paid, the status precondition) is re-checked in
-                    // AgentInvoiceController/AgentInvoiceAccessGuard either way.
+                    // agent-invoice-submission-and-approval ticket adds sending, the Agent's
+                    // own act (mirrors Client Invoice's /send matcher); ownership of this
+                    // specific Agent is re-checked in AgentInvoiceAccessGuard. The Manager's
+                    // override/approve/mark-paid are addressed by invoice id, under
+                    // /api/agent-invoices/** below — nothing nested under an Agent.
                     .requestMatchers(HttpMethod.POST, "/api/agents/*/invoice/send")
                     .hasRole("AGENT")
-                    .requestMatchers(
-                        HttpMethod.POST,
-                        "/api/agents/*/invoice/override",
-                        "/api/agents/*/invoice/approve",
-                        "/api/agents/*/invoice/paid")
-                    .hasRole("MANAGER")
                     .requestMatchers("/api/agents/*/invoice", "/api/agents/*/invoice/**")
                     .authenticated()
                     // Manager-only entity setup (manager-entity-setup ticket): Client, Tester
@@ -160,6 +153,11 @@ public class SecurityConfig {
                     // This also covers /api/agents/{id}/standing-amounts (Manager-only, ticket
                     // AC: "Standing-amount changes are Manager-only") since it isn't matched
                     // above.
+                    // manager-invoice-review-queue spec: the Review Queue and every Client Invoice
+                    // and Agent Invoice addressed by its own id are Manager-only. Tenant scoping (an unknown or
+                    // other-tenant id is 404) is enforced in the controllers.
+                    .requestMatchers("/api/review-queue", "/api/client-invoices/**", "/api/agent-invoices/**")
+                    .hasRole("MANAGER")
                     .requestMatchers("/api/clients/**", "/api/agents/**", "/api/contracts/**")
                     .hasRole("MANAGER")
                     .anyRequest()

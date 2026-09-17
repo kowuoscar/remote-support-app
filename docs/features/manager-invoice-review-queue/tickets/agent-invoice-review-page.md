@@ -1,7 +1,7 @@
 ---
 id: agent-invoice-review-page
 title: Manager reviews, overrides, approves and marks paid an Agent Invoice from the Review Queue
-status: ready-for-agent
+status: in-progress
 depends_on: [client-invoice-review-page]
 labels: [backend, frontend, invoicing, payroll]
 ---

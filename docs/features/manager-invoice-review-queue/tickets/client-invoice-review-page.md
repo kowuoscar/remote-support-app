@@ -1,7 +1,7 @@
 ---
 id: client-invoice-review-page
 title: Manager reviews and approves a Client Invoice from the Review Queue
-status: ready-for-agent
+status: in-progress
 depends_on: [component-test-harness]
 labels: [backend, frontend, invoicing]
 ---

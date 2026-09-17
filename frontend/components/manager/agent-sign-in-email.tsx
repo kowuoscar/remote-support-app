@@ -16,11 +16,11 @@ export function AgentSignInEmail({
   agentId,
   agentName,
   loginUsername,
-}: {
+}: Readonly<{
   agentId: string;
   agentName: string;
   loginUsername: string | null;
-}) {
+}>) {
   const router = useRouter();
   const emailRef = useRef<HTMLParagraphElement>(null);
   const [createdUsername, setCreatedUsername] = useState<string | null>(null);
@@ -48,9 +48,9 @@ export function AgentSignInEmail({
           <CreateAgentLoginDialog agentId={agentId} agentName={agentName} onCreated={handleCreated} />
         </div>
       )}
-      <p role="status" className="sr-only">
+      <output className="sr-only">
         {createdUsername ? `Login created. ${agentName} can now sign in with ${createdUsername}.` : ""}
-      </p>
+      </output>
     </div>
   );
 }

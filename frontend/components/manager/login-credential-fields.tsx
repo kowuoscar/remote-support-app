@@ -20,7 +20,7 @@ export function LoginCredentialFields({
   passwordInvalid = false,
   autoFocusEmail = false,
   passwordRef,
-}: {
+}: Readonly<{
   username: string;
   onUsernameChange: (value: string) => void;
   password: string;
@@ -31,7 +31,7 @@ export function LoginCredentialFields({
   passwordInvalid?: boolean;
   autoFocusEmail?: boolean;
   passwordRef?: Ref<HTMLInputElement>;
-}) {
+}>) {
   return (
     <>
       <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">

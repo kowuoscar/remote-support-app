@@ -1,9 +1,9 @@
 "use client";
 
 import { useId, useRef, useState, type FormEvent } from "react";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { IconAlertTriangle } from "@/components/icons";
+import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
+import { DialogShell, type DialogShellHandle } from "@/components/manager/dialog-shell";
 import { LoginCredentialFields } from "@/components/manager/login-credential-fields";
 import { readErrorCode } from "@/lib/api/errors";
 
@@ -26,12 +26,12 @@ export function CreateAgentLoginDialog({
   agentId,
   agentName,
   onCreated,
-}: {
+}: Readonly<{
   agentId: string;
   agentName: string;
   onCreated: (loginUsername: string) => void;
-}) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
+}>) {
+  const shellRef = useRef<DialogShellHandle>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const titleId = useId();
   const [username, setUsername] = useState("");
@@ -43,11 +43,11 @@ export function CreateAgentLoginDialog({
     setUsername("");
     setPassword("");
     setError(null);
-    dialogRef.current?.showModal();
+    shellRef.current?.open();
   }
 
   function close() {
-    dialogRef.current?.close();
+    shellRef.current?.close();
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -89,17 +89,7 @@ export function CreateAgentLoginDialog({
       <Button variant="row" size="sm" onClick={open}>
         Create login
       </Button>
-      <dialog
-        ref={dialogRef}
-        aria-labelledby={titleId}
-        onCancel={(event) => {
-          if (submitting) event.preventDefault();
-        }}
-        onClick={(event) => {
-          if (event.target === dialogRef.current && !submitting) close();
-        }}
-        className="m-auto w-[min(420px,90vw)] rounded-xl border border-hairline bg-canvas-overlay p-0 shadow-elevated-strong backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]"
-      >
+      <DialogShell ref={shellRef} submitting={submitting} widthClassName="w-[min(420px,90vw)]" titleId={titleId}>
         <form className="flex flex-col gap-4 p-6" onSubmit={handleSubmit}>
           <div>
             <h2 id={titleId} className="text-base font-semibold text-ink">Create a login for {agentName}</h2>
@@ -108,25 +98,7 @@ export function CreateAgentLoginDialog({
             </p>
           </div>
 
-          {error ? (
-            <div
-              role="alert"
-              className="flex items-start gap-2 rounded-lg bg-danger-bg px-3 py-2.5 text-[13px] text-danger"
-            >
-              <IconAlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>
-                {error.message}
-                {error.link ? (
-                  <>
-                    {" "}
-                    <Link href={error.link.href} className="font-medium underline underline-offset-2">
-                      {error.link.label}
-                    </Link>
-                  </>
-                ) : null}
-              </span>
-            </div>
-          ) : null}
+          {error ? <DialogErrorAlert message={error.message} link={error.link} /> : null}
 
           <LoginCredentialFields
             username={username}
@@ -150,7 +122,7 @@ export function CreateAgentLoginDialog({
             </Button>
           </div>
         </form>
-      </dialog>
+      </DialogShell>
     </>
   );
 }

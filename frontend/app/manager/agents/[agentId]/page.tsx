@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { Card } from "@/components/ui/card";
+import { CreateAgentLoginDialog } from "@/components/manager/create-agent-login-dialog";
 import { AgentStandingAmountsView } from "@/components/manager/agent-standing-amounts-view";
 import { ManagerAgentInvoiceView } from "@/components/manager/manager-agent-invoice-view";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
@@ -75,7 +76,10 @@ export default async function ManagerAgentDetailPage({
             {agent.loginUsername ? (
               <p className="mt-1 text-sm break-all text-ink">{agent.loginUsername}</p>
             ) : (
-              <p className="mt-1 text-sm text-ink-mute">No login</p>
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <p className="text-sm text-ink-mute">No login</p>
+                <CreateAgentLoginDialog agentId={agent.id} agentName={agent.name} />
+              </div>
             )}
           </div>
         </Card>

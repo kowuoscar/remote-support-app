@@ -1,7 +1,7 @@
 ---
 id: dashboard-review-queue-card
 title: Show the real Review Queue on the Manager Dashboard
-status: ready-for-agent
+status: in-progress
 depends_on: [client-invoice-review-page]
 labels: [frontend, invoicing]
 ---

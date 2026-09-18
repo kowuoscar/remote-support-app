@@ -215,6 +215,38 @@ public final class AuditLog {
         tenantId);
   }
 
+  /**
+   * A Manager adding a SIM Card to a Fleet: {@link #created}'s event, plus the Contract and the
+   * Carrier it names (sim-card-carrier ticket Observability).
+   */
+  public static void simCardCreated(
+      UUID simCardId, UUID contractId, UUID carrierId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CREATE entity=SimCard entityId={} contractId={} carrierId={} actorUserId={} tenantId={}",
+        simCardId,
+        contractId,
+        carrierId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * {@link #fleetItemProvisioned}'s event for a SIM Card, plus the Carrier it names
+   * (sim-card-carrier ticket Observability).
+   */
+  public static void simCardProvisioned(
+      UUID simCardId, UUID contractId, UUID requestId, UUID carrierId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=FLEET_ITEM_PROVISIONED entity=SimCard entityId={} contractId={} requestId={} "
+            + "carrierId={} actorUserId={} tenantId={}",
+        simCardId,
+        contractId,
+        requestId,
+        carrierId,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

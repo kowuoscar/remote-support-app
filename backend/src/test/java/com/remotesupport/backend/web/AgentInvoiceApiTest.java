@@ -48,11 +48,11 @@ class AgentInvoiceApiTest extends IntegrationTest {
     String body =
         monthlyFeeAmount == null
             ? """
-                {"number":"%s","flavor":"%s"}
-                """.formatted(number, flavor)
+                {"number":"%s","carrierId":"%s","flavor":"%s"}
+                """.formatted(number, carrierFor(managerToken, contractId), flavor)
             : """
-                {"number":"%s","flavor":"%s","monthlyFeeAmount":%s}
-                """.formatted(number, flavor, monthlyFeeAmount);
+                {"number":"%s","carrierId":"%s","flavor":"%s","monthlyFeeAmount":%s}
+                """.formatted(number, carrierFor(managerToken, contractId), flavor, monthlyFeeAmount);
 
     MvcResult result =
         mockMvc

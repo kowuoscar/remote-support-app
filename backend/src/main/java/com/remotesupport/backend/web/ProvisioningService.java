@@ -5,7 +5,6 @@ import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
 import com.remotesupport.backend.domain.RequestType;
 import com.remotesupport.backend.domain.SimCard;
-import com.remotesupport.backend.domain.SimCardFlavor;
 import com.remotesupport.backend.domain.SimCardStatus;
 import com.remotesupport.backend.domain.Smartphone;
 import com.remotesupport.backend.domain.SmartphoneStatus;
@@ -37,11 +36,15 @@ public class ProvisioningService {
 
   private final SmartphoneRepository smartphoneRepository;
   private final SimCardRepository simCardRepository;
+  private final SimCardFactory simCardFactory;
 
   public ProvisioningService(
-      SmartphoneRepository smartphoneRepository, SimCardRepository simCardRepository) {
+      SmartphoneRepository smartphoneRepository,
+      SimCardRepository simCardRepository,
+      SimCardFactory simCardFactory) {
     this.smartphoneRepository = smartphoneRepository;
     this.simCardRepository = simCardRepository;
+    this.simCardFactory = simCardFactory;
   }
 
   /**
@@ -136,30 +139,13 @@ public class ProvisioningService {
       throw new InvalidRequestException(
           "newSimCard details are required to complete a Provision SIM request");
     }
-    if (newSimCard.flavor() == SimCardFlavor.POSTPAID && newSimCard.monthlyFeeAmount() == null) {
-      throw new InvalidRequestException("A Postpaid SIM Card requires a monthlyFeeAmount");
-    }
-    if (newSimCard.flavor() == SimCardFlavor.PREPAID && newSimCard.monthlyFeeAmount() != null) {
-      throw new InvalidRequestException("A Prepaid SIM Card must not have a monthlyFeeAmount");
-    }
+    SimCard simCard = simCardFactory.create(contract, newSimCard);
 
-    SimCard simCard = new SimCard();
-    simCard.setId(UUID.randomUUID());
-    simCard.setTenant(contract.getTenant());
-    simCard.setContract(contract);
-    simCard.setNumber(newSimCard.number());
-    simCard.setCarrier(newSimCard.carrier());
-    simCard.setFlavor(newSimCard.flavor());
-    simCard.setMonthlyFeeAmount(newSimCard.monthlyFeeAmount());
-    simCard.setStatus(SimCardStatus.ACTIVE);
-    simCard.setCreatedAt(Instant.now());
-    simCardRepository.save(simCard);
-
-    AuditLog.fleetItemProvisioned(
-        "SimCard",
+    AuditLog.simCardProvisioned(
         simCard.getId(),
         contract.getId(),
         request.getId(),
+        simCard.getCarrier().getId(),
         principal.userId(),
         principal.tenantId());
 

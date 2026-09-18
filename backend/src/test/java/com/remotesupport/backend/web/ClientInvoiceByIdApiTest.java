@@ -99,8 +99,8 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + managerToken)
                 .contentType(APPLICATION_JSON)
                 .content("""
-                    {"number":"%s","flavor":"POSTPAID","monthlyFeeAmount":%s}
-                    """.formatted(number, fee)))
+                    {"number":"%s","carrierId":"%s","flavor":"POSTPAID","monthlyFeeAmount":%s}
+                    """.formatted(number, carrierFor(managerToken, contractId), fee)))
         .andExpect(status().isCreated());
   }
 

@@ -41,7 +41,13 @@ public class SimCard {
   @Column(nullable = false)
   private String number;
 
-  @Column private String carrier;
+  /**
+   * The Carrier this SIM Card is on, from its Contract's Agent's Country. Every SIM Card created
+   * since the Carrier catalog names one; one created before it may have none (V23 migration).
+   */
+  @ManyToOne
+  @JoinColumn(name = "carrier_id")
+  private Carrier carrier;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)

@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
@@ -125,6 +126,54 @@ public class Request {
   @JoinColumn(name = "topup_option_id")
   private TopupOption topupOption;
 
+  /**
+   * The brand-and-model text a {@link RequestType#PROVISION_SMARTPHONE} Request asks for
+   * (request-types-and-flow spec, Details at submission; provision-request-details ticket). Set
+   * at submission by {@link com.remotesupport.backend.web.requestdetails.ProvisionSmartphoneRequestDetailsHandler}.
+   * Null for every other type, and for a Provision Smartphone Request that existed before this
+   * ticket — completing one falls back to the previous full form (ticket AC).
+   */
+  @Column(name = "requested_model")
+  private String requestedModel;
+
+  /**
+   * The flavor a {@link RequestType#PROVISION_SIM} Request asks for, together with {@code
+   * requestedCarrier}/{@code requestedPostpaidPlan} below (provision-request-details ticket). Set
+   * by {@link com.remotesupport.backend.web.requestdetails.ProvisionSimRequestDetailsHandler}.
+   * Null for every other type, and for a Provision SIM Request that existed before this ticket.
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "requested_flavor")
+  private SimCardFlavor requestedFlavor;
+
+  /**
+   * The Carrier a Provision SIM Request asks for — an active Carrier of the Contract's Country at
+   * submission (spec.md: "archiving hides an entry from pickers, it never invalidates a record
+   * that already uses it" — this Request's choice stays valid even once archived).
+   */
+  @ManyToOne
+  @JoinColumn(name = "requested_carrier_id")
+  private Carrier requestedCarrier;
+
+  /**
+   * The Postpaid Plan a postpaid Provision SIM Request asks for, when {@code requestedFlavor} is
+   * {@code POSTPAID} — null for a prepaid Provision SIM Request. Completing the Request copies its
+   * price as the new SIM Card's monthly fee, exactly like {@code SimCardFactory} already does for
+   * every other SIM-creation path (carrier-catalog spec).
+   */
+  @ManyToOne
+  @JoinColumn(name = "requested_postpaid_plan_id")
+  private PostpaidPlan requestedPostpaidPlan;
+
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
+
+  /**
+   * A one-time, non-persisted note set by a completion effect to tell the Agent something about
+   * what just happened that isn't otherwise visible on the Request (provision-request-details
+   * ticket AC: "the SIM Card is installed in the target Smartphone when one was named and it has
+   * room; otherwise it is added uninstalled and the Agent is told"). Never stored — it only rides
+   * back on the one {@code RequestResponse} the completion PATCH itself returns.
+   */
+  @Transient private String completionNote;
 }

@@ -12,11 +12,15 @@ import java.util.UUID;
  * can't express alone (mirrors {@code SimCardCreateRequest}'s Postpaid/Plan check).
  *
  * <p>{@code newSmartphone}/{@code newSimCard}/{@code replacesSmartphoneId}/{@code
- * replacesSimCardId} (fee-logging-and-provisioning ticket): required only when {@code status} is
- * {@code COMPLETED} and the Request being completed is a {@code PROVISION_SMARTPHONE}/{@code
- * PROVISION_SIM} — the Agent supplies the new Fleet unit's details (same field shape as the
- * Manager's {@link SmartphoneCreateRequest}/{@link SimCardCreateRequest}) and, optionally, which
- * existing unit it retires.
+ * replacesSimCardId} (fee-logging-and-provisioning ticket): the legacy full-form completion, still
+ * used exactly as before for a Provision Smartphone/SIM Request that predates
+ * provision-request-details (no {@code requestedModel}/{@code requestedFlavor} of its own). {@code
+ * simCardNumber} (provision-request-details ticket) is the new-style completion's own, much
+ * narrower field: a Provision SIM Request that already carries its Carrier/flavor/Plan from
+ * submission asks the Agent for only the SIM number here; a Provision Smartphone Request needs no
+ * field here at all (ticket AC: "Completing a Provision Smartphone needs no Agent input"). {@link
+ * com.remotesupport.backend.web.ProvisioningService} decides which shape applies per Request,
+ * never both.
  */
 public record RequestStatusUpdateRequest(
     @NotNull RequestStatus status,
@@ -24,4 +28,5 @@ public record RequestStatusUpdateRequest(
     @Valid SmartphoneCreateRequest newSmartphone,
     @Valid SimCardCreateRequest newSimCard,
     UUID replacesSmartphoneId,
-    UUID replacesSimCardId) {}
+    UUID replacesSimCardId,
+    String simCardNumber) {}

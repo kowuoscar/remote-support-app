@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web.requestdetails;
 
+import com.remotesupport.backend.domain.SimCardFlavor;
 import java.util.UUID;
 
 /**
@@ -14,8 +15,18 @@ import java.util.UUID;
  * reads {@code request.getDescription()} directly rather than through this record.
  *
  * <p>Every field is optional here — a handler decides which of its own type's fields are actually
- * required, and ignores the rest. Adding a new type's detail field (e.g. a future ticket's
- * requested model) means adding a field here plus the one handler that reads it, never editing
- * every existing handler.
+ * required, and ignores the rest. Adding a new type's detail field means adding a field here plus
+ * the one handler that reads it, never editing every existing handler. {@code requestedModel}/
+ * {@code flavor}/{@code carrierId}/{@code postpaidPlanId} (provision-request-details ticket) are
+ * Provision Smartphone's and Provision SIM's own fields; Provision SIM's optional target
+ * Smartphone reuses {@code targetSmartphoneId} above rather than a field of its own — no type sets
+ * both a Reboot target and a Provision SIM target on the same Request.
  */
-public record RequestDetailsInput(UUID targetSmartphoneId, UUID targetSimCardId, UUID topupOptionId) {}
+public record RequestDetailsInput(
+    UUID targetSmartphoneId,
+    UUID targetSimCardId,
+    UUID topupOptionId,
+    String requestedModel,
+    SimCardFlavor flavor,
+    UUID carrierId,
+    UUID postpaidPlanId) {}

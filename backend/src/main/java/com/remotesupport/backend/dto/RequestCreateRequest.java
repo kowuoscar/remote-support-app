@@ -2,6 +2,7 @@ package com.remotesupport.backend.dto;
 
 import com.remotesupport.backend.domain.RequestStatus;
 import com.remotesupport.backend.domain.RequestType;
+import com.remotesupport.backend.domain.SimCardFlavor;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
@@ -32,6 +33,19 @@ import java.util.UUID;
  * stored by {@link com.remotesupport.backend.web.requestdetails.RequestDetailsValidator}, the one
  * module both this controller and {@link com.remotesupport.backend.web.FeeController}'s
  * proactive-Fee path call. Meaningless, and ignored, for every other type.
+ *
+ * <p>{@code requestedModel}/{@code requestedFlavor}/{@code requestedCarrierId}/{@code
+ * requestedPostpaidPlanId} (provision-request-details ticket): a Provision Smartphone Request's
+ * requested model, and a Provision SIM Request's flavor, Carrier and, when postpaid, Postpaid
+ * Plan — also validated and stored by {@link
+ * com.remotesupport.backend.web.requestdetails.RequestDetailsValidator}. A Provision SIM's
+ * optional target Smartphone reuses {@code targetSmartphoneId} above.
+ *
+ * <p>{@code simCardNumber} (provision-request-details ticket): only meaningful, and only
+ * required, when an Agent logs a {@code PROVISION_SIM} Request that starts immediately {@code
+ * COMPLETED} — the completion side-effect that would otherwise run on a later status-transition
+ * PATCH ({@link RequestStatusUpdateRequest}) must run right here instead, exactly like {@code
+ * newSmartphone}/{@code newSimCard} did for the older full-form completion.
  */
 public record RequestCreateRequest(
     @NotNull RequestType type,
@@ -44,4 +58,9 @@ public record RequestCreateRequest(
     UUID replacesSimCardId,
     UUID targetSmartphoneId,
     UUID targetSimCardId,
-    UUID topupOptionId) {}
+    UUID topupOptionId,
+    String requestedModel,
+    SimCardFlavor requestedFlavor,
+    UUID requestedCarrierId,
+    UUID requestedPostpaidPlanId,
+    String simCardNumber) {}

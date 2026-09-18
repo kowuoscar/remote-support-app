@@ -41,7 +41,7 @@ public class SimCardFactory {
   public SimCard create(Contract contract, SimCardCreateRequest request) {
     Carrier carrier = requireUsableCarrier(contract, request.carrierId());
 
-    PostpaidPlan plan = requireUsablePlan(carrier, request);
+    PostpaidPlan plan = requireUsablePlan(carrier, request.flavor(), request.postpaidPlanId());
 
     SimCard simCard = new SimCard();
     simCard.setId(UUID.randomUUID());
@@ -59,9 +59,11 @@ public class SimCardFactory {
 
   /**
    * A Carrier of the Contract's tenant and of its Agent's Country, not archived. Another tenant's
-   * Carrier reads as unknown, never as someone else's.
+   * Carrier reads as unknown, never as someone else's. Public (provision-request-details ticket):
+   * {@code ProvisionSimRequestDetailsHandler} reuses this exact rule to validate a Provision SIM
+   * Request's own Carrier choice at submission, rather than re-deriving it.
    */
-  private Carrier requireUsableCarrier(Contract contract, UUID carrierId) {
+  public Carrier requireUsableCarrier(Contract contract, UUID carrierId) {
     if (carrierId == null) {
       throw new InvalidRequestException("A SIM Card requires a carrierId");
     }
@@ -81,16 +83,18 @@ public class SimCardFactory {
 
   /**
    * The Postpaid Plan a Postpaid SIM's monthly fee is copied from: an active Plan of the SIM
-   * Card's own Carrier. A Prepaid SIM names none, and is refused if it does.
+   * Card's own Carrier. A Prepaid SIM names none, and is refused if it does. Public
+   * (provision-request-details ticket): shared with {@code ProvisionSimRequestDetailsHandler} for
+   * the identical rule on a Provision SIM Request's own flavor/Plan choice at submission.
    */
-  private PostpaidPlan requireUsablePlan(Carrier carrier, SimCardCreateRequest request) {
-    if (request.flavor() == SimCardFlavor.PREPAID) {
-      if (request.postpaidPlanId() != null) {
+  public PostpaidPlan requireUsablePlan(Carrier carrier, SimCardFlavor flavor, UUID postpaidPlanId) {
+    if (flavor == SimCardFlavor.PREPAID) {
+      if (postpaidPlanId != null) {
         throw new InvalidRequestException("A Prepaid SIM Card must not name a Postpaid Plan");
       }
       return null;
     }
-    UUID planId = request.postpaidPlanId();
+    UUID planId = postpaidPlanId;
     if (planId == null) {
       throw new InvalidRequestException("A Postpaid SIM Card requires a postpaidPlanId");
     }

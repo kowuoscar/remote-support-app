@@ -17,6 +17,7 @@ import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.FleetAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import com.remotesupport.backend.security.RequestAccessGuard;
+import com.remotesupport.backend.web.completion.RequestCompletionInput;
 import com.remotesupport.backend.web.requestdetails.RequestDetailsInput;
 import com.remotesupport.backend.web.requestdetails.RequestDetailsValidator;
 import jakarta.validation.Valid;
@@ -182,14 +183,7 @@ public class RequestController {
 
     requestDetailsValidator.apply(contract, detailsInputOf(requestBody), request);
 
-    provisioningService.applyIfNeeded(
-        contract,
-        request,
-        requestBody.newSmartphone(),
-        requestBody.newSimCard(),
-        requestBody.replacesSmartphoneId(),
-        requestBody.replacesSimCardId(),
-        principal);
+    provisioningService.applyIfNeeded(contract, request, completionInputOf(requestBody), principal);
 
     requestRepository.save(request);
 
@@ -249,10 +243,12 @@ public class RequestController {
     provisioningService.applyIfNeeded(
         contract,
         request,
-        requestBody.newSmartphone(),
-        requestBody.newSimCard(),
-        requestBody.replacesSmartphoneId(),
-        requestBody.replacesSimCardId(),
+        new RequestCompletionInput(
+            requestBody.newSmartphone(),
+            requestBody.newSimCard(),
+            requestBody.replacesSmartphoneId(),
+            requestBody.replacesSimCardId(),
+            requestBody.simCardNumber()),
         principal);
 
     requestRepository.save(request);
@@ -277,7 +273,26 @@ public class RequestController {
   /** Pulls {@link RequestDetailsValidator}'s inputs out of the creation body — same on both paths. */
   static RequestDetailsInput detailsInputOf(RequestCreateRequest requestBody) {
     return new RequestDetailsInput(
-        requestBody.targetSmartphoneId(), requestBody.targetSimCardId(), requestBody.topupOptionId());
+        requestBody.targetSmartphoneId(),
+        requestBody.targetSimCardId(),
+        requestBody.topupOptionId(),
+        requestBody.requestedModel(),
+        requestBody.requestedFlavor(),
+        requestBody.requestedCarrierId(),
+        requestBody.requestedPostpaidPlanId());
+  }
+
+  /**
+   * Pulls {@link ProvisioningService}'s completion inputs out of the creation body — only ever
+   * meaningful when an Agent logs a Request that starts immediately {@code COMPLETED}.
+   */
+  static RequestCompletionInput completionInputOf(RequestCreateRequest requestBody) {
+    return new RequestCompletionInput(
+        requestBody.newSmartphone(),
+        requestBody.newSimCard(),
+        requestBody.replacesSmartphoneId(),
+        requestBody.replacesSimCardId(),
+        requestBody.simCardNumber());
   }
 
   /**

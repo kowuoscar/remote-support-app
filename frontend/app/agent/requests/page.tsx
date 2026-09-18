@@ -1,6 +1,7 @@
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { AgentRequestsView } from "@/components/agent/requests-view";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
+import { loadCarrierCatalog } from "@/lib/api/carriers";
 import {
   countryLabel,
   type ContractListItem,
@@ -22,9 +23,12 @@ export const metadata = { title: "Requests" };
  * the "Log a request" dialog can name whose behalf a proactively-logged Request is raised on.
  */
 export default async function AgentRequestsPage() {
-  const [contracts, meResponse] = await Promise.all([
+  // topup-fee-from-option ticket: the log-Fee dialog's Topup Option picker reads the Agent's own
+  // Country's catalog. A catalog that fails to load only hides the picker; a Fee needs no Option.
+  const [contracts, meResponse, catalog] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),
+    loadCarrierCatalog(),
   ]);
   const me = meResponse.ok ? ((await meResponse.json()) as { username?: string }) : {};
 
@@ -82,6 +86,7 @@ export default async function AgentRequestsPage() {
         testersByContract={testersByContract}
         smartphonesByContract={smartphonesByContract}
         simCardsByContract={simCardsByContract}
+        carriers={catalog?.carriers ?? []}
       />
     </SurfacePage>
   );

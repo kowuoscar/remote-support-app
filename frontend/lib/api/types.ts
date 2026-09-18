@@ -252,6 +252,9 @@ export interface FeeListItem {
   description: string | null;
   billingMonth: string;
   createdAt: string;
+  // The Topup Option a Topup Fee was bought from; absent when it names none.
+  topupOptionId?: string;
+  topupOptionName?: string;
 }
 
 // Mirrors backend/.../domain/ClientInvoiceStatus.java. DRAFT is the only value this ticket

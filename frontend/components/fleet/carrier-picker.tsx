@@ -3,20 +3,8 @@
 import Link from "next/link";
 import { useId } from "react";
 import { cn } from "@/lib/cn";
+import { pickerSizes, type PickerSize } from "@/components/fleet/picker-sizes";
 import type { CarrierItem } from "@/lib/api/types";
-
-const sizes = {
-  md: {
-    label: "gap-1.5 text-[13px]",
-    select: "h-9 rounded-lg px-3 text-sm",
-    note: "text-[13px]",
-  },
-  sm: {
-    label: "w-full gap-1 text-[11px]",
-    select: "h-7 rounded-md px-2 text-[12px]",
-    note: "text-[11px]",
-  },
-} as const;
 
 /**
  * The Carrier a new SIM Card names (sim-card-carrier ticket): the active Carriers of the
@@ -40,10 +28,10 @@ export function CarrierPicker({
   value?: string;
   onChange?: (carrierId: string) => void;
   disabled?: boolean;
-  size?: keyof typeof sizes;
+  size?: PickerSize;
 }) {
   const id = useId();
-  const styles = sizes[size];
+  const styles = pickerSizes[size];
   const active = carriers
     .filter((carrier) => carrier.archivedAt === null)
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));

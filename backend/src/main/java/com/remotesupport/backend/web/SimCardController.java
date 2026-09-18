@@ -64,7 +64,7 @@ public class SimCardController {
         simCard.getId(),
         contract.getId(),
         simCard.getCarrier().getId(),
-        simCard.getPostpaidPlan() == null ? null : simCard.getPostpaidPlan().getId(),
+        simCard.postpaidPlanId(),
         simCard.getMonthlyFeeAmount(),
         principal.userId(),
         principal.tenantId());

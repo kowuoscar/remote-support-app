@@ -73,4 +73,9 @@ public class SimCard {
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
+
+  /** This SIM Card's Postpaid Plan id, or {@code null} when it has none — the data lives here. */
+  public UUID postpaidPlanId() {
+    return postpaidPlan == null ? null : postpaidPlan.getId();
+  }
 }

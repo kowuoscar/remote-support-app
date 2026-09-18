@@ -4,20 +4,8 @@ import Link from "next/link";
 import { useId } from "react";
 import { Money } from "@/components/ui/money";
 import { cn } from "@/lib/cn";
+import { pickerSizes, type PickerSize } from "@/components/fleet/picker-sizes";
 import type { CatalogCarrierItem } from "@/lib/api/types";
-
-const sizes = {
-  md: {
-    label: "gap-1.5 text-[13px]",
-    select: "h-9 rounded-lg px-3 text-sm",
-    note: "text-[13px]",
-  },
-  sm: {
-    label: "w-full gap-1 text-[11px]",
-    select: "h-7 rounded-md px-2 text-[12px]",
-    note: "text-[11px]",
-  },
-} as const;
 
 /**
  * The Postpaid Plan a new Postpaid SIM names (postpaid-sim-plan ticket): the active Plans of the
@@ -43,10 +31,10 @@ export function PostpaidPlanPicker({
   value?: string;
   onChange?: (planId: string) => void;
   disabled?: boolean;
-  size?: keyof typeof sizes;
+  size?: PickerSize;
 }) {
   const id = useId();
-  const styles = sizes[size];
+  const styles = pickerSizes[size];
   const active = (carrier?.postpaidPlans ?? [])
     .filter((plan) => plan.archivedAt === null)
     .sort((a, b) => a.price - b.price);

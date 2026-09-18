@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
+import { Client } from "pg";
 
 /**
  * The Manager's Review Queue end to end (manager-invoice-review-queue spec; client-invoice-review-page
@@ -94,9 +95,11 @@ const SEEDED_AGENT_ID = "55555555-5555-5555-5555-555555555555";
  * one current-month invoice is shared with agent-invoice-submission-and-approval.spec.ts, which
  * leaves it paid. Moving whatever current-month invoice he has to a month before all his others
  * frees the current month, so this test always starts from a draft it can send. Runs against the
- * e2e Postgres that scripts/run-backend-for-e2e.sh starts (honours COMPOSE_PROJECT_NAME).
+ * e2e Postgres that scripts/run-backend-for-e2e.sh starts (honours COMPOSE_PROJECT_NAME) — or,
+ * when E2E_DATABASE_URL is set, against that database directly, so a run on an isolated stack
+ * never reaches for docker-compose's own Postgres.
  */
-function rollSeededAgentInvoiceIntoThePast() {
+async function rollSeededAgentInvoiceIntoThePast() {
   const sql = `
     update agent_invoices
     set billing_month = (
@@ -104,6 +107,16 @@ function rollSeededAgentInvoiceIntoThePast() {
     )
     where agent_id = '${SEEDED_AGENT_ID}'
       and billing_month = date_trunc('month', now() at time zone 'utc')::date`;
+  if (process.env.E2E_DATABASE_URL) {
+    const client = new Client({ connectionString: process.env.E2E_DATABASE_URL });
+    await client.connect();
+    try {
+      await client.query(sql);
+    } finally {
+      await client.end();
+    }
+    return;
+  }
   execFileSync(
     "docker",
     [
@@ -203,7 +216,7 @@ test.describe("manager invoice review queue", () => {
   test("a manager overrides and approves a sent agent invoice from the review queue, then marks it paid and it leaves the queue", async ({
     page,
   }) => {
-    rollSeededAgentInvoiceIntoThePast();
+    await rollSeededAgentInvoiceIntoThePast();
 
     // The Agent sends their Agent Invoice.
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);

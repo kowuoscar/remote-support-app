@@ -1,7 +1,7 @@
 ---
 id: topup-options-and-postpaid-plans
 title: Maintain a Carrier's Topup Options and Postpaid Plans
-status: ready-for-agent
+status: in-progress
 depends_on: [agent-maintains-carriers]
 labels: [backend, frontend, fleet]
 ---

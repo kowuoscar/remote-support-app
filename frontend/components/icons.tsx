@@ -256,6 +256,17 @@ export function IconLogOut(props: IconProps) {
   );
 }
 
+export function IconCarrier(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M12 10.5 8 21M12 10.5 16 21M9.4 17.25h5.2" />
+      <circle cx="12" cy="9" r="1.5" />
+      <path d="M8.75 5.75a4.6 4.6 0 0 0 0 6.5M15.25 5.75a4.6 4.6 0 0 1 0 6.5" />
+      <path d="M6.3 3.3a8 8 0 0 0 0 11.4M17.7 3.3a8 8 0 0 1 0 11.4" />
+    </svg>
+  );
+}
+
 export function IconSim(props: IconProps) {
   return (
     <svg {...base} {...props}>

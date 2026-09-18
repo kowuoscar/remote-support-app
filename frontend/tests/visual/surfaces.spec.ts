@@ -2,14 +2,27 @@ import { test, expect, type Page } from "@playwright/test";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
 
 interface Surface {
-  slug: "manager" | "agent" | "client";
+  slug: "manager" | "agent" | "client" | "agent-carriers" | "manager-carriers";
   path: string;
+  // The placeholder session token; the Carriers pages' tokens tell tests/visual/stub-backend.mjs
+  // which role is asking, every other surface's token is unknown to it (see that file).
+  session?: string;
+  // What marks the page as settled, before capturing.
+  ready?: string;
 }
 
 const surfaces: Surface[] = [
   { slug: "manager", path: "/manager" },
   { slug: "agent", path: "/agent" },
   { slug: "client", path: "/client" },
+  { slug: "agent-carriers", path: "/agent/carriers", session: "visual-agent-session", ready: "carriers" },
+  {
+    slug: "manager-carriers",
+    // Archived shown too, so the muted Badge is covered.
+    path: "/manager/carriers?country=UNITED_STATES&archived=1",
+    session: "visual-manager-session",
+    ready: "carriers",
+  },
 ];
 
 const breakpoints = [
@@ -19,7 +32,7 @@ const breakpoints = [
 
 const themes = ["light", "dark"] as const;
 
-async function gotoAndSettle(page: Page, path: string) {
+async function gotoAndSettle(page: Page, surface: Surface) {
   // The three surfaces sit behind middleware.ts's session-cookie gate (auth-login-flow). This
   // suite renders demo data with no backend running at all (see playwright.config.ts), so it
   // sets a placeholder session cookie directly rather than driving a real login — middleware
@@ -28,14 +41,18 @@ async function gotoAndSettle(page: Page, path: string) {
   await page.context().addCookies([
     {
       name: SESSION_COOKIE_NAME,
-      value: "visual-regression-placeholder-session",
+      value: surface.session ?? "visual-regression-placeholder-session",
       url: "http://127.0.0.1:4173",
     },
   ]);
-  await page.goto(path);
-  // Dashboards demonstrate the Operate-mode skeleton-loading convention;
-  // wait for the real content to land before capturing.
-  await page.getByTestId("dashboard-ready").waitFor({ state: "visible" });
+  await page.goto(surface.path);
+  if (surface.ready === "carriers") {
+    await page.getByRole("list", { name: "Carriers" }).waitFor({ state: "visible" });
+  } else {
+    // Dashboards demonstrate the Operate-mode skeleton-loading convention;
+    // wait for the real content to land before capturing.
+    await page.getByTestId("dashboard-ready").waitFor({ state: "visible" });
+  }
   await page.evaluate(() => document.fonts.ready);
 }
 
@@ -56,7 +73,7 @@ for (const surface of surfaces) {
       test(`${surface.slug} — ${breakpoint.name} — ${theme}`, async ({ page }) => {
         await page.emulateMedia({ colorScheme: theme });
         await page.setViewportSize(breakpoint.viewport);
-        await gotoAndSettle(page, surface.path);
+        await gotoAndSettle(page, surface);
 
         await expect(page).toHaveScreenshot(
           `${surface.slug}-${breakpoint.name}-${theme}.png`,

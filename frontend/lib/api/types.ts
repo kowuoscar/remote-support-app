@@ -15,6 +15,22 @@ export function countryLabel(country: string): string {
   return COUNTRIES.find((c) => c.value === country)?.label ?? country;
 }
 
+// Mirrors backend/.../dto/CarrierResponse.java — archivedAt is null while the Carrier is active.
+export interface CarrierItem {
+  id: string;
+  country: Country;
+  name: string;
+  archivedAt: string | null;
+}
+
+// Mirrors backend/.../dto/CarrierCatalogResponse.java — one Country's Carriers, active first,
+// with the currency every price in that catalog is in.
+export interface CarrierCatalog {
+  country: Country;
+  currency: string;
+  carriers: CarrierItem[];
+}
+
 // Mirrors backend/.../dto/ClientResponse.java
 export interface ClientListItem {
   id: string;

@@ -78,6 +78,65 @@ test("an Agent adds, renames and archives a Carrier, and finds it again under sh
   await expect(carrierRow(page, "Sprint")).toBeVisible();
 });
 
+test("an Agent adds a Topup Option and a Postpaid Plan, edits the Plan's price and archives the Option", async ({
+  page,
+}) => {
+  const carrier = `Harbor Mobile ${Date.now().toString(36)}`;
+  const dialog = page.getByRole("dialog");
+
+  await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+  await page.goto("/agent/carriers");
+  await addCarrier(page, carrier);
+  await expect(dialog).toBeHidden();
+  const row = carrierRow(page, carrier);
+  const options = row.getByRole("list", { name: `${carrier} topup options` });
+  const plans = row.getByRole("list", { name: `${carrier} postpaid plans` });
+
+  // The seeded Carriers already carry the seeded offers, priced in the Country's currency.
+  await expect(
+    carrierRow(page, "AT&T").getByRole("list", { name: "AT&T postpaid plans" }).getByRole("listitem").first(),
+  ).toContainText("$");
+
+  await row.getByRole("button", { name: `Add a topup option to ${carrier}` }).click();
+  await expect(dialog.getByLabel("Price (USD)")).toBeVisible();
+  await dialog.getByLabel("Name").fill("Refill 20");
+  await dialog.getByLabel("Price (USD)").fill("0");
+  await dialog.getByRole("button", { name: "Add topup option" }).click();
+  await expect(dialog.getByRole("alert")).toContainText("above zero");
+  await dialog.getByLabel("Price (USD)").fill("20");
+  await dialog.getByRole("button", { name: "Add topup option" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(options.getByRole("listitem").filter({ hasText: "Refill 20" })).toContainText("$20.00");
+
+  await row.getByRole("button", { name: `Add a postpaid plan to ${carrier}` }).click();
+  await dialog.getByLabel("Name").fill("Unlimited Basic");
+  await dialog.getByLabel("Monthly price (USD)").fill("55");
+  await dialog.getByRole("button", { name: "Add postpaid plan" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(plans.getByRole("listitem").filter({ hasText: "Unlimited Basic" })).toContainText("$55.00");
+
+  await plans.getByRole("button", { name: "Edit Unlimited Basic" }).click();
+  await dialog.getByLabel("Monthly price (USD)").fill("59.99");
+  await dialog.getByRole("button", { name: "Save changes" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(plans.getByRole("listitem").filter({ hasText: "Unlimited Basic" })).toContainText("$59.99");
+
+  await options.getByRole("button", { name: "Archive Refill 20" }).click();
+  await dialog.getByRole("button", { name: "Archive topup option" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(row.getByText("Refill 20")).toHaveCount(0);
+
+  await page.getByRole("checkbox", { name: "Show archived" }).check();
+  const archivedOption = options.getByRole("listitem").filter({ hasText: "Refill 20" });
+  await expect(archivedOption).toContainText("Archived");
+  await expect(archivedOption.getByRole("button")).toHaveCount(0);
+
+  // Leave the shared e2e database's catalog as it was found.
+  await row.getByRole("button", { name: `Archive ${carrier}` }).click();
+  await dialog.getByRole("button", { name: "Archive carrier" }).click();
+  await expect(dialog).toBeHidden();
+});
+
 test("the Manager switches the Country filter and sees that Country's Carriers", async ({ page }) => {
   const telcel = `Telcel ${Date.now().toString(36)}`;
 

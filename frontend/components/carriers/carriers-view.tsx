@@ -9,7 +9,23 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconAlertTriangle, IconCarrier, IconPlus } from "@/components/icons";
 import { ArchiveCarrierDialog, type ArchiveCarrierDialogHandle } from "@/components/carriers/archive-carrier-dialog";
 import { CarrierNameDialog, type CarrierNameDialogHandle } from "@/components/carriers/carrier-name-dialog";
-import { COUNTRIES, countryLabel, type CarrierCatalog, type CarrierItem, type Country } from "@/lib/api/types";
+import { CarrierOfferDialog, type CarrierOfferDialogHandle } from "@/components/carriers/carrier-offer-dialog";
+import {
+  ArchiveCarrierOfferDialog,
+  type ArchiveCarrierOfferDialogHandle,
+} from "@/components/carriers/archive-carrier-offer-dialog";
+import { OFFER_COPY } from "@/components/carriers/carrier-offer-copy";
+import { Money } from "@/components/ui/money";
+import { formatMoney } from "@/lib/format";
+import { CARRIER_OFFER_LISTS, type CarrierOfferList } from "@/lib/api/carrier-offers";
+import {
+  COUNTRIES,
+  countryLabel,
+  type CarrierCatalog,
+  type CarrierOfferItem,
+  type CatalogCarrierItem,
+  type Country,
+} from "@/lib/api/types";
 
 const archivedDate = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -32,12 +48,29 @@ function useQueryWith() {
   };
 }
 
+const LIST_FIELD = { "topup-options": "topupOptions", "postpaid-plans": "postpaidPlans" } as const;
+
+/** What "Show archived" would reveal: archived Carriers, and archived entries of active ones. */
+function countArchived(carriers: CatalogCarrierItem[]): number {
+  return carriers.reduce(
+    (count, carrier) =>
+      carrier.archivedAt !== null
+        ? count + 1
+        : count +
+          carrier.topupOptions.filter((entry) => entry.archivedAt !== null).length +
+          carrier.postpaidPlans.filter((entry) => entry.archivedAt !== null).length,
+    0,
+  );
+}
+
 /**
  * One Country's Carriers, maintained in place (agent-maintains-carriers ticket): the Agent's own
  * Country, or — with `countryFilter` — any Country the Company Manager picks. The page fetches
  * archived Carriers too; "Show archived" only reveals them. Both the Country and the toggle live in
  * the URL (`?country=`, `?archived=1`), so a view can be linked to. Every change refreshes the
- * server-rendered list without leaving the page.
+ * server-rendered list without leaving the page. Each active Carrier lists its Topup Options and
+ * Postpaid Plans with their prices (topup-options-and-postpaid-plans ticket); an archived Carrier
+ * shows neither, since nothing under it can be picked or changed any more.
  */
 export function CarriersView({
   country,
@@ -50,6 +83,8 @@ export function CarriersView({
 }) {
   const nameDialogRef = useRef<CarrierNameDialogHandle>(null);
   const archiveDialogRef = useRef<ArchiveCarrierDialogHandle>(null);
+  const offerDialogRef = useRef<CarrierOfferDialogHandle>(null);
+  const archiveOfferDialogRef = useRef<ArchiveCarrierOfferDialogHandle>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryWith = useQueryWith();
@@ -60,7 +95,7 @@ export function CarriersView({
 
   const carriers = catalog?.carriers ?? [];
   const active = carriers.filter((carrier) => carrier.archivedAt === null);
-  const archivedCount = carriers.length - active.length;
+  const archivedCount = countArchived(carriers);
   const visible = showArchived ? carriers : active;
 
   return (
@@ -100,9 +135,9 @@ export function CarriersView({
       ) : visible.length === 0 ? (
         <EmptyState
           icon={<IconCarrier className="h-5 w-5" />}
-          title={archivedCount > 0 ? `Every carrier in ${countryName} is archived` : `No carriers in ${countryName} yet`}
+          title={carriers.length > 0 ? `Every carrier in ${countryName} is archived` : `No carriers in ${countryName} yet`}
           description={
-            archivedCount > 0
+            carriers.length > 0
               ? "Add the carriers you work with today, or turn on Show archived to see the old ones."
               : `Add the mobile carriers you buy SIM cards and topups from. Prices will be in ${catalog.currency}.`
           }
@@ -120,8 +155,13 @@ export function CarriersView({
               <CarrierRow
                 key={carrier.id}
                 carrier={carrier}
+                currency={catalog.currency}
+                showArchived={showArchived}
                 onRename={() => nameDialogRef.current?.openRename(carrier)}
                 onArchive={() => archiveDialogRef.current?.open(carrier)}
+                onAddEntry={(list) => offerDialogRef.current?.openCreate(list, carrier)}
+                onEditEntry={(list, entry) => offerDialogRef.current?.openEdit(list, carrier, entry)}
+                onArchiveEntry={(list, entry) => archiveOfferDialogRef.current?.open(list, carrier, entry)}
               />
             ))}
           </ul>
@@ -130,48 +170,180 @@ export function CarriersView({
 
       <CarrierNameDialog ref={nameDialogRef} country={country} countryName={countryName} />
       <ArchiveCarrierDialog ref={archiveDialogRef} />
+      <CarrierOfferDialog ref={offerDialogRef} currency={catalog?.currency ?? ""} />
+      <ArchiveCarrierOfferDialog ref={archiveOfferDialogRef} />
     </div>
   );
 }
 
 function CarrierRow({
   carrier,
+  currency,
+  showArchived,
   onRename,
   onArchive,
+  onAddEntry,
+  onEditEntry,
+  onArchiveEntry,
 }: {
-  carrier: CarrierItem;
+  carrier: CatalogCarrierItem;
+  currency: string;
+  showArchived: boolean;
   onRename: () => void;
   onArchive: () => void;
+  onAddEntry: (list: CarrierOfferList) => void;
+  onEditEntry: (list: CarrierOfferList, entry: CarrierOfferItem) => void;
+  onArchiveEntry: (list: CarrierOfferList, entry: CarrierOfferItem) => void;
 }) {
   const archived = carrier.archivedAt !== null;
   return (
-    <li className="flex items-center justify-between gap-4 px-5 py-3">
-      <span className="flex min-w-0 items-center gap-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-canvas-soft text-ink-mute">
-          <IconCarrier className="h-4 w-4" />
-        </span>
-        <span className="min-w-0">
-          <span
-            translate="no"
-            className={`block truncate text-sm font-medium ${archived ? "text-ink-mute" : "text-ink"}`}
-          >
-            {carrier.name}
+    <li className="px-5 py-3">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-canvas-soft text-ink-mute">
+            <IconCarrier className="h-4 w-4" />
           </span>
-          {archived ? (
-            <span className="block text-[12px] text-ink-mute">
-              Archived {archivedDate.format(new Date(carrier.archivedAt!))}
-            </span>
-          ) : null}
-        </span>
+          <div className="min-w-0">
+            <h3
+              translate="no"
+              className={`block truncate text-sm font-medium ${archived ? "text-ink-mute" : "text-ink"}`}
+            >
+              {carrier.name}
+            </h3>
+            {archived ? (
+              <span className="block text-[12px] text-ink-mute">
+                Archived {archivedDate.format(new Date(carrier.archivedAt!))}
+              </span>
+            ) : null}
+          </div>
+        </div>
+        {archived ? (
+          <Badge tone="neutral">Archived</Badge>
+        ) : (
+          <span className="flex shrink-0 items-center gap-1.5">
+            <Button variant="row" size="sm" onClick={onRename} aria-label={`Rename ${carrier.name}`}>
+              Rename
+            </Button>
+            <Button variant="ghost" size="sm" onClick={onArchive} aria-label={`Archive ${carrier.name}`}>
+              Archive
+            </Button>
+          </span>
+        )}
+      </div>
+
+      {archived ? null : (
+        <div className="mt-3 grid gap-x-8 gap-y-4 pb-1 md:grid-cols-2 md:pl-11">
+          {CARRIER_OFFER_LISTS.map((list) => (
+            <OfferList
+              key={list}
+              list={list}
+              carrierName={carrier.name}
+              entries={carrier[LIST_FIELD[list]].filter((entry) => showArchived || entry.archivedAt === null)}
+              currency={currency}
+              onAdd={() => onAddEntry(list)}
+              onEdit={(entry) => onEditEntry(list, entry)}
+              onArchive={(entry) => onArchiveEntry(list, entry)}
+            />
+          ))}
+        </div>
+      )}
+    </li>
+  );
+}
+
+/** One of a Carrier's two offer lists: each entry's name and price, and its actions. */
+function OfferList({
+  list,
+  carrierName,
+  entries,
+  currency,
+  onAdd,
+  onEdit,
+  onArchive,
+}: {
+  list: CarrierOfferList;
+  carrierName: string;
+  entries: CarrierOfferItem[];
+  currency: string;
+  onAdd: () => void;
+  onEdit: (entry: CarrierOfferItem) => void;
+  onArchive: (entry: CarrierOfferItem) => void;
+}) {
+  const copy = OFFER_COPY[list];
+  const headingId = useId();
+  return (
+    <section aria-labelledby={headingId} className="min-w-0">
+      <div className="flex items-center justify-between gap-3 border-b border-hairline pb-1.5">
+        <h4 id={headingId} className="text-[12px] font-medium tracking-[0.02em] text-ink-mute">
+          {copy.heading}
+        </h4>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onAdd}
+          aria-label={`Add a ${copy.singular} to ${carrierName}`}
+          className="-mr-2"
+        >
+          <IconPlus className="h-3.5 w-3.5" />
+          Add
+        </Button>
+      </div>
+      {entries.length === 0 ? (
+        <p className="py-2.5 text-[13px] text-ink-mute">No {copy.heading.toLowerCase()} yet.</p>
+      ) : (
+        <ul aria-label={`${carrierName} ${copy.heading.toLowerCase()}`} className="divide-y divide-hairline">
+          {entries.map((entry) => (
+            <OfferRow
+              key={entry.id}
+              entry={entry}
+              currency={currency}
+              perMonth={copy.perMonth}
+              onEdit={() => onEdit(entry)}
+              onArchive={() => onArchive(entry)}
+            />
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function OfferRow({
+  entry,
+  currency,
+  perMonth,
+  onEdit,
+  onArchive,
+}: {
+  entry: CarrierOfferItem;
+  currency: string;
+  perMonth: boolean;
+  onEdit: () => void;
+  onArchive: () => void;
+}) {
+  const archived = entry.archivedAt !== null;
+  return (
+    <li className="flex min-h-11 items-center gap-3 py-1.5">
+      <span translate="no" className={`min-w-0 flex-1 break-words text-sm ${archived ? "text-ink-mute" : "text-ink"}`}>
+        {entry.name}
+      </span>
+      <span className="shrink-0 text-sm">
+        {archived ? (
+          // Money always inks its figure; an archived price reads muted, like its name.
+          <span className="tnum text-ink-mute">{formatMoney(entry.price, currency)}</span>
+        ) : (
+          <Money amount={entry.price} currency={currency} />
+        )}
+        {perMonth ? <span className="text-[12px] text-ink-mute">/mo</span> : null}
       </span>
       {archived ? (
         <Badge tone="neutral">Archived</Badge>
       ) : (
-        <span className="flex shrink-0 items-center gap-1.5">
-          <Button variant="row" size="sm" onClick={onRename} aria-label={`Rename ${carrier.name}`}>
-            Rename
+        <span className="flex shrink-0 items-center gap-1">
+          <Button variant="row" size="sm" onClick={onEdit} aria-label={`Edit ${entry.name}`}>
+            Edit
           </Button>
-          <Button variant="ghost" size="sm" onClick={onArchive} aria-label={`Archive ${carrier.name}`}>
+          <Button variant="ghost" size="sm" onClick={onArchive} aria-label={`Archive ${entry.name}`}>
             Archive
           </Button>
         </span>

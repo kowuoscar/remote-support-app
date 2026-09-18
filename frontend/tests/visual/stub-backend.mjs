@@ -21,13 +21,49 @@ const CURRENCY = {
   UNITED_STATES: "USD",
 };
 
+const ARCHIVED = "2024-06-01T00:00:00Z";
+
+// Topup Options and Postpaid Plans per Carrier, as [name, price, archivedAt]. One of each list is
+// archived and one Carrier has no Topup Options, so the archived rows and the empty list are both
+// covered.
+const OFFERS = {
+  c1: {
+    topupOptions: [["Prepaid Refill 25", 25], ["Prepaid Refill 50", 50]],
+    postpaidPlans: [["Unlimited Starter", 65.99], ["Unlimited Premium", 85.99]],
+  },
+  c2: {
+    topupOptions: [["Data Pass 5GB", 15], ["Data Pass 15GB", 30], ["Data Pass 1GB", 5, ARCHIVED]],
+    postpaidPlans: [["Essentials", 60], ["Go5G", 75]],
+  },
+  c3: {
+    topupOptions: [],
+    postpaidPlans: [["Unlimited Welcome", 65], ["Unlimited Plus", 80], ["Start Unlimited", 70, ARCHIVED]],
+  },
+  c4: { topupOptions: [], postpaidPlans: [] },
+};
+
+function offers(carrierId, list) {
+  return OFFERS[carrierId][list].map(([name, price, archivedAt = null], index) => ({
+    id: `${carrierId}-${list}-${index}`,
+    carrierId,
+    name,
+    price,
+    archivedAt,
+  }));
+}
+
 function catalog(country) {
   const carriers = [
     { id: "c1", name: "AT&T", archivedAt: null },
     { id: "c2", name: "T-Mobile", archivedAt: null },
     { id: "c3", name: "Verizon", archivedAt: null },
     { id: "c4", name: "Sprint", archivedAt: "2024-04-01T00:00:00Z" },
-  ].map((carrier) => ({ ...carrier, country }));
+  ].map((carrier) => ({
+    ...carrier,
+    country,
+    topupOptions: offers(carrier.id, "topupOptions"),
+    postpaidPlans: offers(carrier.id, "postpaidPlans"),
+  }));
   return { country, currency: CURRENCY[country], carriers };
 }
 

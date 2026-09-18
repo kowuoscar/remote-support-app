@@ -23,12 +23,29 @@ export interface CarrierItem {
   archivedAt: string | null;
 }
 
+// Mirrors backend/.../dto/CarrierOfferResponse.java — a Topup Option or a Postpaid Plan. `price`
+// is in the catalog's currency; archivedAt is null while the entry is active.
+export interface CarrierOfferItem {
+  id: string;
+  carrierId: string;
+  name: string;
+  price: number;
+  archivedAt: string | null;
+}
+
+// Mirrors backend/.../dto/CatalogCarrierResponse.java — a Carrier as the catalog lists it, with
+// its Topup Options and Postpaid Plans (active first, then cheapest first).
+export interface CatalogCarrierItem extends CarrierItem {
+  topupOptions: CarrierOfferItem[];
+  postpaidPlans: CarrierOfferItem[];
+}
+
 // Mirrors backend/.../dto/CarrierCatalogResponse.java — one Country's Carriers, active first,
 // with the currency every price in that catalog is in.
 export interface CarrierCatalog {
   country: Country;
   currency: string;
-  carriers: CarrierItem[];
+  carriers: CatalogCarrierItem[];
 }
 
 // Mirrors backend/.../dto/ClientResponse.java

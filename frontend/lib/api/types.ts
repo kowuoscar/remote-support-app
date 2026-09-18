@@ -146,6 +146,8 @@ export interface SmartphoneListItem {
 // Mirrors backend/.../dto/SimCardResponse.java. The three carrier fields are absent for a SIM Card
 // from before the Carrier catalog that never had a carrier, and the three plan fields for a Prepaid
 // SIM or a Postpaid SIM from before the catalog, which keeps its own monthly fee.
+// installedInSmartphoneId/Model are absent when the SIM Card isn't Installed in any Smartphone
+// (spec.md Solution — Fleet model: "Installed in"; sim-installed-in-smartphone ticket).
 export interface SimCardListItem {
   id: string;
   contractId: string;
@@ -159,6 +161,8 @@ export interface SimCardListItem {
   flavor: SimCardFlavorValue;
   monthlyFeeAmount: number | null;
   status: SimCardStatusValue;
+  installedInSmartphoneId?: string;
+  installedInSmartphoneModel?: string;
 }
 
 // Mirrors backend/.../domain/RequestType.java

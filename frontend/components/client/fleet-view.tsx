@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { SimCardCarrier } from "@/components/fleet/sim-card-carrier";
+import { simCardNumbersInstalledIn } from "@/components/fleet/installed-in";
 import { SimCardPlan } from "@/components/fleet/sim-card-plan";
 import { IconContracts, IconSim, IconSmartphone } from "@/components/icons";
 import { simCardStatusToneByValue, smartphoneStatusToneByValue } from "@/lib/status";
@@ -79,6 +80,7 @@ export function ClientFleetView({
                   <Th>Model</Th>
                   <Th>Serial</Th>
                   <Th>Owner</Th>
+                  <Th>SIM Cards</Th>
                   <Th>Status</Th>
                 </Tr>
               </Thead>
@@ -88,6 +90,7 @@ export function ClientFleetView({
                     <Td className="font-medium text-ink">{phone.model}</Td>
                     <Td className="tnum text-ink-secondary">{phone.serial ?? "—"}</Td>
                     <Td className="text-ink-secondary">{SMARTPHONE_OWNER_LABEL[phone.owner]}</Td>
+                    <Td className="tnum text-ink-secondary">{simCardNumbersInstalledIn(sims, phone.id)}</Td>
                     <Td>
                       <Badge tone={smartphoneStatusToneByValue[phone.status]}>
                         {SMARTPHONE_STATUS_LABEL[phone.status]}
@@ -125,6 +128,7 @@ export function ClientFleetView({
                   <Th>Plan</Th>
                   <Th>Flavor</Th>
                   <Th>Status</Th>
+                  <Th>Installed in</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -143,6 +147,7 @@ export function ClientFleetView({
                         {SIM_CARD_STATUS_LABEL[sim.status]}
                       </Badge>
                     </Td>
+                    <Td className="text-ink-secondary">{sim.installedInSmartphoneModel ?? "—"}</Td>
                   </Tr>
                 ))}
               </Tbody>

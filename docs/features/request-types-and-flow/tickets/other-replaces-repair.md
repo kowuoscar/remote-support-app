@@ -1,7 +1,7 @@
 ---
 id: other-replaces-repair
 title: Other replaces Repair, and every Request can carry a description
-status: in-progress
+status: done
 depends_on: []
 labels: [backend, frontend, requests, invoicing]
 ---
@@ -12,13 +12,13 @@ First slice of the type set. Implements `spec.md` Solution (Types; the descripti
 
 ## Acceptance criteria
 
-- [ ] The Request types offered to Testers and Agents no longer include Repair and include Other
-- [ ] Every Request accepts an optional description; an Other Request is refused without one
-- [ ] The description shows on the Request in the Tester's and the Agent's Requests lists
-- [ ] A Fee can be logged for Other, against a Request or proactively; Repair is no longer a Fee type
-- [ ] A migration turns every Repair Request and Repair Fee into Other, setting the description "Repair" on a Request that had none
-- [ ] The migration changes no Fee amount, billing month or Client or Agent Invoice total, draft or frozen
-- [ ] Seed data holds at least one Other Request with a description
+- [x] The Request types offered to Testers and Agents no longer include Repair and include Other
+- [x] Every Request accepts an optional description; an Other Request is refused without one
+- [x] The description shows on the Request in the Tester's and the Agent's Requests lists
+- [x] A Fee can be logged for Other, against a Request or proactively; Repair is no longer a Fee type
+- [x] A migration turns every Repair Request and Repair Fee into Other, setting the description "Repair" on a Request that had none
+- [x] The migration changes no Fee amount, billing month or Client or Agent Invoice total, draft or frozen
+- [x] Seed data holds at least one Other Request with a description
 
 ## Tests
 

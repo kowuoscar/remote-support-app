@@ -42,14 +42,17 @@ public class SmartphoneController {
   private final ContractRepository contractRepository;
   private final SmartphoneRepository smartphoneRepository;
   private final FleetAccessGuard fleetAccessGuard;
+  private final SimInstallationService simInstallationService;
 
   public SmartphoneController(
       ContractRepository contractRepository,
       SmartphoneRepository smartphoneRepository,
-      FleetAccessGuard fleetAccessGuard) {
+      FleetAccessGuard fleetAccessGuard,
+      SimInstallationService simInstallationService) {
     this.contractRepository = contractRepository;
     this.smartphoneRepository = smartphoneRepository;
     this.fleetAccessGuard = fleetAccessGuard;
+    this.simInstallationService = simInstallationService;
   }
 
   @PostMapping
@@ -122,6 +125,12 @@ public class SmartphoneController {
         newStatus.name(),
         principal.userId(),
         principal.tenantId());
+
+    // Retiring a Smartphone clears the Installed-in link on its SIM Cards (spec.md Solution —
+    // Fleet model; sim-installed-in-smartphone ticket AC).
+    if (newStatus == SmartphoneStatus.RETIRED) {
+      simInstallationService.clearLinksForRetiredSmartphone(smartphone, null, principal);
+    }
 
     return SmartphoneResponse.of(smartphone);
   }

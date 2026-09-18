@@ -3,12 +3,15 @@ package com.remotesupport.backend.web;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.domain.SimCardStatus;
+import com.remotesupport.backend.domain.Smartphone;
 import com.remotesupport.backend.dto.SimCardCreateRequest;
+import com.remotesupport.backend.dto.SimCardInstalledInUpdateRequest;
 import com.remotesupport.backend.dto.SimCardResponse;
 import com.remotesupport.backend.dto.SimCardStatusUpdateRequest;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.SimCardRepository;
+import com.remotesupport.backend.repository.SmartphoneRepository;
 import com.remotesupport.backend.security.FleetAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import jakarta.validation.Valid;
@@ -37,18 +40,24 @@ public class SimCardController {
 
   private final ContractRepository contractRepository;
   private final SimCardRepository simCardRepository;
+  private final SmartphoneRepository smartphoneRepository;
   private final FleetAccessGuard fleetAccessGuard;
   private final SimCardFactory simCardFactory;
+  private final SimInstallationService simInstallationService;
 
   public SimCardController(
       ContractRepository contractRepository,
       SimCardRepository simCardRepository,
+      SmartphoneRepository smartphoneRepository,
       FleetAccessGuard fleetAccessGuard,
-      SimCardFactory simCardFactory) {
+      SimCardFactory simCardFactory,
+      SimInstallationService simInstallationService) {
     this.contractRepository = contractRepository;
     this.simCardRepository = simCardRepository;
+    this.smartphoneRepository = smartphoneRepository;
     this.fleetAccessGuard = fleetAccessGuard;
     this.simCardFactory = simCardFactory;
+    this.simInstallationService = simInstallationService;
   }
 
   @PostMapping
@@ -108,6 +117,48 @@ public class SimCardController {
 
     AuditLog.statusChanged(
         "SimCard", simCard.getId(), oldStatus.name(), newStatus.name(), principal.userId(), principal.tenantId());
+
+    // Retiring a SIM Card clears its own Installed-in link (spec.md Solution — Fleet model;
+    // sim-installed-in-smartphone ticket AC).
+    if (newStatus == SimCardStatus.RETIRED) {
+      simInstallationService.clearLinkForRetiredSimCard(simCard, null, principal);
+    }
+
+    return SimCardResponse.of(simCard);
+  }
+
+  /**
+   * Sets, moves or clears a SIM Card's Installed-in Smartphone from the Fleet page
+   * (sim-installed-in-smartphone ticket AC: "the Agent (own Contract) or the Manager can set or
+   * clear a SIM Card's Smartphone ... a Tester cannot"). Same allowed callers as a status change,
+   * mirroring {@link SmartphoneController#updateSerial}.
+   */
+  @PatchMapping("/{simCardId}/installed-in")
+  public SimCardResponse updateInstalledIn(
+      @PathVariable UUID contractId,
+      @PathVariable UUID simCardId,
+      @Valid @RequestBody SimCardInstalledInUpdateRequest request,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    Contract contract = findContract(contractId, principal);
+    fleetAccessGuard.requireCanChangeStatus(contract, principal);
+
+    SimCard simCard =
+        simCardRepository
+            .findByIdAndContractId(simCardId, contractId)
+            .orElseThrow(() -> new NotFoundException("No SIM card with id " + simCardId));
+
+    if (request.smartphoneId() == null) {
+      simInstallationService.uninstall(simCard, null, principal);
+    } else {
+      Smartphone smartphone =
+          smartphoneRepository
+              .findByIdAndContractId(request.smartphoneId(), contractId)
+              .orElseThrow(
+                  () ->
+                      new InvalidRequestException(
+                          "No Smartphone with id " + request.smartphoneId() + " on this Contract"));
+      simInstallationService.install(simCard, smartphone, null, principal);
+    }
 
     return SimCardResponse.of(simCard);
   }

@@ -1,7 +1,7 @@
 ---
 id: sim-installed-in-smartphone
 title: A SIM Card records the Smartphone it is Installed in
-status: ready-for-agent
+status: in-progress
 depends_on: [smartphone-owner-and-optional-serial]
 labels: [backend, frontend, fleet]
 ---

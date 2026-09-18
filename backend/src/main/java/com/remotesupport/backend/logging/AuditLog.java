@@ -386,6 +386,41 @@ public final class AuditLog {
         tenantId);
   }
 
+  /**
+   * A SIM Card installed into a Smartphone (sim-installed-in-smartphone ticket Observability:
+   * "SIM Card id, Smartphone id, actor, tenant, and the Request id when a Request caused it").
+   * {@code requestId} is {@code null} for a Fleet-page action with no Request behind it.
+   */
+  public static void simCardInstalled(
+      UUID simCardId, UUID smartphoneId, UUID requestId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=SIM_CARD_INSTALLED entity=SimCard entityId={} smartphoneId={} requestId={} "
+            + "actorUserId={} tenantId={}",
+        simCardId,
+        smartphoneId,
+        requestId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A SIM Card uninstalled from a Smartphone, whether by an explicit clear/move or as the
+   * cascading side-effect of retiring the Smartphone or the SIM Card itself
+   * (sim-installed-in-smartphone ticket Observability). {@code requestId} is {@code null} for a
+   * Fleet-page action with no Request behind it.
+   */
+  public static void simCardUninstalled(
+      UUID simCardId, UUID smartphoneId, UUID requestId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=SIM_CARD_UNINSTALLED entity=SimCard entityId={} smartphoneId={} requestId={} "
+            + "actorUserId={} tenantId={}",
+        simCardId,
+        smartphoneId,
+        requestId,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

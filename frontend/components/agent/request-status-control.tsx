@@ -44,6 +44,8 @@ export function RequestStatusControl({
   activeSimCards = [],
   carriers = [],
   carriersHref = "/agent/carriers",
+  topupOptionId,
+  topupOptionPrice,
 }: {
   contractId: string;
   requestId: string;
@@ -54,6 +56,10 @@ export function RequestStatusControl({
   activeSimCards?: SimCardListItem[];
   carriers?: CatalogCarrierItem[];
   carriersHref?: string;
+  // reboot-and-topup-details ticket: this Topup Request's own Option, if it named one at
+  // submission — pre-fills the completion Fee's amount (still editable) and links the Fee to it.
+  topupOptionId?: string;
+  topupOptionPrice?: number;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -102,7 +108,16 @@ export function RequestStatusControl({
     const response = await fetch(`/api/contracts/${contractId}/fees`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestId, feeType: type, amount, description: description || undefined }),
+      body: JSON.stringify({
+        requestId,
+        feeType: type,
+        amount,
+        description: description || undefined,
+        // The Fee stays linked to the same Option the Request itself named at submission
+        // (reboot-and-topup-details ticket AC) — the amount above is whatever the Agent
+        // submitted, adjusted or not from the pre-filled suggestion below.
+        topupOptionId: type === "TOPUP" ? topupOptionId : undefined,
+      }),
     });
     return response.ok;
   }
@@ -256,6 +271,9 @@ export function RequestStatusControl({
             step="0.01"
             required
             disabled={pending}
+            // reboot-and-topup-details ticket AC: pre-filled from the Request's own Topup Option,
+            // still editable — a plain `defaultValue`, not a controlled field.
+            defaultValue={type === "TOPUP" && topupOptionPrice != null ? topupOptionPrice : undefined}
             className="h-7 text-[12px]"
           />
         </label>

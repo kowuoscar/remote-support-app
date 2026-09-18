@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CarrierPicker } from "@/components/fleet/carrier-picker";
 import { PostpaidPlanPicker } from "@/components/fleet/postpaid-plan-picker";
+import { SimCardPicker } from "@/components/requests/sim-card-picker";
 import { IconAlertTriangle, IconCoins } from "@/components/icons";
 import { formatMoney } from "@/lib/format";
 import {
@@ -14,6 +15,7 @@ import {
   type ContractTesterListItem,
   type FeeTypeValue,
   type SimCardFlavorValue,
+  type SimCardListItem,
 } from "@/lib/api/types";
 
 const feeTypes: FeeTypeValue[] = ["TOPUP", "PROVISION_SMARTPHONE", "PROVISION_SIM", "OTHER"];
@@ -33,12 +35,16 @@ export function LogFeeDialog({
   contractId,
   currency,
   testers,
+  simCards = [],
   carriers,
   carriersHref,
 }: {
   contractId: string;
   currency: string;
   testers: ContractTesterListItem[];
+  /** Active SIM Cards of this Contract — reboot-and-topup-details ticket: a proactive Topup Fee's
+   * auto-created linking Request now names one, same rule as logging a Topup Request directly. */
+  simCards?: SimCardListItem[];
   /** The Contract's Country's Carrier catalog, archived entries included; each picker drops them. */
   carriers: CatalogCarrierItem[];
   carriersHref: string;
@@ -47,6 +53,7 @@ export function LogFeeDialog({
   const router = useRouter();
   const [feeType, setFeeType] = useState<FeeTypeValue>("TOPUP");
   const [flavor, setFlavor] = useState<SimCardFlavorValue>("POSTPAID");
+  const [targetSimCardId, setTargetSimCardId] = useState("");
   const [topupOptionId, setTopupOptionId] = useState("");
   const [amount, setAmount] = useState("");
   // The Carrier and Plan are controlled, not just FormData fields: the Plan picker lists the
@@ -57,9 +64,19 @@ export function LogFeeDialog({
   const [submitting, setSubmitting] = useState(false);
   const hasActiveCarrier = carriers.some((carrier) => carrier.archivedAt === null);
 
+  const targetSimCard = simCards.find((sim) => sim.id === targetSimCardId);
+  const targetCarrier = targetSimCard?.carrierId
+    ? carriers.find((carrier) => carrier.id === targetSimCard.carrierId)
+    : undefined;
+  const targetCarrierActiveOptions = (targetCarrier?.topupOptions ?? []).filter(
+    (option) => option.archivedAt === null,
+  );
+  const topupNeedsDescription = targetSimCard !== undefined && targetCarrierActiveOptions.length === 0;
+
   function open() {
     setFeeType("TOPUP");
     setFlavor("POSTPAID");
+    setTargetSimCardId("");
     setTopupOptionId("");
     setAmount("");
     setCarrierId("");
@@ -87,8 +104,11 @@ export function LogFeeDialog({
       description: description || undefined,
     };
 
-    if (feeType === "TOPUP" && topupOptionId) {
-      body.topupOptionId = topupOptionId;
+    if (feeType === "TOPUP") {
+      body.targetSimCardId = targetSimCardId || undefined;
+      if (topupOptionId) {
+        body.topupOptionId = topupOptionId;
+      }
     }
 
     if (feeType === "PROVISION_SMARTPHONE") {
@@ -192,6 +212,7 @@ export function LogFeeDialog({
                   value={feeType}
                   onChange={(event) => {
                     setFeeType(event.target.value as FeeTypeValue);
+                    setTargetSimCardId("");
                     setTopupOptionId("");
                   }}
                   disabled={submitting}
@@ -206,16 +227,33 @@ export function LogFeeDialog({
               </label>
 
               {feeType === "TOPUP" ? (
-                <TopupOptionPicker
-                  carriers={carriers}
-                  currency={currency}
-                  value={topupOptionId}
-                  disabled={submitting}
-                  onPick={(optionId, price) => {
-                    setTopupOptionId(optionId);
-                    if (price !== null) setAmount(price.toFixed(2));
-                  }}
-                />
+                <>
+                  <SimCardPicker
+                    simCards={simCards}
+                    label="SIM Card to top up"
+                    value={targetSimCardId}
+                    onChange={(id) => {
+                      setTargetSimCardId(id);
+                      setTopupOptionId("");
+                    }}
+                    disabled={submitting}
+                  />
+                  {/* reboot-and-topup-details ticket: the same rule as logging a Topup Request
+                      directly — an Option of the chosen SIM Card's own Carrier when it has an
+                      active one, otherwise a description (below) is required instead. */}
+                  {targetSimCard ? (
+                    <TopupOptionPicker
+                      carriers={targetCarrier ? [targetCarrier] : []}
+                      currency={currency}
+                      value={topupOptionId}
+                      disabled={submitting}
+                      onPick={(optionId, price) => {
+                        setTopupOptionId(optionId);
+                        if (price !== null) setAmount(price.toFixed(2));
+                      }}
+                    />
+                  ) : null}
+                </>
               ) : null}
 
               <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
@@ -235,12 +273,21 @@ export function LogFeeDialog({
               </label>
 
               <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                Description {feeType === "OTHER" ? null : <span className="font-normal text-ink-mute">(optional)</span>}
+                Description{" "}
+                {feeType === "OTHER" || topupNeedsDescription ? null : (
+                  <span className="font-normal text-ink-mute">(optional)</span>
+                )}
                 <Input
                   name="description"
-                  required={feeType === "OTHER"}
+                  required={feeType === "OTHER" || topupNeedsDescription}
                   disabled={submitting}
-                  placeholder={feeType === "OTHER" ? "What did you help with?" : "Top-up at kiosk"}
+                  placeholder={
+                    feeType === "OTHER"
+                      ? "What did you help with?"
+                      : topupNeedsDescription
+                        ? "This SIM Card's Carrier has no Topup Options — describe the top-up instead"
+                        : "Top-up at kiosk"
+                  }
                 />
               </label>
 
@@ -324,11 +371,14 @@ export function LogFeeDialog({
 }
 
 /**
- * The optional Topup Option a Topup Fee is bought from (topup-fee-from-option ticket): the active
- * Options of the active Carriers, each labelled by its Carrier so two Carriers' identically named
- * Options stay apart while the picker is collapsed. Picking one hands its price back as the
- * suggested amount, which the Agent can still change. "No option" leaves the amount alone. With
- * nothing to pick, the picker isn't shown at all: a Topup Fee never needs one.
+ * The Topup Option a Topup Fee is bought from (topup-fee-from-option ticket), scoped to a single
+ * Carrier — the auto-created linking Request's own target SIM Card's Carrier
+ * (reboot-and-topup-details ticket: "a Topup Option of that SIM Card's Carrier"), so it's always
+ * called with at most one Carrier now. Picking one hands its price back as the suggested amount,
+ * which the Agent can still change. Required exactly when that Carrier has an active Option to
+ * offer — matching the same rule {@link
+ * com.remotesupport.backend.web.requestdetails.TopupRequestDetailsHandler} enforces server-side.
+ * With nothing to pick, the picker isn't shown at all — the caller falls back to a description.
  */
 function TopupOptionPicker({
   carriers,
@@ -355,9 +405,10 @@ function TopupOptionPicker({
   return (
     <div className="flex flex-col gap-1.5">
       <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-        Topup option (optional)
+        Topup option
         <select
           name="topupOptionId"
+          required
           value={value}
           onChange={(event) => {
             const optionId = event.target.value;
@@ -368,7 +419,9 @@ function TopupOptionPicker({
           aria-describedby={hintId}
           className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
         >
-          <option value="">No option</option>
+          <option value="" disabled>
+            Choose a Topup Option
+          </option>
           {groups.map(({ carrier, options }) =>
             options.map((option) => (
               <option key={option.id} value={option.id}>

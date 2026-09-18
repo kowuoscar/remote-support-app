@@ -26,8 +26,8 @@ async function logout(page: Page) {
   await expect(page).toHaveURL(/\/login/);
 }
 
-/** Creates a fresh Client with one Tester, and a Contract linking it to the seeded Agent. */
-async function createContractWithTester(page: Page, clientName: string, testerEmail: string) {
+/** Creates a fresh Client with one Tester, and a Contract linking it to the seeded Agent. Returns the Contract's id. */
+async function createContractWithTester(page: Page, clientName: string, testerEmail: string): Promise<string> {
   await page.goto("/manager/clients");
   await page.getByRole("button", { name: "Add client" }).first().click();
   await page.getByLabel("Client name").fill(clientName);
@@ -42,6 +42,9 @@ async function createContractWithTester(page: Page, clientName: string, testerEm
   await page.getByLabel("Agent").selectOption({ label: SEEDED_AGENT_LABEL });
   await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
   await expect(page.getByRole("row", { name: new RegExp(clientName) })).toBeVisible();
+  await page.getByRole("link", { name: clientName }).click();
+  await expect(page).toHaveURL(/\/manager\/contracts\/.+/);
+  const contractId = page.url().split("/").pop()!;
 
   await page.goto(`/manager/clients/${clientId}`);
   await page.getByRole("button", { name: "Add tester" }).first().click();
@@ -49,6 +52,23 @@ async function createContractWithTester(page: Page, clientName: string, testerEm
   await page.getByLabel("Temporary password").fill("Passw0rd!23");
   await page.getByRole("dialog").getByRole("button", { name: "Add tester" }).click();
   await expect(page.getByRole("cell", { name: testerEmail })).toBeVisible();
+
+  return contractId;
+}
+
+/**
+ * reboot-and-topup-details ticket: a proactive Topup Fee's auto-created linking Request now names
+ * a target SIM Card. AT&T is the seeded active US Carrier whose "Prepaid Refill 25" this suite
+ * exercises.
+ */
+async function addSimCardOnAtt(page: Page, contractId: string, number: string) {
+  await page.goto(`/manager/contracts/${contractId}`);
+  await page.getByRole("button", { name: "Add SIM card" }).first().click();
+  await page.getByLabel("Number").fill(number);
+  await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "AT&T" });
+  await page.getByLabel("Flavor").selectOption("PREPAID");
+  await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
+  await expect(page.getByRole("cell", { name: number })).toBeVisible();
 }
 
 /** Selects the Contract matching `clientName` in a Contract switcher, if more than one exists. */
@@ -67,7 +87,9 @@ test.describe("topup fee from a topup option", () => {
     const clientName = `Lumen Outfitters ${RUN_ID}`;
     const testerEmail = `ana.ortiz+${RUN_ID}@lumen.example`;
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    await createContractWithTester(page, clientName, testerEmail);
+    const contractId = await createContractWithTester(page, clientName, testerEmail);
+    const simNumber = `+1-555-${RUN_ID}`;
+    await addSimCardOnAtt(page, contractId, simNumber);
     await logout(page);
 
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -79,7 +101,8 @@ test.describe("topup fee from a topup option", () => {
     await dialog.getByLabel("Tester").selectOption({ label: testerEmail });
     await expect(dialog.getByLabel("Fee type")).toHaveValue("TOPUP");
 
-    await dialog.getByLabel("Topup option (optional)").selectOption({ label: "AT&T — Prepaid Refill 25 · $25.00" });
+    await dialog.getByLabel("SIM Card to top up").selectOption({ label: `${simNumber} — AT&T` });
+    await dialog.getByLabel("Topup option").selectOption({ label: "AT&T — Prepaid Refill 25 · $25.00" });
     const amount = dialog.getByLabel("Amount (USD)");
     await expect(amount).toHaveValue("25.00");
 

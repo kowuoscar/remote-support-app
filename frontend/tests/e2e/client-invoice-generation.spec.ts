@@ -115,11 +115,18 @@ async function selectContractInSwitcher(page: Page, clientName: string) {
   }
 }
 
-async function submitRequestAsTester(page: Page, requestTypeLabel: string) {
+async function submitRequestAsTester(page: Page, requestTypeLabel: string, simCardOptionLabel?: string) {
   await page.goto("/client/requests");
   await page.getByRole("button", { name: "Submit Request" }).first().click();
-  await page.getByLabel("Request type").selectOption({ label: requestTypeLabel });
-  await page.getByRole("dialog").getByRole("button", { name: "Submit Request" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Request type").selectOption({ label: requestTypeLabel });
+  // reboot-and-topup-details ticket: a Topup Request now names the SIM Card it tops up, and
+  // Verizon (its Carrier here) has active Topup Options (V22 migration).
+  if (requestTypeLabel === "Topup") {
+    await dialog.getByLabel("SIM Card to top up").selectOption({ label: simCardOptionLabel! });
+    await dialog.getByLabel("Topup Option").selectOption({ label: "Prepaid Refill 35" });
+  }
+  await dialog.getByRole("button", { name: "Submit Request" }).click();
   await expect(page.getByText("Request submitted")).toBeVisible();
   await page.getByRole("button", { name: "Close" }).click();
 }
@@ -136,13 +143,14 @@ test.describe("client invoice generation", () => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Aurora Retail Group ${RUN_ID}`;
     const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
-    await addPostpaidSimCard(page, contractId, `+1-555-${RUN_ID.slice(-4)}`, "25.00");
+    const simNumber = `+1-555-${RUN_ID.slice(-4)}`;
+    await addPostpaidSimCard(page, contractId, simNumber, "25.00");
     const testerEmail = `priya.raman+${RUN_ID}@aurora.example`;
     await addTester(page, clientId, testerEmail, "Passw0rd!23");
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "Topup");
+    await submitRequestAsTester(page, "Topup", `${simNumber} — Verizon`);
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);

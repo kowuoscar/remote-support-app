@@ -66,6 +66,37 @@ async function addTester(page: Page, clientId: string, email: string, password: 
   await expect(page.getByRole("cell", { name: email })).toBeVisible();
 }
 
+/**
+ * reboot-and-topup-details ticket: a Reboot Request now names a Smartphone and a Topup Request a
+ * SIM Card — both from this Contract's Fleet, added as the Manager first. Returns the exact
+ * option labels the submit dialog's Smartphone/SIM Card pickers render, for `submitRequest` below.
+ */
+async function addFleetForRebootAndTopup(
+  page: Page,
+  contractId: string,
+  suffix: string,
+): Promise<{ smartphoneOptionLabel: string; simCardOptionLabel: string }> {
+  const serial = `SN-${suffix}`;
+  await page.goto(`/manager/contracts/${contractId}`);
+  await page.getByRole("button", { name: "Add smartphone" }).first().click();
+  await page.getByLabel("Model").fill("Pixel 9");
+  await page.getByLabel("Serial").fill(serial);
+  await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
+  await expect(page.getByRole("cell", { name: serial })).toBeVisible();
+
+  const number = `+1-555-${suffix}`;
+  await page.getByRole("button", { name: "Add SIM card" }).first().click();
+  await page.getByLabel("Number").fill(number);
+  // Verizon (the seeded active US Carrier) has active Topup Options (V22 migration), so the
+  // submit dialog's Topup Option picker has something to offer.
+  await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
+  await page.getByLabel("Flavor").selectOption("PREPAID");
+  await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
+  await expect(page.getByRole("cell", { name: number })).toBeVisible();
+
+  return { smartphoneOptionLabel: `Pixel 9 — ${serial}`, simCardOptionLabel: `${number} — Verizon` };
+}
+
 /** Selects the Contract matching `clientName` in a Requests page's Contract switcher, if more than one exists. */
 async function selectContractInSwitcher(page: Page, clientName: string) {
   const trigger = page.locator('[aria-haspopup="listbox"]');
@@ -77,14 +108,28 @@ async function selectContractInSwitcher(page: Page, clientName: string) {
 
 const OTHER_DESCRIPTION = "Screen protector needs replacing";
 
-async function submitRequest(page: Page, requestTypeLabel: string) {
+async function submitRequest(
+  page: Page,
+  requestTypeLabel: string,
+  fleet?: { smartphoneOptionLabel: string; simCardOptionLabel: string },
+) {
   await page.getByRole("button", { name: "Submit Request" }).first().click();
-  await page.getByLabel("Request type").selectOption({ label: requestTypeLabel });
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Request type").selectOption({ label: requestTypeLabel });
   if (requestTypeLabel === "Other") {
     // Other requires a description; every other type leaves it blank, exactly as before.
-    await page.getByRole("dialog").getByLabel("Description").fill(OTHER_DESCRIPTION);
+    await dialog.getByLabel("Description").fill(OTHER_DESCRIPTION);
   }
-  await page.getByRole("dialog").getByRole("button", { name: "Submit Request" }).click();
+  // reboot-and-topup-details ticket: Reboot names the Smartphone to reboot, Topup the SIM Card
+  // (and, since Verizon has an active Topup Option, the Option too).
+  if (requestTypeLabel === "Reboot") {
+    await dialog.getByLabel("Smartphone to reboot").selectOption({ label: fleet!.smartphoneOptionLabel });
+  }
+  if (requestTypeLabel === "Topup") {
+    await dialog.getByLabel("SIM Card to top up").selectOption({ label: fleet!.simCardOptionLabel });
+    await dialog.getByLabel("Topup Option").selectOption({ label: "Prepaid Refill 35" });
+  }
+  await dialog.getByRole("button", { name: "Submit Request" }).click();
   await expect(page.getByText("Request submitted")).toBeVisible();
   await page.getByRole("button", { name: "Close" }).click();
 }
@@ -109,7 +154,8 @@ test.describe("tester request submission", () => {
   }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Aurora Retail Group ${RUN_ID}`;
-    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const fleet = await addFleetForRebootAndTopup(page, contractId, RUN_ID);
 
     const firstTesterEmail = `priya.raman+${RUN_ID}@aurora.example`;
     await addTester(page, clientId, firstTesterEmail, "Passw0rd!23");
@@ -122,7 +168,7 @@ test.describe("tester request submission", () => {
 
     await page.goto("/client/requests");
     for (const typeLabel of REQUEST_TYPE_LABELS) {
-      await submitRequest(page, typeLabel);
+      await submitRequest(page, typeLabel, fleet);
     }
     for (const typeLabel of REQUEST_TYPE_LABELS) {
       await expect(page.getByRole("row", { name: new RegExp(typeLabel) })).toBeVisible();

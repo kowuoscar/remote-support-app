@@ -117,12 +117,15 @@ export interface SmartphoneListItem {
   status: SmartphoneStatusValue;
 }
 
-// Mirrors backend/.../dto/SimCardResponse.java
+// Mirrors backend/.../dto/SimCardResponse.java. The three carrier fields are absent for a SIM Card
+// from before the Carrier catalog that never had a carrier.
 export interface SimCardListItem {
   id: string;
   contractId: string;
   number: string;
-  carrier: string | null;
+  carrierId?: string;
+  carrierName?: string;
+  carrierArchived?: boolean;
   flavor: SimCardFlavorValue;
   monthlyFeeAmount: number | null;
   status: SimCardStatusValue;

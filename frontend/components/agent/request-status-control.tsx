@@ -4,11 +4,13 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CarrierPicker } from "@/components/fleet/carrier-picker";
 import {
   REQUEST_STATUS_LABEL,
   canCancelRequest,
   nextRequestStatus,
   requestTypeCanCarryFee,
+  type CarrierItem,
   type RequestStatusValue,
   type RequestTypeValue,
   type SimCardFlavorValue,
@@ -39,6 +41,8 @@ export function RequestStatusControl({
   currency,
   activeSmartphones = [],
   activeSimCards = [],
+  carriers = [],
+  carriersHref = "/agent/carriers",
 }: {
   contractId: string;
   requestId: string;
@@ -47,6 +51,8 @@ export function RequestStatusControl({
   currency: string;
   activeSmartphones?: SmartphoneListItem[];
   activeSimCards?: SimCardListItem[];
+  carriers?: CarrierItem[];
+  carriersHref?: string;
 }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -75,7 +81,7 @@ export function RequestStatusControl({
     status: RequestStatusValue;
     cancellationReason?: string;
     newSmartphone?: { model: string; serial: string; assignedTo?: string };
-    newSimCard?: { number: string; carrier?: string; flavor: SimCardFlavorValue; monthlyFeeAmount?: number };
+    newSimCard?: { number: string; carrierId: string; flavor: SimCardFlavorValue; monthlyFeeAmount?: number };
     replacesSmartphoneId?: string;
     replacesSimCardId?: string;
   }): Promise<boolean> {
@@ -141,7 +147,7 @@ export function RequestStatusControl({
     } else if (type === "PROVISION_SIM") {
       statusBody.newSimCard = {
         number: String(formData.get("number")),
-        carrier: String(formData.get("carrier") ?? "") || undefined,
+        carrierId: String(formData.get("carrierId") ?? ""),
         flavor,
         monthlyFeeAmount: flavor === "POSTPAID" ? Number(formData.get("monthlyFeeAmount")) : undefined,
       };
@@ -295,10 +301,13 @@ export function RequestStatusControl({
               New SIM number
               <Input name="number" required disabled={pending} className="h-7 text-[12px]" />
             </label>
-            <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-              Carrier (optional)
-              <Input name="carrier" disabled={pending} className="h-7 text-[12px]" />
-            </label>
+            <CarrierPicker
+              name="carrierId"
+              carriers={carriers}
+              carriersHref={carriersHref}
+              disabled={pending}
+              size="sm"
+            />
             <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
               Flavor
               <select
@@ -348,7 +357,13 @@ export function RequestStatusControl({
         ) : null}
 
         <div className="flex items-center gap-1.5 pt-0.5">
-          <Button type="submit" variant="row" size="sm" loading={pending}>
+          <Button
+            type="submit"
+            variant="row"
+            size="sm"
+            loading={pending}
+            disabled={type === "PROVISION_SIM" && !carriers.some((carrier) => carrier.archivedAt === null)}
+          >
             Mark Completed
           </Button>
           <Button

@@ -4,9 +4,11 @@ import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CarrierPicker } from "@/components/fleet/carrier-picker";
 import { IconAlertTriangle, IconCoins } from "@/components/icons";
 import {
   FEE_TYPE_LABEL,
+  type CarrierItem,
   type ContractTesterListItem,
   type FeeTypeValue,
   type SimCardFlavorValue,
@@ -29,10 +31,14 @@ export function LogFeeDialog({
   contractId,
   currency,
   testers,
+  carriers,
+  carriersHref,
 }: {
   contractId: string;
   currency: string;
   testers: ContractTesterListItem[];
+  carriers: CarrierItem[];
+  carriersHref: string;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
@@ -40,6 +46,7 @@ export function LogFeeDialog({
   const [flavor, setFlavor] = useState<SimCardFlavorValue>("POSTPAID");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const hasActiveCarrier = carriers.some((carrier) => carrier.archivedAt === null);
 
   function open() {
     setFeeType("TOPUP");
@@ -77,7 +84,7 @@ export function LogFeeDialog({
     } else if (feeType === "PROVISION_SIM") {
       body.newSimCard = {
         number: String(formData.get("number")),
-        carrier: String(formData.get("carrier") ?? "") || undefined,
+        carrierId: String(formData.get("carrierId") ?? ""),
         flavor,
         monthlyFeeAmount: flavor === "POSTPAID" ? Number(formData.get("monthlyFeeAmount")) : undefined,
       };
@@ -224,10 +231,12 @@ export function LogFeeDialog({
                     Number
                     <Input name="number" required disabled={submitting} placeholder="+1-555-0100" />
                   </label>
-                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                    Carrier (optional)
-                    <Input name="carrier" disabled={submitting} placeholder="Verizon" />
-                  </label>
+                  <CarrierPicker
+                    name="carrierId"
+                    carriers={carriers}
+                    carriersHref={carriersHref}
+                    disabled={submitting}
+                  />
                   <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
                     Flavor
                     <select
@@ -264,7 +273,12 @@ export function LogFeeDialog({
             <Button type="button" variant="secondary" onClick={close} disabled={submitting}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={submitting} disabled={testers.length === 0}>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={submitting}
+              disabled={testers.length === 0 || (feeType === "PROVISION_SIM" && !hasActiveCarrier)}
+            >
               Log fee
             </Button>
           </div>

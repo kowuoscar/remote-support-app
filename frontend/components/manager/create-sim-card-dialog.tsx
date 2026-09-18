@@ -5,33 +5,40 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconAlertTriangle, IconPlus } from "@/components/icons";
-import type { SimCardFlavorValue } from "@/lib/api/types";
+import { CarrierPicker } from "@/components/fleet/carrier-picker";
+import type { CarrierItem, SimCardFlavorValue } from "@/lib/api/types";
 
 /**
  * Manager adds a SIM Card, Postpaid or Prepaid, to a Contract's Fleet (fleet-management ticket
  * AC: "Manager can add a SIM Card (Postpaid or Prepaid) to a Contract's Fleet"). The monthly fee
  * field only appears for Postpaid — mirrors CreateAgentDialog's "derived/conditional field
- * follows the choice" pattern, here as visibility rather than a read-only derivation.
+ * follows the choice" pattern, here as visibility rather than a read-only derivation. The Carrier
+ * is picked from the Contract's Country's active Carriers (sim-card-carrier ticket).
  */
 export function CreateSimCardDialog({
   contractId,
   currency,
+  carriers,
+  carriersHref,
 }: {
   contractId: string;
   currency: string;
+  carriers: CarrierItem[];
+  carriersHref: string;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const [number, setNumber] = useState("");
-  const [carrier, setCarrier] = useState("");
+  const [carrierId, setCarrierId] = useState("");
   const [flavor, setFlavor] = useState<SimCardFlavorValue>("POSTPAID");
   const [monthlyFeeAmount, setMonthlyFeeAmount] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const hasActiveCarrier = carriers.some((carrier) => carrier.archivedAt === null);
 
   function open() {
     setNumber("");
-    setCarrier("");
+    setCarrierId("");
     setFlavor("POSTPAID");
     setMonthlyFeeAmount("");
     setError(null);
@@ -53,7 +60,7 @@ export function CreateSimCardDialog({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           number,
-          carrier: carrier || undefined,
+          carrierId,
           flavor,
           monthlyFeeAmount: flavor === "POSTPAID" ? Number(monthlyFeeAmount) : undefined,
         }),
@@ -62,7 +69,7 @@ export function CreateSimCardDialog({
       if (!response.ok) {
         setError(
           response.status === 400
-            ? "A Postpaid SIM needs a monthly fee; a Prepaid SIM can't have one."
+            ? "Check the carrier and the monthly fee: pick an active carrier, and give a Postpaid SIM a fee."
             : "Couldn't add the SIM card. Try again.",
         );
         setSubmitting(false);
@@ -121,15 +128,13 @@ export function CreateSimCardDialog({
             />
           </label>
 
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Carrier (optional)
-            <Input
-              value={carrier}
-              onChange={(event) => setCarrier(event.target.value)}
-              disabled={submitting}
-              placeholder="Verizon"
-            />
-          </label>
+          <CarrierPicker
+            carriers={carriers}
+            carriersHref={carriersHref}
+            value={carrierId}
+            onChange={setCarrierId}
+            disabled={submitting}
+          />
 
           <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
             Flavor
@@ -166,7 +171,7 @@ export function CreateSimCardDialog({
             <Button type="button" variant="secondary" onClick={close} disabled={submitting}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={submitting}>
+            <Button type="submit" variant="primary" loading={submitting} disabled={!hasActiveCarrier}>
               Add SIM card
             </Button>
           </div>

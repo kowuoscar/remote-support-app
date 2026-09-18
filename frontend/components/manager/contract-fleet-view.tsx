@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
+import { SimCardCarrier } from "@/components/fleet/sim-card-carrier";
 import { Money } from "@/components/ui/money";
 import { IconSim, IconSmartphone } from "@/components/icons";
 import { simCardStatusToneByValue, smartphoneStatusToneByValue } from "@/lib/status";
@@ -11,6 +12,7 @@ import {
   SIM_CARD_FLAVOR_LABEL,
   SIM_CARD_STATUS_LABEL,
   SMARTPHONE_STATUS_LABEL,
+  type CarrierItem,
   type SimCardListItem,
   type SmartphoneListItem,
 } from "@/lib/api/types";
@@ -27,9 +29,13 @@ export function ManagerContractFleetView({
   currency,
   smartphones,
   simCards,
+  carriers,
+  carriersHref,
 }: {
   contractId: string;
   currency: string;
+  carriers: CarrierItem[];
+  carriersHref: string;
   smartphones: SmartphoneListItem[];
   simCards: SimCardListItem[];
 }) {
@@ -88,7 +94,12 @@ export function ManagerContractFleetView({
           <h2 className="text-sm font-semibold text-ink">SIM Cards</h2>
           <span className="tnum text-[13px] text-ink-mute">{simCards.length}</span>
           <div className="ml-auto">
-            <CreateSimCardDialog contractId={contractId} currency={currency} />
+            <CreateSimCardDialog
+              contractId={contractId}
+              currency={currency}
+              carriers={carriers}
+              carriersHref={carriersHref}
+            />
           </div>
         </div>
         {simCards.length === 0 ? (
@@ -115,7 +126,9 @@ export function ManagerContractFleetView({
                 {simCards.map((sim) => (
                   <Tr key={sim.id}>
                     <Td className="tnum font-medium text-ink">{sim.number}</Td>
-                    <Td className="text-ink-secondary">{sim.carrier ?? "—"}</Td>
+                    <Td>
+                      <SimCardCarrier sim={sim} />
+                    </Td>
                     <Td className="text-ink-secondary">{SIM_CARD_FLAVOR_LABEL[sim.flavor]}</Td>
                     <Td className="text-right">
                       {sim.monthlyFeeAmount != null ? (

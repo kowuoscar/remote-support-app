@@ -1,6 +1,7 @@
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { AgentRequestsView } from "@/components/agent/requests-view";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
+import { loadActiveCarriers } from "@/lib/api/carriers";
 import {
   countryLabel,
   type ContractListItem,
@@ -22,9 +23,12 @@ export const metadata = { title: "Requests" };
  * the "Log a request" dialog can name whose behalf a proactively-logged Request is raised on.
  */
 export default async function AgentRequestsPage() {
-  const [contracts, meResponse] = await Promise.all([
+  const [contracts, meResponse, carriers] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),
+    // sim-card-carrier ticket: a SIM Card provisioned here names one of the Agent's own Country's
+    // active Carriers — every Contract of theirs is in that Country, so one list serves them all.
+    loadActiveCarriers(),
   ]);
   const me = meResponse.ok ? ((await meResponse.json()) as { username?: string }) : {};
 
@@ -82,6 +86,7 @@ export default async function AgentRequestsPage() {
         testersByContract={testersByContract}
         smartphonesByContract={smartphonesByContract}
         simCardsByContract={simCardsByContract}
+        carriers={carriers}
       />
     </SurfacePage>
   );

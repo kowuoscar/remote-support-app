@@ -43,10 +43,11 @@ class ContractApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.country").value("FRANCE"))
         .andExpect(jsonPath("$.currency").value("EUR"));
 
+    // +1 for the seeded Demo Client's Contract (V17) that every Manager-scoped listing includes.
     mockMvc
         .perform(get("/api/contracts").header("Authorization", "Bearer " + token))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(1));
+        .andExpect(jsonPath("$.length()").value(2));
   }
 
   @Test
@@ -83,10 +84,11 @@ class ContractApiTest extends IntegrationTest {
                     objectMapper.writeValueAsString(new ContractCreateRequest(otherClient, agentFrance))))
         .andExpect(status().isCreated());
 
+    // +1 for the seeded Demo Client's Contract (V17) that every Manager-scoped listing includes.
     mockMvc
         .perform(get("/api/contracts").header("Authorization", "Bearer " + token))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(3));
+        .andExpect(jsonPath("$.length()").value(4));
   }
 
   @Test
@@ -188,6 +190,51 @@ class ContractApiTest extends IntegrationTest {
         .perform(get("/api/contracts").header("Authorization", "Bearer " + testerToken()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(0));
+  }
+
+  /**
+   * Counterpart to the above: demo.tester@example.com (V17 migration) is the seeded login that
+   * *is* linked to a Client/Contract/Fleet, for local manual testing without first creating
+   * fixtures through the Manager UI. Regression test for the seed-data gap where the only seeded
+   * Tester login was the deliberately-unlinked one above, leaving no way to see a Fleet or submit
+   * a Request without first acting as the Manager.
+   */
+  @Test
+  void theSeededDemoTesterSeesItsContractFleetAndCanSubmitARequest() throws Exception {
+    String demoTesterToken = demoTesterToken();
+
+    mockMvc
+        .perform(get("/api/contracts").header("Authorization", "Bearer " + demoTesterToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].id").value(SEEDED_DEMO_CONTRACT_ID.toString()))
+        .andExpect(jsonPath("$[0].clientId").value(SEEDED_DEMO_CLIENT_ID.toString()));
+
+    mockMvc
+        .perform(
+            get("/api/contracts/" + SEEDED_DEMO_CONTRACT_ID + "/smartphones")
+                .header("Authorization", "Bearer " + demoTesterToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(1));
+
+    mockMvc
+        .perform(
+            get("/api/contracts/" + SEEDED_DEMO_CONTRACT_ID + "/sim-cards")
+                .header("Authorization", "Bearer " + demoTesterToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(1));
+
+    mockMvc
+        .perform(
+            post("/api/contracts/" + SEEDED_DEMO_CONTRACT_ID + "/requests")
+                .header("Authorization", "Bearer " + demoTesterToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"type":"REBOOT"}
+                    """))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value("SUBMITTED"))
+        .andExpect(jsonPath("$.raisedByUsername").value(DEMO_TESTER_USERNAME));
   }
 
   @Test

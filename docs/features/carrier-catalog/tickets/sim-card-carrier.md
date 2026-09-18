@@ -27,6 +27,7 @@ user stories 17 (Carrier part), 23, 26 (Carrier part), 27, 29 and 31.
   - For each Country, it creates one Carrier per distinct free-text carrier name, grouped case-insensitively after trimming and keeping the first spelling found. A SIM Card's Country is its Contract's Agent's Country.
   - It links every SIM Card to its Carrier.
   - SIM Cards with no carrier stay unlinked.
+  - If an active Carrier with that name (ignoring case, after trimming) already exists in the Country, it is reused instead of a new one being created. For example, the seeded US "Verizon" must be reused for the V17 demo SIM Card's "Verizon".
   - It then drops the free-text carrier column.
 - [ ] The migration changes no SIM Card's monthly fee and no Client Invoice total.
 - [ ] The seeded SIM Cards are linked to the seeded Carriers.

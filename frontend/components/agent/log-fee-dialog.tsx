@@ -94,8 +94,7 @@ export function LogFeeDialog({
     if (feeType === "PROVISION_SMARTPHONE") {
       body.newSmartphone = {
         model: String(formData.get("model")),
-        serial: String(formData.get("serial")),
-        assignedTo: String(formData.get("assignedTo") ?? "") || undefined,
+        serial: String(formData.get("serial") ?? "") || undefined,
       };
     } else if (feeType === "PROVISION_SIM") {
       body.newSimCard = {
@@ -248,12 +247,8 @@ export function LogFeeDialog({
                     <Input name="model" required disabled={submitting} placeholder="iPhone 14" />
                   </label>
                   <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                    Serial
-                    <Input name="serial" required disabled={submitting} placeholder="SN-12345" />
-                  </label>
-                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                    Assigned to (optional)
-                    <Input name="assignedTo" disabled={submitting} placeholder="Front desk" />
+                    Serial (optional)
+                    <Input name="serial" disabled={submitting} placeholder="SN-12345" />
                   </label>
                 </div>
               ) : null}

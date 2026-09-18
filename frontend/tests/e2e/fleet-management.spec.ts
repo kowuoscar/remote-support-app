@@ -191,6 +191,38 @@ test.describe("fleet management", () => {
     await expect(page.getByRole("cell", { name: `+34-91-${RUN_ID}` })).toBeVisible();
   });
 
+  test("a manager adds a client-owned smartphone without a serial, and the agent sets it from the fleet page", async ({
+    page,
+  }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Harbor & Finch Realty ${RUN_ID}`;
+    await createClientAndContractWithSeededAgent(page, clientName);
+
+    await page.getByRole("button", { name: "Add smartphone" }).first().click();
+    await page.getByLabel("Model").fill("iPhone 15");
+    await page.getByLabel("Owner").selectOption("CLIENT");
+    await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
+
+    const managerRow = page.getByRole("row", { name: /iPhone 15/ });
+    await expect(managerRow).toBeVisible();
+    await expect(managerRow).toContainText("Client");
+    await expect(managerRow).toContainText("—");
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/fleet");
+    await selectContractInSwitcher(page, clientName);
+
+    const agentRow = page.getByRole("row", { name: /iPhone 15/ });
+    await expect(agentRow).toBeVisible();
+    await agentRow.getByRole("button", { name: "Set serial" }).click();
+    await agentRow.getByLabel("Smartphone serial").fill(`SN-SET-${RUN_ID}`);
+    await agentRow.getByRole("button", { name: "Save" }).click();
+
+    await expect(agentRow).toContainText(`SN-SET-${RUN_ID}`);
+    await expect(agentRow.getByRole("button", { name: "Edit" })).toBeVisible();
+  });
+
   test("an agent and a tester are rejected from a contract that isn't theirs", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
 

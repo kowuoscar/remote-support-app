@@ -38,11 +38,17 @@ public class Smartphone {
   @Column(nullable = false)
   private String model;
 
-  @Column(nullable = false)
-  private String serial;
+  // Optional (smartphone-owner-and-optional-serial ticket AC: "A Smartphone can be created
+  // without a serial") -- the Agent (own Contract) or the Manager can set or change it later
+  // from the Fleet page.
+  @Column private String serial;
 
-  @Column(name = "assigned_to")
-  private String assignedTo;
+  // Client or company (spec.md Solution — Fleet model). Always COMPANY for a Smartphone reached
+  // through a Provision or Replace Request; the Manager's add-Smartphone form asks, defaulting
+  // to company. Replaces the removed free-text "assigned to".
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private SmartphoneOwner owner;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)

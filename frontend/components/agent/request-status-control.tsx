@@ -85,7 +85,7 @@ export function RequestStatusControl({
   async function submitStatus(body: {
     status: RequestStatusValue;
     cancellationReason?: string;
-    newSmartphone?: { model: string; serial: string; assignedTo?: string };
+    newSmartphone?: { model: string; serial?: string };
     newSimCard?: { number: string; carrierId: string; flavor: SimCardFlavorValue; postpaidPlanId?: string };
     replacesSmartphoneId?: string;
     replacesSimCardId?: string;
@@ -144,8 +144,7 @@ export function RequestStatusControl({
     if (type === "PROVISION_SMARTPHONE") {
       statusBody.newSmartphone = {
         model: String(formData.get("model")),
-        serial: String(formData.get("serial")),
-        assignedTo: String(formData.get("assignedTo") ?? "") || undefined,
+        serial: String(formData.get("serial") ?? "") || undefined,
       };
       const replaces = String(formData.get("replacesSmartphoneId") ?? "");
       if (replaces) statusBody.replacesSmartphoneId = replaces;
@@ -272,12 +271,8 @@ export function RequestStatusControl({
               <Input name="model" required disabled={pending} className="h-7 text-[12px]" />
             </label>
             <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-              New smartphone serial
-              <Input name="serial" required disabled={pending} className="h-7 text-[12px]" />
-            </label>
-            <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-              Assigned to (optional)
-              <Input name="assignedTo" disabled={pending} className="h-7 text-[12px]" />
+              New smartphone serial (optional)
+              <Input name="serial" disabled={pending} className="h-7 text-[12px]" />
             </label>
             {activeSmartphones.length > 0 ? (
               <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">

@@ -55,6 +55,10 @@ _Avoid_: General, Repair, misc.
 **Pending Approval** (of a Request):
 The starting status of every approval-required Request — Provision Smartphone, Provision SIM, Replace Smartphone, Replace SIM, and any Return holding a company-owned unit — whoever raised it, Tester or Agent. Only the Company Manager moves it on: approving puts it at Submitted (choosing the Disposition, for a Return), rejecting ends it at Rejected. The Agent can see it but cannot start it.
 
+**Pending Requests**:
+The Requests currently at Pending Approval, across every Contract, waiting on the Company Manager — ordered longest-waiting first. Separate from the Review Queue, which stays invoices-only: approving a Request is agreeing to a spend before it happens, reviewing an invoice is checking money after it did.
+_Avoid_: Approval queue, request inbox.
+
 **Rejected** (of a Request):
 The terminal status of a Request the Company Manager declined at approval, with a required reason. Distinct from Cancelled: Rejected means "the Manager said no", Cancelled means "no longer needed".
 _Avoid_: Denied, declined.

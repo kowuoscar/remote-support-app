@@ -163,20 +163,21 @@ test.describe("fee logging and provisioning", () => {
     // resolve to two elements (LogRequestDialog also has a Tester field).
     const dialog = page.locator("dialog[open]");
     await dialog.getByLabel("Tester").selectOption({ label: testerEmail });
-    await dialog.getByLabel("Fee type").selectOption({ label: "Repair" });
+    await dialog.getByLabel("Fee type").selectOption({ label: "Other" });
     await dialog.getByLabel(/Amount/).fill("60.00");
-    await dialog.getByLabel("Description (optional)").fill("On-site battery replacement");
+    // Other requires a description, which the auto-created linking Request also carries.
+    await dialog.getByLabel("Description").fill("On-site battery replacement");
     await dialog.getByRole("button", { name: "Log fee" }).click();
 
     // The linking Request was auto-created, already Completed, agent-authored.
-    const row = page.getByRole("row", { name: /Repair/ });
+    const row = page.getByRole("row", { name: /Other/ });
     await expect(row).toContainText("Completed");
     await expect(row).toContainText(testerEmail);
     await expect(row).toContainText(`Logged by ${SEEDED_USERS.agent.username}`);
 
     const fees = await fetchFees(page, contractId);
     expect(fees).toHaveLength(1);
-    expect(fees[0].feeType).toBe("REPAIR");
+    expect(fees[0].feeType).toBe("OTHER");
     expect(fees[0].amount).toBe(60);
   });
 

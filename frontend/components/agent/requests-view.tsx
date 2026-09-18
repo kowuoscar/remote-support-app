@@ -140,7 +140,14 @@ export function AgentRequestsView({
             <Tbody>
               {filtered.map((request) => (
                 <Tr key={request.id}>
-                  <Td className="font-medium text-ink">{REQUEST_TYPE_LABEL[request.type]}</Td>
+                  <Td className="font-medium text-ink">
+                    {REQUEST_TYPE_LABEL[request.type]}
+                    {request.description ? (
+                      <span className="mt-1 block max-w-[220px] font-normal text-[12px] text-ink-mute">
+                        {request.description}
+                      </span>
+                    ) : null}
+                  </Td>
                   <Td className="text-ink-secondary">
                     {request.raisedByUsername}
                     {request.agentAuthored ? (

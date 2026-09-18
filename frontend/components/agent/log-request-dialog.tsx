@@ -12,7 +12,7 @@ const requestTypes: RequestTypeValue[] = [
   "SIM_SWAP",
   "PROVISION_SMARTPHONE",
   "PROVISION_SIM",
-  "REPAIR",
+  "OTHER",
 ];
 
 /**
@@ -34,9 +34,11 @@ export function LogRequestDialog({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [type, setType] = useState<RequestTypeValue>(requestTypes[0]);
 
   function open() {
     setError(null);
+    setType(requestTypes[0]);
     dialogRef.current?.showModal();
   }
 
@@ -49,16 +51,16 @@ export function LogRequestDialog({
     setError(null);
 
     const formData = new FormData(event.currentTarget);
-    const type = String(formData.get("type"));
     const testerId = String(formData.get("testerId"));
     const startingStatus = String(formData.get("startingStatus"));
+    const description = String(formData.get("description") ?? "").trim();
 
     setSubmitting(true);
     try {
       const response = await fetch(`/api/contracts/${contractId}/requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, testerId, startingStatus }),
+        body: JSON.stringify({ type, testerId, startingStatus, description: description || undefined }),
       });
 
       if (!response.ok) {
@@ -136,16 +138,31 @@ export function LogRequestDialog({
                 <select
                   name="type"
                   required
-                  defaultValue={requestTypes[0]}
+                  value={type}
+                  onChange={(event) => setType(event.target.value as RequestTypeValue)}
                   disabled={submitting}
                   className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
                 >
-                  {requestTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {REQUEST_TYPE_LABEL[type]}
+                  {requestTypes.map((option) => (
+                    <option key={option} value={option}>
+                      {REQUEST_TYPE_LABEL[option]}
                     </option>
                   ))}
                 </select>
+              </label>
+
+              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+                Description {type === "OTHER" ? null : <span className="font-normal text-ink-mute">(optional)</span>}
+                <textarea
+                  name="description"
+                  required={type === "OTHER"}
+                  rows={3}
+                  disabled={submitting}
+                  placeholder={
+                    type === "OTHER" ? "What did you help with?" : "Anything worth recording"
+                  }
+                  className="rounded-lg border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink focus-visible:border-primary"
+                />
               </label>
 
               <fieldset className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">

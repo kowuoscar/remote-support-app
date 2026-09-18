@@ -75,9 +75,15 @@ async function selectContractInSwitcher(page: Page, clientName: string) {
   }
 }
 
+const OTHER_DESCRIPTION = "Screen protector needs replacing";
+
 async function submitRequest(page: Page, requestTypeLabel: string) {
   await page.getByRole("button", { name: "Submit Request" }).first().click();
   await page.getByLabel("Request type").selectOption({ label: requestTypeLabel });
+  if (requestTypeLabel === "Other") {
+    // Other requires a description; every other type leaves it blank, exactly as before.
+    await page.getByRole("dialog").getByLabel("Description").fill(OTHER_DESCRIPTION);
+  }
   await page.getByRole("dialog").getByRole("button", { name: "Submit Request" }).click();
   await expect(page.getByText("Request submitted")).toBeVisible();
   await page.getByRole("button", { name: "Close" }).click();
@@ -94,7 +100,7 @@ const REQUEST_TYPE_LABELS = [
   "SIM Swap",
   "Provision Smartphone",
   "Provision SIM",
-  "Repair",
+  "Other",
 ];
 
 test.describe("tester request submission", () => {
@@ -134,7 +140,9 @@ test.describe("tester request submission", () => {
       );
     }
 
-    // The Agent sees the same Requests queued for their Contract.
+    // The Agent sees the same Requests queued for their Contract, including the Other Request's
+    // description (other-replaces-repair ticket AC: "a Tester submits an Other Request with a
+    // description and the Agent sees it").
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/requests");
@@ -145,6 +153,7 @@ test.describe("tester request submission", () => {
         "Submitted",
       );
     }
+    await expect(page.getByRole("row", { name: /Other/ })).toContainText(OTHER_DESCRIPTION);
   });
 
   test("a tester from a different client and an agent on a different contract are both rejected", async ({

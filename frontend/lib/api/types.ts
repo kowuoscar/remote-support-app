@@ -152,14 +152,15 @@ export interface SimCardListItem {
   status: SimCardStatusValue;
 }
 
-// Mirrors backend/.../domain/RequestType.java
+// Mirrors backend/.../domain/RequestType.java. OTHER replaces the former REPAIR
+// (other-replaces-repair ticket) — a free-text Request for support no other type covers.
 export type RequestTypeValue =
   | "REBOOT"
   | "TOPUP"
   | "SIM_SWAP"
   | "PROVISION_SMARTPHONE"
   | "PROVISION_SIM"
-  | "REPAIR";
+  | "OTHER";
 
 // Mirrors backend/.../domain/RequestStatus.java.
 export type RequestStatusValue = "SUBMITTED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
@@ -193,7 +194,7 @@ export const REQUEST_TYPE_LABEL: Record<RequestTypeValue, string> = {
   SIM_SWAP: "SIM Swap",
   PROVISION_SMARTPHONE: "Provision Smartphone",
   PROVISION_SIM: "Provision SIM",
-  REPAIR: "Repair",
+  OTHER: "Other",
 };
 
 export const REQUEST_STATUS_LABEL: Record<RequestStatusValue, string> = {
@@ -217,6 +218,9 @@ export interface RequestListItem {
   agentAuthored: boolean;
   loggedByUsername: string;
   cancellationReason: string | null;
+  // Free-text detail given at submission (other-replaces-repair ticket): optional for every type
+  // except OTHER, where it's required.
+  description: string | null;
   createdAt: string;
 }
 
@@ -233,18 +237,18 @@ export interface ContractTesterListItem {
 // Mirrors backend/.../domain/FeeType.java — the four RequestTypeValues that can carry a Fee
 // (fee-logging-and-provisioning ticket). A Reboot or a like-for-like SIM Swap is never one of
 // these; a swap that really needed a new physical SIM is logged as PROVISION_SIM instead.
-export type FeeTypeValue = "TOPUP" | "PROVISION_SMARTPHONE" | "PROVISION_SIM" | "REPAIR";
+export type FeeTypeValue = "TOPUP" | "PROVISION_SMARTPHONE" | "PROVISION_SIM" | "OTHER";
 
 export const FEE_TYPE_LABEL: Record<FeeTypeValue, string> = {
   TOPUP: "Topup",
   PROVISION_SMARTPHONE: "Provision Smartphone",
   PROVISION_SIM: "Provision SIM",
-  REPAIR: "Repair",
+  OTHER: "Other",
 };
 
 /** Mirrors backend/.../domain/FeeType.java#requestTypeCanCarryFee. */
 export function requestTypeCanCarryFee(type: RequestTypeValue): type is FeeTypeValue {
-  return type === "TOPUP" || type === "PROVISION_SMARTPHONE" || type === "PROVISION_SIM" || type === "REPAIR";
+  return type === "TOPUP" || type === "PROVISION_SMARTPHONE" || type === "PROVISION_SIM" || type === "OTHER";
 }
 
 // Mirrors backend/.../dto/FeeResponse.java

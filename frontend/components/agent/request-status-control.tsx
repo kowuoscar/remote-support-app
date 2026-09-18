@@ -28,7 +28,7 @@ import {
  * rather than escalating to a `<dialog>` or a crude `prompt()`.
  *
  * <p>fee-logging-and-provisioning ticket: completing a Request whose type can carry a Fee (Topup,
- * Provision Smartphone, Provision SIM, Repair — {@link requestTypeCanCarryFee}) expands the same
+ * Provision Smartphone, Provision SIM, Other — {@link requestTypeCanCarryFee}) expands the same
  * inline form to also collect the Fee amount, and for a Provision type, the new Fleet unit's
  * details (reusing the Manager's Add Smartphone/SIM Card field shape) plus an optional "retiring
  * which unit" picker. Reboot and SIM Swap complete exactly as before — a single click, no form —

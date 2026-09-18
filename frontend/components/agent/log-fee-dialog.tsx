@@ -16,7 +16,7 @@ import {
   type SimCardFlavorValue,
 } from "@/lib/api/types";
 
-const feeTypes: FeeTypeValue[] = ["TOPUP", "PROVISION_SMARTPHONE", "PROVISION_SIM", "REPAIR"];
+const feeTypes: FeeTypeValue[] = ["TOPUP", "PROVISION_SMARTPHONE", "PROVISION_SIM", "OTHER"];
 
 /**
  * Agent logs a Fee proactively — with no pre-existing Request (fee-logging-and-provisioning
@@ -236,8 +236,13 @@ export function LogFeeDialog({
               </label>
 
               <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                Description (optional)
-                <Input name="description" disabled={submitting} placeholder="Top-up at kiosk" />
+                Description {feeType === "OTHER" ? null : <span className="font-normal text-ink-mute">(optional)</span>}
+                <Input
+                  name="description"
+                  required={feeType === "OTHER"}
+                  disabled={submitting}
+                  placeholder={feeType === "OTHER" ? "What did you help with?" : "Top-up at kiosk"}
+                />
               </label>
 
               {feeType === "PROVISION_SMARTPHONE" ? (

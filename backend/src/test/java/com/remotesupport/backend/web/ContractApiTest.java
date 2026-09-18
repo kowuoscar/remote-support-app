@@ -43,11 +43,12 @@ class ContractApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.country").value("FRANCE"))
         .andExpect(jsonPath("$.currency").value("EUR"));
 
-    // +1 for the seeded Demo Client's Contract (V17) that every Manager-scoped listing includes.
+    // +2 for the seeded Demo Client's Contracts (V17, V18) that every Manager-scoped listing
+    // includes.
     mockMvc
         .perform(get("/api/contracts").header("Authorization", "Bearer " + token))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(2));
+        .andExpect(jsonPath("$.length()").value(3));
   }
 
   @Test
@@ -84,11 +85,12 @@ class ContractApiTest extends IntegrationTest {
                     objectMapper.writeValueAsString(new ContractCreateRequest(otherClient, agentFrance))))
         .andExpect(status().isCreated());
 
-    // +1 for the seeded Demo Client's Contract (V17) that every Manager-scoped listing includes.
+    // +2 for the seeded Demo Client's Contracts (V17, V18) that every Manager-scoped listing
+    // includes.
     mockMvc
         .perform(get("/api/contracts").header("Authorization", "Bearer " + token))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(4));
+        .andExpect(jsonPath("$.length()").value(5));
   }
 
   @Test
@@ -198,6 +200,9 @@ class ContractApiTest extends IntegrationTest {
    * fixtures through the Manager UI. Regression test for the seed-data gap where the only seeded
    * Tester login was the deliberately-unlinked one above, leaving no way to see a Fleet or submit
    * a Request without first acting as the Manager.
+   *
+   * <p>The demo Client holds a second Contract (V18) so the Client Portal's ContractSwitcher has
+   * something to switch between locally; both show up here, ordered by creation.
    */
   @Test
   void theSeededDemoTesterSeesItsContractFleetAndCanSubmitARequest() throws Exception {
@@ -206,9 +211,10 @@ class ContractApiTest extends IntegrationTest {
     mockMvc
         .perform(get("/api/contracts").header("Authorization", "Bearer " + demoTesterToken))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$.length()").value(2))
         .andExpect(jsonPath("$[0].id").value(SEEDED_DEMO_CONTRACT_ID.toString()))
-        .andExpect(jsonPath("$[0].clientId").value(SEEDED_DEMO_CLIENT_ID.toString()));
+        .andExpect(jsonPath("$[0].clientId").value(SEEDED_DEMO_CLIENT_ID.toString()))
+        .andExpect(jsonPath("$[1].clientId").value(SEEDED_DEMO_CLIENT_ID.toString()));
 
     mockMvc
         .perform(

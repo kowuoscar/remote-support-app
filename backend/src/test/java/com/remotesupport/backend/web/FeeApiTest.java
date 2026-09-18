@@ -60,6 +60,10 @@ class FeeApiTest extends IntegrationTest {
     } else if ("PROVISION_SIM".equals(type)) {
       body.put("requestedFlavor", "PREPAID");
       body.put("requestedCarrierId", SEEDED_US_CARRIER_ID);
+    } else if ("SIM_SWAP".equals(type)) {
+      // sim-swap-moves ticket: a SIM Swap now needs a move.
+      body.put("targetSmartphoneId", createSmartphone(managerToken(), contractId, "Fixture Phone"));
+      body.put("targetSimCardId", createSimCard(managerToken(), contractId, SEEDED_US_CARRIER_ID));
     }
     MvcResult result =
         mockMvc

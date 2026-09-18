@@ -3,12 +3,14 @@
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { IconAlertTriangle, IconPlus } from "@/components/icons";
 import { REQUEST_DETAILS_COMPONENTS } from "@/components/requests/details/registry";
 import {
   REQUEST_TYPE_LABEL,
   type CatalogCarrierItem,
   type ContractTesterListItem,
+  type RequestStatusValue,
   type RequestTypeValue,
   type SimCardListItem,
   type SmartphoneListItem,
@@ -57,12 +59,18 @@ export function LogRequestDialog({
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [type, setType] = useState<RequestTypeValue>(requestTypes[0]);
+  const [startingStatus, setStartingStatus] = useState<RequestStatusValue>("SUBMITTED");
 
   const DetailsComponent = REQUEST_DETAILS_COMPONENTS[type];
+  // provision-request-details ticket AC: "one that starts at Completed also gives the SIM
+  // number" — only Provision SIM needs this extra field, and only when logged straight to
+  // Completed rather than queued at Submitted.
+  const needsSimCardNumber = type === "PROVISION_SIM" && startingStatus === "COMPLETED";
 
   function open() {
     setError(null);
     setType(requestTypes[0]);
+    setStartingStatus("SUBMITTED");
     dialogRef.current?.showModal();
   }
 
@@ -76,11 +84,17 @@ export function LogRequestDialog({
 
     const formData = new FormData(event.currentTarget);
     const testerId = String(formData.get("testerId"));
-    const startingStatus = String(formData.get("startingStatus"));
     const description = String(formData.get("description") ?? "").trim();
     const targetSmartphoneId = String(formData.get("targetSmartphoneId") ?? "");
     const targetSimCardId = String(formData.get("targetSimCardId") ?? "");
     const topupOptionId = String(formData.get("topupOptionId") ?? "");
+    const requestedModel = String(formData.get("requestedModel") ?? "").trim();
+    const requestedFlavor = String(formData.get("requestedFlavor") ?? "");
+    const requestedCarrierId = String(formData.get("requestedCarrierId") ?? "");
+    const requestedPostpaidPlanId = String(formData.get("requestedPostpaidPlanId") ?? "");
+    // provision-request-details ticket AC: an Agent logging a Provision SIM proactively that
+    // starts immediately Completed also gives the SIM number right here.
+    const simCardNumber = String(formData.get("simCardNumber") ?? "");
 
     setSubmitting(true);
     try {
@@ -95,6 +109,11 @@ export function LogRequestDialog({
           targetSmartphoneId: targetSmartphoneId || undefined,
           targetSimCardId: targetSimCardId || undefined,
           topupOptionId: topupOptionId || undefined,
+          requestedModel: requestedModel || undefined,
+          requestedFlavor: requestedFlavor || undefined,
+          requestedCarrierId: requestedCarrierId || undefined,
+          requestedPostpaidPlanId: requestedPostpaidPlanId || undefined,
+          simCardNumber: simCardNumber || undefined,
         }),
       });
 
@@ -216,14 +235,35 @@ export function LogRequestDialog({
               <fieldset className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
                 <legend className="mb-0.5">Starting status</legend>
                 <label className="flex items-center gap-2 font-normal text-ink">
-                  <input type="radio" name="startingStatus" value="SUBMITTED" defaultChecked disabled={submitting} />
+                  <input
+                    type="radio"
+                    name="startingStatus"
+                    value="SUBMITTED"
+                    checked={startingStatus === "SUBMITTED"}
+                    onChange={() => setStartingStatus("SUBMITTED")}
+                    disabled={submitting}
+                  />
                   Submitted — queue it for follow-up
                 </label>
                 <label className="flex items-center gap-2 font-normal text-ink">
-                  <input type="radio" name="startingStatus" value="COMPLETED" disabled={submitting} />
+                  <input
+                    type="radio"
+                    name="startingStatus"
+                    value="COMPLETED"
+                    checked={startingStatus === "COMPLETED"}
+                    onChange={() => setStartingStatus("COMPLETED")}
+                    disabled={submitting}
+                  />
                   Completed — already handled
                 </label>
               </fieldset>
+
+              {needsSimCardNumber ? (
+                <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+                  New SIM number
+                  <Input name="simCardNumber" required disabled={submitting} placeholder="+1-555-0100" />
+                </label>
+              ) : null}
             </>
           )}
 

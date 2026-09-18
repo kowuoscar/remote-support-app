@@ -83,6 +83,10 @@ export function SubmitRequestDialog({
     const targetSmartphoneId = String(formData.get("targetSmartphoneId") ?? "");
     const targetSimCardId = String(formData.get("targetSimCardId") ?? "");
     const topupOptionId = String(formData.get("topupOptionId") ?? "");
+    const requestedModel = String(formData.get("requestedModel") ?? "").trim();
+    const requestedFlavor = String(formData.get("requestedFlavor") ?? "");
+    const requestedCarrierId = String(formData.get("requestedCarrierId") ?? "");
+    const requestedPostpaidPlanId = String(formData.get("requestedPostpaidPlanId") ?? "");
 
     setPending(true);
     setError(false);
@@ -96,6 +100,10 @@ export function SubmitRequestDialog({
           targetSmartphoneId: targetSmartphoneId || undefined,
           targetSimCardId: targetSimCardId || undefined,
           topupOptionId: topupOptionId || undefined,
+          requestedModel: requestedModel || undefined,
+          requestedFlavor: requestedFlavor || undefined,
+          requestedCarrierId: requestedCarrierId || undefined,
+          requestedPostpaidPlanId: requestedPostpaidPlanId || undefined,
         }),
       });
       if (!response.ok) {

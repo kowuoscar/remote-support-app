@@ -22,6 +22,7 @@ import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.FleetAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import com.remotesupport.backend.security.RequestAccessGuard;
+import com.remotesupport.backend.web.completion.RequestCompletionInput;
 import com.remotesupport.backend.web.requestdetails.RequestDetailsInput;
 import com.remotesupport.backend.web.requestdetails.RequestDetailsValidator;
 import jakarta.validation.Valid;
@@ -245,16 +246,25 @@ public class FeeController {
     // the one shared validator, rather than skipping it because no separate Request POST happened.
     requestDetailsValidator.apply(
         contract,
-        new RequestDetailsInput(null, requestBody.targetSimCardId(), requestBody.topupOptionId()),
+        new RequestDetailsInput(
+            null,
+            requestBody.targetSimCardId(),
+            requestBody.topupOptionId(),
+            requestBody.requestedModel(),
+            requestBody.requestedFlavor(),
+            requestBody.requestedCarrierId(),
+            requestBody.requestedPostpaidPlanId()),
         request);
 
     provisioningService.applyIfNeeded(
         contract,
         request,
-        requestBody.newSmartphone(),
-        requestBody.newSimCard(),
-        requestBody.replacesSmartphoneId(),
-        requestBody.replacesSimCardId(),
+        new RequestCompletionInput(
+            requestBody.newSmartphone(),
+            requestBody.newSimCard(),
+            requestBody.replacesSmartphoneId(),
+            requestBody.replacesSimCardId(),
+            requestBody.simCardNumber()),
         principal);
 
     requestRepository.save(request);

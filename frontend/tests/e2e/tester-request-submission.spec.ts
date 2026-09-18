@@ -129,6 +129,14 @@ async function submitRequest(
     await dialog.getByLabel("SIM Card to top up").selectOption({ label: fleet!.simCardOptionLabel });
     await dialog.getByLabel("Topup Option").selectOption({ label: "Prepaid Refill 35" });
   }
+  // provision-request-details ticket: Provision Smartphone/SIM each need their own details too.
+  if (requestTypeLabel === "Provision Smartphone") {
+    await dialog.getByLabel("Requested model").fill("iPhone 15");
+  }
+  if (requestTypeLabel === "Provision SIM") {
+    await dialog.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
+    await dialog.getByLabel("Flavor").selectOption({ label: "Prepaid" });
+  }
   await dialog.getByRole("button", { name: "Submit Request" }).click();
   await expect(page.getByText("Request submitted")).toBeVisible();
   await page.getByRole("button", { name: "Close" }).click();

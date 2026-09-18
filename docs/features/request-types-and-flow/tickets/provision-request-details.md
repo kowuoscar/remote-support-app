@@ -1,7 +1,7 @@
 ---
 id: provision-request-details
 title: Provision Requests carry what to provision, and complete from it
-status: ready-for-agent
+status: done
 depends_on: [sim-installed-in-smartphone, reboot-and-topup-details]
 labels: [backend, frontend, requests, fleet]
 ---
@@ -12,14 +12,14 @@ Implements `spec.md` Solution (Details at submission and Fleet changes on comple
 
 ## Acceptance criteria
 
-- [ ] A Provision Smartphone Request requires a requested model
-- [ ] A Provision SIM Request requires a flavor and an active Carrier of the Contract's Country, plus an active Postpaid Plan of that Carrier when postpaid; it may name a target Smartphone, Active and in the Contract
-- [ ] A Provision Request no longer accepts a unit to replace; historical ones keep theirs
-- [ ] Completing a Provision Smartphone needs no Agent input and adds a company-owned Smartphone with the requested model and no serial
-- [ ] Completing a Provision SIM asks only for the SIM number; Carrier, flavor, Plan and monthly fee come from the Request, even if the Carrier or Plan was archived after submission
-- [ ] The new SIM Card is installed in the target Smartphone when one was named and it has room; otherwise it is added uninstalled and the Agent is told
-- [ ] A Provision Request created before this ticket completes through the previous full form
-- [ ] An Agent logging one proactively gives the same details; one that starts at Completed also gives the SIM number
+- [x] A Provision Smartphone Request requires a requested model
+- [x] A Provision SIM Request requires a flavor and an active Carrier of the Contract's Country, plus an active Postpaid Plan of that Carrier when postpaid; it may name a target Smartphone, Active and in the Contract
+- [x] A Provision Request no longer accepts a unit to replace; historical ones keep theirs
+- [x] Completing a Provision Smartphone needs no Agent input and adds a company-owned Smartphone with the requested model and no serial
+- [x] Completing a Provision SIM asks only for the SIM number; Carrier, flavor, Plan and monthly fee come from the Request, even if the Carrier or Plan was archived after submission
+- [x] The new SIM Card is installed in the target Smartphone when one was named and it has room; otherwise it is added uninstalled and the Agent is told
+- [x] A Provision Request created before this ticket completes through the previous full form
+- [x] An Agent logging one proactively gives the same details; one that starts at Completed also gives the SIM number
 
 ## Tests
 

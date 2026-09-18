@@ -100,7 +100,17 @@ async function selectContractInSwitcher(page: Page, clientName: string) {
 async function submitRequestAsTester(
   page: Page,
   requestTypeLabel: string,
-  fleet?: { smartphoneOptionLabel?: string; simCardOptionLabel?: string },
+  fleet?: {
+    smartphoneOptionLabel?: string;
+    simCardOptionLabel?: string;
+    // provision-request-details ticket: Provision Smartphone/SIM now need their own details at
+    // submission, not just at completion.
+    requestedModel?: string;
+    carrierLabel?: string;
+    flavorLabel?: "Prepaid" | "Postpaid";
+    planLabel?: string;
+    targetSmartphoneOptionLabel?: string;
+  },
 ) {
   await page.goto("/client/requests");
   await page.getByRole("button", { name: "Submit Request" }).first().click();
@@ -112,6 +122,19 @@ async function submitRequestAsTester(
   if (requestTypeLabel === "Topup") {
     await dialog.getByLabel("SIM Card to top up").selectOption({ label: fleet!.simCardOptionLabel! });
     await dialog.getByLabel("Topup Option").selectOption({ label: "Prepaid Refill 35" });
+  }
+  if (requestTypeLabel === "Provision Smartphone") {
+    await dialog.getByLabel("Requested model").fill(fleet!.requestedModel!);
+  }
+  if (requestTypeLabel === "Provision SIM") {
+    await dialog.getByRole("combobox", { name: "Carrier" }).selectOption({ label: fleet!.carrierLabel! });
+    await dialog.getByLabel("Flavor").selectOption({ label: fleet!.flavorLabel ?? "Prepaid" });
+    if (fleet!.flavorLabel === "Postpaid" && fleet!.planLabel) {
+      await dialog.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: fleet!.planLabel });
+    }
+    if (fleet!.targetSmartphoneOptionLabel) {
+      await dialog.getByLabel("Target Smartphone").selectOption({ label: fleet!.targetSmartphoneOptionLabel });
+    }
   }
   await dialog.getByRole("button", { name: "Submit Request" }).click();
   await expect(page.getByText("Request submitted")).toBeVisible();
@@ -266,7 +289,10 @@ test.describe("fee logging and provisioning", () => {
     expect(fees[0].amount).toBe(60);
   });
 
-  test("completing a provision smartphone request adds a fleet item and retires the replaced one", async ({
+  // provision-request-details ticket: the requested model is now given at submission, and
+  // completing needs no Agent input at all — Provision no longer retires a named unit (that's
+  // what Replace is for).
+  test("a tester names the requested model at submission, and completing needs no agent input", async ({
     page,
   }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
@@ -279,7 +305,7 @@ test.describe("fee logging and provisioning", () => {
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "Provision Smartphone");
+    await submitRequestAsTester(page, "Provision Smartphone", { requestedModel: "iPhone 15" });
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -289,12 +315,9 @@ test.describe("fee logging and provisioning", () => {
     const row = page.getByRole("row", { name: /Provision Smartphone/ });
     await row.getByRole("button", { name: "Mark In Progress" }).click();
     await row.getByRole("button", { name: "Mark Completed" }).click();
+    await expect(row.getByText("Adds")).toContainText("iPhone 15");
 
-    const newSerial = `SN-NEW-${RUN_ID}`;
     await row.getByLabel(/Fee amount/).fill("150.00");
-    await row.getByLabel("New smartphone model").fill("iPhone 15");
-    await row.getByLabel("New smartphone serial").fill(newSerial);
-    await row.getByLabel(/Retiring which smartphone/).selectOption({ label: `iPhone 13 — ${oldSerial}` });
     // Completing this way fires two sequential requests (status PATCH, then Fee POST) before the
     // row re-renders — wait for the Fee POST itself to resolve rather than only the row's text.
     const [feeResponse] = await Promise.all([
@@ -304,14 +327,15 @@ test.describe("fee logging and provisioning", () => {
     expect(feeResponse.status()).toBe(201);
     await expect(row).toContainText("Completed");
 
-    // Regression (fleet-management): the Fleet view reflects both the addition and the retirement.
+    // Regression (fleet-management): the Fleet view shows the new unit, and the older one
+    // untouched — Provision no longer retires anything.
     await page.goto("/agent/fleet");
     await selectContractInSwitcher(page, clientName);
-    await expect(page.getByRole("row", { name: new RegExp(oldSerial) })).toContainText("Retired");
-    await expect(page.getByRole("row", { name: new RegExp(newSerial) })).toContainText("Active");
+    await expect(page.getByRole("row", { name: new RegExp(oldSerial) })).toContainText("Active");
+    await expect(page.getByRole("row", { name: "iPhone 15" })).toContainText("Active");
   });
 
-  test("an agent completes a provision SIM request by picking a carrier, and the fleet shows it", async ({
+  test("a tester names the carrier at submission, and the agent completes with only a number", async ({
     page,
   }) => {
     // sim-card-carrier ticket: the Carrier comes from the catalog, never free text.
@@ -323,7 +347,18 @@ test.describe("fee logging and provisioning", () => {
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "Provision SIM");
+    await page.goto("/client/requests");
+    await page.getByRole("button", { name: "Submit Request" }).first().click();
+    const submitDialog = page.getByRole("dialog");
+    await submitDialog.getByLabel("Request type").selectOption({ label: "Provision SIM" });
+    const carrierPicker = submitDialog.getByRole("combobox", { name: "Carrier" });
+    // Archived Carriers are never offered: the seeded Sprint is archived.
+    await expect(carrierPicker.getByRole("option", { name: "Sprint" })).toHaveCount(0);
+    await carrierPicker.selectOption({ label: "Verizon" });
+    await submitDialog.getByLabel("Flavor").selectOption({ label: "Prepaid" });
+    await submitDialog.getByRole("button", { name: "Submit Request" }).click();
+    await expect(page.getByText("Request submitted")).toBeVisible();
+    await page.getByRole("button", { name: "Close" }).click();
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -336,12 +371,10 @@ test.describe("fee logging and provisioning", () => {
 
     const number = `+1-555-${RUN_ID}`;
     await row.getByLabel(/Fee amount/).fill("15.00");
+    // provision-request-details ticket AC: completing asks only for the SIM number — no Carrier
+    // or Flavor picker here anymore, both already came from submission.
+    await expect(row.getByRole("combobox", { name: "Carrier" })).toHaveCount(0);
     await row.getByLabel("New SIM number").fill(number);
-    const carrier = row.getByRole("combobox", { name: "Carrier" });
-    // Archived Carriers are never offered: the seeded Sprint is archived.
-    await expect(carrier.getByRole("option", { name: "Sprint" })).toHaveCount(0);
-    await carrier.selectOption({ label: "Verizon" });
-    await row.getByLabel("Flavor").selectOption({ label: "Prepaid" });
     const [feeResponse] = await Promise.all([
       page.waitForResponse((resp) => resp.url().includes("/fees") && resp.request().method() === "POST"),
       row.getByRole("button", { name: "Mark Completed" }).click(),
@@ -356,19 +389,38 @@ test.describe("fee logging and provisioning", () => {
     );
   });
 
-  test("an agent completes a provision SIM request for a postpaid SIM by picking a carrier and a plan", async ({
+  // provision-request-details ticket: "a Tester submits a Provision SIM with Carrier, Plan and
+  // target Smartphone; the Agent completes it with a number; the Fleet shows it installed with
+  // the Plan's fee" — postpaid-sim-plan ticket: the monthly fee is the Plan's price, never typed.
+  test("a tester names a carrier, plan and target smartphone; completing installs the sim with the plan's fee", async ({
     page,
   }) => {
-    // postpaid-sim-plan ticket: the monthly fee is the Plan's price, never typed.
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Lumen Health Labs ${RUN_ID}`;
-    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const targetSerial = `SN-TARGET-${RUN_ID}`;
+    await addSmartphone(page, contractId, "Pixel 8", targetSerial);
     const testerEmail = `noor.hassan+${RUN_ID}@lumenhealth.example`;
     await addTester(page, clientId, testerEmail, "Passw0rd!23");
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "Provision SIM");
+    await page.goto("/client/requests");
+    await page.getByRole("button", { name: "Submit Request" }).first().click();
+    const submitDialog = page.getByRole("dialog");
+    await submitDialog.getByLabel("Request type").selectOption({ label: "Provision SIM" });
+    await submitDialog.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
+    await submitDialog.getByLabel("Flavor").selectOption({ label: "Postpaid" });
+    const plan = submitDialog.getByRole("combobox", { name: "Postpaid plan" });
+    // Archived Plans are never offered: the seeded "Start Unlimited" is archived.
+    await expect(plan.getByRole("option", { name: "Start Unlimited" })).toHaveCount(0);
+    await plan.selectOption({ label: "Unlimited Welcome" });
+    // The Plan sets the fee, read-only, at submission — before the SIM Card even exists.
+    await expect(submitDialog).toContainText("$65.00");
+    await submitDialog.getByLabel("Target Smartphone").selectOption({ label: `Pixel 8 — ${targetSerial}` });
+    await submitDialog.getByRole("button", { name: "Submit Request" }).click();
+    await expect(page.getByText("Request submitted")).toBeVisible();
+    await page.getByRole("button", { name: "Close" }).click();
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -381,15 +433,12 @@ test.describe("fee logging and provisioning", () => {
 
     const number = `+1-555-pp-${RUN_ID}`;
     await row.getByLabel(/Fee amount/).fill("15.00");
+    // provision-request-details ticket AC: completing asks only for the SIM number.
+    await expect(row.getByRole("combobox", { name: "Carrier" })).toHaveCount(0);
     await row.getByLabel("New SIM number").fill(number);
-    await row.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
-    await row.getByLabel("Flavor").selectOption({ label: "Postpaid" });
-    const plan = row.getByRole("combobox", { name: "Postpaid plan" });
-    // Archived Plans are never offered: the seeded "Start Unlimited" is archived.
-    await expect(plan.getByRole("option", { name: "Start Unlimited" })).toHaveCount(0);
-    await plan.selectOption({ label: "Unlimited Welcome" });
-    // The Plan sets the fee, read-only, before the SIM Card even exists.
-    await expect(row).toContainText("$65.00");
+    await expect(row).toContainText("Postpaid");
+    await expect(row).toContainText("Unlimited Welcome");
+    await expect(row).toContainText("Pixel 8");
 
     const [feeResponse] = await Promise.all([
       page.waitForResponse((resp) => resp.url().includes("/fees") && resp.request().method() === "POST"),
@@ -398,11 +447,22 @@ test.describe("fee logging and provisioning", () => {
     expect(feeResponse.status()).toBe(201);
     await expect(row).toContainText("Completed");
 
+    const targetSmartphoneId = await page.evaluate(async (contractId) => {
+      const response = await fetch(`/api/contracts/${contractId}/smartphones`);
+      const body = (await response.json()) as { id: string; model: string }[];
+      return body.find((phone) => phone.model === "Pixel 8")!.id;
+    }, contractId);
+
     await page.goto("/agent/fleet");
     await selectContractInSwitcher(page, clientName);
-    const simRow = page.getByRole("row", { name: new RegExp(number.replace(/\+/g, "\\+")) });
+    // Scoped to the SIM Cards table specifically: the Smartphone table's own row for the target
+    // Smartphone also shows this SIM's number, in its own "SIM Cards" column, so an unscoped
+    // row-name match resolves to both tables' rows.
+    const simTable = page.getByRole("heading", { name: "SIM Cards" }).locator("xpath=following::table[1]");
+    const simRow = simTable.getByRole("row", { name: new RegExp(number.replace(/\+/g, "\\+")) });
     await expect(simRow).toContainText("Unlimited Welcome");
     await expect(simRow).toContainText("$65.00");
+    await expect(simRow.getByLabel("Installed in")).toHaveValue(targetSmartphoneId);
   });
 
   test("a reboot or a like-for-like sim swap can never carry a fee", async ({ page }) => {

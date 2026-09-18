@@ -1,4 +1,4 @@
-import type { RequestListItem, RequestTypeValue } from "@/lib/api/types";
+import { SIM_CARD_FLAVOR_LABEL, type RequestListItem, type RequestTypeValue } from "@/lib/api/types";
 
 type SummaryRenderer = (request: RequestListItem) => string | null;
 
@@ -18,6 +18,16 @@ const REQUEST_DETAILS_SUMMARY: Partial<Record<RequestTypeValue, SummaryRenderer>
     return request.topupOptionName
       ? `SIM Card: ${request.targetSimCardNumber} · ${request.topupOptionName}`
       : `SIM Card: ${request.targetSimCardNumber}`;
+  },
+  PROVISION_SMARTPHONE: (request) =>
+    request.requestedModel ? `Requested: ${request.requestedModel}` : null,
+  PROVISION_SIM: (request) => {
+    if (!request.requestedFlavor) return null;
+    const parts = [SIM_CARD_FLAVOR_LABEL[request.requestedFlavor]];
+    if (request.requestedCarrierName) parts.push(request.requestedCarrierName);
+    if (request.requestedPostpaidPlanName) parts.push(request.requestedPostpaidPlanName);
+    const line = `New SIM: ${parts.join(" · ")}`;
+    return request.targetSmartphoneModel ? `${line} → ${request.targetSmartphoneModel}` : line;
   },
 };
 

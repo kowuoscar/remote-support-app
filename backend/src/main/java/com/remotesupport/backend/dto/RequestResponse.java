@@ -1,6 +1,8 @@
 package com.remotesupport.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.remotesupport.backend.domain.Carrier;
+import com.remotesupport.backend.domain.PostpaidPlan;
 import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.domain.Smartphone;
@@ -16,6 +18,15 @@ import java.util.UUID;
  * Card's Carrier/Plan, so the Tester's and Agent's Requests lists can summarise a row without a
  * second round-trip. Absent (never present in the JSON, via {@link JsonInclude}) for every type
  * but the one that set them, and for a Request that existed before this ticket.
+ *
+ * <p>{@code requestedModel}/{@code requestedFlavor}/{@code requestedCarrier*}/{@code
+ * requestedPostpaidPlan*} (provision-request-details ticket) are Provision Smartphone's and
+ * Provision SIM's own requested details, in the same denormalized shape — the Carrier/Plan travel
+ * with their name and archived flag, exactly like {@link SimCardResponse}'s own Carrier/Plan
+ * fields, so a Requests list or the Agent's completion step never needs a catalog round-trip. A
+ * Provision SIM's optional target Smartphone reuses {@code targetSmartphoneId}/{@code
+ * targetSmartphoneModel} above. {@code completionNote} rides back only on the one response a
+ * completion PATCH itself returns (see {@link Request#getCompletionNote}).
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record RequestResponse(
@@ -36,12 +47,23 @@ public record RequestResponse(
     String targetSimCardNumber,
     UUID topupOptionId,
     String topupOptionName,
-    BigDecimal topupOptionPrice) {
+    BigDecimal topupOptionPrice,
+    String requestedModel,
+    String requestedFlavor,
+    UUID requestedCarrierId,
+    String requestedCarrierName,
+    Boolean requestedCarrierArchived,
+    UUID requestedPostpaidPlanId,
+    String requestedPostpaidPlanName,
+    Boolean requestedPostpaidPlanArchived,
+    String completionNote) {
 
   public static RequestResponse of(Request request) {
     Smartphone targetSmartphone = request.getTargetSmartphone();
     SimCard targetSimCard = request.getTargetSimCard();
     TopupOption topupOption = request.getTopupOption();
+    Carrier requestedCarrier = request.getRequestedCarrier();
+    PostpaidPlan requestedPlan = request.getRequestedPostpaidPlan();
     return new RequestResponse(
         request.getId(),
         request.getContract().getId(),
@@ -60,6 +82,15 @@ public record RequestResponse(
         targetSimCard == null ? null : targetSimCard.getNumber(),
         topupOption == null ? null : topupOption.getId(),
         topupOption == null ? null : topupOption.getName(),
-        topupOption == null ? null : topupOption.getPrice());
+        topupOption == null ? null : topupOption.getPrice(),
+        request.getRequestedModel(),
+        request.getRequestedFlavor() == null ? null : request.getRequestedFlavor().name(),
+        requestedCarrier == null ? null : requestedCarrier.getId(),
+        requestedCarrier == null ? null : requestedCarrier.getName(),
+        requestedCarrier == null ? null : requestedCarrier.isArchived(),
+        requestedPlan == null ? null : requestedPlan.getId(),
+        requestedPlan == null ? null : requestedPlan.getName(),
+        requestedPlan == null ? null : requestedPlan.isArchived(),
+        request.getCompletionNote());
   }
 }

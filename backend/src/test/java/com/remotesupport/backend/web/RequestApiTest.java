@@ -35,6 +35,7 @@ class RequestApiTest extends IntegrationTest {
   // Other now requires a description; every other type still submits with none, exactly as
   // before. reboot-and-topup-details ticket: Reboot/Topup now each require their own target unit
   // — a fresh fixture per call, since a Smartphone/SIM Card can't be shared across Requests here.
+  // provision-request-details ticket: Provision Smartphone/SIM each require their own details too.
   private UUID submitRequest(String testerToken, UUID contractId, String type) throws Exception {
     Map<String, Object> body = new HashMap<>();
     body.put("type", type);
@@ -45,6 +46,11 @@ class RequestApiTest extends IntegrationTest {
     } else if ("TOPUP".equals(type)) {
       body.put("targetSimCardId", createTopupTargetSimCard(managerToken(), contractId));
       body.put("description", "Top-up needed");
+    } else if ("PROVISION_SMARTPHONE".equals(type)) {
+      body.put("requestedModel", "Fixture Model");
+    } else if ("PROVISION_SIM".equals(type)) {
+      body.put("requestedFlavor", "PREPAID");
+      body.put("requestedCarrierId", SEEDED_US_CARRIER_ID);
     }
     MvcResult result =
         mockMvc
@@ -88,6 +94,7 @@ class RequestApiTest extends IntegrationTest {
     // A description is required only for Other, but harmless to give for every type — this covers
     // both "every type accepts an optional description" and Other's own requirement in one loop.
     // reboot-and-topup-details ticket: Reboot/Topup also need their own target unit.
+    // provision-request-details ticket: Provision Smartphone/SIM also need their own details.
     Map<String, Object> body = new HashMap<>();
     body.put("type", type);
     body.put("description", "Details for the agent");
@@ -95,6 +102,11 @@ class RequestApiTest extends IntegrationTest {
       body.put("targetSmartphoneId", createSmartphone(managerToken, contractId, "Fixture Phone"));
     } else if ("TOPUP".equals(type)) {
       body.put("targetSimCardId", createTopupTargetSimCard(managerToken, contractId));
+    } else if ("PROVISION_SMARTPHONE".equals(type)) {
+      body.put("requestedModel", "Fixture Model");
+    } else if ("PROVISION_SIM".equals(type)) {
+      body.put("requestedFlavor", "PREPAID");
+      body.put("requestedCarrierId", SEEDED_US_CARRIER_ID);
     }
 
     mockMvc
@@ -657,6 +669,8 @@ class RequestApiTest extends IntegrationTest {
 
       // fee-logging-and-provisioning ticket: completing a Provision SIM Request — even
       // immediately, via an Agent-proactive creation — requires the new unit's details.
+      // provision-request-details ticket: submission-time details (flavor/Carrier) plus, since
+      // this one starts immediately Completed, the SIM number too.
       mockMvc.perform(
           post("/api/contracts/" + contractId + "/requests")
               .header("Authorization", "Bearer " + agentToken)
@@ -664,7 +678,7 @@ class RequestApiTest extends IntegrationTest {
               .content(
                   """
                   {"type":"PROVISION_SIM","testerId":"%s","startingStatus":"COMPLETED",
-                   "newSimCard":{"number":"+1-555-0177","carrierId":"%s","flavor":"PREPAID"}}
+                   "requestedFlavor":"PREPAID","requestedCarrierId":"%s","simCardNumber":"+1-555-0177"}
                   """
                       .formatted(testerId, SEEDED_US_CARRIER_ID)));
 

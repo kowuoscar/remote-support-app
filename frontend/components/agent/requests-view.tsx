@@ -186,17 +186,12 @@ export function AgentRequestsView({
                   </Td>
                   <Td>
                     <RequestStatusControl
-                      contractId={request.contractId}
-                      requestId={request.id}
-                      status={request.status}
-                      type={request.type}
+                      request={request}
                       currency={currency}
                       activeSmartphones={activeSmartphones}
                       activeSimCards={activeSimCards}
                       carriers={carriers}
                       carriersHref={AGENT_CARRIERS_HREF}
-                      topupOptionId={request.topupOptionId}
-                      topupOptionPrice={request.topupOptionPrice}
                     />
                   </Td>
                 </Tr>

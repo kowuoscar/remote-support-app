@@ -109,9 +109,27 @@ describe("LogFeeDialog's Topup Option picker", () => {
   it("is hidden for Fee types other than Topup", async () => {
     const dialog = await openDialog();
 
-    for (const label of ["Provision Smartphone", "Provision SIM", "Repair"]) {
+    for (const label of ["Provision Smartphone", "Provision SIM", "Other"]) {
       await userEvent.selectOptions(within(dialog).getByLabelText("Fee type"), label);
       expect(within(dialog).queryByLabelText("Topup option (optional)")).not.toBeInTheDocument();
     }
+  });
+});
+
+describe("LogFeeDialog's description field", () => {
+  it("is optional for every Fee type except Other", async () => {
+    const dialog = await openDialog();
+
+    for (const label of ["Topup", "Provision Smartphone", "Provision SIM"]) {
+      await userEvent.selectOptions(within(dialog).getByLabelText("Fee type"), label);
+      expect(within(dialog).getByLabelText("Description (optional)")).not.toBeRequired();
+    }
+  });
+
+  it("is required once Other is picked", async () => {
+    const dialog = await openDialog();
+
+    await userEvent.selectOptions(within(dialog).getByLabelText("Fee type"), "Other");
+    expect(within(dialog).getByLabelText("Description")).toBeRequired();
   });
 });

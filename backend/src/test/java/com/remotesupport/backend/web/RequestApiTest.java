@@ -30,16 +30,23 @@ import org.springframework.test.web.servlet.MvcResult;
  */
 class RequestApiTest extends IntegrationTest {
 
+  // Other now requires a description; every other type still submits with none, exactly as before.
   private UUID submitRequest(String testerToken, UUID contractId, String type) throws Exception {
+    String description = "OTHER".equals(type) ? "Screen replacement" : null;
     MvcResult result =
         mockMvc
             .perform(
                 post("/api/contracts/" + contractId + "/requests")
                     .header("Authorization", "Bearer " + testerToken)
                     .contentType(APPLICATION_JSON)
-                    .content("""
-                        {"type":"%s"}
-                        """.formatted(type)))
+                    .content(
+                        description == null
+                            ? """
+                                {"type":"%s"}
+                                """.formatted(type)
+                            : """
+                                {"type":"%s","description":"%s"}
+                                """.formatted(type, description)))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
@@ -64,8 +71,34 @@ class RequestApiTest extends IntegrationTest {
 
   @ParameterizedTest
   @ValueSource(
-      strings = {"REBOOT", "TOPUP", "SIM_SWAP", "PROVISION_SMARTPHONE", "PROVISION_SIM", "REPAIR"})
+      strings = {"REBOOT", "TOPUP", "SIM_SWAP", "PROVISION_SMARTPHONE", "PROVISION_SIM", "OTHER"})
   void testerCanSubmitEachRequestTypeAndItStartsSubmitted(String type) throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Aurora Retail Group");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
+
+    // A description is required only for Other, but harmless to give for every type — this covers
+    // both "every type accepts an optional description" and Other's own requirement in one loop.
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/requests")
+                .header("Authorization", "Bearer " + testerToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"type":"%s","description":"Details for the agent"}
+                    """.formatted(type)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.type").value(type))
+        .andExpect(jsonPath("$.status").value("SUBMITTED"))
+        .andExpect(jsonPath("$.contractId").value(contractId.toString()))
+        .andExpect(jsonPath("$.raisedByUsername").value("priya.raman@aurora.example"))
+        .andExpect(jsonPath("$.description").value("Details for the agent"));
+  }
+
+  @Test
+  void anOtherRequestIsRefusedWithoutADescriptionOnBothTheTesterAndTheAgentPath() throws Exception {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
@@ -78,13 +111,32 @@ class RequestApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + testerToken)
                 .contentType(APPLICATION_JSON)
                 .content("""
-                    {"type":"%s"}
-                    """.formatted(type)))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.type").value(type))
-        .andExpect(jsonPath("$.status").value("SUBMITTED"))
-        .andExpect(jsonPath("$.contractId").value(contractId.toString()))
-        .andExpect(jsonPath("$.raisedByUsername").value("priya.raman@aurora.example"));
+                    {"type":"OTHER"}
+                    """))
+        .andExpect(status().isBadRequest());
+
+    // A blank description is refused exactly like a missing one.
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/requests")
+                .header("Authorization", "Bearer " + testerToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"type":"OTHER","description":"   "}
+                    """))
+        .andExpect(status().isBadRequest());
+
+    String agentToken = agentToken();
+    UUID testerId = findTesterId(agentToken, contractId, "priya.raman@aurora.example");
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/requests")
+                .header("Authorization", "Bearer " + agentToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"type":"OTHER","testerId":"%s"}
+                    """.formatted(testerId)))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -123,7 +175,7 @@ class RequestApiTest extends IntegrationTest {
     String testerToken =
         createTesterAndLogin(managerToken, clientId, "helena.voss@kessler.example", "Passw0rd!23");
     submitRequest(testerToken, firstContract, "REBOOT");
-    submitRequest(testerToken, secondContract, "REPAIR");
+    submitRequest(testerToken, secondContract, "OTHER");
 
     mockMvc
         .perform(
@@ -139,7 +191,7 @@ class RequestApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + testerToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(1))
-        .andExpect(jsonPath("$[0].type").value("REPAIR"));
+        .andExpect(jsonPath("$[0].type").value("OTHER"));
   }
 
   @Test
@@ -503,7 +555,7 @@ class RequestApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"type":"REPAIR","testerId":"%s","startingStatus":"COMPLETED"}
+                    {"type":"OTHER","testerId":"%s","startingStatus":"COMPLETED","description":"Screen replacement"}
                     """
                         .formatted(testerId)))
         .andExpect(status().isCreated())
@@ -634,7 +686,7 @@ class RequestApiTest extends IntegrationTest {
                     .contentType(APPLICATION_JSON)
                     .content(
                         """
-                        {"type":"REPAIR","testerId":"%s"}
+                        {"type":"OTHER","testerId":"%s","description":"Screen replacement"}
                         """
                             .formatted(testerId)))
             .andExpect(status().isCreated())
@@ -649,9 +701,10 @@ class RequestApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + testerToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(1))
-        .andExpect(jsonPath("$[0].type").value("REPAIR"))
+        .andExpect(jsonPath("$[0].type").value("OTHER"))
         .andExpect(jsonPath("$[0].agentAuthored").value(true))
-        .andExpect(jsonPath("$[0].status").value("SUBMITTED"));
+        .andExpect(jsonPath("$[0].status").value("SUBMITTED"))
+        .andExpect(jsonPath("$[0].description").value("Screen replacement"));
 
     // Once the Agent progresses it, the Tester's list reflects the new status.
     mockMvc.perform(

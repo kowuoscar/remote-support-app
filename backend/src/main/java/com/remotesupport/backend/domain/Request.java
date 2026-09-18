@@ -75,6 +75,16 @@ public class Request {
   @Column(name = "cancellation_reason")
   private String cancellationReason;
 
+  /**
+   * Free-text detail given at submission (request-types-and-flow spec, Details at submission;
+   * other-replaces-repair ticket): optional for every type except {@link RequestType#OTHER},
+   * where {@link com.remotesupport.backend.web.RequestController} and {@link
+   * com.remotesupport.backend.web.FeeController} both refuse a blank one before saving — the same
+   * validation both the Tester and the Agent-proactive paths call. Nullable at the database level
+   * because every other type leaves it empty far more often than not.
+   */
+  @Column private String description;
+
   @Column(name = "replaces_smartphone_id")
   private UUID replacesSmartphoneId;
 

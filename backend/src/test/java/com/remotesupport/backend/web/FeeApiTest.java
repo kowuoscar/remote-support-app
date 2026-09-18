@@ -40,16 +40,23 @@ class FeeApiTest extends IntegrationTest {
   @Autowired private FeeRepository feeRepository;
   @Autowired private ContractRepository contractRepository;
 
+  // Other now requires a description; every other type still submits with none, exactly as before.
   private UUID submitRequest(String testerToken, UUID contractId, String type) throws Exception {
+    String description = "OTHER".equals(type) ? "Screen replacement" : null;
     MvcResult result =
         mockMvc
             .perform(
                 post("/api/contracts/" + contractId + "/requests")
                     .header("Authorization", "Bearer " + testerToken)
                     .contentType(APPLICATION_JSON)
-                    .content("""
-                        {"type":"%s"}
-                        """.formatted(type)))
+                    .content(
+                        description == null
+                            ? """
+                                {"type":"%s"}
+                                """.formatted(type)
+                            : """
+                                {"type":"%s","description":"%s"}
+                                """.formatted(type, description)))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
@@ -74,7 +81,7 @@ class FeeApiTest extends IntegrationTest {
   // --- AC: Fee creation for each eligible Request type -----------------------------------------
 
   @ParameterizedTest
-  @ValueSource(strings = {"TOPUP", "REPAIR"})
+  @ValueSource(strings = {"TOPUP", "OTHER"})
   void agentLogsAFeeAgainstAnExistingRequestOfAnEligibleType(String type) throws Exception {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
@@ -213,7 +220,7 @@ class FeeApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"requestId":"%s","feeType":"REPAIR","amount":10.00}
+                    {"requestId":"%s","feeType":"OTHER","amount":10.00}
                     """
                         .formatted(requestId)))
         .andExpect(status().isBadRequest());

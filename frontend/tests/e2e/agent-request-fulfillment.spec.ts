@@ -176,11 +176,13 @@ test.describe("agent request fulfillment", () => {
     // open), so scope to the open one rather than the page as a whole.
     const dialog = page.locator("dialog[open]");
     await dialog.getByLabel("Tester").selectOption({ label: testerEmail });
-    await dialog.getByLabel("Request type").selectOption({ label: "Repair" });
+    await dialog.getByLabel("Request type").selectOption({ label: "Other" });
+    // Other requires a description.
+    await dialog.getByLabel("Description").fill("On-site battery replacement");
     await dialog.getByRole("radio", { name: /Completed/ }).check();
     await dialog.getByRole("button", { name: "Log request" }).click();
 
-    const row = page.getByRole("row", { name: /Repair/ });
+    const row = page.getByRole("row", { name: /Other/ });
     await expect(row).toContainText("Completed");
     await expect(row).toContainText(testerEmail);
     await expect(row).toContainText(`Logged by ${SEEDED_USERS.agent.username}`);
@@ -190,7 +192,7 @@ test.describe("agent request fulfillment", () => {
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
     await page.goto("/client/requests");
-    await expect(page.getByRole("row", { name: /Repair/ })).toContainText("Completed");
+    await expect(page.getByRole("row", { name: /Other/ })).toContainText("Completed");
   });
 
   test("a tester cannot change a request's status", async ({ page }) => {

@@ -66,16 +66,23 @@ class AgentInvoiceApiTest extends IntegrationTest {
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
   }
 
+  // Other now requires a description; every other type still submits with none, exactly as before.
   private UUID submitRequest(String testerToken, UUID contractId, String type) throws Exception {
+    String description = "OTHER".equals(type) ? "Screen replacement" : null;
     MvcResult result =
         mockMvc
             .perform(
                 post("/api/contracts/" + contractId + "/requests")
                     .header("Authorization", "Bearer " + testerToken)
                     .contentType(APPLICATION_JSON)
-                    .content("""
-                        {"type":"%s"}
-                        """.formatted(type)))
+                    .content(
+                        description == null
+                            ? """
+                                {"type":"%s"}
+                                """.formatted(type)
+                            : """
+                                {"type":"%s","description":"%s"}
+                                """.formatted(type, description)))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
@@ -178,8 +185,8 @@ class AgentInvoiceApiTest extends IntegrationTest {
     UUID contract2 = createContract(managerToken, client2, SEEDED_AGENT_ID);
     addSimCard(managerToken, contract2, "+1-555-0200", "POSTPAID", "40.00");
     String tester2 = createTesterAndLogin(managerToken, client2, "charlotte.finch@meridian.example", "Passw0rd!23");
-    UUID repair2 = submitRequest(tester2, contract2, "REPAIR");
-    logFee(agentToken, contract2, repair2, "REPAIR", "60.00");
+    UUID other2 = submitRequest(tester2, contract2, "OTHER");
+    logFee(agentToken, contract2, other2, "OTHER", "60.00");
     mockMvc.perform(get("/api/contracts/" + contract2 + "/client-invoice").header("Authorization", "Bearer " + agentToken));
     mockMvc
         .perform(post("/api/contracts/" + contract2 + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
@@ -481,8 +488,8 @@ class AgentInvoiceApiTest extends IntegrationTest {
 
     // A Fee logged after sending must never change the sent invoice's already-frozen numbers —
     // the whole point of the snapshot-on-send decision (AgentInvoice's Javadoc / CONTEXT.md).
-    UUID repair = submitRequest(testerToken, contractId, "REPAIR");
-    logFee(agentToken, contractId, repair, "REPAIR", "999.00");
+    UUID other = submitRequest(testerToken, contractId, "OTHER");
+    logFee(agentToken, contractId, other, "OTHER", "999.00");
 
     // A mid-cycle standing-amount change (inserted directly, bypassing the next-month-effective
     // rule, the same "simulate a change already in effect" shape used elsewhere in this class)

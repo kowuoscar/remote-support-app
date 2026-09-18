@@ -19,11 +19,18 @@ import java.util.UUID;
  * immediately {@code COMPLETED} — the provisioning side-effect that would otherwise run on a
  * later status-transition PATCH ({@link RequestStatusUpdateRequest}) must run right here instead,
  * since the Request never passes through a separate "complete it" step.
+ *
+ * <p>{@code description} (request-types-and-flow spec, Details at submission;
+ * other-replaces-repair ticket): optional for every type except {@code OTHER}, where {@link
+ * com.remotesupport.backend.web.RequestController} refuses a blank one — the same rule the
+ * Agent-proactive path in this same controller and the proactive-Fee path in {@link
+ * com.remotesupport.backend.web.FeeController} both enforce.
  */
 public record RequestCreateRequest(
     @NotNull RequestType type,
     UUID testerId,
     RequestStatus startingStatus,
+    String description,
     @Valid SmartphoneCreateRequest newSmartphone,
     @Valid SimCardCreateRequest newSimCard,
     UUID replacesSmartphoneId,

@@ -60,15 +60,24 @@ public final class AuditLog {
 
   /**
    * A Request's submission (tester-request-submission ticket Observability: "Request-submitted
-   * event logged with Contract, Request type, actor").
+   * event logged with Contract, Request type, actor"). {@code descriptionGiven} is whether the
+   * submitter gave an optional description — never its text (request-types-and-flow spec,
+   * Details at submission; other-replaces-repair ticket Observability).
    */
   public static void requestSubmitted(
-      UUID requestId, UUID contractId, String requestType, UUID actorUserId, UUID tenantId) {
+      UUID requestId,
+      UUID contractId,
+      String requestType,
+      boolean descriptionGiven,
+      UUID actorUserId,
+      UUID tenantId) {
     log.info(
-        "audit action=REQUEST_SUBMITTED entity=Request entityId={} contractId={} requestType={} actorUserId={} tenantId={}",
+        "audit action=REQUEST_SUBMITTED entity=Request entityId={} contractId={} requestType={} "
+            + "descriptionGiven={} actorUserId={} tenantId={}",
         requestId,
         contractId,
         requestType,
+        descriptionGiven,
         actorUserId,
         tenantId);
   }
@@ -77,22 +86,25 @@ public final class AuditLog {
    * An Agent logging a Request proactively, on a Tester's behalf (agent-request-fulfillment
    * ticket Observability), distinct from {@link #requestSubmitted} so a log scan can tell a
    * Tester-authored submission from an Agent-authored one, and see which starting status the
-   * Agent chose (Submitted or immediately Completed).
+   * Agent chose (Submitted or immediately Completed). {@code descriptionGiven} is whether an
+   * optional description was given — never its text (other-replaces-repair ticket Observability).
    */
   public static void requestLoggedByAgent(
       UUID requestId,
       UUID contractId,
       String requestType,
       String startingStatus,
+      boolean descriptionGiven,
       UUID actorUserId,
       UUID tenantId) {
     log.info(
         "audit action=REQUEST_LOGGED_BY_AGENT entity=Request entityId={} contractId={} "
-            + "requestType={} startingStatus={} actorUserId={} tenantId={}",
+            + "requestType={} startingStatus={} descriptionGiven={} actorUserId={} tenantId={}",
         requestId,
         contractId,
         requestType,
         startingStatus,
+        descriptionGiven,
         actorUserId,
         tenantId);
   }

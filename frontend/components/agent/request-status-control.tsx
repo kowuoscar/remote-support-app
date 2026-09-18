@@ -168,7 +168,18 @@ export function RequestStatusControl({
         const replaces = String(formData.get("replacesSimCardId") ?? "");
         if (replaces) statusBody.replacesSimCardId = replaces;
       }
+    } else if (type === "REPLACE_SIM") {
+      // replace-requests ticket: the new SIM Card's own details, defaulted from the old one's by
+      // `ReplaceSimCompletion` — Replace SIM has no "requested" fields on the Request itself the
+      // way Provision SIM does, so this is always the full form, never a narrow read-only summary.
+      statusBody.newSimCard = {
+        number: String(formData.get("number")),
+        carrierId: String(formData.get("carrierId")),
+        flavor: formData.get("flavor"),
+        postpaidPlanId: formData.get("flavor") === "POSTPAID" ? String(formData.get("postpaidPlanId")) : undefined,
+      };
     }
+    // Replace Smartphone needs nothing here — no Agent input at all (ticket AC).
 
     try {
       const { ok, completionNote } = await submitStatus(statusBody);

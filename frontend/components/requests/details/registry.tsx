@@ -3,6 +3,8 @@ import type { RequestTypeValue } from "@/lib/api/types";
 import { ProvisionSimRequestDetails } from "./provision-sim-request-details";
 import { ProvisionSmartphoneRequestDetails } from "./provision-smartphone-request-details";
 import { RebootRequestDetails } from "./reboot-request-details";
+import { ReplaceSimRequestDetails } from "./replace-sim-request-details";
+import { ReplaceSmartphoneRequestDetails } from "./replace-smartphone-request-details";
 import { SimSwapRequestDetails } from "./sim-swap-request-details";
 import { TopupRequestDetails } from "./topup-request-details";
 import type { RequestDetailsProps } from "./types";
@@ -21,4 +23,6 @@ export const REQUEST_DETAILS_COMPONENTS: Partial<Record<RequestTypeValue, Compon
   SIM_SWAP: SimSwapRequestDetails,
   PROVISION_SMARTPHONE: ProvisionSmartphoneRequestDetails,
   PROVISION_SIM: ProvisionSimRequestDetails,
+  REPLACE_SMARTPHONE: ReplaceSmartphoneRequestDetails,
+  REPLACE_SIM: ReplaceSimRequestDetails,
 };

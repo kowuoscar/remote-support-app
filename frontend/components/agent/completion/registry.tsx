@@ -2,6 +2,8 @@ import type { ComponentType } from "react";
 import type { RequestTypeValue } from "@/lib/api/types";
 import { ProvisionSimCompletion } from "./provision-sim-completion";
 import { ProvisionSmartphoneCompletion } from "./provision-smartphone-completion";
+import { ReplaceSimCompletion } from "./replace-sim-completion";
+import { ReplaceSmartphoneCompletion } from "./replace-smartphone-completion";
 import type { CompletionFormProps } from "./types";
 
 /**
@@ -16,4 +18,6 @@ import type { CompletionFormProps } from "./types";
 export const REQUEST_COMPLETION_COMPONENTS: Partial<Record<RequestTypeValue, ComponentType<CompletionFormProps>>> = {
   PROVISION_SMARTPHONE: ProvisionSmartphoneCompletion,
   PROVISION_SIM: ProvisionSimCompletion,
+  REPLACE_SMARTPHONE: ReplaceSmartphoneCompletion,
+  REPLACE_SIM: ReplaceSimCompletion,
 };

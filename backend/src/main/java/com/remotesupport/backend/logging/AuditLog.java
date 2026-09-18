@@ -453,6 +453,26 @@ public final class AuditLog {
         tenantId);
   }
 
+  /**
+   * Completing a Replace Smartphone/SIM Request (replace-requests ticket Observability: "A
+   * unit-replaced audit event: Request id, retired unit id, new unit id, actor, tenant"). {@code
+   * entity} is {@code Smartphone} or {@code SimCard}, matching {@link #statusChanged}'s own
+   * vocabulary. Distinct from {@link #fleetItemProvisioned} — a replacement always retires one
+   * unit too, which this event ties directly to the new one it was traded for.
+   */
+  public static void unitReplaced(
+      String entity, UUID requestId, UUID retiredUnitId, UUID newUnitId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=UNIT_REPLACED entity={} requestId={} retiredUnitId={} newUnitId={} "
+            + "actorUserId={} tenantId={}",
+        entity,
+        requestId,
+        retiredUnitId,
+        newUnitId,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

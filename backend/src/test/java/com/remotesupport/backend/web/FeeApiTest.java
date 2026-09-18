@@ -64,6 +64,10 @@ class FeeApiTest extends IntegrationTest {
       // sim-swap-moves ticket: a SIM Swap now needs a move.
       body.put("targetSmartphoneId", createSmartphone(managerToken(), contractId, "Fixture Phone"));
       body.put("targetSimCardId", createSimCard(managerToken(), contractId, SEEDED_US_CARRIER_ID));
+    } else if ("REPLACE_SMARTPHONE".equals(type)) {
+      body.put("targetSmartphoneId", createSmartphone(managerToken(), contractId, "Fixture Phone To Replace"));
+    } else if ("REPLACE_SIM".equals(type)) {
+      body.put("targetSimCardId", createSimCard(managerToken(), contractId, SEEDED_US_CARRIER_ID));
     }
     MvcResult result =
         mockMvc
@@ -145,6 +149,53 @@ class FeeApiTest extends IntegrationTest {
                         .formatted(requestId)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.feeType").value("PROVISION_SMARTPHONE"));
+  }
+
+  // replace-requests ticket AC: "A Fee can be logged against a Replace Request".
+  @Test
+  void agentLogsAReplaceSmartphoneFeeAgainstAnExistingRequest() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Harbor & Finch Realty");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example", "Passw0rd!23");
+    UUID requestId = submitRequest(testerToken, contractId, "REPLACE_SMARTPHONE");
+
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/fees")
+                .header("Authorization", "Bearer " + agentToken())
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {"requestId":"%s","feeType":"REPLACE_SMARTPHONE","amount":130.00}
+                    """
+                        .formatted(requestId)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.feeType").value("REPLACE_SMARTPHONE"));
+  }
+
+  @Test
+  void agentLogsAReplaceSimFeeAgainstAnExistingRequest() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Kessler & Vance LLP");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "helena.voss@kessler.example", "Passw0rd!23");
+    UUID requestId = submitRequest(testerToken, contractId, "REPLACE_SIM");
+
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/fees")
+                .header("Authorization", "Bearer " + agentToken())
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {"requestId":"%s","feeType":"REPLACE_SIM","amount":12.00}
+                    """
+                        .formatted(requestId)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.feeType").value("REPLACE_SIM"));
   }
 
   @Test

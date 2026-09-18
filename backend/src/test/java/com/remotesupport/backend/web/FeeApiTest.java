@@ -44,6 +44,7 @@ class FeeApiTest extends IntegrationTest {
 
   // Other now requires a description; every other type still submits with none, exactly as
   // before. reboot-and-topup-details ticket: Reboot/Topup now each require their own target unit.
+  // provision-request-details ticket: Provision Smartphone/SIM each require their own details too.
   private UUID submitRequest(String testerToken, UUID contractId, String type) throws Exception {
     Map<String, Object> body = new HashMap<>();
     body.put("type", type);
@@ -54,6 +55,11 @@ class FeeApiTest extends IntegrationTest {
     } else if ("TOPUP".equals(type)) {
       body.put("targetSimCardId", createTopupTargetSimCard(managerToken(), contractId));
       body.put("description", "Top-up needed");
+    } else if ("PROVISION_SMARTPHONE".equals(type)) {
+      body.put("requestedModel", "Fixture Model");
+    } else if ("PROVISION_SIM".equals(type)) {
+      body.put("requestedFlavor", "PREPAID");
+      body.put("requestedCarrierId", SEEDED_US_CARRIER_ID);
     }
     MvcResult result =
         mockMvc
@@ -303,6 +309,10 @@ class FeeApiTest extends IntegrationTest {
     String agentToken = agentToken();
     UUID testerId = findTesterId(agentToken, contractId, "marco.diaz@brightpath.example");
 
+    // provision-request-details ticket: the linking Request now carries its own requestedModel
+    // (ticket AC: "An Agent logging one proactively gives the same details"); completing a
+    // Provision Smartphone needs no further Agent input, so newSmartphone is gone — the new unit
+    // has no serial until the Agent sets one later from the Fleet page.
     mockMvc
         .perform(
             post("/api/contracts/" + contractId + "/fees")
@@ -311,7 +321,7 @@ class FeeApiTest extends IntegrationTest {
                 .content(
                     """
                     {"feeType":"PROVISION_SMARTPHONE","amount":150.00,"testerId":"%s",
-                     "newSmartphone":{"model":"iPhone 15","serial":"SN-9001"}}
+                     "requestedModel":"iPhone 15"}
                     """
                         .formatted(testerId)))
         .andExpect(status().isCreated());
@@ -322,14 +332,15 @@ class FeeApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(1))
-        .andExpect(jsonPath("$[0].serial").value("SN-9001"))
+        .andExpect(jsonPath("$[0].model").value("iPhone 15"))
+        .andExpect(jsonPath("$[0].serial").isEmpty())
         .andExpect(jsonPath("$[0].status").value("ACTIVE"));
   }
 
   // --- AC: completing a Provision Request adds/retires the correct Fleet items -----------------
 
   @Test
-  void completingATesterRaisedProvisionSmartphoneRequestAddsTheUnitAndRetiresTheReplacedOne()
+  void completingATesterRaisedProvisionSmartphoneRequestAddsACompanyOwnedUnitAndNoLongerReplacesOne()
       throws Exception {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Harbor & Finch Realty");
@@ -367,6 +378,9 @@ class FeeApiTest extends IntegrationTest {
                 {"status":"IN_PROGRESS"}
                 """));
 
+    // provision-request-details ticket AC: "A Provision Request no longer accepts a unit to
+    // replace" — a stray replacesSmartphoneId in the completion body is simply not read for a
+    // Request that already carries its own requestedModel from submission.
     mockMvc
         .perform(
             patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
@@ -374,14 +388,14 @@ class FeeApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"status":"COMPLETED","newSmartphone":{"model":"iPhone 15","serial":"SN-NEW-1"},
-                     "replacesSmartphoneId":"%s"}
+                    {"status":"COMPLETED","replacesSmartphoneId":"%s"}
                     """
                         .formatted(oldSmartphoneId)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("COMPLETED"));
 
-    // Regression (fleet-management): the Fleet view reflects both the addition and the retirement.
+    // Regression (fleet-management): the Fleet view shows the new unit added, and the older one
+    // untouched — Provision no longer retires anything (spec.md: "that is what Replace is for").
     MvcResult fleetResult =
         mockMvc
             .perform(
@@ -392,17 +406,17 @@ class FeeApiTest extends IntegrationTest {
             .andReturn();
 
     JsonNode fleet = objectMapper.readTree(fleetResult.getResponse().getContentAsString());
-    boolean oldRetired = false;
+    boolean oldStillActive = false;
     boolean newActive = false;
     for (JsonNode phone : fleet) {
-      if (phone.get("serial").asText().equals("SN-OLD-1")) {
-        oldRetired = "RETIRED".equals(phone.get("status").asText());
+      if (phone.get("id").asText().equals(oldSmartphoneId.toString())) {
+        oldStillActive = "ACTIVE".equals(phone.get("status").asText());
       }
-      if (phone.get("serial").asText().equals("SN-NEW-1")) {
+      if ("Fixture Model".equals(phone.get("model").asText())) {
         newActive = "ACTIVE".equals(phone.get("status").asText());
       }
     }
-    assertThat(oldRetired).as("old smartphone retired").isTrue();
+    assertThat(oldStillActive).as("old smartphone left untouched").isTrue();
     assertThat(newActive).as("new smartphone active").isTrue();
   }
 
@@ -427,15 +441,16 @@ class FeeApiTest extends IntegrationTest {
                     """))
         .andExpect(status().isOk());
 
+    // provision-request-details ticket AC: completing asks only for the SIM number — Carrier and
+    // flavor already came from submitRequest's own requestedFlavor/requestedCarrierId.
     mockMvc
         .perform(
             patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
                 .header("Authorization", "Bearer " + agentToken)
                 .contentType(APPLICATION_JSON)
-                .content(
-                    """
-                    {"status":"COMPLETED","newSimCard":{"number":"+1-555-0199","carrierId":"%s","flavor":"PREPAID"}}
-                    """.formatted(SEEDED_US_CARRIER_ID)))
+                .content("""
+                    {"status":"COMPLETED","simCardNumber":"+1-555-0199"}
+                    """))
         .andExpect(status().isOk());
 
     mockMvc
@@ -449,7 +464,7 @@ class FeeApiTest extends IntegrationTest {
   }
 
   @Test
-  void completingAProvisionSmartphoneRequestWithoutNewSmartphoneDetailsIsRejected() throws Exception {
+  void completingATesterRaisedProvisionSmartphoneRequestNeedsNoNewSmartphoneDetails() throws Exception {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
@@ -466,6 +481,8 @@ class FeeApiTest extends IntegrationTest {
                 {"status":"IN_PROGRESS"}
                 """));
 
+    // provision-request-details ticket AC: "Completing a Provision Smartphone needs no Agent
+    // input" — the model already came from submitRequest's own requestedModel.
     mockMvc
         .perform(
             patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
@@ -474,7 +491,15 @@ class FeeApiTest extends IntegrationTest {
                 .content("""
                     {"status":"COMPLETED"}
                     """))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(
+            get("/api/contracts/" + contractId + "/smartphones")
+                .header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].model").value("Fixture Model"))
+        .andExpect(jsonPath("$[0].serial").isEmpty());
   }
 
   @Test
@@ -496,7 +521,7 @@ class FeeApiTest extends IntegrationTest {
                 .content(
                     """
                     {"type":"PROVISION_SMARTPHONE","testerId":"%s","startingStatus":"COMPLETED",
-                     "newSmartphone":{"model":"Pixel 9","serial":"SN-PROACTIVE-1"}}
+                     "requestedModel":"Pixel 9"}
                     """
                         .formatted(testerId)))
         .andExpect(status().isCreated())
@@ -508,7 +533,8 @@ class FeeApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(1))
-        .andExpect(jsonPath("$[0].serial").value("SN-PROACTIVE-1"));
+        .andExpect(jsonPath("$[0].model").value("Pixel 9"))
+        .andExpect(jsonPath("$[0].serial").isEmpty());
   }
 
   // --- Access control ----------------------------------------------------------------------------

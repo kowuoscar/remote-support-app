@@ -65,7 +65,7 @@ class SimCardCarrierApiTest extends IntegrationTest {
   @EnumSource(Path.class)
   void aSimCardNamingACarrierOfTheContractsCountryIsCreatedAndShowsTheCarriersName(Path path)
       throws Exception {
-    create(path, "\"carrierId\":\"" + SEEDED_US_CARRIER_ID + "\"").andExpect(status().is2xxSuccessful());
+    create(path, SEEDED_US_CARRIER_ID).andExpect(status().is2xxSuccessful());
 
     mockMvc
         .perform(
@@ -89,7 +89,7 @@ class SimCardCarrierApiTest extends IntegrationTest {
   void aCarrierOfAnotherCountryIsRefused(Path path) throws Exception {
     UUID britishCarrier = createCarrier(managerToken, Country.UNITED_KINGDOM, "Vodafone UK");
 
-    create(path, "\"carrierId\":\"" + britishCarrier + "\"").andExpect(status().isBadRequest());
+    create(path, britishCarrier).andExpect(status().isBadRequest());
     assertFleetHasNoSimCard();
   }
 
@@ -99,7 +99,7 @@ class SimCardCarrierApiTest extends IntegrationTest {
     UUID archived = createCarrier(managerToken, Country.UNITED_STATES, "Cricket Wireless");
     archiveCarrier(managerToken, archived);
 
-    create(path, "\"carrierId\":\"" + archived + "\"").andExpect(status().isBadRequest());
+    create(path, archived).andExpect(status().isBadRequest());
     assertFleetHasNoSimCard();
   }
 
@@ -108,14 +108,14 @@ class SimCardCarrierApiTest extends IntegrationTest {
   void anotherTenantsCarrierIsRefused(Path path) throws Exception {
     UUID foreign = otherTenantFixture.carrierInAnotherTenant();
 
-    create(path, "\"carrierId\":\"" + foreign + "\"").andExpect(status().isBadRequest());
+    create(path, foreign).andExpect(status().isBadRequest());
     assertFleetHasNoSimCard();
   }
 
   @Test
   void aSimCardOnACarrierArchivedLaterStillShowsItsNameMarkedArchived() throws Exception {
     UUID carrier = createCarrier(managerToken, Country.UNITED_STATES, "Mint Mobile");
-    create(Path.MANAGER_ADDS_TO_FLEET, "\"carrierId\":\"" + carrier + "\"").andExpect(status().isCreated());
+    create(Path.MANAGER_ADDS_TO_FLEET, carrier).andExpect(status().isCreated());
     archiveCarrier(managerToken, carrier);
 
     mockMvc
@@ -134,8 +134,7 @@ class SimCardCarrierApiTest extends IntegrationTest {
     auditLogger.addAppender(appender);
 
     try {
-      create(Path.AGENT_LOGS_PROVISION_SIM_FEE, "\"carrierId\":\"" + SEEDED_US_CARRIER_ID + "\"")
-          .andExpect(status().isCreated());
+      create(Path.AGENT_LOGS_PROVISION_SIM_FEE, SEEDED_US_CARRIER_ID).andExpect(status().isCreated());
 
       String logged =
           appender.list.stream().map(ILoggingEvent::getFormattedMessage).reduce("", String::concat);
@@ -147,31 +146,55 @@ class SimCardCarrierApiTest extends IntegrationTest {
     }
   }
 
-  /** Creates a Prepaid SIM Card through {@code path}; {@code carrierField} is a JSON member or null. */
-  private ResultActions create(Path path, String carrierField) throws Exception {
-    String simCard =
-        "{\"number\":\"+1-555-0142\",\"flavor\":\"PREPAID\""
-            + (carrierField == null ? "" : "," + carrierField)
-            + "}";
+  /**
+   * Creates a Prepaid SIM Card through {@code path}; {@code carrierId} is {@code null} for "no
+   * Carrier at all". provision-request-details ticket: for the three Request-based paths, the
+   * Carrier is now a submission-time detail (Manager's path is untouched — it still names a
+   * Carrier directly on {@code SimCardCreateRequest}), so this asserts the exact same rule
+   * ({@link com.remotesupport.backend.web.SimCardFactory#requireUsableCarrier}, shared by both
+   * {@code SimCardController} and {@code ProvisionSimRequestDetailsHandler}) at whichever point it
+   * now runs.
+   */
+  private ResultActions create(Path path, UUID carrierId) throws Exception {
+    String carrierField = carrierId == null ? "" : ",\"carrierId\":\"" + carrierId + "\"";
+    String requestedFields =
+        ",\"requestedFlavor\":\"PREPAID\"" + (carrierId == null ? "" : ",\"requestedCarrierId\":\"" + carrierId + "\"");
     return switch (path) {
-      case MANAGER_ADDS_TO_FLEET -> postJsonText("/api/contracts/" + contractId + "/sim-cards", managerToken, simCard);
+      case MANAGER_ADDS_TO_FLEET -> {
+        String simCard = "{\"number\":\"+1-555-0142\",\"flavor\":\"PREPAID\"" + carrierField + "}";
+        yield postJsonText("/api/contracts/" + contractId + "/sim-cards", managerToken, simCard);
+      }
       case AGENT_COMPLETES_PROVISION_SIM_REQUEST -> {
-        UUID requestId = submitProvisionSimRequest();
+        // The Tester's submission itself may be the outcome under test (e.g. no Carrier at all),
+        // so its own result — not the later completion PATCH — is what a failed one surfaces.
+        ResultActions submitResult =
+            postJsonText(
+                "/api/contracts/" + contractId + "/requests",
+                testerToken,
+                "{\"type\":\"PROVISION_SIM\"" + requestedFields + "}");
+        MvcResult submitMvc = submitResult.andReturn();
+        if (submitMvc.getResponse().getStatus() != 201) {
+          yield submitResult;
+        }
+        UUID requestId =
+            UUID.fromString(objectMapper.readTree(submitMvc.getResponse().getContentAsString()).get("id").asText());
         patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
-        yield patchStatus(requestId, "{\"status\":\"COMPLETED\",\"newSimCard\":" + simCard + "}");
+        yield patchStatus(requestId, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0142\"}");
       }
       case AGENT_LOGS_PROVISION_SIM_REQUEST_COMPLETED ->
           postJsonText(
               "/api/contracts/" + contractId + "/requests",
               agentToken,
-              "{\"type\":\"PROVISION_SIM\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\",\"newSimCard\":%s}"
-                  .formatted(testerId, simCard));
+              ("{\"type\":\"PROVISION_SIM\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
+                      + "\"simCardNumber\":\"+1-555-0142\"%s}")
+                  .formatted(testerId, requestedFields));
       case AGENT_LOGS_PROVISION_SIM_FEE ->
           postJsonText(
               "/api/contracts/" + contractId + "/fees",
               agentToken,
-              "{\"feeType\":\"PROVISION_SIM\",\"amount\":15.00,\"testerId\":\"%s\",\"newSimCard\":%s}"
-                  .formatted(testerId, simCard));
+              ("{\"feeType\":\"PROVISION_SIM\",\"amount\":15.00,\"testerId\":\"%s\","
+                      + "\"simCardNumber\":\"+1-555-0142\"%s}")
+                  .formatted(testerId, requestedFields));
     };
   }
 
@@ -194,14 +217,6 @@ class SimCardCarrierApiTest extends IntegrationTest {
             .header("Authorization", "Bearer " + agentToken)
             .contentType(APPLICATION_JSON)
             .content(json));
-  }
-
-  private UUID submitProvisionSimRequest() throws Exception {
-    MvcResult result =
-        postJsonText("/api/contracts/" + contractId + "/requests", testerToken, "{\"type\":\"PROVISION_SIM\"}")
-            .andExpect(status().isCreated())
-            .andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
   }
 
   private UUID findTesterId() throws Exception {

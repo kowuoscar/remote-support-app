@@ -19,6 +19,12 @@ const REQUEST_DETAILS_SUMMARY: Partial<Record<RequestTypeValue, SummaryRenderer>
       ? `SIM Card: ${request.targetSimCardNumber} · ${request.topupOptionName}`
       : `SIM Card: ${request.targetSimCardNumber}`;
   },
+  SIM_SWAP: (request) => {
+    if (!request.targetSimCardNumber || !request.targetSmartphoneModel) return null;
+    const firstMove = `SIM ${request.targetSimCardNumber} into ${request.targetSmartphoneModel}`;
+    if (!request.secondSimCardNumber || !request.secondTargetSmartphoneModel) return firstMove;
+    return `${firstMove}; SIM ${request.secondSimCardNumber} into ${request.secondTargetSmartphoneModel}`;
+  },
   PROVISION_SMARTPHONE: (request) =>
     request.requestedModel ? `Requested: ${request.requestedModel}` : null,
   PROVISION_SIM: (request) => {

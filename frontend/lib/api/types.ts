@@ -263,6 +263,13 @@ export interface RequestListItem {
   // A one-time note from completing this Request (e.g. "added uninstalled, no room") — only ever
   // present on the single response a completion PATCH itself returns.
   completionNote?: string;
+  // sim-swap-moves ticket: a SIM Swap exchange's second move — targetSimCardId/targetSmartphoneId
+  // above double as its first. Absent for a plain single move, every other type, and a SIM Swap
+  // Request that existed before this ticket.
+  secondSimCardId?: string;
+  secondSimCardNumber?: string;
+  secondTargetSmartphoneId?: string;
+  secondTargetSmartphoneModel?: string;
 }
 
 // Mirrors backend/.../dto/TesterResponse.java, as returned by GET /api/contracts/{id}/testers

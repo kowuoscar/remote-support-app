@@ -95,6 +95,8 @@ export function LogRequestDialog({
     // provision-request-details ticket AC: an Agent logging a Provision SIM proactively that
     // starts immediately Completed also gives the SIM number right here.
     const simCardNumber = String(formData.get("simCardNumber") ?? "");
+    // sim-swap-moves ticket: only present for a SIM Swap exchange.
+    const secondSimCardId = String(formData.get("secondSimCardId") ?? "");
 
     setSubmitting(true);
     try {
@@ -114,6 +116,7 @@ export function LogRequestDialog({
           requestedCarrierId: requestedCarrierId || undefined,
           requestedPostpaidPlanId: requestedPostpaidPlanId || undefined,
           simCardNumber: simCardNumber || undefined,
+          secondSimCardId: secondSimCardId || undefined,
         }),
       });
 

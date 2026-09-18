@@ -41,15 +41,47 @@ The two SIM Card billing flavors. A Postpaid SIM carries a fixed monthly fee tha
 _Avoid_: Plan type.
 
 **Request**:
-A support action a Tester submits, or the Agent logs on the Tester's behalf: reboot, topup, SIM swap, smartphone/SIM provisioning, or repair. Tracked to completion (Submitted → In Progress → Completed, or Cancelled with a reason); carries no monetary amount by itself.
+A support action a Tester submits, or the Agent logs on the Tester's behalf. Its **Request type** is one of: Reboot, Topup, SIM Swap, Provision Smartphone, Provision SIM, Replace Smartphone, Replace SIM, Return, or Other. Every type shares one lifecycle — Submitted → In Progress → Completed, or Cancelled with a reason — preceded, for approval-required types, by Pending Approval. What varies by type is the details it requires at submission, whether it can carry a Fee, what completing it changes in the Fleet, and whether it needs approval. Carries no monetary amount by itself.
 _Avoid_: Ticket, task.
+
+**Replace Smartphone** / **Replace SIM** (Request types):
+A Request to swap out one named unit of a Contract's Fleet for a new one; completing it retires the named unit and adds its replacement. Distinct from **Provision**, which only ever means a net-new unit. No reason is required.
+_Avoid_: Provision-with-replacement.
+
+**Other** (Request type):
+A free-text Request, described by its submitter, for support no other type covers — e.g. an Agent's repair work. Submittable by a Tester or an Agent, and can carry a Fee. Replaces the former Repair type.
+_Avoid_: General, Repair, misc.
+
+**Pending Approval** (of a Request):
+The starting status of every approval-required Request — Provision Smartphone, Provision SIM, Replace Smartphone, Replace SIM, and any Return holding a company-owned unit — whoever raised it, Tester or Agent. Only the Company Manager moves it on: approving puts it at Submitted (choosing the Disposition, for a Return), rejecting ends it at Rejected. The Agent can see it but cannot start it.
+
+**Rejected** (of a Request):
+The terminal status of a Request the Company Manager declined at approval, with a required reason. Distinct from Cancelled: Rejected means "the Manager said no", Cancelled means "no longer needed".
+_Avoid_: Denied, declined.
+
+**Owner** (of a Smartphone or SIM Card):
+A Smartphone is owned either by the Client or by the company; a SIM Card is always company-owned. A Smartphone reached through a Provision or Replace Request is always company-owned. Units are part of a Contract's Fleet, never assigned to an individual Tester.
+
+**Installed in** (of a SIM Card):
+The Smartphone a SIM Card currently sits in, if any. A Smartphone holds at most two SIM Cards. A SIM Swap Request moves one SIM into another Smartphone, or exchanges the SIMs of two Smartphones.
+
+**Agent Stock**:
+The company-owned Smartphones and SIM Cards an Agent holds that belong to no Contract's Fleet — kept after a Return for use with a future Client. An Agent may fulfil a Provision or Replace Request from their Stock instead of acquiring a new unit.
+_Avoid_: Inventory, spare pool.
+
+**Disposition** (of a returned unit):
+What happens to a unit leaving a Fleet through a Return. A Client-owned Smartphone is always posted back to the Client. For a company-owned Smartphone the Company Manager chooses: posted back to the company, or kept in the Agent's Stock. For a SIM Card: cancelled, or kept in the Agent's Stock. A cancellation carries the effective cancellation date the Agent records; a postpaid SIM is billed its full monthly fee for every month it was active on any day, and drops out from the month after that date.
+
+**Carrier**:
+A mobile operator in one country, offering **Topup Options** (for a Topup Request) and **Postpaid Plans** (for a Postpaid SIM), each with a name and a price in that country's currency. Maintained by the Agents of that country, who know their local carriers' offers; archived rather than deleted once in use. A Postpaid Plan's price is copied onto a SIM when it's provisioned — a later price change never touches SIMs already on the plan. A Postpaid Plan's price is the SIM's monthly fee; a Topup Option's price is the suggested amount of the resulting Fee, which the Agent may adjust.
+_Avoid_: Operator, provider, network.
 
 **Proactive** (of a Request):
 A Request the Agent logs directly, on a Tester's behalf, rather than one the Tester submitted themselves — starting at Submitted or immediately at Completed, the Agent's call. Distinct from "Tester-authored"; the two are queryable independently of who it's *for* (every Request, proactive or not, still names the Tester it's raised on behalf of). A proactively-logged Fee (fee-logging-and-provisioning ticket) is the same idea one level up: no pre-existing Request, so one is auto-created to keep the Fee traceable.
 _Avoid_: Ad-hoc, walk-in.
 
 **Fee**:
-A billable line item an Agent logs against a Contract, always tracing back to the Request that caused it — enforced as a non-nullable foreign key, not just a service-layer rule, so there is no code path that creates one without a Request. A reboot or a like-for-like SIM swap never produces a Fee; a topup, a provisioning, or a repair does. Its `feeType` mirrors that same four-way subset of Request types (`FeeType`, deliberately narrower than the six-value `RequestType`, so a Reboot/SIM-Swap Fee can't even be constructed). A SIM swap that really did require provisioning a new physical SIM is not modeled as a Fee attached to the SIM Swap Request itself — it is logged as its own Provision SIM Fee (proactive if no Provision SIM Request already exists), alongside the original swap. Currency is always copied from its Contract at creation (the Agent never picks a different one). Carries an explicit `billingMonth` (the first day of the month, set from `createdAt` at creation time) rather than one derived from `createdAt` at query time — the stored column keeps "this Contract's Fees for month X" a plain equality filter for `client-invoice-generation`'s monthly aggregation, and is the column a future backdating feature (an Agent attributing a Fee logged a few days into a month to the prior month's invoice) would use, without a schema change.
+A billable line item an Agent logs against a Contract, always tracing back to the Request that caused it — enforced as a non-nullable foreign key, not just a service-layer rule, so there is no code path that creates one without a Request. A Reboot, SIM Swap or Return never produces a Fee; a Topup, Provision Smartphone/SIM, Replace Smartphone/SIM, or Other can. Its fee type mirrors exactly that fee-capable subset of Request types, so a Fee for a non-fee-capable type can't even be constructed. A SIM swap that really did require provisioning a new physical SIM is not modeled as a Fee attached to the SIM Swap Request itself — it is logged as its own Provision SIM Fee (proactive if no Provision SIM Request already exists), alongside the original swap. Currency is always copied from its Contract at creation (the Agent never picks a different one). Carries an explicit `billingMonth` (the first day of the month, set from `createdAt` at creation time) rather than one derived from `createdAt` at query time — the stored column keeps "this Contract's Fees for month X" a plain equality filter for `client-invoice-generation`'s monthly aggregation, and is the column a future backdating feature (an Agent attributing a Fee logged a few days into a month to the prior month's invoice) would use, without a schema change.
 _Avoid_: Charge, cost.
 
 **Client Invoice**:

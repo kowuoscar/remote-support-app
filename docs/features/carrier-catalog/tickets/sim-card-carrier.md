@@ -1,7 +1,7 @@
 ---
 id: sim-card-carrier
 title: Every new SIM Card names a Carrier from the catalog
-status: ready-for-agent
+status: in-progress
 depends_on: [agent-maintains-carriers]
 labels: [backend, frontend, fleet]
 ---

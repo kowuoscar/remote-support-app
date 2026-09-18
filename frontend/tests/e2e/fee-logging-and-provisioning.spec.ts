@@ -136,6 +136,11 @@ async function submitRequestAsTester(
       await dialog.getByLabel("Target Smartphone").selectOption({ label: fleet!.targetSmartphoneOptionLabel });
     }
   }
+  // replace-requests ticket: a Replace SIM Request names the SIM Card to replace, the same
+  // Active-units-only picker Topup's own target uses, just under its own label.
+  if (requestTypeLabel === "Replace SIM") {
+    await dialog.getByLabel("SIM Card to replace").selectOption({ label: fleet!.simCardOptionLabel! });
+  }
   await dialog.getByRole("button", { name: "Submit Request" }).click();
   await expect(page.getByText("Request submitted")).toBeVisible();
   await page.getByRole("button", { name: "Close" }).click();
@@ -522,5 +527,70 @@ test.describe("fee logging and provisioning", () => {
 
     const fees = await fetchFees(page, contractId);
     expect(fees).toHaveLength(0);
+  });
+
+  // replace-requests ticket: a Tester submits a Replace SIM; the Agent completes it; the Fleet
+  // shows the old SIM Card retired and the new one in the same Smartphone (ticket's own E2E AC).
+  test("a tester submits a replace sim; completing it retires the old one and installs the new one in its smartphone", async ({
+    page,
+  }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Castellane Import Co ${RUN_ID}`;
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const serial = `SN-REPLACE-${RUN_ID}`;
+    await addSmartphone(page, contractId, "Pixel 8", serial);
+    const oldNumber = `+1-555-old-${RUN_ID}`;
+    await addSimCard(page, contractId, oldNumber);
+
+    // Install the old SIM Card into the Smartphone from the Fleet page, so completion has a slot
+    // to hand over.
+    await page.goto("/manager/contracts/" + contractId);
+    const simRow = page.getByRole("row", { name: new RegExp(oldNumber.replace(/\+/g, "\\+")) });
+    await simRow.getByLabel("Installed in").selectOption({ label: `Pixel 8 — ${serial}` });
+    await expect(simRow.getByLabel("Installed in")).not.toHaveValue("");
+
+    const testerEmail = `daniela.ruiz+${RUN_ID}@castellane.example`;
+    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+
+    await logout(page);
+    await login(page, testerEmail, "Passw0rd!23");
+    await submitRequestAsTester(page, "Replace SIM", { simCardOptionLabel: `${oldNumber} — Verizon` });
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/requests");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = page.getByRole("row", { name: /Replace SIM/ });
+    await row.getByRole("button", { name: "Mark In Progress" }).click();
+    await row.getByRole("button", { name: "Mark Completed" }).click();
+
+    const newNumber = `+1-555-new-${RUN_ID}`;
+    await row.getByLabel(/Fee amount/).fill("18.00");
+    await row.getByLabel("New SIM number").fill(newNumber);
+    await row.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
+    await row.getByLabel("Flavor").selectOption("PREPAID");
+    const [feeResponse] = await Promise.all([
+      page.waitForResponse((resp) => resp.url().includes("/fees") && resp.request().method() === "POST"),
+      row.getByRole("button", { name: "Mark Completed" }).click(),
+    ]);
+    expect(feeResponse.status()).toBe(201);
+    await expect(row).toContainText("Completed");
+
+    await page.goto("/agent/fleet");
+    await selectContractInSwitcher(page, clientName);
+    const simTable = page.getByRole("heading", { name: "SIM Cards" }).locator("xpath=following::table[1]");
+    await expect(simTable.getByRole("row", { name: new RegExp(oldNumber.replace(/\+/g, "\\+")) })).toContainText(
+      "Retired",
+    );
+    const newRow = simTable.getByRole("row", { name: new RegExp(newNumber.replace(/\+/g, "\\+")) });
+    await expect(newRow).toContainText("Active");
+    await expect(newRow.getByLabel("Installed in")).toHaveValue(
+      await page.evaluate(async (contractId) => {
+        const response = await fetch(`/api/contracts/${contractId}/smartphones`);
+        const body = (await response.json()) as { id: string; model: string }[];
+        return body.find((phone) => phone.model === "Pixel 8")!.id;
+      }, contractId),
+    );
   });
 });

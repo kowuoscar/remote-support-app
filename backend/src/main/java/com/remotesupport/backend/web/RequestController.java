@@ -279,7 +279,8 @@ public class RequestController {
         requestBody.requestedModel(),
         requestBody.requestedFlavor(),
         requestBody.requestedCarrierId(),
-        requestBody.requestedPostpaidPlanId());
+        requestBody.requestedPostpaidPlanId(),
+        requestBody.secondSimCardId());
   }
 
   /**

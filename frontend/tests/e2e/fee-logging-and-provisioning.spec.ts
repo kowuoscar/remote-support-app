@@ -123,6 +123,11 @@ async function submitRequestAsTester(
     await dialog.getByLabel("SIM Card to top up").selectOption({ label: fleet!.simCardOptionLabel! });
     await dialog.getByLabel("Topup Option").selectOption({ label: "Prepaid Refill 35" });
   }
+  if (requestTypeLabel === "SIM Swap") {
+    // sim-swap-moves ticket: a plain move names the SIM Card and its destination Smartphone.
+    await dialog.getByLabel("SIM Card to move").selectOption({ label: fleet!.simCardOptionLabel! });
+    await dialog.getByLabel("Destination Smartphone").selectOption({ label: fleet!.smartphoneOptionLabel! });
+  }
   if (requestTypeLabel === "Provision Smartphone") {
     await dialog.getByLabel("Requested model").fill(fleet!.requestedModel!);
   }
@@ -471,13 +476,18 @@ test.describe("fee logging and provisioning", () => {
     const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
     const serial = `SN-${RUN_ID}`;
     await addSmartphone(page, contractId, "Pixel 9", serial);
+    const simNumber = `+1-555-${RUN_ID}`;
+    await addSimCard(page, contractId, simNumber);
     const testerEmail = `charlotte.finch+${RUN_ID}@harborfinch.example`;
     await addTester(page, clientId, testerEmail, "Passw0rd!23");
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
     await submitRequestAsTester(page, "Reboot", { smartphoneOptionLabel: `Pixel 9 — ${serial}` });
-    await submitRequestAsTester(page, "SIM Swap");
+    await submitRequestAsTester(page, "SIM Swap", {
+      smartphoneOptionLabel: `Pixel 9 — ${serial}`,
+      simCardOptionLabel: `${simNumber} — Verizon`,
+    });
 
     const requestIds = await page.evaluate(async (contractId) => {
       const response = await fetch(`/api/contracts/${contractId}/requests`);

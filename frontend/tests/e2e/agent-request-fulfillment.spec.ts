@@ -86,13 +86,34 @@ async function addSmartphone(page: Page, contractId: string, model: string, seri
   await expect(page.getByRole("cell", { name: serial })).toBeVisible();
 }
 
-async function submitRequestAsTester(page: Page, requestTypeLabel: string, smartphoneOptionLabel?: string) {
+/** sim-swap-moves ticket: a SIM Swap Request now names a SIM Card too, from the Contract's Fleet. */
+async function addSimCard(page: Page, contractId: string, number: string) {
+  await page.goto(`/manager/contracts/${contractId}`);
+  await page.getByRole("button", { name: "Add SIM card" }).first().click();
+  await page.getByLabel("Number").fill(number);
+  await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
+  await page.getByLabel("Flavor").selectOption("PREPAID");
+  await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
+  await expect(page.getByRole("cell", { name: number })).toBeVisible();
+}
+
+async function submitRequestAsTester(
+  page: Page,
+  requestTypeLabel: string,
+  smartphoneOptionLabel?: string,
+  simCardOptionLabel?: string,
+) {
   await page.goto("/client/requests");
   await page.getByRole("button", { name: "Submit Request" }).first().click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Request type").selectOption({ label: requestTypeLabel });
   if (requestTypeLabel === "Reboot") {
     await dialog.getByLabel("Smartphone to reboot").selectOption({ label: smartphoneOptionLabel! });
+  }
+  if (requestTypeLabel === "SIM Swap") {
+    // sim-swap-moves ticket: a plain move names the SIM Card and its destination Smartphone.
+    await dialog.getByLabel("SIM Card to move").selectOption({ label: simCardOptionLabel! });
+    await dialog.getByLabel("Destination Smartphone").selectOption({ label: smartphoneOptionLabel! });
   }
   await dialog.getByRole("button", { name: "Submit Request" }).click();
   await expect(page.getByText("Request submitted")).toBeVisible();
@@ -217,12 +238,16 @@ test.describe("agent request fulfillment", () => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Kessler & Vance LLP ${RUN_ID}`;
     const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const serial = `SN-${RUN_ID}`;
+    await addSmartphone(page, contractId, "Pixel 9", serial);
+    const simNumber = `+1-555-${RUN_ID}`;
+    await addSimCard(page, contractId, simNumber);
     const testerEmail = `helena.voss+${RUN_ID}@kessler.example`;
     await addTester(page, clientId, testerEmail, "Passw0rd!23");
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "SIM Swap");
+    await submitRequestAsTester(page, "SIM Swap", `Pixel 9 — ${serial}`, `${simNumber} — Verizon`);
 
     // No status controls exist on the Tester's own Requests view — verified directly at the API.
     const requestId = await page.evaluate(async (contractId) => {

@@ -94,6 +94,25 @@ public class SimInstallationService {
       return;
     }
 
+    checkMovesFit(moves);
+
+    for (Move move : moves) {
+      applyOneMove(move, requestId, principal);
+    }
+  }
+
+  /**
+   * The dry-run half of {@link #applyMoves} (sim-swap-moves ticket): the same per-move
+   * preconditions and two-SIM-per-Smartphone capacity check {@code applyMoves} enforces, but writes
+   * and audits nothing. {@code
+   * com.remotesupport.backend.web.requestdetails.SimSwapRequestDetailsHandler} calls this at
+   * submission time — a SIM Swap's moves must be checked before the Fleet should change at all
+   * (spec.md: "Submission checks that applying the moves leaves no Smartphone with more than two
+   * SIM Cards") — and {@code applyMoves} calls it again at completion time, against whatever the
+   * Fleet looks like by then, so a move that no longer fits is refused there with the identical
+   * rule and message rather than a second, separately-derived check.
+   */
+  public void checkMovesFit(List<Move> moves) {
     moves.forEach(this::validateMove);
 
     Set<UUID> movedSimCardIds = new HashSet<>();
@@ -122,10 +141,6 @@ public class SimInstallationService {
         throw new ConflictException(
             "The Smartphone " + target.getModel() + " already holds two SIM Cards");
       }
-    }
-
-    for (Move move : moves) {
-      applyOneMove(move, requestId, principal);
     }
   }
 

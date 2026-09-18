@@ -129,6 +129,12 @@ async function submitRequest(
     await dialog.getByLabel("SIM Card to top up").selectOption({ label: fleet!.simCardOptionLabel });
     await dialog.getByLabel("Topup Option").selectOption({ label: "Prepaid Refill 35" });
   }
+  // sim-swap-moves ticket: a plain move names the SIM Card and its destination Smartphone — the
+  // same Fleet fixture Reboot/Topup already use, since this SIM Card isn't installed anywhere yet.
+  if (requestTypeLabel === "SIM Swap") {
+    await dialog.getByLabel("SIM Card to move").selectOption({ label: fleet!.simCardOptionLabel });
+    await dialog.getByLabel("Destination Smartphone").selectOption({ label: fleet!.smartphoneOptionLabel });
+  }
   // provision-request-details ticket: Provision Smartphone/SIM each need their own details too.
   if (requestTypeLabel === "Provision Smartphone") {
     await dialog.getByLabel("Requested model").fill("iPhone 15");

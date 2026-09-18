@@ -21,6 +21,11 @@ import java.util.UUID;
  * Provision Smartphone's and Provision SIM's own fields; Provision SIM's optional target
  * Smartphone reuses {@code targetSmartphoneId} above rather than a field of its own — no type sets
  * both a Reboot target and a Provision SIM target on the same Request.
+ *
+ * <p>{@code secondSimCardId} (sim-swap-moves ticket): a SIM Swap Request's own second field, set
+ * only for an exchange of two SIM Cards, naming the second one. {@code targetSimCardId}/{@code
+ * targetSmartphoneId} above double as SIM Swap's first move: the SIM Card to move, and (for a
+ * plain single move, not an exchange) its destination Smartphone.
  */
 public record RequestDetailsInput(
     UUID targetSmartphoneId,
@@ -29,4 +34,5 @@ public record RequestDetailsInput(
     String requestedModel,
     SimCardFlavor flavor,
     UUID carrierId,
-    UUID postpaidPlanId) {}
+    UUID postpaidPlanId,
+    UUID secondSimCardId) {}

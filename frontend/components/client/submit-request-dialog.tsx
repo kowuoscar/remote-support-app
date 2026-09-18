@@ -87,6 +87,7 @@ export function SubmitRequestDialog({
     const requestedFlavor = String(formData.get("requestedFlavor") ?? "");
     const requestedCarrierId = String(formData.get("requestedCarrierId") ?? "");
     const requestedPostpaidPlanId = String(formData.get("requestedPostpaidPlanId") ?? "");
+    const secondSimCardId = String(formData.get("secondSimCardId") ?? "");
 
     setPending(true);
     setError(false);
@@ -104,6 +105,7 @@ export function SubmitRequestDialog({
           requestedFlavor: requestedFlavor || undefined,
           requestedCarrierId: requestedCarrierId || undefined,
           requestedPostpaidPlanId: requestedPostpaidPlanId || undefined,
+          secondSimCardId: secondSimCardId || undefined,
         }),
       });
       if (!response.ok) {

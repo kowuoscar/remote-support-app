@@ -228,7 +228,8 @@ class ContractApiTest extends IntegrationTest {
             get("/api/contracts/" + SEEDED_DEMO_CONTRACT_ID + "/sim-cards")
                 .header("Authorization", "Bearer " + demoTesterToken))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(1));
+        // V17's Postpaid SIM, plus V27's Postpaid SIM on a seeded Postpaid Plan.
+        .andExpect(jsonPath("$.length()").value(2));
 
     mockMvc
         .perform(

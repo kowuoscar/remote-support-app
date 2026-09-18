@@ -34,11 +34,7 @@ class SimCardApiTest extends IntegrationTest {
                 post("/api/contracts/" + contractId + "/sim-cards")
                     .header("Authorization", "Bearer " + managerToken)
                     .contentType(APPLICATION_JSON)
-                    .content(
-                        """
-                        {"number":"%s","carrierId":"%s","flavor":"POSTPAID","monthlyFeeAmount":%s}
-                        """
-                            .formatted(number, carrierFor(managerToken, contractId), fee)))
+                    .content(postpaidSimCardJson(managerToken, contractId, number, fee)))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
@@ -50,6 +46,8 @@ class SimCardApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
 
+    UUID planId = createPostpaidPlan(managerToken, SEEDED_US_CARRIER_ID, "Unlimited 25", "25.00");
+
     mockMvc
         .perform(
             post("/api/contracts/" + contractId + "/sim-cards")
@@ -57,8 +55,8 @@ class SimCardApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"number":"+1-555-0100","carrierId":"%s","flavor":"POSTPAID","monthlyFeeAmount":25.00}
-                    """.formatted(SEEDED_US_CARRIER_ID)))
+                    {"number":"+1-555-0100","carrierId":"%s","flavor":"POSTPAID","postpaidPlanId":"%s"}
+                    """.formatted(SEEDED_US_CARRIER_ID, planId)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.number").value("+1-555-0100"))
         .andExpect(jsonPath("$.carrierName").value("Verizon"))
@@ -93,35 +91,6 @@ class SimCardApiTest extends IntegrationTest {
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.flavor").value("PREPAID"))
         .andExpect(jsonPath("$.monthlyFeeAmount").doesNotExist());
-  }
-
-  @Test
-  void aPostpaidSimCardRequiresAMonthlyFeeAndAPrepaidOneMustNotHaveOne() throws Exception {
-    String managerToken = managerToken();
-    UUID clientId = createClient(managerToken, "Kessler & Vance LLP");
-    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-
-    mockMvc
-        .perform(
-            post("/api/contracts/" + contractId + "/sim-cards")
-                .header("Authorization", "Bearer " + managerToken)
-                .contentType(APPLICATION_JSON)
-                .content(
-                    """
-                    {"number":"+1-555-0300","carrierId":"%s","flavor":"POSTPAID"}
-                    """.formatted(SEEDED_US_CARRIER_ID)))
-        .andExpect(status().isBadRequest());
-
-    mockMvc
-        .perform(
-            post("/api/contracts/" + contractId + "/sim-cards")
-                .header("Authorization", "Bearer " + managerToken)
-                .contentType(APPLICATION_JSON)
-                .content(
-                    """
-                    {"number":"+1-555-0400","carrierId":"%s","flavor":"PREPAID","monthlyFeeAmount":10.00}
-                    """.formatted(SEEDED_US_CARRIER_ID)))
-        .andExpect(status().isBadRequest());
   }
 
   @Test

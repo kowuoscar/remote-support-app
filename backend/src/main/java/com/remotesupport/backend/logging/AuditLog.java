@@ -248,12 +248,21 @@ public final class AuditLog {
    * Carrier it names (sim-card-carrier ticket Observability).
    */
   public static void simCardCreated(
-      UUID simCardId, UUID contractId, UUID carrierId, UUID actorUserId, UUID tenantId) {
+      UUID simCardId,
+      UUID contractId,
+      UUID carrierId,
+      UUID postpaidPlanId,
+      BigDecimal monthlyFeeAmount,
+      UUID actorUserId,
+      UUID tenantId) {
     log.info(
-        "audit action=CREATE entity=SimCard entityId={} contractId={} carrierId={} actorUserId={} tenantId={}",
+        "audit action=CREATE entity=SimCard entityId={} contractId={} carrierId={} postpaidPlanId={} "
+            + "monthlyFeeAmount={} actorUserId={} tenantId={}",
         simCardId,
         contractId,
         carrierId,
+        postpaidPlanId,
+        monthlyFeeAmount,
         actorUserId,
         tenantId);
   }
@@ -301,14 +310,23 @@ public final class AuditLog {
    * (sim-card-carrier ticket Observability).
    */
   public static void simCardProvisioned(
-      UUID simCardId, UUID contractId, UUID requestId, UUID carrierId, UUID actorUserId, UUID tenantId) {
+      UUID simCardId,
+      UUID contractId,
+      UUID requestId,
+      UUID carrierId,
+      UUID postpaidPlanId,
+      BigDecimal monthlyFeeAmount,
+      UUID actorUserId,
+      UUID tenantId) {
     log.info(
         "audit action=FLEET_ITEM_PROVISIONED entity=SimCard entityId={} contractId={} requestId={} "
-            + "carrierId={} actorUserId={} tenantId={}",
+            + "carrierId={} postpaidPlanId={} monthlyFeeAmount={} actorUserId={} tenantId={}",
         simCardId,
         contractId,
         requestId,
         carrierId,
+        postpaidPlanId,
+        monthlyFeeAmount,
         actorUserId,
         tenantId);
   }

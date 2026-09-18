@@ -18,8 +18,10 @@ import lombok.Setter;
 /**
  * A SIM Card provisioned under one {@link Contract}'s Fleet (spec.md Solution). {@code
  * monthlyFeeAmount} is set (in the Contract's currency) exactly when {@code flavor} is {@code
- * POSTPAID}, and null for {@code PREPAID} — enforced in {@code SimCardController} and re-checked
- * by a database constraint (V6 migration).
+ * POSTPAID}, and null for {@code PREPAID} — enforced in {@code SimCardFactory} and re-checked by a
+ * database constraint (V6 migration). Since the Carrier catalog it is copied from {@code
+ * postpaidPlan}'s price at creation and never re-read, so a later Plan price change leaves it, and
+ * every Client Invoice it feeds, untouched.
  */
 @Entity
 @Table(name = "sim_cards")
@@ -52,6 +54,15 @@ public class SimCard {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private SimCardFlavor flavor;
+
+  /**
+   * The Postpaid Plan this SIM Card's monthly fee was copied from, for a Postpaid SIM created
+   * since the Carrier catalog. Null for a Prepaid SIM, and for a Postpaid SIM from before the
+   * catalog, which keeps its typed-in fee (V26 migration).
+   */
+  @ManyToOne
+  @JoinColumn(name = "postpaid_plan_id")
+  private PostpaidPlan postpaidPlan;
 
   @Column(name = "monthly_fee_amount")
   private BigDecimal monthlyFeeAmount;

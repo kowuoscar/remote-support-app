@@ -237,6 +237,41 @@ public abstract class IntegrationTest {
     return createCarrier(managerToken, Country.valueOf(country), "Test Carrier");
   }
 
+  /** Creates an active Postpaid Plan on a Carrier, as the Manager, and returns its id. */
+  protected UUID createPostpaidPlan(String managerToken, UUID carrierId, String name, String price)
+      throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/carriers/" + carrierId + "/postpaid-plans")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                        {"name":"%s","price":%s}
+                        """
+                            .formatted(name, price)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /**
+   * The JSON body of a new Postpaid SIM on this Contract whose monthly fee is {@code price}: a
+   * Carrier of the Contract's Country, and a freshly created Plan of it at that price. For tests
+   * whose subject is the monthly fee rather than the catalog.
+   */
+  protected String postpaidSimCardJson(String managerToken, UUID contractId, String number, String price)
+      throws Exception {
+    UUID carrierId = carrierFor(managerToken, contractId);
+    UUID planId = createPostpaidPlan(managerToken, carrierId, "Plan " + UUID.randomUUID(), price);
+    return """
+        {"number":"%s","carrierId":"%s","flavor":"POSTPAID","postpaidPlanId":"%s"}
+        """
+        .formatted(number, carrierId, planId)
+        .strip();
+  }
+
   /** Archives a Carrier, as the Manager. */
   protected void archiveCarrier(String managerToken, UUID carrierId) throws Exception {
     mockMvc

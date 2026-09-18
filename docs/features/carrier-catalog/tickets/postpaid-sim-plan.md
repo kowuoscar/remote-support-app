@@ -1,7 +1,7 @@
 ---
 id: postpaid-sim-plan
 title: A new Postpaid SIM's monthly fee comes from its Postpaid Plan
-status: ready-for-agent
+status: in-progress
 depends_on: [topup-options-and-postpaid-plans, sim-card-carrier]
 labels: [backend, frontend, fleet, invoicing]
 ---

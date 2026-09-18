@@ -59,6 +59,16 @@ public abstract class IntegrationTest {
   public static final String TESTER_USERNAME = "tester@example.com";
   public static final String TESTER_PASSWORD = "TesterDemo123!";
 
+  // demo.tester@example.com (V17 migration): unlike TESTER_USERNAME above, this login resolves
+  // to a real Tester with its own Client/Contract/Fleet, for manual/local testing of the Tester
+  // shell without first having to create fixtures through the Manager UI.
+  public static final String DEMO_TESTER_USERNAME = "demo.tester@example.com";
+  public static final String DEMO_TESTER_PASSWORD = "DemoTesterDemo123!";
+  public static final UUID SEEDED_DEMO_CLIENT_ID =
+      UUID.fromString("77777777-7777-7777-7777-777777777777");
+  public static final UUID SEEDED_DEMO_CONTRACT_ID =
+      UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
   // The Agent row (V5 migration) the seeded agent@example.com login resolves to — "Jordan
   // Ellis", United States/USD. Tests that need a real Contract for the seeded Agent token use
   // this id directly rather than re-deriving it by name.
@@ -117,6 +127,10 @@ public abstract class IntegrationTest {
 
   protected String testerToken() throws Exception {
     return loginAs(TESTER_USERNAME, TESTER_PASSWORD);
+  }
+
+  protected String demoTesterToken() throws Exception {
+    return loginAs(DEMO_TESTER_USERNAME, DEMO_TESTER_PASSWORD);
   }
 
   /** Creates a Client as the Manager and returns its id — shared fixture-building across tests. */

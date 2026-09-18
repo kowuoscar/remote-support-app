@@ -74,6 +74,20 @@ async function addSmartphone(page: Page, contractId: string, model: string, seri
   await expect(page.getByRole("cell", { name: serial })).toBeVisible();
 }
 
+/**
+ * reboot-and-topup-details ticket: a Topup Request now names a SIM Card from the Contract's
+ * Fleet. Verizon (the seeded active US Carrier) has active Topup Options (V22 migration).
+ */
+async function addSimCard(page: Page, contractId: string, number: string) {
+  await page.goto(`/manager/contracts/${contractId}`);
+  await page.getByRole("button", { name: "Add SIM card" }).first().click();
+  await page.getByLabel("Number").fill(number);
+  await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
+  await page.getByLabel("Flavor").selectOption("PREPAID");
+  await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
+  await expect(page.getByRole("cell", { name: number })).toBeVisible();
+}
+
 /** Selects the Contract matching `clientName` in a Contract switcher, if more than one exists. */
 async function selectContractInSwitcher(page: Page, clientName: string) {
   const trigger = page.locator('[aria-haspopup="listbox"]');
@@ -83,11 +97,23 @@ async function selectContractInSwitcher(page: Page, clientName: string) {
   }
 }
 
-async function submitRequestAsTester(page: Page, requestTypeLabel: string) {
+async function submitRequestAsTester(
+  page: Page,
+  requestTypeLabel: string,
+  fleet?: { smartphoneOptionLabel?: string; simCardOptionLabel?: string },
+) {
   await page.goto("/client/requests");
   await page.getByRole("button", { name: "Submit Request" }).first().click();
-  await page.getByLabel("Request type").selectOption({ label: requestTypeLabel });
-  await page.getByRole("dialog").getByRole("button", { name: "Submit Request" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Request type").selectOption({ label: requestTypeLabel });
+  if (requestTypeLabel === "Reboot") {
+    await dialog.getByLabel("Smartphone to reboot").selectOption({ label: fleet!.smartphoneOptionLabel! });
+  }
+  if (requestTypeLabel === "Topup") {
+    await dialog.getByLabel("SIM Card to top up").selectOption({ label: fleet!.simCardOptionLabel! });
+    await dialog.getByLabel("Topup Option").selectOption({ label: "Prepaid Refill 35" });
+  }
+  await dialog.getByRole("button", { name: "Submit Request" }).click();
   await expect(page.getByText("Request submitted")).toBeVisible();
   await page.getByRole("button", { name: "Close" }).click();
 }
@@ -96,7 +122,12 @@ async function submitRequestAsTester(page: Page, requestTypeLabel: string) {
 async function fetchFees(page: Page, contractId: string) {
   return page.evaluate(async (contractId) => {
     const response = await fetch(`/api/contracts/${contractId}/fees`);
-    return (await response.json()) as { requestId: string; feeType: string; amount: number }[];
+    return (await response.json()) as {
+      requestId: string;
+      feeType: string;
+      amount: number;
+      topupOptionId?: string;
+    }[];
   }, contractId);
 }
 
@@ -111,12 +142,14 @@ test.describe("fee logging and provisioning", () => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Aurora Retail Group ${RUN_ID}`;
     const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const simNumber = `+1-555-${RUN_ID}`;
+    await addSimCard(page, contractId, simNumber);
     const testerEmail = `priya.raman+${RUN_ID}@aurora.example`;
     await addTester(page, clientId, testerEmail, "Passw0rd!23");
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "Topup");
+    await submitRequestAsTester(page, "Topup", { simCardOptionLabel: `${simNumber} — Verizon` });
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -143,6 +176,58 @@ test.describe("fee logging and provisioning", () => {
     expect(fees).toHaveLength(1);
     expect(fees[0].feeType).toBe("TOPUP");
     expect(fees[0].amount).toBe(45);
+  });
+
+  // reboot-and-topup-details ticket: completing a Topup Request pre-fills the Fee amount from
+  // its own Topup Option and links the Fee to it (still editable, just not overridden here).
+  test("completing a topup request pre-fills the fee from its own topup option and links it", async ({
+    page,
+  }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Kessler & Vance LLP ${RUN_ID}`;
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const simNumber = `+1-555-opt-${RUN_ID}`;
+    await addSimCard(page, contractId, simNumber);
+    const testerEmail = `helena.voss+${RUN_ID}@kessler.example`;
+    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+
+    await logout(page);
+    await login(page, testerEmail, "Passw0rd!23");
+    await page.goto("/client/requests");
+    await page.getByRole("button", { name: "Submit Request" }).first().click();
+    const submitDialog = page.getByRole("dialog");
+    await submitDialog.getByLabel("Request type").selectOption({ label: "Topup" });
+    await submitDialog.getByLabel("SIM Card to top up").selectOption({ label: `${simNumber} — Verizon` });
+    // Verizon's seeded "Prepaid Refill 35" Option, $35.00 (V22 migration).
+    await submitDialog.getByLabel("Topup Option").selectOption({ label: "Prepaid Refill 35" });
+    await submitDialog.getByRole("button", { name: "Submit Request" }).click();
+    await expect(page.getByText("Request submitted")).toBeVisible();
+    await page.getByRole("button", { name: "Close" }).click();
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/requests");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = page.getByRole("row", { name: /Topup/ });
+    await row.getByRole("button", { name: "Mark In Progress" }).click();
+    await row.getByRole("button", { name: "Mark Completed" }).click();
+
+    // Pre-filled from the Request's own Topup Option — the Agent completes without changing it.
+    await expect(row.getByLabel(/Fee amount/)).toHaveValue("35");
+
+    const [feeResponse] = await Promise.all([
+      page.waitForResponse((resp) => resp.url().includes("/fees") && resp.request().method() === "POST"),
+      row.getByRole("button", { name: "Mark Completed" }).click(),
+    ]);
+    expect(feeResponse.status()).toBe(201);
+    await expect(row).toContainText("Completed");
+
+    const fees = await fetchFees(page, contractId);
+    expect(fees).toHaveLength(1);
+    expect(fees[0].feeType).toBe("TOPUP");
+    expect(fees[0].amount).toBe(35);
+    expect(fees[0].topupOptionId).toBeTruthy();
   });
 
   test("an agent logs a proactive fee with no pre-existing request", async ({ page }) => {
@@ -324,12 +409,14 @@ test.describe("fee logging and provisioning", () => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Harbor & Finch Realty ${RUN_ID}`;
     const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const serial = `SN-${RUN_ID}`;
+    await addSmartphone(page, contractId, "Pixel 9", serial);
     const testerEmail = `charlotte.finch+${RUN_ID}@harborfinch.example`;
     await addTester(page, clientId, testerEmail, "Passw0rd!23");
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "Reboot");
+    await submitRequestAsTester(page, "Reboot", { smartphoneOptionLabel: `Pixel 9 — ${serial}` });
     await submitRequestAsTester(page, "SIM Swap");
 
     const requestIds = await page.evaluate(async (contractId) => {

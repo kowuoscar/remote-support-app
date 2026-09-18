@@ -17,6 +17,8 @@ import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.FleetAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import com.remotesupport.backend.security.RequestAccessGuard;
+import com.remotesupport.backend.web.requestdetails.RequestDetailsInput;
+import com.remotesupport.backend.web.requestdetails.RequestDetailsValidator;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
@@ -57,6 +59,7 @@ public class RequestController {
   private final FleetAccessGuard fleetAccessGuard;
   private final RequestAccessGuard requestAccessGuard;
   private final ProvisioningService provisioningService;
+  private final RequestDetailsValidator requestDetailsValidator;
 
   public RequestController(
       ContractRepository contractRepository,
@@ -65,7 +68,8 @@ public class RequestController {
       UserRepository userRepository,
       FleetAccessGuard fleetAccessGuard,
       RequestAccessGuard requestAccessGuard,
-      ProvisioningService provisioningService) {
+      ProvisioningService provisioningService,
+      RequestDetailsValidator requestDetailsValidator) {
     this.contractRepository = contractRepository;
     this.requestRepository = requestRepository;
     this.testerRepository = testerRepository;
@@ -73,6 +77,7 @@ public class RequestController {
     this.fleetAccessGuard = fleetAccessGuard;
     this.requestAccessGuard = requestAccessGuard;
     this.provisioningService = provisioningService;
+    this.requestDetailsValidator = requestDetailsValidator;
   }
 
   @PostMapping
@@ -96,7 +101,7 @@ public class RequestController {
     if ("AGENT".equals(principal.role())) {
       createAgentAuthored(contract, requestBody, principal, request);
     } else {
-      createTesterAuthored(contract, principal, request);
+      createTesterAuthored(contract, requestBody, principal, request);
     }
 
     return ResponseEntity.status(HttpStatus.CREATED).body(RequestResponse.of(request));
@@ -107,7 +112,7 @@ public class RequestController {
    * {@code SUBMITTED}, always attributed to the caller's own Tester profile.
    */
   private void createTesterAuthored(
-      Contract contract, AuthenticatedPrincipal principal, Request request) {
+      Contract contract, RequestCreateRequest requestBody, AuthenticatedPrincipal principal, Request request) {
     requestAccessGuard.requireCanSubmit(contract, principal);
 
     Tester tester =
@@ -119,6 +124,7 @@ public class RequestController {
     request.setRaisedByUser(tester.getUser());
     request.setAgentAuthored(false);
     request.setStatus(RequestStatus.SUBMITTED);
+    requestDetailsValidator.apply(contract, detailsInputOf(requestBody), request);
     requestRepository.save(request);
 
     AuditLog.requestSubmitted(
@@ -126,6 +132,9 @@ public class RequestController {
         contract.getId(),
         request.getType().name(),
         request.getDescription() != null,
+        targetSmartphoneIdOf(request),
+        targetSimCardIdOf(request),
+        topupOptionIdOf(request),
         principal.userId(),
         principal.tenantId());
   }
@@ -171,6 +180,8 @@ public class RequestController {
     request.setAgentAuthored(true);
     request.setStatus(startingStatus);
 
+    requestDetailsValidator.apply(contract, detailsInputOf(requestBody), request);
+
     provisioningService.applyIfNeeded(
         contract,
         request,
@@ -188,6 +199,9 @@ public class RequestController {
         request.getType().name(),
         startingStatus.name(),
         request.getDescription() != null,
+        targetSmartphoneIdOf(request),
+        targetSimCardIdOf(request),
+        topupOptionIdOf(request),
         principal.userId(),
         principal.tenantId());
   }
@@ -258,6 +272,31 @@ public class RequestController {
     return contractRepository
         .findByIdAndTenantId(contractId, principal.tenantId())
         .orElseThrow(() -> new NotFoundException("No contract with id " + contractId));
+  }
+
+  /** Pulls {@link RequestDetailsValidator}'s inputs out of the creation body — same on both paths. */
+  static RequestDetailsInput detailsInputOf(RequestCreateRequest requestBody) {
+    return new RequestDetailsInput(
+        requestBody.targetSmartphoneId(), requestBody.targetSimCardId(), requestBody.topupOptionId());
+  }
+
+  /**
+   * The three audit fields reboot-and-topup-details ticket's Observability AC asks for ("the
+   * target unit id and the Topup Option id"), read off {@code request} after {@link
+   * RequestDetailsValidator} has set them — null for every type but the one that sets each.
+   * Shared with {@link FeeController}'s proactive-Fee path, which logs the same auto-created
+   * linking Request the same way.
+   */
+  static UUID targetSmartphoneIdOf(Request request) {
+    return request.getTargetSmartphone() == null ? null : request.getTargetSmartphone().getId();
+  }
+
+  static UUID targetSimCardIdOf(Request request) {
+    return request.getTargetSimCard() == null ? null : request.getTargetSimCard().getId();
+  }
+
+  static UUID topupOptionIdOf(Request request) {
+    return request.getTopupOption() == null ? null : request.getTopupOption().getId();
   }
 
   /**

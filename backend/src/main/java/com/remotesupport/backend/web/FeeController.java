@@ -22,6 +22,8 @@ import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.FleetAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import com.remotesupport.backend.security.RequestAccessGuard;
+import com.remotesupport.backend.web.requestdetails.RequestDetailsInput;
+import com.remotesupport.backend.web.requestdetails.RequestDetailsValidator;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -77,6 +79,7 @@ public class FeeController {
   private final RequestAccessGuard requestAccessGuard;
   private final ProvisioningService provisioningService;
   private final TopupOptionRepository topupOptionRepository;
+  private final RequestDetailsValidator requestDetailsValidator;
 
   public FeeController(
       ContractRepository contractRepository,
@@ -87,7 +90,8 @@ public class FeeController {
       FleetAccessGuard fleetAccessGuard,
       RequestAccessGuard requestAccessGuard,
       ProvisioningService provisioningService,
-      TopupOptionRepository topupOptionRepository) {
+      TopupOptionRepository topupOptionRepository,
+      RequestDetailsValidator requestDetailsValidator) {
     this.contractRepository = contractRepository;
     this.requestRepository = requestRepository;
     this.feeRepository = feeRepository;
@@ -97,6 +101,7 @@ public class FeeController {
     this.requestAccessGuard = requestAccessGuard;
     this.provisioningService = provisioningService;
     this.topupOptionRepository = topupOptionRepository;
+    this.requestDetailsValidator = requestDetailsValidator;
   }
 
   @PostMapping
@@ -234,6 +239,15 @@ public class FeeController {
     request.setStatus(RequestStatus.COMPLETED);
     request.setCreatedAt(Instant.now());
 
+    // reboot-and-topup-details ticket AC: "The same rules apply when an Agent logs the Request
+    // proactively" — a proactive Topup Fee auto-creates a Topup Request exactly like the Agent
+    // logging one directly would, so it's held to the same targetSimCardId/topupOptionId rule via
+    // the one shared validator, rather than skipping it because no separate Request POST happened.
+    requestDetailsValidator.apply(
+        contract,
+        new RequestDetailsInput(null, requestBody.targetSimCardId(), requestBody.topupOptionId()),
+        request);
+
     provisioningService.applyIfNeeded(
         contract,
         request,
@@ -251,6 +265,9 @@ public class FeeController {
         request.getType().name(),
         request.getStatus().name(),
         request.getDescription() != null,
+        RequestController.targetSmartphoneIdOf(request),
+        RequestController.targetSimCardIdOf(request),
+        RequestController.topupOptionIdOf(request),
         principal.userId(),
         principal.tenantId());
 

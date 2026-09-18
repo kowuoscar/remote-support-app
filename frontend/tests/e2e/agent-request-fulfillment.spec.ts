@@ -76,11 +76,25 @@ async function selectContractInSwitcher(page: Page, clientName: string) {
   }
 }
 
-async function submitRequestAsTester(page: Page, requestTypeLabel: string) {
+/** reboot-and-topup-details ticket: a Reboot Request now names a Smartphone from the Contract's Fleet. */
+async function addSmartphone(page: Page, contractId: string, model: string, serial: string) {
+  await page.goto(`/manager/contracts/${contractId}`);
+  await page.getByRole("button", { name: "Add smartphone" }).first().click();
+  await page.getByLabel("Model").fill(model);
+  await page.getByLabel("Serial").fill(serial);
+  await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
+  await expect(page.getByRole("cell", { name: serial })).toBeVisible();
+}
+
+async function submitRequestAsTester(page: Page, requestTypeLabel: string, smartphoneOptionLabel?: string) {
   await page.goto("/client/requests");
   await page.getByRole("button", { name: "Submit Request" }).first().click();
-  await page.getByLabel("Request type").selectOption({ label: requestTypeLabel });
-  await page.getByRole("dialog").getByRole("button", { name: "Submit Request" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Request type").selectOption({ label: requestTypeLabel });
+  if (requestTypeLabel === "Reboot") {
+    await dialog.getByLabel("Smartphone to reboot").selectOption({ label: smartphoneOptionLabel! });
+  }
+  await dialog.getByRole("button", { name: "Submit Request" }).click();
   await expect(page.getByText("Request submitted")).toBeVisible();
   await page.getByRole("button", { name: "Close" }).click();
 }
@@ -97,7 +111,9 @@ test.describe("agent request fulfillment", () => {
   }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Aurora Retail Group ${RUN_ID}`;
-    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const serial = `SN-${RUN_ID}`;
+    await addSmartphone(page, contractId, "Pixel 9", serial);
     const testerEmail = `priya.raman+${RUN_ID}@aurora.example`;
     await addTester(page, clientId, testerEmail, "Passw0rd!23");
 
@@ -106,7 +122,7 @@ test.describe("agent request fulfillment", () => {
     // Reboot, not Topup: this test is about the plain status-progression mechanics, and
     // fee-logging-and-provisioning ticket makes completing a fee-eligible type (Topup included)
     // prompt for a Fee amount first — covered by its own suite (fee-logging-and-provisioning.spec.ts).
-    await submitRequestAsTester(page, "Reboot");
+    await submitRequestAsTester(page, "Reboot", `Pixel 9 — ${serial}`);
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -127,13 +143,15 @@ test.describe("agent request fulfillment", () => {
   test("an agent cancels a request with a reason", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Meridian Logistics ${RUN_ID}`;
-    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const serial = `SN-${RUN_ID}`;
+    await addSmartphone(page, contractId, "Pixel 9", serial);
     const testerEmail = `owen.reyes+${RUN_ID}@meridian.example`;
     await addTester(page, clientId, testerEmail, "Passw0rd!23");
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "Reboot");
+    await submitRequestAsTester(page, "Reboot", `Pixel 9 — ${serial}`);
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -265,10 +283,12 @@ test.describe("agent request fulfillment", () => {
     await expect(page).toHaveURL(/\/manager\/clients\/.+/);
     const otherClientId = page.url().split("/").pop()!;
     await addTester(page, otherClientId, otherTesterEmail, "Passw0rd!23");
+    const otherSerial = `SN-${RUN_ID}`;
+    await addSmartphone(page, otherContractId, "Pixel 9", otherSerial);
 
     await logout(page);
     await login(page, otherTesterEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "Reboot");
+    await submitRequestAsTester(page, "Reboot", `Pixel 9 — ${otherSerial}`);
     const otherRequestId = await page.evaluate(async (contractId) => {
       const response = await fetch(`/api/contracts/${contractId}/requests`);
       const body = (await response.json()) as { id: string }[];

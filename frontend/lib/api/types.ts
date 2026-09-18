@@ -235,6 +235,18 @@ export interface RequestListItem {
   // except OTHER, where it's required.
   description: string | null;
   createdAt: string;
+  // reboot-and-topup-details ticket: the target unit a Reboot/Topup Request names, and the Topup
+  // Option it asked for, denormalized so a Requests list row never needs a second round-trip.
+  // Absent for every other type, and for a Request that existed before this ticket.
+  targetSmartphoneId?: string;
+  targetSmartphoneModel?: string;
+  targetSimCardId?: string;
+  targetSimCardNumber?: string;
+  topupOptionId?: string;
+  topupOptionName?: string;
+  // The Option's price, for the Agent's completion step to pre-fill the Fee amount from
+  // (still editable) — the amount itself is never re-read from the Option after that.
+  topupOptionPrice?: number;
 }
 
 // Mirrors backend/.../dto/TesterResponse.java, as returned by GET /api/contracts/{id}/testers

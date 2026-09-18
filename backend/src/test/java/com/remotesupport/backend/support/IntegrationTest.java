@@ -280,6 +280,78 @@ public abstract class IntegrationTest {
         .andExpect(status().isOk());
   }
 
+  /** This Contract's Country, as {@link #carrierFor} already derives it from GET /api/contracts. */
+  protected Country contractCountry(String managerToken, UUID contractId) throws Exception {
+    JsonNode contracts =
+        objectMapper.readTree(
+            mockMvc
+                .perform(get("/api/contracts").header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
+    for (JsonNode contract : contracts) {
+      if (contract.get("id").asText().equals(contractId.toString())) {
+        return Country.valueOf(contract.get("country").asText());
+      }
+    }
+    throw new IllegalStateException("No contract with id " + contractId);
+  }
+
+  /**
+   * A freshly created Carrier of this Contract's Country with no Topup Options at all
+   * (reboot-and-topup-details ticket) — for a fixture that needs a SIM Card whose Carrier
+   * definitely has no active Option, regardless of what else the seed or an earlier test step
+   * added to this Country's catalog.
+   */
+  protected UUID createCarrierWithNoOptions(String managerToken, UUID contractId) throws Exception {
+    return createCarrier(
+        managerToken, contractCountry(managerToken, contractId), "Fixture Carrier " + UUID.randomUUID());
+  }
+
+  /** Creates an Active Smartphone on this Contract's Fleet, as the Manager, and returns its id. */
+  protected UUID createSmartphone(String managerToken, UUID contractId, String model) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contractId + "/smartphones")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content("""
+                        {"model":"%s"}
+                        """.formatted(model)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /** Creates an Active, Prepaid SIM Card on this Contract's Fleet naming {@code carrierId}. */
+  protected UUID createSimCard(String managerToken, UUID contractId, UUID carrierId) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contractId + "/sim-cards")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                        {"number":"+1-555-%s","carrierId":"%s","flavor":"PREPAID"}
+                        """
+                            .formatted(String.valueOf(System.nanoTime()).substring(0, 7), carrierId)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /**
+   * A target SIM Card for a Topup Request/Fee fixture that doesn't care about the Topup Option
+   * rule either way: a fresh Carrier with no Options, so the caller only ever needs to supply a
+   * description (reboot-and-topup-details ticket AC).
+   */
+  protected UUID createTopupTargetSimCard(String managerToken, UUID contractId) throws Exception {
+    return createSimCard(managerToken, contractId, createCarrierWithNoOptions(managerToken, contractId));
+  }
+
   /** Creates a Contract linking a Client and an Agent, as the Manager, and returns its id. */
   protected UUID createContract(String managerToken, UUID clientId, UUID agentId) throws Exception {
     MvcResult result =

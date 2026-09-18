@@ -13,6 +13,8 @@ import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.support.IntegrationTest;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,23 +32,27 @@ import org.springframework.test.web.servlet.MvcResult;
  */
 class RequestApiTest extends IntegrationTest {
 
-  // Other now requires a description; every other type still submits with none, exactly as before.
+  // Other now requires a description; every other type still submits with none, exactly as
+  // before. reboot-and-topup-details ticket: Reboot/Topup now each require their own target unit
+  // — a fresh fixture per call, since a Smartphone/SIM Card can't be shared across Requests here.
   private UUID submitRequest(String testerToken, UUID contractId, String type) throws Exception {
-    String description = "OTHER".equals(type) ? "Screen replacement" : null;
+    Map<String, Object> body = new HashMap<>();
+    body.put("type", type);
+    if ("OTHER".equals(type)) {
+      body.put("description", "Screen replacement");
+    } else if ("REBOOT".equals(type)) {
+      body.put("targetSmartphoneId", createSmartphone(managerToken(), contractId, "Fixture Phone"));
+    } else if ("TOPUP".equals(type)) {
+      body.put("targetSimCardId", createTopupTargetSimCard(managerToken(), contractId));
+      body.put("description", "Top-up needed");
+    }
     MvcResult result =
         mockMvc
             .perform(
                 post("/api/contracts/" + contractId + "/requests")
                     .header("Authorization", "Bearer " + testerToken)
                     .contentType(APPLICATION_JSON)
-                    .content(
-                        description == null
-                            ? """
-                                {"type":"%s"}
-                                """.formatted(type)
-                            : """
-                                {"type":"%s","description":"%s"}
-                                """.formatted(type, description)))
+                    .content(objectMapper.writeValueAsString(body)))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
@@ -81,14 +87,22 @@ class RequestApiTest extends IntegrationTest {
 
     // A description is required only for Other, but harmless to give for every type — this covers
     // both "every type accepts an optional description" and Other's own requirement in one loop.
+    // reboot-and-topup-details ticket: Reboot/Topup also need their own target unit.
+    Map<String, Object> body = new HashMap<>();
+    body.put("type", type);
+    body.put("description", "Details for the agent");
+    if ("REBOOT".equals(type)) {
+      body.put("targetSmartphoneId", createSmartphone(managerToken, contractId, "Fixture Phone"));
+    } else if ("TOPUP".equals(type)) {
+      body.put("targetSimCardId", createTopupTargetSimCard(managerToken, contractId));
+    }
+
     mockMvc
         .perform(
             post("/api/contracts/" + contractId + "/requests")
                 .header("Authorization", "Bearer " + testerToken)
                 .contentType(APPLICATION_JSON)
-                .content("""
-                    {"type":"%s","description":"Details for the agent"}
-                    """.formatted(type)))
+                .content(objectMapper.writeValueAsString(body)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.type").value(type))
         .andExpect(jsonPath("$.status").value("SUBMITTED"))
@@ -520,6 +534,7 @@ class RequestApiTest extends IntegrationTest {
 
     String agentToken = agentToken();
     UUID testerId = findTesterId(agentToken, contractId, "priya.raman@aurora.example");
+    UUID targetSimCardId = createTopupTargetSimCard(managerToken, contractId);
 
     mockMvc
         .perform(
@@ -528,9 +543,9 @@ class RequestApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"type":"TOPUP","testerId":"%s"}
+                    {"type":"TOPUP","testerId":"%s","targetSimCardId":"%s","description":"Top-up needed"}
                     """
-                        .formatted(testerId)))
+                        .formatted(testerId, targetSimCardId)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.status").value("SUBMITTED"))
         .andExpect(jsonPath("$.agentAuthored").value(true))

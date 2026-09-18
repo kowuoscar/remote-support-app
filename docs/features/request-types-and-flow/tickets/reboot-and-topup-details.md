@@ -1,7 +1,7 @@
 ---
 id: reboot-and-topup-details
 title: Reboot and Topup Requests name their unit, and a Topup its Topup Option
-status: ready-for-agent
+status: done
 depends_on: [other-replaces-repair]
 labels: [backend, frontend, requests]
 ---
@@ -12,15 +12,15 @@ First per-type details slice; it also sets the structure the later ones reuse. I
 
 ## Acceptance criteria
 
-- [ ] A Reboot Request requires an Active Smartphone of its Contract; a Topup Request requires an Active SIM Card of its Contract
-- [ ] A Topup Request requires a Topup Option of that SIM Card's Carrier when the Carrier has an active one; otherwise it requires a description
-- [ ] The same rules apply when an Agent logs the Request proactively
-- [ ] Anyone who can view a Contract can read the active Carrier catalog of that Contract's Country through a Contract-scoped read; the Country-scoped routes stay Agent and Manager only
-- [ ] The Tester's submit dialog and the Agent's log-Request dialog show a details section that changes with the type, built as one component per type plus shared unit pickers
-- [ ] The Tester's and the Agent's Requests lists summarise the details on each row
-- [ ] Completing a Topup Request pre-fills the Fee amount from its Topup Option and links the Fee to it; the amount stays editable
-- [ ] One module validates type-specific details for both the Tester and the Agent path
-- [ ] A Request created before this ticket, with no details, still lists and completes as before
+- [x] A Reboot Request requires an Active Smartphone of its Contract; a Topup Request requires an Active SIM Card of its Contract
+- [x] A Topup Request requires a Topup Option of that SIM Card's Carrier when the Carrier has an active one; otherwise it requires a description
+- [x] The same rules apply when an Agent logs the Request proactively
+- [x] Anyone who can view a Contract can read the active Carrier catalog of that Contract's Country through a Contract-scoped read; the Country-scoped routes stay Agent and Manager only
+- [x] The Tester's submit dialog and the Agent's log-Request dialog show a details section that changes with the type, built as one component per type plus shared unit pickers
+- [x] The Tester's and the Agent's Requests lists summarise the details on each row
+- [x] Completing a Topup Request pre-fills the Fee amount from its Topup Option and links the Fee to it; the amount stays editable
+- [x] One module validates type-specific details for both the Tester and the Agent path
+- [x] A Request created before this ticket, with no details, still lists and completes as before
 
 ## Tests
 

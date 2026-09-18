@@ -11,6 +11,7 @@ import { requestStatusToneByValue } from "@/lib/status";
 import { RequestStatusControl } from "@/components/agent/request-status-control";
 import { LogRequestDialog } from "@/components/agent/log-request-dialog";
 import { LogFeeDialog } from "@/components/agent/log-fee-dialog";
+import { requestDetailsSummary } from "@/components/requests/details/summary";
 import {
   REQUEST_STATUS_LABEL,
   REQUEST_TYPE_LABEL,
@@ -107,11 +108,20 @@ export function AgentRequestsView({
         </div>
         {contractId ? (
           <div className="flex items-center gap-2">
-            <LogRequestDialog contractId={contractId} testers={testersByContract[contractId] ?? []} />
+            <LogRequestDialog
+              contractId={contractId}
+              testers={testersByContract[contractId] ?? []}
+              smartphones={activeSmartphones}
+              simCards={activeSimCards}
+              carriers={carriers}
+              currency={currency}
+              carriersHref={AGENT_CARRIERS_HREF}
+            />
             <LogFeeDialog
               contractId={contractId}
               currency={currency}
               testers={testersByContract[contractId] ?? []}
+              simCards={activeSimCards}
               carriers={carriers}
               carriersHref={AGENT_CARRIERS_HREF}
             />
@@ -142,6 +152,11 @@ export function AgentRequestsView({
                 <Tr key={request.id}>
                   <Td className="font-medium text-ink">
                     {REQUEST_TYPE_LABEL[request.type]}
+                    {requestDetailsSummary(request) ? (
+                      <span className="mt-1 block max-w-[220px] font-normal text-[12px] text-ink-secondary">
+                        {requestDetailsSummary(request)}
+                      </span>
+                    ) : null}
                     {request.description ? (
                       <span className="mt-1 block max-w-[220px] font-normal text-[12px] text-ink-mute">
                         {request.description}
@@ -180,6 +195,8 @@ export function AgentRequestsView({
                       activeSimCards={activeSimCards}
                       carriers={carriers}
                       carriersHref={AGENT_CARRIERS_HREF}
+                      topupOptionId={request.topupOptionId}
+                      topupOptionPrice={request.topupOptionPrice}
                     />
                   </Td>
                 </Tr>

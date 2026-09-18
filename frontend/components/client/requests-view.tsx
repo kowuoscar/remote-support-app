@@ -9,11 +9,15 @@ import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/ta
 import { IconInbox } from "@/components/icons";
 import { formatRelativeAge } from "@/lib/format";
 import { requestStatusToneByValue } from "@/lib/status";
+import { requestDetailsSummary } from "@/components/requests/details/summary";
 import {
   REQUEST_STATUS_LABEL,
   REQUEST_TYPE_LABEL,
+  type CatalogCarrierItem,
   type RequestListItem,
   type RequestStatusValue,
+  type SimCardListItem,
+  type SmartphoneListItem,
 } from "@/lib/api/types";
 
 const statusFilters: (RequestStatusValue | "All")[] = [
@@ -27,9 +31,15 @@ const statusFilters: (RequestStatusValue | "All")[] = [
 export function ClientRequestsView({
   requests,
   contracts,
+  smartphonesByContract = {},
+  simCardsByContract = {},
+  carriersByContract = {},
 }: {
   requests: RequestListItem[];
   contracts: ContractOption[];
+  smartphonesByContract?: Record<string, SmartphoneListItem[]>;
+  simCardsByContract?: Record<string, SimCardListItem[]>;
+  carriersByContract?: Record<string, CatalogCarrierItem[]>;
 }) {
   const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
   const [status, setStatus] = useState<RequestStatusValue | "All">("All");
@@ -77,7 +87,12 @@ export function ClientRequestsView({
             ))}
           </div>
         </div>
-        <SubmitRequestDialog contracts={contracts} />
+        <SubmitRequestDialog
+          contracts={contracts}
+          smartphonesByContract={smartphonesByContract}
+          simCardsByContract={simCardsByContract}
+          carriersByContract={carriersByContract}
+        />
       </div>
 
       {filtered.length === 0 ? (
@@ -102,6 +117,11 @@ export function ClientRequestsView({
                 <Tr key={request.id}>
                   <Td className="font-medium text-ink">
                     {REQUEST_TYPE_LABEL[request.type]}
+                    {requestDetailsSummary(request) ? (
+                      <span className="mt-1 block max-w-[220px] font-normal text-[12px] text-ink-secondary">
+                        {requestDetailsSummary(request)}
+                      </span>
+                    ) : null}
                     {request.description ? (
                       <span className="mt-1 block max-w-[220px] font-normal text-[12px] text-ink-mute">
                         {request.description}

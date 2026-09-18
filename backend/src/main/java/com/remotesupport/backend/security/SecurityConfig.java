@@ -94,6 +94,14 @@ public class SecurityConfig {
                     // FleetAccessGuard in ContractTestersController, same shape as Fleet/Requests.
                     .requestMatchers(HttpMethod.GET, "/api/contracts/*/testers")
                     .authenticated()
+                    // reboot-and-topup-details ticket: anyone who can view a Contract (Manager,
+                    // its own Agent, its own Client's Tester) can read its Country's active
+                    // Carrier catalog through this Contract-scoped route — Contract ownership
+                    // itself is re-checked in ContractCarrierController via FleetAccessGuard,
+                    // same shape as every other Contract-scoped resource above. The Country-scoped
+                    // /api/carriers routes below stay Agent/Manager only, unchanged.
+                    .requestMatchers(HttpMethod.GET, "/api/contracts/*/carriers")
+                    .authenticated()
                     // fee-logging-and-provisioning ticket: only the Contract's own Agent (or a
                     // Manager) may log a Fee (spec.md Access control: "Agent: full CRUD on ...
                     // Fees ... within their own Contracts"); Contract ownership itself is

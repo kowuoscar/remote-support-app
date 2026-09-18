@@ -15,6 +15,8 @@ import com.remotesupport.backend.support.IntegrationTest;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,23 +70,26 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .andExpect(status().isOk());
   }
 
-  // Other now requires a description; every other type still submits with none, exactly as before.
+  // Other now requires a description; every other type still submits with none, exactly as
+  // before. reboot-and-topup-details ticket: Reboot/Topup now each require their own target unit.
   private UUID submitRequest(String testerToken, UUID contractId, String type) throws Exception {
-    String description = "OTHER".equals(type) ? "Screen replacement" : null;
+    Map<String, Object> body = new HashMap<>();
+    body.put("type", type);
+    if ("OTHER".equals(type)) {
+      body.put("description", "Screen replacement");
+    } else if ("REBOOT".equals(type)) {
+      body.put("targetSmartphoneId", createSmartphone(managerToken(), contractId, "Fixture Phone"));
+    } else if ("TOPUP".equals(type)) {
+      body.put("targetSimCardId", createTopupTargetSimCard(managerToken(), contractId));
+      body.put("description", "Top-up needed");
+    }
     MvcResult result =
         mockMvc
             .perform(
                 post("/api/contracts/" + contractId + "/requests")
                     .header("Authorization", "Bearer " + testerToken)
                     .contentType(APPLICATION_JSON)
-                    .content(
-                        description == null
-                            ? """
-                                {"type":"%s"}
-                                """.formatted(type)
-                            : """
-                                {"type":"%s","description":"%s"}
-                                """.formatted(type, description)))
+                    .content(objectMapper.writeValueAsString(body)))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());

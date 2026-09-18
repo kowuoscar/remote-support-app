@@ -62,22 +62,32 @@ public final class AuditLog {
    * A Request's submission (tester-request-submission ticket Observability: "Request-submitted
    * event logged with Contract, Request type, actor"). {@code descriptionGiven} is whether the
    * submitter gave an optional description — never its text (request-types-and-flow spec,
-   * Details at submission; other-replaces-repair ticket Observability).
+   * Details at submission; other-replaces-repair ticket Observability). {@code
+   * targetSmartphoneId}/{@code targetSimCardId}/{@code topupOptionId} (reboot-and-topup-details
+   * ticket Observability: "The Request submitted and logged audit events carry the target unit id
+   * and the Topup Option id") are null for every type but the one that set them.
    */
   public static void requestSubmitted(
       UUID requestId,
       UUID contractId,
       String requestType,
       boolean descriptionGiven,
+      UUID targetSmartphoneId,
+      UUID targetSimCardId,
+      UUID topupOptionId,
       UUID actorUserId,
       UUID tenantId) {
     log.info(
         "audit action=REQUEST_SUBMITTED entity=Request entityId={} contractId={} requestType={} "
-            + "descriptionGiven={} actorUserId={} tenantId={}",
+            + "descriptionGiven={} targetSmartphoneId={} targetSimCardId={} topupOptionId={} "
+            + "actorUserId={} tenantId={}",
         requestId,
         contractId,
         requestType,
         descriptionGiven,
+        targetSmartphoneId,
+        targetSimCardId,
+        topupOptionId,
         actorUserId,
         tenantId);
   }
@@ -88,6 +98,9 @@ public final class AuditLog {
    * Tester-authored submission from an Agent-authored one, and see which starting status the
    * Agent chose (Submitted or immediately Completed). {@code descriptionGiven} is whether an
    * optional description was given — never its text (other-replaces-repair ticket Observability).
+   * {@code targetSmartphoneId}/{@code targetSimCardId}/{@code topupOptionId}
+   * (reboot-and-topup-details ticket Observability) are null for every type but the one that set
+   * them.
    */
   public static void requestLoggedByAgent(
       UUID requestId,
@@ -95,16 +108,23 @@ public final class AuditLog {
       String requestType,
       String startingStatus,
       boolean descriptionGiven,
+      UUID targetSmartphoneId,
+      UUID targetSimCardId,
+      UUID topupOptionId,
       UUID actorUserId,
       UUID tenantId) {
     log.info(
         "audit action=REQUEST_LOGGED_BY_AGENT entity=Request entityId={} contractId={} "
-            + "requestType={} startingStatus={} descriptionGiven={} actorUserId={} tenantId={}",
+            + "requestType={} startingStatus={} descriptionGiven={} targetSmartphoneId={} "
+            + "targetSimCardId={} topupOptionId={} actorUserId={} tenantId={}",
         requestId,
         contractId,
         requestType,
         startingStatus,
         descriptionGiven,
+        targetSmartphoneId,
+        targetSimCardId,
+        topupOptionId,
         actorUserId,
         tenantId);
   }

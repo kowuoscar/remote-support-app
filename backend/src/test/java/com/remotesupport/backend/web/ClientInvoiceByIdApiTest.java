@@ -65,16 +65,20 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
   }
 
+  // reboot-and-topup-details ticket: a Topup Request now requires its own target SIM Card.
   private UUID submitTopup(String testerToken, UUID contractId) throws Exception {
+    UUID targetSimCardId = createTopupTargetSimCard(managerToken(), contractId);
     MvcResult result =
         mockMvc
             .perform(
                 post("/api/contracts/" + contractId + "/requests")
                     .header("Authorization", "Bearer " + testerToken)
                     .contentType(APPLICATION_JSON)
-                    .content("""
-                        {"type":"TOPUP"}
-                        """))
+                    .content(
+                        """
+                        {"type":"TOPUP","targetSimCardId":"%s","description":"Top-up needed"}
+                        """
+                            .formatted(targetSimCardId)))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());

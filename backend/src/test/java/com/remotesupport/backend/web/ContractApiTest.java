@@ -231,13 +231,16 @@ class ContractApiTest extends IntegrationTest {
         // V17's Postpaid SIM, plus V27's Postpaid SIM on a seeded Postpaid Plan.
         .andExpect(jsonPath("$.length()").value(2));
 
+    // V17's seeded Smartphone on this Contract (bbbbbbbb-...), Active — reboot-and-topup-details
+    // ticket: a Reboot Request now requires naming the Smartphone it reboots.
     mockMvc
         .perform(
             post("/api/contracts/" + SEEDED_DEMO_CONTRACT_ID + "/requests")
                 .header("Authorization", "Bearer " + demoTesterToken)
                 .contentType(APPLICATION_JSON)
-                .content("""
-                    {"type":"REBOOT"}
+                .content(
+                    """
+                    {"type":"REBOOT","targetSmartphoneId":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"}
                     """))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.status").value("SUBMITTED"))

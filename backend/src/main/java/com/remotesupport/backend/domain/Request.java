@@ -91,6 +91,40 @@ public class Request {
   @Column(name = "replaces_sim_card_id")
   private UUID replacesSimCardId;
 
+  /**
+   * The Smartphone a {@link RequestType#REBOOT} Request asks to reboot (request-types-and-flow
+   * spec, Details at submission; reboot-and-topup-details ticket). Set at submission by {@link
+   * com.remotesupport.backend.web.requestdetails.RebootRequestDetailsHandler}, on both the
+   * Tester and the Agent-proactive path. Null for every other type, and for a Reboot Request that
+   * existed before this ticket. An actual {@code @ManyToOne} (unlike {@code replacesSmartphoneId}
+   * above) because the Requests lists need to show the target's model on every row (AC:
+   * "summarise the details"), not just its id.
+   */
+  @ManyToOne
+  @JoinColumn(name = "target_smartphone_id")
+  private Smartphone targetSmartphone;
+
+  /**
+   * The SIM Card a {@link RequestType#TOPUP} Request asks to top up — same shape and rationale as
+   * {@code targetSmartphone} above, set by {@code TopupRequestDetailsHandler}.
+   */
+  @ManyToOne
+  @JoinColumn(name = "target_sim_card_id")
+  private SimCard targetSimCard;
+
+  /**
+   * The Topup Option a Topup Request asked for, when {@code targetSimCard}'s Carrier had an
+   * active one at submission (request-types-and-flow spec, Details at submission: "otherwise a
+   * description" — {@code description} above carries that fallback). Archiving the Option
+   * afterwards leaves this Request's choice valid (spec.md: "archiving hides an entry from
+   * pickers, it never invalidates a record that already uses it"). Completing this Request reads
+   * it back to pre-fill the Fee amount and link the Fee to it (ticket AC), but never re-reads its
+   * price at submission time beyond the one check that it belongs to this SIM Card's Carrier.
+   */
+  @ManyToOne
+  @JoinColumn(name = "topup_option_id")
+  private TopupOption topupOption;
+
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 }

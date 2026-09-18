@@ -25,6 +25,14 @@ import java.util.UUID;
  * (topup-fee-from-option ticket). It is allowed only when {@code feeType} is {@code TOPUP}, and the
  * Option must be active, of an active Carrier in the Contract's Country. It never sets {@code
  * amount}, which stays required and is whatever the Agent submits.
+ *
+ * <p>{@code targetSimCardId} (reboot-and-topup-details ticket): only meaningful, and only
+ * required, when a proactive Fee's {@code feeType} is {@code TOPUP} — the SIM Card the
+ * auto-created linking Request's Topup detail names, validated by the same {@link
+ * com.remotesupport.backend.web.requestdetails.RequestDetailsValidator} the Tester and
+ * Agent-proactive Request-creation paths call, so logging a Topup Fee with no pre-existing
+ * Request is held to the same rule as logging the Request directly. {@code topupOptionId} above
+ * doubles as that same Request's own Topup Option once its Fee-side checks pass.
  */
 public record FeeCreateRequest(
     UUID requestId,
@@ -36,4 +44,5 @@ public record FeeCreateRequest(
     @Valid SimCardCreateRequest newSimCard,
     UUID replacesSmartphoneId,
     UUID replacesSimCardId,
-    UUID topupOptionId) {}
+    UUID topupOptionId,
+    UUID targetSimCardId) {}

@@ -25,6 +25,13 @@ import java.util.UUID;
  * com.remotesupport.backend.web.RequestController} refuses a blank one — the same rule the
  * Agent-proactive path in this same controller and the proactive-Fee path in {@link
  * com.remotesupport.backend.web.FeeController} both enforce.
+ *
+ * <p>{@code targetSmartphoneId}/{@code targetSimCardId}/{@code topupOptionId}
+ * (reboot-and-topup-details ticket): a Reboot Request's target Smartphone, and a Topup Request's
+ * target SIM Card and, when its Carrier has one, the Topup Option it asks for — validated and
+ * stored by {@link com.remotesupport.backend.web.requestdetails.RequestDetailsValidator}, the one
+ * module both this controller and {@link com.remotesupport.backend.web.FeeController}'s
+ * proactive-Fee path call. Meaningless, and ignored, for every other type.
  */
 public record RequestCreateRequest(
     @NotNull RequestType type,
@@ -34,4 +41,7 @@ public record RequestCreateRequest(
     @Valid SmartphoneCreateRequest newSmartphone,
     @Valid SimCardCreateRequest newSimCard,
     UUID replacesSmartphoneId,
-    UUID replacesSimCardId) {}
+    UUID replacesSimCardId,
+    UUID targetSmartphoneId,
+    UUID targetSimCardId,
+    UUID topupOptionId) {}

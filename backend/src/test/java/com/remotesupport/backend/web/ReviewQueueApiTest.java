@@ -311,8 +311,8 @@ class ReviewQueueApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + managerToken)
                 .contentType(APPLICATION_JSON)
                 .content("""
-                    {"number":"+1-555-0142","flavor":"POSTPAID","monthlyFeeAmount":25.00}
-                    """))
+                    {"number":"+1-555-0142","carrierId":"%s","flavor":"POSTPAID","monthlyFeeAmount":25.00}
+                    """.formatted(SEEDED_US_CARRIER_ID)))
         .andExpect(status().isCreated());
     logTopupFee(agentToken, contractId, submitRequest(testerToken, contractId), "45.00");
     logTopupFee(agentToken, contractId, submitRequest(testerToken, contractId), "5.50");

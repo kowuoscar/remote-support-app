@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
+import { SimCardCarrier } from "@/components/fleet/sim-card-carrier";
 import { Money } from "@/components/ui/money";
 import { IconContracts, IconSim, IconSmartphone } from "@/components/icons";
 import { simCardStatusToneByValue, smartphoneStatusToneByValue } from "@/lib/status";
@@ -136,7 +137,9 @@ export function AgentFleetView({
                 {sims.map((sim) => (
                   <Tr key={sim.id}>
                     <Td className="tnum font-medium text-ink">{sim.number}</Td>
-                    <Td className="text-ink-secondary">{sim.carrier ?? "—"}</Td>
+                    <Td>
+                      <SimCardCarrier sim={sim} />
+                    </Td>
                     <Td className="text-ink-secondary">{SIM_CARD_FLAVOR_LABEL[sim.flavor]}</Td>
                     <Td className="text-right">
                       {sim.monthlyFeeAmount != null ? (

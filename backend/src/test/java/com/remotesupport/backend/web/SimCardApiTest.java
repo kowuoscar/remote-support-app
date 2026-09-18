@@ -36,9 +36,9 @@ class SimCardApiTest extends IntegrationTest {
                     .contentType(APPLICATION_JSON)
                     .content(
                         """
-                        {"number":"%s","flavor":"POSTPAID","monthlyFeeAmount":%s}
+                        {"number":"%s","carrierId":"%s","flavor":"POSTPAID","monthlyFeeAmount":%s}
                         """
-                            .formatted(number, fee)))
+                            .formatted(number, carrierFor(managerToken, contractId), fee)))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
@@ -57,11 +57,11 @@ class SimCardApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"number":"+1-555-0100","carrier":"Verizon","flavor":"POSTPAID","monthlyFeeAmount":25.00}
-                    """))
+                    {"number":"+1-555-0100","carrierId":"%s","flavor":"POSTPAID","monthlyFeeAmount":25.00}
+                    """.formatted(SEEDED_US_CARRIER_ID)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.number").value("+1-555-0100"))
-        .andExpect(jsonPath("$.carrier").value("Verizon"))
+        .andExpect(jsonPath("$.carrierName").value("Verizon"))
         .andExpect(jsonPath("$.flavor").value("POSTPAID"))
         .andExpect(jsonPath("$.monthlyFeeAmount").value(25.00))
         .andExpect(jsonPath("$.status").value("ACTIVE"));
@@ -88,8 +88,8 @@ class SimCardApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"number":"+1-555-0200","flavor":"PREPAID"}
-                    """))
+                    {"number":"+1-555-0200","carrierId":"%s","flavor":"PREPAID"}
+                    """.formatted(SEEDED_US_CARRIER_ID)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.flavor").value("PREPAID"))
         .andExpect(jsonPath("$.monthlyFeeAmount").doesNotExist());
@@ -108,8 +108,8 @@ class SimCardApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"number":"+1-555-0300","flavor":"POSTPAID"}
-                    """))
+                    {"number":"+1-555-0300","carrierId":"%s","flavor":"POSTPAID"}
+                    """.formatted(SEEDED_US_CARRIER_ID)))
         .andExpect(status().isBadRequest());
 
     mockMvc
@@ -119,8 +119,8 @@ class SimCardApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"number":"+1-555-0400","flavor":"PREPAID","monthlyFeeAmount":10.00}
-                    """))
+                    {"number":"+1-555-0400","carrierId":"%s","flavor":"PREPAID","monthlyFeeAmount":10.00}
+                    """.formatted(SEEDED_US_CARRIER_ID)))
         .andExpect(status().isBadRequest());
   }
 

@@ -597,9 +597,9 @@ class RequestApiTest extends IntegrationTest {
               .content(
                   """
                   {"type":"PROVISION_SIM","testerId":"%s","startingStatus":"COMPLETED",
-                   "newSimCard":{"number":"+1-555-0177","flavor":"PREPAID"}}
+                   "newSimCard":{"number":"+1-555-0177","carrierId":"%s","flavor":"PREPAID"}}
                   """
-                      .formatted(testerId)));
+                      .formatted(testerId, SEEDED_US_CARRIER_ID)));
 
       String logged =
           appender.list.stream().map(ILoggingEvent::getFormattedMessage).reduce("", String::concat);

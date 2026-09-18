@@ -225,6 +225,51 @@ test.describe("fee logging and provisioning", () => {
     await expect(page.getByRole("row", { name: new RegExp(newSerial) })).toContainText("Active");
   });
 
+  test("an agent completes a provision SIM request by picking a carrier, and the fleet shows it", async ({
+    page,
+  }) => {
+    // sim-card-carrier ticket: the Carrier comes from the catalog, never free text.
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Solene Cosmetics ${RUN_ID}`;
+    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const testerEmail = `ines.moreau+${RUN_ID}@solene.example`;
+    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+
+    await logout(page);
+    await login(page, testerEmail, "Passw0rd!23");
+    await submitRequestAsTester(page, "Provision SIM");
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/requests");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = page.getByRole("row", { name: /Provision SIM/ });
+    await row.getByRole("button", { name: "Mark In Progress" }).click();
+    await row.getByRole("button", { name: "Mark Completed" }).click();
+
+    const number = `+1-555-${RUN_ID}`;
+    await row.getByLabel(/Fee amount/).fill("15.00");
+    await row.getByLabel("New SIM number").fill(number);
+    const carrier = row.getByRole("combobox", { name: "Carrier" });
+    // Archived Carriers are never offered: the seeded Sprint is archived.
+    await expect(carrier.getByRole("option", { name: "Sprint" })).toHaveCount(0);
+    await carrier.selectOption({ label: "Verizon" });
+    await row.getByLabel("Flavor").selectOption({ label: "Prepaid" });
+    const [feeResponse] = await Promise.all([
+      page.waitForResponse((resp) => resp.url().includes("/fees") && resp.request().method() === "POST"),
+      row.getByRole("button", { name: "Mark Completed" }).click(),
+    ]);
+    expect(feeResponse.status()).toBe(201);
+    await expect(row).toContainText("Completed");
+
+    await page.goto("/agent/fleet");
+    await selectContractInSwitcher(page, clientName);
+    await expect(page.getByRole("row", { name: new RegExp(number.replace(/\+/g, "\\+")) })).toContainText(
+      "Verizon",
+    );
+  });
+
   test("a reboot or a like-for-like sim swap can never carry a fee", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Harbor & Finch Realty ${RUN_ID}`;

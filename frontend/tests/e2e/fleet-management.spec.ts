@@ -89,10 +89,13 @@ test.describe("fleet management", () => {
 
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
     await page.getByLabel("Number").fill(`+1-555-${RUN_ID}`);
+    await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
     await page.getByLabel("Flavor").selectOption("POSTPAID");
     await page.getByLabel(/Monthly fee/).fill("25.00");
     await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
     await expect(page.getByRole("cell", { name: `+1-555-${RUN_ID}` })).toBeVisible();
+    // sim-card-carrier ticket: the Carrier was picked from the catalog, and the Fleet names it.
+    await expect(page.getByRole("row", { name: new RegExp(`\\+1-555-${RUN_ID}`) })).toContainText("Verizon");
   });
 
   test("an agent sees their contract's fleet and changes a smartphone's status", async ({ page }) => {
@@ -108,6 +111,7 @@ test.describe("fleet management", () => {
 
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
     await page.getByLabel("Number").fill(`+1-555-agent-${RUN_ID}`);
+    await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
     await page.getByLabel("Flavor").selectOption("PREPAID");
     await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
     await expect(page.getByRole("cell", { name: `+1-555-agent-${RUN_ID}` })).toBeVisible();
@@ -159,6 +163,7 @@ test.describe("fleet management", () => {
 
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
     await page.getByLabel("Number").fill(`+34-91-${RUN_ID}`);
+    await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
     await page.getByLabel("Flavor").selectOption("PREPAID");
     await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
     await expect(page.getByRole("cell", { name: `+34-91-${RUN_ID}` })).toBeVisible();

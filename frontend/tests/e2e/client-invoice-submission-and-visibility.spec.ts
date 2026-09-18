@@ -72,6 +72,7 @@ async function addPostpaidSimCard(page: Page, contractId: string, number: string
   await page.goto(`/manager/contracts/${contractId}`);
   await page.getByRole("button", { name: "Add SIM card" }).first().click();
   await page.getByLabel("Number").fill(number);
+  await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
   await page.getByLabel("Flavor").selectOption({ label: "Postpaid" });
   await page.getByLabel(/Monthly fee/).fill(monthlyFee);
   await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();

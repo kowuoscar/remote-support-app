@@ -1,7 +1,7 @@
 ---
 id: agent-maintains-carriers
 title: Agents maintain their Country's Carriers on a Carriers page
-status: in-progress
+status: done
 depends_on: []
 labels: [backend, frontend, fleet]
 ---
@@ -16,14 +16,14 @@ data, and the Agent and Manager Carriers pages. It covers user stories 1-4,
 
 ## Acceptance criteria
 
-- [ ] An Agent's navigation has a Carriers page that lists their own Country's active Carriers.
-- [ ] An Agent can create a Carrier, rename it and archive it. Each action updates the list in place.
-- [ ] A "show archived" toggle reveals archived Carriers, marked as archived. They have no edit or archive actions.
-- [ ] A Carrier name is unique among the active Carriers of its Country. A duplicate is refused with an inline error.
-- [ ] The Manager's navigation has the same Carriers page with a Country filter, and the Manager can create, rename and archive Carriers in any Country.
-- [ ] An Agent gets 403 when reading or writing another Country's Carriers. A Tester gets 403 on every Carrier route. Another tenant's Carrier id returns 404.
-- [ ] No route deletes a Carrier.
-- [ ] The seed data holds several Carriers for the seeded Agent's Country, one of them archived.
+- [x] An Agent's navigation has a Carriers page that lists their own Country's active Carriers.
+- [x] An Agent can create a Carrier, rename it and archive it. Each action updates the list in place.
+- [x] A "show archived" toggle reveals archived Carriers, marked as archived. They have no edit or archive actions.
+- [x] A Carrier name is unique among the active Carriers of its Country. A duplicate is refused with an inline error.
+- [x] The Manager's navigation has the same Carriers page with a Country filter, and the Manager can create, rename and archive Carriers in any Country.
+- [x] An Agent gets 403 when reading or writing another Country's Carriers. A Tester gets 403 on every Carrier route. Another tenant's Carrier id returns 404.
+- [x] No route deletes a Carrier.
+- [x] The seed data holds several Carriers for the seeded Agent's Country, one of them archived.
 
 ## Tests
 

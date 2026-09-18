@@ -1,13 +1,13 @@
 import { unstable_rethrow } from "next/navigation";
 import { backendFetch } from "@/lib/api/backend";
-import type { CarrierCatalog, CarrierItem, Country } from "@/lib/api/types";
+import type { CarrierCatalog, CatalogCarrierItem, Country } from "@/lib/api/types";
 
 /**
- * The active Carriers a new SIM Card may name (sim-card-carrier ticket), or `[]` when the catalog
- * can't be loaded — the Carrier picker then points to the Carriers page. With no `country`, an
- * Agent gets their own Country's.
+ * The active Carriers a new SIM Card may name, each with its Postpaid Plans (sim-card-carrier and
+ * postpaid-sim-plan tickets), or `[]` when the catalog can't be loaded — the Carrier picker then
+ * points to the Carriers page. With no `country`, an Agent gets their own Country's.
  */
-export async function loadActiveCarriers(country?: Country): Promise<CarrierItem[]> {
+export async function loadActiveCarriers(country?: Country): Promise<CatalogCarrierItem[]> {
   const query = country ? `?${new URLSearchParams({ country })}` : "";
   try {
     const response = await backendFetch(`/api/carriers${query}`);

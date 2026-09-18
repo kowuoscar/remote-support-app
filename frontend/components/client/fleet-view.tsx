@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { SimCardCarrier } from "@/components/fleet/sim-card-carrier";
+import { SimCardPlan } from "@/components/fleet/sim-card-plan";
 import { IconContracts, IconSim, IconSmartphone } from "@/components/icons";
 import { simCardStatusToneByValue, smartphoneStatusToneByValue } from "@/lib/status";
 import {
@@ -118,6 +119,7 @@ export function ClientFleetView({
                 <Tr>
                   <Th>Number</Th>
                   <Th>Carrier</Th>
+                  <Th>Plan</Th>
                   <Th>Flavor</Th>
                   <Th>Status</Th>
                 </Tr>
@@ -128,6 +130,9 @@ export function ClientFleetView({
                     <Td className="tnum font-medium text-ink">{sim.number}</Td>
                     <Td>
                       <SimCardCarrier sim={sim} />
+                    </Td>
+                    <Td>
+                      <SimCardPlan sim={sim} />
                     </Td>
                     <Td className="text-ink-secondary">{SIM_CARD_FLAVOR_LABEL[sim.flavor]}</Td>
                     <Td>

@@ -2,11 +2,13 @@ package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.Carrier;
 import com.remotesupport.backend.domain.Contract;
+import com.remotesupport.backend.domain.PostpaidPlan;
 import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.domain.SimCardFlavor;
 import com.remotesupport.backend.domain.SimCardStatus;
 import com.remotesupport.backend.dto.SimCardCreateRequest;
 import com.remotesupport.backend.repository.CarrierRepository;
+import com.remotesupport.backend.repository.PostpaidPlanRepository;
 import com.remotesupport.backend.repository.SimCardRepository;
 import java.time.Instant;
 import java.util.UUID;
@@ -24,22 +26,22 @@ public class SimCardFactory {
 
   private final SimCardRepository simCardRepository;
   private final CarrierRepository carrierRepository;
+  private final PostpaidPlanRepository postpaidPlanRepository;
 
-  public SimCardFactory(SimCardRepository simCardRepository, CarrierRepository carrierRepository) {
+  public SimCardFactory(
+      SimCardRepository simCardRepository,
+      CarrierRepository carrierRepository,
+      PostpaidPlanRepository postpaidPlanRepository) {
     this.simCardRepository = simCardRepository;
     this.carrierRepository = carrierRepository;
+    this.postpaidPlanRepository = postpaidPlanRepository;
   }
 
   /** Validates the request against {@code contract} and saves a new, Active SIM Card on its Fleet. */
   public SimCard create(Contract contract, SimCardCreateRequest request) {
     Carrier carrier = requireUsableCarrier(contract, request.carrierId());
 
-    if (request.flavor() == SimCardFlavor.POSTPAID && request.monthlyFeeAmount() == null) {
-      throw new InvalidRequestException("A Postpaid SIM Card requires a monthlyFeeAmount");
-    }
-    if (request.flavor() == SimCardFlavor.PREPAID && request.monthlyFeeAmount() != null) {
-      throw new InvalidRequestException("A Prepaid SIM Card must not have a monthlyFeeAmount");
-    }
+    PostpaidPlan plan = requireUsablePlan(carrier, request);
 
     SimCard simCard = new SimCard();
     simCard.setId(UUID.randomUUID());
@@ -48,7 +50,8 @@ public class SimCardFactory {
     simCard.setNumber(request.number());
     simCard.setCarrier(carrier);
     simCard.setFlavor(request.flavor());
-    simCard.setMonthlyFeeAmount(request.monthlyFeeAmount());
+    simCard.setPostpaidPlan(plan);
+    simCard.setMonthlyFeeAmount(plan == null ? null : plan.getPrice());
     simCard.setStatus(SimCardStatus.ACTIVE);
     simCard.setCreatedAt(Instant.now());
     return simCardRepository.save(simCard);
@@ -74,5 +77,33 @@ public class SimCardFactory {
       throw new InvalidRequestException("The Carrier " + carrier.getName() + " is archived");
     }
     return carrier;
+  }
+
+  /**
+   * The Postpaid Plan a Postpaid SIM's monthly fee is copied from: an active Plan of the SIM
+   * Card's own Carrier. A Prepaid SIM names none, and is refused if it does.
+   */
+  private PostpaidPlan requireUsablePlan(Carrier carrier, SimCardCreateRequest request) {
+    if (request.flavor() == SimCardFlavor.PREPAID) {
+      if (request.postpaidPlanId() != null) {
+        throw new InvalidRequestException("A Prepaid SIM Card must not name a Postpaid Plan");
+      }
+      return null;
+    }
+    UUID planId = request.postpaidPlanId();
+    if (planId == null) {
+      throw new InvalidRequestException("A Postpaid SIM Card requires a postpaidPlanId");
+    }
+    PostpaidPlan plan =
+        postpaidPlanRepository
+            .findByIdAndCarrierId(planId, carrier.getId())
+            .orElseThrow(
+                () ->
+                    new InvalidRequestException(
+                        "No Postpaid Plan with id " + planId + " on the Carrier " + carrier.getName()));
+    if (plan.isArchived()) {
+      throw new InvalidRequestException("The Postpaid Plan " + plan.getName() + " is archived");
+    }
+    return plan;
   }
 }

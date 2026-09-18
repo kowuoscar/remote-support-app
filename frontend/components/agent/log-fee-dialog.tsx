@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CarrierPicker } from "@/components/fleet/carrier-picker";
+import { PostpaidPlanPicker } from "@/components/fleet/postpaid-plan-picker";
 import { IconAlertTriangle, IconCoins } from "@/components/icons";
 import { formatMoney } from "@/lib/format";
 import {
@@ -48,6 +49,10 @@ export function LogFeeDialog({
   const [flavor, setFlavor] = useState<SimCardFlavorValue>("POSTPAID");
   const [topupOptionId, setTopupOptionId] = useState("");
   const [amount, setAmount] = useState("");
+  // The Carrier and Plan are controlled, not just FormData fields: the Plan picker lists the
+  // chosen Carrier's Plans and shows the monthly fee the chosen one sets (postpaid-sim-plan).
+  const [carrierId, setCarrierId] = useState("");
+  const [postpaidPlanId, setPostpaidPlanId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const hasActiveCarrier = carriers.some((carrier) => carrier.archivedAt === null);
@@ -57,6 +62,8 @@ export function LogFeeDialog({
     setFlavor("POSTPAID");
     setTopupOptionId("");
     setAmount("");
+    setCarrierId("");
+    setPostpaidPlanId("");
     setError(null);
     dialogRef.current?.showModal();
   }
@@ -93,9 +100,9 @@ export function LogFeeDialog({
     } else if (feeType === "PROVISION_SIM") {
       body.newSimCard = {
         number: String(formData.get("number")),
-        carrierId: String(formData.get("carrierId") ?? ""),
+        carrierId,
         flavor,
-        monthlyFeeAmount: flavor === "POSTPAID" ? Number(formData.get("monthlyFeeAmount")) : undefined,
+        postpaidPlanId: flavor === "POSTPAID" ? postpaidPlanId : undefined,
       };
     }
 
@@ -262,6 +269,11 @@ export function LogFeeDialog({
                     name="carrierId"
                     carriers={carriers}
                     carriersHref={carriersHref}
+                    value={carrierId}
+                    onChange={(id) => {
+                      setCarrierId(id);
+                      setPostpaidPlanId("");
+                    }}
                     disabled={submitting}
                   />
                   <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
@@ -278,18 +290,14 @@ export function LogFeeDialog({
                     </select>
                   </label>
                   {flavor === "POSTPAID" ? (
-                    <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                      Monthly fee ({currency})
-                      <Input
-                        type="number"
-                        name="monthlyFeeAmount"
-                        min="0"
-                        step="0.01"
-                        required
-                        disabled={submitting}
-                        placeholder="25.00"
-                      />
-                    </label>
+                    <PostpaidPlanPicker
+                      carrier={carriers.find((carrier) => carrier.id === carrierId)}
+                      currency={currency}
+                      carriersHref={carriersHref}
+                      value={postpaidPlanId}
+                      onChange={setPostpaidPlanId}
+                      disabled={submitting}
+                    />
                   ) : null}
                 </div>
               ) : null}

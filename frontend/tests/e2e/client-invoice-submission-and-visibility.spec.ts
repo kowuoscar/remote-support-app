@@ -68,13 +68,42 @@ async function addTester(page: Page, clientId: string, email: string, password: 
 }
 
 /** Adds a Postpaid SIM card to a Contract's Fleet from the Manager's Contract detail page. */
+
+/**
+ * Adds a Postpaid Plan at a given price to the seeded Verizon Carrier, as the Manager, and returns
+ * its name. A Postpaid SIM's monthly fee is copied from its Plan (postpaid-sim-plan ticket), so a
+ * test that wants a specific fee puts that price in the catalog first.
+ */
+async function addPostpaidPlanToVerizon(page: Page, planName: string, monthlyPrice: string) {
+  await page.goto("/manager/carriers?country=UNITED_STATES");
+  const verizon = page
+    .getByRole("list", { name: "Carriers" })
+    .getByRole("listitem")
+    .filter({ has: page.getByText("Verizon", { exact: true }) })
+    .first();
+  await verizon.getByRole("button", { name: "Add a postpaid plan to Verizon" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Name").fill(planName);
+  await dialog.getByLabel("Monthly price (USD)").fill(monthlyPrice);
+  await dialog.getByRole("button", { name: "Add postpaid plan" }).click();
+  await expect(dialog).toBeHidden();
+  return planName;
+}
+
 async function addPostpaidSimCard(page: Page, contractId: string, number: string, monthlyFee: string) {
+  const planName = await addPostpaidPlanToVerizon(
+    page,
+    // Never derived from the SIM number: the Fleet table shows both, and a Plan name containing
+    // the number would make a row locator for the number ambiguous.
+    `Test plan ${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`,
+    monthlyFee,
+  );
   await page.goto(`/manager/contracts/${contractId}`);
   await page.getByRole("button", { name: "Add SIM card" }).first().click();
   await page.getByLabel("Number").fill(number);
   await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
   await page.getByLabel("Flavor").selectOption({ label: "Postpaid" });
-  await page.getByLabel(/Monthly fee/).fill(monthlyFee);
+  await page.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: planName });
   await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
   await expect(page.getByRole("cell", { name: number })).toBeVisible();
 }

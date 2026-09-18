@@ -9,7 +9,7 @@ import java.util.UUID;
  * {@code cancellationReason} is required only when {@code status} is {@code CANCELLED}
  * (agent-request-fulfillment ticket AC: "Agent can cancel a Request ... with a reason") —
  * enforced in {@code RequestController}, not here, since it's a cross-field rule bean validation
- * can't express alone (mirrors {@code SimCardCreateRequest}'s Postpaid/monthlyFeeAmount check).
+ * can't express alone (mirrors {@code SimCardCreateRequest}'s Postpaid/Plan check).
  *
  * <p>{@code newSmartphone}/{@code newSimCard}/{@code replacesSmartphoneId}/{@code
  * replacesSimCardId} (fee-logging-and-provisioning ticket): required only when {@code status} is

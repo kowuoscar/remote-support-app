@@ -1,7 +1,7 @@
 ---
 id: postpaid-sim-plan
 title: A new Postpaid SIM's monthly fee comes from its Postpaid Plan
-status: ready-for-agent
+status: done
 depends_on: [topup-options-and-postpaid-plans, sim-card-carrier]
 labels: [backend, frontend, fleet, invoicing]
 ---
@@ -15,13 +15,13 @@ Card changes for the Plan part, and Why copy the price) and user stories 12,
 
 ## Acceptance criteria
 
-- [ ] On every SIM-creation path, a Postpaid SIM requires a Postpaid Plan. The Plan must belong to the chosen Carrier and must not be archived. A Prepaid SIM that names a Plan is refused.
-- [ ] The monthly fee is copied from the Plan's price when the SIM Card is created. A free-typed monthly fee is no longer accepted.
-- [ ] In every SIM-creation form, a Plan picker appears only for a Postpaid SIM. It lists only active Plans of the chosen Carrier and shows, read-only, the monthly fee the chosen Plan sets.
-- [ ] A SIM Card response carries the Plan's id and name, and a flag saying whether it is archived. The Fleet tables show the Plan's name.
-- [ ] Changing a Plan's price never changes the monthly fee of a SIM Card already on it, and never changes any Client Invoice total.
-- [ ] Existing Postpaid SIMs keep their monthly fee and have no Plan. Their Client Invoices are unchanged.
-- [ ] The seeded Postpaid SIMs keep their fees. At least one new seeded Postpaid SIM is on a seeded Plan.
+- [x] On every SIM-creation path, a Postpaid SIM requires a Postpaid Plan. The Plan must belong to the chosen Carrier and must not be archived. A Prepaid SIM that names a Plan is refused.
+- [x] The monthly fee is copied from the Plan's price when the SIM Card is created. A free-typed monthly fee is no longer accepted.
+- [x] In every SIM-creation form, a Plan picker appears only for a Postpaid SIM. It lists only active Plans of the chosen Carrier and shows, read-only, the monthly fee the chosen Plan sets.
+- [x] A SIM Card response carries the Plan's id and name, and a flag saying whether it is archived. The Fleet tables show the Plan's name.
+- [x] Changing a Plan's price never changes the monthly fee of a SIM Card already on it, and never changes any Client Invoice total.
+- [x] Existing Postpaid SIMs keep their monthly fee and have no Plan. Their Client Invoices are unchanged.
+- [x] The seeded Postpaid SIMs keep their fees. At least one new seeded Postpaid SIM is on a seeded Plan.
 
 ## Tests
 

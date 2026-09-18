@@ -34,14 +34,14 @@ class ClientInvoiceApiTest extends IntegrationTest {
 
   private UUID addSimCard(
       String managerToken, UUID contractId, String number, String flavor, String monthlyFeeAmount) throws Exception {
+    // A Postpaid SIM's monthly fee comes from a Postpaid Plan of its Carrier (postpaid-sim-plan
+    // ticket), so the fee this test wants is set up as a Plan at that price.
     String body =
         monthlyFeeAmount == null
             ? """
                 {"number":"%s","carrierId":"%s","flavor":"%s"}
                 """.formatted(number, carrierFor(managerToken, contractId), flavor)
-            : """
-                {"number":"%s","carrierId":"%s","flavor":"%s","monthlyFeeAmount":%s}
-                """.formatted(number, carrierFor(managerToken, contractId), flavor, monthlyFeeAmount);
+            : postpaidSimCardJson(managerToken, contractId, number, monthlyFeeAmount);
 
     MvcResult result =
         mockMvc

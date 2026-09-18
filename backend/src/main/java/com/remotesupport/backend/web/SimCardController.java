@@ -61,7 +61,13 @@ public class SimCardController {
     SimCard simCard = simCardFactory.create(contract, request);
 
     AuditLog.simCardCreated(
-        simCard.getId(), contract.getId(), simCard.getCarrier().getId(), principal.userId(), principal.tenantId());
+        simCard.getId(),
+        contract.getId(),
+        simCard.getCarrier().getId(),
+        simCard.getPostpaidPlan() == null ? null : simCard.getPostpaidPlan().getId(),
+        simCard.getMonthlyFeeAmount(),
+        principal.userId(),
+        principal.tenantId());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(SimCardResponse.of(simCard));
   }

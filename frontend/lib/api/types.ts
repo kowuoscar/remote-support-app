@@ -135,7 +135,8 @@ export interface SmartphoneListItem {
 }
 
 // Mirrors backend/.../dto/SimCardResponse.java. The three carrier fields are absent for a SIM Card
-// from before the Carrier catalog that never had a carrier.
+// from before the Carrier catalog that never had a carrier, and the three plan fields for a Prepaid
+// SIM or a Postpaid SIM from before the catalog, which keeps its own monthly fee.
 export interface SimCardListItem {
   id: string;
   contractId: string;
@@ -143,6 +144,9 @@ export interface SimCardListItem {
   carrierId?: string;
   carrierName?: string;
   carrierArchived?: boolean;
+  postpaidPlanId?: string;
+  postpaidPlanName?: string;
+  postpaidPlanArchived?: boolean;
   flavor: SimCardFlavorValue;
   monthlyFeeAmount: number | null;
   status: SimCardStatusValue;

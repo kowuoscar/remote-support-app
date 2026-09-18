@@ -1,7 +1,7 @@
 ---
 id: topup-fee-from-option
 title: An Agent logs a Topup Fee from a Topup Option
-status: ready-for-agent
+status: in-progress
 depends_on: [topup-options-and-postpaid-plans]
 labels: [backend, frontend, invoicing]
 ---

@@ -1,7 +1,7 @@
 ---
 id: agent-maintains-carriers
 title: Agents maintain their Country's Carriers on a Carriers page
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [backend, frontend, fleet]
 ---

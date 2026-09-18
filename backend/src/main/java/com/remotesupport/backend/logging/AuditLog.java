@@ -215,6 +215,72 @@ public final class AuditLog {
         tenantId);
   }
 
+  /**
+   * Topup Option and Postpaid Plan changes (topup-options-and-postpaid-plans ticket Observability:
+   * "entry id, Carrier id, actor, tenant, and the old and new name and price on an edit").
+   * {@code actionPrefix} is {@code TOPUP_OPTION} or {@code POSTPAID_PLAN}; {@code entity} names the
+   * matching domain type.
+   */
+  public static void carrierOfferCreated(
+      String actionPrefix,
+      String entity,
+      UUID entryId,
+      UUID carrierId,
+      String name,
+      BigDecimal price,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action={}_CREATED entity={} entityId={} carrierId={} name={} price={} actorUserId={} "
+            + "tenantId={}",
+        actionPrefix,
+        entity,
+        entryId,
+        carrierId,
+        name,
+        price,
+        actorUserId,
+        tenantId);
+  }
+
+  public static void carrierOfferEdited(
+      String actionPrefix,
+      String entity,
+      UUID entryId,
+      UUID carrierId,
+      String oldName,
+      String newName,
+      BigDecimal oldPrice,
+      BigDecimal newPrice,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action={}_EDITED entity={} entityId={} carrierId={} oldName={} newName={} oldPrice={} "
+            + "newPrice={} actorUserId={} tenantId={}",
+        actionPrefix,
+        entity,
+        entryId,
+        carrierId,
+        oldName,
+        newName,
+        oldPrice,
+        newPrice,
+        actorUserId,
+        tenantId);
+  }
+
+  public static void carrierOfferArchived(
+      String actionPrefix, String entity, UUID entryId, UUID carrierId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action={}_ARCHIVED entity={} entityId={} carrierId={} actorUserId={} tenantId={}",
+        actionPrefix,
+        entity,
+        entryId,
+        carrierId,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

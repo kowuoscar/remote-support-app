@@ -1,21 +1,28 @@
 package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.Carrier;
+import com.remotesupport.backend.domain.CarrierOffer;
 import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.dto.CarrierCatalogResponse;
 import com.remotesupport.backend.dto.CarrierCreateRequest;
+import com.remotesupport.backend.dto.CarrierOfferResponse;
 import com.remotesupport.backend.dto.CarrierRenameRequest;
 import com.remotesupport.backend.dto.CarrierResponse;
+import com.remotesupport.backend.dto.CatalogCarrierResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.CarrierRepository;
+import com.remotesupport.backend.repository.PostpaidPlanRepository;
 import com.remotesupport.backend.repository.TenantRepository;
+import com.remotesupport.backend.repository.TopupOptionRepository;
 import com.remotesupport.backend.security.CarrierCatalogAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,14 +55,20 @@ public class CarrierController {
           .thenComparing(Carrier::getName, String.CASE_INSENSITIVE_ORDER);
 
   private final CarrierRepository carrierRepository;
+  private final TopupOptionRepository topupOptionRepository;
+  private final PostpaidPlanRepository postpaidPlanRepository;
   private final TenantRepository tenantRepository;
   private final CarrierCatalogAccessGuard accessGuard;
 
   public CarrierController(
       CarrierRepository carrierRepository,
+      TopupOptionRepository topupOptionRepository,
+      PostpaidPlanRepository postpaidPlanRepository,
       TenantRepository tenantRepository,
       CarrierCatalogAccessGuard accessGuard) {
     this.carrierRepository = carrierRepository;
+    this.topupOptionRepository = topupOptionRepository;
+    this.postpaidPlanRepository = postpaidPlanRepository;
     this.tenantRepository = tenantRepository;
     this.accessGuard = accessGuard;
   }
@@ -67,14 +80,38 @@ public class CarrierController {
       @RequestParam(defaultValue = "false") boolean includeArchived,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Country catalogCountry = resolveCountry(country, principal);
-    return new CarrierCatalogResponse(
-        catalogCountry.name(),
-        catalogCountry.currency().name(),
+    List<Carrier> carriers =
         carrierRepository.findByTenantIdAndCountry(principal.tenantId(), catalogCountry).stream()
             .filter(carrier -> includeArchived || !carrier.isArchived())
             .sorted(ACTIVE_FIRST_THEN_BY_NAME)
-            .map(CarrierResponse::of)
+            .toList();
+    List<UUID> carrierIds = carriers.stream().map(Carrier::getId).toList();
+    Map<UUID, List<CarrierOfferResponse>> topupOptions =
+        byCarrier(topupOptionRepository.findByCarrierIdIn(carrierIds), includeArchived);
+    Map<UUID, List<CarrierOfferResponse>> postpaidPlans =
+        byCarrier(postpaidPlanRepository.findByCarrierIdIn(carrierIds), includeArchived);
+    return new CarrierCatalogResponse(
+        catalogCountry.name(),
+        catalogCountry.currency().name(),
+        carriers.stream()
+            .map(
+                carrier ->
+                    CatalogCarrierResponse.of(
+                        carrier,
+                        topupOptions.getOrDefault(carrier.getId(), List.of()),
+                        postpaidPlans.getOrDefault(carrier.getId(), List.of())))
             .toList());
+  }
+
+  private static Map<UUID, List<CarrierOfferResponse>> byCarrier(
+      List<? extends CarrierOffer> offers, boolean includeArchived) {
+    return offers.stream()
+        .filter(offer -> includeArchived || !offer.isArchived())
+        .sorted(CarrierOfferController.ACTIVE_FIRST_THEN_BY_PRICE)
+        .collect(
+            Collectors.groupingBy(
+                offer -> offer.getCarrier().getId(),
+                Collectors.mapping(CarrierOfferResponse::of, Collectors.toList())));
   }
 
   @PostMapping

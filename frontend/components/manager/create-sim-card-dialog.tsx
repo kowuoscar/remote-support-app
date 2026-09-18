@@ -6,14 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconAlertTriangle, IconPlus } from "@/components/icons";
 import { CarrierPicker } from "@/components/fleet/carrier-picker";
-import type { CarrierItem, SimCardFlavorValue } from "@/lib/api/types";
+import { PostpaidPlanPicker } from "@/components/fleet/postpaid-plan-picker";
+import type { CatalogCarrierItem, SimCardFlavorValue } from "@/lib/api/types";
 
 /**
  * Manager adds a SIM Card, Postpaid or Prepaid, to a Contract's Fleet (fleet-management ticket
- * AC: "Manager can add a SIM Card (Postpaid or Prepaid) to a Contract's Fleet"). The monthly fee
- * field only appears for Postpaid — mirrors CreateAgentDialog's "derived/conditional field
- * follows the choice" pattern, here as visibility rather than a read-only derivation. The Carrier
- * is picked from the Contract's Country's active Carriers (sim-card-carrier ticket).
+ * AC: "Manager can add a SIM Card (Postpaid or Prepaid) to a Contract's Fleet"). The Carrier is
+ * picked from the Contract's Country's active Carriers (sim-card-carrier ticket); a Postpaid SIM
+ * also names one of that Carrier's active Postpaid Plans, which sets its monthly fee
+ * (postpaid-sim-plan ticket) — CreateAgentDialog's "derived field follows the choice" pattern,
+ * here as a read-only fee the Plan decides rather than a number to type.
  */
 export function CreateSimCardDialog({
   contractId,
@@ -23,7 +25,7 @@ export function CreateSimCardDialog({
 }: {
   contractId: string;
   currency: string;
-  carriers: CarrierItem[];
+  carriers: CatalogCarrierItem[];
   carriersHref: string;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -31,7 +33,7 @@ export function CreateSimCardDialog({
   const [number, setNumber] = useState("");
   const [carrierId, setCarrierId] = useState("");
   const [flavor, setFlavor] = useState<SimCardFlavorValue>("POSTPAID");
-  const [monthlyFeeAmount, setMonthlyFeeAmount] = useState("");
+  const [postpaidPlanId, setPostpaidPlanId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const hasActiveCarrier = carriers.some((carrier) => carrier.archivedAt === null);
@@ -40,7 +42,7 @@ export function CreateSimCardDialog({
     setNumber("");
     setCarrierId("");
     setFlavor("POSTPAID");
-    setMonthlyFeeAmount("");
+    setPostpaidPlanId("");
     setError(null);
     dialogRef.current?.showModal();
   }
@@ -62,14 +64,14 @@ export function CreateSimCardDialog({
           number,
           carrierId,
           flavor,
-          monthlyFeeAmount: flavor === "POSTPAID" ? Number(monthlyFeeAmount) : undefined,
+          postpaidPlanId: flavor === "POSTPAID" ? postpaidPlanId : undefined,
         }),
       });
 
       if (!response.ok) {
         setError(
           response.status === 400
-            ? "Check the carrier and the monthly fee: pick an active carrier, and give a Postpaid SIM a fee."
+            ? "Check the carrier and the plan: both must still be active, and a Postpaid SIM needs a plan."
             : "Couldn't add the SIM card. Try again.",
         );
         setSubmitting(false);
@@ -132,7 +134,10 @@ export function CreateSimCardDialog({
             carriers={carriers}
             carriersHref={carriersHref}
             value={carrierId}
-            onChange={setCarrierId}
+            onChange={(id) => {
+              setCarrierId(id);
+              setPostpaidPlanId("");
+            }}
             disabled={submitting}
           />
 
@@ -151,20 +156,14 @@ export function CreateSimCardDialog({
           </label>
 
           {flavor === "POSTPAID" ? (
-            <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-              Monthly fee ({currency})
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                required
-                value={monthlyFeeAmount}
-                onChange={(event) => setMonthlyFeeAmount(event.target.value)}
-                disabled={submitting}
-                invalid={Boolean(error)}
-                placeholder="25.00"
-              />
-            </label>
+            <PostpaidPlanPicker
+              carrier={carriers.find((carrier) => carrier.id === carrierId)}
+              currency={currency}
+              carriersHref={carriersHref}
+              value={postpaidPlanId}
+              onChange={setPostpaidPlanId}
+              disabled={submitting}
+            />
           ) : null}
 
           <div className="flex justify-end gap-2 pt-1">

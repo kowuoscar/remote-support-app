@@ -91,11 +91,16 @@ test.describe("fleet management", () => {
     await page.getByLabel("Number").fill(`+1-555-${RUN_ID}`);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
     await page.getByLabel("Flavor").selectOption("POSTPAID");
-    await page.getByLabel(/Monthly fee/).fill("25.00");
+    // postpaid-sim-plan ticket: the monthly fee comes from a Postpaid Plan of the chosen Carrier.
+    await page.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: "Unlimited Welcome" });
     await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
     await expect(page.getByRole("cell", { name: `+1-555-${RUN_ID}` })).toBeVisible();
     // sim-card-carrier ticket: the Carrier was picked from the catalog, and the Fleet names it.
-    await expect(page.getByRole("row", { name: new RegExp(`\\+1-555-${RUN_ID}`) })).toContainText("Verizon");
+    const simRow = page.getByRole("row", { name: new RegExp(`\\+1-555-${RUN_ID}`) });
+    await expect(simRow).toContainText("Verizon");
+    // postpaid-sim-plan ticket: the Fleet names the Plan and shows the fee it set.
+    await expect(simRow).toContainText("Unlimited Welcome");
+    await expect(simRow).toContainText("$65.00");
   });
 
   test("an agent sees their contract's fleet and changes a smartphone's status", async ({ page }) => {

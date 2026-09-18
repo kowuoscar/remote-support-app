@@ -270,6 +270,55 @@ test.describe("fee logging and provisioning", () => {
     );
   });
 
+  test("an agent completes a provision SIM request for a postpaid SIM by picking a carrier and a plan", async ({
+    page,
+  }) => {
+    // postpaid-sim-plan ticket: the monthly fee is the Plan's price, never typed.
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Lumen Health Labs ${RUN_ID}`;
+    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const testerEmail = `noor.hassan+${RUN_ID}@lumenhealth.example`;
+    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+
+    await logout(page);
+    await login(page, testerEmail, "Passw0rd!23");
+    await submitRequestAsTester(page, "Provision SIM");
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/requests");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = page.getByRole("row", { name: /Provision SIM/ });
+    await row.getByRole("button", { name: "Mark In Progress" }).click();
+    await row.getByRole("button", { name: "Mark Completed" }).click();
+
+    const number = `+1-555-pp-${RUN_ID}`;
+    await row.getByLabel(/Fee amount/).fill("15.00");
+    await row.getByLabel("New SIM number").fill(number);
+    await row.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
+    await row.getByLabel("Flavor").selectOption({ label: "Postpaid" });
+    const plan = row.getByRole("combobox", { name: "Postpaid plan" });
+    // Archived Plans are never offered: the seeded "Start Unlimited" is archived.
+    await expect(plan.getByRole("option", { name: "Start Unlimited" })).toHaveCount(0);
+    await plan.selectOption({ label: "Unlimited Welcome" });
+    // The Plan sets the fee, read-only, before the SIM Card even exists.
+    await expect(row).toContainText("$65.00");
+
+    const [feeResponse] = await Promise.all([
+      page.waitForResponse((resp) => resp.url().includes("/fees") && resp.request().method() === "POST"),
+      row.getByRole("button", { name: "Mark Completed" }).click(),
+    ]);
+    expect(feeResponse.status()).toBe(201);
+    await expect(row).toContainText("Completed");
+
+    await page.goto("/agent/fleet");
+    await selectContractInSwitcher(page, clientName);
+    const simRow = page.getByRole("row", { name: new RegExp(number.replace(/\+/g, "\\+")) });
+    await expect(simRow).toContainText("Unlimited Welcome");
+    await expect(simRow).toContainText("$65.00");
+  });
+
   test("a reboot or a like-for-like sim swap can never carry a fee", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Harbor & Finch Realty ${RUN_ID}`;

@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CarrierPicker } from "@/components/fleet/carrier-picker";
+import { PostpaidPlanPicker } from "@/components/fleet/postpaid-plan-picker";
 import {
   REQUEST_STATUS_LABEL,
   canCancelRequest,
   nextRequestStatus,
   requestTypeCanCarryFee,
-  type CarrierItem,
+  type CatalogCarrierItem,
   type RequestStatusValue,
   type RequestTypeValue,
   type SimCardFlavorValue,
@@ -51,7 +52,7 @@ export function RequestStatusControl({
   currency: string;
   activeSmartphones?: SmartphoneListItem[];
   activeSimCards?: SimCardListItem[];
-  carriers?: CarrierItem[];
+  carriers?: CatalogCarrierItem[];
   carriersHref?: string;
 }) {
   const router = useRouter();
@@ -61,6 +62,10 @@ export function RequestStatusControl({
   const [reason, setReason] = useState("");
   const [completing, setCompleting] = useState(false);
   const [flavor, setFlavor] = useState<SimCardFlavorValue>("POSTPAID");
+  // The Carrier and Plan are controlled, not just FormData fields: the Plan picker lists the
+  // chosen Carrier's Plans and shows the monthly fee the chosen one sets (postpaid-sim-plan).
+  const [carrierId, setCarrierId] = useState("");
+  const [postpaidPlanId, setPostpaidPlanId] = useState("");
 
   const next = nextRequestStatus(status);
   const canCancel = canCancelRequest(status);
@@ -81,7 +86,7 @@ export function RequestStatusControl({
     status: RequestStatusValue;
     cancellationReason?: string;
     newSmartphone?: { model: string; serial: string; assignedTo?: string };
-    newSimCard?: { number: string; carrierId: string; flavor: SimCardFlavorValue; monthlyFeeAmount?: number };
+    newSimCard?: { number: string; carrierId: string; flavor: SimCardFlavorValue; postpaidPlanId?: string };
     replacesSmartphoneId?: string;
     replacesSimCardId?: string;
   }): Promise<boolean> {
@@ -147,9 +152,9 @@ export function RequestStatusControl({
     } else if (type === "PROVISION_SIM") {
       statusBody.newSimCard = {
         number: String(formData.get("number")),
-        carrierId: String(formData.get("carrierId") ?? ""),
+        carrierId,
         flavor,
-        monthlyFeeAmount: flavor === "POSTPAID" ? Number(formData.get("monthlyFeeAmount")) : undefined,
+        postpaidPlanId: flavor === "POSTPAID" ? postpaidPlanId : undefined,
       };
       const replaces = String(formData.get("replacesSimCardId") ?? "");
       if (replaces) statusBody.replacesSimCardId = replaces;
@@ -305,6 +310,11 @@ export function RequestStatusControl({
               name="carrierId"
               carriers={carriers}
               carriersHref={carriersHref}
+              value={carrierId}
+              onChange={(id) => {
+                setCarrierId(id);
+                setPostpaidPlanId("");
+              }}
               disabled={pending}
               size="sm"
             />
@@ -322,18 +332,16 @@ export function RequestStatusControl({
               </select>
             </label>
             {flavor === "POSTPAID" ? (
-              <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-                Monthly fee ({currency})
-                <Input
-                  type="number"
-                  name="monthlyFeeAmount"
-                  min="0"
-                  step="0.01"
-                  required
-                  disabled={pending}
-                  className="h-7 text-[12px]"
-                />
-              </label>
+              <PostpaidPlanPicker
+                name="postpaidPlanId"
+                carrier={carriers.find((carrier) => carrier.id === carrierId)}
+                currency={currency}
+                carriersHref={carriersHref}
+                value={postpaidPlanId}
+                onChange={setPostpaidPlanId}
+                disabled={pending}
+                size="sm"
+              />
             ) : null}
             {activeSimCards.length > 0 ? (
               <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">

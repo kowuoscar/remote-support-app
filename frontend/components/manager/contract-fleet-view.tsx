@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { SimCardCarrier } from "@/components/fleet/sim-card-carrier";
+import { SimCardPlan } from "@/components/fleet/sim-card-plan";
 import { Money } from "@/components/ui/money";
 import { IconSim, IconSmartphone } from "@/components/icons";
 import { simCardStatusToneByValue, smartphoneStatusToneByValue } from "@/lib/status";
@@ -12,7 +13,7 @@ import {
   SIM_CARD_FLAVOR_LABEL,
   SIM_CARD_STATUS_LABEL,
   SMARTPHONE_STATUS_LABEL,
-  type CarrierItem,
+  type CatalogCarrierItem,
   type SimCardListItem,
   type SmartphoneListItem,
 } from "@/lib/api/types";
@@ -34,7 +35,7 @@ export function ManagerContractFleetView({
 }: {
   contractId: string;
   currency: string;
-  carriers: CarrierItem[];
+  carriers: CatalogCarrierItem[];
   carriersHref: string;
   smartphones: SmartphoneListItem[];
   simCards: SimCardListItem[];
@@ -107,7 +108,7 @@ export function ManagerContractFleetView({
             <EmptyState
               icon={<IconSim className="h-5 w-5" />}
               title="No SIM cards yet"
-              description="Add this contract's first SIM card — Postpaid needs a monthly fee, Prepaid doesn't."
+              description="Add this contract's first SIM card — Postpaid needs a plan, Prepaid doesn't."
             />
           </div>
         ) : (
@@ -117,6 +118,7 @@ export function ManagerContractFleetView({
                 <Tr>
                   <Th>Number</Th>
                   <Th>Carrier</Th>
+                  <Th>Plan</Th>
                   <Th>Flavor</Th>
                   <Th className="text-right">Monthly fee</Th>
                   <Th>Status</Th>
@@ -128,6 +130,9 @@ export function ManagerContractFleetView({
                     <Td className="tnum font-medium text-ink">{sim.number}</Td>
                     <Td>
                       <SimCardCarrier sim={sim} />
+                    </Td>
+                    <Td>
+                      <SimCardPlan sim={sim} />
                     </Td>
                     <Td className="text-ink-secondary">{SIM_CARD_FLAVOR_LABEL[sim.flavor]}</Td>
                     <Td className="text-right">

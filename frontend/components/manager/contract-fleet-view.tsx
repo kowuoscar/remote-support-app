@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { SimCardCarrier } from "@/components/fleet/sim-card-carrier";
+import { SimCardInstalledInControl } from "@/components/fleet/sim-card-installed-in-control";
+import { simCardNumbersInstalledIn } from "@/components/fleet/installed-in";
 import { SimCardPlan } from "@/components/fleet/sim-card-plan";
 import { SmartphoneSerialControl } from "@/components/fleet/smartphone-serial-control";
 import { Money } from "@/components/ui/money";
@@ -69,6 +71,7 @@ export function ManagerContractFleetView({
                   <Th>Model</Th>
                   <Th>Serial</Th>
                   <Th>Owner</Th>
+                  <Th>SIM Cards</Th>
                   <Th>Status</Th>
                 </Tr>
               </Thead>
@@ -84,6 +87,9 @@ export function ManagerContractFleetView({
                       />
                     </Td>
                     <Td className="text-ink-secondary">{SMARTPHONE_OWNER_LABEL[phone.owner]}</Td>
+                    <Td className="tnum text-ink-secondary">
+                      {simCardNumbersInstalledIn(simCards, phone.id)}
+                    </Td>
                     <Td>
                       <Badge tone={smartphoneStatusToneByValue[phone.status]}>
                         {SMARTPHONE_STATUS_LABEL[phone.status]}
@@ -130,6 +136,7 @@ export function ManagerContractFleetView({
                   <Th>Flavor</Th>
                   <Th className="text-right">Monthly fee</Th>
                   <Th>Status</Th>
+                  <Th>Installed in</Th>
                 </Tr>
               </Thead>
               <Tbody>
@@ -154,6 +161,14 @@ export function ManagerContractFleetView({
                       <Badge tone={simCardStatusToneByValue[sim.status]}>
                         {SIM_CARD_STATUS_LABEL[sim.status]}
                       </Badge>
+                    </Td>
+                    <Td>
+                      <SimCardInstalledInControl
+                        contractId={contractId}
+                        simCardId={sim.id}
+                        installedInSmartphoneId={sim.installedInSmartphoneId}
+                        smartphones={smartphones}
+                      />
                     </Td>
                   </Tr>
                 ))}

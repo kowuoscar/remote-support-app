@@ -39,14 +39,17 @@ public class ProvisioningService {
   private final SmartphoneRepository smartphoneRepository;
   private final SimCardRepository simCardRepository;
   private final SimCardFactory simCardFactory;
+  private final SimInstallationService simInstallationService;
 
   public ProvisioningService(
       SmartphoneRepository smartphoneRepository,
       SimCardRepository simCardRepository,
-      SimCardFactory simCardFactory) {
+      SimCardFactory simCardFactory,
+      SimInstallationService simInstallationService) {
     this.smartphoneRepository = smartphoneRepository;
     this.simCardRepository = simCardRepository;
     this.simCardFactory = simCardFactory;
+    this.simInstallationService = simInstallationService;
   }
 
   /**
@@ -114,11 +117,11 @@ public class ProvisioningService {
                   () ->
                       new NotFoundException(
                           "No smartphone with id " + replacesSmartphoneId + " on this Contract"));
-      retireSmartphone(old, principal);
+      retireSmartphone(old, request.getId(), principal);
     }
   }
 
-  private void retireSmartphone(Smartphone smartphone, AuthenticatedPrincipal principal) {
+  private void retireSmartphone(Smartphone smartphone, UUID requestId, AuthenticatedPrincipal principal) {
     SmartphoneStatus oldStatus = smartphone.getStatus();
     if (!oldStatus.canTransitionTo(SmartphoneStatus.RETIRED)) {
       throw new ConflictException("Cannot retire a Smartphone that is already " + oldStatus);
@@ -132,6 +135,10 @@ public class ProvisioningService {
         SmartphoneStatus.RETIRED.name(),
         principal.userId(),
         principal.tenantId());
+
+    // Retiring a Smartphone clears the Installed-in link on its SIM Cards (spec.md Solution —
+    // Fleet model; sim-installed-in-smartphone ticket AC).
+    simInstallationService.clearLinksForRetiredSmartphone(smartphone, requestId, principal);
   }
 
   private void provisionSimCard(
@@ -165,11 +172,11 @@ public class ProvisioningService {
                   () ->
                       new NotFoundException(
                           "No SIM card with id " + replacesSimCardId + " on this Contract"));
-      retireSimCard(old, principal);
+      retireSimCard(old, request.getId(), principal);
     }
   }
 
-  private void retireSimCard(SimCard simCard, AuthenticatedPrincipal principal) {
+  private void retireSimCard(SimCard simCard, UUID requestId, AuthenticatedPrincipal principal) {
     SimCardStatus oldStatus = simCard.getStatus();
     if (!oldStatus.canTransitionTo(SimCardStatus.RETIRED)) {
       throw new ConflictException("Cannot retire a SIM Card that is already " + oldStatus);
@@ -183,5 +190,9 @@ public class ProvisioningService {
         SimCardStatus.RETIRED.name(),
         principal.userId(),
         principal.tenantId());
+
+    // Retiring a SIM Card clears its own Installed-in link (spec.md Solution — Fleet model;
+    // sim-installed-in-smartphone ticket AC).
+    simInstallationService.clearLinkForRetiredSimCard(simCard, requestId, principal);
   }
 }

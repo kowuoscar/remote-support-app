@@ -1,7 +1,7 @@
 ---
 id: sim-installed-in-smartphone
 title: A SIM Card records the Smartphone it is Installed in
-status: ready-for-agent
+status: done
 depends_on: [smartphone-owner-and-optional-serial]
 labels: [backend, frontend, fleet]
 ---
@@ -12,13 +12,13 @@ The link SIM Swap, Provision SIM and Replace need. Implements `spec.md` Solution
 
 ## Acceptance criteria
 
-- [ ] A SIM Card is Installed in at most one Smartphone, which must be Active and in the same Contract
-- [ ] A Smartphone refuses a third SIM Card with a clear message
-- [ ] The Agent (own Contract) or the Manager can set or clear a SIM Card's Smartphone from the Fleet page; a Tester cannot
-- [ ] Retiring a Smartphone clears the link on its SIM Cards; retiring a SIM Card clears its own
-- [ ] Every Fleet table shows, per SIM Card, the Smartphone it is Installed in, and per Smartphone, its SIM Cards
-- [ ] One module owns installing, uninstalling and the two-SIM check, so later tickets call it instead of re-deriving it
-- [ ] Seed data holds installed and uninstalled SIM Cards, including one Smartphone with two
+- [x] A SIM Card is Installed in at most one Smartphone, which must be Active and in the same Contract
+- [x] A Smartphone refuses a third SIM Card with a clear message
+- [x] The Agent (own Contract) or the Manager can set or clear a SIM Card's Smartphone from the Fleet page; a Tester cannot
+- [x] Retiring a Smartphone clears the link on its SIM Cards; retiring a SIM Card clears its own
+- [x] Every Fleet table shows, per SIM Card, the Smartphone it is Installed in, and per Smartphone, its SIM Cards
+- [x] One module owns installing, uninstalling and the two-SIM check, so later tickets call it instead of re-deriving it
+- [x] Seed data holds installed and uninstalled SIM Cards, including one Smartphone with two
 
 ## Tests
 

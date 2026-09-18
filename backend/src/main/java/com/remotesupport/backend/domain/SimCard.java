@@ -71,11 +71,27 @@ public class SimCard {
   @Column(nullable = false)
   private SimCardStatus status;
 
+  /**
+   * The Smartphone this SIM Card currently sits in, or {@code null} when it isn't installed
+   * anywhere (spec.md Solution — Fleet model: "Installed in"; sim-installed-in-smartphone
+   * ticket). Set, cleared and moved exclusively through {@link
+   * com.remotesupport.backend.web.SimInstallationService} — the one module that owns installing,
+   * uninstalling and the two-SIM-per-Smartphone check, so no write path can skip either.
+   */
+  @ManyToOne
+  @JoinColumn(name = "installed_in_smartphone_id")
+  private Smartphone installedInSmartphone;
+
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 
   /** This SIM Card's Postpaid Plan id, or {@code null} when it has none — the data lives here. */
   public UUID postpaidPlanId() {
     return postpaidPlan == null ? null : postpaidPlan.getId();
+  }
+
+  /** This SIM Card's Installed-in Smartphone id, or {@code null} when it isn't installed. */
+  public UUID installedInSmartphoneId() {
+    return installedInSmartphone == null ? null : installedInSmartphone.getId();
   }
 }

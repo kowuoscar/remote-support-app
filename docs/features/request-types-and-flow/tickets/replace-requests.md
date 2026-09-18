@@ -1,7 +1,7 @@
 ---
 id: replace-requests
 title: Replace Smartphone and Replace SIM Requests retire a unit and add its replacement
-status: ready-for-agent
+status: in-progress
 depends_on: [provision-request-details]
 labels: [backend, frontend, requests, fleet, invoicing]
 ---

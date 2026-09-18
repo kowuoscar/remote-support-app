@@ -1,7 +1,7 @@
 ---
 id: sim-swap-moves
 title: A SIM Swap Request moves or exchanges SIM Cards when completed
-status: ready-for-agent
+status: in-progress
 depends_on: [provision-request-details]
 labels: [backend, frontend, requests, fleet]
 ---

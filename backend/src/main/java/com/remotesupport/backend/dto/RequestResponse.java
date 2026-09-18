@@ -27,6 +27,11 @@ import java.util.UUID;
  * Provision SIM's optional target Smartphone reuses {@code targetSmartphoneId}/{@code
  * targetSmartphoneModel} above. {@code completionNote} rides back only on the one response a
  * completion PATCH itself returns (see {@link Request#getCompletionNote}).
+ *
+ * <p>{@code secondSimCardId}/{@code secondSimCardNumber}/{@code secondTargetSmartphoneId}/{@code
+ * secondTargetSmartphoneModel} (sim-swap-moves ticket) are a SIM Swap exchange's second move —
+ * {@code targetSimCardId}/{@code targetSmartphoneId} above double as its first. Absent for a plain
+ * single move, every other type, and a SIM Swap Request that existed before this ticket.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record RequestResponse(
@@ -56,7 +61,11 @@ public record RequestResponse(
     UUID requestedPostpaidPlanId,
     String requestedPostpaidPlanName,
     Boolean requestedPostpaidPlanArchived,
-    String completionNote) {
+    String completionNote,
+    UUID secondSimCardId,
+    String secondSimCardNumber,
+    UUID secondTargetSmartphoneId,
+    String secondTargetSmartphoneModel) {
 
   public static RequestResponse of(Request request) {
     Smartphone targetSmartphone = request.getTargetSmartphone();
@@ -64,6 +73,8 @@ public record RequestResponse(
     TopupOption topupOption = request.getTopupOption();
     Carrier requestedCarrier = request.getRequestedCarrier();
     PostpaidPlan requestedPlan = request.getRequestedPostpaidPlan();
+    SimCard secondSimCard = request.getSecondSimCard();
+    Smartphone secondTargetSmartphone = request.getSecondTargetSmartphone();
     return new RequestResponse(
         request.getId(),
         request.getContract().getId(),
@@ -91,6 +102,10 @@ public record RequestResponse(
         requestedPlan == null ? null : requestedPlan.getId(),
         requestedPlan == null ? null : requestedPlan.getName(),
         requestedPlan == null ? null : requestedPlan.isArchived(),
-        request.getCompletionNote());
+        request.getCompletionNote(),
+        secondSimCard == null ? null : secondSimCard.getId(),
+        secondSimCard == null ? null : secondSimCard.getNumber(),
+        secondTargetSmartphone == null ? null : secondTargetSmartphone.getId(),
+        secondTargetSmartphone == null ? null : secondTargetSmartphone.getModel());
   }
 }

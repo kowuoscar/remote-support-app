@@ -46,6 +46,13 @@ import java.util.UUID;
  * COMPLETED} — the completion side-effect that would otherwise run on a later status-transition
  * PATCH ({@link RequestStatusUpdateRequest}) must run right here instead, exactly like {@code
  * newSmartphone}/{@code newSimCard} did for the older full-form completion.
+ *
+ * <p>{@code secondSimCardId} (sim-swap-moves ticket): only meaningful for a {@code SIM_SWAP}
+ * Request that names an exchange rather than a single move — the second SIM Card, alongside {@code
+ * targetSimCardId} (the first) and, for a single move only, {@code targetSmartphoneId} (its
+ * destination). Validated and stored by {@link
+ * com.remotesupport.backend.web.requestdetails.RequestDetailsValidator} like every other type's
+ * own fields.
  */
 public record RequestCreateRequest(
     @NotNull RequestType type,
@@ -63,4 +70,5 @@ public record RequestCreateRequest(
     SimCardFlavor requestedFlavor,
     UUID requestedCarrierId,
     UUID requestedPostpaidPlanId,
-    String simCardNumber) {}
+    String simCardNumber,
+    UUID secondSimCardId) {}

@@ -253,7 +253,11 @@ public class FeeController {
             requestBody.requestedModel(),
             requestBody.requestedFlavor(),
             requestBody.requestedCarrierId(),
-            requestBody.requestedPostpaidPlanId()),
+            requestBody.requestedPostpaidPlanId(),
+            // sim-swap-moves ticket: a proactive Fee can never auto-create a SIM_SWAP linking
+            // Request (FeeType structurally excludes it), so there is no second SIM Card to name
+            // here.
+            null),
         request);
 
     provisioningService.applyIfNeeded(

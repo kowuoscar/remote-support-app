@@ -165,6 +165,30 @@ public class Request {
   @JoinColumn(name = "requested_postpaid_plan_id")
   private PostpaidPlan requestedPostpaidPlan;
 
+  /**
+   * A {@link RequestType#SIM_SWAP} Request's own detail (request-types-and-flow spec's table: "SIM
+   * Swap — one move (SIM Card → Smartphone), or an exchange: two SIM Cards installed in two
+   * different Smartphones"; sim-swap-moves ticket). A single move stores "this SIM Card goes into
+   * this Smartphone" on the existing {@code targetSimCard}/{@code targetSmartphone} columns above
+   * (reboot-and-topup-details/provision-request-details tickets) rather than a pair of its own —
+   * no other type ever sets both of those together, so SIM Swap's first move can reuse them
+   * unambiguously. An exchange is stored as two such moves: {@code targetSimCard} into {@code
+   * secondSimCard}'s current Smartphone, and vice versa, both fixed once at submission (from where
+   * each SIM Card sat then) rather than re-derived at completion — {@code
+   * com.remotesupport.backend.web.SimInstallationService#applyMoves} re-validates the two stored
+   * moves against the Fleet as it is at completion time, so a move that no longer fits is refused
+   * then, not silently re-targeted. Null for a plain single move, and for a SIM Swap Request that
+   * existed before this ticket (ticket AC: "completes without changing the Fleet").
+   */
+  @ManyToOne
+  @JoinColumn(name = "second_sim_card_id")
+  private SimCard secondSimCard;
+
+  /** The Smartphone {@code secondSimCard} moves into — see {@code secondSimCard} above. */
+  @ManyToOne
+  @JoinColumn(name = "second_target_smartphone_id")
+  private Smartphone secondTargetSmartphone;
+
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 

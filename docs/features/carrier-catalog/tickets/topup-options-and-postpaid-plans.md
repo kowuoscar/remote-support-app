@@ -1,7 +1,7 @@
 ---
 id: topup-options-and-postpaid-plans
 title: Maintain a Carrier's Topup Options and Postpaid Plans
-status: in-progress
+status: done
 depends_on: [agent-maintains-carriers]
 labels: [backend, frontend, fleet]
 ---
@@ -15,15 +15,15 @@ stories 5-11, 13-14 and 25.
 
 ## Acceptance criteria
 
-- [ ] On the Carriers page, each Carrier shows its active Topup Options and Postpaid Plans, with their prices in the Country's currency.
-- [ ] An Agent (own Country) or the Manager (any Country) can create a Topup Option or a Postpaid Plan, edit its name and price, and archive it.
-- [ ] A price must be a positive amount. A currency is never entered and never stored.
-- [ ] A name is unique among the active Options, or the active Plans, of the same Carrier.
-- [ ] Nothing can be added to an archived Carrier. Its Options and Plans are hidden along with it.
-- [ ] Archived Options and Plans appear only under "show archived", marked as archived.
-- [ ] The access matrix is the same as for Carriers: an Agent in another Country or a Tester gets 403, and another tenant's id returns 404.
-- [ ] No route deletes an Option or a Plan.
-- [ ] The seed data gives each seeded active Carrier a few Topup Options and Postpaid Plans, with at least one of each archived.
+- [x] On the Carriers page, each Carrier shows its active Topup Options and Postpaid Plans, with their prices in the Country's currency.
+- [x] An Agent (own Country) or the Manager (any Country) can create a Topup Option or a Postpaid Plan, edit its name and price, and archive it.
+- [x] A price must be a positive amount. A currency is never entered and never stored.
+- [x] A name is unique among the active Options, or the active Plans, of the same Carrier.
+- [x] Nothing can be added to an archived Carrier. Its Options and Plans are hidden along with it.
+- [x] Archived Options and Plans appear only under "show archived", marked as archived.
+- [x] The access matrix is the same as for Carriers: an Agent in another Country or a Tester gets 403, and another tenant's id returns 404.
+- [x] No route deletes an Option or a Plan.
+- [x] The seed data gives each seeded active Carrier a few Topup Options and Postpaid Plans, with at least one of each archived.
 
 ## Tests
 

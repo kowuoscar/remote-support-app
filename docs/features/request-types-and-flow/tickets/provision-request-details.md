@@ -1,7 +1,7 @@
 ---
 id: provision-request-details
 title: Provision Requests carry what to provision, and complete from it
-status: ready-for-agent
+status: in-progress
 depends_on: [sim-installed-in-smartphone, reboot-and-topup-details]
 labels: [backend, frontend, requests, fleet]
 ---

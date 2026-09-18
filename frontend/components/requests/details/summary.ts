@@ -29,6 +29,15 @@ const REQUEST_DETAILS_SUMMARY: Partial<Record<RequestTypeValue, SummaryRenderer>
     const line = `New SIM: ${parts.join(" · ")}`;
     return request.targetSmartphoneModel ? `${line} → ${request.targetSmartphoneModel}` : line;
   },
+  // replace-requests ticket AC: "The Requests lists name the unit being replaced".
+  REPLACE_SMARTPHONE: (request) => {
+    if (!request.targetSmartphoneModel) return null;
+    return request.requestedModel
+      ? `Replacing: ${request.targetSmartphoneModel} → ${request.requestedModel}`
+      : `Replacing: ${request.targetSmartphoneModel}`;
+  },
+  REPLACE_SIM: (request) =>
+    request.targetSimCardNumber ? `Replacing: ${request.targetSimCardNumber}` : null,
 };
 
 /** The one-line details summary for `request`'s row, or `null` when its type has none. */

@@ -167,12 +167,16 @@ export interface SimCardListItem {
 
 // Mirrors backend/.../domain/RequestType.java. OTHER replaces the former REPAIR
 // (other-replaces-repair ticket) — a free-text Request for support no other type covers.
+// REPLACE_SMARTPHONE/REPLACE_SIM (replace-requests ticket) swap out one named Fleet unit for a
+// new one — distinct from PROVISION_SMARTPHONE/PROVISION_SIM, which only ever mean a net-new unit.
 export type RequestTypeValue =
   | "REBOOT"
   | "TOPUP"
   | "SIM_SWAP"
   | "PROVISION_SMARTPHONE"
   | "PROVISION_SIM"
+  | "REPLACE_SMARTPHONE"
+  | "REPLACE_SIM"
   | "OTHER";
 
 // Mirrors backend/.../domain/RequestStatus.java.
@@ -207,6 +211,8 @@ export const REQUEST_TYPE_LABEL: Record<RequestTypeValue, string> = {
   SIM_SWAP: "SIM Swap",
   PROVISION_SMARTPHONE: "Provision Smartphone",
   PROVISION_SIM: "Provision SIM",
+  REPLACE_SMARTPHONE: "Replace Smartphone",
+  REPLACE_SIM: "Replace SIM",
   OTHER: "Other",
 };
 
@@ -275,21 +281,37 @@ export interface ContractTesterListItem {
   isPrimaryContact: boolean;
 }
 
-// Mirrors backend/.../domain/FeeType.java — the four RequestTypeValues that can carry a Fee
-// (fee-logging-and-provisioning ticket). A Reboot or a like-for-like SIM Swap is never one of
-// these; a swap that really needed a new physical SIM is logged as PROVISION_SIM instead.
-export type FeeTypeValue = "TOPUP" | "PROVISION_SMARTPHONE" | "PROVISION_SIM" | "OTHER";
+// Mirrors backend/.../domain/FeeType.java — the six RequestTypeValues that can carry a Fee
+// (fee-logging-and-provisioning, other-replaces-repair, replace-requests tickets). A Reboot or a
+// like-for-like SIM Swap is never one of these; a swap that really needed a new physical SIM is
+// logged as PROVISION_SIM instead.
+export type FeeTypeValue =
+  | "TOPUP"
+  | "PROVISION_SMARTPHONE"
+  | "PROVISION_SIM"
+  | "REPLACE_SMARTPHONE"
+  | "REPLACE_SIM"
+  | "OTHER";
 
 export const FEE_TYPE_LABEL: Record<FeeTypeValue, string> = {
   TOPUP: "Topup",
   PROVISION_SMARTPHONE: "Provision Smartphone",
   PROVISION_SIM: "Provision SIM",
+  REPLACE_SMARTPHONE: "Replace Smartphone",
+  REPLACE_SIM: "Replace SIM",
   OTHER: "Other",
 };
 
 /** Mirrors backend/.../domain/FeeType.java#requestTypeCanCarryFee. */
 export function requestTypeCanCarryFee(type: RequestTypeValue): type is FeeTypeValue {
-  return type === "TOPUP" || type === "PROVISION_SMARTPHONE" || type === "PROVISION_SIM" || type === "OTHER";
+  return (
+    type === "TOPUP" ||
+    type === "PROVISION_SMARTPHONE" ||
+    type === "PROVISION_SIM" ||
+    type === "REPLACE_SMARTPHONE" ||
+    type === "REPLACE_SIM" ||
+    type === "OTHER"
+  );
 }
 
 // Mirrors backend/.../dto/FeeResponse.java

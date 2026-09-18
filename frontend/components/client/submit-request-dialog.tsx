@@ -19,6 +19,8 @@ const requestTypes: RequestTypeValue[] = [
   "SIM_SWAP",
   "PROVISION_SMARTPHONE",
   "PROVISION_SIM",
+  "REPLACE_SMARTPHONE",
+  "REPLACE_SIM",
   "OTHER",
 ];
 

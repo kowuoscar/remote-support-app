@@ -25,21 +25,6 @@ import org.springframework.test.web.servlet.MvcResult;
  */
 class SimCardInstalledInApiTest extends IntegrationTest {
 
-  private UUID createSmartphone(String managerToken, UUID contractId, String model) throws Exception {
-    MvcResult result =
-        mockMvc
-            .perform(
-                post("/api/contracts/" + contractId + "/smartphones")
-                    .header("Authorization", "Bearer " + managerToken)
-                    .contentType(APPLICATION_JSON)
-                    .content("""
-                        {"model":"%s"}
-                        """.formatted(model)))
-            .andExpect(status().isCreated())
-            .andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
-  }
-
   private UUID createSimCard(String managerToken, UUID contractId, String number) throws Exception {
     MvcResult result =
         mockMvc

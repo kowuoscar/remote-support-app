@@ -8,12 +8,14 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { SimCardCarrier } from "@/components/fleet/sim-card-carrier";
 import { SimCardPlan } from "@/components/fleet/sim-card-plan";
+import { SmartphoneSerialControl } from "@/components/fleet/smartphone-serial-control";
 import { Money } from "@/components/ui/money";
 import { IconContracts, IconSim, IconSmartphone } from "@/components/icons";
 import { simCardStatusToneByValue, smartphoneStatusToneByValue } from "@/lib/status";
 import {
   SIM_CARD_FLAVOR_LABEL,
   SIM_CARD_STATUS_LABEL,
+  SMARTPHONE_OWNER_LABEL,
   SMARTPHONE_STATUS_LABEL,
   type SimCardListItem,
   type SmartphoneListItem,
@@ -76,7 +78,7 @@ export function AgentFleetView({
                 <Tr>
                   <Th>Model</Th>
                   <Th>Serial</Th>
-                  <Th>Assigned to</Th>
+                  <Th>Owner</Th>
                   <Th>Status</Th>
                   <Th>Change status</Th>
                 </Tr>
@@ -85,8 +87,14 @@ export function AgentFleetView({
                 {phones.map((phone) => (
                   <Tr key={phone.id}>
                     <Td className="font-medium text-ink">{phone.model}</Td>
-                    <Td className="tnum text-ink-secondary">{phone.serial}</Td>
-                    <Td className="text-ink-secondary">{phone.assignedTo ?? "—"}</Td>
+                    <Td>
+                      <SmartphoneSerialControl
+                        contractId={contractId}
+                        smartphoneId={phone.id}
+                        serial={phone.serial}
+                      />
+                    </Td>
+                    <Td className="text-ink-secondary">{SMARTPHONE_OWNER_LABEL[phone.owner]}</Td>
                     <Td>
                       <Badge tone={smartphoneStatusToneByValue[phone.status]}>
                         {SMARTPHONE_STATUS_LABEL[phone.status]}

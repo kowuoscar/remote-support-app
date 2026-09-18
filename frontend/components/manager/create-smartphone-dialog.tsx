@@ -5,26 +5,32 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconAlertTriangle, IconPlus } from "@/components/icons";
+import { SMARTPHONE_OWNER_LABEL, type SmartphoneOwnerValue } from "@/lib/api/types";
+
+const owners: SmartphoneOwnerValue[] = ["COMPANY", "CLIENT"];
 
 /**
  * Manager adds a Smartphone to a Contract's Fleet (fleet-management ticket AC: "Manager can add
  * a Smartphone to a Contract's Fleet"). Lives on the Contract detail view, mirroring
  * CreateTesterDialog's "scoped to one owning record" pattern. Status starts Active — the server
- * sets it, this dialog never asks for it.
+ * sets it, this dialog never asks for it. Owner defaults to Company (spec.md Solution — Fleet
+ * model; smartphone-owner-and-optional-serial ticket AC: "The Manager's add-Smartphone form asks
+ * for the Owner, defaulting to company"). Serial is optional (same ticket AC: "A Smartphone can
+ * be created without a serial").
  */
 export function CreateSmartphoneDialog({ contractId }: { contractId: string }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const [model, setModel] = useState("");
   const [serial, setSerial] = useState("");
-  const [assignedTo, setAssignedTo] = useState("");
+  const [owner, setOwner] = useState<SmartphoneOwnerValue>("COMPANY");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   function open() {
     setModel("");
     setSerial("");
-    setAssignedTo("");
+    setOwner("COMPANY");
     setError(null);
     dialogRef.current?.showModal();
   }
@@ -42,7 +48,7 @@ export function CreateSmartphoneDialog({ contractId }: { contractId: string }) {
       const response = await fetch(`/api/contracts/${contractId}/smartphones`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model, serial, assignedTo: assignedTo || undefined }),
+        body: JSON.stringify({ model, serial: serial || undefined, owner }),
       });
 
       if (!response.ok) {
@@ -104,9 +110,8 @@ export function CreateSmartphoneDialog({ contractId }: { contractId: string }) {
           </label>
 
           <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Serial
+            Serial (optional)
             <Input
-              required
               value={serial}
               onChange={(event) => setSerial(event.target.value)}
               disabled={submitting}
@@ -116,13 +121,19 @@ export function CreateSmartphoneDialog({ contractId }: { contractId: string }) {
           </label>
 
           <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Assigned to (optional)
-            <Input
-              value={assignedTo}
-              onChange={(event) => setAssignedTo(event.target.value)}
+            Owner
+            <select
+              value={owner}
+              onChange={(event) => setOwner(event.target.value as SmartphoneOwnerValue)}
               disabled={submitting}
-              placeholder="Front desk"
-            />
+              className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
+            >
+              {owners.map((value) => (
+                <option key={value} value={value}>
+                  {SMARTPHONE_OWNER_LABEL[value]}
+                </option>
+              ))}
+            </select>
           </label>
 
           <div className="flex justify-end gap-2 pt-1">

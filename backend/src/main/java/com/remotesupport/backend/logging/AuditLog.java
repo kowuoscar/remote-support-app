@@ -131,6 +131,58 @@ public final class AuditLog {
    * log scan can tell a Manager's direct Fleet addition from one that happened as a byproduct of
    * fulfilling a Request.
    */
+
+  /**
+   * A Manager adding a Smartphone to a Fleet directly: {@link #created}'s event, plus the
+   * Contract and the Owner (smartphone-owner-and-optional-serial ticket Observability: "Owner
+   * added to the Smartphone created ... events").
+   */
+  public static void smartphoneCreated(
+      UUID smartphoneId, UUID contractId, String owner, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CREATE entity=Smartphone entityId={} contractId={} owner={} actorUserId={} tenantId={}",
+        smartphoneId,
+        contractId,
+        owner,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * {@link #fleetItemProvisioned}'s event for a Smartphone, plus the Owner -- always {@code
+   * COMPANY} (smartphone-owner-and-optional-serial ticket Observability: "Owner added to ... the
+   * provisioned events").
+   */
+  public static void smartphoneProvisioned(
+      UUID smartphoneId, UUID contractId, UUID requestId, String owner, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=FLEET_ITEM_PROVISIONED entity=Smartphone entityId={} contractId={} requestId={} "
+            + "owner={} actorUserId={} tenantId={}",
+        smartphoneId,
+        contractId,
+        requestId,
+        owner,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A Smartphone's serial set or changed from the Fleet page (smartphone-owner-and-optional-serial
+   * ticket Observability: "Audit event for a serial set or changed: Smartphone id, actor,
+   * tenant").
+   */
+  public static void smartphoneSerialChanged(
+      UUID smartphoneId, String oldSerial, String newSerial, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=SERIAL_CHANGED entity=Smartphone entityId={} oldSerial={} newSerial={} "
+            + "actorUserId={} tenantId={}",
+        smartphoneId,
+        oldSerial,
+        newSerial,
+        actorUserId,
+        tenantId);
+  }
+
   /**
    * A Manager changing an Agent's standing salary or standing Rollout Advance
    * (agent-standing-amounts-and-invoice-generation ticket Observability: "standing-amount change

@@ -7,6 +7,7 @@ import com.remotesupport.backend.domain.RequestType;
 import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.domain.SimCardStatus;
 import com.remotesupport.backend.domain.Smartphone;
+import com.remotesupport.backend.domain.SmartphoneOwner;
 import com.remotesupport.backend.domain.SmartphoneStatus;
 import com.remotesupport.backend.dto.SimCardCreateRequest;
 import com.remotesupport.backend.dto.SmartphoneCreateRequest;
@@ -17,6 +18,7 @@ import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 /**
  * The provisioning side-effect of completing a {@code PROVISION_SMARTPHONE}/{@code PROVISION_SIM}
@@ -86,17 +88,20 @@ public class ProvisioningService {
     smartphone.setTenant(contract.getTenant());
     smartphone.setContract(contract);
     smartphone.setModel(newSmartphone.model());
-    smartphone.setSerial(newSmartphone.serial());
-    smartphone.setAssignedTo(newSmartphone.assignedTo());
+    smartphone.setSerial(StringUtils.hasText(newSmartphone.serial()) ? newSmartphone.serial() : null);
+    // A Smartphone reached through a Provision Request is always company-owned (spec.md Fleet
+    // model; smartphone-owner-and-optional-serial ticket AC), regardless of anything
+    // newSmartphone.owner() might carry.
+    smartphone.setOwner(SmartphoneOwner.COMPANY);
     smartphone.setStatus(SmartphoneStatus.ACTIVE);
     smartphone.setCreatedAt(Instant.now());
     smartphoneRepository.save(smartphone);
 
-    AuditLog.fleetItemProvisioned(
-        "Smartphone",
+    AuditLog.smartphoneProvisioned(
         smartphone.getId(),
         contract.getId(),
         request.getId(),
+        smartphone.getOwner().name(),
         principal.userId(),
         principal.tenantId());
 

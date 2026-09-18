@@ -90,6 +90,14 @@ export interface ContractListItem {
 // Mirrors backend/.../domain/SmartphoneStatus.java
 export type SmartphoneStatusValue = "ACTIVE" | "IN_REPAIR" | "RETIRED";
 
+// Mirrors backend/.../domain/SmartphoneOwner.java
+export type SmartphoneOwnerValue = "CLIENT" | "COMPANY";
+
+export const SMARTPHONE_OWNER_LABEL: Record<SmartphoneOwnerValue, string> = {
+  CLIENT: "Client",
+  COMPANY: "Company",
+};
+
 // Mirrors backend/.../domain/SimCardStatus.java
 export type SimCardStatusValue = "ACTIVE" | "RETIRED";
 
@@ -124,13 +132,14 @@ export function nextSmartphoneStatuses(current: SmartphoneStatusValue): Smartpho
   }
 }
 
-// Mirrors backend/.../dto/SmartphoneResponse.java
+// Mirrors backend/.../dto/SmartphoneResponse.java. serial is null for a Smartphone created
+// without one (smartphone-owner-and-optional-serial ticket) until set later from the Fleet page.
 export interface SmartphoneListItem {
   id: string;
   contractId: string;
   model: string;
-  serial: string;
-  assignedTo: string | null;
+  serial: string | null;
+  owner: SmartphoneOwnerValue;
   status: SmartphoneStatusValue;
 }
 

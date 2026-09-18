@@ -109,7 +109,7 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
 
   @Test
   void anOptionIsRefusedOnAFeeThatIsNotATopupFee() throws Exception {
-    logFee("REPAIR", "40.00", SEEDED_ATT_REFILL_25).andExpect(status().isBadRequest());
+    logFee("OTHER", "40.00", SEEDED_ATT_REFILL_25).andExpect(status().isBadRequest());
     assertNoFeeLogged();
   }
 

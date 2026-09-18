@@ -14,6 +14,7 @@ public record RequestResponse(
     boolean agentAuthored,
     String loggedByUsername,
     String cancellationReason,
+    String description,
     Instant createdAt) {
 
   public static RequestResponse of(Request request) {
@@ -27,6 +28,7 @@ public record RequestResponse(
         request.isAgentAuthored(),
         request.getRaisedByUser().getUsername(),
         request.getCancellationReason(),
+        request.getDescription(),
         request.getCreatedAt());
   }
 }

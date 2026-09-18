@@ -3,6 +3,7 @@ package com.remotesupport.backend.web;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
+import com.remotesupport.backend.domain.RequestType;
 import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.dto.RequestCreateRequest;
@@ -81,11 +82,15 @@ public class RequestController {
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
 
+    String description = normalizeDescription(requestBody.description());
+    requireDescriptionWhenOther(requestBody.type(), description);
+
     Request request = new Request();
     request.setId(UUID.randomUUID());
     request.setTenant(contract.getTenant());
     request.setContract(contract);
     request.setType(requestBody.type());
+    request.setDescription(description);
     request.setCreatedAt(Instant.now());
 
     if ("AGENT".equals(principal.role())) {
@@ -120,6 +125,7 @@ public class RequestController {
         request.getId(),
         contract.getId(),
         request.getType().name(),
+        request.getDescription() != null,
         principal.userId(),
         principal.tenantId());
   }
@@ -181,6 +187,7 @@ public class RequestController {
         contract.getId(),
         request.getType().name(),
         startingStatus.name(),
+        request.getDescription() != null,
         principal.userId(),
         principal.tenantId());
   }
@@ -251,5 +258,30 @@ public class RequestController {
     return contractRepository
         .findByIdAndTenantId(contractId, principal.tenantId())
         .orElseThrow(() -> new NotFoundException("No contract with id " + contractId));
+  }
+
+  /**
+   * Blank-to-null, trimmed (request-types-and-flow spec, Details at submission;
+   * other-replaces-repair ticket): every Request's optional description is stored this way, so
+   * "no description" is always {@code null}, never an empty or whitespace-only string. Shared with
+   * {@link FeeController}'s proactive-Fee path, which creates a Request the same way.
+   */
+  static String normalizeDescription(String description) {
+    if (description == null) {
+      return null;
+    }
+    String trimmed = description.trim();
+    return trimmed.isEmpty() ? null : trimmed;
+  }
+
+  /**
+   * The one AC both creation paths — Tester-submitted and Agent-proactive — and {@link
+   * FeeController}'s proactive-Fee path enforce identically: "an Other Request is refused without
+   * [a description]" (other-replaces-repair ticket AC).
+   */
+  static void requireDescriptionWhenOther(RequestType type, String normalizedDescription) {
+    if (type == RequestType.OTHER && normalizedDescription == null) {
+      throw new InvalidRequestException("A description is required for an Other Request");
+    }
   }
 }

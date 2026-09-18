@@ -6,6 +6,7 @@ import com.remotesupport.backend.domain.Fee;
 import com.remotesupport.backend.domain.FeeType;
 import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
+import com.remotesupport.backend.domain.RequestType;
 import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.TopupOption;
 import com.remotesupport.backend.domain.User;
@@ -213,11 +214,20 @@ public class FeeController {
             .findById(principal.userId())
             .orElseThrow(() -> new AccessDeniedException("No login found for this Agent"));
 
+    // The auto-created linking Request carries the same description the Agent gave the Fee
+    // (request-types-and-flow spec, Details at submission; other-replaces-repair ticket): it's one
+    // submission producing both rows, so an Other proactive Fee is refused the same way a Tester's
+    // Other Request submission is — no description, no Request.
+    RequestType requestType = requestBody.feeType().toRequestType();
+    String description = RequestController.normalizeDescription(requestBody.description());
+    RequestController.requireDescriptionWhenOther(requestType, description);
+
     Request request = new Request();
     request.setId(UUID.randomUUID());
     request.setTenant(contract.getTenant());
     request.setContract(contract);
-    request.setType(requestBody.feeType().toRequestType());
+    request.setType(requestType);
+    request.setDescription(description);
     request.setTester(tester);
     request.setRaisedByUser(raisedByUser);
     request.setAgentAuthored(true);
@@ -240,6 +250,7 @@ public class FeeController {
         contract.getId(),
         request.getType().name(),
         request.getStatus().name(),
+        request.getDescription() != null,
         principal.userId(),
         principal.tenantId());
 

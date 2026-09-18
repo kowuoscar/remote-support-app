@@ -11,6 +11,7 @@ import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.domain.Currency;
 import com.remotesupport.backend.domain.Tenant;
+import com.remotesupport.backend.domain.TopupOption;
 import com.remotesupport.backend.repository.AgentInvoiceRepository;
 import com.remotesupport.backend.repository.AgentRepository;
 import com.remotesupport.backend.repository.CarrierRepository;
@@ -18,6 +19,7 @@ import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ClientRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.TenantRepository;
+import com.remotesupport.backend.repository.TopupOptionRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -40,6 +42,7 @@ public class OtherTenantFixture {
   private final ClientInvoiceRepository clientInvoiceRepository;
   private final AgentInvoiceRepository agentInvoiceRepository;
   private final CarrierRepository carrierRepository;
+  private final TopupOptionRepository topupOptionRepository;
 
   public OtherTenantFixture(
       TenantRepository tenantRepository,
@@ -48,7 +51,8 @@ public class OtherTenantFixture {
       ContractRepository contractRepository,
       ClientInvoiceRepository clientInvoiceRepository,
       AgentInvoiceRepository agentInvoiceRepository,
-      CarrierRepository carrierRepository) {
+      CarrierRepository carrierRepository,
+      TopupOptionRepository topupOptionRepository) {
     this.tenantRepository = tenantRepository;
     this.clientRepository = clientRepository;
     this.agentRepository = agentRepository;
@@ -56,6 +60,7 @@ public class OtherTenantFixture {
     this.clientInvoiceRepository = clientInvoiceRepository;
     this.agentInvoiceRepository = agentInvoiceRepository;
     this.carrierRepository = carrierRepository;
+    this.topupOptionRepository = topupOptionRepository;
   }
 
   /** A sent Client Invoice, for the current month, on a Contract in a brand-new tenant. */
@@ -133,6 +138,19 @@ public class OtherTenantFixture {
     carrier.setCreatedAt(now);
     carrierRepository.saveAndFlush(carrier);
     return carrier.getId();
+  }
+
+  /** An active Topup Option of an active United States Carrier, in a brand-new tenant. */
+  public UUID topupOptionInAnotherTenant() {
+    UUID carrierId = carrierInAnotherTenant();
+    TopupOption option = new TopupOption();
+    option.setId(UUID.randomUUID());
+    option.setCarrier(carrierRepository.getReferenceById(carrierId));
+    option.setName("Other Tenant Refill");
+    option.setPrice(new BigDecimal("20.00"));
+    option.setCreatedAt(Instant.now());
+    topupOptionRepository.saveAndFlush(option);
+    return option.getId();
   }
 
   private Tenant newTenant(Instant now) {

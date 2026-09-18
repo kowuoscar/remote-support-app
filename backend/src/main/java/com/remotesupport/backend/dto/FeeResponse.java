@@ -18,7 +18,9 @@ public record FeeResponse(
     String currency,
     String description,
     LocalDate billingMonth,
-    Instant createdAt) {
+    Instant createdAt,
+    UUID topupOptionId,
+    String topupOptionName) {
 
   public static FeeResponse of(Fee fee) {
     return new FeeResponse(
@@ -31,6 +33,8 @@ public record FeeResponse(
         fee.getCurrency().name(),
         fee.getDescription(),
         fee.getBillingMonth(),
-        fee.getCreatedAt());
+        fee.getCreatedAt(),
+        fee.getTopupOption() == null ? null : fee.getTopupOption().getId(),
+        fee.getTopupOption() == null ? null : fee.getTopupOption().getName());
   }
 }

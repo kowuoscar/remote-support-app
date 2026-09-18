@@ -1,11 +1,13 @@
 package com.remotesupport.backend.web;
 
+import com.remotesupport.backend.domain.Carrier;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Fee;
 import com.remotesupport.backend.domain.FeeType;
 import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
 import com.remotesupport.backend.domain.Tester;
+import com.remotesupport.backend.domain.TopupOption;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.dto.FeeCreateRequest;
 import com.remotesupport.backend.dto.FeeResponse;
@@ -14,6 +16,7 @@ import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.FeeRepository;
 import com.remotesupport.backend.repository.RequestRepository;
 import com.remotesupport.backend.repository.TesterRepository;
+import com.remotesupport.backend.repository.TopupOptionRepository;
 import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.FleetAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
@@ -72,6 +75,7 @@ public class FeeController {
   private final FleetAccessGuard fleetAccessGuard;
   private final RequestAccessGuard requestAccessGuard;
   private final ProvisioningService provisioningService;
+  private final TopupOptionRepository topupOptionRepository;
 
   public FeeController(
       ContractRepository contractRepository,
@@ -81,7 +85,8 @@ public class FeeController {
       UserRepository userRepository,
       FleetAccessGuard fleetAccessGuard,
       RequestAccessGuard requestAccessGuard,
-      ProvisioningService provisioningService) {
+      ProvisioningService provisioningService,
+      TopupOptionRepository topupOptionRepository) {
     this.contractRepository = contractRepository;
     this.requestRepository = requestRepository;
     this.feeRepository = feeRepository;
@@ -90,6 +95,7 @@ public class FeeController {
     this.fleetAccessGuard = fleetAccessGuard;
     this.requestAccessGuard = requestAccessGuard;
     this.provisioningService = provisioningService;
+    this.topupOptionRepository = topupOptionRepository;
   }
 
   @PostMapping
@@ -102,6 +108,8 @@ public class FeeController {
     // control: "Agent: full CRUD on ... Fees ... within their own Contracts") — identical shape
     // to logging a Request proactively, so it's reused rather than re-implemented.
     requestAccessGuard.requireCanLogProactively(contract, principal);
+    // Checked before anything is written, so a refused Option never leaves a linking Request.
+    TopupOption topupOption = findPickableTopupOption(contract, requestBody);
 
     Request request =
         requestBody.requestId() == null
@@ -117,6 +125,7 @@ public class FeeController {
     fee.setAmount(requestBody.amount());
     fee.setCurrency(contract.getCurrency());
     fee.setDescription(requestBody.description());
+    fee.setTopupOption(topupOption);
     fee.setBillingMonth(LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1));
     fee.setCreatedAt(Instant.now());
     feeRepository.save(fee);
@@ -127,10 +136,40 @@ public class FeeController {
         request.getId(),
         fee.getFeeType().name(),
         fee.getAmount(),
+        topupOption == null ? null : topupOption.getId(),
         principal.userId(),
         principal.tenantId());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(FeeResponse.of(fee));
+  }
+
+  /**
+   * The Topup Option a Topup Fee names, or {@code null} when it names none (topup-fee-from-option
+   * ticket). Refused unless the Fee is a Topup Fee and the Option is active, of an active Carrier
+   * of this Contract's tenant and Country. An Option of another tenant is refused exactly like an
+   * unknown one, so its existence never leaks.
+   */
+  private TopupOption findPickableTopupOption(Contract contract, FeeCreateRequest requestBody) {
+    if (requestBody.topupOptionId() == null) {
+      return null;
+    }
+    if (requestBody.feeType() != FeeType.TOPUP) {
+      throw new InvalidRequestException("Only a Topup Fee can name a Topup Option");
+    }
+    TopupOption option =
+        topupOptionRepository
+            .findById(requestBody.topupOptionId())
+            .filter(o -> o.getCarrier().getTenant().getId().equals(contract.getTenant().getId()))
+            .orElseThrow(
+                () -> new InvalidRequestException("No Topup Option with id " + requestBody.topupOptionId()));
+    Carrier carrier = option.getCarrier();
+    if (carrier.getCountry() != contract.getAgent().getCountry()) {
+      throw new InvalidRequestException("This Topup Option belongs to another Country's Carrier");
+    }
+    if (option.isArchived() || carrier.isArchived()) {
+      throw new InvalidRequestException("This Topup Option, or its Carrier, is archived");
+    }
+    return option;
   }
 
   /** The {@code requestId} branch: the named Request must exist on this Contract and allow a Fee. */

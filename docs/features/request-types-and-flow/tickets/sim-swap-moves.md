@@ -1,7 +1,7 @@
 ---
 id: sim-swap-moves
 title: A SIM Swap Request moves or exchanges SIM Cards when completed
-status: in-progress
+status: done
 depends_on: [provision-request-details]
 labels: [backend, frontend, requests, fleet]
 ---
@@ -12,12 +12,12 @@ Implements `spec.md` Solution (Details and Fleet changes for SIM Swap) and user 
 
 ## Acceptance criteria
 
-- [ ] A SIM Swap Request is either one move (an Active SIM Card into an Active Smartphone of the same Contract) or an exchange of two SIM Cards installed in two different Smartphones
-- [ ] Submission is refused if applying the moves would leave a Smartphone with more than two SIM Cards, or if a move changes nothing
-- [ ] Completing the Request applies the moves with no Agent input, through the Installed-in module
-- [ ] Completion re-checks against the Fleet as it is then and is refused with a clear message if the moves no longer fit
-- [ ] The Requests lists describe the moves in words ("SIM … into …")
-- [ ] A SIM Swap Request created before this ticket completes without changing the Fleet
+- [x] A SIM Swap Request is either one move (an Active SIM Card into an Active Smartphone of the same Contract) or an exchange of two SIM Cards installed in two different Smartphones
+- [x] Submission is refused if applying the moves would leave a Smartphone with more than two SIM Cards, or if a move changes nothing
+- [x] Completing the Request applies the moves with no Agent input, through the Installed-in module
+- [x] Completion re-checks against the Fleet as it is then and is refused with a clear message if the moves no longer fit
+- [x] The Requests lists describe the moves in words ("SIM … into …")
+- [x] A SIM Swap Request created before this ticket completes without changing the Fleet
 
 ## Tests
 

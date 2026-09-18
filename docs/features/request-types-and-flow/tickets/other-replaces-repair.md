@@ -1,7 +1,7 @@
 ---
 id: other-replaces-repair
 title: Other replaces Repair, and every Request can carry a description
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [backend, frontend, requests, invoicing]
 ---

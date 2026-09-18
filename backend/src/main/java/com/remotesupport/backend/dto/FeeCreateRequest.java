@@ -20,6 +20,11 @@ import java.util.UUID;
  * starts (and stays) {@code COMPLETED}, so the provisioning side-effect that would otherwise run
  * on a later status-transition PATCH must run immediately, at creation, using these same fields
  * (mirrors {@link RequestStatusUpdateRequest}'s shape for the non-proactive path).
+ *
+ * <p>{@code topupOptionId} optionally names the Topup Option a Topup Fee was bought from
+ * (topup-fee-from-option ticket). It is allowed only when {@code feeType} is {@code TOPUP}, and the
+ * Option must be active, of an active Carrier in the Contract's Country. It never sets {@code
+ * amount}, which stays required and is whatever the Agent submits.
  */
 public record FeeCreateRequest(
     UUID requestId,
@@ -30,4 +35,5 @@ public record FeeCreateRequest(
     @Valid SmartphoneCreateRequest newSmartphone,
     @Valid SimCardCreateRequest newSimCard,
     UUID replacesSmartphoneId,
-    UUID replacesSimCardId) {}
+    UUID replacesSimCardId,
+    UUID topupOptionId) {}

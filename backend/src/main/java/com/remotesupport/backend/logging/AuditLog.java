@@ -99,7 +99,8 @@ public final class AuditLog {
 
   /**
    * An Agent logging a Fee against a Request (fee-logging-and-provisioning ticket Observability:
-   * "Fee-logged ... events logged with Contract, Request id, amount, actor").
+   * "Fee-logged ... events logged with Contract, Request id, amount, actor"). {@code topupOptionId}
+   * is the Topup Option a Topup Fee was bought from, or {@code null} (topup-fee-from-option ticket).
    */
   public static void feeLogged(
       UUID feeId,
@@ -107,16 +108,18 @@ public final class AuditLog {
       UUID requestId,
       String feeType,
       BigDecimal amount,
+      UUID topupOptionId,
       UUID actorUserId,
       UUID tenantId) {
     log.info(
         "audit action=FEE_LOGGED entity=Fee entityId={} contractId={} requestId={} feeType={} "
-            + "amount={} actorUserId={} tenantId={}",
+            + "amount={} topupOptionId={} actorUserId={} tenantId={}",
         feeId,
         contractId,
         requestId,
         feeType,
         amount,
+        topupOptionId,
         actorUserId,
         tenantId);
   }

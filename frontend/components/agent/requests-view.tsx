@@ -14,7 +14,7 @@ import { LogFeeDialog } from "@/components/agent/log-fee-dialog";
 import {
   REQUEST_STATUS_LABEL,
   REQUEST_TYPE_LABEL,
-  type CarrierItem,
+  type CatalogCarrierItem,
   type ContractTesterListItem,
   type RequestListItem,
   type RequestStatusValue,
@@ -53,7 +53,8 @@ export function AgentRequestsView({
   testersByContract: Record<string, ContractTesterListItem[]>;
   smartphonesByContract?: Record<string, SmartphoneListItem[]>;
   simCardsByContract?: Record<string, SimCardListItem[]>;
-  carriers?: CarrierItem[];
+  /** The Agent's Country's Carrier catalog; every Contract of one Agent shares its Country. */
+  carriers?: CatalogCarrierItem[];
 }) {
   const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
   const [status, setStatus] = useState<RequestStatusValue | "All">("All");

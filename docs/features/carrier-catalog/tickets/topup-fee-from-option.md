@@ -1,7 +1,7 @@
 ---
 id: topup-fee-from-option
 title: An Agent logs a Topup Fee from a Topup Option
-status: ready-for-agent
+status: done
 depends_on: [topup-options-and-postpaid-plans]
 labels: [backend, frontend, invoicing]
 ---
@@ -14,16 +14,16 @@ Solution (Fee changes) and user stories 20-23.
 
 ## Acceptance criteria
 
-- [ ] For a Topup Fee, the log-Fee dialog shows an optional Topup Option picker. It lists the active Options of the active Carriers in the Contract's Country, labelled by Carrier and Option name.
-- [ ] Picking an Option pre-fills the amount with its price. The amount stays editable and required.
-- [ ] A Topup Fee can be logged with no Option, as it can today.
-- [ ] A saved Fee keeps a reference to its Option, and its amount is the one the Agent submitted.
-- [ ] An Option is refused in each of these cases:
+- [x] For a Topup Fee, the log-Fee dialog shows an optional Topup Option picker. It lists the active Options of the active Carriers in the Contract's Country, labelled by Carrier and Option name.
+- [x] Picking an Option pre-fills the amount with its price. The amount stays editable and required.
+- [x] A Topup Fee can be logged with no Option, as it can today.
+- [x] A saved Fee keeps a reference to its Option, and its amount is the one the Agent submitted.
+- [x] An Option is refused in each of these cases:
   - on a Fee that isn't a Topup Fee
   - when it belongs to another Country's Carrier
   - when the Option, or its Carrier, is archived
-- [ ] Editing an Option's price never changes any Fee that already exists.
-- [ ] The seed data includes at least one Topup Fee linked to an Option.
+- [x] Editing an Option's price never changes any Fee that already exists.
+- [x] The seed data includes at least one Topup Fee linked to an Option.
 
 ## Tests
 

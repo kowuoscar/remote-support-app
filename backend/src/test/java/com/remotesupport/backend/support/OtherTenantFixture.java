@@ -3,6 +3,7 @@ package com.remotesupport.backend.support;
 import com.remotesupport.backend.domain.Agent;
 import com.remotesupport.backend.domain.AgentInvoice;
 import com.remotesupport.backend.domain.AgentInvoiceStatus;
+import com.remotesupport.backend.domain.Carrier;
 import com.remotesupport.backend.domain.Client;
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
@@ -12,6 +13,7 @@ import com.remotesupport.backend.domain.Currency;
 import com.remotesupport.backend.domain.Tenant;
 import com.remotesupport.backend.repository.AgentInvoiceRepository;
 import com.remotesupport.backend.repository.AgentRepository;
+import com.remotesupport.backend.repository.CarrierRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ClientRepository;
 import com.remotesupport.backend.repository.ContractRepository;
@@ -25,8 +27,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Builds data in a second tenant straight through the repositories — there is no API for creating
- * a tenant — so tests can prove a Manager never sees or reaches another tenant's invoices.
- * Imported into a test's context with {@code @Import(OtherTenantFixture.class)}.
+ * a tenant — so tests can prove a caller never sees or reaches another tenant's invoices or
+ * Carriers. Imported into a test's context with {@code @Import(OtherTenantFixture.class)}.
  */
 @Component
 public class OtherTenantFixture {
@@ -37,6 +39,7 @@ public class OtherTenantFixture {
   private final ContractRepository contractRepository;
   private final ClientInvoiceRepository clientInvoiceRepository;
   private final AgentInvoiceRepository agentInvoiceRepository;
+  private final CarrierRepository carrierRepository;
 
   public OtherTenantFixture(
       TenantRepository tenantRepository,
@@ -44,13 +47,15 @@ public class OtherTenantFixture {
       AgentRepository agentRepository,
       ContractRepository contractRepository,
       ClientInvoiceRepository clientInvoiceRepository,
-      AgentInvoiceRepository agentInvoiceRepository) {
+      AgentInvoiceRepository agentInvoiceRepository,
+      CarrierRepository carrierRepository) {
     this.tenantRepository = tenantRepository;
     this.clientRepository = clientRepository;
     this.agentRepository = agentRepository;
     this.contractRepository = contractRepository;
     this.clientInvoiceRepository = clientInvoiceRepository;
     this.agentInvoiceRepository = agentInvoiceRepository;
+    this.carrierRepository = carrierRepository;
   }
 
   /** A sent Client Invoice, for the current month, on a Contract in a brand-new tenant. */
@@ -112,6 +117,22 @@ public class OtherTenantFixture {
     agentInvoiceRepository.saveAndFlush(invoice);
 
     return invoice.getId();
+  }
+
+  /**
+   * An active United States Carrier in a brand-new tenant — the seeded Agent's own Country, so a
+   * refusal can only come from tenant scoping, never from the per-Country check.
+   */
+  public UUID carrierInAnotherTenant() {
+    Instant now = Instant.now();
+    Carrier carrier = new Carrier();
+    carrier.setId(UUID.randomUUID());
+    carrier.setTenant(newTenant(now));
+    carrier.setCountry(Country.UNITED_STATES);
+    carrier.setName("Other Tenant Wireless");
+    carrier.setCreatedAt(now);
+    carrierRepository.saveAndFlush(carrier);
+    return carrier.getId();
   }
 
   private Tenant newTenant(Instant now) {

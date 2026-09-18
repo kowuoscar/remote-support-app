@@ -177,6 +177,44 @@ public final class AuditLog {
         tenantId);
   }
 
+  /**
+   * Carrier catalog changes (agent-maintains-carriers ticket Observability: "Carrier created,
+   * renamed and archived: Carrier id, Country, actor, tenant, and the old and new name on a
+   * rename"), so a surprising catalog entry can be traced back to its author.
+   */
+  public static void carrierCreated(
+      UUID carrierId, String country, String name, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CARRIER_CREATED entity=Carrier entityId={} country={} name={} actorUserId={} tenantId={}",
+        carrierId,
+        country,
+        name,
+        actorUserId,
+        tenantId);
+  }
+
+  public static void carrierRenamed(
+      UUID carrierId, String country, String oldName, String newName, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CARRIER_RENAMED entity=Carrier entityId={} country={} oldName={} newName={} "
+            + "actorUserId={} tenantId={}",
+        carrierId,
+        country,
+        oldName,
+        newName,
+        actorUserId,
+        tenantId);
+  }
+
+  public static void carrierArchived(UUID carrierId, String country, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CARRIER_ARCHIVED entity=Carrier entityId={} country={} actorUserId={} tenantId={}",
+        carrierId,
+        country,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

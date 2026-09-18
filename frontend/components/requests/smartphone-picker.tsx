@@ -11,7 +11,10 @@ import type { SmartphoneListItem } from "@/lib/api/types";
  * Smartphone later reuse this same picker rather than each rolling their own). Only Active
  * Smartphones of the Contract are ever offered (spec.md: "pick only Active units of the chosen
  * Contract's Fleet"). Mirrors {@link CarrierPicker}: a FormData field (`name`) or a controlled one
- * (`value`/`onChange`), and its own empty state rather than a blank list.
+ * (`value`/`onChange`), and its own empty state rather than a blank list. {@code required}
+ * defaults to `true` (Reboot's own, required target); provision-request-details ticket: Provision
+ * SIM's target Smartphone is optional, so it passes `required={false}` to get a selectable "None"
+ * option instead of a placeholder that blocks submission.
  */
 export function SmartphonePicker({
   smartphones,
@@ -20,6 +23,7 @@ export function SmartphonePicker({
   value,
   onChange,
   disabled,
+  required = true,
   size = "md",
 }: {
   smartphones: SmartphoneListItem[];
@@ -28,6 +32,7 @@ export function SmartphonePicker({
   value?: string;
   onChange?: (smartphoneId: string) => void;
   disabled?: boolean;
+  required?: boolean;
   size?: PickerSize;
 }) {
   const id = useId();
@@ -39,7 +44,9 @@ export function SmartphonePicker({
       <div className={cn("flex flex-col font-medium text-ink-secondary", styles.label)}>
         {label}
         <p className={cn("font-normal text-ink-mute", styles.note)}>
-          No Active Smartphones on this Contract yet.
+          {required
+            ? "No Active Smartphones on this Contract yet."
+            : "No Active Smartphones on this Contract yet — it will be added uninstalled."}
         </p>
       </div>
     );
@@ -51,7 +58,7 @@ export function SmartphonePicker({
       <select
         id={id}
         name={name}
-        required
+        required={required}
         disabled={disabled}
         {...(value === undefined
           ? { defaultValue: "" }
@@ -61,8 +68,8 @@ export function SmartphonePicker({
           styles.select,
         )}
       >
-        <option value="" disabled>
-          Choose a Smartphone
+        <option value="" disabled={required}>
+          {required ? "Choose a Smartphone" : "None"}
         </option>
         {active.map((phone) => (
           <option key={phone.id} value={phone.id}>

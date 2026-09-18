@@ -247,6 +247,22 @@ export interface RequestListItem {
   // The Option's price, for the Agent's completion step to pre-fill the Fee amount from
   // (still editable) — the amount itself is never re-read from the Option after that.
   topupOptionPrice?: number;
+  // provision-request-details ticket: a Provision Smartphone Request's own requested model, and a
+  // Provision SIM Request's flavor, Carrier and, for postpaid, Postpaid Plan — denormalized the
+  // same way as the target/Topup fields above. A Provision SIM's optional target Smartphone
+  // reuses targetSmartphoneId/targetSmartphoneModel above. Absent for every other type, and for a
+  // Request that existed before this ticket.
+  requestedModel?: string;
+  requestedFlavor?: SimCardFlavorValue;
+  requestedCarrierId?: string;
+  requestedCarrierName?: string;
+  requestedCarrierArchived?: boolean;
+  requestedPostpaidPlanId?: string;
+  requestedPostpaidPlanName?: string;
+  requestedPostpaidPlanArchived?: boolean;
+  // A one-time note from completing this Request (e.g. "added uninstalled, no room") — only ever
+  // present on the single response a completion PATCH itself returns.
+  completionNote?: string;
 }
 
 // Mirrors backend/.../dto/TesterResponse.java, as returned by GET /api/contracts/{id}/testers

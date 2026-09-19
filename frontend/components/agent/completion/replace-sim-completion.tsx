@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { RequestListItem, SimCardFlavorValue } from "@/lib/api/types";
 import { NewSimCardFields } from "./new-sim-card-fields";
+import { StockSimCardPicker } from "./stock-unit-pickers";
 import type { CompletionBodyBuilder, CompletionFormProps } from "./types";
 
 /**
@@ -58,25 +59,12 @@ export function ReplaceSimCompletion({
         Retires <span className="font-medium text-ink-secondary">{request.targetSimCardNumber}</span>; the new SIM
         Card takes its Smartphone slot, if any.
       </p>
-      {matchingStock.length > 0 ? (
-        <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-          From my Stock (optional)
-          <select
-            name="fulfillFromStockSimCardId"
-            value={fulfillFromStockId}
-            onChange={(event) => setFulfillFromStockId(event.target.value)}
-            disabled={disabled}
-            className="h-7 rounded-md border border-hairline-strong bg-canvas px-2 text-[12px] text-ink"
-          >
-            <option value="">None — add a new SIM Card</option>
-            {matchingStock.map((unit) => (
-              <option key={unit.id} value={unit.id}>
-                {unit.number}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : null}
+      <StockSimCardPicker
+        matchingStock={matchingStock}
+        value={fulfillFromStockId}
+        onChange={setFulfillFromStockId}
+        disabled={disabled}
+      />
       {fulfillFromStockId ? null : (
         <NewSimCardFields
           carriers={carriers}

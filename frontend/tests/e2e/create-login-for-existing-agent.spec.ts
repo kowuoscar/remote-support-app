@@ -9,25 +9,17 @@ import { Client } from "pg";
  *
  * The API can no longer create a login-less Agent, so that fixture is inserted straight into the
  * e2e database — with the backend AgentLoginApiTest's fixture, the only places setup bypasses
- * the API (spec.md "Testing decisions"). The connection defaults to docker-compose's Postgres;
- * E2E_DATABASE_URL points it elsewhere.
+ * the API (spec.md "Testing decisions"), into the database E2E_DATABASE_URL names.
  */
 const MANAGER = { username: "manager@example.com", password: "ChangeMe123!" } as const;
-const DEFAULT_DATABASE_URL = "postgres://remote_support:remote_support@127.0.0.1:5432/remote_support";
-const DATABASE_URL = process.env.E2E_DATABASE_URL ?? DEFAULT_DATABASE_URL;
-
-if (!process.env.E2E_DATABASE_URL) {
-  // Loud on purpose: this is docker-compose's own Postgres — the one a developer's local stack
-  // and any other in-progress work point at. Right for a single dev running `npm run test:e2e`
-  // against their own compose stack; wrong, and silently so, for anything running against an
-  // isolated database (e.g. a worktree). Set E2E_DATABASE_URL there instead of relying on this.
-  console.warn(
-    `\n${"!".repeat(78)}\n` +
-      `! create-login-for-existing-agent.spec.ts: E2E_DATABASE_URL is not set.\n` +
-      `! Writing test fixtures straight into ${DEFAULT_DATABASE_URL}\n` +
-      `! That is docker-compose's own Postgres, not an isolated test database.\n` +
-      `! If this isn't your own local dev stack, set E2E_DATABASE_URL and re-run.\n` +
-      `${"!".repeat(78)}\n`,
+// No fallback, on purpose. playwright.e2e.config.ts names docker-compose's Postgres for the
+// standard flow; any other config must name its own database. A silent default here wrote test
+// Agents into a developer's live database five times before this guard replaced a warning.
+const DATABASE_URL = process.env.E2E_DATABASE_URL;
+if (!DATABASE_URL) {
+  throw new Error(
+    "E2E_DATABASE_URL is not set. This spec inserts fixtures straight into Postgres: run it through " +
+      "playwright.e2e.config.ts, or set E2E_DATABASE_URL to the database your stack under test uses.",
   );
 }
 

@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.support.IntegrationTest;
 import java.util.HashMap;
@@ -67,23 +66,6 @@ class RequestApiTest extends IntegrationTest {
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
-  }
-
-  /** Looks up a Tester's id by username via the Contract-scoped testers listing. */
-  private UUID findTesterId(String callerToken, UUID contractId, String username) throws Exception {
-    MvcResult result =
-        mockMvc
-            .perform(
-                get("/api/contracts/" + contractId + "/testers")
-                    .header("Authorization", "Bearer " + callerToken))
-            .andExpect(status().isOk())
-            .andReturn();
-    for (JsonNode node : objectMapper.readTree(result.getResponse().getContentAsString())) {
-      if (username.equals(node.get("username").asText())) {
-        return UUID.fromString(node.get("id").asText());
-      }
-    }
-    throw new IllegalStateException("No tester named " + username + " found on contract " + contractId);
   }
 
   @ParameterizedTest

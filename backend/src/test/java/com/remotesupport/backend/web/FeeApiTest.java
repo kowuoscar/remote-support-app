@@ -81,22 +81,6 @@ class FeeApiTest extends IntegrationTest {
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
   }
 
-  private UUID findTesterId(String callerToken, UUID contractId, String username) throws Exception {
-    MvcResult result =
-        mockMvc
-            .perform(
-                get("/api/contracts/" + contractId + "/testers")
-                    .header("Authorization", "Bearer " + callerToken))
-            .andExpect(status().isOk())
-            .andReturn();
-    for (JsonNode node : objectMapper.readTree(result.getResponse().getContentAsString())) {
-      if (username.equals(node.get("username").asText())) {
-        return UUID.fromString(node.get("id").asText());
-      }
-    }
-    throw new IllegalStateException("No tester named " + username + " found on contract " + contractId);
-  }
-
   // --- AC: Fee creation for each eligible Request type -----------------------------------------
 
   @ParameterizedTest

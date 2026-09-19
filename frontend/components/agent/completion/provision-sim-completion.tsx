@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { CarrierPicker } from "@/components/fleet/carrier-picker";
 import { PostpaidPlanPicker } from "@/components/fleet/postpaid-plan-picker";
-import { SIM_CARD_FLAVOR_LABEL, type SimCardFlavorValue } from "@/lib/api/types";
-import type { CompletionFormProps } from "./types";
+import { SIM_CARD_FLAVOR_LABEL, type RequestListItem, type SimCardFlavorValue } from "@/lib/api/types";
+import type { CompletionBodyBuilder, CompletionFormProps } from "./types";
 
 /**
  * Completing a Provision SIM Request (provision-request-details ticket AC: "Completing a
@@ -109,3 +109,25 @@ export function ProvisionSimCompletion({
     </>
   );
 }
+
+/** @see CompletionBodyBuilder */
+export const buildProvisionSimCompletionBody: CompletionBodyBuilder = (
+  request: RequestListItem,
+  formData: FormData,
+) => {
+  if (request.requestedFlavor) {
+    return { simCardNumber: String(formData.get("simCardNumber")) };
+  }
+
+  const body: Record<string, unknown> = {
+    newSimCard: {
+      number: String(formData.get("number")),
+      carrierId: String(formData.get("carrierId")),
+      flavor: formData.get("flavor"),
+      postpaidPlanId: formData.get("flavor") === "POSTPAID" ? String(formData.get("postpaidPlanId")) : undefined,
+    },
+  };
+  const replaces = String(formData.get("replacesSimCardId") ?? "");
+  if (replaces) body.replacesSimCardId = replaces;
+  return body;
+};

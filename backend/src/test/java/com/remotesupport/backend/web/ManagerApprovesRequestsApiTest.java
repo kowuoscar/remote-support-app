@@ -3,7 +3,6 @@ package com.remotesupport.backend.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -181,16 +180,16 @@ class ManagerApprovesRequestsApiTest extends IntegrationTest {
     // ...but the general status route refuses to move it anywhere except Cancelled, even to what
     // approval alone would set (Submitted) — approve/reject only ever happen through their own
     // dedicated actions.
-    patchStatus(requestId, "{\"status\":\"SUBMITTED\"}").andExpect(status().isBadRequest());
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isConflict());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"SUBMITTED\"}").andExpect(status().isBadRequest());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isConflict());
   }
 
   @Test
   void anAgentOrManagerCanCancelAPendingApprovalRequestWithAReason() throws Exception {
     UUID requestId = submitProvisionSmartphone();
 
-    patchStatus(requestId, "{\"status\":\"CANCELLED\"}").andExpect(status().isBadRequest());
-    patchStatus(requestId, "{\"status\":\"CANCELLED\",\"cancellationReason\":\"No longer needed\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"CANCELLED\"}").andExpect(status().isBadRequest());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"CANCELLED\",\"cancellationReason\":\"No longer needed\"}")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("CANCELLED"));
 
@@ -207,8 +206,8 @@ class ManagerApprovesRequestsApiTest extends IntegrationTest {
     UUID requestId = submitProvisionSmartphone();
     approveAsManager(managerToken, requestId);
 
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("COMPLETED"));
 
@@ -277,7 +276,7 @@ class ManagerApprovesRequestsApiTest extends IntegrationTest {
     feeRequest(rejectedRequestId, "PROVISION_SMARTPHONE").andExpect(status().isBadRequest());
 
     UUID cancelledRequestId = submitProvisionSmartphone();
-    patchStatus(cancelledRequestId, "{\"status\":\"CANCELLED\",\"cancellationReason\":\"No longer needed\"}")
+    patchStatus(contractId, cancelledRequestId, agentToken, "{\"status\":\"CANCELLED\",\"cancellationReason\":\"No longer needed\"}")
         .andExpect(status().isOk());
     feeRequest(cancelledRequestId, "PROVISION_SMARTPHONE").andExpect(status().isBadRequest());
   }
@@ -354,7 +353,7 @@ class ManagerApprovesRequestsApiTest extends IntegrationTest {
 
   private UUID submitProvisionSmartphone() throws Exception {
     MvcResult result =
-        postRequest(testerToken, "{\"type\":\"PROVISION_SMARTPHONE\",\"requestedModel\":\"Fixture Model\"}")
+        postRequest(contractId, testerToken, "{\"type\":\"PROVISION_SMARTPHONE\",\"requestedModel\":\"Fixture Model\"}")
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
             .andReturn();
@@ -363,7 +362,10 @@ class ManagerApprovesRequestsApiTest extends IntegrationTest {
 
   private UUID submitReplaceSmartphone(UUID targetSmartphoneId) throws Exception {
     MvcResult result =
-        postRequest(testerToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\"}".formatted(targetSmartphoneId))
+        postRequest(
+                contractId,
+                testerToken,
+                "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\"}".formatted(targetSmartphoneId))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
@@ -379,22 +381,6 @@ class ManagerApprovesRequestsApiTest extends IntegrationTest {
                 {"requestId":"%s","feeType":"%s","amount":10.00}
                 """
                     .formatted(requestId, feeType)));
-  }
-
-  private ResultActions postRequest(String token, String json) throws Exception {
-    return mockMvc.perform(
-        post("/api/contracts/" + contractId + "/requests")
-            .header("Authorization", "Bearer " + token)
-            .contentType(APPLICATION_JSON)
-            .content(json));
-  }
-
-  private ResultActions patchStatus(UUID requestId, String json) throws Exception {
-    return mockMvc.perform(
-        patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
-            .header("Authorization", "Bearer " + agentToken)
-            .contentType(APPLICATION_JSON)
-            .content(json));
   }
 
   private UUID findTesterId() throws Exception {

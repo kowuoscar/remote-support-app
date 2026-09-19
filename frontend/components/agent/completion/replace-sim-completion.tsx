@@ -4,8 +4,8 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { CarrierPicker } from "@/components/fleet/carrier-picker";
 import { PostpaidPlanPicker } from "@/components/fleet/postpaid-plan-picker";
-import type { SimCardFlavorValue } from "@/lib/api/types";
-import type { CompletionFormProps } from "./types";
+import type { RequestListItem, SimCardFlavorValue } from "@/lib/api/types";
+import type { CompletionBodyBuilder, CompletionFormProps } from "./types";
 
 /**
  * Completing a Replace SIM Request (replace-requests ticket AC: "Completing a Replace SIM asks
@@ -91,3 +91,19 @@ export function ReplaceSimCompletion({
     </>
   );
 }
+
+/** @see CompletionBodyBuilder */
+export const buildReplaceSimCompletionBody: CompletionBodyBuilder = (
+  _request: RequestListItem,
+  formData: FormData,
+) => ({
+  // replace-requests ticket: the new SIM Card's own details, defaulted from the old one's by
+  // `ReplaceSimCompletion` — Replace SIM has no "requested" fields on the Request itself the way
+  // Provision SIM does, so this is always the full form, never a narrow read-only summary.
+  newSimCard: {
+    number: String(formData.get("number")),
+    carrierId: String(formData.get("carrierId")),
+    flavor: formData.get("flavor"),
+    postpaidPlanId: formData.get("flavor") === "POSTPAID" ? String(formData.get("postpaidPlanId")) : undefined,
+  },
+});

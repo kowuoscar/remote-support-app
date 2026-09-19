@@ -89,6 +89,26 @@ class ManagerApprovesRequestsApiTest extends IntegrationTest {
         .andExpect(status().isConflict());
   }
 
+  /**
+   * The approve action accepts an optional body (empty for every type today) rather than none at
+   * all, so a future type-specific payload — a Return Request's per-unit Disposition
+   * (CONTEXT.md "Disposition") — has somewhere to go without a breaking change to this route or
+   * its callers that still send nothing.
+   */
+  @Test
+  void approvingWithAnEmptyBodyStillWorks() throws Exception {
+    UUID requestId = submitProvisionSmartphone();
+
+    mockMvc
+        .perform(
+            post("/api/requests/" + requestId + "/approve")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("{}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SUBMITTED"));
+  }
+
   @Test
   void approvingANonPendingRequestIsAConflict() throws Exception {
     UUID requestId = submitProvisionSmartphone();

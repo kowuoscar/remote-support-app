@@ -245,7 +245,7 @@ class CarrierOfferApiTest extends IntegrationTest {
   void aTesterIsRefusedOnEveryRoute(String list) throws Exception {
     UUID entryId = createEntry(managerToken(), SEEDED_ATT, list, "Tester Bait", "5.00");
 
-    for (String token : new String[] {testerToken(), demoTesterToken()}) {
+    for (String token : new String[] {testerToken(), linkedTesterToken()}) {
       mockMvc
           .perform(get(listUrl(SEEDED_ATT, list)).header("Authorization", "Bearer " + token))
           .andExpect(status().isForbidden());

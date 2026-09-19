@@ -4,7 +4,8 @@ import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { IconAlertTriangle, IconPlus } from "@/components/icons";
+import { IconPlus } from "@/components/icons";
+import { FormErrorAlert, TesterSelectField } from "@/components/agent/proactive-dialog-fields";
 import { REQUEST_DETAILS_COMPONENTS } from "@/components/requests/details/registry";
 import {
   REQUEST_TYPE_LABEL,
@@ -163,15 +164,7 @@ export function LogRequestDialog({
             </p>
           </div>
 
-          {error ? (
-            <div
-              role="alert"
-              className="flex items-start gap-2 rounded-lg bg-danger-bg px-3 py-2.5 text-[13px] text-danger"
-            >
-              <IconAlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{error}</span>
-            </div>
-          ) : null}
+          <FormErrorAlert error={error} />
 
           {testers.length === 0 ? (
             <p className="text-[13px] text-ink-mute">
@@ -179,22 +172,7 @@ export function LogRequestDialog({
             </p>
           ) : (
             <>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                Tester
-                <select
-                  name="testerId"
-                  required
-                  defaultValue={testers[0]?.id}
-                  disabled={submitting}
-                  className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
-                >
-                  {testers.map((tester) => (
-                    <option key={tester.id} value={tester.id}>
-                      {tester.username}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <TesterSelectField testers={testers} disabled={submitting} />
 
               <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
                 Request type

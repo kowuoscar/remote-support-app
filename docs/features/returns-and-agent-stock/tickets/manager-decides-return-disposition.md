@@ -1,7 +1,7 @@
 ---
 id: manager-decides-return-disposition
 title: The Manager decides what happens to returned company-owned units
-status: in-progress
+status: done
 depends_on: [return-client-owned-smartphones]
 labels: [backend, frontend, requests, fleet]
 ---
@@ -12,13 +12,13 @@ Opens Return to company-owned units. Implements `spec.md` Solution (Approval; Di
 
 ## Acceptance criteria
 
-- [ ] A Return naming any SIM Card or company-owned Smartphone is accepted and starts at Pending Approval, whoever raised it
-- [ ] On the Pending Requests page, approving a Return asks for a Disposition per company-owned unit — Posted to company for a Smartphone, Cancelled for a SIM Card (the only choices until `agent-stock`) — and is refused until every one is chosen; a Client-owned Smartphone shows "Posted to Client" with nothing to choose
-- [ ] Dispositions can't be changed after approval
-- [ ] Completing the Return asks the Agent for an effective cancellation date for each SIM Card being cancelled, past or future, and is refused without one
-- [ ] A Smartphone posted to the company is retired; a cancelled SIM Card is retired, uninstalled, and keeps its cancellation date, shown in the Fleet tables
-- [ ] Every Requests list shows each unit's Disposition once decided
-- [ ] Agent and Tester get 403 on setting a Disposition
+- [x] A Return naming any SIM Card or company-owned Smartphone is accepted and starts at Pending Approval, whoever raised it
+- [x] On the Pending Requests page, approving a Return asks for a Disposition per company-owned unit — Posted to company for a Smartphone, Cancelled for a SIM Card (the only choices until `agent-stock`) — and is refused until every one is chosen; a Client-owned Smartphone shows "Posted to Client" with nothing to choose
+- [x] Dispositions can't be changed after approval
+- [x] Completing the Return asks the Agent for an effective cancellation date for each SIM Card being cancelled, past or future, and is refused without one
+- [x] A Smartphone posted to the company is retired; a cancelled SIM Card is retired, uninstalled, and keeps its cancellation date, shown in the Fleet tables
+- [x] Every Requests list shows each unit's Disposition once decided
+- [x] Agent and Tester get 403 on setting a Disposition
 
 ## Tests
 

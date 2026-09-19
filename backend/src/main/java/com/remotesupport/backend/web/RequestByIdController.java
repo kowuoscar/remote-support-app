@@ -3,6 +3,7 @@ package com.remotesupport.backend.web;
 import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
 import com.remotesupport.backend.domain.User;
+import com.remotesupport.backend.dto.RequestApprovalRequest;
 import com.remotesupport.backend.dto.RequestRejectRequest;
 import com.remotesupport.backend.dto.RequestResponse;
 import com.remotesupport.backend.logging.AuditLog;
@@ -46,7 +47,13 @@ public class RequestByIdController {
 
   @PostMapping("/approve")
   public RequestResponse approve(
-      @PathVariable UUID requestId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+      @PathVariable UUID requestId,
+      // Optional: every type this ticket covers approves with no input at all, but the body is
+      // already accepted (and ignored) so a future type-specific approval payload — a Return
+      // Request's per-unit Disposition — can be added to RequestApprovalRequest without breaking
+      // today's callers, which send no body (see that DTO's Javadoc).
+      @RequestBody(required = false) RequestApprovalRequest requestBody,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Request request = findPendingApproval(requestId, principal);
 
     request.setStatus(RequestStatus.SUBMITTED);

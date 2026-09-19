@@ -9,6 +9,7 @@ import {
   type RequestListItem,
   type SimCardListItem,
   type SmartphoneListItem,
+  type StockUnitItem,
 } from "@/lib/api/types";
 
 export const metadata = { title: "Requests" };
@@ -28,10 +29,14 @@ export default async function AgentRequestsPage() {
   // topup-fee-from-option ticket: the log-Fee dialog's Topup Option picker reads the same
   // catalog. A catalog that fails to load only hides the Option picker; a Fee needs no Option,
   // and CarrierPicker shows its own "add one" fallback when there's no active Carrier.
-  const [contracts, meResponse, catalog] = await Promise.all([
+  // fulfil-from-stock ticket: the completion step's "from my Stock" picker reads the Agent's own
+  // Stock, fetched once up front like the catalog — an AGENT-role token always gets their own
+  // Stock regardless of which Contract is selected (StockController#resolveScopeAgentId).
+  const [contracts, meResponse, catalog, stock] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),
     loadCarrierCatalog(),
+    backendFetchList<StockUnitItem>("/api/stock"),
   ]);
   const me = meResponse.ok ? ((await meResponse.json()) as { username?: string }) : {};
 
@@ -90,6 +95,7 @@ export default async function AgentRequestsPage() {
         smartphonesByContract={smartphonesByContract}
         simCardsByContract={simCardsByContract}
         carriers={catalog?.carriers ?? []}
+        stock={stock}
       />
     </SurfacePage>
   );

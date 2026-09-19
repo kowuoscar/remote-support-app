@@ -1,21 +1,64 @@
 "use client";
 
-import type { CompletionFormProps } from "./types";
+import { useState } from "react";
+import type { CompletionBodyBuilder, CompletionFormProps } from "./types";
 
 /**
  * Completing a Replace Smartphone Request (replace-requests ticket AC: "Completing a Replace
  * Smartphone retires the named Smartphone, adds a company-owned one with the requested or the
  * same model, and moves the old one's SIM Cards into it; no Agent input"). Registered against
- * `REPLACE_SMARTPHONE` in `registry.tsx`. Always this one, read-only shape — unlike Provision
- * Smartphone, this type has no Request predating it to fall back for.
+ * `REPLACE_SMARTPHONE` in `registry.tsx`. Read-only, unless the Agent picks a Smartphone from
+ * their own Stock (fulfil-from-stock ticket AC): a Smartphone has no matching rule beyond
+ * ownership, so the picker shows whenever the Agent's own Stock has any Smartphone at all.
  */
-export function ReplaceSmartphoneCompletion({ request }: CompletionFormProps) {
+export function ReplaceSmartphoneCompletion({ request, stockSmartphones = [], disabled }: CompletionFormProps) {
+  const [fulfillFromStockId, setFulfillFromStockId] = useState("");
   const newModel = request.requestedModel ?? request.targetSmartphoneModel;
+  const hasStock = stockSmartphones.length > 0;
+
   return (
-    <p className="text-[11px] text-ink-mute">
-      Retires <span className="font-medium text-ink-secondary">{request.targetSmartphoneModel}</span> and adds{" "}
-      <span className="font-medium text-ink-secondary">{newModel}</span> to the Fleet, company-owned, with its SIM
-      Cards carried over. Set its serial later from the Fleet page.
-    </p>
+    <>
+      {fulfillFromStockId ? (
+        <p className="text-[11px] text-ink-mute">
+          Retires <span className="font-medium text-ink-secondary">{request.targetSmartphoneModel}</span> and moves
+          the picked Smartphone from your Stock onto this Contract instead, with its SIM Cards carried over.
+        </p>
+      ) : (
+        <p className="text-[11px] text-ink-mute">
+          Retires <span className="font-medium text-ink-secondary">{request.targetSmartphoneModel}</span> and adds{" "}
+          <span className="font-medium text-ink-secondary">{newModel}</span> to the Fleet, company-owned, with its
+          SIM Cards carried over. Set its serial later from the Fleet page.
+        </p>
+      )}
+      {hasStock ? (
+        <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
+          From my Stock (optional)
+          <select
+            name="fulfillFromStockSmartphoneId"
+            value={fulfillFromStockId}
+            onChange={(event) => setFulfillFromStockId(event.target.value)}
+            disabled={disabled}
+            className="h-7 rounded-md border border-hairline-strong bg-canvas px-2 text-[12px] text-ink"
+          >
+            <option value="">None — add a new Smartphone</option>
+            {stockSmartphones.map((unit) => (
+              <option key={unit.id} value={unit.id}>
+                {unit.model}
+                {unit.serial ? ` — ${unit.serial}` : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+    </>
   );
 }
+
+/** @see CompletionBodyBuilder */
+export const buildReplaceSmartphoneCompletionBody: CompletionBodyBuilder = (_request, formData) => {
+  const fulfillFromStockSmartphoneId = String(formData.get("fulfillFromStockSmartphoneId") ?? "");
+  if (fulfillFromStockSmartphoneId) {
+    return { fulfillFromStockSmartphoneId };
+  }
+  return {};
+};

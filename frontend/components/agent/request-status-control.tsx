@@ -18,6 +18,7 @@ import {
   type RequestListItem,
   type SimCardListItem,
   type SmartphoneListItem,
+  type StockUnitItem,
 } from "@/lib/api/types";
 
 /**
@@ -46,6 +47,8 @@ export function RequestStatusControl({
   currency,
   activeSmartphones = [],
   activeSimCards = [],
+  stockSmartphones = [],
+  stockSimCards = [],
   carriers = [],
   carriersHref = "/agent/carriers",
 }: {
@@ -53,6 +56,9 @@ export function RequestStatusControl({
   currency: string;
   activeSmartphones?: SmartphoneListItem[];
   activeSimCards?: SimCardListItem[];
+  /** The Agent's own Stock, split by kind (fulfil-from-stock ticket) — see CompletionFormProps. */
+  stockSmartphones?: StockUnitItem[];
+  stockSimCards?: StockUnitItem[];
   carriers?: CatalogCarrierItem[];
   carriersHref?: string;
 }) {
@@ -284,6 +290,8 @@ export function RequestStatusControl({
             currency={currency}
             activeSmartphones={activeSmartphones}
             activeSimCards={activeSimCards}
+            stockSmartphones={stockSmartphones}
+            stockSimCards={stockSimCards}
             disabled={pending}
           />
         ) : null}

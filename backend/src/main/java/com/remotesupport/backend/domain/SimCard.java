@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,9 +37,17 @@ public class SimCard {
   @JoinColumn(name = "tenant_id", nullable = false)
   private Tenant tenant;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "contract_id", nullable = false)
+  // Nullable since agent-stock: a SIM Card kept in Stock (Disposition KEPT_IN_STOCK) belongs to
+  // no Contract, matching Smartphone's own exactly-one-of-contract/holdingAgent shape (V53
+  // migration's CHECK; CONTEXT.md "Agent Stock").
+  @ManyToOne
+  @JoinColumn(name = "contract_id")
   private Contract contract;
+
+  /** The Agent holding this SIM Card in their Stock, or {@code null} while it's on a Contract. */
+  @ManyToOne
+  @JoinColumn(name = "holding_agent_id")
+  private Agent holdingAgent;
 
   @Column(nullable = false)
   private String number;
@@ -84,6 +93,16 @@ public class SimCard {
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
+
+  /**
+   * The effective cancellation date given at completion of a {@code RETURN} Request that cancels
+   * this SIM Card (returns-and-agent-stock spec, Solution's Completion table;
+   * manager-decides-return-disposition ticket) — set only once, alongside retiring it, and never
+   * re-read afterward except for display and billing (CONTEXT.md "Disposition"). {@code null} for
+   * every SIM Card retired any other way.
+   */
+  @Column(name = "cancellation_effective_date")
+  private LocalDate cancellationEffectiveDate;
 
   /** This SIM Card's Postpaid Plan id, or {@code null} when it has none — the data lives here. */
   public UUID postpaidPlanId() {

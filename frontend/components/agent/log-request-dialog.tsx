@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { IconPlus } from "@/components/icons";
 import { FormErrorAlert, TesterSelectField } from "@/components/agent/proactive-dialog-fields";
 import { REQUEST_DETAILS_COMPONENTS } from "@/components/requests/details/registry";
+import { parseReturnedUnitIds } from "@/components/requests/details/return-request-details";
 import {
   REQUEST_TYPE_LABEL,
   requestTypeRequiresApproval,
@@ -27,6 +28,7 @@ const requestTypes: RequestTypeValue[] = [
   "REPLACE_SMARTPHONE",
   "REPLACE_SIM",
   "OTHER",
+  "RETURN",
 ];
 
 /**
@@ -104,6 +106,11 @@ export function LogRequestDialog({
     const simCardNumber = String(formData.get("simCardNumber") ?? "");
     // sim-swap-moves ticket: only present for a SIM Swap exchange.
     const secondSimCardId = String(formData.get("secondSimCardId") ?? "");
+    // return-client-owned-smartphones ticket: the Return details section's one multi-select,
+    // split back into the two id lists the backend takes.
+    const { returnedSmartphoneIds, returnedSimCardIds } = parseReturnedUnitIds(
+      formData.getAll("returnedUnitIds").map(String),
+    );
 
     setSubmitting(true);
     try {
@@ -124,6 +131,8 @@ export function LogRequestDialog({
           requestedPostpaidPlanId: requestedPostpaidPlanId || undefined,
           simCardNumber: simCardNumber || undefined,
           secondSimCardId: secondSimCardId || undefined,
+          returnedSmartphoneIds: returnedSmartphoneIds.length ? returnedSmartphoneIds : undefined,
+          returnedSimCardIds: returnedSimCardIds.length ? returnedSimCardIds : undefined,
         }),
       });
 

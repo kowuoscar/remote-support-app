@@ -7,6 +7,13 @@ import { defineConfig } from "@playwright/test";
  * the two would make the goldens depend on a database, and would make this suite pay for a full
  * production build it doesn't need.
  */
+// This committed config IS the docker-compose flow: its backend (scripts/run-backend-for-e2e.sh)
+// runs against docker-compose's Postgres, so the specs that insert fixtures directly use that same
+// database. Naming it here, rather than letting a spec fall back to it, is what lets those specs
+// refuse to run when E2E_DATABASE_URL is missing: any other config — an isolated stack on other
+// ports, a worktree — must say which database it means, or fail before writing anywhere.
+process.env.E2E_DATABASE_URL ??= "postgres://remote_support:remote_support@127.0.0.1:5432/remote_support";
+
 export default defineConfig({
   testDir: "./tests/e2e",
   // Diagnosed flake: the webServer `url` checks below only prove each process answers HTTP at

@@ -6,6 +6,7 @@ import com.remotesupport.backend.domain.ClientInvoiceFeeSnapshot;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Fee;
 import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
+import com.remotesupport.backend.dto.ClientInvoiceBaseSimLineResponse;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
 import com.remotesupport.backend.dto.FeeResponse;
 import com.remotesupport.backend.logging.AuditLog;
@@ -140,7 +141,9 @@ public class ClientInvoiceService {
     UUID contractId = invoice.getContract().getId();
     boolean frozen = invoice.getStatus() != ClientInvoiceStatus.DRAFT;
 
-    BigDecimal baseAmount = frozen ? invoice.getSnapshotBaseAmount() : contractAmountService.baseAmount(contractId);
+    BigDecimal baseAmount =
+        frozen ? invoice.getSnapshotBaseAmount() : contractAmountService.baseAmount(contractId, invoice.getBillingMonth());
+    List<ClientInvoiceBaseSimLineResponse> basePostpaidSims = frozen ? null : liveBasePostpaidSimLines(invoice);
     List<FeeResponse> feeLines = frozen ? snapshottedFeeLines(invoice) : liveFeeLines(invoice);
     BigDecimal feesTotal =
         feeLines.stream().map(FeeResponse::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -152,11 +155,26 @@ public class ClientInvoiceService {
         invoice.getStatus().name(),
         invoice.getCurrency().name(),
         baseAmount,
+        basePostpaidSims,
         feeLines,
         baseAmount.add(feesTotal),
         files(invoice),
         invoice.getSentAt(),
         invoice.getApprovedAt());
+  }
+
+  /**
+   * The live breakdown behind {@code baseAmount} — every Postpaid SIM Card this month's base
+   * amount counts, so the draft view can mark a still-billing cancelled one with its date
+   * (cancelled-sim-billed-through-its-month ticket AC). Only ever called while {@code DRAFT} — see
+   * {@link #toResponse}.
+   */
+  private List<ClientInvoiceBaseSimLineResponse> liveBasePostpaidSimLines(ClientInvoice invoice) {
+    return contractAmountService
+        .billablePostpaidSims(invoice.getContract().getId(), invoice.getBillingMonth())
+        .stream()
+        .map(ClientInvoiceBaseSimLineResponse::of)
+        .toList();
   }
 
   private List<FeeResponse> liveFeeLines(ClientInvoice invoice) {

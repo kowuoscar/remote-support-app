@@ -277,6 +277,10 @@ public class FeeController {
             // sim-swap-moves ticket: a proactive Fee can never auto-create a SIM_SWAP linking
             // Request (FeeType structurally excludes it), so there is no second SIM Card to name
             // here.
+            null,
+            // returns-and-agent-stock spec: a proactive Fee can never auto-create a RETURN linking
+            // Request either (FeeType structurally excludes it too), so there are no units to name.
+            null,
             null),
         request);
 
@@ -288,7 +292,14 @@ public class FeeController {
             requestBody.newSimCard(),
             requestBody.replacesSmartphoneId(),
             requestBody.replacesSimCardId(),
-            requestBody.simCardNumber()),
+            requestBody.simCardNumber(),
+            // A proactive Fee can never auto-create a RETURN linking Request (FeeType structurally
+            // excludes it), so there is never a cancellation to record here.
+            List.of(),
+            // fulfil-from-stock ticket: same reasoning as RequestController#completionInputOf —
+            // there is no completion step here to hang a "from my Stock" picker off.
+            null,
+            null),
         principal);
 
     requestRepository.save(request);

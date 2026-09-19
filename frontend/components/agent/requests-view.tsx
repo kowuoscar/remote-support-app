@@ -16,6 +16,7 @@ import {
   type RequestListItem,
   type SimCardListItem,
   type SmartphoneListItem,
+  type StockUnitItem,
 } from "@/lib/api/types";
 
 const AGENT_CARRIERS_HREF = "/agent/carriers";
@@ -35,6 +36,7 @@ export function AgentRequestsView({
   smartphonesByContract = {},
   simCardsByContract = {},
   carriers = [],
+  stock = [],
 }: {
   requests: RequestListItem[];
   contracts: ContractOption[];
@@ -43,11 +45,18 @@ export function AgentRequestsView({
   simCardsByContract?: Record<string, SimCardListItem[]>;
   /** The Agent's Country's Carrier catalog; every Contract of one Agent shares its Country. */
   carriers?: CatalogCarrierItem[];
+  /**
+   * The Agent's own Stock (fulfil-from-stock ticket) — one Agent, so it's the same list
+   * regardless of which of their own Contracts is selected in the switcher, unlike Fleet.
+   */
+  stock?: StockUnitItem[];
 }) {
   const { contractId, setContractId, status, setStatus, filtered } = useFilteredRequests(requests, contracts);
   const currency = contracts.find((c) => c.id === contractId)?.currency ?? "";
   const activeSmartphones = (smartphonesByContract[contractId] ?? []).filter((p) => p.status === "ACTIVE");
   const activeSimCards = (simCardsByContract[contractId] ?? []).filter((s) => s.status === "ACTIVE");
+  const stockSmartphones = stock.filter((unit) => unit.kind === "SMARTPHONE");
+  const stockSimCards = stock.filter((unit) => unit.kind === "SIM_CARD");
 
   if (contracts.length === 0) {
     return (
@@ -127,6 +136,8 @@ export function AgentRequestsView({
                       currency={currency}
                       activeSmartphones={activeSmartphones}
                       activeSimCards={activeSimCards}
+                      stockSmartphones={stockSmartphones}
+                      stockSimCards={stockSimCards}
                       carriers={carriers}
                       carriersHref={AGENT_CARRIERS_HREF}
                     />

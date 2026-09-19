@@ -11,7 +11,7 @@ import { IconAlertTriangle, IconDownload, IconInvoices, IconPaperclip } from "@/
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
 import { SendClientInvoiceControl } from "@/components/agent/send-client-invoice-control";
 import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from "@/lib/status";
-import { formatDate, formatDateShort } from "@/lib/format";
+import { formatDate, formatDateShort, formatLocalDate } from "@/lib/format";
 import { FEE_TYPE_LABEL, type ClientInvoiceDetail } from "@/lib/api/types";
 
 function billingMonthLabel(billingMonth: string): string {
@@ -124,6 +124,40 @@ export function AgentClientInvoicesView({
               </dd>
             </div>
           </dl>
+
+          {invoice.basePostpaidSims && invoice.basePostpaidSims.length > 0 ? (
+            <div>
+              <h3 className="mb-2 text-[13px] font-medium text-ink-secondary">Postpaid SIM Cards</h3>
+              <TableScroll>
+                <Table>
+                  <Thead>
+                    <Tr>
+                      <Th>Number</Th>
+                      <Th className="text-right">Monthly fee</Th>
+                    </Tr>
+                  </Thead>
+                  <Tbody>
+                    {invoice.basePostpaidSims.map((sim) => (
+                      <Tr key={sim.simCardId}>
+                        <Td className="tnum font-medium text-ink">
+                          {sim.number}
+                          {sim.cancellationEffectiveDate ? (
+                            <span className="mt-1 block text-[12px] font-normal text-ink-mute">
+                              Cancelled {formatLocalDate(sim.cancellationEffectiveDate)} — still billed through this
+                              month
+                            </span>
+                          ) : null}
+                        </Td>
+                        <Td className="text-right">
+                          <Money amount={sim.monthlyFeeAmount} currency={invoice.currency} />
+                        </Td>
+                      </Tr>
+                    ))}
+                  </Tbody>
+                </Table>
+              </TableScroll>
+            </div>
+          ) : null}
 
           <div>
             <h3 className="mb-2 text-[13px] font-medium text-ink-secondary">Fee lines</h3>

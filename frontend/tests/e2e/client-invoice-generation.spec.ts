@@ -58,7 +58,11 @@ test.describe("client invoice generation", () => {
     // Base amount: the one currently-Active Postpaid SIM's monthly fee. Fees this month: the
     // Topup fee just logged. Total: the sum of both — all three "at a glance" per the ticket's AC.
     await expect(page.getByText("Base amount", { exact: true })).toBeVisible();
-    await expect(page.getByText("$25.00", { exact: true })).toBeVisible();
+    // "$25.00" appears twice — once in the "Base amount" summary figure, once as this one
+    // Postpaid SIM's own monthly-fee line in the "Postpaid SIM Cards" breakdown
+    // (cancelled-sim-billed-through-its-month ticket) — both correct, so this only needs to
+    // confirm at least one renders.
+    await expect(page.getByText("$25.00", { exact: true }).first()).toBeVisible();
     // "$45.00" appears twice — once in the "Fees this month" summary figure, once as the Fee
     // line's own amount — both correct, so this only needs to confirm at least one renders.
     await expect(page.getByText("$45.00", { exact: true }).first()).toBeVisible();

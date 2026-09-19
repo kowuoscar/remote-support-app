@@ -230,6 +230,74 @@ class AgentInvoiceApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.localSupportFees").value(155.00));
   }
 
+  // --- AC: Local Support Fees moves in step with the Client Invoice base amount for a cancelled SIM ---
+
+  @Test
+  void localSupportFeesCountsAPostpaidSimCancelledOnOrAfterTheCurrentMonthsFirstDay() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Bellrock Systems");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken = createTesterAndLogin(managerToken, clientId, "wren.oduya@bellrock.example", "Passw0rd!23");
+    String agentToken = agentToken();
+
+    UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0400", "POSTPAID", "35.00");
+    cancelSimCard(contractId, managerToken, testerToken, agentToken, simCardId, currentMonth());
+
+    mockMvc
+        .perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.localSupportFees").value(35.00));
+  }
+
+  @Test
+  void localSupportFeesExcludesAPostpaidSimCancelledBeforeTheCurrentMonth() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Bellrock Systems Past");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "eshe.mwangi@bellrockpast.example", "Passw0rd!23");
+    String agentToken = agentToken();
+
+    UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0401", "POSTPAID", "35.00");
+    cancelSimCard(contractId, managerToken, testerToken, agentToken, simCardId, currentMonth().minusMonths(1));
+
+    mockMvc
+        .perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.localSupportFees").value(0));
+  }
+
+  @Test
+  void sendingFreezesLocalSupportFeesSoALaterCancellationNeverMovesIt() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Bellrock Systems Frozen");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "tao.lin@bellrockfrozen.example", "Passw0rd!23");
+    String agentToken = agentToken();
+
+    UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0402", "POSTPAID", "35.00");
+
+    mockMvc
+        .perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.localSupportFees").value(35.00));
+    mockMvc
+        .perform(post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.localSupportFees").value(35.00));
+
+    // Cancelling after send, with a date that would still count live this month, must never move
+    // the already-sent invoice (ADR 0003 — all four lines freeze together).
+    cancelSimCard(contractId, managerToken, testerToken, agentToken, simCardId, currentMonth());
+
+    mockMvc
+        .perform(get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"))
+        .andExpect(jsonPath("$.localSupportFees").value(35.00));
+  }
+
   // --- AC: Rollout Advance lines --------------------------------------------------------------
 
   @Test

@@ -477,13 +477,20 @@ public final class AuditLog {
    * A Manager approving a Pending Approval Request, moving it to Submitted
    * (manager-approves-requests ticket Observability: "Request approved and rejected: Request id,
    * actor, tenant, and that a reason was given" — approving never carries one, so this event omits
-   * the field entirely rather than always logging {@code reasonGiven=false}).
+   * the field entirely rather than always logging {@code reasonGiven=false}). {@code
+   * dispositionsChosen} (manager-decides-return-disposition ticket Observability: "The approved
+   * audit event carries the Dispositions") is a comma-joined {@code unitId=DISPOSITION} pair per
+   * unit the Manager just chose — empty for every non-{@code RETURN} approval, and for a {@code
+   * RETURN} approval that needed no choice at all (only Client-owned units).
    */
-  public static void requestApproved(UUID requestId, UUID contractId, UUID actorUserId, UUID tenantId) {
+  public static void requestApproved(
+      UUID requestId, UUID contractId, String dispositionsChosen, UUID actorUserId, UUID tenantId) {
     log.info(
-        "audit action=REQUEST_APPROVED entity=Request entityId={} contractId={} actorUserId={} tenantId={}",
+        "audit action=REQUEST_APPROVED entity=Request entityId={} contractId={} dispositionsChosen={} "
+            + "actorUserId={} tenantId={}",
         requestId,
         contractId,
+        dispositionsChosen,
         actorUserId,
         tenantId);
   }
@@ -502,6 +509,86 @@ public final class AuditLog {
         requestId,
         contractId,
         reasonGiven,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * One unit named on a completed Return (return-client-owned-smartphones ticket Observability:
+   * "A unit-returned audit event per unit: Request id, unit id, Disposition, actor, tenant").
+   * {@code entity} is {@code Smartphone} or {@code SimCard}, matching {@link #statusChanged}'s own
+   * vocabulary; {@code unitId} is that unit's own id, not the {@link
+   * com.remotesupport.backend.domain.ReturnedUnit} row's.
+   */
+  public static void unitReturned(
+      String entity, UUID unitId, UUID requestId, String disposition, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=UNIT_RETURNED entity={} entityId={} requestId={} disposition={} "
+            + "actorUserId={} tenantId={}",
+        entity,
+        unitId,
+        requestId,
+        disposition,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A SIM Card cancelled as part of a completed Return (manager-decides-return-disposition ticket
+   * Observability: "a SIM-cancelled event carries SIM Card id, effective date, Request id, actor,
+   * tenant") — distinct from {@link #unitReturned}'s own generic per-unit Disposition entry, which
+   * still fires for this same unit too; this one exists specifically to carry the date.
+   */
+  public static void simCardCancelled(
+      UUID simCardId, LocalDate effectiveDate, UUID requestId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=SIM_CARD_CANCELLED entity=SimCard entityId={} effectiveDate={} requestId={} "
+            + "actorUserId={} tenantId={}",
+        simCardId,
+        effectiveDate,
+        requestId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A unit moved into an Agent's Stock through a completed Return (agent-stock ticket
+   * Observability: "A unit-moved-to-Stock audit event: unit id, from Contract, Agent, Request id,
+   * actor, tenant") — fires alongside {@link #unitReturned}'s own generic per-unit Disposition
+   * entry (Disposition {@code KEPT_IN_STOCK}), the same way {@link #simCardCancelled} fires
+   * alongside it for a cancelled SIM Card. {@code entity} is {@code Smartphone} or {@code SimCard}.
+   */
+  public static void unitMovedToStock(
+      String entity, UUID unitId, UUID fromContractId, UUID agentId, UUID requestId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=UNIT_MOVED_TO_STOCK entity={} entityId={} fromContractId={} agentId={} requestId={} "
+            + "actorUserId={} tenantId={}",
+        entity,
+        unitId,
+        fromContractId,
+        agentId,
+        requestId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A unit fulfilled from an Agent's own Stock onto a Contract, completing a Provision or Replace
+   * Request (returns-and-agent-stock spec, Solution's Fulfilment from Stock; fulfil-from-stock
+   * ticket Observability: "A unit-fulfilled-from-Stock audit event: unit id, Agent, to Contract,
+   * Request id, actor, tenant") — the reverse of {@link #unitMovedToStock}. {@code entity} is
+   * {@code Smartphone} or {@code SimCard}.
+   */
+  public static void unitFulfilledFromStock(
+      String entity, UUID unitId, UUID agentId, UUID toContractId, UUID requestId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=UNIT_FULFILLED_FROM_STOCK entity={} entityId={} agentId={} toContractId={} requestId={} "
+            + "actorUserId={} tenantId={}",
+        entity,
+        unitId,
+        agentId,
+        toContractId,
+        requestId,
         actorUserId,
         tenantId);
   }

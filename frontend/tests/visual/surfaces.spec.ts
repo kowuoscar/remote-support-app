@@ -2,7 +2,15 @@ import { test, expect, type Page } from "@playwright/test";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
 
 interface Surface {
-  slug: "manager" | "agent" | "client" | "agent-carriers" | "manager-carriers" | "manager-requests";
+  slug:
+    | "manager"
+    | "agent"
+    | "client"
+    | "agent-carriers"
+    | "manager-carriers"
+    | "manager-requests"
+    | "agent-stock"
+    | "manager-stock";
   path: string;
   // The placeholder session token; the Carriers pages' tokens tell tests/visual/stub-backend.mjs
   // which role is asking, every other surface's token is unknown to it (see that file).
@@ -33,6 +41,11 @@ const surfaces: Surface[] = [
     session: "visual-manager-session",
     ready: "requests",
   },
+  // agent-stock ticket: the Agent's own Stock page and the Manager's (every Agent's, unfiltered),
+  // backed by tests/visual/stub-backend.mjs's fixture units — both non-empty, so both tables
+  // (Smartphones, SIM Cards) and the Manager's own Agent column are covered.
+  { slug: "agent-stock", path: "/agent/stock", session: "visual-agent-session", ready: "stock" },
+  { slug: "manager-stock", path: "/manager/stock", session: "visual-manager-session", ready: "stock" },
 ];
 
 const breakpoints = [
@@ -60,6 +73,10 @@ async function gotoAndSettle(page: Page, surface: Surface) {
     await page.getByRole("list", { name: "Carriers" }).waitFor({ state: "visible" });
   } else if (surface.ready === "requests") {
     await page.getByRole("table").waitFor({ state: "visible" });
+  } else if (surface.ready === "stock") {
+    // Two tables (Smartphones, SIM Cards) render on this page — .first() avoids a strict-mode
+    // violation from a bare getByRole("table").
+    await page.getByRole("table").first().waitFor({ state: "visible" });
   } else {
     // Dashboards demonstrate the Operate-mode skeleton-loading convention;
     // wait for the real content to land before capturing.

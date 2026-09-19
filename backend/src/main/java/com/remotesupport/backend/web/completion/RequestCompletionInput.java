@@ -1,7 +1,9 @@
 package com.remotesupport.backend.web.completion;
 
+import com.remotesupport.backend.dto.SimCardCancellationRequest;
 import com.remotesupport.backend.dto.SimCardCreateRequest;
 import com.remotesupport.backend.dto.SmartphoneCreateRequest;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -19,10 +21,33 @@ import java.util.UUID;
  * only a legacy Request (one with no details of its own from submission) still reads. {@code
  * simCardNumber} is the new-style Provision SIM completion's own, much narrower field. Every field
  * is optional here — an effect decides which of its own type's fields are actually required.
+ *
+ * <p>{@code simCardCancellations} (manager-decides-return-disposition ticket, spec.md Solution's
+ * Completion table) is a {@code RETURN} Request's own field: one effective cancellation date per
+ * SIM Card the Manager chose Cancelled for at approval — {@code ReturnCompletionEffect} refuses
+ * completion when one of those SIM Cards has no matching entry here. Only ever reachable through
+ * {@link com.remotesupport.backend.dto.RequestStatusUpdateRequest} (a later PATCH): a Return
+ * holding a SIM Card always starts Pending Approval, so it can never be created already {@code
+ * COMPLETED} the way {@link com.remotesupport.backend.dto.RequestCreateRequest} allows for other
+ * types — {@code null}/empty on every other path.
+ *
+ * <p>{@code fulfillFromStockSmartphoneId}/{@code fulfillFromStockSimCardId} (returns-and-agent-stock
+ * spec, Solution's Fulfilment from Stock; fulfil-from-stock ticket): only ever reachable through
+ * {@link com.remotesupport.backend.dto.RequestStatusUpdateRequest} (a later PATCH) — the Agent's
+ * completion-time choice to fulfil a Provision/Replace Request from their own Stock instead of
+ * adding a new unit or, for a SIM Card, asking for a number. {@code null} on every other path
+ * (an Agent-proactive Request starting immediately Completed, or a proactive Fee's linking Request)
+ * since those never go through the Agent's own completion step where the picker lives. {@link
+ * com.remotesupport.backend.web.StockFulfilmentService} is the one place both id's ownership/match
+ * rule is validated, called by whichever of the four effects (Provision Smartphone/SIM, Replace
+ * Smartphone/SIM) owns the field it's set on.
  */
 public record RequestCompletionInput(
     SmartphoneCreateRequest newSmartphone,
     SimCardCreateRequest newSimCard,
     UUID replacesSmartphoneId,
     UUID replacesSimCardId,
-    String simCardNumber) {}
+    String simCardNumber,
+    List<SimCardCancellationRequest> simCardCancellations,
+    UUID fulfillFromStockSmartphoneId,
+    UUID fulfillFromStockSimCardId) {}

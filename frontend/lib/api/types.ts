@@ -163,12 +163,17 @@ export interface SimCardListItem {
   status: SimCardStatusValue;
   installedInSmartphoneId?: string;
   installedInSmartphoneModel?: string;
+  // manager-decides-return-disposition ticket: set only for a SIM Card retired through a
+  // cancelled Return, keeping the effective cancellation date it was given at completion.
+  cancellationEffectiveDate?: string;
 }
 
 // Mirrors backend/.../domain/RequestType.java. OTHER replaces the former REPAIR
 // (other-replaces-repair ticket) — a free-text Request for support no other type covers.
 // REPLACE_SMARTPHONE/REPLACE_SIM (replace-requests ticket) swap out one named Fleet unit for a
 // new one — distinct from PROVISION_SMARTPHONE/PROVISION_SIM, which only ever mean a net-new unit.
+// RETURN (returns-and-agent-stock spec; return-client-owned-smartphones ticket) names one or more
+// Smartphones/SIM Cards leaving a Contract's Fleet, each with its own Disposition.
 export type RequestTypeValue =
   | "REBOOT"
   | "TOPUP"
@@ -177,7 +182,66 @@ export type RequestTypeValue =
   | "PROVISION_SIM"
   | "REPLACE_SMARTPHONE"
   | "REPLACE_SIM"
-  | "OTHER";
+  | "OTHER"
+  | "RETURN";
+
+// Mirrors backend/.../domain/Disposition.java (returns-and-agent-stock spec; CONTEXT.md
+// "Disposition"). This ticket (return-client-owned-smartphones) only ever produces
+// POSTED_TO_CLIENT, fixed at submission; the other three are chosen by the Company Manager at
+// approval (manager-decides-return-disposition, agent-stock tickets) — declared here now, the
+// same way RequestStatusValue declared PENDING_APPROVAL/REJECTED ahead of the ticket that first
+// wrote them.
+export type DispositionValue = "POSTED_TO_CLIENT" | "POSTED_TO_COMPANY" | "CANCELLED" | "KEPT_IN_STOCK";
+
+export const DISPOSITION_LABEL: Record<DispositionValue, string> = {
+  POSTED_TO_CLIENT: "Posted to Client",
+  POSTED_TO_COMPANY: "Posted to company",
+  CANCELLED: "Cancelled",
+  KEPT_IN_STOCK: "Kept in Stock",
+};
+
+// Mirrors backend/.../dto/ReturnedUnitResponse.java — one unit named on a RETURN Request, with
+// its own Disposition once decided. Exactly one of smartphoneId/simCardId is present.
+export interface ReturnedUnitItem {
+  id: string;
+  smartphoneId?: string;
+  smartphoneModel?: string;
+  simCardId?: string;
+  simCardNumber?: string;
+  // agent-stock ticket: present only for a SIM Card unit, so the Manager's Disposition picker can
+  // show a reminder on a Postpaid one without a second round-trip to the SIM Card itself.
+  simCardFlavor?: SimCardFlavorValue;
+  disposition?: DispositionValue;
+}
+
+// Mirrors backend/.../dto/StockUnitResponse.java (returns-and-agent-stock spec, Solution's Agent
+// Stock; agent-stock ticket): one Smartphone or SIM Card in an Agent's Stock. Exactly one of the
+// Smartphone-only fields (model, serial) or the SIM-Card-only fields (number, carrier*, flavor,
+// postpaidPlan*, monthlyFeeAmount) is present, matching SmartphoneListItem's/SimCardListItem's own
+// shapes — `kind` says which. fromContractId/fromClientName name the Contract the unit left.
+export type StockUnitKind = "SMARTPHONE" | "SIM_CARD";
+
+export interface StockUnitItem {
+  id: string;
+  kind: StockUnitKind;
+  agentId: string;
+  agentName: string;
+  agentCurrency: string;
+  model?: string;
+  serial?: string;
+  number?: string;
+  carrierId?: string;
+  carrierName?: string;
+  carrierArchived?: boolean;
+  flavor?: SimCardFlavorValue;
+  postpaidPlanId?: string;
+  postpaidPlanName?: string;
+  postpaidPlanArchived?: boolean;
+  monthlyFeeAmount?: number;
+  status: string;
+  fromContractId?: string;
+  fromClientName?: string;
+}
 
 // Mirrors backend/.../domain/RequestStatus.java. PENDING_APPROVAL/REJECTED
 // (manager-approves-requests ticket): the starting status of every approval-required type, and the
@@ -226,6 +290,7 @@ export const REQUEST_TYPE_LABEL: Record<RequestTypeValue, string> = {
   REPLACE_SMARTPHONE: "Replace Smartphone",
   REPLACE_SIM: "Replace SIM",
   OTHER: "Other",
+  RETURN: "Return",
 };
 
 export const REQUEST_STATUS_LABEL: Record<RequestStatusValue, string> = {
@@ -307,6 +372,9 @@ export interface RequestListItem {
   secondSimCardNumber?: string;
   secondTargetSmartphoneId?: string;
   secondTargetSmartphoneModel?: string;
+  // return-client-owned-smartphones ticket: every unit a RETURN Request names, with its own
+  // Disposition once decided. Absent for every other type.
+  returnedUnits?: ReturnedUnitItem[];
 }
 
 // Mirrors backend/.../dto/PendingRequestItemResponse.java, as returned by GET
@@ -402,12 +470,26 @@ export interface CarrierInvoiceFileListItem {
   uploadedAt: string;
 }
 
+// Mirrors backend/.../dto/ClientInvoiceBaseSimLineResponse.java — one Postpaid SIM Card counted
+// in a draft Client Invoice's live base amount (cancelled-sim-billed-through-its-month ticket).
+// cancellationEffectiveDate is present only for a SIM Card still billing because it was cancelled
+// on or after this month's first day (spec.md Solution, "Billing a cancelled Postpaid SIM") —
+// absent for a currently-Active one, mirroring SimCard's own field.
+export interface ClientInvoiceBaseSimLine {
+  simCardId: string;
+  number: string;
+  monthlyFeeAmount: number;
+  cancellationEffectiveDate: string | null;
+}
+
 // Mirrors backend/.../dto/ClientInvoiceResponse.java. While `status` is DRAFT,
 // baseAmount/feeLines/totalAmount are computed live by the backend on every fetch
 // (client-invoice-generation ticket); from SENT onward they are read from the frozen snapshot
 // instead (client-invoice-submission-and-visibility ticket) — the shape is identical either way,
 // only where the backend sourced the numbers changes. sentAt/approvedAt are null until each
-// transition happens.
+// transition happens. basePostpaidSims is the live breakdown behind baseAmount — present only
+// while DRAFT, null from SENT onward since there is no frozen per-unit breakdown to serve (ADR
+// 0001; cancelled-sim-billed-through-its-month ticket).
 export interface ClientInvoiceDetail {
   id: string;
   contractId: string;
@@ -415,6 +497,7 @@ export interface ClientInvoiceDetail {
   status: ClientInvoiceStatusValue;
   currency: string;
   baseAmount: number;
+  basePostpaidSims?: ClientInvoiceBaseSimLine[];
   feeLines: FeeListItem[];
   totalAmount: number;
   files: CarrierInvoiceFileListItem[];

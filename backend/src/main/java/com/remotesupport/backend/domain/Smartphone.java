@@ -15,8 +15,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * A Smartphone provisioned under one {@link Contract}'s Fleet (spec.md Solution). Fleet has no
- * separate table — Smartphone references its owning Contract directly.
+ * A Smartphone provisioned under one {@link Contract}'s Fleet, or held in one {@link Agent}'s
+ * Stock (returns-and-agent-stock spec, Solution's Agent Stock; agent-stock ticket) — Fleet has no
+ * separate table — Smartphone references its owning Contract directly. Exactly one of {@code
+ * contract}/{@code holdingAgent} is set (V52 migration's own CHECK, mirroring {@link
+ * com.remotesupport.backend.domain.ReturnedUnit}'s own exactly-one-of check): a unit in the Agent's
+ * Stock belongs to no Contract (CONTEXT.md "Agent Stock": "a unit in exactly one place, a
+ * Contract's Fleet or an Agent's Stock"). Set only by {@code ReturnCompletionEffect} (entering
+ * Stock, a Kept in Stock Disposition) and, in a later ticket, by Stock fulfilment (leaving it).
  */
 @Entity
 @Table(name = "smartphones")
@@ -31,9 +37,14 @@ public class Smartphone {
   @JoinColumn(name = "tenant_id", nullable = false)
   private Tenant tenant;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "contract_id", nullable = false)
+  @ManyToOne
+  @JoinColumn(name = "contract_id")
   private Contract contract;
+
+  /** The Agent holding this Smartphone in their Stock, or {@code null} while it's on a Contract. */
+  @ManyToOne
+  @JoinColumn(name = "holding_agent_id")
+  private Agent holdingAgent;
 
   @Column(nullable = false)
   private String model;

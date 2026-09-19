@@ -6,6 +6,7 @@ import { SimCardCarrier } from "@/components/fleet/sim-card-carrier";
 import { SimCardInstalledInControl, type InstallableSmartphone } from "@/components/fleet/sim-card-installed-in-control";
 import { SimCardPlan } from "@/components/fleet/sim-card-plan";
 import { simCardStatusToneByValue } from "@/lib/status";
+import { formatLocalDate } from "@/lib/format";
 import { SIM_CARD_FLAVOR_LABEL, SIM_CARD_STATUS_LABEL, type SimCardListItem } from "@/lib/api/types";
 
 /**
@@ -70,6 +71,11 @@ export function SimCardFleetTable({
             ) : null}
             <Td>
               <Badge tone={simCardStatusToneByValue[sim.status]}>{SIM_CARD_STATUS_LABEL[sim.status]}</Badge>
+              {sim.cancellationEffectiveDate ? (
+                <span className="mt-1 block text-[12px] text-ink-mute">
+                  Cancelled {formatLocalDate(sim.cancellationEffectiveDate)}
+                </span>
+              ) : null}
             </Td>
             <Td className={contractId && smartphones ? undefined : "text-ink-secondary"}>
               {contractId && smartphones ? (

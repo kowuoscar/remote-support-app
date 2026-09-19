@@ -8,8 +8,10 @@ import com.remotesupport.backend.dto.RequestRejectRequest;
 import com.remotesupport.backend.dto.RequestResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.RequestRepository;
+import com.remotesupport.backend.repository.ReturnedUnitRepository;
 import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
+import com.remotesupport.backend.web.requestapproval.RequestApprovalValidator;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.UUID;
@@ -38,30 +40,42 @@ import org.springframework.web.bind.annotation.RestController;
 public class RequestByIdController {
 
   private final RequestRepository requestRepository;
+  private final ReturnedUnitRepository returnedUnitRepository;
   private final UserRepository userRepository;
+  private final RequestApprovalValidator requestApprovalValidator;
 
-  public RequestByIdController(RequestRepository requestRepository, UserRepository userRepository) {
+  public RequestByIdController(
+      RequestRepository requestRepository,
+      ReturnedUnitRepository returnedUnitRepository,
+      UserRepository userRepository,
+      RequestApprovalValidator requestApprovalValidator) {
     this.requestRepository = requestRepository;
+    this.returnedUnitRepository = returnedUnitRepository;
     this.userRepository = userRepository;
+    this.requestApprovalValidator = requestApprovalValidator;
   }
 
   @PostMapping("/approve")
   public RequestResponse approve(
       @PathVariable UUID requestId,
-      // Optional: every type this ticket covers approves with no input at all, but the body is
-      // already accepted (and ignored) so a future type-specific approval payload — a Return
-      // Request's per-unit Disposition — can be added to RequestApprovalRequest without breaking
-      // today's callers, which send no body (see that DTO's Javadoc).
+      // Optional: a Provision/Replace Request approves with no input at all. A type with its own
+      // approval payload (e.g. a RETURN's per-unit Dispositions — manager-decides-return-disposition
+      // ticket, spec.md Solution's Disposition table) reads it here instead, via its own {@link
+      // RequestApprovalValidator}-registered handler — see RequestApprovalRequest's own Javadoc for
+      // why this stayed one shape rather than a new route.
       @RequestBody(required = false) RequestApprovalRequest requestBody,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Request request = findPendingApproval(requestId, principal);
+
+    String dispositionsChosen = requestApprovalValidator.applyApproval(request, requestBody);
 
     request.setStatus(RequestStatus.SUBMITTED);
     decide(request, principal);
     requestRepository.save(request);
 
-    AuditLog.requestApproved(request.getId(), request.getContract().getId(), principal.userId(), principal.tenantId());
-    return RequestResponse.of(request);
+    AuditLog.requestApproved(
+        request.getId(), request.getContract().getId(), dispositionsChosen, principal.userId(), principal.tenantId());
+    return RequestResponse.of(request, returnedUnitRepository.forRequest(request));
   }
 
   @PostMapping("/reject")
@@ -78,7 +92,7 @@ public class RequestByIdController {
 
     AuditLog.requestRejected(
         request.getId(), request.getContract().getId(), true, principal.userId(), principal.tenantId());
-    return RequestResponse.of(request);
+    return RequestResponse.of(request, returnedUnitRepository.forRequest(request));
   }
 
   private void decide(Request request, AuthenticatedPrincipal principal) {

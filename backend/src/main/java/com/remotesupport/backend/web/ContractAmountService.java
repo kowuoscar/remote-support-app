@@ -38,15 +38,47 @@ public class ContractAmountService {
   }
 
   /**
-   * spec.md Solution: base amount = "the sum of the monthly fee of every Postpaid SIM active in
-   * the Contract's Fleet at the time of viewing" — a Retired Postpaid SIM and every Prepaid SIM
-   * (which never carries a monthly fee) are both excluded.
+   * spec.md Solution ("Billing a cancelled Postpaid SIM"): base amount for {@code billingMonth} =
+   * the sum of the monthly fee of every Postpaid SIM that {@link #billsFor bills} that month —
+   * every currently-Active one, plus every one cancelled (returns-and-agent-stock's Return
+   * Disposition, CONTEXT.md "Disposition") with an effective date on or after the month's first
+   * day. No proration: a SIM either bills the month's full fee or it doesn't
+   * (cancelled-sim-billed-through-its-month ticket, Non-goals). A Prepaid SIM never carries a
+   * monthly fee and is always excluded.
    */
-  public BigDecimal baseAmount(UUID contractId) {
-    return simCardRepository.findByContractIdOrderByCreatedAtAsc(contractId).stream()
-        .filter(sim -> sim.getFlavor() == SimCardFlavor.POSTPAID && sim.getStatus() == SimCardStatus.ACTIVE)
+  public BigDecimal baseAmount(UUID contractId, LocalDate billingMonth) {
+    return billablePostpaidSims(contractId, billingMonth).stream()
         .map(SimCard::getMonthlyFeeAmount)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
+
+  /**
+   * Every Postpaid SIM of this Contract that bills for {@code billingMonth} — the same set {@link
+   * #baseAmount} sums, exposed on its own so a reader (the draft Client Invoice view) can show
+   * which SIM Cards make it up, not just the total.
+   */
+  public List<SimCard> billablePostpaidSims(UUID contractId, LocalDate billingMonth) {
+    LocalDate monthStart = billingMonth.withDayOfMonth(1);
+    return simCardRepository.findByContractIdOrderByCreatedAtAsc(contractId).stream()
+        .filter(sim -> sim.getFlavor() == SimCardFlavor.POSTPAID)
+        .filter(sim -> billsFor(sim, monthStart))
+        .toList();
+  }
+
+  /**
+   * A currently-Active SIM always bills. A cancelled one (Status Retired, {@code
+   * cancellationEffectiveDate} set — see {@code SimCard}'s Javadoc) bills every month up to and
+   * including its cancellation month, and no month after — so it still counts for {@code
+   * monthStart} when its effective date falls on or after that same first-of-month day, including
+   * a date later than {@code monthStart} (a cancellation whose effect hasn't started yet still
+   * bills the months in between). A SIM retired any other way (no cancellation date) never bills.
+   */
+  private boolean billsFor(SimCard sim, LocalDate monthStart) {
+    if (sim.getStatus() == SimCardStatus.ACTIVE) {
+      return true;
+    }
+    LocalDate cancellationDate = sim.getCancellationEffectiveDate();
+    return cancellationDate != null && !cancellationDate.isBefore(monthStart);
   }
 
   /** Every Fee logged against this Contract for {@code billingMonth}, oldest first. */
@@ -62,6 +94,6 @@ public class ContractAmountService {
 
   /** Base amount + Fee total for {@code billingMonth} — a Contract's full reimbursable total. */
   public BigDecimal totalForMonth(UUID contractId, LocalDate billingMonth) {
-    return baseAmount(contractId).add(feesTotal(contractId, billingMonth));
+    return baseAmount(contractId, billingMonth).add(feesTotal(contractId, billingMonth));
   }
 }

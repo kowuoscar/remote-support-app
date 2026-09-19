@@ -6,6 +6,7 @@ import com.remotesupport.backend.domain.PostpaidPlan;
 import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.domain.Smartphone;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 /**
@@ -16,6 +17,10 @@ import java.util.UUID;
  * installedInSmartphoneId}/{@code installedInSmartphoneModel} are absent when the SIM Card isn't
  * Installed in any Smartphone (spec.md Solution — Fleet model: "Installed in";
  * sim-installed-in-smartphone ticket).
+ *
+ * <p>{@code cancellationEffectiveDate} (returns-and-agent-stock spec, Solution's Completion table;
+ * manager-decides-return-disposition ticket AC: "keeps its cancellation date, shown in the Fleet
+ * tables") is absent for every SIM Card except one retired through a cancelled Return.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record SimCardResponse(
@@ -32,7 +37,8 @@ public record SimCardResponse(
     BigDecimal monthlyFeeAmount,
     String status,
     UUID installedInSmartphoneId,
-    String installedInSmartphoneModel) {
+    String installedInSmartphoneModel,
+    LocalDate cancellationEffectiveDate) {
 
   public static SimCardResponse of(SimCard simCard) {
     Carrier carrier = simCard.getCarrier();
@@ -52,6 +58,7 @@ public record SimCardResponse(
         simCard.getMonthlyFeeAmount(),
         simCard.getStatus().name(),
         installedIn == null ? null : installedIn.getId(),
-        installedIn == null ? null : installedIn.getModel());
+        installedIn == null ? null : installedIn.getModel(),
+        simCard.getCancellationEffectiveDate());
   }
 }

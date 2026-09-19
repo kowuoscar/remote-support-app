@@ -179,6 +179,176 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.totalAmount").value(40.50));
   }
 
+  // --- AC: base amount counts a cancelled Postpaid SIM through its cancellation month ------------
+
+  @Test
+  void baseAmountCountsAPostpaidSimCancelledOnTheFirstDayOfTheCurrentMonth() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Solaris Freight");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken = createTesterAndLogin(managerToken, clientId, "priya.desai@solarisfreight.example", "Passw0rd!23");
+    String agentToken = agentToken();
+    LocalDate monthStart = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1);
+
+    UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0200", "POSTPAID", "22.00");
+    cancelSimCard(contractId, managerToken, testerToken, agentToken, simCardId, monthStart);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.baseAmount").value(22.00))
+        .andExpect(jsonPath("$.totalAmount").value(22.00));
+  }
+
+  @Test
+  void baseAmountCountsAPostpaidSimCancelledMidCurrentMonth() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Solaris Freight Mid");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "amara.diallo@solarisfreightmid.example", "Passw0rd!23");
+    String agentToken = agentToken();
+    LocalDate midMonth = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1).plusDays(14);
+
+    UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0201", "POSTPAID", "18.00");
+    cancelSimCard(contractId, managerToken, testerToken, agentToken, simCardId, midMonth);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.baseAmount").value(18.00))
+        .andExpect(jsonPath("$.totalAmount").value(18.00))
+        .andExpect(jsonPath("$.basePostpaidSims.length()").value(1))
+        .andExpect(jsonPath("$.basePostpaidSims[0].simCardId").value(simCardId.toString()))
+        .andExpect(jsonPath("$.basePostpaidSims[0].monthlyFeeAmount").value(18.00))
+        .andExpect(jsonPath("$.basePostpaidSims[0].cancellationEffectiveDate").value(midMonth.toString()));
+  }
+
+  @Test
+  void basePostpaidSimsOmitsACancellationDateForAStillActiveSim() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Solaris Freight Active Line");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0207", "POSTPAID", "27.00");
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.basePostpaidSims.length()").value(1))
+        .andExpect(jsonPath("$.basePostpaidSims[0].simCardId").value(simCardId.toString()))
+        .andExpect(jsonPath("$.basePostpaidSims[0].cancellationEffectiveDate").doesNotExist());
+  }
+
+  @Test
+  void basePostpaidSimsIsAbsentOnceTheInvoiceIsSentSinceThereIsNoFrozenPerUnitBreakdown() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Solaris Freight Sent Line");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    addSimCard(managerToken, contractId, "+1-555-0208", "POSTPAID", "10.00");
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"))
+        .andExpect(jsonPath("$.basePostpaidSims").doesNotExist());
+  }
+
+  @Test
+  void baseAmountCountsAPostpaidSimWithAFutureCancellationDate() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Solaris Freight Future");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "kofi.mensah@solarisfreightfuture.example", "Passw0rd!23");
+    String agentToken = agentToken();
+    LocalDate nextMonth = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1).plusMonths(1);
+
+    UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0202", "POSTPAID", "30.00");
+    cancelSimCard(contractId, managerToken, testerToken, agentToken, simCardId, nextMonth);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.baseAmount").value(30.00))
+        .andExpect(jsonPath("$.totalAmount").value(30.00));
+  }
+
+  @Test
+  void baseAmountExcludesAPostpaidSimCancelledBeforeTheCurrentMonth() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Solaris Freight Past");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "yuki.tanaka@solarisfreightpast.example", "Passw0rd!23");
+    String agentToken = agentToken();
+    LocalDate lastMonth = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1).minusMonths(1);
+
+    UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0203", "POSTPAID", "50.00");
+    cancelSimCard(contractId, managerToken, testerToken, agentToken, simCardId, lastMonth);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.baseAmount").value(0))
+        .andExpect(jsonPath("$.totalAmount").value(0));
+  }
+
+  @Test
+  void aCancelledPrepaidSimNeverCountsRegardlessOfItsEffectiveDate() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Solaris Freight Prepaid");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "elin.svensson@solarisfreightprepaid.example", "Passw0rd!23");
+    String agentToken = agentToken();
+    LocalDate monthStart = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1);
+
+    UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0204", "PREPAID", null);
+    cancelSimCard(contractId, managerToken, testerToken, agentToken, simCardId, monthStart);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.baseAmount").value(0))
+        .andExpect(jsonPath("$.totalAmount").value(0));
+  }
+
+  @Test
+  void sendingFreezesTheBaseAmountSoALaterCancellationNeverMovesIt() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Solaris Freight Frozen");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "noa.friedman@solarisfreightfrozen.example", "Passw0rd!23");
+    String agentToken = agentToken();
+    LocalDate monthStart = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1);
+
+    addSimCard(managerToken, contractId, "+1-555-0205", "POSTPAID", "12.00");
+    UUID toBeCancelled = addSimCard(managerToken, contractId, "+1-555-0206", "POSTPAID", "20.00");
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"))
+        .andExpect(jsonPath("$.baseAmount").value(32.00));
+
+    // Cancelling a SIM after the invoice was sent must never move the already-sent total (ADR
+    // 0001) — even though, computed live, this cancellation date would still count this month.
+    cancelSimCard(contractId, managerToken, testerToken, agentToken, toBeCancelled, monthStart);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"))
+        .andExpect(jsonPath("$.baseAmount").value(32.00))
+        .andExpect(jsonPath("$.totalAmount").value(32.00));
+  }
+
   // --- AC: Fee lines scoped to this Contract and this calendar month ---------------------------
 
   @Test

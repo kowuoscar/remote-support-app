@@ -197,7 +197,7 @@ describe("ProvisionSimCompletion — Stock picker", () => {
 });
 
 describe("ReplaceSimCompletion — Stock picker", () => {
-  it("hides the picker when no Stock SIM Card matches the old SIM Card's Carrier/flavor", () => {
+  function renderReplaceSim(stockSimCards: StockUnitItem[]) {
     render(
       <ReplaceSimCompletion
         request={request({ type: "REPLACE_SIM", targetSimCardId: "sim-1", targetSimCardNumber: "+1-555-0100" })}
@@ -208,29 +208,21 @@ describe("ReplaceSimCompletion — Stock picker", () => {
         activeSimCards={[
           { id: "sim-1", contractId: "contract-1", number: "+1-555-0100", carrierId: "carrier-a", flavor: "PREPAID", monthlyFeeAmount: null, status: "ACTIVE" },
         ]}
-        stockSimCards={[stockSimCard({ carrierId: "carrier-b", flavor: "PREPAID" })]}
+        stockSimCards={stockSimCards}
       />,
     );
+  }
+
+  it("hides the picker when no Stock SIM Card matches the old SIM Card's Carrier/flavor", () => {
+    renderReplaceSim([stockSimCard({ carrierId: "carrier-b", flavor: "PREPAID" })]);
     expect(screen.queryByLabelText(/From my Stock/)).not.toBeInTheDocument();
   });
 
   it("shows only the Stock SIM Cards matching the old SIM Card's Carrier and flavor", () => {
-    render(
-      <ReplaceSimCompletion
-        request={request({ type: "REPLACE_SIM", targetSimCardId: "sim-1", targetSimCardNumber: "+1-555-0100" })}
-        carriers={[]}
-        carriersHref=""
-        currency="USD"
-        activeSmartphones={[]}
-        activeSimCards={[
-          { id: "sim-1", contractId: "contract-1", number: "+1-555-0100", carrierId: "carrier-a", flavor: "PREPAID", monthlyFeeAmount: null, status: "ACTIVE" },
-        ]}
-        stockSimCards={[
-          stockSimCard({ id: "match", carrierId: "carrier-a", flavor: "PREPAID", number: "+1-555-0501" }),
-          stockSimCard({ id: "wrong-carrier", carrierId: "carrier-b", flavor: "PREPAID", number: "+1-555-0502" }),
-        ]}
-      />,
-    );
+    renderReplaceSim([
+      stockSimCard({ id: "match", carrierId: "carrier-a", flavor: "PREPAID", number: "+1-555-0501" }),
+      stockSimCard({ id: "wrong-carrier", carrierId: "carrier-b", flavor: "PREPAID", number: "+1-555-0502" }),
+    ]);
     expect(screen.getByRole("option", { name: "+1-555-0501" })).toBeInTheDocument();
     expect(screen.queryByRole("option", { name: "+1-555-0502" })).not.toBeInTheDocument();
   });

@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 /**
  * Shared login and fixture setup for the e2e suite's real-backend specs (driven against a real
@@ -89,12 +89,26 @@ export async function createContractWithTester(
   return { clientId, contractId };
 }
 
-/** Adds a Smartphone to a Contract's Fleet from the Manager's Contract detail page. Returns its serial. */
-export async function addSmartphone(page: Page, contractId: string, model: string, serial: string) {
+/**
+ * Adds a Smartphone to a Contract's Fleet from the Manager's Contract detail page. Returns its
+ * serial. `owner` (return-client-owned-smartphones/manager-decides-return-disposition tickets)
+ * selects the Owner field explicitly only when given — omitted, the dialog's own default (Company)
+ * applies, matching every caller that predates the Owner field.
+ */
+export async function addSmartphone(
+  page: Page,
+  contractId: string,
+  model: string,
+  serial: string,
+  owner?: "Client" | "Company",
+) {
   await page.goto(`/manager/contracts/${contractId}`);
   await page.getByRole("button", { name: "Add smartphone" }).first().click();
   await page.getByLabel("Model").fill(model);
   await page.getByLabel("Serial").fill(serial);
+  if (owner) {
+    await page.getByLabel("Owner").selectOption({ label: owner });
+  }
   await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
   await expect(page.getByRole("cell", { name: serial })).toBeVisible();
 }
@@ -102,7 +116,10 @@ export async function addSmartphone(page: Page, contractId: string, model: strin
 /**
  * Adds a SIM card to a Contract's Fleet from the Manager's Contract detail page, on a given
  * Carrier and Flavor (defaulting to Verizon/Prepaid — the seeded active US Carrier with active
- * Topup Options, per the reboot-and-topup-details ticket's fixture needs).
+ * Topup Options, per the reboot-and-topup-details ticket's fixture needs). `planLabel`
+ * (cancelled-sim-billed-through-its-month ticket) picks an existing Postpaid Plan by name — e.g.
+ * the seeded Verizon "Unlimited Welcome" Plan — instead of `addPostpaidSimCard`'s own "create a
+ * fresh Plan at a chosen price" fixture shape.
  */
 export async function addSimCard(
   page: Page,
@@ -110,12 +127,16 @@ export async function addSimCard(
   number: string,
   carrierLabel = "Verizon",
   flavor: "PREPAID" | "POSTPAID" = "PREPAID",
+  planLabel?: string,
 ) {
   await page.goto(`/manager/contracts/${contractId}`);
   await page.getByRole("button", { name: "Add SIM card" }).first().click();
   await page.getByLabel("Number").fill(number);
   await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: carrierLabel });
   await page.getByLabel("Flavor").selectOption(flavor);
+  if (planLabel) {
+    await page.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: planLabel });
+  }
   await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
   await expect(page.getByRole("cell", { name: number })).toBeVisible();
 }
@@ -130,16 +151,58 @@ export function pendingRequestRow(page: Page, clientName: string, typeLabel: str
 /**
  * Approves a Pending Approval Request from the Manager's Pending Requests page
  * (manager-approves-requests ticket) — every Provision/Replace fixture needs this step before the
- * Agent can progress it.
+ * Agent can progress it. `unitOverrides` (manager-decides-return-disposition/agent-stock tickets)
+ * maps a substring/regex of a Return's own unit label (its model+serial, or SIM number) to a
+ * Disposition label to pick instead of the row's own preselected one — e.g. "Kept in Stock" in
+ * place of the preselected "Posted to company" — before approving; omitted, every unit approves
+ * with its own preselected choice, the shape every non-Return caller already relies on.
  */
-export async function approveFromPendingRequests(page: Page, clientName: string, typeLabel: string) {
+export async function approveFromPendingRequests(
+  page: Page,
+  clientName: string,
+  typeLabel: string,
+  unitOverrides: Record<string, string> = {},
+) {
   await page.goto("/manager/requests");
   const row = pendingRequestRow(page, clientName, typeLabel);
+  for (const [unitLabelPattern, dispositionLabel] of Object.entries(unitOverrides)) {
+    await row.getByLabel(new RegExp(unitLabelPattern)).selectOption({ label: dispositionLabel });
+  }
   await Promise.all([
     page.waitForResponse((resp) => /\/api\/requests\/.+\/approve$/.test(resp.url())),
     row.getByRole("button", { name: "Approve" }).click(),
   ]);
   await expect(page.getByRole("row", { name: new RegExp(clientName) })).not.toBeVisible();
+}
+
+/**
+ * Completes a Return Request from the Agent's own Requests row (return-client-owned-smartphones/
+ * manager-decides-return-disposition/agent-stock tickets). `cancellationDates`, keyed the same way
+ * `approveFromPendingRequests`'s own `unitOverrides` is (a substring/regex of the Cancelled SIM
+ * Card's own number), fills that unit's own effective-date field before the completing form's
+ * submit click — a Return with no Cancelled unit needs no dates and completes with the generic
+ * single-click path every other no-input type already uses. Waits for the actual completion
+ * PATCH's response rather than the DOM settling once a form is involved: the completing form's own
+ * submit button shares the literal "Mark Completed" label with the trigger button that opened it,
+ * so a bare `toContainText` assertion can pass on that still-open button before the request
+ * round-trips (fulfil-from-stock ticket's own implementer note on this exact race).
+ */
+export async function completeReturnRequest(page: Page, row: Locator, cancellationDates: Record<string, string> = {}) {
+  await row.getByRole("button", { name: "Mark Completed" }).click();
+  if (Object.keys(cancellationDates).length === 0) {
+    await expect(row).toContainText("Completed");
+    return;
+  }
+  for (const [unitLabelPattern, date] of Object.entries(cancellationDates)) {
+    const dateField = row.getByLabel(new RegExp(unitLabelPattern));
+    await expect(dateField).toHaveAttribute("type", "date");
+    await dateField.fill(date);
+  }
+  await Promise.all([
+    page.waitForResponse((resp) => /\/requests\/.+\/status$/.test(resp.url()) && resp.request().method() === "PATCH"),
+    row.getByRole("button", { name: "Mark Completed" }).click(),
+  ]);
+  await expect(row.getByText("Completed", { exact: true })).toBeVisible();
 }
 
 /**
@@ -311,6 +374,9 @@ export interface SubmitRequestFleetOptions {
   topupOptionLabel?: string;
   /** other-replaces-repair ticket: an Other Request requires a description. */
   description?: string;
+  /** return-client-owned-smartphones ticket: the option label(s) to pick in the Return's own
+   * multi-select — a Smartphone's `"<model> — <serial>"`, or a SIM Card's own number. */
+  returnedUnitLabels?: string[];
 }
 
 /** Submits a Request of the given type as the currently-logged-in Tester. */
@@ -352,9 +418,43 @@ export async function submitRequestAsTester(page: Page, requestTypeLabel: string
   if (requestTypeLabel === "Replace SIM") {
     await dialog.getByLabel("SIM Card to replace").selectOption({ label: fleet!.simCardOptionLabel! });
   }
+  if (requestTypeLabel === "Return") {
+    // return-client-owned-smartphones ticket: one multi-select (role listbox), not two pickers.
+    await dialog
+      .getByRole("listbox", { name: "Units to return" })
+      .selectOption(fleet!.returnedUnitLabels!.map((label) => ({ label })));
+  }
   await dialog.getByRole("button", { name: "Submit Request" }).click();
   await expect(page.getByText("Request submitted")).toBeVisible();
   await page.getByRole("button", { name: "Close" }).click();
+}
+
+/**
+ * Fetches a Contract's Smartphones/SIM Cards from the browser — used for API-level post-completion
+ * Fleet-state assertions (return-client-owned-smartphones/manager-decides-return-disposition/
+ * agent-stock tickets' own precedent: a Smartphone's Fleet row can also show an installed SIM's
+ * number, so a text-content row assertion is the wrong tool for "is this unit Retired/Active").
+ * The returned shape is a superset of every caller's own field needs; an unused field is simply
+ * never read.
+ */
+export async function fetchSmartphones(page: Page, contractId: string) {
+  return page.evaluate(async (contractId) => {
+    const response = await fetch(`/api/contracts/${contractId}/smartphones`);
+    return (await response.json()) as { id: string; serial: string; status: string }[];
+  }, contractId);
+}
+
+export async function fetchSimCards(page: Page, contractId: string) {
+  return page.evaluate(async (contractId) => {
+    const response = await fetch(`/api/contracts/${contractId}/sim-cards`);
+    return (await response.json()) as {
+      id: string;
+      number: string;
+      status: string;
+      installedInSmartphoneId?: string;
+      cancellationEffectiveDate?: string;
+    }[];
+  }, contractId);
 }
 
 /** Fetches a Contract's Fees from the browser — there's no dedicated Fees list view yet. */

@@ -170,6 +170,12 @@ public class SecurityConfig {
                     // CarrierCatalogAccessGuard.
                     .requestMatchers("/api/carriers", "/api/carriers/**")
                     .hasAnyRole("MANAGER", "AGENT")
+                    // agent-stock ticket: Agent Stock is the Manager's and the Agents' — a Tester
+                    // gets 403 (ticket AC), same matcher-level shape as the Carrier catalog above,
+                    // since Stock (unlike Fleet) has no per-Contract ownership to check per request.
+                    // Which Agent's Stock a caller may see is enforced in StockController.
+                    .requestMatchers("/api/stock", "/api/stock/**")
+                    .hasAnyRole("MANAGER", "AGENT")
                     .requestMatchers("/api/review-queue","/api/client-invoices/**", "/api/agent-invoices/**")
                     .hasRole("MANAGER")
                     // manager-approves-requests ticket: the Pending Requests list and a Request's

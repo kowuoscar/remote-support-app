@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web.completion;
 
+import com.remotesupport.backend.domain.Agent;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Disposition;
 import com.remotesupport.backend.domain.Request;
@@ -41,11 +42,12 @@ import org.springframework.stereotype.Component;
  *   <li>{@link Disposition#CANCELLED} (a SIM Card): the Agent's own {@code
  *       RequestCompletionInput#simCardCancellations} must carry an effective date for it — refused
  *       (400) without one; retire it, keep the date, and uninstall it if it was installed anywhere.
+ *   <li>{@link Disposition#KEPT_IN_STOCK} (either kind, agent-stock ticket): the unit leaves the
+ *       Contract and joins the Stock of the Contract's own Agent (spec.md Solution's Agent Stock:
+ *       "units enter through a Return") — {@code contract} is cleared and {@code holdingAgent} set
+ *       to {@code request.getContract().getAgent()}, uninstalled the same way a retired unit is.
+ *       Status is left {@code ACTIVE}: a Stock unit is still a usable unit, just off every Fleet.
  * </ul>
- *
- * <p>{@link Disposition#KEPT_IN_STOCK} isn't reachable yet (no unit can be given that Disposition
- * before the {@code agent-stock} ticket) — {@code agent-stock} adds that branch here, for both
- * unit kinds.
  *
  * <p>Needs no Agent input at all when nothing is being cancelled (unlike every Fleet-changing
  * completion effect but Replace Smartphone's): {@link RequestCompletionInput} is only read for its
@@ -107,12 +109,20 @@ public class ReturnCompletionEffect implements RequestCompletionEffect {
     for (ReturnedUnit unit : units) {
       Smartphone smartphone = unit.getSmartphone();
       if (smartphone != null) {
-        retireSmartphone(request, smartphone, unit, principal);
+        if (unit.getDisposition() == Disposition.KEPT_IN_STOCK) {
+          keepSmartphoneInStock(request, contract, smartphone, unit, principal);
+        } else {
+          retireSmartphone(request, smartphone, unit, principal);
+        }
         continue;
       }
       SimCard simCard = unit.getSimCard();
-      if (simCard != null && unit.getDisposition() == Disposition.CANCELLED) {
-        cancelSimCard(request, simCard, unit, cancellationDates.get(simCard.getId()), principal);
+      if (simCard != null) {
+        if (unit.getDisposition() == Disposition.CANCELLED) {
+          cancelSimCard(request, simCard, unit, cancellationDates.get(simCard.getId()), principal);
+        } else if (unit.getDisposition() == Disposition.KEPT_IN_STOCK) {
+          keepSimCardInStock(request, contract, simCard, unit, principal);
+        }
       }
     }
   }
@@ -175,5 +185,51 @@ public class ReturnCompletionEffect implements RequestCompletionEffect {
     AuditLog.unitReturned(
         "SimCard", simCard.getId(), request.getId(), unit.getDisposition().name(), principal.userId(), principal.tenantId());
     AuditLog.simCardCancelled(simCard.getId(), effectiveDate, request.getId(), principal.userId(), principal.tenantId());
+  }
+
+  /**
+   * Kept in Stock (agent-stock ticket): the Smartphone leaves {@code contract} and joins {@code
+   * contract.getAgent()}'s Stock instead — its own installed SIM Cards are uninstalled (stay in the
+   * Fleet) the same way a retired Smartphone's are, since a Stock unit shows on no Fleet at all
+   * (spec.md Solution's Agent Stock). Status is left {@code ACTIVE}.
+   */
+  private void keepSmartphoneInStock(
+      Request request, Contract contract, Smartphone smartphone, ReturnedUnit unit, AuthenticatedPrincipal principal) {
+    Agent agent = contract.getAgent();
+    UUID fromContractId = contract.getId();
+
+    simInstallationService.clearLinksForRetiredSmartphone(smartphone, request.getId(), principal);
+
+    smartphone.setContract(null);
+    smartphone.setHoldingAgent(agent);
+    smartphoneRepository.save(smartphone);
+
+    AuditLog.unitMovedToStock(
+        "Smartphone", smartphone.getId(), fromContractId, agent.getId(), request.getId(), principal.userId(), principal.tenantId());
+    AuditLog.unitReturned(
+        "Smartphone", smartphone.getId(), request.getId(), unit.getDisposition().name(), principal.userId(), principal.tenantId());
+  }
+
+  /**
+   * Kept in Stock (agent-stock ticket): the SIM Card leaves {@code contract} and joins {@code
+   * contract.getAgent()}'s Stock instead, uninstalled from wherever it sat. Status is left {@code
+   * ACTIVE} — a Stock SIM Card is still usable, just off every Fleet (spec.md Solution's Agent
+   * Stock).
+   */
+  private void keepSimCardInStock(
+      Request request, Contract contract, SimCard simCard, ReturnedUnit unit, AuthenticatedPrincipal principal) {
+    Agent agent = contract.getAgent();
+    UUID fromContractId = contract.getId();
+
+    simInstallationService.clearLinkForRetiredSimCard(simCard, request.getId(), principal);
+
+    simCard.setContract(null);
+    simCard.setHoldingAgent(agent);
+    simCardRepository.save(simCard);
+
+    AuditLog.unitMovedToStock(
+        "SimCard", simCard.getId(), fromContractId, agent.getId(), request.getId(), principal.userId(), principal.tenantId());
+    AuditLog.unitReturned(
+        "SimCard", simCard.getId(), request.getId(), unit.getDisposition().name(), principal.userId(), principal.tenantId());
   }
 }

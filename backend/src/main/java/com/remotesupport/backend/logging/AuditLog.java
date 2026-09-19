@@ -551,6 +551,27 @@ public final class AuditLog {
         tenantId);
   }
 
+  /**
+   * A unit moved into an Agent's Stock through a completed Return (agent-stock ticket
+   * Observability: "A unit-moved-to-Stock audit event: unit id, from Contract, Agent, Request id,
+   * actor, tenant") — fires alongside {@link #unitReturned}'s own generic per-unit Disposition
+   * entry (Disposition {@code KEPT_IN_STOCK}), the same way {@link #simCardCancelled} fires
+   * alongside it for a cancelled SIM Card. {@code entity} is {@code Smartphone} or {@code SimCard}.
+   */
+  public static void unitMovedToStock(
+      String entity, UUID unitId, UUID fromContractId, UUID agentId, UUID requestId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=UNIT_MOVED_TO_STOCK entity={} entityId={} fromContractId={} agentId={} requestId={} "
+            + "actorUserId={} tenantId={}",
+        entity,
+        unitId,
+        fromContractId,
+        agentId,
+        requestId,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

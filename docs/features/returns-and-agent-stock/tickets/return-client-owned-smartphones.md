@@ -1,7 +1,7 @@
 ---
 id: return-client-owned-smartphones
 title: A Return Request sends Client-owned Smartphones back without approval
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [backend, frontend, requests, fleet]
 ---

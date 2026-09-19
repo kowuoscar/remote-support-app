@@ -1,7 +1,7 @@
 ---
 id: manager-decides-return-disposition
 title: The Manager decides what happens to returned company-owned units
-status: ready-for-agent
+status: in-progress
 depends_on: [return-client-owned-smartphones]
 labels: [backend, frontend, requests, fleet]
 ---

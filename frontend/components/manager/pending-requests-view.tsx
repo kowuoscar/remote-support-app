@@ -76,7 +76,7 @@ export function PendingRequestsView({ items, now }: { items: PendingRequestItem[
                 </time>
               </Td>
               <Td className="text-right">
-                <PendingRequestDecisionControls requestId={item.request.id} />
+                <PendingRequestDecisionControls request={item.request} />
               </Td>
             </Tr>
           ))}

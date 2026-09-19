@@ -161,6 +161,11 @@ export function ManagerContractFleetView({
                       <Badge tone={simCardStatusToneByValue[sim.status]}>
                         {SIM_CARD_STATUS_LABEL[sim.status]}
                       </Badge>
+                      {sim.cancellationEffectiveDate ? (
+                        <span className="mt-1 block text-[12px] text-ink-mute">
+                          Cancelled {sim.cancellationEffectiveDate}
+                        </span>
+                      ) : null}
                     </Td>
                     <Td>
                       <SimCardInstalledInControl

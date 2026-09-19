@@ -1,9 +1,10 @@
 import type { ComponentType } from "react";
-import type { RequestTypeValue } from "@/lib/api/types";
+import type { RequestListItem, RequestTypeValue } from "@/lib/api/types";
 import { buildProvisionSimCompletionBody, ProvisionSimCompletion } from "./provision-sim-completion";
 import { buildProvisionSmartphoneCompletionBody, ProvisionSmartphoneCompletion } from "./provision-smartphone-completion";
 import { buildReplaceSimCompletionBody, ReplaceSimCompletion } from "./replace-sim-completion";
 import { ReplaceSmartphoneCompletion } from "./replace-smartphone-completion";
+import { buildReturnCompletionBody, returnCompletionNeedsOwnForm, ReturnCompletion } from "./return-completion";
 import type { CompletionBodyBuilder, CompletionFormProps } from "./types";
 
 /**
@@ -20,6 +21,7 @@ export const REQUEST_COMPLETION_COMPONENTS: Partial<Record<RequestTypeValue, Com
   PROVISION_SIM: ProvisionSimCompletion,
   REPLACE_SMARTPHONE: ReplaceSmartphoneCompletion,
   REPLACE_SIM: ReplaceSimCompletion,
+  RETURN: ReturnCompletion,
 };
 
 /**
@@ -34,4 +36,16 @@ export const REQUEST_COMPLETION_BODY_BUILDERS: Partial<Record<RequestTypeValue, 
   PROVISION_SMARTPHONE: buildProvisionSmartphoneCompletionBody,
   PROVISION_SIM: buildProvisionSimCompletionBody,
   REPLACE_SIM: buildReplaceSimCompletionBody,
+  RETURN: buildReturnCompletionBody,
+};
+
+/**
+ * A Return can never carry a Fee (`requestTypeCanCarryFee` is `false` for it), so it's the first
+ * type whose completing form has to open for a reason other than "may need to log a Fee" —
+ * cancelling one or more SIM Cards needs their effective dates (manager-decides-return-disposition
+ * ticket). A type with no entry here needs its own form to open only when it can carry a Fee, as
+ * before this ticket.
+ */
+export const REQUEST_COMPLETION_NEEDS_OWN_FORM: Partial<Record<RequestTypeValue, (request: RequestListItem) => boolean>> = {
+  RETURN: returnCompletionNeedsOwnForm,
 };

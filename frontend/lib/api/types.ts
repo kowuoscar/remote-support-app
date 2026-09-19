@@ -163,6 +163,9 @@ export interface SimCardListItem {
   status: SimCardStatusValue;
   installedInSmartphoneId?: string;
   installedInSmartphoneModel?: string;
+  // manager-decides-return-disposition ticket: set only for a SIM Card retired through a
+  // cancelled Return, keeping the effective cancellation date it was given at completion.
+  cancellationEffectiveDate?: string;
 }
 
 // Mirrors backend/.../domain/RequestType.java. OTHER replaces the former REPAIR

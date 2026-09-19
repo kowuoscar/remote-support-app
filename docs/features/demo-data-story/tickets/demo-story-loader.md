@@ -1,7 +1,7 @@
 ---
 id: demo-story-loader
 title: Build the demo story on demand under a demo profile
-status: in-progress
+status: done
 depends_on: [trim-seed-to-test-baseline]
 labels: [backend, seed-data, docs]
 ---
@@ -12,13 +12,13 @@ Implements `spec.md` Solution (Demo story, Separate databases, The story, Retire
 
 ## Acceptance criteria
 
-- [ ] A component active only under the `demo` profile builds the story at startup when its marker is absent, and writes nothing when it is present
-- [ ] The story contains everything listed in `spec.md` The story, with every unit, Request, Fee and invoice linked to the Clients, Contracts, Testers and Agents it belongs to
-- [ ] Current-month activity goes through the application's services; past months are written directly and match what those services would have stored, including frozen snapshots
-- [ ] docker-compose has a second Postgres service for the demo with its own volume; the compose backend runs with the `demo` profile against it; the committed e2e flow keeps using the existing `postgres` service and never sees demo data
-- [ ] `scripts/seed-demo-invoice-review.sh` is removed
-- [ ] The docker-compose header and the README list every login with its password and what to look at, and how to reset the demo alone (remove the demo volume, then `docker compose up --build`)
-- [ ] A fresh `docker compose up --build` shows the story for every role
+- [x] A component active only under the `demo` profile builds the story at startup when its marker is absent, and writes nothing when it is present
+- [x] The story contains everything listed in `spec.md` The story, with every unit, Request, Fee and invoice linked to the Clients, Contracts, Testers and Agents it belongs to
+- [x] Current-month activity goes through the application's services; past months are written directly and match what those services would have stored, including frozen snapshots
+- [x] docker-compose has a second Postgres service for the demo with its own volume; the compose backend runs with the `demo` profile against it; the committed e2e flow keeps using the existing `postgres` service and never sees demo data
+- [x] `scripts/seed-demo-invoice-review.sh` is removed
+- [x] The docker-compose header and the README list every login with its password and what to look at, and how to reset the demo alone (remove the demo volume, then `docker compose up --build`)
+- [x] A fresh `docker compose up --build` shows the story for every role
 
 ## Tests
 

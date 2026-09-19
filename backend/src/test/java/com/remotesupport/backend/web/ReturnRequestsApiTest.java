@@ -385,6 +385,110 @@ class ReturnRequestsApiTest extends IntegrationTest {
     assertThat(simCard.has("installedInSmartphoneId")).isFalse();
   }
 
+  // --- AC (agent-stock): Kept in Stock moves a unit into the Contract's Agent's Stock ------------
+
+  @Test
+  void approvingWithKeptInStockDispositionsSucceedsForBothUnitKinds() throws Exception {
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
+    UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
+    JsonNode created =
+        postReturnAndParse(
+            testerToken,
+            "{\"type\":\"RETURN\",\"returnedSmartphoneIds\":[\"%s\"],\"returnedSimCardIds\":[\"%s\"]}"
+                .formatted(smartphoneId, simCardId));
+    UUID requestId = requestIdOf(created);
+    UUID smartphoneUnitId = returnedUnitId(created, "smartphoneId", smartphoneId);
+    UUID simCardUnitId = returnedUnitId(created, "simCardId", simCardId);
+
+    approveReturn(
+            requestId,
+            ("{\"dispositions\":[{\"returnedUnitId\":\"%s\",\"disposition\":\"KEPT_IN_STOCK\"},"
+                    + "{\"returnedUnitId\":\"%s\",\"disposition\":\"KEPT_IN_STOCK\"}]}")
+                .formatted(smartphoneUnitId, simCardUnitId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.returnedUnits[0].disposition").value("KEPT_IN_STOCK"))
+        .andExpect(jsonPath("$.returnedUnits[1].disposition").value("KEPT_IN_STOCK"));
+  }
+
+  @Test
+  void completingMovesAKeptInStockSmartphoneToTheAgentsStockUninstalledAndOffTheFleet() throws Exception {
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
+    UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
+    installSimCard(simCardId, smartphoneId);
+    JsonNode created = postReturnAndParse(testerToken, smartphoneOnlyBody(smartphoneId));
+    UUID requestId = requestIdOf(created);
+    UUID unitId = returnedUnitId(created, "smartphoneId", smartphoneId);
+    approveReturn(requestId, dispositionsBody(unitId, "KEPT_IN_STOCK")).andExpect(status().isOk());
+    patchReturnStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+
+    patchReturnStatus(requestId, "{\"status\":\"COMPLETED\"}")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("COMPLETED"));
+
+    // Off the Contract's Fleet entirely (ticket AC: "appears on no Fleet") — not merely retired.
+    assertThat(fleetSmartphoneIds()).doesNotContain(smartphoneId.toString());
+    // Its installed SIM Card stays in the Fleet, uninstalled (mirrors the Posted dispositions).
+    JsonNode simCard = simCardById(simCardId);
+    assertThat(simCard.get("status").asText()).isEqualTo("ACTIVE");
+    assertThat(simCard.has("installedInSmartphoneId")).isFalse();
+
+    JsonNode stock = readStock(agentToken);
+    JsonNode stockUnit = stockUnitById(stock, smartphoneId);
+    assertThat(stockUnit.get("kind").asText()).isEqualTo("SMARTPHONE");
+    assertThat(stockUnit.get("status").asText()).isEqualTo("ACTIVE");
+    assertThat(stockUnit.get("model").asText()).isEqualTo("Pixel 8");
+    assertThat(stockUnit.get("fromContractId").asText()).isEqualTo(contractId.toString());
+  }
+
+  @Test
+  void completingMovesAKeptInStockPostpaidSimCardToStockAndOutOfTheBaseAmount() throws Exception {
+    UUID smartphoneId = createClientOwnedSmartphone("Pixel 8");
+    UUID simCardId = createPostpaidSimCard("+1-555-0199", "45.00");
+    installSimCard(simCardId, smartphoneId);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.baseAmount").value(45.00));
+
+    JsonNode created = postReturnAndParse(testerToken, simCardOnlyBody(simCardId));
+    UUID requestId = requestIdOf(created);
+    UUID unitId = returnedUnitId(created, "simCardId", simCardId);
+    approveReturn(requestId, dispositionsBody(unitId, "KEPT_IN_STOCK")).andExpect(status().isOk());
+    patchReturnStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchReturnStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
+
+    // Fleet base amount: falls out of the contract-scoped query naturally (a Stock SIM has no
+    // Contract) — ticket AC: "counts on no invoice base amount".
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.baseAmount").value(0));
+
+    assertThat(fleetSimCardIds()).doesNotContain(simCardId.toString());
+    JsonNode stock = readStock(agentToken);
+    JsonNode stockUnit = stockUnitById(stock, simCardId);
+    assertThat(stockUnit.get("kind").asText()).isEqualTo("SIM_CARD");
+    assertThat(stockUnit.get("monthlyFeeAmount").asDouble()).isEqualTo(45.00);
+    assertThat(stockUnit.has("installedInSmartphoneId")).isFalse();
+  }
+
+  @Test
+  void aKeptInStockUnitCannotBeNamedAsAnotherRequestsTarget() throws Exception {
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
+    JsonNode created = postReturnAndParse(testerToken, smartphoneOnlyBody(smartphoneId));
+    UUID requestId = requestIdOf(created);
+    UUID unitId = returnedUnitId(created, "smartphoneId", smartphoneId);
+    approveReturn(requestId, dispositionsBody(unitId, "KEPT_IN_STOCK")).andExpect(status().isOk());
+    patchReturnStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchReturnStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
+
+    // A Stock unit is no longer "on this Contract" — a Reboot naming it as its target is refused
+    // exactly like an unknown id (ticket AC: "can't be the target of a Request").
+    postReturnRequest(testerToken, "{\"type\":\"REBOOT\",\"targetSmartphoneId\":\"%s\"}".formatted(smartphoneId))
+        .andExpect(status().isBadRequest());
+  }
+
   @Test
   void completingPostsACompanyOwnedSmartphoneToCompanyAndRetiresIt() throws Exception {
     UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
@@ -542,6 +646,62 @@ class ReturnRequestsApiTest extends IntegrationTest {
       }
     }
     throw new IllegalStateException("No returned unit with " + field + "=" + value);
+  }
+
+  private UUID createPostpaidSimCard(String number, String price) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contractId + "/sim-cards")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(postpaidSimCardJson(managerToken, contractId, number, price)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  private java.util.List<String> fleetSmartphoneIds() throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                get("/api/contracts/" + contractId + "/smartphones").header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    JsonNode smartphones = objectMapper.readTree(result.getResponse().getContentAsString());
+    java.util.List<String> ids = new java.util.ArrayList<>();
+    smartphones.forEach(smartphone -> ids.add(smartphone.get("id").asText()));
+    return ids;
+  }
+
+  private java.util.List<String> fleetSimCardIds() throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(get("/api/contracts/" + contractId + "/sim-cards").header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    JsonNode simCards = objectMapper.readTree(result.getResponse().getContentAsString());
+    java.util.List<String> ids = new java.util.ArrayList<>();
+    simCards.forEach(simCard -> ids.add(simCard.get("id").asText()));
+    return ids;
+  }
+
+  private JsonNode readStock(String token) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(get("/api/stock").header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andReturn();
+    return objectMapper.readTree(result.getResponse().getContentAsString());
+  }
+
+  private JsonNode stockUnitById(JsonNode stock, UUID unitId) {
+    for (JsonNode unit : stock) {
+      if (unit.get("id").asText().equals(unitId.toString())) {
+        return unit;
+      }
+    }
+    throw new IllegalStateException("No Stock unit with id " + unitId);
   }
 
   private ResultActions approveReturn(UUID requestId, String json) throws Exception {

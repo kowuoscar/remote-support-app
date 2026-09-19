@@ -10,6 +10,9 @@ import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.domain.Currency;
+import com.remotesupport.backend.domain.Smartphone;
+import com.remotesupport.backend.domain.SmartphoneOwner;
+import com.remotesupport.backend.domain.SmartphoneStatus;
 import com.remotesupport.backend.domain.Tenant;
 import com.remotesupport.backend.domain.TopupOption;
 import com.remotesupport.backend.repository.AgentInvoiceRepository;
@@ -18,6 +21,7 @@ import com.remotesupport.backend.repository.CarrierRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ClientRepository;
 import com.remotesupport.backend.repository.ContractRepository;
+import com.remotesupport.backend.repository.SmartphoneRepository;
 import com.remotesupport.backend.repository.TenantRepository;
 import com.remotesupport.backend.repository.TopupOptionRepository;
 import java.math.BigDecimal;
@@ -43,6 +47,7 @@ public class OtherTenantFixture {
   private final AgentInvoiceRepository agentInvoiceRepository;
   private final CarrierRepository carrierRepository;
   private final TopupOptionRepository topupOptionRepository;
+  private final SmartphoneRepository smartphoneRepository;
 
   public OtherTenantFixture(
       TenantRepository tenantRepository,
@@ -52,7 +57,8 @@ public class OtherTenantFixture {
       ClientInvoiceRepository clientInvoiceRepository,
       AgentInvoiceRepository agentInvoiceRepository,
       CarrierRepository carrierRepository,
-      TopupOptionRepository topupOptionRepository) {
+      TopupOptionRepository topupOptionRepository,
+      SmartphoneRepository smartphoneRepository) {
     this.tenantRepository = tenantRepository;
     this.clientRepository = clientRepository;
     this.agentRepository = agentRepository;
@@ -61,6 +67,7 @@ public class OtherTenantFixture {
     this.agentInvoiceRepository = agentInvoiceRepository;
     this.carrierRepository = carrierRepository;
     this.topupOptionRepository = topupOptionRepository;
+    this.smartphoneRepository = smartphoneRepository;
   }
 
   /** A sent Client Invoice, for the current month, on a Contract in a brand-new tenant. */
@@ -151,6 +158,28 @@ public class OtherTenantFixture {
     option.setCreatedAt(Instant.now());
     topupOptionRepository.saveAndFlush(option);
     return option.getId();
+  }
+
+  /**
+   * A Smartphone in another tenant's Agent's Stock (agent-stock ticket AC: "another tenant's Stock
+   * is invisible") — built straight through the repository, since {@code holdingAgent} can only be
+   * set by a completed Return today.
+   */
+  public UUID stockSmartphoneInAnotherTenant() {
+    Instant now = Instant.now();
+    Tenant tenant = newTenant(now);
+    Agent agent = newAgent(tenant, now);
+
+    Smartphone smartphone = new Smartphone();
+    smartphone.setId(UUID.randomUUID());
+    smartphone.setTenant(tenant);
+    smartphone.setHoldingAgent(agent);
+    smartphone.setModel("Other Tenant Stock Phone");
+    smartphone.setOwner(SmartphoneOwner.COMPANY);
+    smartphone.setStatus(SmartphoneStatus.ACTIVE);
+    smartphone.setCreatedAt(now);
+    smartphoneRepository.saveAndFlush(smartphone);
+    return smartphone.getId();
   }
 
   private Tenant newTenant(Instant now) {

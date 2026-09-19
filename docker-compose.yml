@@ -6,7 +6,7 @@ services:
   # demo stack below never affects the e2e flow.
   postgres:
     image: postgres:16-alpine
-    environment:
+    environment: &postgres-environment
       POSTGRES_DB: remote_support
       POSTGRES_USER: remote_support
       POSTGRES_PASSWORD: remote_support
@@ -26,10 +26,10 @@ services:
   # published — nothing outside this compose file needs to reach it directly.
   postgres-demo:
     image: postgres:16-alpine
+    # Same user and password as `postgres` above; only the database name differs.
     environment:
+      <<: *postgres-environment
       POSTGRES_DB: remote_support_demo
-      POSTGRES_USER: remote_support
-      POSTGRES_PASSWORD: remote_support
     volumes:
       - postgres_demo_data:/var/lib/postgresql/data
     healthcheck:

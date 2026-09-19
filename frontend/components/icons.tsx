@@ -85,6 +85,16 @@ export function IconFleet(props: IconProps) {
   );
 }
 
+export function IconStock(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M3.5 8.5 12 4l8.5 4.5L12 13l-8.5-4.5Z" />
+      <path d="M3.5 8.5V16l8.5 4.5L20.5 16V8.5" />
+      <path d="M12 13v7.5" />
+    </svg>
+  );
+}
+
 export function IconMyInvoice(props: IconProps) {
   return (
     <svg {...base} {...props}>

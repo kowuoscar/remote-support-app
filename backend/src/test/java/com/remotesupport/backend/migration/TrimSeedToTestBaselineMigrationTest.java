@@ -117,7 +117,48 @@ class TrimSeedToTestBaselineMigrationTest {
     assertThat(demoUkCarrierId).isNotNull();
     assertThat(count("SELECT count(*) FROM carriers WHERE id = '" + demoUkCarrierId + "'")).isEqualTo(1);
 
-    // An unrelated hand-made row, exactly like a developer adding one locally.
+    // The observed bug and its neighbours: a developer used the app by hand on their own local
+    // database, so the demo Contract carries rows with no fixed id -- a Request the demo Tester
+    // raised, a Fee logged on it, and a Client Invoice sent for the Contract.
+    String handMadeDemoRequestId = UUID.randomUUID().toString();
+    execute(
+        "INSERT INTO requests (id, tenant_id, contract_id, tester_id, raised_by_user_id, agent_authored, type, status)"
+            + " VALUES ('"
+            + handMadeDemoRequestId
+            + "', '"
+            + TENANT
+            + "', '"
+            + DEMO_CONTRACT
+            + "', '"
+            + DEMO_TESTER
+            + "', '"
+            + DEMO_TESTER_USER
+            + "', false, 'REBOOT', 'SUBMITTED')");
+    String handMadeDemoFeeId = UUID.randomUUID().toString();
+    execute(
+        "INSERT INTO fees (id, tenant_id, contract_id, request_id, fee_type, amount, currency, billing_month)"
+            + " VALUES ('"
+            + handMadeDemoFeeId
+            + "', '"
+            + TENANT
+            + "', '"
+            + DEMO_CONTRACT
+            + "', '"
+            + handMadeDemoRequestId
+            + "', 'OTHER', 10.00, 'USD', date_trunc('month', now()))");
+    String handMadeDemoClientInvoiceId = UUID.randomUUID().toString();
+    execute(
+        "INSERT INTO client_invoices (id, tenant_id, contract_id, billing_month, status, currency)"
+            + " VALUES ('"
+            + handMadeDemoClientInvoiceId
+            + "', '"
+            + TENANT
+            + "', '"
+            + DEMO_CONTRACT
+            + "', date_trunc('month', now()), 'DRAFT', 'USD')");
+
+    // An unrelated hand-made Client, wholly unconnected to any demo row: its own Contract under
+    // Jordan Ellis (the seeded, non-demo Agent) and its own Tester login raising a Request on it.
     String handMadeClientId = UUID.randomUUID().toString();
     execute(
         "INSERT INTO clients (id, tenant_id, name) VALUES ('"
@@ -125,10 +166,53 @@ class TrimSeedToTestBaselineMigrationTest {
             + "', '"
             + TENANT
             + "', 'Hand-made Client')");
+    String handMadeContractId = UUID.randomUUID().toString();
+    execute(
+        "INSERT INTO contracts (id, tenant_id, client_id, agent_id, currency) VALUES ('"
+            + handMadeContractId
+            + "', '"
+            + TENANT
+            + "', '"
+            + handMadeClientId
+            + "', '"
+            + SEEDED_AGENT
+            + "', 'USD')");
+    String handMadeTesterUserId = UUID.randomUUID().toString();
+    execute(
+        "INSERT INTO users (id, tenant_id, username, password_hash, role) VALUES ('"
+            + handMadeTesterUserId
+            + "', '"
+            + TENANT
+            + "', 'hand.made.tester@example.com', 'x', 'TESTER')");
+    String handMadeTesterId = UUID.randomUUID().toString();
+    execute(
+        "INSERT INTO testers (id, tenant_id, client_id, user_id, is_primary_contact) VALUES ('"
+            + handMadeTesterId
+            + "', '"
+            + TENANT
+            + "', '"
+            + handMadeClientId
+            + "', '"
+            + handMadeTesterUserId
+            + "', true)");
+    String handMadeRequestId = UUID.randomUUID().toString();
+    execute(
+        "INSERT INTO requests (id, tenant_id, contract_id, tester_id, raised_by_user_id, agent_authored, type, status)"
+            + " VALUES ('"
+            + handMadeRequestId
+            + "', '"
+            + TENANT
+            + "', '"
+            + handMadeContractId
+            + "', '"
+            + handMadeTesterId
+            + "', '"
+            + handMadeTesterUserId
+            + "', false, 'REBOOT', 'SUBMITTED')");
 
     flyway("54").migrate();
 
-    // Every demo row is gone.
+    // Every demo row is gone -- including every hand-made row hanging off a demo anchor.
     assertThat(exists("users", DEMO_TESTER_USER)).isFalse();
     assertThat(exists("clients", DEMO_CLIENT)).isFalse();
     assertThat(exists("agents", DEMO_AGENT)).isFalse();
@@ -147,11 +231,18 @@ class TrimSeedToTestBaselineMigrationTest {
     assertThat(exists("requests", DEMO_PENDING_APPROVAL_REQUEST)).isFalse();
     assertThat(exists("requests", DEMO_REJECTED_REQUEST)).isFalse();
     assertThat(count("SELECT count(*) FROM carriers WHERE id = '" + demoUkCarrierId + "'")).isZero();
+    assertThat(exists("requests", handMadeDemoRequestId)).isFalse();
+    assertThat(exists("fees", handMadeDemoFeeId)).isFalse();
+    assertThat(exists("client_invoices", handMadeDemoClientInvoiceId)).isFalse();
 
-    // The hand-made row survives untouched.
+    // The unrelated hand-made Client, Contract and Request survive untouched.
     assertThat(exists("clients", handMadeClientId)).isTrue();
     assertThat(single("SELECT name FROM clients WHERE id = '" + handMadeClientId + "'"))
         .isEqualTo("Hand-made Client");
+    assertThat(exists("contracts", handMadeContractId)).isTrue();
+    assertThat(exists("testers", handMadeTesterId)).isTrue();
+    assertThat(exists("users", handMadeTesterUserId)).isTrue();
+    assertThat(exists("requests", handMadeRequestId)).isTrue();
 
     // The test baseline remains, exactly.
     assertThat(exists("users", MANAGER_USER)).isTrue();
@@ -168,11 +259,12 @@ class TrimSeedToTestBaselineMigrationTest {
     assertThat(count("SELECT count(*) FROM carriers WHERE tenant_id = '" + TENANT + "'")).isEqualTo(4);
     assertThat(count("SELECT count(*) FROM topup_options")).isEqualTo(7);
     assertThat(count("SELECT count(*) FROM postpaid_plans")).isEqualTo(7);
-    // Only the hand-made Client (this test) and no other Client remains.
+    // Only the hand-made, unrelated Client/Contract/Request (this test) remain.
     assertThat(count("SELECT count(*) FROM clients WHERE tenant_id = '" + TENANT + "'")).isEqualTo(1);
-    assertThat(count("SELECT count(*) FROM contracts WHERE tenant_id = '" + TENANT + "'")).isZero();
-    assertThat(count("SELECT count(*) FROM requests WHERE tenant_id = '" + TENANT + "'")).isZero();
+    assertThat(count("SELECT count(*) FROM contracts WHERE tenant_id = '" + TENANT + "'")).isEqualTo(1);
+    assertThat(count("SELECT count(*) FROM requests WHERE tenant_id = '" + TENANT + "'")).isEqualTo(1);
     assertThat(count("SELECT count(*) FROM fees WHERE tenant_id = '" + TENANT + "'")).isZero();
+    assertThat(count("SELECT count(*) FROM client_invoices WHERE tenant_id = '" + TENANT + "'")).isZero();
   }
 
   @Test

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 
 /**
  * A SIM Swap Request's own move/exchange detail and its no-Agent-input completion effect
@@ -57,13 +55,13 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
 
   @Test
   void aSimSwapRequestWithoutATargetSimCardIdIsRefused() throws Exception {
-    postRequest(testerToken, "{\"type\":\"SIM_SWAP\"}").andExpect(status().isBadRequest());
+    postRequest(contractId, testerToken, "{\"type\":\"SIM_SWAP\"}").andExpect(status().isBadRequest());
   }
 
   @Test
   void aMoveWithoutATargetSmartphoneIdIsRefused() throws Exception {
     UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
-    postRequest(testerToken, "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\"}".formatted(simCardId))
+    postRequest(contractId, testerToken, "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\"}".formatted(simCardId))
         .andExpect(status().isBadRequest());
   }
 
@@ -73,6 +71,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"targetSmartphoneId\":\"%s\"}"
                 .formatted(simCardId, smartphoneId))
@@ -91,6 +90,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     UUID foreignSimCard = createSimCard(managerToken, otherContract, SEEDED_US_CARRIER_ID);
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"targetSmartphoneId\":\"%s\"}"
                 .formatted(foreignSimCard, smartphoneId))
@@ -105,6 +105,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     UUID foreignSmartphone = createSmartphone(managerToken, otherContract, "Foreign Phone");
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"targetSmartphoneId\":\"%s\"}"
                 .formatted(simCardId, foreignSmartphone))
@@ -118,6 +119,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     retireSmartphone(smartphoneId);
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"targetSmartphoneId\":\"%s\"}"
                 .formatted(simCardId, smartphoneId))
@@ -131,6 +133,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     installSimCard(managerToken, simCardId, smartphoneId);
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"targetSmartphoneId\":\"%s\"}"
                 .formatted(simCardId, smartphoneId))
@@ -145,6 +148,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     UUID movingSimCard = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"targetSmartphoneId\":\"%s\"}"
                 .formatted(movingSimCard, target))
@@ -153,7 +157,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
 
   @Test
   void anAgentProactiveMoveAlsoRequiresTheSameFields() throws Exception {
-    postRequest(agentToken, "{\"type\":\"SIM_SWAP\",\"testerId\":\"%s\"}".formatted(testerId))
+    postRequest(contractId, agentToken, "{\"type\":\"SIM_SWAP\",\"testerId\":\"%s\"}".formatted(testerId))
         .andExpect(status().isBadRequest());
   }
 
@@ -163,6 +167,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
 
     postRequest(
+            contractId,
             agentToken,
             "{\"type\":\"SIM_SWAP\",\"testerId\":\"%s\",\"targetSimCardId\":\"%s\",\"targetSmartphoneId\":\"%s\"}"
                 .formatted(testerId, simCardId, smartphoneId))
@@ -181,6 +186,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     installSimCard(managerToken, simB, phoneB);
 
     postRequest(
+            contractId,
             agentToken,
             "{\"type\":\"SIM_SWAP\",\"testerId\":\"%s\",\"targetSimCardId\":\"%s\",\"secondSimCardId\":\"%s\"}"
                 .formatted(testerId, simA, simB))
@@ -200,6 +206,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     installSimCard(managerToken, simB, phoneB);
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"secondSimCardId\":\"%s\"}"
                 .formatted(simA, simB))
@@ -218,6 +225,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     installSimCard(managerToken, simA, phoneA);
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"secondSimCardId\":\"%s\"}".formatted(simA, simA))
         .andExpect(status().isBadRequest());
@@ -231,6 +239,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     UUID uninstalledSim = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"secondSimCardId\":\"%s\"}"
                 .formatted(simA, uninstalledSim))
@@ -246,6 +255,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     installSimCard(managerToken, simB, phoneA);
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"secondSimCardId\":\"%s\"}"
                 .formatted(simA, simB))
@@ -265,6 +275,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     installSimCard(managerToken, otherContract, foreignSim, otherPhone);
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"secondSimCardId\":\"%s\"}"
                 .formatted(simA, foreignSim))
@@ -278,9 +289,9 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     UUID target = createSmartphone(managerToken, contractId, "Pixel 8");
     UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
     UUID requestId = submitMove(simCardId, target);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
 
     assertThat(installedSmartphoneIdOf(simCardId)).isEqualTo(target.toString());
   }
@@ -295,9 +306,9 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     installSimCard(managerToken, simB, phoneB);
 
     UUID requestId = submitExchange(simA, simB);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
 
     assertThat(installedSmartphoneIdOf(simA)).isEqualTo(phoneB.toString());
     assertThat(installedSmartphoneIdOf(simB)).isEqualTo(phoneA.toString());
@@ -308,13 +319,13 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     UUID target = createSmartphone(managerToken, contractId, "Pixel 8");
     UUID movingSimCard = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
     UUID requestId = submitMove(movingSimCard, target);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
     // Fill the destination Smartphone's two slots after submission but before completion.
     installSimCard(managerToken, createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID), target);
     installSimCard(managerToken, createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID), target);
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isConflict());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isConflict());
 
     assertThat(installedSmartphoneIdOf(movingSimCard)).isNull();
   }
@@ -328,9 +339,9 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     installSimCard(managerToken, simCardId, smartphoneId);
 
     UUID requestId = insertLegacyRequest();
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("COMPLETED"));
 
@@ -342,6 +353,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
   private UUID submitMove(UUID simCardId, UUID smartphoneId) throws Exception {
     MvcResult result =
         postRequest(
+                contractId,
                 testerToken,
                 "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"targetSmartphoneId\":\"%s\"}"
                     .formatted(simCardId, smartphoneId))
@@ -353,28 +365,13 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
   private UUID submitExchange(UUID firstSimCardId, UUID secondSimCardId) throws Exception {
     MvcResult result =
         postRequest(
+                contractId,
                 testerToken,
                 "{\"type\":\"SIM_SWAP\",\"targetSimCardId\":\"%s\",\"secondSimCardId\":\"%s\"}"
                     .formatted(firstSimCardId, secondSimCardId))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
-  }
-
-  private ResultActions postRequest(String token, String json) throws Exception {
-    return mockMvc.perform(
-        post("/api/contracts/" + contractId + "/requests")
-            .header("Authorization", "Bearer " + token)
-            .contentType(APPLICATION_JSON)
-            .content(json));
-  }
-
-  private ResultActions patchStatus(UUID requestId, String json) throws Exception {
-    return mockMvc.perform(
-        patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
-            .header("Authorization", "Bearer " + agentToken)
-            .contentType(APPLICATION_JSON)
-            .content(json));
   }
 
   private void installSimCard(String token, UUID simCardId, UUID smartphoneId) throws Exception {

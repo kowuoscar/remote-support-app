@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.domain.Request;
@@ -57,22 +56,6 @@ class RebootAndTopupDetailsApiTest extends IntegrationTest {
     String agentToken = agentToken();
     UUID testerId = findTesterId(agentToken, contractId, "priya.raman@aurora.example");
     return new Fixture(managerToken, testerToken, agentToken, contractId, testerId);
-  }
-
-  private UUID findTesterId(String callerToken, UUID contractId, String username) throws Exception {
-    MvcResult result =
-        mockMvc
-            .perform(
-                get("/api/contracts/" + contractId + "/testers")
-                    .header("Authorization", "Bearer " + callerToken))
-            .andExpect(status().isOk())
-            .andReturn();
-    for (JsonNode node : objectMapper.readTree(result.getResponse().getContentAsString())) {
-      if (username.equals(node.get("username").asText())) {
-        return UUID.fromString(node.get("id").asText());
-      }
-    }
-    throw new IllegalStateException("No tester named " + username + " found on contract " + contractId);
   }
 
   private void retireSmartphone(String managerToken, UUID contractId, UUID smartphoneId) throws Exception {

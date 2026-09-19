@@ -438,12 +438,26 @@ export interface CarrierInvoiceFileListItem {
   uploadedAt: string;
 }
 
+// Mirrors backend/.../dto/ClientInvoiceBaseSimLineResponse.java — one Postpaid SIM Card counted
+// in a draft Client Invoice's live base amount (cancelled-sim-billed-through-its-month ticket).
+// cancellationEffectiveDate is present only for a SIM Card still billing because it was cancelled
+// on or after this month's first day (spec.md Solution, "Billing a cancelled Postpaid SIM") —
+// absent for a currently-Active one, mirroring SimCard's own field.
+export interface ClientInvoiceBaseSimLine {
+  simCardId: string;
+  number: string;
+  monthlyFeeAmount: number;
+  cancellationEffectiveDate: string | null;
+}
+
 // Mirrors backend/.../dto/ClientInvoiceResponse.java. While `status` is DRAFT,
 // baseAmount/feeLines/totalAmount are computed live by the backend on every fetch
 // (client-invoice-generation ticket); from SENT onward they are read from the frozen snapshot
 // instead (client-invoice-submission-and-visibility ticket) — the shape is identical either way,
 // only where the backend sourced the numbers changes. sentAt/approvedAt are null until each
-// transition happens.
+// transition happens. basePostpaidSims is the live breakdown behind baseAmount — present only
+// while DRAFT, null from SENT onward since there is no frozen per-unit breakdown to serve (ADR
+// 0001; cancelled-sim-billed-through-its-month ticket).
 export interface ClientInvoiceDetail {
   id: string;
   contractId: string;
@@ -451,6 +465,7 @@ export interface ClientInvoiceDetail {
   status: ClientInvoiceStatusValue;
   currency: string;
   baseAmount: number;
+  basePostpaidSims?: ClientInvoiceBaseSimLine[];
   feeLines: FeeListItem[];
   totalAmount: number;
   files: CarrierInvoiceFileListItem[];

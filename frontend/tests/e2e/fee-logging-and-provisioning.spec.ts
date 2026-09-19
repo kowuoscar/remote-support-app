@@ -11,6 +11,7 @@ import {
   login,
   logout,
   selectContractInSwitcher,
+  simCardsTable,
   submitRequestAsTester,
 } from "./helpers";
 
@@ -52,6 +53,28 @@ async function postFeeStatus(page: Page, contractId: string, requestId: string, 
     },
     { contractId, requestId, feeType, amount },
   );
+}
+
+/**
+ * Approves a Pending Approval Request from the Manager, then opens the matching Agent row and
+ * clicks through to "Mark Completed" (revealing the completion form, still unsubmitted). Shared
+ * by the two Provision SIM tests below, which only differ from here on in the SIM's flavor and
+ * the assertions that follow.
+ */
+async function approveAndBeginAgentCompletion(page: Page, clientName: string, typeLabel: string) {
+  await logout(page);
+  await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+  await approveFromPendingRequests(page, clientName, typeLabel);
+
+  await logout(page);
+  await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+  await page.goto("/agent/requests");
+  await selectContractInSwitcher(page, clientName);
+
+  const row = page.getByRole("row", { name: new RegExp(typeLabel) });
+  await row.getByRole("button", { name: "Mark In Progress" }).click();
+  await row.getByRole("button", { name: "Mark Completed" }).click();
+  return row;
 }
 
 // Date.now() alone can collide across spec files: Playwright's collection phase can
@@ -180,18 +203,7 @@ test.describe("fee logging and provisioning", () => {
       requestedModel: "iPhone 15",
     });
 
-    await logout(page);
-    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    await approveFromPendingRequests(page, clientName, "Provision Smartphone");
-
-    await logout(page);
-    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
-    await page.goto("/agent/requests");
-    await selectContractInSwitcher(page, clientName);
-
-    const row = page.getByRole("row", { name: /Provision Smartphone/ });
-    await row.getByRole("button", { name: "Mark In Progress" }).click();
-    await row.getByRole("button", { name: "Mark Completed" }).click();
+    const row = await approveAndBeginAgentCompletion(page, clientName, "Provision Smartphone");
     await expect(row.getByText("Adds")).toContainText("iPhone 15");
 
     await row.getByLabel(/Fee amount/).fill("150.00");
@@ -226,18 +238,7 @@ test.describe("fee logging and provisioning", () => {
     await expect(page.getByText("Request submitted")).toBeVisible();
     await page.getByRole("button", { name: "Close" }).click();
 
-    await logout(page);
-    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    await approveFromPendingRequests(page, clientName, "Provision SIM");
-
-    await logout(page);
-    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
-    await page.goto("/agent/requests");
-    await selectContractInSwitcher(page, clientName);
-
-    const row = page.getByRole("row", { name: /Provision SIM/ });
-    await row.getByRole("button", { name: "Mark In Progress" }).click();
-    await row.getByRole("button", { name: "Mark Completed" }).click();
+    const row = await approveAndBeginAgentCompletion(page, clientName, "Provision SIM");
 
     const number = `+1-555-${RUN_ID}`;
     await row.getByLabel(/Fee amount/).fill("15.00");
@@ -285,18 +286,7 @@ test.describe("fee logging and provisioning", () => {
     await expect(page.getByText("Request submitted")).toBeVisible();
     await page.getByRole("button", { name: "Close" }).click();
 
-    await logout(page);
-    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    await approveFromPendingRequests(page, clientName, "Provision SIM");
-
-    await logout(page);
-    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
-    await page.goto("/agent/requests");
-    await selectContractInSwitcher(page, clientName);
-
-    const row = page.getByRole("row", { name: /Provision SIM/ });
-    await row.getByRole("button", { name: "Mark In Progress" }).click();
-    await row.getByRole("button", { name: "Mark Completed" }).click();
+    const row = await approveAndBeginAgentCompletion(page, clientName, "Provision SIM");
 
     const number = `+1-555-pp-${RUN_ID}`;
     await row.getByLabel(/Fee amount/).fill("15.00");
@@ -318,7 +308,7 @@ test.describe("fee logging and provisioning", () => {
     // Scoped to the SIM Cards table specifically: the Smartphone table's own row for the target
     // Smartphone also shows this SIM's number, in its own "SIM Cards" column, so an unscoped
     // row-name match resolves to both tables' rows.
-    const simTable = page.getByRole("heading", { name: "SIM Cards" }).locator("xpath=following::table[1]");
+    const simTable = simCardsTable(page);
     const simRow = simTable.getByRole("row", { name: new RegExp(number.replace(/\+/g, "\\+")) });
     await expect(simRow).toContainText("Unlimited Welcome");
     await expect(simRow).toContainText("$65.00");
@@ -396,18 +386,7 @@ test.describe("fee logging and provisioning", () => {
     await login(page, testerEmail, "Passw0rd!23");
     await submitRequestAsTester(page, "Replace SIM", { simCardOptionLabel: `${oldNumber} — Verizon` });
 
-    await logout(page);
-    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    await approveFromPendingRequests(page, clientName, "Replace SIM");
-
-    await logout(page);
-    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
-    await page.goto("/agent/requests");
-    await selectContractInSwitcher(page, clientName);
-
-    const row = page.getByRole("row", { name: /Replace SIM/ });
-    await row.getByRole("button", { name: "Mark In Progress" }).click();
-    await row.getByRole("button", { name: "Mark Completed" }).click();
+    const row = await approveAndBeginAgentCompletion(page, clientName, "Replace SIM");
 
     const newNumber = `+1-555-new-${RUN_ID}`;
     await row.getByLabel(/Fee amount/).fill("18.00");
@@ -416,7 +395,7 @@ test.describe("fee logging and provisioning", () => {
     await row.getByLabel("Flavor").selectOption("PREPAID");
     await completeAndGoToFleet(page, row, clientName);
 
-    const simTable = page.getByRole("heading", { name: "SIM Cards" }).locator("xpath=following::table[1]");
+    const simTable = simCardsTable(page);
     await expect(simTable.getByRole("row", { name: new RegExp(oldNumber.replace(/\+/g, "\\+")) })).toContainText(
       "Retired",
     );

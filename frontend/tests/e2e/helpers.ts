@@ -120,21 +120,100 @@ export async function addSimCard(
   await expect(page.getByRole("cell", { name: number })).toBeVisible();
 }
 
+/** Scopes a Pending Requests page row by both type and Client name — the page is tenant-wide and
+ * can also show an unrelated seeded Request, so every caller's `clientName` (already unique per
+ * test run) disambiguates it. */
+export function pendingRequestRow(page: Page, clientName: string, typeLabel: string) {
+  return page.getByRole("row", { name: new RegExp(`${typeLabel}.*${clientName}`) });
+}
+
 /**
  * Approves a Pending Approval Request from the Manager's Pending Requests page
  * (manager-approves-requests ticket) — every Provision/Replace fixture needs this step before the
- * Agent can progress it. Scoped by both type and Client name (which every caller's `clientName`
- * already makes unique per test run) since the page is tenant-wide and can also show an unrelated
- * seeded Request.
+ * Agent can progress it.
  */
 export async function approveFromPendingRequests(page: Page, clientName: string, typeLabel: string) {
   await page.goto("/manager/requests");
-  const row = page.getByRole("row", { name: new RegExp(`${typeLabel}.*${clientName}`) });
+  const row = pendingRequestRow(page, clientName, typeLabel);
   await Promise.all([
     page.waitForResponse((resp) => /\/api\/requests\/.+\/approve$/.test(resp.url())),
     row.getByRole("button", { name: "Approve" }).click(),
   ]);
   await expect(page.getByRole("row", { name: new RegExp(clientName) })).not.toBeVisible();
+}
+
+/**
+ * Adds a Smartphone and a SIM card (Verizon Prepaid, so Topup has an active Option to offer) to a
+ * Contract's Fleet, and returns the exact option labels the Submit-Request dialog's
+ * Smartphone/SIM Card pickers render — the Fleet fixture Reboot, Topup and SIM Swap Requests all
+ * need at submission (reboot-and-topup-details/sim-swap-moves tickets).
+ */
+export async function addFleetForRebootAndTopup(
+  page: Page,
+  contractId: string,
+  suffix: string,
+): Promise<{ smartphoneOptionLabel: string; simCardOptionLabel: string }> {
+  const serial = `SN-${suffix}`;
+  await addSmartphone(page, contractId, "Pixel 9", serial);
+  const number = `+1-555-${suffix}`;
+  await addSimCard(page, contractId, number);
+  return { smartphoneOptionLabel: `Pixel 9 — ${serial}`, simCardOptionLabel: `${number} — Verizon` };
+}
+
+/** Scopes to the SIM Cards table specifically — a Smartphone's own row also shows an installed
+ * SIM's number, in its own "SIM Cards" column (sim-installed-in-smartphone ticket). */
+export function simCardsTable(page: Page) {
+  return page.getByRole("heading", { name: "SIM Cards" }).locator("xpath=following::table[1]");
+}
+
+/** Sets a SIM Card's Installed-in Smartphone from the Manager's Contract Fleet view. */
+export async function installSimCard(page: Page, contractId: string, number: string, smartphoneOptionLabel: string) {
+  await page.goto(`/manager/contracts/${contractId}`);
+  const row = simCardsTable(page).getByRole("row", { name: new RegExp(number.replace(/\+/g, "\\+")) });
+  await row.getByLabel("Installed in").selectOption({ label: smartphoneOptionLabel });
+  await expect(row.getByLabel("Installed in")).not.toHaveValue("");
+}
+
+/**
+ * Creates a Contract the seeded Agent (Jordan Ellis) does NOT hold: a fresh Client and a fresh
+ * Agent of its own. Shared by every "an agent/tester on a different contract is rejected" 403
+ * boundary test, which only needs a Contract that isn't the seeded Agent's — the Client and Agent
+ * names themselves are never asserted on. Returns both ids.
+ */
+export async function createUnrelatedContract(
+  page: Page,
+  suffix: string,
+): Promise<{ clientId: string; contractId: string }> {
+  const otherClientName = `Bright Path Clinics ${suffix}`;
+  await page.goto("/manager/clients");
+  await page.getByRole("button", { name: "Add client" }).first().click();
+  await page.getByLabel("Client name").fill(otherClientName);
+  await page.getByRole("dialog").getByRole("button", { name: "Add client" }).click();
+  await expect(page.getByRole("cell", { name: otherClientName })).toBeVisible();
+  const clientHref = await page.getByRole("link", { name: otherClientName }).getAttribute("href");
+  const clientId = clientHref!.split("/").pop()!;
+
+  const otherAgentName = `Priya Nair ${suffix}`;
+  await page.goto("/manager/agents");
+  await page.getByRole("button", { name: "Add agent" }).first().click();
+  await page.getByLabel("Agent name").fill(otherAgentName);
+  await page.getByLabel("Country").selectOption("PHILIPPINES");
+  await page.getByLabel("Standing monthly salary").fill("1500");
+  await page.getByLabel("Email").fill(`priya.nair+${suffix}@agents.example`);
+  await page.getByLabel("Temporary password").fill("Passw0rd!23");
+  await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
+  await expect(page.getByRole("row", { name: new RegExp(otherAgentName) })).toBeVisible();
+
+  await page.goto("/manager/contracts");
+  await page.getByRole("button", { name: "Add contract" }).first().click();
+  await page.getByLabel("Client").selectOption({ label: otherClientName });
+  await page.getByLabel("Agent").selectOption({ label: `${otherAgentName} · PHP` });
+  await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
+  await page.getByRole("link", { name: otherClientName }).click();
+  await expect(page).toHaveURL(/\/manager\/contracts\/.+/);
+  const contractId = page.url().split("/").pop()!;
+
+  return { clientId, contractId };
 }
 
 /**
@@ -228,6 +307,8 @@ export interface SubmitRequestFleetOptions {
   planLabel?: string;
   targetSmartphoneOptionLabel?: string;
   topupOptionLabel?: string;
+  /** other-replaces-repair ticket: an Other Request requires a description. */
+  description?: string;
 }
 
 /** Submits a Request of the given type as the currently-logged-in Tester. */
@@ -236,6 +317,9 @@ export async function submitRequestAsTester(page: Page, requestTypeLabel: string
   await page.getByRole("button", { name: "Submit Request" }).first().click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Request type").selectOption({ label: requestTypeLabel });
+  if (requestTypeLabel === "Other" && fleet?.description) {
+    await dialog.getByLabel("Description").fill(fleet.description);
+  }
   if (requestTypeLabel === "Reboot") {
     await dialog.getByLabel("Smartphone to reboot").selectOption({ label: fleet!.smartphoneOptionLabel! });
   }

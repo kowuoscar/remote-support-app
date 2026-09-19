@@ -131,8 +131,12 @@ N/A — no user interface.
 
 - The loader never runs in integration tests or the committed e2e flow.
 - The loader writes nothing when the story is already present.
-- The baseline migration deletes only rows identified by the fixed ids earlier
-  seed migrations used; it never deletes by pattern or by table.
+- The baseline migration deletes the rows identified by the fixed ids earlier
+  seed migrations used, plus every row that references them — anything a
+  developer created on the demo Client, its Contracts, Agents, Testers or
+  Fleet — so it succeeds on a local database that was used by hand. It never
+  deletes by pattern or by table, and never touches a row unconnected to the
+  demo rows.
 - Every constraint of the three earlier features holds for demo data: frozen
   invoice totals match their snapshots, a unit is in exactly one place, a
   Smartphone holds at most two SIM Cards.

@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { CatalogCarrierItem, RequestListItem, SimCardListItem } from "@/lib/api/types";
+import type { RequestListItem, SimCardListItem } from "@/lib/api/types";
 import { ReplaceSimCompletion } from "./replace-sim-completion";
+import { carrier } from "./test-fixtures";
 
 function request(overrides: Partial<RequestListItem> = {}): RequestListItem {
   return {
@@ -19,17 +20,6 @@ function request(overrides: Partial<RequestListItem> = {}): RequestListItem {
     targetSimCardId: "sim-1",
     targetSimCardNumber: "+1-555-0100",
     ...overrides,
-  };
-}
-
-function carrier(id: string, plans: { id: string; archivedAt: string | null }[] = []): CatalogCarrierItem {
-  return {
-    id,
-    country: "UNITED_STATES",
-    name: `Carrier ${id}`,
-    archivedAt: null,
-    topupOptions: [],
-    postpaidPlans: plans.map((plan) => ({ ...plan, carrierId: id, name: `Plan ${plan.id}`, price: 10 })),
   };
 }
 

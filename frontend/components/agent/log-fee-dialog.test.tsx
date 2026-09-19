@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { stubFetch } from "@/tests/component/fetch";
 import type { CatalogCarrierItem, SimCardListItem } from "@/lib/api/types";
 import { LogFeeDialog } from "./log-fee-dialog";
@@ -83,16 +83,6 @@ async function openDialog() {
 // a target SIM Card, and the Topup Option picker (topup-fee-from-option ticket) follows that SIM
 // Card's own Carrier — the same rule TopupRequestDetails enforces for submitting a Request.
 describe("LogFeeDialog's target SIM Card and Topup Option", () => {
-  beforeAll(() => {
-    // jsdom has no modal dialog; opening it is all these tests need.
-    HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
-      this.open = true;
-    };
-    HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
-      this.open = false;
-    };
-  });
-
   it("shows no Topup Option picker until a SIM Card is chosen", async () => {
     const dialog = await openDialog();
     expect(within(dialog).queryByLabelText("Topup option")).not.toBeInTheDocument();

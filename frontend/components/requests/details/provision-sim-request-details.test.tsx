@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
@@ -22,17 +23,24 @@ function smartphone(id: string, model: string): SmartphoneListItem {
   return { id, contractId: "contract-1", model, serial: null, owner: "COMPANY", status: "ACTIVE" };
 }
 
+function renderDetails(overrides: Partial<ComponentProps<typeof ProvisionSimRequestDetails>> = {}) {
+  return render(
+    <ProvisionSimRequestDetails
+      smartphones={[]}
+      simCards={[]}
+      carriers={[]}
+      carriersHref=""
+      currency="USD"
+      {...overrides}
+    />,
+  );
+}
+
 describe("ProvisionSimRequestDetails", () => {
   it("defaults to Prepaid, with no Postpaid Plan picker", () => {
-    render(
-      <ProvisionSimRequestDetails
-        smartphones={[]}
-        simCards={[]}
-        carriers={[carrier("carrier-a", [{ id: "plan-a", name: "Unlimited", price: 60, archivedAt: null }])]}
-        carriersHref=""
-        currency="USD"
-      />,
-    );
+    renderDetails({
+      carriers: [carrier("carrier-a", [{ id: "plan-a", name: "Unlimited", price: 60, archivedAt: null }])],
+    });
 
     expect(screen.getByRole("combobox", { name: "Flavor" })).toHaveValue("PREPAID");
     expect(screen.queryByText("Postpaid plan")).not.toBeInTheDocument();
@@ -41,16 +49,7 @@ describe("ProvisionSimRequestDetails", () => {
   it("shows the Postpaid Plan picker once Postpaid is chosen, following the chosen Carrier", async () => {
     const carrierA = carrier("carrier-a", [{ id: "plan-a", name: "Unlimited A", price: 60, archivedAt: null }]);
     const carrierB = carrier("carrier-b", [{ id: "plan-b", name: "Unlimited B", price: 70, archivedAt: null }]);
-
-    render(
-      <ProvisionSimRequestDetails
-        smartphones={[]}
-        simCards={[]}
-        carriers={[carrierA, carrierB]}
-        carriersHref=""
-        currency="USD"
-      />,
-    );
+    renderDetails({ carriers: [carrierA, carrierB] });
 
     await userEvent.selectOptions(screen.getByRole("combobox", { name: "Carrier" }), "carrier-a");
     await userEvent.selectOptions(screen.getByRole("combobox", { name: "Flavor" }), "POSTPAID");
@@ -62,16 +61,7 @@ describe("ProvisionSimRequestDetails", () => {
   it("resets the chosen Plan when a different Carrier is picked", async () => {
     const carrierA = carrier("carrier-a", [{ id: "plan-a", name: "Unlimited A", price: 60, archivedAt: null }]);
     const carrierB = carrier("carrier-b", [{ id: "plan-b", name: "Unlimited B", price: 70, archivedAt: null }]);
-
-    render(
-      <ProvisionSimRequestDetails
-        smartphones={[]}
-        simCards={[]}
-        carriers={[carrierA, carrierB]}
-        carriersHref=""
-        currency="USD"
-      />,
-    );
+    renderDetails({ carriers: [carrierA, carrierB] });
 
     await userEvent.selectOptions(screen.getByRole("combobox", { name: "Carrier" }), "carrier-a");
     await userEvent.selectOptions(screen.getByRole("combobox", { name: "Flavor" }), "POSTPAID");
@@ -82,15 +72,7 @@ describe("ProvisionSimRequestDetails", () => {
   });
 
   it("offers an optional target Smartphone, not required", () => {
-    render(
-      <ProvisionSimRequestDetails
-        smartphones={[smartphone("phone-1", "Pixel 8")]}
-        simCards={[]}
-        carriers={[]}
-        carriersHref=""
-        currency="USD"
-      />,
-    );
+    renderDetails({ smartphones: [smartphone("phone-1", "Pixel 8")] });
 
     const picker = screen.getByRole("combobox", { name: "Target Smartphone" });
     expect(picker).not.toBeRequired();

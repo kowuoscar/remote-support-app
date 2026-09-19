@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { SEEDED_USERS, login } from "./helpers";
 
 /**
  * The Carriers page (carrier-catalog spec; agent-maintains-carriers ticket), driven against a
@@ -7,18 +8,6 @@ import { test, expect, type Page } from "@playwright/test";
  * (and an archived Sprint). Names carry a run suffix: the e2e database outlives a run, and a
  * Carrier name is unique among its Country's active Carriers.
  */
-const SEEDED_USERS = {
-  manager: { username: "manager@example.com", password: "ChangeMe123!" },
-  agent: { username: "agent@example.com", password: "AgentDemo123!" },
-} as const;
-
-async function login(page: Page, username: string, password: string) {
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(username);
-  await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/login"));
-}
 
 function carriersList(page: Page) {
   return page.getByRole("list", { name: "Carriers" });

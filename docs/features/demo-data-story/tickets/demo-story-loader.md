@@ -1,7 +1,7 @@
 ---
 id: demo-story-loader
 title: Build the demo story on demand under a demo profile
-status: ready-for-agent
+status: in-progress
 depends_on: [trim-seed-to-test-baseline]
 labels: [backend, seed-data, docs]
 ---

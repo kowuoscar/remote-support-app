@@ -11,7 +11,7 @@ import { IconAlertTriangle, IconDownload, IconInvoices, IconPaperclip } from "@/
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
 import { SendClientInvoiceControl } from "@/components/agent/send-client-invoice-control";
 import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from "@/lib/status";
-import { formatDate, formatDateShort } from "@/lib/format";
+import { formatDate, formatDateShort, formatLocalDate } from "@/lib/format";
 import { FEE_TYPE_LABEL, type ClientInvoiceDetail } from "@/lib/api/types";
 
 function billingMonthLabel(billingMonth: string): string {
@@ -143,7 +143,8 @@ export function AgentClientInvoicesView({
                           {sim.number}
                           {sim.cancellationEffectiveDate ? (
                             <span className="mt-1 block text-[12px] font-normal text-ink-mute">
-                              Cancelled {sim.cancellationEffectiveDate} — still billed through this month
+                              Cancelled {formatLocalDate(sim.cancellationEffectiveDate)} — still billed through this
+                              month
                             </span>
                           ) : null}
                         </Td>

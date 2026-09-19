@@ -97,6 +97,20 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+/**
+ * Mirrors `frontend/lib/format.ts`'s `formatLocalDate` — the Fleet tables and the draft Client
+ * Invoice's Postpaid SIM table render a bare `LocalDate` through it (design-review finding on
+ * this feature's finisher pass), not the raw ISO string this test used to assert.
+ */
+function formatLocalDate(localDate: string): string {
+  return new Date(`${localDate}T00:00:00Z`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 
 test.describe("cancelled sim billed through its month", () => {
@@ -174,7 +188,7 @@ test.describe("cancelled sim billed through its month", () => {
 
     await expect(page.getByRole("heading", { name: "Postpaid SIM Cards" })).toBeVisible();
     const simRow = page.getByRole("row", { name: new RegExp(number.replace(/\+/g, "\\+")) });
-    await expect(simRow).toContainText(`Cancelled ${effectiveDate}`);
+    await expect(simRow).toContainText(`Cancelled ${formatLocalDate(effectiveDate)}`);
     await expect(page.getByText("Base amount", { exact: true })).toBeVisible();
     await expect(page.getByText("$65.00").first()).toBeVisible();
   });

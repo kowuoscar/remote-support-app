@@ -67,7 +67,9 @@ describe("AgentClientInvoicesView", () => {
     );
 
     expect(screen.getByText("+1-555-0201")).toBeInTheDocument();
-    expect(screen.getByText(/Cancelled 2026-09-15/)).toBeInTheDocument();
+    // design-review finding on this feature's finisher pass: a bare LocalDate now renders through
+    // formatLocalDate ("Sep 15, 2026"), not the raw ISO string.
+    expect(screen.getByText(/Cancelled Sep 15, 2026/)).toBeInTheDocument();
   });
 
   it("shows no Postpaid SIM Cards section once the invoice is sent, with no live breakdown to show", () => {

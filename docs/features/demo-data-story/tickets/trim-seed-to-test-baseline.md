@@ -1,7 +1,7 @@
 ---
 id: trim-seed-to-test-baseline
 title: Reduce the Flyway seed to the test baseline
-status: in-progress
+status: done
 depends_on: []
 labels: [backend, seed-data]
 ---
@@ -12,11 +12,11 @@ Implements `spec.md` Solution (Test baseline) and user story 9.
 
 ## Acceptance criteria
 
-- [ ] A new migration deletes the ad hoc demo rows earlier seed migrations inserted — Demo Client, its Contracts, Agents other than Jordan Ellis, the demo Tester login, their Fleets, Requests, Returned units, Fees and anything referencing them — by their fixed ids, in dependency order
-- [ ] What remains is exactly: the tenant, the Manager login, the Agent login and Jordan Ellis, the Tester login, and the United States Carrier catalog with its Topup Options and Postpaid Plans
-- [ ] No applied migration is edited
-- [ ] Tests that used the removed rows create their own fixtures; `DEMO_TESTER_*` and `SEEDED_DEMO_*` constants are gone
-- [ ] The migration runs cleanly on a fresh database and on a database that already holds extra, hand-made rows, leaving those rows untouched
+- [x] A new migration deletes the ad hoc demo rows earlier seed migrations inserted — Demo Client, its Contracts, Agents other than Jordan Ellis, the demo Tester login, their Fleets, Requests, Returned units, Fees and anything referencing them — by their fixed ids, in dependency order
+- [x] What remains is exactly: the tenant, the Manager login, the Agent login and Jordan Ellis, the Tester login, and the United States Carrier catalog with its Topup Options and Postpaid Plans
+- [x] No applied migration is edited
+- [x] Tests that used the removed rows create their own fixtures; `DEMO_TESTER_*` and `SEEDED_DEMO_*` constants are gone
+- [x] The migration runs cleanly on a fresh database and on a database that already holds extra, hand-made rows, leaving those rows untouched
 
 ## Tests
 

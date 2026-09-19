@@ -15,6 +15,7 @@ import com.remotesupport.backend.dto.ClientCreateRequest;
 import com.remotesupport.backend.dto.ContractCreateRequest;
 import com.remotesupport.backend.dto.TesterCreateRequest;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -272,6 +273,61 @@ public abstract class IntegrationTest {
         """
         .formatted(number, carrierId, planId)
         .strip();
+  }
+
+  /**
+   * Cancels a SIM Card with the given effective date through the real Return flow (submit → the
+   * Manager approves with Disposition {@code CANCELLED} → the Agent progresses and completes with
+   * the date) — the only way {@code SimCard.cancellationEffectiveDate} is ever set
+   * (returns-and-agent-stock spec, Solution's Completion table; manager-decides-return-disposition
+   * ticket). Was duplicated verbatim in {@code AgentInvoiceApiTest} and {@code ClientInvoiceApiTest}
+   * (review finding on this feature's finisher pass); hoisted here next to {@link
+   * #postpaidSimCardJson}, the other helper both of those tests' cancellation fixtures already
+   * share.
+   */
+  protected void cancelSimCard(
+      UUID contractId, String managerToken, String testerToken, String agentToken, UUID simCardId, LocalDate effectiveDate)
+      throws Exception {
+    MvcResult created =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contractId + "/requests")
+                    .header("Authorization", "Bearer " + testerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content("{\"type\":\"RETURN\",\"returnedSimCardIds\":[\"%s\"]}".formatted(simCardId)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    JsonNode request = objectMapper.readTree(created.getResponse().getContentAsString());
+    UUID requestId = UUID.fromString(request.get("id").asText());
+    UUID unitId = UUID.fromString(request.get("returnedUnits").get(0).get("id").asText());
+
+    mockMvc
+        .perform(
+            post("/api/requests/" + requestId + "/approve")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content(
+                    "{\"dispositions\":[{\"returnedUnitId\":\"%s\",\"disposition\":\"CANCELLED\"}]}"
+                        .formatted(unitId)))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(
+            patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
+                .header("Authorization", "Bearer " + agentToken)
+                .contentType(APPLICATION_JSON)
+                .content("{\"status\":\"IN_PROGRESS\"}"))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(
+            patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
+                .header("Authorization", "Bearer " + agentToken)
+                .contentType(APPLICATION_JSON)
+                .content(
+                    "{\"status\":\"COMPLETED\",\"simCardCancellations\":[{\"simCardId\":\"%s\",\"effectiveDate\":\"%s\"}]}"
+                        .formatted(simCardId, effectiveDate)))
+        .andExpect(status().isOk());
   }
 
   /** Archives a Carrier, as the Manager. */

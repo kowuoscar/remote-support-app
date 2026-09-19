@@ -4,8 +4,7 @@ import { useId, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CarrierPicker } from "@/components/fleet/carrier-picker";
-import { PostpaidPlanPicker } from "@/components/fleet/postpaid-plan-picker";
+import { SimCardFlavorFields } from "@/components/fleet/sim-card-flavor-fields";
 import { IconAlertTriangle, IconCoins } from "@/components/icons";
 import { formatMoney } from "@/lib/format";
 import {
@@ -265,40 +264,22 @@ export function LogFeeDialog({
                     Number
                     <Input name="number" required disabled={submitting} placeholder="+1-555-0100" />
                   </label>
-                  <CarrierPicker
-                    name="carrierId"
+                  <SimCardFlavorFields
+                    carrierFieldName="carrierId"
                     carriers={carriers}
                     carriersHref={carriersHref}
-                    value={carrierId}
-                    onChange={(id) => {
+                    currency={currency}
+                    carrierId={carrierId}
+                    onCarrierChange={(id) => {
                       setCarrierId(id);
                       setPostpaidPlanId("");
                     }}
+                    flavor={flavor}
+                    onFlavorChange={setFlavor}
+                    postpaidPlanId={postpaidPlanId}
+                    onPostpaidPlanChange={setPostpaidPlanId}
                     disabled={submitting}
                   />
-                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                    Flavor
-                    <select
-                      required
-                      value={flavor}
-                      onChange={(event) => setFlavor(event.target.value as SimCardFlavorValue)}
-                      disabled={submitting}
-                      className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
-                    >
-                      <option value="POSTPAID">Postpaid</option>
-                      <option value="PREPAID">Prepaid</option>
-                    </select>
-                  </label>
-                  {flavor === "POSTPAID" ? (
-                    <PostpaidPlanPicker
-                      carrier={carriers.find((carrier) => carrier.id === carrierId)}
-                      currency={currency}
-                      carriersHref={carriersHref}
-                      value={postpaidPlanId}
-                      onChange={setPostpaidPlanId}
-                      disabled={submitting}
-                    />
-                  ) : null}
                 </div>
               ) : null}
             </>

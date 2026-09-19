@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconAlertTriangle, IconPlus } from "@/components/icons";
-import { CarrierPicker } from "@/components/fleet/carrier-picker";
-import { PostpaidPlanPicker } from "@/components/fleet/postpaid-plan-picker";
+import { SimCardFlavorFields } from "@/components/fleet/sim-card-flavor-fields";
 import type { CatalogCarrierItem, SimCardFlavorValue } from "@/lib/api/types";
 
 /**
@@ -130,41 +129,22 @@ export function CreateSimCardDialog({
             />
           </label>
 
-          <CarrierPicker
+          <SimCardFlavorFields
             carriers={carriers}
             carriersHref={carriersHref}
-            value={carrierId}
-            onChange={(id) => {
+            currency={currency}
+            carrierId={carrierId}
+            onCarrierChange={(id) => {
               setCarrierId(id);
               setPostpaidPlanId("");
             }}
+            flavor={flavor}
+            onFlavorChange={setFlavor}
+            postpaidPlanId={postpaidPlanId}
+            onPostpaidPlanChange={setPostpaidPlanId}
             disabled={submitting}
+            flavorSelectClassName="disabled:cursor-not-allowed disabled:opacity-70"
           />
-
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Flavor
-            <select
-              required
-              value={flavor}
-              onChange={(event) => setFlavor(event.target.value as SimCardFlavorValue)}
-              disabled={submitting}
-              className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              <option value="POSTPAID">Postpaid</option>
-              <option value="PREPAID">Prepaid</option>
-            </select>
-          </label>
-
-          {flavor === "POSTPAID" ? (
-            <PostpaidPlanPicker
-              carrier={carriers.find((carrier) => carrier.id === carrierId)}
-              currency={currency}
-              carriersHref={carriersHref}
-              value={postpaidPlanId}
-              onChange={setPostpaidPlanId}
-              disabled={submitting}
-            />
-          ) : null}
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="secondary" onClick={close} disabled={submitting}>

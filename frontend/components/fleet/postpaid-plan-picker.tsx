@@ -5,6 +5,7 @@ import { useId } from "react";
 import { Money } from "@/components/ui/money";
 import { cn } from "@/lib/cn";
 import { pickerSizes, type PickerSize } from "@/components/fleet/picker-sizes";
+import { PickerSelect } from "@/components/fleet/picker-select";
 import type { CatalogCarrierItem } from "@/lib/api/types";
 
 /**
@@ -70,28 +71,21 @@ export function PostpaidPlanPicker({
     <div className={cn("flex flex-col font-medium text-ink-secondary", styles.label)}>
       <label htmlFor={id} className="flex flex-col gap-[inherit]">
         Postpaid plan
-        <select
+        <PickerSelect
           id={id}
           name={name}
-          required
+          value={value}
+          onChange={onChange}
           disabled={disabled}
-          {...(value === undefined
-            ? { defaultValue: "" }
-            : { value, onChange: (event) => onChange?.(event.target.value) })}
-          className={cn(
-            "border border-hairline-strong bg-canvas text-ink focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-70",
-            styles.select,
-          )}
+          size={size}
+          placeholder="Choose a plan"
         >
-          <option value="" disabled>
-            Choose a plan
-          </option>
           {active.map((plan) => (
             <option key={plan.id} value={plan.id} translate="no">
               {plan.name}
             </option>
           ))}
-        </select>
+        </PickerSelect>
       </label>
       <p className={cn("flex items-baseline justify-between gap-2 pt-1 font-normal", styles.note)}>
         <span className="text-ink-mute">Monthly fee</span>

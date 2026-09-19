@@ -91,6 +91,24 @@ export function formatBillingMonth(billingMonth: string): string {
   });
 }
 
+/**
+ * "Aug 15, 2026" for a bare `LocalDate` string (`YYYY-MM-DD`, e.g. a SIM Card's
+ * `cancellationEffectiveDate`) — same UTC-parse fix {@link formatBillingMonth} already uses, since
+ * a `LocalDate` has no time or zone of its own: feeding it through {@link formatDate} (which
+ * assumes an `Instant`) parses it as UTC midnight, and `toLocaleDateString` with no explicit
+ * `timeZone` can then roll it back a day in a negative-UTC-offset browser (design-review finding
+ * on this feature's finisher pass — the Fleet tables and the draft Client Invoice's Postpaid SIM
+ * table were showing the raw `2026-08-15` string instead).
+ */
+export function formatLocalDate(localDate: string): string {
+  return new Date(`${localDate}T00:00:00Z`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 /** How long something has waited, in whole days: "Today", "1 day", "12 days". */
 export function formatWaitingTime(sinceIso: string, nowIso: string): string {
   const days = Math.floor((new Date(nowIso).getTime() - new Date(sinceIso).getTime()) / (1000 * 60 * 60 * 24));

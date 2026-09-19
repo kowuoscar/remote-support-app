@@ -1,10 +1,7 @@
 package com.remotesupport.backend.web;
 
-import com.remotesupport.backend.domain.Disposition;
 import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
-import com.remotesupport.backend.domain.RequestType;
-import com.remotesupport.backend.domain.ReturnedUnit;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.dto.RequestApprovalRequest;
 import com.remotesupport.backend.dto.RequestRejectRequest;
@@ -14,12 +11,9 @@ import com.remotesupport.backend.repository.RequestRepository;
 import com.remotesupport.backend.repository.ReturnedUnitRepository;
 import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
+import com.remotesupport.backend.web.requestapproval.RequestApprovalValidator;
 import jakarta.validation.Valid;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -48,29 +42,32 @@ public class RequestByIdController {
   private final RequestRepository requestRepository;
   private final ReturnedUnitRepository returnedUnitRepository;
   private final UserRepository userRepository;
+  private final RequestApprovalValidator requestApprovalValidator;
 
   public RequestByIdController(
       RequestRepository requestRepository,
       ReturnedUnitRepository returnedUnitRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      RequestApprovalValidator requestApprovalValidator) {
     this.requestRepository = requestRepository;
     this.returnedUnitRepository = returnedUnitRepository;
     this.userRepository = userRepository;
+    this.requestApprovalValidator = requestApprovalValidator;
   }
 
   @PostMapping("/approve")
   public RequestResponse approve(
       @PathVariable UUID requestId,
-      // Optional: a Provision/Replace Request approves with no input at all. A RETURN Request
-      // holding a company-owned unit needs its own per-unit Disposition here instead
-      // (manager-decides-return-disposition ticket, spec.md Solution's Disposition table) — see
-      // RequestApprovalRequest's own Javadoc for why this stayed one shape rather than a new route.
+      // Optional: a Provision/Replace Request approves with no input at all. A type with its own
+      // approval payload (e.g. a RETURN's per-unit Dispositions — manager-decides-return-disposition
+      // ticket, spec.md Solution's Disposition table) reads it here instead, via its own {@link
+      // RequestApprovalValidator}-registered handler — see RequestApprovalRequest's own Javadoc for
+      // why this stayed one shape rather than a new route.
       @RequestBody(required = false) RequestApprovalRequest requestBody,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Request request = findPendingApproval(requestId, principal);
 
-    String dispositionsChosen =
-        request.getType() == RequestType.RETURN ? applyReturnDispositions(request, requestBody) : "";
+    String dispositionsChosen = requestApprovalValidator.applyApproval(request, requestBody);
 
     request.setStatus(RequestStatus.SUBMITTED);
     decide(request, principal);
@@ -78,7 +75,7 @@ public class RequestByIdController {
 
     AuditLog.requestApproved(
         request.getId(), request.getContract().getId(), dispositionsChosen, principal.userId(), principal.tenantId());
-    return RequestResponse.of(request, returnedUnitsOf(request));
+    return RequestResponse.of(request, returnedUnitRepository.forRequest(request));
   }
 
   @PostMapping("/reject")
@@ -95,70 +92,7 @@ public class RequestByIdController {
 
     AuditLog.requestRejected(
         request.getId(), request.getContract().getId(), true, principal.userId(), principal.tenantId());
-    return RequestResponse.of(request, returnedUnitsOf(request));
-  }
-
-  /**
-   * Applies a {@code RETURN} Request's Manager-chosen Dispositions at the moment of approval
-   * (spec.md Solution: "Approving a Return requires a Disposition for every company-owned unit in
-   * the same action; without them the approval is refused") — a Client-owned unit already carries
-   * its fixed {@link Disposition#POSTED_TO_CLIENT} from submission ({@code
-   * ReturnRequestDetailsHandler}) and can't be named here (ticket AC: "Dispositions can't be
-   * changed after approval"); every other named unit must be, exactly once, with a Disposition
-   * that fits its own kind — a Smartphone only {@link Disposition#POSTED_TO_COMPANY}, a SIM Card
-   * only {@link Disposition#CANCELLED} (the only choices until the {@code agent-stock} ticket adds
-   * {@link Disposition#KEPT_IN_STOCK} for either kind). Returns a log-friendly summary of what was
-   * chosen, for {@link AuditLog#requestApproved}.
-   */
-  private String applyReturnDispositions(Request request, RequestApprovalRequest requestBody) {
-    List<ReturnedUnit> units = returnedUnitRepository.findByRequestIdOrderByCreatedAtAsc(request.getId());
-
-    Map<UUID, Disposition> chosen = new HashMap<>();
-    if (requestBody != null && requestBody.dispositions() != null) {
-      for (RequestApprovalRequest.UnitDisposition entry : requestBody.dispositions()) {
-        chosen.put(entry.returnedUnitId(), entry.disposition());
-      }
-    }
-
-    List<ReturnedUnit> toSave = new ArrayList<>();
-    List<String> logged = new ArrayList<>();
-    for (ReturnedUnit unit : units) {
-      if (unit.getDisposition() != null) {
-        if (chosen.containsKey(unit.getId())) {
-          throw new InvalidRequestException(
-              "The unit " + unit.getId() + " already has a Disposition and it cannot be changed");
-        }
-        continue;
-      }
-
-      Disposition disposition = chosen.get(unit.getId());
-      if (disposition == null) {
-        throw new InvalidRequestException("A Disposition is required for every company-owned unit, including " + unit.getId());
-      }
-      if (unit.getSmartphone() != null
-          && disposition != Disposition.POSTED_TO_COMPANY
-          && disposition != Disposition.KEPT_IN_STOCK) {
-        throw new InvalidRequestException(
-            "A company-owned Smartphone's Disposition must be Posted to company or Kept in Stock, not " + disposition);
-      }
-      if (unit.getSimCard() != null
-          && disposition != Disposition.CANCELLED
-          && disposition != Disposition.KEPT_IN_STOCK) {
-        throw new InvalidRequestException(
-            "A SIM Card's Disposition must be Cancelled or Kept in Stock, not " + disposition);
-      }
-
-      unit.setDisposition(disposition);
-      toSave.add(unit);
-      logged.add(unit.getId() + "=" + disposition.name());
-    }
-    returnedUnitRepository.saveAll(toSave);
-    return String.join(",", logged);
-  }
-
-  /** Mirrors {@link RequestController#returnedUnitsOf} — every unit a {@code RETURN} names. */
-  private List<ReturnedUnit> returnedUnitsOf(Request request) {
-    return returnedUnitRepository.findByRequestIdOrderByCreatedAtAsc(request.getId());
+    return RequestResponse.of(request, returnedUnitRepository.forRequest(request));
   }
 
   private void decide(Request request, AuthenticatedPrincipal principal) {

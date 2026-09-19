@@ -1,0 +1,41 @@
+package com.remotesupport.backend.web;
+
+import com.remotesupport.backend.domain.RequestStatus;
+import com.remotesupport.backend.dto.PendingRequestItemResponse;
+import com.remotesupport.backend.repository.RequestRepository;
+import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
+import java.util.Comparator;
+import java.util.List;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * The Manager's Pending Requests page (CONTEXT.md "Pending Requests"; request-types-and-flow spec,
+ * Manager approval; manager-approves-requests ticket): every Request at Pending Approval across
+ * every Contract in the caller's tenant, longest-waiting first with the Request id as a stable
+ * tiebreak — the Request-side mirror of {@link ReviewQueueController}. Manager-only at the matcher
+ * level (SecurityConfig). Read-only: it never creates or changes a Request; approve/reject live in
+ * {@link RequestByIdController}.
+ */
+@RestController
+public class PendingRequestsController {
+
+  private static final Comparator<PendingRequestItemResponse> LONGEST_WAITING_FIRST =
+      Comparator.comparing(PendingRequestItemResponse::waitingSince)
+          .thenComparing(item -> item.request().id().toString());
+
+  private final RequestRepository requestRepository;
+
+  public PendingRequestsController(RequestRepository requestRepository) {
+    this.requestRepository = requestRepository;
+  }
+
+  @GetMapping("/api/pending-requests")
+  public List<PendingRequestItemResponse> list(@AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    return requestRepository.findByTenantIdAndStatus(principal.tenantId(), RequestStatus.PENDING_APPROVAL).stream()
+        .map(PendingRequestItemResponse::of)
+        .sorted(LONGEST_WAITING_FIRST)
+        .toList();
+  }
+}

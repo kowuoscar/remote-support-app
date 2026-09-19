@@ -1,6 +1,6 @@
 ---
 feature: request-types-and-flow
-status: approved
+status: implemented
 date: 2026-09-18
 ---
 

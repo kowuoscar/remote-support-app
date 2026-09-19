@@ -30,12 +30,17 @@ import org.springframework.test.web.servlet.ResultActions;
  */
 class PostpaidSimPlanApiTest extends IntegrationTest {
 
-  /** The four ways a SIM Card comes into a Fleet. */
+  /**
+   * The three ways a SIM Card comes into a Fleet (manager-approves-requests ticket: a proactive
+   * Provision SIM Fee is now refused outright — {@code AGENT_LOGS_PROVISION_SIM_FEE} dropped —
+   * and an Agent logging a Provision SIM Request proactively always starts Pending Approval, so
+   * {@code AGENT_LOGS_AND_COMPLETES_PROVISION_SIM_REQUEST} now goes through the Manager's approval
+   * before completing it, rather than completing immediately).
+   */
   enum Path {
     MANAGER_ADDS_TO_FLEET,
     AGENT_COMPLETES_PROVISION_SIM_REQUEST,
-    AGENT_LOGS_PROVISION_SIM_REQUEST_COMPLETED,
-    AGENT_LOGS_PROVISION_SIM_FEE
+    AGENT_LOGS_AND_COMPLETES_PROVISION_SIM_REQUEST
   }
 
   private String managerToken;
@@ -222,8 +227,8 @@ class PostpaidSimPlanApiTest extends IntegrationTest {
 
     try {
       UUID planId = createPostpaidPlan(managerToken, carrierId, "Unlimited 30", "30.00");
-      create(Path.AGENT_LOGS_PROVISION_SIM_FEE, "POSTPAID", "\"postpaidPlanId\":\"" + planId + "\"")
-          .andExpect(status().isCreated());
+      create(Path.AGENT_LOGS_AND_COMPLETES_PROVISION_SIM_REQUEST, "POSTPAID", "\"postpaidPlanId\":\"" + planId + "\"")
+          .andExpect(status().is2xxSuccessful());
 
       String logged =
           appender.list.stream().map(ILoggingEvent::getFormattedMessage).reduce("", String::concat);
@@ -272,23 +277,29 @@ class PostpaidSimPlanApiTest extends IntegrationTest {
         }
         UUID requestId =
             UUID.fromString(objectMapper.readTree(submitMvc.getResponse().getContentAsString()).get("id").asText());
+        approveAsManager(managerToken, requestId);
         patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
         yield patchStatus(requestId, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0142\"}");
       }
-      case AGENT_LOGS_PROVISION_SIM_REQUEST_COMPLETED ->
-          postJsonText(
-              "/api/contracts/" + contractId + "/requests",
-              agentToken,
-              ("{\"type\":\"PROVISION_SIM\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
-                      + "\"simCardNumber\":\"+1-555-0142\"%s}")
-                  .formatted(testerId, requestedFields));
-      case AGENT_LOGS_PROVISION_SIM_FEE ->
-          postJsonText(
-              "/api/contracts/" + contractId + "/fees",
-              agentToken,
-              ("{\"feeType\":\"PROVISION_SIM\",\"amount\":15.00,\"testerId\":\"%s\","
-                      + "\"simCardNumber\":\"+1-555-0142\"%s}")
-                  .formatted(testerId, requestedFields));
+      case AGENT_LOGS_AND_COMPLETES_PROVISION_SIM_REQUEST -> {
+        // manager-approves-requests ticket: an Agent-proactive Provision SIM Request always starts
+        // Pending Approval now, so this path goes through the Manager's approval before it can be
+        // progressed and completed — its own submission may still be the outcome under test.
+        ResultActions submitResult =
+            postJsonText(
+                "/api/contracts/" + contractId + "/requests",
+                agentToken,
+                ("{\"type\":\"PROVISION_SIM\",\"testerId\":\"%s\"%s}").formatted(testerId, requestedFields));
+        MvcResult submitMvc = submitResult.andReturn();
+        if (submitMvc.getResponse().getStatus() != 201) {
+          yield submitResult;
+        }
+        UUID requestId =
+            UUID.fromString(objectMapper.readTree(submitMvc.getResponse().getContentAsString()).get("id").asText());
+        approveAsManager(managerToken, requestId);
+        patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+        yield patchStatus(requestId, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0142\"}");
+      }
     };
   }
 

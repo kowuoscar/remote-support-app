@@ -199,12 +199,32 @@ public class FeeController {
       throw new InvalidRequestException(
           "feeType " + requestBody.feeType() + " does not match this Request's type " + request.getType());
     }
+    // request-types-and-flow spec, Fees and approval: "A Fee can't be logged against a Request
+    // that is Pending Approval, Rejected or Cancelled" (manager-approves-requests ticket AC).
+    if (request.getStatus() == RequestStatus.PENDING_APPROVAL
+        || request.getStatus() == RequestStatus.REJECTED
+        || request.getStatus() == RequestStatus.CANCELLED) {
+      throw new InvalidRequestException(
+          "A Fee can't be logged against a Request that is " + request.getStatus());
+    }
     return request;
   }
 
   /** The proactive branch: auto-creates the linking Request (agent-request-fulfillment shape). */
   private Request createProactiveLinkingRequest(
       Contract contract, FeeCreateRequest requestBody, AuthenticatedPrincipal principal) {
+    // request-types-and-flow spec, Fees and approval: "A proactive Fee (no existing Request) is
+    // refused for the four approval-required types; the Agent logs the Request instead"
+    // (manager-approves-requests ticket AC). Checked before anything else in this branch — a
+    // proactive Provision/Replace Fee never gets far enough to name a Tester or auto-create a Row.
+    if (requestBody.feeType().toRequestType().requiresApproval()) {
+      throw new InvalidRequestException(
+          "A proactive "
+              + requestBody.feeType()
+              + " Fee is refused — log the "
+              + requestBody.feeType().toRequestType()
+              + " Request instead, which waits for the Manager's approval before it can carry a Fee");
+    }
     if (requestBody.testerId() == null) {
       throw new InvalidRequestException("testerId is required when logging a Fee with no pre-existing Request");
     }

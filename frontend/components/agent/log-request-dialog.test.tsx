@@ -60,6 +60,42 @@ describe("LogRequestDialog's description field", () => {
   });
 });
 
+// manager-approves-requests ticket: Provision Smartphone/SIM and Replace Smartphone/SIM always
+// start Pending Approval now — an Agent can no longer choose the starting status for these types.
+describe("LogRequestDialog's starting status, for the four approval-required types", () => {
+  it("hides the starting-status choice and explains why, for an approval-required type", async () => {
+    const dialog = await openDialog();
+
+    await userEvent.selectOptions(within(dialog).getByLabelText("Request type"), "Provision Smartphone");
+
+    expect(within(dialog).queryByText("Starting status")).not.toBeInTheDocument();
+    expect(within(dialog).getByText(/always starts Pending Approval/)).toBeInTheDocument();
+  });
+
+  it("still offers the starting-status choice for a type that doesn't need approval", async () => {
+    const dialog = await openDialog();
+
+    await userEvent.selectOptions(within(dialog).getByLabelText("Request type"), "SIM Swap");
+
+    expect(within(dialog).getByText("Starting status")).toBeInTheDocument();
+  });
+
+  it("sends no startingStatus at all for an approval-required type", async () => {
+    const fetchMock = stubFetch(201, {});
+    const dialog = await openDialog();
+
+    await userEvent.selectOptions(within(dialog).getByLabelText("Request type"), "Provision Smartphone");
+    await userEvent.type(within(dialog).getByLabelText(/Requested model/), "iPhone 15");
+    await userEvent.click(within(dialog).getByRole("button", { name: "Log request" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    const body = JSON.parse(String(init.body));
+    expect(body.type).toBe("PROVISION_SMARTPHONE");
+    expect(body.startingStatus).toBeUndefined();
+  });
+});
+
 // reboot-and-topup-details ticket: LogRequestDialog is already scoped to one fixed Contract, so
 // its Smartphones/SIM Cards/Carriers are plain flat props (the caller — AgentRequestsView —
 // already filters them to that Contract).

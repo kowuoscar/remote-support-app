@@ -151,6 +151,23 @@ async function submitRequestAsTester(
   await page.getByRole("button", { name: "Close" }).click();
 }
 
+/**
+ * Approves a Pending Approval Request from the Manager's Pending Requests page
+ * (manager-approves-requests ticket) — every Provision/Replace fixture in this file now needs
+ * this step before the Agent can progress it. Scoped by both type and Client name (which every
+ * caller's `clientName` already makes unique per test run, per this file's own RUN_ID note) since
+ * the page is tenant-wide and can also show an unrelated seeded Request.
+ */
+async function approveFromPendingRequests(page: Page, clientName: string, typeLabel: string) {
+  await page.goto("/manager/requests");
+  const row = page.getByRole("row", { name: new RegExp(`${typeLabel}.*${clientName}`) });
+  await Promise.all([
+    page.waitForResponse((resp) => /\/api\/requests\/.+\/approve$/.test(resp.url())),
+    row.getByRole("button", { name: "Approve" }).click(),
+  ]);
+  await expect(page.getByRole("row", { name: new RegExp(clientName) })).not.toBeVisible();
+}
+
 /** Fetches a Contract's Fees from the browser — there's no dedicated Fees list view yet. */
 async function fetchFees(page: Page, contractId: string) {
   return page.evaluate(async (contractId) => {
@@ -318,6 +335,10 @@ test.describe("fee logging and provisioning", () => {
     await submitRequestAsTester(page, "Provision Smartphone", { requestedModel: "iPhone 15" });
 
     await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await approveFromPendingRequests(page, clientName, "Provision Smartphone");
+
+    await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/requests");
     await selectContractInSwitcher(page, clientName);
@@ -369,6 +390,10 @@ test.describe("fee logging and provisioning", () => {
     await submitDialog.getByRole("button", { name: "Submit Request" }).click();
     await expect(page.getByText("Request submitted")).toBeVisible();
     await page.getByRole("button", { name: "Close" }).click();
+
+    await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await approveFromPendingRequests(page, clientName, "Provision SIM");
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -431,6 +456,10 @@ test.describe("fee logging and provisioning", () => {
     await submitDialog.getByRole("button", { name: "Submit Request" }).click();
     await expect(page.getByText("Request submitted")).toBeVisible();
     await page.getByRole("button", { name: "Close" }).click();
+
+    await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await approveFromPendingRequests(page, clientName, "Provision SIM");
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -565,6 +594,10 @@ test.describe("fee logging and provisioning", () => {
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
     await submitRequestAsTester(page, "Replace SIM", { simCardOptionLabel: `${oldNumber} — Verizon` });
+
+    await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await approveFromPendingRequests(page, clientName, "Replace SIM");
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);

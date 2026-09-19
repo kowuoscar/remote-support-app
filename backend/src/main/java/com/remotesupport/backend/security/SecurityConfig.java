@@ -172,6 +172,14 @@ public class SecurityConfig {
                     .hasAnyRole("MANAGER", "AGENT")
                     .requestMatchers("/api/review-queue","/api/client-invoices/**", "/api/agent-invoices/**")
                     .hasRole("MANAGER")
+                    // manager-approves-requests ticket: the Pending Requests list and a Request's
+                    // own approve/reject are Manager-only (spec.md Constraints: "An Agent or
+                    // Tester gets 403 on those routes and on the pending list") — a distinct
+                    // top-level path from the Contract-scoped /api/contracts/*/requests/** above,
+                    // so this doesn't narrow that route's existing access. Tenant scoping (an
+                    // unknown or other-tenant id is 404) is enforced in RequestByIdController.
+                    .requestMatchers("/api/pending-requests", "/api/requests/**")
+                    .hasRole("MANAGER")
                     .requestMatchers("/api/clients/**", "/api/agents/**", "/api/contracts/**")
                     .hasRole("MANAGER")
                     .anyRequest()

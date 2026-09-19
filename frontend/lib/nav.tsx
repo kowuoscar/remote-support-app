@@ -19,6 +19,7 @@ export interface NavItem {
 
 export const managerNav: NavItem[] = [
   { href: "/manager", label: "Dashboard", icon: IconDashboard },
+  { href: "/manager/requests", label: "Requests", icon: IconRequests },
   { href: "/manager/clients", label: "Clients", icon: IconClients },
   { href: "/manager/agents", label: "Agents", icon: IconAgents },
   { href: "/manager/contracts", label: "Contracts", icon: IconContracts },

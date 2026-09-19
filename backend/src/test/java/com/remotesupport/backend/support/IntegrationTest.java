@@ -3,6 +3,7 @@ package com.remotesupport.backend.support;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -364,6 +365,33 @@ public abstract class IntegrationTest {
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /**
+   * Approves a Pending Approval Request as the Manager (manager-approves-requests ticket): every
+   * fixture that submits a Provision/Replace Request now has to clear this gate before the Agent
+   * can progress it, so this is the one shared place that does it rather than repeating the POST
+   * across every test file that needed updating for the new approval step.
+   */
+  protected void approveAsManager(String managerToken, UUID requestId) throws Exception {
+    mockMvc
+        .perform(post("/api/requests/" + requestId + "/approve").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SUBMITTED"));
+  }
+
+  /** Rejects a Pending Approval Request as the Manager, with the given reason. */
+  protected void rejectAsManager(String managerToken, UUID requestId, String reason) throws Exception {
+    mockMvc
+        .perform(
+            post("/api/requests/" + requestId + "/reject")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"reason":"%s"}
+                    """.formatted(reason)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("REJECTED"));
   }
 
   /**

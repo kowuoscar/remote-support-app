@@ -22,10 +22,12 @@ import {
 
 const statusFilters: (RequestStatusValue | "All")[] = [
   "All",
+  "PENDING_APPROVAL",
   "SUBMITTED",
   "IN_PROGRESS",
   "COMPLETED",
   "CANCELLED",
+  "REJECTED",
 ];
 
 export function ClientRequestsView({
@@ -133,6 +135,11 @@ export function ClientRequestsView({
                     <Badge tone={requestStatusToneByValue[request.status]}>
                       {REQUEST_STATUS_LABEL[request.status]}
                     </Badge>
+                    {request.status === "REJECTED" && request.rejectionReason ? (
+                      <span className="mt-1 block max-w-[220px] text-[12px] text-ink-mute">
+                        {request.rejectionReason}
+                      </span>
+                    ) : null}
                   </Td>
                   <Td className="whitespace-nowrap text-ink-mute">
                     {formatRelativeAge(request.createdAt)}

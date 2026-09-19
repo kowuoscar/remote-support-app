@@ -11,6 +11,11 @@ import java.util.UUID;
  * round-trip" way as {@link RequestResponse}'s own target/requested fields (return-client-owned-smartphones
  * ticket AC: "shown on the Request in every Requests list"). Exactly one of {@code
  * smartphoneId}/{@code simCardId} is present, matching {@link ReturnedUnit}'s own shape.
+ *
+ * <p>{@code simCardFlavor} (agent-stock ticket) is present only for a SIM Card unit — the
+ * Manager's approve control reads it to show a reminder on a Postpaid SIM that keeping it in Stock
+ * keeps the carrier charging with no Client to bill (ticket AC), without a second round-trip to
+ * the SIM Card itself.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ReturnedUnitResponse(
@@ -19,6 +24,7 @@ public record ReturnedUnitResponse(
     String smartphoneModel,
     UUID simCardId,
     String simCardNumber,
+    String simCardFlavor,
     String disposition) {
 
   public static ReturnedUnitResponse of(ReturnedUnit unit) {
@@ -30,6 +36,7 @@ public record ReturnedUnitResponse(
         smartphone == null ? null : smartphone.getModel(),
         simCard == null ? null : simCard.getId(),
         simCard == null ? null : simCard.getNumber(),
+        simCard == null ? null : simCard.getFlavor().name(),
         unit.getDisposition() == null ? null : unit.getDisposition().name());
   }
 }

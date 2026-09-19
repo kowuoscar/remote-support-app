@@ -208,7 +208,39 @@ export interface ReturnedUnitItem {
   smartphoneModel?: string;
   simCardId?: string;
   simCardNumber?: string;
+  // agent-stock ticket: present only for a SIM Card unit, so the Manager's Disposition picker can
+  // show a reminder on a Postpaid one without a second round-trip to the SIM Card itself.
+  simCardFlavor?: SimCardFlavorValue;
   disposition?: DispositionValue;
+}
+
+// Mirrors backend/.../dto/StockUnitResponse.java (returns-and-agent-stock spec, Solution's Agent
+// Stock; agent-stock ticket): one Smartphone or SIM Card in an Agent's Stock. Exactly one of the
+// Smartphone-only fields (model, serial) or the SIM-Card-only fields (number, carrier*, flavor,
+// postpaidPlan*, monthlyFeeAmount) is present, matching SmartphoneListItem's/SimCardListItem's own
+// shapes — `kind` says which. fromContractId/fromClientName name the Contract the unit left.
+export type StockUnitKind = "SMARTPHONE" | "SIM_CARD";
+
+export interface StockUnitItem {
+  id: string;
+  kind: StockUnitKind;
+  agentId: string;
+  agentName: string;
+  agentCurrency: string;
+  model?: string;
+  serial?: string;
+  number?: string;
+  carrierId?: string;
+  carrierName?: string;
+  carrierArchived?: boolean;
+  flavor?: SimCardFlavorValue;
+  postpaidPlanId?: string;
+  postpaidPlanName?: string;
+  postpaidPlanArchived?: boolean;
+  monthlyFeeAmount?: number;
+  status: string;
+  fromContractId?: string;
+  fromClientName?: string;
 }
 
 // Mirrors backend/.../domain/RequestStatus.java. PENDING_APPROVAL/REJECTED

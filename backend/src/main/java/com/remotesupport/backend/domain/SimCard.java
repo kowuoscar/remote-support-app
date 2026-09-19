@@ -37,9 +37,17 @@ public class SimCard {
   @JoinColumn(name = "tenant_id", nullable = false)
   private Tenant tenant;
 
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "contract_id", nullable = false)
+  // Nullable since agent-stock: a SIM Card kept in Stock (Disposition KEPT_IN_STOCK) belongs to
+  // no Contract, matching Smartphone's own exactly-one-of-contract/holdingAgent shape (V53
+  // migration's CHECK; CONTEXT.md "Agent Stock").
+  @ManyToOne
+  @JoinColumn(name = "contract_id")
   private Contract contract;
+
+  /** The Agent holding this SIM Card in their Stock, or {@code null} while it's on a Contract. */
+  @ManyToOne
+  @JoinColumn(name = "holding_agent_id")
+  private Agent holdingAgent;
 
   @Column(nullable = false)
   private String number;

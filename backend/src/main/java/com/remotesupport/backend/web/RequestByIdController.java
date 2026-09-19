@@ -135,12 +135,17 @@ public class RequestByIdController {
       if (disposition == null) {
         throw new InvalidRequestException("A Disposition is required for every company-owned unit, including " + unit.getId());
       }
-      if (unit.getSmartphone() != null && disposition != Disposition.POSTED_TO_COMPANY) {
+      if (unit.getSmartphone() != null
+          && disposition != Disposition.POSTED_TO_COMPANY
+          && disposition != Disposition.KEPT_IN_STOCK) {
         throw new InvalidRequestException(
-            "A company-owned Smartphone's Disposition must be Posted to company, not " + disposition);
+            "A company-owned Smartphone's Disposition must be Posted to company or Kept in Stock, not " + disposition);
       }
-      if (unit.getSimCard() != null && disposition != Disposition.CANCELLED) {
-        throw new InvalidRequestException("A SIM Card's Disposition must be Cancelled, not " + disposition);
+      if (unit.getSimCard() != null
+          && disposition != Disposition.CANCELLED
+          && disposition != Disposition.KEPT_IN_STOCK) {
+        throw new InvalidRequestException(
+            "A SIM Card's Disposition must be Cancelled or Kept in Stock, not " + disposition);
       }
 
       unit.setDisposition(disposition);

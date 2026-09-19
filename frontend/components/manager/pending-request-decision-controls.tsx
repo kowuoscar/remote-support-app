@@ -10,17 +10,24 @@ import { DISPOSITION_LABEL, type DispositionValue, type ReturnedUnitItem, type R
 const CONFLICT_MESSAGE = "This Request is no longer Pending Approval. Refresh to see its current status.";
 
 /**
- * One fixed Disposition per unit kind until the `agent-stock` ticket adds Kept in Stock as a
- * second choice (spec.md Disposition table; ticket AC: "the only choices until agent-stock") — a
- * unit still gets a real `<select>`, not silently auto-approved, so today's one-option list
- * becomes a real choice with no further wiring once that ticket lands.
+ * Two choices per unit kind (spec.md Disposition table; agent-stock ticket AC: "The Manager can
+ * choose Kept in Stock for a company-owned Smartphone or a SIM Card when approving a Return").
  */
 function dispositionOptionsFor(unit: ReturnedUnitItem): DispositionValue[] {
-  return unit.smartphoneId ? ["POSTED_TO_COMPANY"] : ["CANCELLED"];
+  return unit.smartphoneId ? ["POSTED_TO_COMPANY", "KEPT_IN_STOCK"] : ["CANCELLED", "KEPT_IN_STOCK"];
 }
 
 function unitLabel(unit: ReturnedUnitItem): string {
   return unit.smartphoneModel ?? unit.simCardNumber ?? "Unit";
+}
+
+/**
+ * agent-stock ticket AC: "on a Postpaid SIM the picker notes that the carrier keeps charging with
+ * no Client to bill" (spec.md user story 17) — shown next to a Postpaid SIM Card unit's picker
+ * regardless of which Disposition is currently selected, so the Manager reads it before choosing.
+ */
+function isPostpaidSimCard(unit: ReturnedUnitItem): boolean {
+  return !unit.smartphoneId && unit.simCardFlavor === "POSTPAID";
 }
 
 /**
@@ -154,25 +161,29 @@ export function PendingRequestDecisionControls({ request }: { request: RequestLi
       <form onSubmit={approve} className="flex flex-col items-end gap-1.5">
         <div className="flex flex-col items-end gap-1">
           {unitsNeedingDisposition.map((unit) => (
-            <label
-              key={unit.id}
-              className="flex items-center gap-1.5 text-[11px] font-medium text-ink-secondary"
-            >
-              {unitLabel(unit)}
-              <select
-                name={`disposition-${unit.id}`}
-                required
-                disabled={pending}
-                defaultValue={dispositionOptionsFor(unit)[0]}
-                className="h-7 rounded-md border border-hairline-strong bg-canvas px-2 text-[12px] text-ink"
-              >
-                {dispositionOptionsFor(unit).map((disposition) => (
-                  <option key={disposition} value={disposition}>
-                    {DISPOSITION_LABEL[disposition]}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div key={unit.id} className="flex flex-col items-end gap-0.5">
+              <label className="flex items-center gap-1.5 text-[11px] font-medium text-ink-secondary">
+                {unitLabel(unit)}
+                <select
+                  name={`disposition-${unit.id}`}
+                  required
+                  disabled={pending}
+                  defaultValue={dispositionOptionsFor(unit)[0]}
+                  className="h-7 rounded-md border border-hairline-strong bg-canvas px-2 text-[12px] text-ink"
+                >
+                  {dispositionOptionsFor(unit).map((disposition) => (
+                    <option key={disposition} value={disposition}>
+                      {DISPOSITION_LABEL[disposition]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {isPostpaidSimCard(unit) ? (
+                <span className="max-w-[220px] text-right text-[11px] text-warning">
+                  Kept in Stock: the carrier keeps charging with no Client to bill.
+                </span>
+              ) : null}
+            </div>
           ))}
         </div>
         <div className="flex items-center gap-1.5">

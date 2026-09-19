@@ -116,6 +116,65 @@ const PENDING_REQUESTS = [
   },
 ];
 
+// agent-stock ticket: two Agents (only Jordan Ellis is the seeded caller's own — the Manager's
+// filter dropdown also needs a second one to be a real choice) and two Stock units, both held by
+// Jordan Ellis — one Smartphone, one Postpaid SIM Card with a Carrier and Plan — so both of the
+// Stock page's tables render non-empty in the same golden.
+const AGENTS = [
+  {
+    id: "a0000000-0000-0000-0000-000000000001",
+    name: "Jordan Ellis",
+    country: "UNITED_STATES",
+    currency: "USD",
+    salaryAmount: 3200,
+    contractCount: 2,
+    loginUsername: "agent@example.com",
+  },
+  {
+    id: "a0000000-0000-0000-0000-000000000002",
+    name: "Priya Nair",
+    country: "UNITED_KINGDOM",
+    currency: "GBP",
+    salaryAmount: 2800,
+    contractCount: 1,
+    loginUsername: null,
+  },
+];
+
+const STOCK_UNITS = [
+  {
+    id: "b0000000-0000-0000-0000-000000000001",
+    kind: "SMARTPHONE",
+    agentId: AGENTS[0].id,
+    agentName: AGENTS[0].name,
+    agentCurrency: AGENTS[0].currency,
+    model: "iPhone 15 Pro",
+    serial: "F2LW9X3RQD",
+    status: "ACTIVE",
+    fromContractId: "22222222-0000-0000-0000-000000000001",
+    fromClientName: "Aurora Retail Group",
+  },
+  {
+    id: "b0000000-0000-0000-0000-000000000002",
+    kind: "SIM_CARD",
+    agentId: AGENTS[0].id,
+    agentName: AGENTS[0].name,
+    agentCurrency: AGENTS[0].currency,
+    number: "+1-555-0142",
+    carrierId: "c1",
+    carrierName: "AT&T",
+    carrierArchived: false,
+    flavor: "POSTPAID",
+    postpaidPlanId: "c1-postpaidPlans-0",
+    postpaidPlanName: "Unlimited Starter",
+    postpaidPlanArchived: false,
+    monthlyFeeAmount: 65.99,
+    status: "ACTIVE",
+    fromContractId: "22222222-0000-0000-0000-000000000002",
+    fromClientName: "Meridian Logistics",
+  },
+];
+
 function send(response, status, body) {
   response.writeHead(status, { "Content-Type": "application/json" });
   response.end(body === undefined ? "" : JSON.stringify(body));
@@ -138,6 +197,20 @@ createServer((request, response) => {
   }
   if (url.pathname === "/api/pending-requests" && request.method === "GET") {
     return caller.role === "MANAGER" ? send(response, 200, PENDING_REQUESTS) : send(response, 403);
+  }
+  if (url.pathname === "/api/agents" && request.method === "GET") {
+    return caller.role === "MANAGER" ? send(response, 200, AGENTS) : send(response, 403);
+  }
+  // agent-stock ticket: an Agent always sees their own Stock; the Manager sees every Agent's
+  // unless `agentId` narrows it — mirrors StockController#resolveScopeAgentId.
+  if (url.pathname === "/api/stock" && request.method === "GET") {
+    if (caller.role === "TESTER") return send(response, 403);
+    const agentId = url.searchParams.get("agentId");
+    if (caller.role === "AGENT") {
+      return send(response, 200, STOCK_UNITS.filter((unit) => unit.agentId === AGENTS[0].id));
+    }
+    const units = agentId ? STOCK_UNITS.filter((unit) => unit.agentId === agentId) : STOCK_UNITS;
+    return send(response, 200, units);
   }
   return send(response, 404);
 }).listen(PORT, "127.0.0.1");

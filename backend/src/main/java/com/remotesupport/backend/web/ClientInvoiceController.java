@@ -254,7 +254,7 @@ public class ClientInvoiceController {
    * the same request/transaction as the status change.
    */
   private void snapshot(Contract contract, ClientInvoice invoice) {
-    invoice.setSnapshotBaseAmount(contractAmountService.baseAmount(contract.getId()));
+    invoice.setSnapshotBaseAmount(contractAmountService.baseAmount(contract.getId(), invoice.getBillingMonth()));
 
     List<Fee> fees =
         feeRepository.findByContractIdAndBillingMonthOrderByCreatedAtAsc(contract.getId(), invoice.getBillingMonth());

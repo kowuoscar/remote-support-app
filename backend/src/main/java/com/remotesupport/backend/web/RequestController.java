@@ -4,6 +4,7 @@ import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
 import com.remotesupport.backend.domain.RequestType;
+import com.remotesupport.backend.domain.ReturnedUnit;
 import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.dto.RequestCreateRequest;
@@ -12,6 +13,7 @@ import com.remotesupport.backend.dto.RequestStatusUpdateRequest;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.RequestRepository;
+import com.remotesupport.backend.repository.ReturnedUnitRepository;
 import com.remotesupport.backend.repository.TesterRepository;
 import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.FleetAccessGuard;
@@ -55,6 +57,7 @@ public class RequestController {
 
   private final ContractRepository contractRepository;
   private final RequestRepository requestRepository;
+  private final ReturnedUnitRepository returnedUnitRepository;
   private final TesterRepository testerRepository;
   private final UserRepository userRepository;
   private final FleetAccessGuard fleetAccessGuard;
@@ -65,6 +68,7 @@ public class RequestController {
   public RequestController(
       ContractRepository contractRepository,
       RequestRepository requestRepository,
+      ReturnedUnitRepository returnedUnitRepository,
       TesterRepository testerRepository,
       UserRepository userRepository,
       FleetAccessGuard fleetAccessGuard,
@@ -73,6 +77,7 @@ public class RequestController {
       RequestDetailsValidator requestDetailsValidator) {
     this.contractRepository = contractRepository;
     this.requestRepository = requestRepository;
+    this.returnedUnitRepository = returnedUnitRepository;
     this.testerRepository = testerRepository;
     this.userRepository = userRepository;
     this.fleetAccessGuard = fleetAccessGuard;
@@ -105,7 +110,7 @@ public class RequestController {
       createTesterAuthored(contract, requestBody, principal, request);
     }
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(RequestResponse.of(request));
+    return ResponseEntity.status(HttpStatus.CREATED).body(RequestResponse.of(request, returnedUnitsOf(request)));
   }
 
   /**
@@ -202,7 +207,7 @@ public class RequestController {
     fleetAccessGuard.requireCanView(contract, principal);
 
     return requestRepository.findByContractIdOrderByCreatedAtAsc(contractId).stream()
-        .map(RequestResponse::of)
+        .map(request -> RequestResponse.of(request, returnedUnitsOf(request)))
         .toList();
   }
 
@@ -264,7 +269,16 @@ public class RequestController {
         principal.userId(),
         principal.tenantId());
 
-    return RequestResponse.of(request);
+    return RequestResponse.of(request, returnedUnitsOf(request));
+  }
+
+  /**
+   * The units a {@code RETURN} Request names, for denormalizing into its {@link RequestResponse}
+   * (return-client-owned-smartphones ticket AC: "shown on the Request in every Requests list") —
+   * empty, and cheap, for every other type since {@code request_id} never matches any row.
+   */
+  private List<ReturnedUnit> returnedUnitsOf(Request request) {
+    return returnedUnitRepository.findByRequestIdOrderByCreatedAtAsc(request.getId());
   }
 
   /**
@@ -317,7 +331,9 @@ public class RequestController {
         requestBody.requestedFlavor(),
         requestBody.requestedCarrierId(),
         requestBody.requestedPostpaidPlanId(),
-        requestBody.secondSimCardId());
+        requestBody.secondSimCardId(),
+        requestBody.returnedSmartphoneIds(),
+        requestBody.returnedSimCardIds());
   }
 
   /**

@@ -27,7 +27,9 @@ public enum FeeType {
   public static boolean requestTypeCanCarryFee(RequestType requestType) {
     return switch (requestType) {
       case TOPUP, PROVISION_SMARTPHONE, PROVISION_SIM, REPLACE_SMARTPHONE, REPLACE_SIM, OTHER -> true;
-      case REBOOT, SIM_SWAP -> false;
+      // RETURN (returns-and-agent-stock spec: "It never carries a Fee") joins REBOOT and SIM_SWAP
+      // here — postage isn't modelled (spec.md Non-goals).
+      case REBOOT, SIM_SWAP, RETURN -> false;
     };
   }
 }

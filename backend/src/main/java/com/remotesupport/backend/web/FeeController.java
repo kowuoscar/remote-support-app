@@ -277,6 +277,10 @@ public class FeeController {
             // sim-swap-moves ticket: a proactive Fee can never auto-create a SIM_SWAP linking
             // Request (FeeType structurally excludes it), so there is no second SIM Card to name
             // here.
+            null,
+            // returns-and-agent-stock spec: a proactive Fee can never auto-create a RETURN linking
+            // Request either (FeeType structurally excludes it too), so there are no units to name.
+            null,
             null),
         request);
 

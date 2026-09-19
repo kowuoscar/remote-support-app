@@ -1,4 +1,9 @@
-import { SIM_CARD_FLAVOR_LABEL, type RequestListItem, type RequestTypeValue } from "@/lib/api/types";
+import {
+  DISPOSITION_LABEL,
+  SIM_CARD_FLAVOR_LABEL,
+  type RequestListItem,
+  type RequestTypeValue,
+} from "@/lib/api/types";
 
 type SummaryRenderer = (request: RequestListItem) => string | null;
 
@@ -44,6 +49,18 @@ const REQUEST_DETAILS_SUMMARY: Partial<Record<RequestTypeValue, SummaryRenderer>
   },
   REPLACE_SIM: (request) =>
     request.targetSimCardNumber ? `Replacing: ${request.targetSimCardNumber}` : null,
+  // return-client-owned-smartphones ticket AC: "Each unit carries the Disposition ... shown on
+  // the Request in every Requests list".
+  RETURN: (request) => {
+    if (!request.returnedUnits || request.returnedUnits.length === 0) return null;
+    return request.returnedUnits
+      .map((unit) => {
+        const label = unit.smartphoneModel ?? unit.simCardNumber ?? "unit";
+        const disposition = unit.disposition ? DISPOSITION_LABEL[unit.disposition] : "Disposition pending";
+        return `${label} → ${disposition}`;
+      })
+      .join("; ");
+  },
 };
 
 /** The one-line details summary for `request`'s row, or `null` when its type has none. */

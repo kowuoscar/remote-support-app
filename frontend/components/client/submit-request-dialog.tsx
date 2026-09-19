@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import type { ContractOption } from "@/components/ui/contract-switcher";
 import { REQUEST_DETAILS_COMPONENTS } from "@/components/requests/details/registry";
+import { parseReturnedUnitIds } from "@/components/requests/details/return-request-details";
 import {
   REQUEST_TYPE_LABEL,
   type CatalogCarrierItem,
@@ -22,6 +23,7 @@ const requestTypes: RequestTypeValue[] = [
   "REPLACE_SMARTPHONE",
   "REPLACE_SIM",
   "OTHER",
+  "RETURN",
 ];
 
 /**
@@ -90,6 +92,11 @@ export function SubmitRequestDialog({
     const requestedCarrierId = String(formData.get("requestedCarrierId") ?? "");
     const requestedPostpaidPlanId = String(formData.get("requestedPostpaidPlanId") ?? "");
     const secondSimCardId = String(formData.get("secondSimCardId") ?? "");
+    // return-client-owned-smartphones ticket: the Return details section's one multi-select,
+    // split back into the two id lists the backend takes.
+    const { returnedSmartphoneIds, returnedSimCardIds } = parseReturnedUnitIds(
+      formData.getAll("returnedUnitIds").map(String),
+    );
 
     setPending(true);
     setError(false);
@@ -108,6 +115,8 @@ export function SubmitRequestDialog({
           requestedCarrierId: requestedCarrierId || undefined,
           requestedPostpaidPlanId: requestedPostpaidPlanId || undefined,
           secondSimCardId: secondSimCardId || undefined,
+          returnedSmartphoneIds: returnedSmartphoneIds.length ? returnedSmartphoneIds : undefined,
+          returnedSimCardIds: returnedSimCardIds.length ? returnedSimCardIds : undefined,
         }),
       });
       if (!response.ok) {

@@ -5,6 +5,7 @@ import com.remotesupport.backend.domain.RequestType;
 import com.remotesupport.backend.domain.SimCardFlavor;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -53,6 +54,11 @@ import java.util.UUID;
  * destination). Validated and stored by {@link
  * com.remotesupport.backend.web.requestdetails.RequestDetailsValidator} like every other type's
  * own fields.
+ *
+ * <p>{@code returnedSmartphoneIds}/{@code returnedSimCardIds} (returns-and-agent-stock spec,
+ * Return type; return-client-owned-smartphones ticket): a {@code RETURN} Request's own units — the
+ * Contract's Active Smartphones and SIM Cards leaving its Fleet. Meaningless, and ignored, for
+ * every other type.
  */
 public record RequestCreateRequest(
     @NotNull RequestType type,
@@ -71,4 +77,6 @@ public record RequestCreateRequest(
     UUID requestedCarrierId,
     UUID requestedPostpaidPlanId,
     String simCardNumber,
-    UUID secondSimCardId) {}
+    UUID secondSimCardId,
+    List<UUID> returnedSmartphoneIds,
+    List<UUID> returnedSimCardIds) {}

@@ -1,4 +1,11 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import {
+  SEEDED_USERS,
+  createClientAndContractWithSeededAgent,
+  login,
+  logout,
+  selectContractInSwitcher,
+} from "./helpers";
 
 /**
  * Fleet management (fleet-management ticket), driven against a real backend + Postgres (see
@@ -7,64 +14,6 @@ import { test, expect, type Page } from "@playwright/test";
  * resolves to the "Jordan Ellis" Agent (V5 migration) — the only Agent login that exists, so
  * every Contract exercised from the Agent side uses that Agent.
  */
-const SEEDED_USERS = {
-  manager: { username: "manager@example.com", password: "ChangeMe123!" },
-  agent: { username: "agent@example.com", password: "AgentDemo123!" },
-} as const;
-
-const SEEDED_AGENT_LABEL = "Jordan Ellis · USD";
-
-async function login(page: Page, username: string, password: string) {
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(username);
-  await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  // Wait for the post-login redirect before the caller navigates anywhere else — otherwise a
-  // page.goto() right after this can race and cancel the in-flight session-cookie exchange,
-  // leaving no session and every following action silently bounced back to /login.
-  await page.waitForURL((url) => !url.pathname.startsWith("/login"));
-}
-
-async function logout(page: Page) {
-  await page.getByRole("button", { name: "Log out" }).click();
-  await expect(page).toHaveURL(/\/login/);
-}
-
-/** Creates a fresh Client, then a Contract linking it to the seeded Agent. Returns both ids. */
-async function createClientAndContractWithSeededAgent(
-  page: Page,
-  clientName: string,
-): Promise<{ clientId: string; contractId: string }> {
-  await page.goto("/manager/clients");
-  await page.getByRole("button", { name: "Add client" }).first().click();
-  await page.getByLabel("Client name").fill(clientName);
-  await page.getByRole("dialog").getByRole("button", { name: "Add client" }).click();
-  await expect(page.getByRole("cell", { name: clientName })).toBeVisible();
-  const clientHref = await page.getByRole("link", { name: clientName }).getAttribute("href");
-  const clientId = clientHref!.split("/").pop()!;
-
-  await page.goto("/manager/contracts");
-  await page.getByRole("button", { name: "Add contract" }).first().click();
-  await page.getByLabel("Client").selectOption({ label: clientName });
-  await page.getByLabel("Agent").selectOption({ label: SEEDED_AGENT_LABEL });
-  await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
-  await expect(page.getByRole("row", { name: new RegExp(clientName) })).toBeVisible();
-
-  await page.getByRole("link", { name: clientName }).click();
-  await expect(page).toHaveURL(/\/manager\/contracts\/.+/);
-  const contractId = page.url().split("/").pop()!;
-
-  return { clientId, contractId };
-}
-
-/** Selects the Contract matching `clientName` in a Fleet page's Contract switcher, if more than one exists. */
-async function selectContractInSwitcher(page: Page, clientName: string) {
-  const trigger = page.locator('[aria-haspopup="listbox"]');
-  if ((await trigger.count()) > 0) {
-    await trigger.click();
-    await page.getByRole("option", { name: new RegExp(clientName) }).click();
-  }
-}
 
 // Date.now() alone can collide across spec files: Playwright's collection phase can
 // import several spec files within the same millisecond, and more than one file in this

@@ -1,4 +1,5 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import { SEEDED_USERS, addSimCard, createContractWithTester, login, logout, selectContractInSwitcher } from "./helpers";
 
 /**
  * An Agent logs a Topup Fee from a Topup Option (carrier-catalog spec; topup-fee-from-option
@@ -6,79 +7,6 @@ import { test, expect, type Page } from "@playwright/test";
  * fee-logging-and-provisioning.spec.ts. The seeded agent@example.com login is the United States
  * Agent "Jordan Ellis", whose catalog seeds AT&T's "Prepaid Refill 25" at $25.00.
  */
-const SEEDED_USERS = {
-  manager: { username: "manager@example.com", password: "ChangeMe123!" },
-  agent: { username: "agent@example.com", password: "AgentDemo123!" },
-} as const;
-
-const SEEDED_AGENT_LABEL = "Jordan Ellis · USD";
-
-async function login(page: Page, username: string, password: string) {
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(username);
-  await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/login"));
-}
-
-async function logout(page: Page) {
-  await page.getByRole("button", { name: "Log out" }).click();
-  await expect(page).toHaveURL(/\/login/);
-}
-
-/** Creates a fresh Client with one Tester, and a Contract linking it to the seeded Agent. Returns the Contract's id. */
-async function createContractWithTester(page: Page, clientName: string, testerEmail: string): Promise<string> {
-  await page.goto("/manager/clients");
-  await page.getByRole("button", { name: "Add client" }).first().click();
-  await page.getByLabel("Client name").fill(clientName);
-  await page.getByRole("dialog").getByRole("button", { name: "Add client" }).click();
-  await expect(page.getByRole("cell", { name: clientName })).toBeVisible();
-  const clientHref = await page.getByRole("link", { name: clientName }).getAttribute("href");
-  const clientId = clientHref!.split("/").pop()!;
-
-  await page.goto("/manager/contracts");
-  await page.getByRole("button", { name: "Add contract" }).first().click();
-  await page.getByLabel("Client").selectOption({ label: clientName });
-  await page.getByLabel("Agent").selectOption({ label: SEEDED_AGENT_LABEL });
-  await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
-  await expect(page.getByRole("row", { name: new RegExp(clientName) })).toBeVisible();
-  await page.getByRole("link", { name: clientName }).click();
-  await expect(page).toHaveURL(/\/manager\/contracts\/.+/);
-  const contractId = page.url().split("/").pop()!;
-
-  await page.goto(`/manager/clients/${clientId}`);
-  await page.getByRole("button", { name: "Add tester" }).first().click();
-  await page.getByLabel("Email").fill(testerEmail);
-  await page.getByLabel("Temporary password").fill("Passw0rd!23");
-  await page.getByRole("dialog").getByRole("button", { name: "Add tester" }).click();
-  await expect(page.getByRole("cell", { name: testerEmail })).toBeVisible();
-
-  return contractId;
-}
-
-/**
- * reboot-and-topup-details ticket: a proactive Topup Fee's auto-created linking Request now names
- * a target SIM Card. AT&T is the seeded active US Carrier whose "Prepaid Refill 25" this suite
- * exercises.
- */
-async function addSimCardOnAtt(page: Page, contractId: string, number: string) {
-  await page.goto(`/manager/contracts/${contractId}`);
-  await page.getByRole("button", { name: "Add SIM card" }).first().click();
-  await page.getByLabel("Number").fill(number);
-  await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "AT&T" });
-  await page.getByLabel("Flavor").selectOption("PREPAID");
-  await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
-  await expect(page.getByRole("cell", { name: number })).toBeVisible();
-}
-
-/** Selects the Contract matching `clientName` in a Contract switcher, if more than one exists. */
-async function selectContractInSwitcher(page: Page, clientName: string) {
-  const trigger = page.locator('[aria-haspopup="listbox"]');
-  if ((await trigger.count()) > 0) {
-    await trigger.click();
-    await page.getByRole("option", { name: new RegExp(clientName) }).click();
-  }
-}
 
 const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 
@@ -87,9 +15,12 @@ test.describe("topup fee from a topup option", () => {
     const clientName = `Lumen Outfitters ${RUN_ID}`;
     const testerEmail = `ana.ortiz+${RUN_ID}@lumen.example`;
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const contractId = await createContractWithTester(page, clientName, testerEmail);
+    const { contractId } = await createContractWithTester(page, clientName, testerEmail);
+    // reboot-and-topup-details ticket: a proactive Topup Fee's auto-created linking Request now
+    // names a target SIM Card. AT&T is the seeded active US Carrier whose "Prepaid Refill 25" this
+    // suite exercises.
     const simNumber = `+1-555-${RUN_ID}`;
-    await addSimCardOnAtt(page, contractId, simNumber);
+    await addSimCard(page, contractId, simNumber, "AT&T");
     await logout(page);
 
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);

@@ -15,9 +15,9 @@ Implements `spec.md` Solution (Demo story, Separate databases, The story, Retire
 - [ ] A component active only under the `demo` profile builds the story at startup when its marker is absent, and writes nothing when it is present
 - [ ] The story contains everything listed in `spec.md` The story, with every unit, Request, Fee and invoice linked to the Clients, Contracts, Testers and Agents it belongs to
 - [ ] Current-month activity goes through the application's services; past months are written directly and match what those services would have stored, including frozen snapshots
-- [ ] The docker-compose Postgres has a second database for the demo; the compose backend runs with the `demo` profile against it; the committed e2e flow keeps using `remote_support` and never sees demo data
+- [ ] docker-compose has a second Postgres service for the demo with its own volume; the compose backend runs with the `demo` profile against it; the committed e2e flow keeps using the existing `postgres` service and never sees demo data
 - [ ] `scripts/seed-demo-invoice-review.sh` is removed
-- [ ] The docker-compose header and the README list every login with its password and what to look at, and the reset command (`docker compose down -v`, then `docker compose up --build`)
+- [ ] The docker-compose header and the README list every login with its password and what to look at, and how to reset the demo alone (remove the demo volume, then `docker compose up --build`)
 - [ ] A fresh `docker compose up --build` shows the story for every role
 
 ## Tests

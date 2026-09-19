@@ -84,10 +84,14 @@ what the app produces. Past months — history that services can only write "now
 — are written directly, consistently with what those services would have
 stored (sent/approved snapshots, standing-amount history).
 
-**Separate databases.** The docker-compose Postgres gets a second database for
-the demo; the compose backend runs with the `demo` profile against it. The
-committed e2e flow keeps `remote_support`, which holds only the test baseline.
-Existing local volumes need one reset (`docker compose down -v`), documented.
+**Separate databases.** docker-compose gets a second Postgres service for the
+demo, with its own volume; the compose backend runs with the `demo` profile
+against it. The existing `postgres` service keeps `remote_support` for the
+committed e2e flow and local backend runs. Orchestrator call: a separate
+service rather than a second database in the same server, because Postgres
+only runs init scripts on an empty volume — a separate service needs no reset
+of an existing local volume. Resetting the demo means removing the demo
+volume only, documented.
 
 **The story.** A company providing in-person mobile-testing support:
 

@@ -1,7 +1,7 @@
 ---
 id: trim-seed-to-test-baseline
 title: Reduce the Flyway seed to the test baseline
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [backend, seed-data]
 ---

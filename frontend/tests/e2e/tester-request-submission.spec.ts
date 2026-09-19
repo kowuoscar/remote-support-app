@@ -108,6 +108,10 @@ async function selectContractInSwitcher(page: Page, clientName: string) {
 
 const OTHER_DESCRIPTION = "Screen protector needs replacing";
 
+// manager-approves-requests ticket: Provision Smartphone and Provision SIM now start Pending
+// Approval, whoever raises them — every other type in this loop still starts Submitted.
+const APPROVAL_REQUIRED_LABELS = new Set(["Provision Smartphone", "Provision SIM"]);
+
 async function submitRequest(
   page: Page,
   requestTypeLabel: string,
@@ -210,7 +214,7 @@ test.describe("tester request submission", () => {
     for (const typeLabel of REQUEST_TYPE_LABELS) {
       await expect(page.getByRole("row", { name: new RegExp(typeLabel) })).toBeVisible();
       await expect(page.getByRole("row", { name: new RegExp(typeLabel) })).toContainText(
-        "Submitted",
+        APPROVAL_REQUIRED_LABELS.has(typeLabel) ? "Pending Approval" : "Submitted",
       );
     }
     await expect(page.getByRole("row", { name: /Other/ })).toContainText(OTHER_DESCRIPTION);

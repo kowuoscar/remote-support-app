@@ -2,6 +2,8 @@ services:
   # Local Postgres for backend dev and the frontend E2E login suite
   # (frontend/tests/e2e), which needs a real backend rather than demo data.
   # Backend integration tests use Testcontainers instead and don't touch this.
+  # scripts/run-backend-for-e2e.sh only ever starts this one service, so the
+  # demo stack below never affects the e2e flow.
   postgres:
     image: postgres:16-alpine
     environment:
@@ -18,19 +20,48 @@ services:
       timeout: 3s
       retries: 30
 
-  # Full app stack (backend + frontend) for quick manual testing against a real
-  # Postgres — `docker compose up --build` and open http://localhost:3000. Log
-  # in as manager@example.com / ChangeMe123!, agent@example.com /
-  # AgentDemo123!, or tester@example.com / TesterDemo123! (seeded by V2/V3
-  # Flyway migrations). To see the Manager's invoice review screens with real
-  # data, run scripts/seed-demo-invoice-review.sh once the stack is up.
+  # A second, separate Postgres for the demo story (demo-data-story spec.md
+  # Solution, "Separate databases"): its own named volume, so resetting the
+  # demo never touches `postgres` above or the e2e flow. No host port is
+  # published — nothing outside this compose file needs to reach it directly.
+  postgres-demo:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: remote_support_demo
+      POSTGRES_USER: remote_support
+      POSTGRES_PASSWORD: remote_support
+    volumes:
+      - postgres_demo_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U remote_support"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # Full app stack (backend + frontend) for quick manual testing and demoing
+  # every feature with a coherent business — `docker compose up --build` and
+  # open http://localhost:3000. The backend runs under the `demo` Spring
+  # profile against `postgres-demo` above, which builds the demo story once,
+  # on first startup (com.remotesupport.backend.demo.DemoDataLoader) — a
+  # restart leaves it alone. See README.md for every login, its password, and
+  # what that role should look at to see each feature.
+  #
+  # To reset the demo alone (get back to the clean story), without touching
+  # the e2e stack's own `postgres` volume:
+  #   docker compose rm -sf backend postgres-demo
+  #   docker volume rm remote-support-app_postgres_demo_data
+  #   docker compose up --build
+  # (the volume name is `<project-name>_postgres_demo_data` — `docker volume
+  # ls` shows the exact name if your compose project isn't named
+  # `remote-support-app`, e.g. because of the directory this file lives in).
   backend:
     build:
       context: ./backend
     environment:
-      DB_URL: jdbc:postgresql://postgres:5432/remote_support
+      DB_URL: jdbc:postgresql://postgres-demo:5432/remote_support_demo
       DB_USERNAME: remote_support
       DB_PASSWORD: remote_support
+      SPRING_PROFILES_ACTIVE: demo
       # JWT_SECRET intentionally unset: application.yml's dev-only default is fine for
       # local manual testing. Set it here if you need tokens stable across rebuilds.
       # Carrier invoice uploads (CARRIER_INVOICES_DIR) live on the container's writable
@@ -39,7 +70,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      postgres:
+      postgres-demo:
         condition: service_healthy
     healthcheck:
       # Same unauthenticated liveness endpoint scripts/run-backend-for-e2e.sh polls
@@ -63,3 +94,4 @@ services:
 
 volumes:
   postgres_data:
+  postgres_demo_data:

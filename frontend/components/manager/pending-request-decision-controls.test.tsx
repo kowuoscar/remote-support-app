@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { stubFetch, stubPendingFetch } from "@/tests/component/fetch";
@@ -148,6 +148,70 @@ describe("PendingRequestDecisionControls", () => {
         { returnedUnitId: "unit-sim", disposition: "CANCELLED" },
       ],
     });
+  });
+
+  // --- agent-stock ticket: Kept in Stock as a second choice, and the Postpaid reminder -----------
+
+  it("offers Kept in Stock as a second choice for both a company-owned Smartphone and a SIM Card", () => {
+    render(
+      <PendingRequestDecisionControls
+        request={requestListItem({
+          type: "RETURN",
+          returnedUnits: [
+            { id: "unit-company-phone", smartphoneId: "phone-2", smartphoneModel: "iPhone 15" },
+            { id: "unit-sim", simCardId: "sim-1", simCardNumber: "+1-555-0100" },
+          ],
+        })}
+      />,
+    );
+
+    const phonePicker = screen.getByLabelText(/iPhone 15/);
+    expect(within(phonePicker).getByRole("option", { name: "Kept in Stock" })).toBeInTheDocument();
+    expect(within(phonePicker).getByRole("option", { name: "Posted to company" })).toBeInTheDocument();
+
+    const simPicker = screen.getByLabelText(/\+1-555-0100/);
+    expect(within(simPicker).getByRole("option", { name: "Kept in Stock" })).toBeInTheDocument();
+    expect(within(simPicker).getByRole("option", { name: "Cancelled" })).toBeInTheDocument();
+  });
+
+  it("submits Kept in Stock when the Manager picks it", async () => {
+    const fetchMock = stubFetch(200, { status: "SUBMITTED" });
+
+    render(
+      <PendingRequestDecisionControls
+        request={requestListItem({
+          type: "RETURN",
+          returnedUnits: [{ id: "unit-company-phone", smartphoneId: "phone-2", smartphoneModel: "iPhone 15" }],
+        })}
+      />,
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText(/iPhone 15/), "KEPT_IN_STOCK");
+    await userEvent.click(screen.getByRole("button", { name: "Approve" }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toEqual({
+      dispositions: [{ returnedUnitId: "unit-company-phone", disposition: "KEPT_IN_STOCK" }],
+    });
+  });
+
+  it("shows the carrier-keeps-charging reminder next to a Postpaid SIM Card's picker only", () => {
+    render(
+      <PendingRequestDecisionControls
+        request={requestListItem({
+          type: "RETURN",
+          returnedUnits: [
+            { id: "unit-postpaid-sim", simCardId: "sim-1", simCardNumber: "+1-555-0100", simCardFlavor: "POSTPAID" },
+            { id: "unit-prepaid-sim", simCardId: "sim-2", simCardNumber: "+1-555-0200", simCardFlavor: "PREPAID" },
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getByText(/carrier keeps charging/)).toBeInTheDocument();
+    // Only one reminder — the Prepaid unit gets none.
+    expect(screen.getAllByText(/carrier keeps charging/)).toHaveLength(1);
   });
 
   it("approves a Return with nothing left to choose with a single click, no body", async () => {

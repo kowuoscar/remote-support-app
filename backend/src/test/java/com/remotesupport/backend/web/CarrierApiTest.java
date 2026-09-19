@@ -250,7 +250,7 @@ class CarrierApiTest extends IntegrationTest {
   void aTesterIsRefusedOnEveryCarrierRoute() throws Exception {
     UUID seededCarrier = createCarrier(managerToken(), "UNITED_STATES", "Google Fi");
 
-    for (String token : new String[] {testerToken(), demoTesterToken()}) {
+    for (String token : new String[] {testerToken(), linkedTesterToken()}) {
       mockMvc
           .perform(
               get("/api/carriers").param("country", "UNITED_STATES").header("Authorization", "Bearer " + token))

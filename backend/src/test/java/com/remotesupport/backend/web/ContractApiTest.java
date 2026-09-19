@@ -43,12 +43,10 @@ class ContractApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.country").value("FRANCE"))
         .andExpect(jsonPath("$.currency").value("EUR"));
 
-    // +2 for the seeded Demo Client's Contracts (V17, V18) that every Manager-scoped listing
-    // includes.
     mockMvc
         .perform(get("/api/contracts").header("Authorization", "Bearer " + token))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(3));
+        .andExpect(jsonPath("$.length()").value(1));
   }
 
   @Test
@@ -85,12 +83,10 @@ class ContractApiTest extends IntegrationTest {
                     objectMapper.writeValueAsString(new ContractCreateRequest(otherClient, agentFrance))))
         .andExpect(status().isCreated());
 
-    // +2 for the seeded Demo Client's Contracts (V17, V18) that every Manager-scoped listing
-    // includes.
     mockMvc
         .perform(get("/api/contracts").header("Authorization", "Bearer " + token))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(5));
+        .andExpect(jsonPath("$.length()").value(3));
   }
 
   @Test
@@ -195,56 +191,59 @@ class ContractApiTest extends IntegrationTest {
   }
 
   /**
-   * Counterpart to the above: demo.tester@example.com (V17 migration) is the seeded login that
-   * *is* linked to a Client/Contract/Fleet, for local manual testing without first creating
-   * fixtures through the Manager UI. Regression test for the seed-data gap where the only seeded
-   * Tester login was the deliberately-unlinked one above, leaving no way to see a Fleet or submit
-   * a Request without first acting as the Manager.
-   *
-   * <p>The demo Client holds a second Contract (V18) so the Client Portal's ContractSwitcher has
-   * something to switch between locally; both show up here, ordered by creation.
+   * Counterpart to the above: a Tester linked to a Client/Contract/Fleet can see its own Contract
+   * and Fleet and submit a Request, unlike the deliberately-unlinked seeded {@code
+   * tester@example.com} login above. Used to rely on the seeded demo.tester@example.com login
+   * (V17/V18 migrations) for this; those rows are gone (trim-seed-to-test-baseline ticket), so
+   * this test now builds its own Client/Contract/Fleet/Tester fixture instead.
    */
   @Test
-  void theSeededDemoTesterSeesItsContractFleetAndCanSubmitARequest() throws Exception {
-    String demoTesterToken = demoTesterToken();
+  void aTesterSeesItsContractFleetAndCanSubmitARequest() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Kestrel Outfitters");
+    UUID agentId = createAgent(managerToken, "Dana Whitcombe", Country.UNITED_STATES);
+    UUID contractId = createContract(managerToken, clientId, agentId);
+    String testerUsername = "noor.malik@kestrel.example";
+    String testerToken = createTesterAndLogin(managerToken, clientId, testerUsername, "Passw0rd!23");
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
+    createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
 
     mockMvc
-        .perform(get("/api/contracts").header("Authorization", "Bearer " + demoTesterToken))
+        .perform(get("/api/contracts").header("Authorization", "Bearer " + testerToken))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(2))
-        .andExpect(jsonPath("$[0].id").value(SEEDED_DEMO_CONTRACT_ID.toString()))
-        .andExpect(jsonPath("$[0].clientId").value(SEEDED_DEMO_CLIENT_ID.toString()))
-        .andExpect(jsonPath("$[1].clientId").value(SEEDED_DEMO_CLIENT_ID.toString()));
+        .andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].id").value(contractId.toString()))
+        .andExpect(jsonPath("$[0].clientId").value(clientId.toString()));
 
     mockMvc
         .perform(
-            get("/api/contracts/" + SEEDED_DEMO_CONTRACT_ID + "/smartphones")
-                .header("Authorization", "Bearer " + demoTesterToken))
+            get("/api/contracts/" + contractId + "/smartphones")
+                .header("Authorization", "Bearer " + testerToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(1));
 
     mockMvc
         .perform(
-            get("/api/contracts/" + SEEDED_DEMO_CONTRACT_ID + "/sim-cards")
-                .header("Authorization", "Bearer " + demoTesterToken))
+            get("/api/contracts/" + contractId + "/sim-cards")
+                .header("Authorization", "Bearer " + testerToken))
         .andExpect(status().isOk())
-        // V17's Postpaid SIM, plus V27's Postpaid SIM on a seeded Postpaid Plan.
-        .andExpect(jsonPath("$.length()").value(2));
+        .andExpect(jsonPath("$.length()").value(1));
 
-    // V17's seeded Smartphone on this Contract (bbbbbbbb-...), Active — reboot-and-topup-details
-    // ticket: a Reboot Request now requires naming the Smartphone it reboots.
+    // reboot-and-topup-details ticket: a Reboot Request now requires naming the Smartphone it
+    // reboots.
     mockMvc
         .perform(
-            post("/api/contracts/" + SEEDED_DEMO_CONTRACT_ID + "/requests")
-                .header("Authorization", "Bearer " + demoTesterToken)
+            post("/api/contracts/" + contractId + "/requests")
+                .header("Authorization", "Bearer " + testerToken)
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"type":"REBOOT","targetSmartphoneId":"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"}
-                    """))
+                    {"type":"REBOOT","targetSmartphoneId":"%s"}
+                    """
+                        .formatted(smartphoneId)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.status").value("SUBMITTED"))
-        .andExpect(jsonPath("$.raisedByUsername").value(DEMO_TESTER_USERNAME));
+        .andExpect(jsonPath("$.raisedByUsername").value(testerUsername));
   }
 
   @Test

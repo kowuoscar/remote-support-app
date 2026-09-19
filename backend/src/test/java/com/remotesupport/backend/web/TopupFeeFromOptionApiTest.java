@@ -214,13 +214,17 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
   }
 
   @Test
-  void theSeedIncludesATopupFeeLinkedToAnOption() throws Exception {
+  void aLoggedTopupFeeAppearsInTheContractsFeeListWithItsOptionName() throws Exception {
+    // Used to assert this against the seeded demo Topup Fee (V26 migration); that row is gone
+    // (trim-seed-to-test-baseline ticket), so this builds its own via the fixture already set up
+    // in @BeforeEach instead.
+    logFee("TOPUP", "25.00", SEEDED_ATT_REFILL_25).andExpect(status().isCreated());
+
     mockMvc
-        .perform(
-            get("/api/contracts/" + SEEDED_DEMO_CONTRACT_ID + "/fees")
-                .header("Authorization", "Bearer " + managerToken))
+        .perform(get(feesUrl()).header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$[?(@.feeType == 'TOPUP')].topupOptionName").value(hasItem("Data Pass 5GB")));
+        .andExpect(
+            jsonPath("$[?(@.feeType == 'TOPUP')].topupOptionName").value(hasItem("Prepaid Refill 25")));
   }
 
   private String feesUrl() {

@@ -1,7 +1,7 @@
 ---
 id: return-client-owned-smartphones
 title: A Return Request sends Client-owned Smartphones back without approval
-status: in-progress
+status: done
 depends_on: []
 labels: [backend, frontend, requests, fleet]
 ---
@@ -12,13 +12,13 @@ First slice of Return: the type, its details, and the path that needs no Manager
 
 ## Acceptance criteria
 
-- [ ] Return is a Request type offered to Testers and Agents; it never carries a Fee
-- [ ] A Return requires at least one Active unit of its Contract, each at most once; in this ticket a Return naming any company-owned unit (any SIM Card, or a company-owned Smartphone) is refused with a message that it isn't supported yet
-- [ ] A Return of only Client-owned Smartphones starts at Submitted, or at Completed when an Agent logs it that way
-- [ ] Each unit carries the Disposition "Posted to Client", fixed at submission and shown on the Request in every Requests list
-- [ ] Completing the Return retires each Smartphone and uninstalls its SIM Cards, which stay in the Fleet
-- [ ] Completion is refused with a clear message if a named unit is no longer Active
-- [ ] The submit and log-Request dialogs show a Return details section with a multi-select of the Contract's Active units
+- [x] Return is a Request type offered to Testers and Agents; it never carries a Fee
+- [x] A Return requires at least one Active unit of its Contract, each at most once; in this ticket a Return naming any company-owned unit (any SIM Card, or a company-owned Smartphone) is refused with a message that it isn't supported yet
+- [x] A Return of only Client-owned Smartphones starts at Submitted, or at Completed when an Agent logs it that way
+- [x] Each unit carries the Disposition "Posted to Client", fixed at submission and shown on the Request in every Requests list
+- [x] Completing the Return retires each Smartphone and uninstalls its SIM Cards, which stay in the Fleet
+- [x] Completion is refused with a clear message if a named unit is no longer Active
+- [x] The submit and log-Request dialogs show a Return details section with a multi-select of the Contract's Active units
 
 ## Tests
 

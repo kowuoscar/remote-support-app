@@ -1,7 +1,7 @@
 ---
 id: agent-stock
 title: A returned company-owned unit can be kept in the Agent's Stock
-status: ready-for-agent
+status: in-progress
 depends_on: [manager-decides-return-disposition]
 labels: [backend, frontend, fleet, requests]
 ---

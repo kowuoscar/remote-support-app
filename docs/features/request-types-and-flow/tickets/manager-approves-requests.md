@@ -1,7 +1,7 @@
 ---
 id: manager-approves-requests
 title: Provision and Replace Requests wait for the Company Manager's approval
-status: in-progress
+status: done
 depends_on: [replace-requests, sim-swap-moves]
 labels: [backend, frontend, requests]
 ---
@@ -12,16 +12,16 @@ Implements `spec.md` Solution (Lifecycle; Fees and approval; Manager approval) a
 
 ## Acceptance criteria
 
-- [ ] A Provision Smartphone, Provision SIM, Replace Smartphone or Replace SIM Request starts at Pending Approval, whether a Tester submitted it or an Agent logged it; an Agent can no longer start one at Submitted or Completed
-- [ ] Only the Manager approves (to Submitted) or rejects (to Rejected, reason required); the decision records who and when
-- [ ] The Agent sees a Pending Approval Request on their Contract but can only cancel it, with a reason; Rejected is terminal
-- [ ] A proactive Fee for one of the four types is refused with a message telling the Agent to log the Request; Topup and Other proactive Fees still work
-- [ ] A Fee can't be logged against a Pending Approval, Rejected or Cancelled Request
-- [ ] A Manager-only Pending Requests page lists every Pending Approval Request, longest-waiting first, with type, Client, Tester, Agent, requested details (for a Replace, the unit to be retired) and age, and approve and reject controls
-- [ ] The Manager's dashboard shows the pending count, linking to the page; the Review Queue is unchanged
-- [ ] Tester and Agent Requests lists show Pending Approval and Rejected in the status filter, and a Rejected Request's reason
-- [ ] No Request that exists when this ships changes status
-- [ ] Seed data holds a Pending Approval and a Rejected Request
+- [x] A Provision Smartphone, Provision SIM, Replace Smartphone or Replace SIM Request starts at Pending Approval, whether a Tester submitted it or an Agent logged it; an Agent can no longer start one at Submitted or Completed
+- [x] Only the Manager approves (to Submitted) or rejects (to Rejected, reason required); the decision records who and when
+- [x] The Agent sees a Pending Approval Request on their Contract but can only cancel it, with a reason; Rejected is terminal
+- [x] A proactive Fee for one of the four types is refused with a message telling the Agent to log the Request; Topup and Other proactive Fees still work
+- [x] A Fee can't be logged against a Pending Approval, Rejected or Cancelled Request
+- [x] A Manager-only Pending Requests page lists every Pending Approval Request, longest-waiting first, with type, Client, Tester, Agent, requested details (for a Replace, the unit to be retired) and age, and approve and reject controls
+- [x] The Manager's dashboard shows the pending count, linking to the page; the Review Queue is unchanged
+- [x] Tester and Agent Requests lists show Pending Approval and Rejected in the status filter, and a Rejected Request's reason
+- [x] No Request that exists when this ships changes status
+- [x] Seed data holds a Pending Approval and a Rejected Request
 
 ## Tests
 

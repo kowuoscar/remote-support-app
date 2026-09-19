@@ -1,7 +1,7 @@
 ---
 id: manager-approves-requests
 title: Provision and Replace Requests wait for the Company Manager's approval
-status: ready-for-agent
+status: in-progress
 depends_on: [replace-requests, sim-swap-moves]
 labels: [backend, frontend, requests]
 ---

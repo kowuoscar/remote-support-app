@@ -27,6 +27,13 @@ import java.util.UUID;
  * Completion table): completing a {@code RETURN} Request that cancels one or more SIM Cards
  * carries each one's effective cancellation date here, one entry per SIM Card — refused without
  * one for every SIM Card the Manager chose Cancelled for at approval.
+ *
+ * <p>{@code fulfillFromStockSmartphoneId}/{@code fulfillFromStockSimCardId}
+ * (fulfil-from-stock ticket): completing a Provision Smartphone/Replace Smartphone or Provision
+ * SIM/Replace SIM Request may name a unit from the Agent's own Stock instead of adding a new one
+ * or, for a SIM Card, giving a number — see {@link
+ * com.remotesupport.backend.web.completion.RequestCompletionInput}'s own Javadoc for the full
+ * rule. Ignored for every other type.
  */
 public record RequestStatusUpdateRequest(
     @NotNull RequestStatus status,
@@ -36,4 +43,6 @@ public record RequestStatusUpdateRequest(
     UUID replacesSmartphoneId,
     UUID replacesSimCardId,
     String simCardNumber,
-    List<SimCardCancellationRequest> simCardCancellations) {}
+    List<SimCardCancellationRequest> simCardCancellations,
+    UUID fulfillFromStockSmartphoneId,
+    UUID fulfillFromStockSimCardId) {}

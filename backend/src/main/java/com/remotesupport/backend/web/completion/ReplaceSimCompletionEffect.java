@@ -15,6 +15,7 @@ import com.remotesupport.backend.web.InvalidRequestException;
 import com.remotesupport.backend.web.SimCardFactory;
 import com.remotesupport.backend.web.SimInstallationService;
 import com.remotesupport.backend.web.SimInstallationService.Move;
+import com.remotesupport.backend.web.StockFulfilmentService;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,12 @@ import org.springframework.stereotype.Component;
  * form's defaults from the old SIM Card's current values, but that's a UI concern, not a
  * server-side one) and go through {@link SimCardFactory#create}, the same validation every other
  * SIM-creation path uses.
+ *
+ * <p>{@code fulfillFromStockSimCardId} (fulfil-from-stock ticket): the Agent may instead name a
+ * SIM Card from their own Stock — matched against the *old* SIM Card's own Carrier, flavor and
+ * Plan (there is no "requested" Carrier/flavor/Plan on this type's Request to match against the
+ * way Provision SIM's new-style path has, so the unit being replaced is "the Request" the ticket
+ * AC means here — the same unit the frontend's own full-form defaults are already taken from).
  */
 @Component
 public class ReplaceSimCompletionEffect implements RequestCompletionEffect {
@@ -36,12 +43,17 @@ public class ReplaceSimCompletionEffect implements RequestCompletionEffect {
   private final SimCardRepository simCardRepository;
   private final SimCardFactory simCardFactory;
   private final SimInstallationService simInstallationService;
+  private final StockFulfilmentService stockFulfilmentService;
 
   public ReplaceSimCompletionEffect(
-      SimCardRepository simCardRepository, SimCardFactory simCardFactory, SimInstallationService simInstallationService) {
+      SimCardRepository simCardRepository,
+      SimCardFactory simCardFactory,
+      SimInstallationService simInstallationService,
+      StockFulfilmentService stockFulfilmentService) {
     this.simCardRepository = simCardRepository;
     this.simCardFactory = simCardFactory;
     this.simInstallationService = simInstallationService;
+    this.stockFulfilmentService = stockFulfilmentService;
   }
 
   @Override
@@ -58,15 +70,27 @@ public class ReplaceSimCompletionEffect implements RequestCompletionEffect {
           "Cannot complete this Replace SIM Request — the named SIM Card is no longer Active");
     }
 
-    SimCardCreateRequest newSimCard = input.newSimCard();
-    if (newSimCard == null) {
-      throw new InvalidRequestException("newSimCard details are required to complete a Replace SIM request");
-    }
-
     // Captured before either SIM Card's own Installed-in link changes below.
     Smartphone oldSmartphone = old.getInstalledInSmartphone();
 
-    SimCard replacement = simCardFactory.create(contract, newSimCard);
+    SimCard replacement;
+    if (input.fulfillFromStockSimCardId() != null) {
+      replacement =
+          stockFulfilmentService.takeMatchingSimCardFromStock(
+              contract,
+              input.fulfillFromStockSimCardId(),
+              old.getCarrier(),
+              old.getFlavor(),
+              old.getPostpaidPlan(),
+              request.getId(),
+              principal);
+    } else {
+      SimCardCreateRequest newSimCard = input.newSimCard();
+      if (newSimCard == null) {
+        throw new InvalidRequestException("newSimCard details are required to complete a Replace SIM request");
+      }
+      replacement = simCardFactory.create(contract, newSimCard);
+    }
 
     old.setStatus(SimCardStatus.RETIRED);
     simCardRepository.save(old);
@@ -81,15 +105,20 @@ public class ReplaceSimCompletionEffect implements RequestCompletionEffect {
     simInstallationService.applyMoves(
         List.of(new Move(old, null), new Move(replacement, oldSmartphone)), request.getId(), principal);
 
-    AuditLog.simCardProvisioned(
-        replacement.getId(),
-        contract.getId(),
-        request.getId(),
-        replacement.getCarrier() == null ? null : replacement.getCarrier().getId(),
-        replacement.postpaidPlanId(),
-        replacement.getMonthlyFeeAmount(),
-        principal.userId(),
-        principal.tenantId());
+    if (input.fulfillFromStockSimCardId() == null) {
+      // fulfil-from-stock ticket: a Stock-fulfilled unit already logged its own
+      // unitFulfilledFromStock event inside StockFulfilmentService — a "provisioned" event here
+      // too would misleadingly imply a freshly created unit.
+      AuditLog.simCardProvisioned(
+          replacement.getId(),
+          contract.getId(),
+          request.getId(),
+          replacement.getCarrier() == null ? null : replacement.getCarrier().getId(),
+          replacement.postpaidPlanId(),
+          replacement.getMonthlyFeeAmount(),
+          principal.userId(),
+          principal.tenantId());
+    }
 
     AuditLog.unitReplaced(
         "SimCard", request.getId(), old.getId(), replacement.getId(), principal.userId(), principal.tenantId());

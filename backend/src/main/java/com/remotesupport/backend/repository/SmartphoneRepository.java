@@ -17,4 +17,11 @@ public interface SmartphoneRepository extends JpaRepository<Smartphone, UUID> {
 
   /** Every Agent's Stock in the tenant (the Manager's own, unfiltered read). */
   List<Smartphone> findByTenantIdAndHoldingAgentIdIsNotNullOrderByCreatedAtAsc(UUID tenantId);
+
+  /**
+   * A single Stock unit, scoped to the Agent holding it (fulfil-from-stock ticket AC: "A Stock
+   * unit of another Agent ... is refused") — mirrors {@link #findByIdAndContractId}'s own
+   * ownership-scoped-lookup shape at the other end of a unit's life.
+   */
+  Optional<Smartphone> findByIdAndTenantIdAndHoldingAgentId(UUID id, UUID tenantId, UUID holdingAgentId);
 }

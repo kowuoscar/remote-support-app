@@ -80,19 +80,52 @@ class ReturnRequestsApiTest extends IntegrationTest {
         .andExpect(status().isBadRequest());
   }
 
+  // --- AC: a Return naming any SIM Card or company-owned Smartphone starts Pending Approval ------
+
   @Test
-  void aReturnNamingACompanyOwnedSmartphoneIsRefusedAsUnsupported() throws Exception {
+  void aReturnNamingACompanyOwnedSmartphoneStartsPendingApprovalAndLeavesItsDispositionUnset() throws Exception {
     UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
 
     postReturnRequest(testerToken, "{\"type\":\"RETURN\",\"returnedSmartphoneIds\":[\"%s\"]}".formatted(smartphoneId))
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+        .andExpect(jsonPath("$.returnedUnits[0].smartphoneId").value(smartphoneId.toString()))
+        .andExpect(jsonPath("$.returnedUnits[0].disposition").doesNotExist());
   }
 
   @Test
-  void aReturnNamingAnySimCardIsRefusedAsUnsupported() throws Exception {
+  void aReturnNamingASimCardStartsPendingApprovalAndLeavesItsDispositionUnset() throws Exception {
     UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
 
     postReturnRequest(testerToken, "{\"type\":\"RETURN\",\"returnedSimCardIds\":[\"%s\"]}".formatted(simCardId))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+        .andExpect(jsonPath("$.returnedUnits[0].simCardId").value(simCardId.toString()))
+        .andExpect(jsonPath("$.returnedUnits[0].disposition").doesNotExist());
+  }
+
+  @Test
+  void aMixedReturnOfAClientOwnedAndACompanyOwnedSmartphoneStartsPendingApprovalWhoeverRaisesIt() throws Exception {
+    UUID clientOwned = createClientOwnedSmartphone("Pixel 8");
+    UUID companyOwned = createSmartphone(managerToken, contractId, "iPhone 15");
+
+    postReturnRequest(
+            agentToken,
+            "{\"type\":\"RETURN\",\"testerId\":\"%s\",\"returnedSmartphoneIds\":[\"%s\",\"%s\"]}"
+                .formatted(returnTesterId, clientOwned, companyOwned))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"));
+  }
+
+  @Test
+  void anAgentProactiveReturnOfACompanyOwnedSmartphoneCannotStartImmediatelyCompleted() throws Exception {
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
+
+    postReturnRequest(
+            agentToken,
+            ("{\"type\":\"RETURN\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
+                    + "\"returnedSmartphoneIds\":[\"%s\"]}")
+                .formatted(returnTesterId, smartphoneId))
         .andExpect(status().isBadRequest());
   }
 
@@ -216,6 +249,158 @@ class ReturnRequestsApiTest extends IntegrationTest {
     patchReturnStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isConflict());
   }
 
+  // --- AC: approving a Return asks for a Disposition per company-owned unit -----------------------
+
+  @Test
+  void approvingIsRefusedUntilEveryCompanyOwnedUnitHasADisposition() throws Exception {
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
+    UUID requestId = submitReturn(smartphoneOnlyBody(smartphoneId));
+
+    approveReturn(requestId, null).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void approvingIsRefusedWithADispositionThatDoesNotFitTheUnitKind() throws Exception {
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
+    JsonNode created = postReturnAndParse(testerToken, smartphoneOnlyBody(smartphoneId));
+    UUID requestId = requestIdOf(created);
+    UUID unitId = returnedUnitId(created, "smartphoneId", smartphoneId);
+
+    approveReturn(requestId, dispositionsBody(unitId, "CANCELLED")).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void approvingIsRefusedWithADispositionForAClientOwnedUnit() throws Exception {
+    UUID clientOwned = createClientOwnedSmartphone("Pixel 8");
+    UUID companyOwned = createSmartphone(managerToken, contractId, "iPhone 15");
+    JsonNode created =
+        postReturnAndParse(
+            testerToken,
+            "{\"type\":\"RETURN\",\"returnedSmartphoneIds\":[\"%s\",\"%s\"]}".formatted(clientOwned, companyOwned));
+    UUID requestId = requestIdOf(created);
+    UUID clientOwnedUnitId = returnedUnitId(created, "smartphoneId", clientOwned);
+
+    approveReturn(requestId, dispositionsBody(clientOwnedUnitId, "POSTED_TO_COMPANY"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void approvingWithFittingDispositionsSucceedsAndTheyShowOnTheRequest() throws Exception {
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
+    UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
+    JsonNode created =
+        postReturnAndParse(
+            testerToken,
+            "{\"type\":\"RETURN\",\"returnedSmartphoneIds\":[\"%s\"],\"returnedSimCardIds\":[\"%s\"]}"
+                .formatted(smartphoneId, simCardId));
+    UUID requestId = requestIdOf(created);
+    UUID smartphoneUnitId = returnedUnitId(created, "smartphoneId", smartphoneId);
+    UUID simCardUnitId = returnedUnitId(created, "simCardId", simCardId);
+
+    approveReturn(
+            requestId,
+            ("{\"dispositions\":[{\"returnedUnitId\":\"%s\",\"disposition\":\"POSTED_TO_COMPANY\"},"
+                    + "{\"returnedUnitId\":\"%s\",\"disposition\":\"CANCELLED\"}]}")
+                .formatted(smartphoneUnitId, simCardUnitId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SUBMITTED"))
+        // Units are ordered by creation (findByRequestIdOrderByCreatedAtAsc), and
+        // ReturnRequestDetailsHandler builds every named Smartphone before every named SIM Card.
+        .andExpect(jsonPath("$.returnedUnits[0].smartphoneId").value(smartphoneId.toString()))
+        .andExpect(jsonPath("$.returnedUnits[0].disposition").value("POSTED_TO_COMPANY"))
+        .andExpect(jsonPath("$.returnedUnits[1].simCardId").value(simCardId.toString()))
+        .andExpect(jsonPath("$.returnedUnits[1].disposition").value("CANCELLED"));
+  }
+
+  @Test
+  void approvingASecondTimeIsRefusedSoDispositionsCannotBeChanged() throws Exception {
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
+    JsonNode created = postReturnAndParse(testerToken, smartphoneOnlyBody(smartphoneId));
+    UUID requestId = requestIdOf(created);
+    UUID unitId = returnedUnitId(created, "smartphoneId", smartphoneId);
+    approveReturn(requestId, dispositionsBody(unitId, "POSTED_TO_COMPANY")).andExpect(status().isOk());
+
+    approveReturn(requestId, dispositionsBody(unitId, "POSTED_TO_COMPANY")).andExpect(status().isConflict());
+  }
+
+  @Test
+  void anAgentOrTesterGets403SettingADisposition() throws Exception {
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
+    JsonNode created = postReturnAndParse(testerToken, smartphoneOnlyBody(smartphoneId));
+    UUID requestId = requestIdOf(created);
+    UUID unitId = returnedUnitId(created, "smartphoneId", smartphoneId);
+    String body = dispositionsBody(unitId, "POSTED_TO_COMPANY");
+
+    mockMvc
+        .perform(
+            post("/api/requests/" + requestId + "/approve")
+                .header("Authorization", "Bearer " + agentToken)
+                .contentType(APPLICATION_JSON)
+                .content(body))
+        .andExpect(status().isForbidden());
+    mockMvc
+        .perform(
+            post("/api/requests/" + requestId + "/approve")
+                .header("Authorization", "Bearer " + testerToken)
+                .contentType(APPLICATION_JSON)
+                .content(body))
+        .andExpect(status().isForbidden());
+  }
+
+  // --- AC: completing asks for an effective cancellation date per cancelled SIM Card ---------------
+
+  @Test
+  void completingIsRefusedWithoutACancellationDateForEachCancelledSimCard() throws Exception {
+    UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
+    JsonNode created = postReturnAndParse(testerToken, simCardOnlyBody(simCardId));
+    UUID requestId = requestIdOf(created);
+    UUID unitId = returnedUnitId(created, "simCardId", simCardId);
+    approveReturn(requestId, dispositionsBody(unitId, "CANCELLED")).andExpect(status().isOk());
+    patchReturnStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+
+    patchReturnStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void completingACancelledSimCardRetiresUninstallsAndKeepsItsEffectiveDate() throws Exception {
+    UUID smartphoneId = createClientOwnedSmartphone("Pixel 8");
+    UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
+    installSimCard(simCardId, smartphoneId);
+    JsonNode created = postReturnAndParse(testerToken, simCardOnlyBody(simCardId));
+    UUID requestId = requestIdOf(created);
+    UUID unitId = returnedUnitId(created, "simCardId", simCardId);
+    approveReturn(requestId, dispositionsBody(unitId, "CANCELLED")).andExpect(status().isOk());
+    patchReturnStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+
+    patchReturnStatus(
+            requestId,
+            "{\"status\":\"COMPLETED\",\"simCardCancellations\":[{\"simCardId\":\"%s\",\"effectiveDate\":\"2026-08-15\"}]}"
+                .formatted(simCardId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("COMPLETED"));
+
+    JsonNode simCard = simCardById(simCardId);
+    assertThat(simCard.get("status").asText()).isEqualTo("RETIRED");
+    assertThat(simCard.get("cancellationEffectiveDate").asText()).isEqualTo("2026-08-15");
+    assertThat(simCard.has("installedInSmartphoneId")).isFalse();
+  }
+
+  @Test
+  void completingPostsACompanyOwnedSmartphoneToCompanyAndRetiresIt() throws Exception {
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
+    JsonNode created = postReturnAndParse(testerToken, smartphoneOnlyBody(smartphoneId));
+    UUID requestId = requestIdOf(created);
+    UUID unitId = returnedUnitId(created, "smartphoneId", smartphoneId);
+    approveReturn(requestId, dispositionsBody(unitId, "POSTED_TO_COMPANY")).andExpect(status().isOk());
+    patchReturnStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+
+    patchReturnStatus(requestId, "{\"status\":\"COMPLETED\"}")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("COMPLETED"));
+
+    assertThat(smartphoneStatus(smartphoneId)).isEqualTo("RETIRED");
+  }
+
   // --- helpers --------------------------------------------------------------------------------
 
   private UUID submitAndCompleteReturn(UUID smartphoneId) throws Exception {
@@ -320,5 +505,51 @@ class ReturnRequestsApiTest extends IntegrationTest {
             .andReturn();
     JsonNode testers = objectMapper.readTree(result.getResponse().getContentAsString());
     return UUID.fromString(testers.get(0).get("id").asText());
+  }
+
+  private String smartphoneOnlyBody(UUID smartphoneId) {
+    return "{\"type\":\"RETURN\",\"returnedSmartphoneIds\":[\"%s\"]}".formatted(smartphoneId);
+  }
+
+  private String simCardOnlyBody(UUID simCardId) {
+    return "{\"type\":\"RETURN\",\"returnedSimCardIds\":[\"%s\"]}".formatted(simCardId);
+  }
+
+  private String dispositionsBody(UUID returnedUnitId, String disposition) {
+    return "{\"dispositions\":[{\"returnedUnitId\":\"%s\",\"disposition\":\"%s\"}]}".formatted(returnedUnitId, disposition);
+  }
+
+  /** Submits a Return and returns just its Request id, for a test that never needs its body again. */
+  private UUID submitReturn(String json) throws Exception {
+    return requestIdOf(postReturnAndParse(testerToken, json));
+  }
+
+  /** Submits a Return and returns its full parsed creation response, including its returnedUnits. */
+  private JsonNode postReturnAndParse(String token, String json) throws Exception {
+    MvcResult result = postReturnRequest(token, json).andExpect(status().isCreated()).andReturn();
+    return objectMapper.readTree(result.getResponse().getContentAsString());
+  }
+
+  private UUID requestIdOf(JsonNode request) {
+    return UUID.fromString(request.get("id").asText());
+  }
+
+  /** The {@code ReturnedUnit} row id of the unit whose {@code field} equals {@code value}, e.g. "smartphoneId". */
+  private UUID returnedUnitId(JsonNode request, String field, UUID value) {
+    for (JsonNode unit : request.get("returnedUnits")) {
+      if (unit.has(field) && unit.get(field).asText().equals(value.toString())) {
+        return UUID.fromString(unit.get("id").asText());
+      }
+    }
+    throw new IllegalStateException("No returned unit with " + field + "=" + value);
+  }
+
+  private ResultActions approveReturn(UUID requestId, String json) throws Exception {
+    var request =
+        post("/api/requests/" + requestId + "/approve").header("Authorization", "Bearer " + managerToken);
+    if (json != null) {
+      request = request.contentType(APPLICATION_JSON).content(json);
+    }
+    return mockMvc.perform(request);
   }
 }

@@ -1,8 +1,11 @@
 package com.remotesupport.backend.web;
 
+import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
+import com.remotesupport.backend.domain.ReturnedUnit;
 import com.remotesupport.backend.dto.PendingRequestItemResponse;
 import com.remotesupport.backend.repository.RequestRepository;
+import com.remotesupport.backend.repository.ReturnedUnitRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import java.util.Comparator;
 import java.util.List;
@@ -26,16 +29,23 @@ public class PendingRequestsController {
           .thenComparing(item -> item.request().id().toString());
 
   private final RequestRepository requestRepository;
+  private final ReturnedUnitRepository returnedUnitRepository;
 
-  public PendingRequestsController(RequestRepository requestRepository) {
+  public PendingRequestsController(RequestRepository requestRepository, ReturnedUnitRepository returnedUnitRepository) {
     this.requestRepository = requestRepository;
+    this.returnedUnitRepository = returnedUnitRepository;
   }
 
   @GetMapping("/api/pending-requests")
   public List<PendingRequestItemResponse> list(@AuthenticationPrincipal AuthenticatedPrincipal principal) {
     return requestRepository.findByTenantIdAndStatus(principal.tenantId(), RequestStatus.PENDING_APPROVAL).stream()
-        .map(PendingRequestItemResponse::of)
+        .map(request -> PendingRequestItemResponse.of(request, returnedUnitsOf(request)))
         .sorted(LONGEST_WAITING_FIRST)
         .toList();
+  }
+
+  /** Mirrors {@link RequestController#returnedUnitsOf} — cheap and empty for every non-Return type. */
+  private List<ReturnedUnit> returnedUnitsOf(Request request) {
+    return returnedUnitRepository.findByRequestIdOrderByCreatedAtAsc(request.getId());
   }
 }

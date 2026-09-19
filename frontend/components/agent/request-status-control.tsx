@@ -4,7 +4,11 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { REQUEST_COMPLETION_BODY_BUILDERS, REQUEST_COMPLETION_COMPONENTS } from "@/components/agent/completion/registry";
+import {
+  REQUEST_COMPLETION_BODY_BUILDERS,
+  REQUEST_COMPLETION_COMPONENTS,
+  REQUEST_COMPLETION_NEEDS_OWN_FORM,
+} from "@/components/agent/completion/registry";
 import {
   REQUEST_STATUS_LABEL,
   canCancelRequest,
@@ -63,7 +67,11 @@ export function RequestStatusControl({
 
   const next = nextRequestStatus(status);
   const canCancel = canCancelRequest(status);
-  const completingNeedsFeeForm = next === "COMPLETED" && requestTypeCanCarryFee(type);
+  const canCarryFee = requestTypeCanCarryFee(type);
+  // A type that can never carry a Fee (e.g. RETURN) may still need its own completing form — a
+  // cancelled SIM Card's effective date, so far (manager-decides-return-disposition ticket).
+  const completingNeedsOwnForm = Boolean(REQUEST_COMPLETION_NEEDS_OWN_FORM[type]?.(request));
+  const completingNeedsForm = next === "COMPLETED" && (canCarryFee || completingNeedsOwnForm);
   const CompletionComponent = REQUEST_COMPLETION_COMPONENTS[type];
 
   function resetLocalState() {
@@ -108,7 +116,7 @@ export function RequestStatusControl({
 
   async function advance() {
     if (!next) return;
-    if (completingNeedsFeeForm) {
+    if (completingNeedsForm) {
       setCompleting(true);
       setError(null);
       setNote(null);
@@ -160,7 +168,10 @@ export function RequestStatusControl({
         return;
       }
 
-      const feeOk = await logFee(amount, description);
+      // A type that can never carry a Fee (e.g. RETURN, opened here only for its own completion
+      // fields) never logs one — the shell's own amount/description inputs aren't even rendered
+      // for it below.
+      const feeOk = canCarryFee ? await logFee(amount, description) : true;
       if (!feeOk) {
         setError("Request completed, but logging the fee failed — log it separately from Fleet/Requests.");
         resetLocalState();
@@ -240,26 +251,30 @@ export function RequestStatusControl({
   if (completing) {
     return (
       <form onSubmit={confirmComplete} className="flex w-64 flex-col items-start gap-2">
-        <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-          Fee amount ({currency})
-          <Input
-            autoFocus
-            type="number"
-            name="amount"
-            min="0.01"
-            step="0.01"
-            required
-            disabled={pending}
-            // reboot-and-topup-details ticket AC: pre-filled from the Request's own Topup Option,
-            // still editable — a plain `defaultValue`, not a controlled field.
-            defaultValue={type === "TOPUP" && topupOptionPrice != null ? topupOptionPrice : undefined}
-            className="h-7 text-[12px]"
-          />
-        </label>
-        <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-          Description (optional)
-          <Input name="description" disabled={pending} className="h-7 text-[12px]" />
-        </label>
+        {canCarryFee ? (
+          <>
+            <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
+              Fee amount ({currency})
+              <Input
+                autoFocus
+                type="number"
+                name="amount"
+                min="0.01"
+                step="0.01"
+                required
+                disabled={pending}
+                // reboot-and-topup-details ticket AC: pre-filled from the Request's own Topup
+                // Option, still editable — a plain `defaultValue`, not a controlled field.
+                defaultValue={type === "TOPUP" && topupOptionPrice != null ? topupOptionPrice : undefined}
+                className="h-7 text-[12px]"
+              />
+            </label>
+            <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
+              Description (optional)
+              <Input name="description" disabled={pending} className="h-7 text-[12px]" />
+            </label>
+          </>
+        ) : null}
 
         {CompletionComponent ? (
           <CompletionComponent

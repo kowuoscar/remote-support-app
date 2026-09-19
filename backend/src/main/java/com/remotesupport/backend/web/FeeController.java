@@ -292,7 +292,10 @@ public class FeeController {
             requestBody.newSimCard(),
             requestBody.replacesSmartphoneId(),
             requestBody.replacesSimCardId(),
-            requestBody.simCardNumber()),
+            requestBody.simCardNumber(),
+            // A proactive Fee can never auto-create a RETURN linking Request (FeeType structurally
+            // excludes it), so there is never a cancellation to record here.
+            List.of()),
         principal);
 
     requestRepository.save(request);

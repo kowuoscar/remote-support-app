@@ -41,13 +41,13 @@ public enum RequestType {
    * ticket). The four types this names are exactly the ones that add a net-new unit or retire one
    * — a real spend the Company Manager agrees to before it happens.
    *
-   * <p>{@code RETURN} is {@code false} here even though a Return holding a company-owned unit will
-   * eventually need approval too (spec.md Solution: "A Return holding at least one company-owned
-   * unit ... starts at Pending Approval") — that depends on a Return's own *content*, not its type
-   * alone, unlike every type this method already names, so it's decided at the content level
-   * instead ({@code ReturnRequestDetailsHandler}, this ticket, refuses a company-owned unit outright
-   * rather than deferring it to approval; {@code manager-decides-return-disposition} is the ticket
-   * that makes the starting-status logic content-aware for Return).
+   * <p>{@code RETURN} is {@code false} here even though a Return holding a company-owned unit does
+   * need approval (spec.md Solution: "A Return holding at least one company-owned unit ... starts
+   * at Pending Approval") — that depends on a Return's own *content*, not its type alone, unlike
+   * every type this method already names, so it's decided at the content level instead: {@code
+   * RequestController}'s own {@code returnRequiresApproval} helper (manager-decides-return-disposition
+   * ticket) checks the named units' ownership directly, before/alongside {@code
+   * ReturnRequestDetailsHandler} building them.
    */
   public boolean requiresApproval() {
     return switch (this) {

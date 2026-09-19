@@ -477,13 +477,20 @@ public final class AuditLog {
    * A Manager approving a Pending Approval Request, moving it to Submitted
    * (manager-approves-requests ticket Observability: "Request approved and rejected: Request id,
    * actor, tenant, and that a reason was given" — approving never carries one, so this event omits
-   * the field entirely rather than always logging {@code reasonGiven=false}).
+   * the field entirely rather than always logging {@code reasonGiven=false}). {@code
+   * dispositionsChosen} (manager-decides-return-disposition ticket Observability: "The approved
+   * audit event carries the Dispositions") is a comma-joined {@code unitId=DISPOSITION} pair per
+   * unit the Manager just chose — empty for every non-{@code RETURN} approval, and for a {@code
+   * RETURN} approval that needed no choice at all (only Client-owned units).
    */
-  public static void requestApproved(UUID requestId, UUID contractId, UUID actorUserId, UUID tenantId) {
+  public static void requestApproved(
+      UUID requestId, UUID contractId, String dispositionsChosen, UUID actorUserId, UUID tenantId) {
     log.info(
-        "audit action=REQUEST_APPROVED entity=Request entityId={} contractId={} actorUserId={} tenantId={}",
+        "audit action=REQUEST_APPROVED entity=Request entityId={} contractId={} dispositionsChosen={} "
+            + "actorUserId={} tenantId={}",
         requestId,
         contractId,
+        dispositionsChosen,
         actorUserId,
         tenantId);
   }
@@ -522,6 +529,24 @@ public final class AuditLog {
         unitId,
         requestId,
         disposition,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A SIM Card cancelled as part of a completed Return (manager-decides-return-disposition ticket
+   * Observability: "a SIM-cancelled event carries SIM Card id, effective date, Request id, actor,
+   * tenant") — distinct from {@link #unitReturned}'s own generic per-unit Disposition entry, which
+   * still fires for this same unit too; this one exists specifically to carry the date.
+   */
+  public static void simCardCancelled(
+      UUID simCardId, LocalDate effectiveDate, UUID requestId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=SIM_CARD_CANCELLED entity=SimCard entityId={} effectiveDate={} requestId={} "
+            + "actorUserId={} tenantId={}",
+        simCardId,
+        effectiveDate,
+        requestId,
         actorUserId,
         tenantId);
   }

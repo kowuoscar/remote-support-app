@@ -31,11 +31,15 @@ import org.springframework.stereotype.Component;
  * own {@link ReturnedUnit} row (never more nullable columns on {@link Request}: see the
  * carrier-catalog-notes.md hard rule this ticket follows).
  *
- * <p>This ticket only accepts Client-owned Smartphones: any SIM Card, or a company-owned
- * Smartphone, is refused outright with a message that it isn't supported yet (ticket AC) — the
- * Manager-chosen Dispositions for company-owned units arrive in {@code
- * manager-decides-return-disposition}. Every accepted unit's Disposition is fixed here, at
- * submission, to {@link Disposition#POSTED_TO_CLIENT} (ticket AC).
+ * <p>A Client-owned Smartphone's Disposition is fixed here, at submission, to {@link
+ * Disposition#POSTED_TO_CLIENT} (return-client-owned-smartphones ticket AC) — nothing for the
+ * Manager to choose. A company-owned Smartphone or any SIM Card (CONTEXT.md "Owner": a SIM Card is
+ * always company-owned) is accepted too as of the manager-decides-return-disposition ticket, but
+ * its {@code disposition} is left {@code null} here: the Company Manager chooses it at approval
+ * ({@code RequestByIdController#approve}), which is also what makes {@code
+ * RequestController}'s starting-status decision content-aware for {@code RETURN} — a company-owned
+ * unit is what sends the whole Request to Pending Approval in the first place (spec.md Solution:
+ * "Approval").
  *
  * <p>Persists {@code request} itself before its {@link ReturnedUnit} rows: {@code request}'s own id
  * is already assigned (every entity in this codebase manually assigns its id before saving), and
@@ -104,18 +108,15 @@ public class ReturnRequestDetailsHandler implements RequestDetailsHandler {
     if (smartphone.getStatus() != SmartphoneStatus.ACTIVE) {
       throw new InvalidRequestException("The Smartphone " + smartphoneId + " to return must be Active");
     }
-    if (smartphone.getOwner() != SmartphoneOwner.CLIENT) {
-      throw new InvalidRequestException(
-          "Returning a company-owned Smartphone isn't supported yet — only Client-owned Smartphones"
-              + " can be returned for now");
-    }
 
     ReturnedUnit unit = new ReturnedUnit();
     unit.setId(UUID.randomUUID());
     unit.setTenant(contract.getTenant());
     unit.setRequest(request);
     unit.setSmartphone(smartphone);
-    unit.setDisposition(Disposition.POSTED_TO_CLIENT);
+    // A Client-owned Smartphone's Disposition is fixed now; a company-owned one waits for the
+    // Manager to choose at approval (manager-decides-return-disposition ticket).
+    unit.setDisposition(smartphone.getOwner() == SmartphoneOwner.CLIENT ? Disposition.POSTED_TO_CLIENT : null);
     unit.setCreatedAt(Instant.now());
     return unit;
   }
@@ -128,11 +129,17 @@ public class ReturnRequestDetailsHandler implements RequestDetailsHandler {
     if (simCard.getStatus() != SimCardStatus.ACTIVE) {
       throw new InvalidRequestException("The SIM Card " + simCardId + " to return must be Active");
     }
-    // CONTEXT.md "Owner": a SIM Card is always company-owned, so it always hits this ticket's
-    // "not supported yet" refusal (ticket AC: "any SIM Card ... is refused").
-    throw new InvalidRequestException(
-        "Returning a company-owned unit isn't supported yet — only Client-owned Smartphones can be"
-            + " returned for now");
+
+    ReturnedUnit unit = new ReturnedUnit();
+    unit.setId(UUID.randomUUID());
+    unit.setTenant(contract.getTenant());
+    unit.setRequest(request);
+    unit.setSimCard(simCard);
+    // CONTEXT.md "Owner": a SIM Card is always company-owned, so its Disposition always waits for
+    // the Manager to choose Cancelled at approval (manager-decides-return-disposition ticket).
+    unit.setDisposition(null);
+    unit.setCreatedAt(Instant.now());
+    return unit;
   }
 
   private static List<UUID> nullToEmpty(List<UUID> ids) {

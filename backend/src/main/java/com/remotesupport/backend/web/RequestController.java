@@ -5,6 +5,8 @@ import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
 import com.remotesupport.backend.domain.RequestType;
 import com.remotesupport.backend.domain.ReturnedUnit;
+import com.remotesupport.backend.domain.Smartphone;
+import com.remotesupport.backend.domain.SmartphoneOwner;
 import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.dto.RequestCreateRequest;
@@ -14,6 +16,7 @@ import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.RequestRepository;
 import com.remotesupport.backend.repository.ReturnedUnitRepository;
+import com.remotesupport.backend.repository.SmartphoneRepository;
 import com.remotesupport.backend.repository.TesterRepository;
 import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.FleetAccessGuard;
@@ -58,6 +61,7 @@ public class RequestController {
   private final ContractRepository contractRepository;
   private final RequestRepository requestRepository;
   private final ReturnedUnitRepository returnedUnitRepository;
+  private final SmartphoneRepository smartphoneRepository;
   private final TesterRepository testerRepository;
   private final UserRepository userRepository;
   private final FleetAccessGuard fleetAccessGuard;
@@ -69,6 +73,7 @@ public class RequestController {
       ContractRepository contractRepository,
       RequestRepository requestRepository,
       ReturnedUnitRepository returnedUnitRepository,
+      SmartphoneRepository smartphoneRepository,
       TesterRepository testerRepository,
       UserRepository userRepository,
       FleetAccessGuard fleetAccessGuard,
@@ -78,6 +83,7 @@ public class RequestController {
     this.contractRepository = contractRepository;
     this.requestRepository = requestRepository;
     this.returnedUnitRepository = returnedUnitRepository;
+    this.smartphoneRepository = smartphoneRepository;
     this.testerRepository = testerRepository;
     this.userRepository = userRepository;
     this.fleetAccessGuard = fleetAccessGuard;
@@ -129,7 +135,7 @@ public class RequestController {
     request.setTester(tester);
     request.setRaisedByUser(tester.getUser());
     request.setAgentAuthored(false);
-    request.setStatus(startingStatusFor(requestBody.type()));
+    request.setStatus(startingStatusFor(requestBody.type(), contract, requestBody));
     requestDetailsValidator.apply(contract, detailsInputOf(requestBody), request);
     requestRepository.save(request);
 
@@ -169,7 +175,8 @@ public class RequestController {
                     new NotFoundException(
                         "No Tester with id " + requestBody.testerId() + " on this Contract's Client"));
 
-    RequestStatus startingStatus = agentStartingStatusFor(requestBody.type(), requestBody.startingStatus());
+    RequestStatus startingStatus =
+        agentStartingStatusFor(requestBody.type(), requestBody.startingStatus(), contract, requestBody);
 
     User raisedByUser =
         userRepository
@@ -256,7 +263,8 @@ public class RequestController {
             requestBody.newSimCard(),
             requestBody.replacesSmartphoneId(),
             requestBody.replacesSimCardId(),
-            requestBody.simCardNumber()),
+            requestBody.simCardNumber(),
+            requestBody.simCardCancellations()),
         principal);
 
     requestRepository.save(request);
@@ -284,22 +292,30 @@ public class RequestController {
   /**
    * A Tester-authored Request's starting status (request-types-and-flow spec, Lifecycle):
    * approval-required types always start {@link RequestStatus#PENDING_APPROVAL}; every other type
-   * starts {@link RequestStatus#SUBMITTED} as before.
+   * starts {@link RequestStatus#SUBMITTED} as before. {@code RETURN} is decided by content, not by
+   * {@link RequestType#requiresApproval()} alone — see {@link #returnRequiresApproval}.
    */
-  static RequestStatus startingStatusFor(RequestType type) {
+  private RequestStatus startingStatusFor(RequestType type, Contract contract, RequestCreateRequest requestBody) {
+    if (type == RequestType.RETURN) {
+      return returnRequiresApproval(contract, requestBody) ? RequestStatus.PENDING_APPROVAL : RequestStatus.SUBMITTED;
+    }
     return type.requiresApproval() ? RequestStatus.PENDING_APPROVAL : RequestStatus.SUBMITTED;
   }
 
   /**
-   * An Agent-proactive Request's starting status: for one of the four approval-required types,
-   * always {@link RequestStatus#PENDING_APPROVAL} regardless of what {@code requestedStartingStatus}
-   * asked for (spec.md Lifecycle: "an Agent logging one proactively can no longer start it at
-   * Submitted or Completed") — refused outright rather than silently overridden, so a caller that
-   * still thinks it can choose finds out immediately. Every other type keeps the existing choice
-   * between {@code SUBMITTED} (default) and immediately {@code COMPLETED}.
+   * An Agent-proactive Request's starting status: for one of the four approval-required types, or
+   * a {@code RETURN} holding a company-owned unit, always {@link RequestStatus#PENDING_APPROVAL}
+   * regardless of what {@code requestedStartingStatus} asked for (spec.md Lifecycle: "an Agent
+   * logging one proactively can no longer start it at Submitted or Completed") — refused outright
+   * rather than silently overridden, so a caller that still thinks it can choose finds out
+   * immediately. Every other type/content keeps the existing choice between {@code SUBMITTED}
+   * (default) and immediately {@code COMPLETED}.
    */
-  static RequestStatus agentStartingStatusFor(RequestType type, RequestStatus requestedStartingStatus) {
-    if (type.requiresApproval()) {
+  private RequestStatus agentStartingStatusFor(
+      RequestType type, RequestStatus requestedStartingStatus, Contract contract, RequestCreateRequest requestBody) {
+    boolean requiresApproval =
+        type == RequestType.RETURN ? returnRequiresApproval(contract, requestBody) : type.requiresApproval();
+    if (requiresApproval) {
       if (requestedStartingStatus != null && requestedStartingStatus != RequestStatus.PENDING_APPROVAL) {
         throw new InvalidRequestException(
             "A " + type + " Request always starts Pending Approval; it cannot start " + requestedStartingStatus);
@@ -313,6 +329,34 @@ public class RequestController {
           "An Agent-logged Request can only start at SUBMITTED or COMPLETED, not " + startingStatus);
     }
     return startingStatus;
+  }
+
+  /**
+   * Whether a {@code RETURN} Request's own named units hold at least one company-owned one — any
+   * SIM Card (CONTEXT.md "Owner": always company-owned), or a company-owned Smartphone — which is
+   * what sends the whole Request to Pending Approval (spec.md Solution: "Approval"), whoever raised
+   * it. Looked up directly off the creation body's raw id lists rather than the {@link
+   * ReturnedUnit} rows {@link com.remotesupport.backend.web.requestdetails.ReturnRequestDetailsHandler}
+   * builds moments later — this only needs to know "is approval required", not build or validate
+   * anything, and it must run before {@code request.setStatus} is set, ahead of that handler.
+   * Ignored for every type but {@code RETURN}.
+   */
+  private boolean returnRequiresApproval(Contract contract, RequestCreateRequest requestBody) {
+    List<UUID> simCardIds = requestBody.returnedSimCardIds();
+    if (simCardIds != null && !simCardIds.isEmpty()) {
+      return true;
+    }
+    List<UUID> smartphoneIds = requestBody.returnedSmartphoneIds();
+    if (smartphoneIds == null) {
+      return false;
+    }
+    for (UUID smartphoneId : smartphoneIds) {
+      Smartphone smartphone = smartphoneRepository.findByIdAndContractId(smartphoneId, contract.getId()).orElse(null);
+      if (smartphone != null && smartphone.getOwner() == SmartphoneOwner.COMPANY) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private Contract findContract(UUID contractId, AuthenticatedPrincipal principal) {
@@ -346,7 +390,11 @@ public class RequestController {
         requestBody.newSimCard(),
         requestBody.replacesSmartphoneId(),
         requestBody.replacesSimCardId(),
-        requestBody.simCardNumber());
+        requestBody.simCardNumber(),
+        // A RETURN holding a SIM Card always starts Pending Approval (see
+        // #returnRequiresApproval), so it can never reach this immediately-Completed,
+        // Agent-proactive path with a cancellation to record.
+        List.of());
   }
 
   /**

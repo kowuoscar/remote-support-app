@@ -179,14 +179,24 @@ export type RequestTypeValue =
   | "REPLACE_SIM"
   | "OTHER";
 
-// Mirrors backend/.../domain/RequestStatus.java.
-export type RequestStatusValue = "SUBMITTED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+// Mirrors backend/.../domain/RequestStatus.java. PENDING_APPROVAL/REJECTED
+// (manager-approves-requests ticket): the starting status of every approval-required type, and the
+// Manager's "no" — see requiresApproval below.
+export type RequestStatusValue =
+  | "PENDING_APPROVAL"
+  | "SUBMITTED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "REJECTED";
 
 /**
  * Mirrors backend/.../domain/RequestStatus.java#canTransitionTo — the single forward-progress
  * step an Agent can take next (agent-request-fulfillment ticket AC: "Agent can move a Request
- * from Submitted to In Progress, and from In Progress to Completed"), or `null` once terminal.
- * Cancelling is a separate action (needs a reason), not part of this forward path.
+ * from Submitted to In Progress, and from In Progress to Completed"), or `null` once terminal or
+ * once only the Manager's own approve/reject actions move it on (manager-approves-requests
+ * ticket: Pending Approval has no "next" an Agent can reach this way). Cancelling is a separate
+ * action (needs a reason), not part of this forward path.
  */
 export function nextRequestStatus(current: RequestStatusValue): RequestStatusValue | null {
   switch (current) {
@@ -194,15 +204,17 @@ export function nextRequestStatus(current: RequestStatusValue): RequestStatusVal
       return "IN_PROGRESS";
     case "IN_PROGRESS":
       return "COMPLETED";
+    case "PENDING_APPROVAL":
     case "COMPLETED":
     case "CANCELLED":
+    case "REJECTED":
       return null;
   }
 }
 
 /** Whether a Request in this status can still be cancelled (mirrors RequestStatus#canTransitionTo). */
 export function canCancelRequest(current: RequestStatusValue): boolean {
-  return current === "SUBMITTED" || current === "IN_PROGRESS";
+  return current === "PENDING_APPROVAL" || current === "SUBMITTED" || current === "IN_PROGRESS";
 }
 
 export const REQUEST_TYPE_LABEL: Record<RequestTypeValue, string> = {
@@ -217,11 +229,24 @@ export const REQUEST_TYPE_LABEL: Record<RequestTypeValue, string> = {
 };
 
 export const REQUEST_STATUS_LABEL: Record<RequestStatusValue, string> = {
+  PENDING_APPROVAL: "Pending Approval",
   SUBMITTED: "Submitted",
   IN_PROGRESS: "In Progress",
   COMPLETED: "Completed",
   CANCELLED: "Cancelled",
+  REJECTED: "Rejected",
 };
+
+// Mirrors backend/.../domain/RequestType.java#requiresApproval (manager-approves-requests
+// ticket): the four types that always start Pending Approval, whoever raises them.
+export function requestTypeRequiresApproval(type: RequestTypeValue): boolean {
+  return (
+    type === "PROVISION_SMARTPHONE" ||
+    type === "PROVISION_SIM" ||
+    type === "REPLACE_SMARTPHONE" ||
+    type === "REPLACE_SIM"
+  );
+}
 
 // Mirrors backend/.../dto/RequestResponse.java
 export interface RequestListItem {
@@ -237,6 +262,12 @@ export interface RequestListItem {
   agentAuthored: boolean;
   loggedByUsername: string;
   cancellationReason: string | null;
+  // manager-approves-requests ticket: set only once a Manager has decided (spec.md Manager
+  // approval: "the decision records who decided and when"); rejectionReason only on a REJECTED
+  // one, shown the same way cancellationReason is (CONTEXT.md "Rejected" — distinct from Cancelled).
+  rejectionReason?: string;
+  decidedByUsername?: string;
+  decidedAt?: string;
   // Free-text detail given at submission (other-replaces-repair ticket): optional for every type
   // except OTHER, where it's required.
   description: string | null;
@@ -276,6 +307,18 @@ export interface RequestListItem {
   secondSimCardNumber?: string;
   secondTargetSmartphoneId?: string;
   secondTargetSmartphoneModel?: string;
+}
+
+// Mirrors backend/.../dto/PendingRequestItemResponse.java, as returned by GET
+// /api/pending-requests (manager-approves-requests ticket): one Request at Pending Approval, for
+// the Manager's Pending Requests page — request carries the type, Tester, Agent-authored flag and
+// every type's own denormalized details (for a Replace, the unit that would be retired);
+// clientName/agentName/waitingSince are this list's own addition on top.
+export interface PendingRequestItem {
+  request: RequestListItem;
+  clientName: string;
+  agentName: string;
+  waitingSince: string;
 }
 
 // Mirrors backend/.../dto/TesterResponse.java, as returned by GET /api/contracts/{id}/testers

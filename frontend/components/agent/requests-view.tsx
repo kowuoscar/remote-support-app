@@ -27,10 +27,12 @@ const AGENT_CARRIERS_HREF = "/agent/carriers";
 
 const statusFilters: (RequestStatusValue | "All")[] = [
   "All",
+  "PENDING_APPROVAL",
   "SUBMITTED",
   "IN_PROGRESS",
   "COMPLETED",
   "CANCELLED",
+  "REJECTED",
 ];
 
 /**
@@ -178,6 +180,11 @@ export function AgentRequestsView({
                     {request.status === "CANCELLED" && request.cancellationReason ? (
                       <span className="mt-1 block max-w-[220px] text-[12px] text-ink-mute">
                         {request.cancellationReason}
+                      </span>
+                    ) : null}
+                    {request.status === "REJECTED" && request.rejectionReason ? (
+                      <span className="mt-1 block max-w-[220px] text-[12px] text-ink-mute">
+                        {request.rejectionReason}
                       </span>
                     ) : null}
                   </Td>

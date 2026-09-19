@@ -48,11 +48,15 @@ export const simCardStatusToneByValue: Record<SimCardStatusValue, Tone> = {
 
 // Same tones as requestStatusTone above, keyed by the real backend enum value
 // (tester-request-submission ticket: real Request views consume RequestListItem, not demo/types).
+// PENDING_APPROVAL uses the warning tone and REJECTED the danger tone (spec.md Design direction;
+// manager-approves-requests ticket) — the same two tones DESIGN.md's semantic list already names.
 export const requestStatusToneByValue: Record<RequestStatusValue, Tone> = {
+  PENDING_APPROVAL: "warning",
   SUBMITTED: "info",
   IN_PROGRESS: "warning",
   COMPLETED: "success",
   CANCELLED: "neutral",
+  REJECTED: "danger",
 };
 
 export const clientInvoiceStatusTone: Record<ClientInvoiceStatus, Tone> = {

@@ -8,6 +8,7 @@ import { IconAlertTriangle, IconPlus } from "@/components/icons";
 import { REQUEST_DETAILS_COMPONENTS } from "@/components/requests/details/registry";
 import {
   REQUEST_TYPE_LABEL,
+  requestTypeRequiresApproval,
   type CatalogCarrierItem,
   type ContractTesterListItem,
   type RequestStatusValue,
@@ -64,10 +65,13 @@ export function LogRequestDialog({
   const [startingStatus, setStartingStatus] = useState<RequestStatusValue>("SUBMITTED");
 
   const DetailsComponent = REQUEST_DETAILS_COMPONENTS[type];
-  // provision-request-details ticket AC: "one that starts at Completed also gives the SIM
-  // number" — only Provision SIM needs this extra field, and only when logged straight to
-  // Completed rather than queued at Submitted.
-  const needsSimCardNumber = type === "PROVISION_SIM" && startingStatus === "COMPLETED";
+  // manager-approves-requests ticket: Provision Smartphone/SIM and Replace Smartphone/SIM always
+  // start Pending Approval now, whoever raises them — an Agent logging one proactively can no
+  // longer choose Submitted or Completed (spec.md Lifecycle), so the choice below is hidden for
+  // these four types, and the SIM-number-at-creation field (only ever meaningful when a Provision
+  // SIM could start immediately Completed) can never apply to them either.
+  const approvalRequired = requestTypeRequiresApproval(type);
+  const needsSimCardNumber = !approvalRequired && type === "PROVISION_SIM" && startingStatus === "COMPLETED";
 
   function open() {
     setError(null);
@@ -108,7 +112,7 @@ export function LogRequestDialog({
         body: JSON.stringify({
           type,
           testerId,
-          startingStatus,
+          startingStatus: approvalRequired ? undefined : startingStatus,
           description: description || undefined,
           targetSmartphoneId: targetSmartphoneId || undefined,
           targetSimCardId: targetSimCardId || undefined,
@@ -237,31 +241,38 @@ export function LogRequestDialog({
                 </label>
               )}
 
-              <fieldset className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                <legend className="mb-0.5">Starting status</legend>
-                <label className="flex items-center gap-2 font-normal text-ink">
-                  <input
-                    type="radio"
-                    name="startingStatus"
-                    value="SUBMITTED"
-                    checked={startingStatus === "SUBMITTED"}
-                    onChange={() => setStartingStatus("SUBMITTED")}
-                    disabled={submitting}
-                  />
-                  Submitted — queue it for follow-up
-                </label>
-                <label className="flex items-center gap-2 font-normal text-ink">
-                  <input
-                    type="radio"
-                    name="startingStatus"
-                    value="COMPLETED"
-                    checked={startingStatus === "COMPLETED"}
-                    onChange={() => setStartingStatus("COMPLETED")}
-                    disabled={submitting}
-                  />
-                  Completed — already handled
-                </label>
-              </fieldset>
+              {approvalRequired ? (
+                <p className="rounded-lg bg-warning-bg px-3 py-2 text-[12px] text-warning">
+                  {REQUEST_TYPE_LABEL[type]} always starts Pending Approval — the Company Manager
+                  decides before it moves on.
+                </p>
+              ) : (
+                <fieldset className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+                  <legend className="mb-0.5">Starting status</legend>
+                  <label className="flex items-center gap-2 font-normal text-ink">
+                    <input
+                      type="radio"
+                      name="startingStatus"
+                      value="SUBMITTED"
+                      checked={startingStatus === "SUBMITTED"}
+                      onChange={() => setStartingStatus("SUBMITTED")}
+                      disabled={submitting}
+                    />
+                    Submitted — queue it for follow-up
+                  </label>
+                  <label className="flex items-center gap-2 font-normal text-ink">
+                    <input
+                      type="radio"
+                      name="startingStatus"
+                      value="COMPLETED"
+                      checked={startingStatus === "COMPLETED"}
+                      onChange={() => setStartingStatus("COMPLETED")}
+                      disabled={submitting}
+                    />
+                    Completed — already handled
+                  </label>
+                </fieldset>
+              )}
 
               {needsSimCardNumber ? (
                 <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">

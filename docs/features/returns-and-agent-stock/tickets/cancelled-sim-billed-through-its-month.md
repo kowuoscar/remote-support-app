@@ -1,7 +1,7 @@
 ---
 id: cancelled-sim-billed-through-its-month
 title: A cancelled Postpaid SIM is billed through the month of its cancellation date
-status: ready-for-agent
+status: in-progress
 depends_on: [manager-decides-return-disposition]
 labels: [backend, invoicing]
 ---

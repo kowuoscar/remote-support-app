@@ -1,7 +1,7 @@
 ---
 id: fulfil-from-stock
 title: An Agent fulfils a Provision or Replace Request from their Stock
-status: in-progress
+status: done
 depends_on: [agent-stock]
 labels: [backend, frontend, fleet, requests]
 ---
@@ -12,13 +12,13 @@ Implements `spec.md` Solution (Fulfilment from Stock) and user stories 11-13.
 
 ## Acceptance criteria
 
-- [ ] Completing a Provision Smartphone or Replace Smartphone may name a Smartphone from the Agent's own Stock; it joins the Contract as Active and company-owned instead of a new one being added
-- [ ] Completing a Provision SIM or Replace SIM may name a SIM Card from the Agent's own Stock with the Request's Carrier and flavor and, for postpaid, its Postpaid Plan; it joins the Contract keeping its number and monthly fee, and no SIM number is asked
-- [ ] A Stock unit of another Agent, or a SIM Card that doesn't match, is refused
-- [ ] Everything else about completion is unchanged: installing into the target Smartphone, retiring the replaced unit, carrying SIM Cards over
-- [ ] Naming nothing from Stock completes exactly as before
-- [ ] The completion step offers a "from my Stock" picker only when a matching unit exists
-- [ ] The unit leaves the Stock page and appears in the Fleet
+- [x] Completing a Provision Smartphone or Replace Smartphone may name a Smartphone from the Agent's own Stock; it joins the Contract as Active and company-owned instead of a new one being added
+- [x] Completing a Provision SIM or Replace SIM may name a SIM Card from the Agent's own Stock with the Request's Carrier and flavor and, for postpaid, its Postpaid Plan; it joins the Contract keeping its number and monthly fee, and no SIM number is asked
+- [x] A Stock unit of another Agent, or a SIM Card that doesn't match, is refused
+- [x] Everything else about completion is unchanged: installing into the target Smartphone, retiring the replaced unit, carrying SIM Cards over
+- [x] Naming nothing from Stock completes exactly as before
+- [x] The completion step offers a "from my Stock" picker only when a matching unit exists
+- [x] The unit leaves the Stock page and appears in the Fleet
 
 ## Tests
 

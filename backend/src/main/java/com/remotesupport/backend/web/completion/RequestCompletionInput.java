@@ -1,7 +1,9 @@
 package com.remotesupport.backend.web.completion;
 
+import com.remotesupport.backend.dto.SimCardCancellationRequest;
 import com.remotesupport.backend.dto.SimCardCreateRequest;
 import com.remotesupport.backend.dto.SmartphoneCreateRequest;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -19,10 +21,20 @@ import java.util.UUID;
  * only a legacy Request (one with no details of its own from submission) still reads. {@code
  * simCardNumber} is the new-style Provision SIM completion's own, much narrower field. Every field
  * is optional here — an effect decides which of its own type's fields are actually required.
+ *
+ * <p>{@code simCardCancellations} (manager-decides-return-disposition ticket, spec.md Solution's
+ * Completion table) is a {@code RETURN} Request's own field: one effective cancellation date per
+ * SIM Card the Manager chose Cancelled for at approval — {@code ReturnCompletionEffect} refuses
+ * completion when one of those SIM Cards has no matching entry here. Only ever reachable through
+ * {@link com.remotesupport.backend.dto.RequestStatusUpdateRequest} (a later PATCH): a Return
+ * holding a SIM Card always starts Pending Approval, so it can never be created already {@code
+ * COMPLETED} the way {@link com.remotesupport.backend.dto.RequestCreateRequest} allows for other
+ * types — {@code null}/empty on every other path.
  */
 public record RequestCompletionInput(
     SmartphoneCreateRequest newSmartphone,
     SimCardCreateRequest newSimCard,
     UUID replacesSmartphoneId,
     UUID replacesSimCardId,
-    String simCardNumber) {}
+    String simCardNumber,
+    List<SimCardCancellationRequest> simCardCancellations) {}

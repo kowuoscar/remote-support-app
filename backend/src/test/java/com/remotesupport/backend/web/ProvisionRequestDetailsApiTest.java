@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,25 +55,25 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
 
   @Test
   void aProvisionSmartphoneRequestWithoutARequestedModelIsRefused() throws Exception {
-    postRequest(testerToken, "{\"type\":\"PROVISION_SMARTPHONE\"}").andExpect(status().isBadRequest());
+    postRequest(contractId, testerToken, "{\"type\":\"PROVISION_SMARTPHONE\"}").andExpect(status().isBadRequest());
   }
 
   @Test
   void aProvisionSmartphoneRequestWithABlankRequestedModelIsRefused() throws Exception {
-    postRequest(testerToken, "{\"type\":\"PROVISION_SMARTPHONE\",\"requestedModel\":\"   \"}")
+    postRequest(contractId, testerToken, "{\"type\":\"PROVISION_SMARTPHONE\",\"requestedModel\":\"   \"}")
         .andExpect(status().isBadRequest());
   }
 
   @Test
   void aTesterSubmittedProvisionSmartphoneRequestCarriesItsRequestedModel() throws Exception {
-    postRequest(testerToken, "{\"type\":\"PROVISION_SMARTPHONE\",\"requestedModel\":\"iPhone 15\"}")
+    postRequest(contractId, testerToken, "{\"type\":\"PROVISION_SMARTPHONE\",\"requestedModel\":\"iPhone 15\"}")
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.requestedModel").value("iPhone 15"));
   }
 
   @Test
   void anAgentProactiveProvisionSmartphoneRequestAlsoRequiresARequestedModel() throws Exception {
-    postRequest(agentToken, "{\"type\":\"PROVISION_SMARTPHONE\",\"testerId\":\"%s\"}".formatted(testerId))
+    postRequest(contractId, agentToken, "{\"type\":\"PROVISION_SMARTPHONE\",\"testerId\":\"%s\"}".formatted(testerId))
         .andExpect(status().isBadRequest());
   }
 
@@ -82,12 +81,13 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
 
   @Test
   void aProvisionSimRequestWithoutAFlavorIsRefused() throws Exception {
-    postRequest(testerToken, "{\"type\":\"PROVISION_SIM\"}").andExpect(status().isBadRequest());
+    postRequest(contractId, testerToken, "{\"type\":\"PROVISION_SIM\"}").andExpect(status().isBadRequest());
   }
 
   @Test
   void aPrepaidProvisionSimRequestNamingAnActiveCarrierIsAccepted() throws Exception {
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"PREPAID\",\"requestedCarrierId\":\"%s\"}"
                 .formatted(SEEDED_US_CARRIER_ID))
@@ -99,13 +99,14 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
 
   @Test
   void aProvisionSimRequestWithoutACarrierIsRefused() throws Exception {
-    postRequest(testerToken, "{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"PREPAID\"}")
+    postRequest(contractId, testerToken, "{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"PREPAID\"}")
         .andExpect(status().isBadRequest());
   }
 
   @Test
   void aPostpaidProvisionSimRequestWithoutAPlanIsRefused() throws Exception {
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"POSTPAID\",\"requestedCarrierId\":\"%s\"}"
                 .formatted(SEEDED_US_CARRIER_ID))
@@ -117,6 +118,7 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
     UUID planId = createPostpaidPlan(managerToken, SEEDED_US_CARRIER_ID, "Unlimited Test", "70.00");
 
     postRequest(
+            contractId,
             testerToken,
             ("{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"POSTPAID\",\"requestedCarrierId\":\"%s\","
                     + "\"requestedPostpaidPlanId\":\"%s\"}")
@@ -132,6 +134,7 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
     UUID otherCarriersPlan = createPostpaidPlan(managerToken, otherCarrier, "Cricket Unlimited", "40.00");
 
     postRequest(
+            contractId,
             testerToken,
             ("{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"POSTPAID\",\"requestedCarrierId\":\"%s\","
                     + "\"requestedPostpaidPlanId\":\"%s\"}")
@@ -144,6 +147,7 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
     UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
 
     postRequest(
+            contractId,
             testerToken,
             ("{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"PREPAID\",\"requestedCarrierId\":\"%s\","
                     + "\"targetSmartphoneId\":\"%s\"}")
@@ -160,6 +164,7 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
     UUID foreignSmartphone = createSmartphone(managerToken, otherContract, "Foreign Phone");
 
     postRequest(
+            contractId,
             testerToken,
             ("{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"PREPAID\",\"requestedCarrierId\":\"%s\","
                     + "\"targetSmartphoneId\":\"%s\"}")
@@ -172,9 +177,9 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
   @Test
   void completingATesterRaisedProvisionSmartphoneNeedsNoAgentInputAndAddsACompanyOwnedUnit() throws Exception {
     UUID requestId = submitProvisionSmartphone("Galaxy S24");
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("COMPLETED"));
 
@@ -193,6 +198,7 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
     // manager-approves-requests ticket: an Agent logging a Provision Request proactively can no
     // longer start it at Completed (spec.md Lifecycle) — asking for it is refused outright.
     postRequest(
+            contractId,
             agentToken,
             ("{\"type\":\"PROVISION_SMARTPHONE\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
                     + "\"requestedModel\":\"Pixel 9\"}")
@@ -208,7 +214,7 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
   @Test
   void onceApprovedAnAgentProactiveProvisionSmartphoneStillNeedsNoAgentInputToComplete() throws Exception {
     MvcResult result =
-        postRequest(agentToken, "{\"type\":\"PROVISION_SMARTPHONE\",\"testerId\":\"%s\",\"requestedModel\":\"Pixel 9\"}"
+        postRequest(contractId, agentToken, "{\"type\":\"PROVISION_SMARTPHONE\",\"testerId\":\"%s\",\"requestedModel\":\"Pixel 9\"}"
                 .formatted(testerId))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
@@ -216,8 +222,8 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
     UUID requestId =
         UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
     approveAsManager(managerToken, requestId);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
 
     mockMvc
         .perform(get("/api/contracts/" + contractId + "/smartphones").header("Authorization", "Bearer " + agentToken))
@@ -236,9 +242,9 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
             ("{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"POSTPAID\",\"requestedCarrierId\":\"%s\","
                     + "\"requestedPostpaidPlanId\":\"%s\"}")
                 .formatted(SEEDED_US_CARRIER_ID, planId));
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0177\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0177\"}")
         .andExpect(status().isOk());
 
     mockMvc
@@ -259,9 +265,9 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
         submitProvisionSim(
             "{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"PREPAID\",\"requestedCarrierId\":\"%s\"}"
                 .formatted(SEEDED_US_CARRIER_ID));
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isBadRequest());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isBadRequest());
   }
 
   @Test
@@ -272,9 +278,9 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
             "{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"PREPAID\",\"requestedCarrierId\":\"%s\"}"
                 .formatted(carrier));
     archiveCarrier(managerToken, carrier);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0188\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0188\"}")
         .andExpect(status().isOk());
 
     mockMvc
@@ -292,9 +298,9 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
             ("{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"PREPAID\",\"requestedCarrierId\":\"%s\","
                     + "\"targetSmartphoneId\":\"%s\"}")
                 .formatted(SEEDED_US_CARRIER_ID, smartphoneId));
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0199\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0199\"}")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.completionNote").doesNotExist());
 
@@ -339,9 +345,9 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
             ("{\"type\":\"PROVISION_SIM\",\"requestedFlavor\":\"PREPAID\",\"requestedCarrierId\":\"%s\","
                     + "\"targetSmartphoneId\":\"%s\"}")
                 .formatted(SEEDED_US_CARRIER_ID, smartphoneId));
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0155\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0155\"}")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.completionNote").exists());
 
@@ -374,6 +380,7 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
     // longer start it at Completed (spec.md Lifecycle) — asking for it is refused outright,
     // regardless of whether a SIM number was given too.
     postRequest(
+            contractId,
             agentToken,
             ("{\"type\":\"PROVISION_SIM\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
                     + "\"requestedFlavor\":\"PREPAID\",\"requestedCarrierId\":\"%s\",\"simCardNumber\":\"+1-555-0166\"}")
@@ -385,6 +392,7 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
   void onceApprovedAnAgentProactiveProvisionSimStillNeedsOnlyTheSimNumberToComplete() throws Exception {
     MvcResult result =
         postRequest(
+                contractId,
                 agentToken,
                 ("{\"type\":\"PROVISION_SIM\",\"testerId\":\"%s\",\"requestedFlavor\":\"PREPAID\","
                         + "\"requestedCarrierId\":\"%s\"}")
@@ -395,9 +403,9 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
     UUID requestId =
         UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
     approveAsManager(managerToken, requestId);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0166\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0166\"}")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("COMPLETED"));
 
@@ -412,12 +420,11 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
   @Test
   void aLegacyProvisionSmartphoneRequestCompletesThroughThePreviousFullForm() throws Exception {
     UUID requestId = insertLegacyRequest(RequestType.PROVISION_SMARTPHONE);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
     // No requestedModel on this Request (it predates the ticket), so completion still needs the
     // full newSmartphone form.
-    patchStatus(
-            requestId,
+    patchStatus(contractId, requestId, agentToken,
             "{\"status\":\"COMPLETED\",\"newSmartphone\":{\"model\":\"iPhone 13\",\"serial\":\"SN-LEGACY-1\"}}")
         .andExpect(status().isOk());
 
@@ -431,18 +438,17 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
   @Test
   void aProvisionSmartphoneRequestWithNoRequestedModelIsRejectedAtCompletionWithoutTheFullForm() throws Exception {
     UUID requestId = insertLegacyRequest(RequestType.PROVISION_SMARTPHONE);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isBadRequest());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isBadRequest());
   }
 
   @Test
   void aLegacyProvisionSimRequestCompletesThroughThePreviousFullForm() throws Exception {
     UUID requestId = insertLegacyRequest(RequestType.PROVISION_SIM);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(
-            requestId,
+    patchStatus(contractId, requestId, agentToken,
             ("{\"status\":\"COMPLETED\",\"newSimCard\":{\"number\":\"+1-555-0111\",\"carrierId\":\"%s\","
                     + "\"flavor\":\"PREPAID\"}}")
                 .formatted(SEEDED_US_CARRIER_ID))
@@ -457,9 +463,9 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
   @Test
   void aProvisionSimRequestWithNoRequestedFlavorIsRejectedAtCompletionWithoutTheFullForm() throws Exception {
     UUID requestId = insertLegacyRequest(RequestType.PROVISION_SIM);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0100\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0100\"}")
         .andExpect(status().isBadRequest());
   }
 
@@ -473,6 +479,7 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
   private UUID submitProvisionSmartphone(String requestedModel) throws Exception {
     MvcResult result =
         postRequest(
+                contractId,
                 testerToken,
                 "{\"type\":\"PROVISION_SMARTPHONE\",\"requestedModel\":\"%s\"}".formatted(requestedModel))
             .andExpect(status().isCreated())
@@ -487,7 +494,7 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
   /** Submits a Provision SIM Request and has the Manager approve it immediately — see above. */
   private UUID submitProvisionSim(String json) throws Exception {
     MvcResult result =
-        postRequest(testerToken, json)
+        postRequest(contractId, testerToken, json)
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
             .andReturn();
@@ -495,24 +502,6 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
         UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
     approveAsManager(managerToken, requestId);
     return requestId;
-  }
-
-  private org.springframework.test.web.servlet.ResultActions postRequest(String token, String json)
-      throws Exception {
-    return mockMvc.perform(
-        post("/api/contracts/" + contractId + "/requests")
-            .header("Authorization", "Bearer " + token)
-            .contentType(APPLICATION_JSON)
-            .content(json));
-  }
-
-  private org.springframework.test.web.servlet.ResultActions patchStatus(UUID requestId, String json)
-      throws Exception {
-    return mockMvc.perform(
-        patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
-            .header("Authorization", "Bearer " + agentToken)
-            .contentType(APPLICATION_JSON)
-            .content(json));
   }
 
   /**

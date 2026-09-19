@@ -2,6 +2,7 @@ package com.remotesupport.backend.support;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -410,5 +411,58 @@ public abstract class IntegrationTest {
                     objectMapper.writeValueAsString(new TesterCreateRequest(username, password, false))))
         .andExpect(status().isCreated());
     return loginAs(username, password);
+  }
+
+  /**
+   * POSTs a Request-creation body to a Contract, as {@code token} — the shape behind almost every
+   * Request-submission test across the per-type detail suites. Hoisted here (code review finding)
+   * from four near-identical private copies (`ProvisionRequestDetailsApiTest`,
+   * `ReplaceRequestsApiTest`, `SimSwapRequestDetailsApiTest`, `ManagerApprovesRequestsApiTest`),
+   * each of which only ever differed in the {@code contractId} field it closed over — that field
+   * is now the first parameter instead.
+   */
+  protected ResultActions postRequest(UUID contractId, String token, String json) throws Exception {
+    return mockMvc.perform(
+        post("/api/contracts/" + contractId + "/requests")
+            .header("Authorization", "Bearer " + token)
+            .contentType(APPLICATION_JSON)
+            .content(json));
+  }
+
+  /**
+   * PATCHes a Request's status on a Contract, as {@code token} — mirrors {@link #postRequest},
+   * hoisted from the same four test classes for the same reason. The token was always the
+   * Agent's own in every call site this replaces, but a base-class method can't close over a
+   * subclass's {@code agentToken} field, so it becomes an explicit parameter alongside
+   * {@code contractId}.
+   */
+  protected ResultActions patchStatus(UUID contractId, UUID requestId, String token, String json) throws Exception {
+    return mockMvc.perform(
+        patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
+            .header("Authorization", "Bearer " + token)
+            .contentType(APPLICATION_JSON)
+            .content(json));
+  }
+
+  /**
+   * Finds a Contract's Tester by username (agent-request-fulfillment ticket: the Agent-proactive
+   * path names whose behalf a Request is raised on by id, not username). Hoisted here (code
+   * review finding) from two identical private copies (`RequestApiTest`,
+   * `RebootAndTopupDetailsApiTest`) — already fully parameterised, so the move is a straight cut.
+   */
+  protected UUID findTesterId(String callerToken, UUID contractId, String username) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                get("/api/contracts/" + contractId + "/testers")
+                    .header("Authorization", "Bearer " + callerToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    for (JsonNode node : objectMapper.readTree(result.getResponse().getContentAsString())) {
+      if (username.equals(node.get("username").asText())) {
+        return UUID.fromString(node.get("id").asText());
+      }
+    }
+    throw new IllegalStateException("No tester named " + username + " found on contract " + contractId);
   }
 }

@@ -41,6 +41,7 @@ export function SimSwapRequestDetails({ smartphones, simCards, disabled }: Reque
             checked={mode === "MOVE"}
             onChange={() => setMode("MOVE")}
             disabled={disabled}
+            className="h-4 w-4 accent-primary"
           />
           Move one SIM Card into another Smartphone
         </label>
@@ -52,6 +53,7 @@ export function SimSwapRequestDetails({ smartphones, simCards, disabled }: Reque
             checked={mode === "EXCHANGE"}
             onChange={() => setMode("EXCHANGE")}
             disabled={disabled}
+            className="h-4 w-4 accent-primary"
           />
           Exchange the SIM Cards of two Smartphones
         </label>

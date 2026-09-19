@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 
 /**
  * Replace Smartphone and Replace SIM carry the unit to retire at submission, and complete by
@@ -49,7 +47,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
 
   @Test
   void aReplaceSmartphoneRequestWithoutATargetIsRefused() throws Exception {
-    postRequest(testerToken, "{\"type\":\"REPLACE_SMARTPHONE\"}").andExpect(status().isBadRequest());
+    postRequest(contractId, testerToken, "{\"type\":\"REPLACE_SMARTPHONE\"}").andExpect(status().isBadRequest());
   }
 
   @Test
@@ -58,7 +56,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     UUID otherContract = createContract(managerToken, otherClient, SEEDED_AGENT_ID);
     UUID foreignSmartphone = createSmartphone(managerToken, otherContract, "Foreign Phone");
 
-    postRequest(testerToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\"}".formatted(foreignSmartphone))
+    postRequest(contractId, testerToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\"}".formatted(foreignSmartphone))
         .andExpect(status().isBadRequest());
   }
 
@@ -67,7 +65,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
     retireSmartphone(smartphoneId);
 
-    postRequest(testerToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\"}".formatted(smartphoneId))
+    postRequest(contractId, testerToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\"}".formatted(smartphoneId))
         .andExpect(status().isBadRequest());
   }
 
@@ -76,6 +74,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
 
     postRequest(
+            contractId,
             testerToken,
             "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\",\"requestedModel\":\"Pixel 9\"}"
                 .formatted(smartphoneId))
@@ -89,14 +88,14 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   void aReplaceSmartphoneRequestMayOmitTheRequestedModel() throws Exception {
     UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
 
-    postRequest(testerToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\"}".formatted(smartphoneId))
+    postRequest(contractId, testerToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\"}".formatted(smartphoneId))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.requestedModel").doesNotExist());
   }
 
   @Test
   void anAgentProactiveReplaceSmartphoneRequestAlsoRequiresATarget() throws Exception {
-    postRequest(agentToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"testerId\":\"%s\"}".formatted(testerId))
+    postRequest(contractId, agentToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"testerId\":\"%s\"}".formatted(testerId))
         .andExpect(status().isBadRequest());
   }
 
@@ -104,7 +103,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
 
   @Test
   void aReplaceSimRequestWithoutATargetIsRefused() throws Exception {
-    postRequest(testerToken, "{\"type\":\"REPLACE_SIM\"}").andExpect(status().isBadRequest());
+    postRequest(contractId, testerToken, "{\"type\":\"REPLACE_SIM\"}").andExpect(status().isBadRequest());
   }
 
   @Test
@@ -112,7 +111,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
     retireSimCard(simCardId);
 
-    postRequest(testerToken, "{\"type\":\"REPLACE_SIM\",\"targetSimCardId\":\"%s\"}".formatted(simCardId))
+    postRequest(contractId, testerToken, "{\"type\":\"REPLACE_SIM\",\"targetSimCardId\":\"%s\"}".formatted(simCardId))
         .andExpect(status().isBadRequest());
   }
 
@@ -120,7 +119,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   void aTesterSubmittedReplaceSimRequestCarriesItsTarget() throws Exception {
     UUID simCardId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
 
-    postRequest(testerToken, "{\"type\":\"REPLACE_SIM\",\"targetSimCardId\":\"%s\"}".formatted(simCardId))
+    postRequest(contractId, testerToken, "{\"type\":\"REPLACE_SIM\",\"targetSimCardId\":\"%s\"}".formatted(simCardId))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.targetSimCardId").value(simCardId.toString()))
         .andExpect(jsonPath("$.targetSimCardNumber").exists());
@@ -128,7 +127,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
 
   @Test
   void anAgentProactiveReplaceSimRequestAlsoRequiresATarget() throws Exception {
-    postRequest(agentToken, "{\"type\":\"REPLACE_SIM\",\"testerId\":\"%s\"}".formatted(testerId))
+    postRequest(contractId, agentToken, "{\"type\":\"REPLACE_SIM\",\"testerId\":\"%s\"}".formatted(testerId))
         .andExpect(status().isBadRequest());
   }
 
@@ -139,9 +138,9 @@ class ReplaceRequestsApiTest extends IntegrationTest {
       throws Exception {
     UUID oldId = createSmartphone(managerToken, contractId, "Pixel 8");
     UUID requestId = submitReplaceSmartphone(oldId, null);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("COMPLETED"));
 
@@ -168,9 +167,9 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   void completingAReplaceSmartphoneWithARequestedModelUsesItInstead() throws Exception {
     UUID oldId = createSmartphone(managerToken, contractId, "Pixel 8");
     UUID requestId = submitReplaceSmartphone(oldId, "Pixel 9 Pro");
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
 
     JsonNode smartphones = smartphones();
     boolean newModelPresent = false;
@@ -191,8 +190,8 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     installSimCard(simB, oldId);
 
     UUID requestId = submitReplaceSmartphone(oldId, null);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
 
     UUID newSmartphoneId = null;
     for (JsonNode phone : smartphones()) {
@@ -216,11 +215,11 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   void completingAReplaceSmartphoneIsRefusedIfTheNamedUnitIsNoLongerActive() throws Exception {
     UUID oldId = createSmartphone(managerToken, contractId, "Pixel 8");
     UUID requestId = submitReplaceSmartphone(oldId, null);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
     retireSmartphone(oldId);
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isConflict());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isConflict());
   }
 
   @Test
@@ -230,6 +229,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     // manager-approves-requests ticket: an Agent logging a Replace Request proactively can no
     // longer start it at Completed (spec.md Lifecycle) — asking for it is refused outright.
     postRequest(
+            contractId,
             agentToken,
             ("{\"type\":\"REPLACE_SMARTPHONE\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
                     + "\"targetSmartphoneId\":\"%s\"}")
@@ -243,7 +243,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     UUID oldId = createSmartphone(managerToken, contractId, "Pixel 8");
 
     MvcResult result =
-        postRequest(agentToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"testerId\":\"%s\",\"targetSmartphoneId\":\"%s\"}"
+        postRequest(contractId, agentToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"testerId\":\"%s\",\"targetSmartphoneId\":\"%s\"}"
                 .formatted(testerId, oldId))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
@@ -251,9 +251,9 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     UUID requestId =
         UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
     approveAsManager(managerToken, requestId);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}")
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}")
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("COMPLETED"));
 
@@ -266,14 +266,14 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   void completingAReplaceSmartphoneLogsAUnitReplacedAuditEvent() throws Exception {
     UUID oldId = createSmartphone(managerToken, contractId, "Pixel 8");
     UUID requestId = submitReplaceSmartphone(oldId, null);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
     ListAppender<ILoggingEvent> appender = new ListAppender<>();
     appender.start();
     Logger auditLogger = (Logger) LoggerFactory.getLogger("AUDIT");
     auditLogger.addAppender(appender);
     try {
-      patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
+      patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
 
       String logged = appender.list.stream().map(ILoggingEvent::getFormattedMessage).reduce("", String::concat);
       assertThat(logged)
@@ -295,10 +295,9 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     installSimCard(oldSimId, smartphoneId);
 
     UUID requestId = submitReplaceSim(oldSimId);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(
-            requestId,
+    patchStatus(contractId, requestId, agentToken,
             ("{\"status\":\"COMPLETED\",\"newSimCard\":{\"number\":\"+1-555-0177\",\"carrierId\":\"%s\","
                     + "\"flavor\":\"PREPAID\"}}")
                 .formatted(SEEDED_US_CARRIER_ID))
@@ -325,21 +324,20 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   void completingAReplaceSimWithoutNewSimCardDetailsIsRejected() throws Exception {
     UUID oldSimId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
     UUID requestId = submitReplaceSim(oldSimId);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isBadRequest());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isBadRequest());
   }
 
   @Test
   void completingAReplaceSimIsRefusedIfTheNamedUnitIsNoLongerActive() throws Exception {
     UUID oldSimId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
     UUID requestId = submitReplaceSim(oldSimId);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
     retireSimCard(oldSimId);
 
-    patchStatus(
-            requestId,
+    patchStatus(contractId, requestId, agentToken,
             ("{\"status\":\"COMPLETED\",\"newSimCard\":{\"number\":\"+1-555-0177\",\"carrierId\":\"%s\","
                     + "\"flavor\":\"PREPAID\"}}")
                 .formatted(SEEDED_US_CARRIER_ID))
@@ -350,10 +348,9 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   void theNewSimCardObeysThePostpaidPlanRule() throws Exception {
     UUID oldSimId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
     UUID requestId = submitReplaceSim(oldSimId);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(
-            requestId,
+    patchStatus(contractId, requestId, agentToken,
             ("{\"status\":\"COMPLETED\",\"newSimCard\":{\"number\":\"+1-555-0188\",\"carrierId\":\"%s\","
                     + "\"flavor\":\"POSTPAID\"}}")
                 .formatted(SEEDED_US_CARRIER_ID))
@@ -365,10 +362,9 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     UUID otherCarrier = createCarrier(managerToken, Country.SPAIN, "Fixture Spanish Carrier");
     UUID oldSimId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
     UUID requestId = submitReplaceSim(oldSimId);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(
-            requestId,
+    patchStatus(contractId, requestId, agentToken,
             ("{\"status\":\"COMPLETED\",\"newSimCard\":{\"number\":\"+1-555-0199\",\"carrierId\":\"%s\","
                     + "\"flavor\":\"PREPAID\"}}")
                 .formatted(otherCarrier))
@@ -379,10 +375,9 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   void aReplaceSimNotCurrentlyInstalledCompletesWithTheNewOneAlsoUninstalled() throws Exception {
     UUID oldSimId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
     UUID requestId = submitReplaceSim(oldSimId);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(
-            requestId,
+    patchStatus(contractId, requestId, agentToken,
             ("{\"status\":\"COMPLETED\",\"newSimCard\":{\"number\":\"+1-555-0166\",\"carrierId\":\"%s\","
                     + "\"flavor\":\"PREPAID\"}}")
                 .formatted(SEEDED_US_CARRIER_ID))
@@ -406,6 +401,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     // longer start it at Completed (spec.md Lifecycle) — asking for it is refused outright,
     // regardless of whether the new SIM Card's details were given too.
     postRequest(
+            contractId,
             agentToken,
             ("{\"type\":\"REPLACE_SIM\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
                     + "\"targetSimCardId\":\"%s\",\"newSimCard\":{\"number\":\"+1-555-0122\","
@@ -418,22 +414,21 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   void onceApprovedAnAgentProactiveReplaceSimStillNeedsTheNewSimCardsDetailsToComplete() throws Exception {
     UUID oldSimId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
     UUID requestId = logAndApproveAgentProactiveReplaceSim(oldSimId);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
     // A failed completion PATCH still mutates the managed Request within this test's own
     // transaction (see IntegrationTest's Javadoc), so this assertion gets its own fresh Request
     // rather than chaining onto a later successful completion in the same test method.
-    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isBadRequest());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"COMPLETED\"}").andExpect(status().isBadRequest());
   }
 
   @Test
   void onceApprovedAnAgentProactiveReplaceSimCompletesWithTheNewSimCardsDetails() throws Exception {
     UUID oldSimId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
     UUID requestId = logAndApproveAgentProactiveReplaceSim(oldSimId);
-    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, requestId, agentToken, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
 
-    patchStatus(
-            requestId,
+    patchStatus(contractId, requestId, agentToken,
             ("{\"status\":\"COMPLETED\",\"newSimCard\":{\"number\":\"+1-555-0122\","
                     + "\"carrierId\":\"%s\",\"flavor\":\"PREPAID\"}}")
                 .formatted(SEEDED_US_CARRIER_ID))
@@ -451,7 +446,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
 
   private UUID logAndApproveAgentProactiveReplaceSim(UUID oldSimId) throws Exception {
     MvcResult result =
-        postRequest(agentToken, "{\"type\":\"REPLACE_SIM\",\"testerId\":\"%s\",\"targetSimCardId\":\"%s\"}"
+        postRequest(contractId, agentToken, "{\"type\":\"REPLACE_SIM\",\"testerId\":\"%s\",\"targetSimCardId\":\"%s\"}"
                 .formatted(testerId, oldSimId))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
@@ -477,7 +472,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
             : "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\",\"requestedModel\":\"%s\"}"
                 .formatted(targetSmartphoneId, requestedModel);
     MvcResult result =
-        postRequest(testerToken, json)
+        postRequest(contractId, testerToken, json)
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
             .andReturn();
@@ -490,7 +485,7 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   /** Submits a Replace SIM Request and has the Manager approve it immediately — see above. */
   private UUID submitReplaceSim(UUID targetSimCardId) throws Exception {
     MvcResult result =
-        postRequest(testerToken, "{\"type\":\"REPLACE_SIM\",\"targetSimCardId\":\"%s\"}".formatted(targetSimCardId))
+        postRequest(contractId, testerToken, "{\"type\":\"REPLACE_SIM\",\"targetSimCardId\":\"%s\"}".formatted(targetSimCardId))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
             .andReturn();
@@ -498,22 +493,6 @@ class ReplaceRequestsApiTest extends IntegrationTest {
         UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
     approveAsManager(managerToken, requestId);
     return requestId;
-  }
-
-  private ResultActions postRequest(String token, String json) throws Exception {
-    return mockMvc.perform(
-        post("/api/contracts/" + contractId + "/requests")
-            .header("Authorization", "Bearer " + token)
-            .contentType(APPLICATION_JSON)
-            .content(json));
-  }
-
-  private ResultActions patchStatus(UUID requestId, String json) throws Exception {
-    return mockMvc.perform(
-        patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
-            .header("Authorization", "Bearer " + agentToken)
-            .contentType(APPLICATION_JSON)
-            .content(json));
   }
 
   private void retireSmartphone(UUID smartphoneId) throws Exception {

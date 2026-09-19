@@ -16,6 +16,14 @@ process.env.E2E_DATABASE_URL ??= "postgres://remote_support:remote_support@127.0
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  // Diagnosed flake: the webServer `url` checks below only prove each process answers HTTP at
+  // all, not that it's warm — a production Next.js server still lazily loads each route's server
+  // chunk on that route's first hit, and the backend's auth/JPA paths pay a one-time JIT/lazy-init
+  // cost on their first real request. Whichever spec runs first otherwise inherits that tax inside
+  // its own test timeout (observed: agent-invoice-submission-and-approval.spec.ts's first
+  // assertion timing out only when it's the first spec run against a just-booted stack). See
+  // global-setup.ts.
+  globalSetup: "./tests/e2e/global-setup.ts",
   fullyParallel: false,
   // agent-invoice-submission-and-approval ticket: only the seeded Agent (agent@example.com /
   // "Jordan Ellis") has a login, so any spec exercising its own Agent Invoice — a resource keyed

@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { REQUEST_COMPLETION_COMPONENTS } from "@/components/agent/completion/registry";
+import { REQUEST_COMPLETION_BODY_BUILDERS, REQUEST_COMPLETION_COMPONENTS } from "@/components/agent/completion/registry";
 import {
   REQUEST_STATUS_LABEL,
   canCancelRequest,
@@ -142,44 +142,15 @@ export function RequestStatusControl({
     const amount = Number(formData.get("amount"));
     const description = String(formData.get("description") ?? "").trim();
 
-    const statusBody: Record<string, unknown> = { status: "COMPLETED" };
-    if (type === "PROVISION_SMARTPHONE") {
-      if (request.requestedModel) {
-        // provision-request-details ticket: no Agent input needed — the model already came from
-        // submission.
-      } else {
-        statusBody.newSmartphone = {
-          model: String(formData.get("model")),
-          serial: String(formData.get("serial") ?? "") || undefined,
-        };
-        const replaces = String(formData.get("replacesSmartphoneId") ?? "");
-        if (replaces) statusBody.replacesSmartphoneId = replaces;
-      }
-    } else if (type === "PROVISION_SIM") {
-      if (request.requestedFlavor) {
-        statusBody.simCardNumber = String(formData.get("simCardNumber"));
-      } else {
-        statusBody.newSimCard = {
-          number: String(formData.get("number")),
-          carrierId: String(formData.get("carrierId")),
-          flavor: formData.get("flavor"),
-          postpaidPlanId: formData.get("flavor") === "POSTPAID" ? String(formData.get("postpaidPlanId")) : undefined,
-        };
-        const replaces = String(formData.get("replacesSimCardId") ?? "");
-        if (replaces) statusBody.replacesSimCardId = replaces;
-      }
-    } else if (type === "REPLACE_SIM") {
-      // replace-requests ticket: the new SIM Card's own details, defaulted from the old one's by
-      // `ReplaceSimCompletion` — Replace SIM has no "requested" fields on the Request itself the
-      // way Provision SIM does, so this is always the full form, never a narrow read-only summary.
-      statusBody.newSimCard = {
-        number: String(formData.get("number")),
-        carrierId: String(formData.get("carrierId")),
-        flavor: formData.get("flavor"),
-        postpaidPlanId: formData.get("flavor") === "POSTPAID" ? String(formData.get("postpaidPlanId")) : undefined,
-      };
-    }
-    // Replace Smartphone needs nothing here — no Agent input at all (ticket AC).
+    // Payload-building lives in the same per-type registry as rendering (code review finding: this
+    // used to be an `if/else if` cascade duplicating `REQUEST_COMPLETION_COMPONENTS`'s own list of
+    // types) — a type with no builder (Reboot, Topup, SIM Swap, Other, Replace Smartphone) sends
+    // nothing beyond the base body.
+    const buildBody = REQUEST_COMPLETION_BODY_BUILDERS[type];
+    const statusBody: Record<string, unknown> = {
+      status: "COMPLETED",
+      ...(buildBody ? buildBody(request, formData) : {}),
+    };
 
     try {
       const { ok, completionNote } = await submitStatus(statusBody);

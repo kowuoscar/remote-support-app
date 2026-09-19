@@ -5,10 +5,9 @@ import type { ComponentProps } from "react";
 import { stubFetch } from "@/tests/component/fetch";
 import { submitAndGetRequestBody } from "@/tests/component/submit-and-capture";
 import {
-  REBOOT_TOPUP_CARRIERS,
-  REBOOT_TOPUP_SIM_CARDS,
-  REBOOT_TOPUP_SMARTPHONES,
-} from "@/components/requests/details/test-fixtures";
+  describeGenericDescriptionField,
+  describeRebootAndTopupDetails,
+} from "@/tests/component/request-dialog-suites";
 import { LogRequestDialog } from "./log-request-dialog";
 
 const testers = [{ id: "tester-1", username: "priya@aurora.example" }] as never;
@@ -19,40 +18,19 @@ async function openDialog(props: Partial<ComponentProps<typeof LogRequestDialog>
   return screen.getByRole("dialog");
 }
 
-describe("LogRequestDialog's description field", () => {
-  // Reboot and Topup now have their own details component (reboot-and-topup-details ticket) —
-  // see the "Reboot and Topup details" suite below and the per-type component tests.
-  it("is optional for every type with no details component of its own", async () => {
-    const dialog = await openDialog();
+// What this dialog shares with the Tester's SubmitRequestDialog lives in one place, registered by
+// both (request-dialog-suites.tsx). This dialog is already scoped to one fixed Contract, so its
+// Smartphones/SIM Cards/Carriers are flat props, and every body it sends names the Tester.
+const dialogUnderTest = {
+  openDialog: (props: Record<string, unknown> = {}) => openDialog(props),
+  submitLabel: "Log request",
+  alwaysSends: { testerId: "tester-1" },
+  rebootProps: (smartphones: unknown) => ({ smartphones }),
+  topupProps: (simCards: unknown, carriers: unknown) => ({ simCards, carriers }),
+} as Parameters<typeof describeGenericDescriptionField>[1];
 
-    for (const label of ["SIM Swap", "Provision Smartphone", "Provision SIM"]) {
-      await userEvent.selectOptions(within(dialog).getByLabelText("Request type"), label);
-      expect(within(dialog).getByLabelText("Description (optional)")).not.toBeRequired();
-    }
-  });
-
-  it("is required once Other is picked", async () => {
-    const dialog = await openDialog();
-
-    await userEvent.selectOptions(within(dialog).getByLabelText("Request type"), "Other");
-    expect(within(dialog).getByLabelText("Description")).toBeRequired();
-  });
-
-  it("sends the description that was typed, along with the type and tester", async () => {
-    const fetchMock = stubFetch(201, {});
-    const dialog = await openDialog();
-
-    await userEvent.selectOptions(within(dialog).getByLabelText("Request type"), "Other");
-    await userEvent.type(within(dialog).getByLabelText("Description"), "Cracked screen");
-    const body = await submitAndGetRequestBody(dialog, fetchMock, "Log request");
-
-    expect(body).toMatchObject({
-      type: "OTHER",
-      testerId: "tester-1",
-      description: "Cracked screen",
-    });
-  });
-});
+describeGenericDescriptionField("LogRequestDialog", dialogUnderTest);
+describeRebootAndTopupDetails("LogRequestDialog", dialogUnderTest);
 
 // manager-approves-requests ticket: Provision Smartphone/SIM and Replace Smartphone/SIM always
 // start Pending Approval now — an Agent can no longer choose the starting status for these types.
@@ -84,48 +62,5 @@ describe("LogRequestDialog's starting status, for the four approval-required typ
 
     expect(body.type).toBe("PROVISION_SMARTPHONE");
     expect(body.startingStatus).toBeUndefined();
-  });
-});
-
-// reboot-and-topup-details ticket: LogRequestDialog is already scoped to one fixed Contract, so
-// its Smartphones/SIM Cards/Carriers are plain flat props (the caller — AgentRequestsView —
-// already filters them to that Contract).
-describe("LogRequestDialog's Reboot and Topup details", () => {
-  const smartphones = REBOOT_TOPUP_SMARTPHONES;
-  const simCards = REBOOT_TOPUP_SIM_CARDS;
-  const carriers = REBOOT_TOPUP_CARRIERS;
-
-  it("sends the chosen Smartphone and Tester when logging a Reboot", async () => {
-    const fetchMock = stubFetch(201, {});
-    const dialog = await openDialog({ smartphones });
-
-    await userEvent.selectOptions(within(dialog).getByLabelText("Request type"), "Reboot");
-    await userEvent.selectOptions(within(dialog).getByLabelText("Smartphone to reboot"), "Pixel 9 — SN-1");
-    const body = await submitAndGetRequestBody(dialog, fetchMock, "Log request");
-
-    expect(body).toMatchObject({
-      type: "REBOOT",
-      testerId: "tester-1",
-      targetSmartphoneId: "phone-1",
-    });
-  });
-
-  it("sends the chosen SIM Card and Topup Option when logging a Topup", async () => {
-    const fetchMock = stubFetch(201, {});
-    const dialog = await openDialog({ simCards, carriers });
-
-    await userEvent.selectOptions(within(dialog).getByLabelText("Request type"), "Topup");
-    await userEvent.selectOptions(
-      within(dialog).getByLabelText("SIM Card to top up"),
-      within(dialog).getByRole("option", { name: /\+1-555-0100/ }),
-    );
-    await userEvent.selectOptions(within(dialog).getByLabelText("Topup Option"), "Refill 25");
-    const body = await submitAndGetRequestBody(dialog, fetchMock, "Log request");
-
-    expect(body).toMatchObject({
-      type: "TOPUP",
-      targetSimCardId: "sim-1",
-      topupOptionId: "option-1",
-    });
   });
 });

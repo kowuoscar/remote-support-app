@@ -2,7 +2,7 @@
 
 import { forwardRef, useId, useImperativeHandle, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { DialogConfirmFooter } from "@/components/manager/dialog-confirm-footer";
 import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
 import { DialogShell, type DialogShellHandle } from "@/components/manager/dialog-shell";
 import type { CarrierItem } from "@/lib/api/types";
@@ -71,14 +71,7 @@ export const ArchiveCarrierDialog = forwardRef<ArchiveCarrierDialogHandle>(
 
           {error ? <DialogErrorAlert message={error} /> : null}
 
-          <div className="flex justify-end gap-2 pt-1">
-            <Button type="button" variant="secondary" onClick={close} disabled={submitting}>
-              Keep it
-            </Button>
-            <Button type="button" variant="danger" loading={submitting} onClick={archive}>
-              Archive carrier
-            </Button>
-          </div>
+          <DialogConfirmFooter onCancel={close} onConfirm={archive} submitting={submitting} confirmLabel="Archive carrier" />
         </div>
       </DialogShell>
     );

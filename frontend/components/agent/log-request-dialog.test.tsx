@@ -1,8 +1,14 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { ComponentProps } from "react";
 import { stubFetch } from "@/tests/component/fetch";
+import { submitAndGetRequestBody } from "@/tests/component/submit-and-capture";
+import {
+  REBOOT_TOPUP_CARRIERS,
+  REBOOT_TOPUP_SIM_CARDS,
+  REBOOT_TOPUP_SMARTPHONES,
+} from "@/components/requests/details/test-fixtures";
 import { LogRequestDialog } from "./log-request-dialog";
 
 const testers = [{ id: "tester-1", username: "priya@aurora.example" }] as never;
@@ -14,16 +20,6 @@ async function openDialog(props: Partial<ComponentProps<typeof LogRequestDialog>
 }
 
 describe("LogRequestDialog's description field", () => {
-  beforeAll(() => {
-    // jsdom has no modal dialog; opening it is all these tests need.
-    HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
-      this.open = true;
-    };
-    HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
-      this.open = false;
-    };
-  });
-
   // Reboot and Topup now have their own details component (reboot-and-topup-details ticket) —
   // see the "Reboot and Topup details" suite below and the per-type component tests.
   it("is optional for every type with no details component of its own", async () => {
@@ -48,11 +44,9 @@ describe("LogRequestDialog's description field", () => {
 
     await userEvent.selectOptions(within(dialog).getByLabelText("Request type"), "Other");
     await userEvent.type(within(dialog).getByLabelText("Description"), "Cracked screen");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Log request" }));
+    const body = await submitAndGetRequestBody(dialog, fetchMock, "Log request");
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
-    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toMatchObject({
+    expect(body).toMatchObject({
       type: "OTHER",
       testerId: "tester-1",
       description: "Cracked screen",
@@ -86,11 +80,8 @@ describe("LogRequestDialog's starting status, for the four approval-required typ
 
     await userEvent.selectOptions(within(dialog).getByLabelText("Request type"), "Provision Smartphone");
     await userEvent.type(within(dialog).getByLabelText(/Requested model/), "iPhone 15");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Log request" }));
+    const body = await submitAndGetRequestBody(dialog, fetchMock, "Log request");
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
-    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    const body = JSON.parse(String(init.body));
     expect(body.type).toBe("PROVISION_SMARTPHONE");
     expect(body.startingStatus).toBeUndefined();
   });
@@ -100,31 +91,9 @@ describe("LogRequestDialog's starting status, for the four approval-required typ
 // its Smartphones/SIM Cards/Carriers are plain flat props (the caller — AgentRequestsView —
 // already filters them to that Contract).
 describe("LogRequestDialog's Reboot and Topup details", () => {
-  const smartphones = [
-    { id: "phone-1", contractId: "contract-1", model: "Pixel 9", serial: "SN-1", owner: "COMPANY" as const, status: "ACTIVE" as const },
-  ];
-  const simCards = [
-    {
-      id: "sim-1",
-      contractId: "contract-1",
-      number: "+1-555-0100",
-      carrierId: "carrier-1",
-      carrierName: "AT&T",
-      flavor: "PREPAID" as const,
-      monthlyFeeAmount: null,
-      status: "ACTIVE" as const,
-    },
-  ];
-  const carriers = [
-    {
-      id: "carrier-1",
-      country: "UNITED_STATES" as const,
-      name: "AT&T",
-      archivedAt: null,
-      topupOptions: [{ id: "option-1", carrierId: "carrier-1", name: "Refill 25", price: 25, archivedAt: null }],
-      postpaidPlans: [],
-    },
-  ];
+  const smartphones = REBOOT_TOPUP_SMARTPHONES;
+  const simCards = REBOOT_TOPUP_SIM_CARDS;
+  const carriers = REBOOT_TOPUP_CARRIERS;
 
   it("sends the chosen Smartphone and Tester when logging a Reboot", async () => {
     const fetchMock = stubFetch(201, {});
@@ -132,11 +101,9 @@ describe("LogRequestDialog's Reboot and Topup details", () => {
 
     await userEvent.selectOptions(within(dialog).getByLabelText("Request type"), "Reboot");
     await userEvent.selectOptions(within(dialog).getByLabelText("Smartphone to reboot"), "Pixel 9 — SN-1");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Log request" }));
+    const body = await submitAndGetRequestBody(dialog, fetchMock, "Log request");
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
-    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toMatchObject({
+    expect(body).toMatchObject({
       type: "REBOOT",
       testerId: "tester-1",
       targetSmartphoneId: "phone-1",
@@ -153,11 +120,9 @@ describe("LogRequestDialog's Reboot and Topup details", () => {
       within(dialog).getByRole("option", { name: /\+1-555-0100/ }),
     );
     await userEvent.selectOptions(within(dialog).getByLabelText("Topup Option"), "Refill 25");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Log request" }));
+    const body = await submitAndGetRequestBody(dialog, fetchMock, "Log request");
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
-    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-    expect(JSON.parse(String(init.body))).toMatchObject({
+    expect(body).toMatchObject({
       type: "TOPUP",
       targetSimCardId: "sim-1",
       topupOptionId: "option-1",

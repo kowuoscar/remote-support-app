@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useId } from "react";
 import { cn } from "@/lib/cn";
 import { pickerSizes, type PickerSize } from "@/components/fleet/picker-sizes";
+import { PickerSelect } from "@/components/fleet/picker-select";
 import type { CarrierItem } from "@/lib/api/types";
 
 /**
@@ -56,28 +57,21 @@ export function CarrierPicker({
   return (
     <label htmlFor={id} className={cn("flex flex-col font-medium text-ink-secondary", styles.label)}>
       Carrier
-      <select
+      <PickerSelect
         id={id}
         name={name}
-        required
+        value={value}
+        onChange={onChange}
         disabled={disabled}
-        {...(value === undefined
-          ? { defaultValue: "" }
-          : { value, onChange: (event) => onChange?.(event.target.value) })}
-        className={cn(
-          "border border-hairline-strong bg-canvas text-ink focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-70",
-          styles.select,
-        )}
+        size={size}
+        placeholder="Choose a carrier"
       >
-        <option value="" disabled>
-          Choose a carrier
-        </option>
         {active.map((carrier) => (
           <option key={carrier.id} value={carrier.id} translate="no">
             {carrier.name}
           </option>
         ))}
-      </select>
+      </PickerSelect>
     </label>
   );
 }

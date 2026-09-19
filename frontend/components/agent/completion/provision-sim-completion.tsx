@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { CarrierPicker } from "@/components/fleet/carrier-picker";
-import { PostpaidPlanPicker } from "@/components/fleet/postpaid-plan-picker";
 import { SIM_CARD_FLAVOR_LABEL, type RequestListItem, type SimCardFlavorValue } from "@/lib/api/types";
+import { NewSimCardFields } from "./new-sim-card-fields";
+import { StockSimCardPicker } from "./stock-unit-pickers";
 import type { CompletionBodyBuilder, CompletionFormProps } from "./types";
 
 /**
@@ -62,73 +62,33 @@ export function ProvisionSimCompletion({
           {request.requestedPostpaidPlanName ? ` · ${request.requestedPostpaidPlanName}` : ""}
           {request.targetSmartphoneModel ? ` · into ${request.targetSmartphoneModel}` : ""}
         </p>
-        {matchingStock.length > 0 ? (
-          <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-            From my Stock (optional)
-            <select
-              name="fulfillFromStockSimCardId"
-              value={fulfillFromStockId}
-              onChange={(event) => setFulfillFromStockId(event.target.value)}
-              disabled={disabled}
-              className="h-7 rounded-md border border-hairline-strong bg-canvas px-2 text-[12px] text-ink"
-            >
-              <option value="">None — add a new SIM Card</option>
-              {matchingStock.map((unit) => (
-                <option key={unit.id} value={unit.id}>
-                  {unit.number}
-                </option>
-              ))}
-            </select>
-          </label>
-        ) : null}
+        <StockSimCardPicker
+          matchingStock={matchingStock}
+          value={fulfillFromStockId}
+          onChange={setFulfillFromStockId}
+          disabled={disabled}
+        />
       </>
     );
   }
 
   return (
     <>
-      <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-        New SIM number
-        <Input name="number" required disabled={disabled} className="h-7 text-[12px]" />
-      </label>
-      <CarrierPicker
-        name="carrierId"
+      <NewSimCardFields
         carriers={carriers}
         carriersHref={carriersHref}
-        value={carrierId}
-        onChange={(id) => {
+        currency={currency}
+        carrierId={carrierId}
+        onCarrierChange={(id) => {
           setCarrierId(id);
           setPostpaidPlanId("");
         }}
+        flavor={flavor}
+        onFlavorChange={setFlavor}
+        postpaidPlanId={postpaidPlanId}
+        onPostpaidPlanChange={setPostpaidPlanId}
         disabled={disabled}
-        size="sm"
       />
-      <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-        Flavor
-        <select
-          name="flavor"
-          required
-          value={flavor}
-          onChange={(event) => setFlavor(event.target.value as SimCardFlavorValue)}
-          disabled={disabled}
-          className="h-7 rounded-md border border-hairline-strong bg-canvas px-2 text-[12px] text-ink"
-        >
-          <option value="POSTPAID">Postpaid</option>
-          <option value="PREPAID">Prepaid</option>
-        </select>
-      </label>
-      {flavor === "POSTPAID" ? (
-        <PostpaidPlanPicker
-          name="postpaidPlanId"
-          carrier={carriers.find((carrier) => carrier.id === carrierId)}
-          currency={currency}
-          carriersHref={carriersHref}
-          value={postpaidPlanId}
-          onChange={setPostpaidPlanId}
-          disabled={disabled}
-          size="sm"
-        />
-      ) : null}
       {activeSimCards.length > 0 ? (
         <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
           Retiring which SIM? (optional)

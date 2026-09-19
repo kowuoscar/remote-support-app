@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { SimCardPicker } from "@/components/requests/sim-card-picker";
 import { Money } from "@/components/ui/money";
+import { OptionalDescriptionField } from "./optional-description-field";
 import type { RequestDetailsProps } from "./types";
 
 /**
@@ -78,16 +79,7 @@ export function TopupRequestDetails({ simCards, carriers, currency, disabled }: 
               </span>
             ) : null}
           </label>
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Description <span className="font-normal text-ink-mute">(optional)</span>
-            <textarea
-              name="description"
-              rows={2}
-              disabled={disabled}
-              placeholder="Anything the Agent should know"
-              className="rounded-lg border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink focus-visible:border-primary"
-            />
-          </label>
+          <OptionalDescriptionField disabled={disabled} />
         </>
       )}
     </>

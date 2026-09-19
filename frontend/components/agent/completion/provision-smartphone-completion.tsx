@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import type { RequestListItem } from "@/lib/api/types";
+import { StockSmartphonePicker } from "./stock-unit-pickers";
 import type { CompletionBodyBuilder, CompletionFormProps } from "./types";
 
 /**
@@ -26,28 +27,15 @@ export function ProvisionSmartphoneCompletion({
   disabled,
 }: CompletionFormProps) {
   const [fulfillFromStockId, setFulfillFromStockId] = useState("");
-  const hasStock = stockSmartphones.length > 0;
 
-  const stockPicker = hasStock ? (
-    <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-      From my Stock (optional)
-      <select
-        name="fulfillFromStockSmartphoneId"
-        value={fulfillFromStockId}
-        onChange={(event) => setFulfillFromStockId(event.target.value)}
-        disabled={disabled}
-        className="h-7 rounded-md border border-hairline-strong bg-canvas px-2 text-[12px] text-ink"
-      >
-        <option value="">None — add a new Smartphone</option>
-        {stockSmartphones.map((unit) => (
-          <option key={unit.id} value={unit.id}>
-            {unit.model}
-            {unit.serial ? ` — ${unit.serial}` : ""}
-          </option>
-        ))}
-      </select>
-    </label>
-  ) : null;
+  const stockPicker = (
+    <StockSmartphonePicker
+      stockSmartphones={stockSmartphones}
+      value={fulfillFromStockId}
+      onChange={setFulfillFromStockId}
+      disabled={disabled}
+    />
+  );
 
   if (request.requestedModel) {
     return (

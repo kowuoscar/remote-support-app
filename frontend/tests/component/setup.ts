@@ -9,6 +9,17 @@ import { afterEach, vi } from "vitest";
  */
 vi.mock("next/navigation", async () => (await import("./next-navigation")).nextNavigationMock);
 
+// jsdom has no modal <dialog> support; every dialog component test only needs open/close to
+// flip `.open`, not the browser's own focus-trapping/backdrop behaviour. Applied globally rather
+// than per test file (LogRequestDialog/LogFeeDialog/SubmitRequestDialog's test files each used to
+// carry an identical `beforeAll` for this).
+HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+  this.open = true;
+};
+HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+  this.open = false;
+};
+
 afterEach(() => {
   cleanup();
 });

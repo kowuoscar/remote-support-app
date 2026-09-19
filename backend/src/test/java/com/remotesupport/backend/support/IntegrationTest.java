@@ -63,16 +63,6 @@ public abstract class IntegrationTest {
   public static final String TESTER_USERNAME = "tester@example.com";
   public static final String TESTER_PASSWORD = "TesterDemo123!";
 
-  // demo.tester@example.com (V17 migration): unlike TESTER_USERNAME above, this login resolves
-  // to a real Tester with its own Client/Contract/Fleet, for manual/local testing of the Tester
-  // shell without first having to create fixtures through the Manager UI.
-  public static final String DEMO_TESTER_USERNAME = "demo.tester@example.com";
-  public static final String DEMO_TESTER_PASSWORD = "DemoTesterDemo123!";
-  public static final UUID SEEDED_DEMO_CLIENT_ID =
-      UUID.fromString("77777777-7777-7777-7777-777777777777");
-  public static final UUID SEEDED_DEMO_CONTRACT_ID =
-      UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-
   // The Agent row (V5 migration) the seeded agent@example.com login resolves to — "Jordan
   // Ellis", United States/USD. Tests that need a real Contract for the seeded Agent token use
   // this id directly rather than re-deriving it by name.
@@ -140,8 +130,18 @@ public abstract class IntegrationTest {
     return loginAs(TESTER_USERNAME, TESTER_PASSWORD);
   }
 
-  protected String demoTesterToken() throws Exception {
-    return loginAs(DEMO_TESTER_USERNAME, DEMO_TESTER_PASSWORD);
+  /**
+   * A Tester token linked to a fresh, throwaway Client — for tests that want to assert something
+   * holds for a real (Client-linked) Tester too, distinct from the deliberately-unlinked seeded
+   * {@link #TESTER_USERNAME} login, without caring which Client/Contract it belongs to. Used to
+   * rely on the seeded demo.tester@example.com login (V17 migration) for this; those rows are
+   * gone (trim-seed-to-test-baseline ticket).
+   */
+  protected String linkedTesterToken() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Linked Tester Fixture " + UUID.randomUUID());
+    return createTesterAndLogin(
+        managerToken, clientId, "linked-tester-" + UUID.randomUUID() + "@example.com", "Passw0rd!23");
   }
 
   /** Creates a Client as the Manager and returns its id — shared fixture-building across tests. */

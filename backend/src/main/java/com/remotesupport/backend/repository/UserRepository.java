@@ -17,6 +17,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   boolean existsByAgentId(UUID agentId);
 
+  /** An Agent's own login, if it has one (at most one, per V16's unique index) — demo-story-loader
+   * needs the login's own user id to build that Agent's {@code AuthenticatedPrincipal}. */
+  Optional<User> findByAgentId(UUID agentId);
+
   /** Every Agent login in the tenant, in one query — at most one per Agent (V16's unique index). */
   @Query(
       "SELECT new com.remotesupport.backend.repository.AgentLogin(u.agent.id, u.username)"

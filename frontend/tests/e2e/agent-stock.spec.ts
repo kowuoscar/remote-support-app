@@ -167,4 +167,112 @@ test.describe("agent stock", () => {
     await expect(stockRow).toContainText(model);
     await expect(stockRow).toContainText(clientName);
   });
+
+  // fulfil-from-stock ticket: extends the Stock e2e per its own Tests section ("extend the Stock
+  // e2e: the Agent completes a Provision Smartphone from Stock and the Fleet shows that
+  // Smartphone"). Builds its own Stock unit first (the same Return → Kept in Stock flow the test
+  // above already covers end to end) rather than depending on test execution order.
+  test("the agent fulfils a Provision Smartphone from Stock; the Fleet gains it and the Stock page loses it", async ({
+    page,
+  }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Beacon Field Services ${RUN_ID}`;
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+
+    const model = "Pixel 7";
+    const serial = `SN-STOCK-${RUN_ID}`;
+    await addCompanyOwnedSmartphone(page, contractId, model, serial);
+
+    const testerEmail = `dara.iwu+${RUN_ID}@beacon.example`;
+    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+
+    // Return the company-owned Smartphone, kept in Stock (same flow as the test above).
+    await logout(page);
+    await login(page, testerEmail, "Passw0rd!23");
+    await page.goto("/client/requests");
+    await page.getByRole("button", { name: "Submit Request" }).first().click();
+    let dialog = page.getByRole("dialog");
+    await dialog.getByLabel("Request type").selectOption({ label: "Return" });
+    await dialog.getByRole("listbox", { name: "Units to return" }).selectOption({ label: `${model} — ${serial}` });
+    await dialog.getByRole("button", { name: "Submit Request" }).click();
+    await expect(page.getByText("Request submitted")).toBeVisible();
+    await page.getByRole("button", { name: "Close" }).click();
+
+    await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await page.goto("/manager/requests");
+    let pendingRow = pendingRequestRow(page, clientName, "Return");
+    await pendingRow.getByLabel(new RegExp(model)).selectOption({ label: "Kept in Stock" });
+    await Promise.all([
+      page.waitForResponse((resp) => /\/api\/requests\/.+\/approve$/.test(resp.url())),
+      pendingRow.getByRole("button", { name: "Approve" }).click(),
+    ]);
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/requests");
+    await selectContractInSwitcher(page, clientName);
+    let row = page.getByRole("row", { name: /Return/ });
+    await row.getByRole("button", { name: "Mark In Progress" }).click();
+    await row.getByRole("button", { name: "Mark Completed" }).click();
+    await expect(row).toContainText("Completed");
+
+    // Now submit a fresh Provision Smartphone Request on the same Contract, and fulfil it from
+    // the Stock unit the Return above just created.
+    await logout(page);
+    await login(page, testerEmail, "Passw0rd!23");
+    await page.goto("/client/requests");
+    await page.getByRole("button", { name: "Submit Request" }).first().click();
+    dialog = page.getByRole("dialog");
+    await dialog.getByLabel("Request type").selectOption({ label: "Provision Smartphone" });
+    await dialog.getByLabel("Requested model").fill("Galaxy S24");
+    await dialog.getByRole("button", { name: "Submit Request" }).click();
+    await expect(page.getByText("Request submitted")).toBeVisible();
+    await page.getByRole("button", { name: "Close" }).click();
+
+    await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await page.goto("/manager/requests");
+    pendingRow = pendingRequestRow(page, clientName, "Provision Smartphone");
+    await Promise.all([
+      page.waitForResponse((resp) => /\/api\/requests\/.+\/approve$/.test(resp.url())),
+      pendingRow.getByRole("button", { name: "Approve" }).click(),
+    ]);
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/requests");
+    await selectContractInSwitcher(page, clientName);
+    row = page.getByRole("row", { name: /Provision Smartphone/ });
+    await row.getByRole("button", { name: "Mark In Progress" }).click();
+    await row.getByRole("button", { name: "Mark Completed" }).click();
+
+    // The "from my Stock" picker offers the unit the earlier Return just kept (ticket AC: "offers
+    // a 'from my Stock' picker only when a matching unit exists").
+    await row.getByLabel(/From my Stock/).selectOption({ label: `${model} — ${serial}` });
+    // The Fee amount field is required whenever a Provision Smartphone completes (it's fee
+    // capable) and has a min="0.01" — 0 fails native HTML validation and silently blocks submit.
+    await row.getByLabel(/Fee amount/).fill("0.01");
+    const [statusResponse] = await Promise.all([
+      page.waitForResponse((resp) => resp.url().includes("/status") && resp.request().method() === "PATCH"),
+      row.getByRole("button", { name: "Mark Completed" }).click(),
+    ]);
+    expect(statusResponse.status()).toBe(200);
+    await expect(row.getByText("Completed", { exact: true })).toBeVisible();
+
+    // The Fleet gains the Stock Smartphone, Active, at its original serial (ticket AC: "the unit
+    // leaves the Stock page and appears in the Fleet") — API-level, mirroring the precedent above.
+    await page.goto("/agent/fleet");
+    await selectContractInSwitcher(page, clientName);
+    const smartphones = await page.evaluate(async (contractId) => {
+      const response = await fetch(`/api/contracts/${contractId}/smartphones`);
+      return (await response.json()) as { id: string; serial: string; status: string }[];
+    }, contractId);
+    const fulfilled = smartphones.find((phone) => phone.serial === serial);
+    expect(fulfilled?.status).toBe("ACTIVE");
+
+    // It's gone from the Agent's own Stock page.
+    await page.goto("/agent/stock");
+    await expect(page.getByRole("row", { name: new RegExp(serial) })).not.toBeVisible();
+  });
 });

@@ -3,8 +3,9 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import { stubFetch } from "@/tests/component/fetch";
 import { mockRouter } from "@/tests/component/next-navigation";
-import type { CatalogCarrierItem, RequestListItem, SimCardListItem, SmartphoneListItem } from "@/lib/api/types";
+import type { RequestListItem, SimCardListItem, SmartphoneListItem } from "@/lib/api/types";
 import { RequestStatusControl } from "./request-status-control";
+import { carrier } from "./completion/test-fixtures";
 
 /**
  * Code review finding: `confirmComplete`'s completion PATCH body used to be built by an
@@ -29,17 +30,6 @@ function baseRequest(overrides: Partial<RequestListItem> = {}): RequestListItem 
     description: null,
     createdAt: "2026-01-01T00:00:00Z",
     ...overrides,
-  };
-}
-
-function carrier(id: string, plans: { id: string; archivedAt: string | null }[] = []): CatalogCarrierItem {
-  return {
-    id,
-    country: "UNITED_STATES",
-    name: `Carrier ${id}`,
-    archivedAt: null,
-    topupOptions: [],
-    postpaidPlans: plans.map((plan) => ({ ...plan, carrierId: id, name: `Plan ${plan.id}`, price: 10 })),
   };
 }
 

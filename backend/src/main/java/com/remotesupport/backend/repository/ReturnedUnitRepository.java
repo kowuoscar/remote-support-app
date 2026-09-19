@@ -1,6 +1,7 @@
 package com.remotesupport.backend.repository;
 
 import com.remotesupport.backend.domain.Disposition;
+import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.ReturnedUnit;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +13,18 @@ public interface ReturnedUnitRepository extends JpaRepository<ReturnedUnit, UUID
   /** Every unit named on one Return Request, in the order they were named — for denormalizing
    * {@link com.remotesupport.backend.dto.RequestResponse} and for {@code ReturnCompletionEffect}. */
   List<ReturnedUnit> findByRequestIdOrderByCreatedAtAsc(UUID requestId);
+
+  /**
+   * {@link #findByRequestIdOrderByCreatedAtAsc} by {@code Request} rather than a bare id — the one
+   * call every caller that already holds the {@link Request} object wants (was duplicated as a
+   * private {@code returnedUnitsOf}/{@code returnedUnitsOf} method in both {@code
+   * RequestController} and {@code RequestByIdController}; review finding on this feature's
+   * finisher pass hoisted it here instead). Cheap and empty for every type but {@code RETURN},
+   * since {@code request_id} never matches any row for any other type.
+   */
+  default List<ReturnedUnit> forRequest(Request request) {
+    return findByRequestIdOrderByCreatedAtAsc(request.getId());
+  }
 
   /**
    * The most recent {@link Disposition#KEPT_IN_STOCK} row for one Smartphone/SIM Card (agent-stock

@@ -1,7 +1,7 @@
 ---
 id: fulfil-from-stock
 title: An Agent fulfils a Provision or Replace Request from their Stock
-status: ready-for-agent
+status: in-progress
 depends_on: [agent-stock]
 labels: [backend, frontend, fleet, requests]
 ---

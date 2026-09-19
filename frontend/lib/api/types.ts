@@ -169,6 +169,8 @@ export interface SimCardListItem {
 // (other-replaces-repair ticket) — a free-text Request for support no other type covers.
 // REPLACE_SMARTPHONE/REPLACE_SIM (replace-requests ticket) swap out one named Fleet unit for a
 // new one — distinct from PROVISION_SMARTPHONE/PROVISION_SIM, which only ever mean a net-new unit.
+// RETURN (returns-and-agent-stock spec; return-client-owned-smartphones ticket) names one or more
+// Smartphones/SIM Cards leaving a Contract's Fleet, each with its own Disposition.
 export type RequestTypeValue =
   | "REBOOT"
   | "TOPUP"
@@ -177,7 +179,34 @@ export type RequestTypeValue =
   | "PROVISION_SIM"
   | "REPLACE_SMARTPHONE"
   | "REPLACE_SIM"
-  | "OTHER";
+  | "OTHER"
+  | "RETURN";
+
+// Mirrors backend/.../domain/Disposition.java (returns-and-agent-stock spec; CONTEXT.md
+// "Disposition"). This ticket (return-client-owned-smartphones) only ever produces
+// POSTED_TO_CLIENT, fixed at submission; the other three are chosen by the Company Manager at
+// approval (manager-decides-return-disposition, agent-stock tickets) — declared here now, the
+// same way RequestStatusValue declared PENDING_APPROVAL/REJECTED ahead of the ticket that first
+// wrote them.
+export type DispositionValue = "POSTED_TO_CLIENT" | "POSTED_TO_COMPANY" | "CANCELLED" | "KEPT_IN_STOCK";
+
+export const DISPOSITION_LABEL: Record<DispositionValue, string> = {
+  POSTED_TO_CLIENT: "Posted to Client",
+  POSTED_TO_COMPANY: "Posted to company",
+  CANCELLED: "Cancelled",
+  KEPT_IN_STOCK: "Kept in Stock",
+};
+
+// Mirrors backend/.../dto/ReturnedUnitResponse.java — one unit named on a RETURN Request, with
+// its own Disposition once decided. Exactly one of smartphoneId/simCardId is present.
+export interface ReturnedUnitItem {
+  id: string;
+  smartphoneId?: string;
+  smartphoneModel?: string;
+  simCardId?: string;
+  simCardNumber?: string;
+  disposition?: DispositionValue;
+}
 
 // Mirrors backend/.../domain/RequestStatus.java. PENDING_APPROVAL/REJECTED
 // (manager-approves-requests ticket): the starting status of every approval-required type, and the
@@ -226,6 +255,7 @@ export const REQUEST_TYPE_LABEL: Record<RequestTypeValue, string> = {
   REPLACE_SMARTPHONE: "Replace Smartphone",
   REPLACE_SIM: "Replace SIM",
   OTHER: "Other",
+  RETURN: "Return",
 };
 
 export const REQUEST_STATUS_LABEL: Record<RequestStatusValue, string> = {
@@ -307,6 +337,9 @@ export interface RequestListItem {
   secondSimCardNumber?: string;
   secondTargetSmartphoneId?: string;
   secondTargetSmartphoneModel?: string;
+  // return-client-owned-smartphones ticket: every unit a RETURN Request names, with its own
+  // Disposition once decided. Absent for every other type.
+  returnedUnits?: ReturnedUnitItem[];
 }
 
 // Mirrors backend/.../dto/PendingRequestItemResponse.java, as returned by GET

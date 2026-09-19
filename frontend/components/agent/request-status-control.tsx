@@ -19,6 +19,20 @@ import {
   type SmartphoneListItem,
 } from "@/lib/api/types";
 
+/** The "Back" action shared by the cancelling and completing inline forms below. */
+function BackButton({ pending, onClick }: { pending: boolean; onClick: () => void }) {
+  return (
+    <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={onClick}>
+      Back
+    </Button>
+  );
+}
+
+/** The inline error line shared by the cancelling and completing inline forms below. */
+function FormError({ error }: { error: string | null }) {
+  return error ? <span className="text-[11px] text-danger">{error}</span> : null;
+}
+
 /**
  * Agent quick action to progress or cancel a Request (agent-request-fulfillment ticket AC:
  * "Agent can move a Request from Submitted to In Progress, and from In Progress to Completed" /
@@ -225,21 +239,16 @@ export function RequestStatusControl({
           <Button type="submit" variant="danger" size="sm" loading={pending}>
             Confirm cancel
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={pending}
+          <BackButton
+            pending={pending}
             onClick={() => {
               setCancelling(false);
               setReason("");
               setError(null);
             }}
-          >
-            Back
-          </Button>
+          />
         </div>
-        {error ? <span className="text-[11px] text-danger">{error}</span> : null}
+        <FormError error={error} />
       </form>
     );
   }
@@ -374,20 +383,15 @@ export function RequestStatusControl({
           >
             Mark Completed
           </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            disabled={pending}
+          <BackButton
+            pending={pending}
             onClick={() => {
               setCompleting(false);
               setError(null);
             }}
-          >
-            Back
-          </Button>
+          />
         </div>
-        {error ? <span className="text-[11px] text-danger">{error}</span> : null}
+        <FormError error={error} />
       </form>
     );
   }
@@ -406,7 +410,7 @@ export function RequestStatusControl({
           </Button>
         ) : null}
       </div>
-      {error ? <span className="text-[11px] text-danger">{error}</span> : null}
+      <FormError error={error} />
     </div>
   );
 }

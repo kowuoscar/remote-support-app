@@ -1,7 +1,8 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import type { CompletionFormProps } from "./types";
+import type { RequestListItem } from "@/lib/api/types";
+import type { CompletionBodyBuilder, CompletionFormProps } from "./types";
 
 /**
  * Completing a Provision Smartphone Request (provision-request-details ticket AC: "Completing a
@@ -52,3 +53,25 @@ export function ProvisionSmartphoneCompletion({ request, activeSmartphones, disa
     </>
   );
 }
+
+/** @see CompletionBodyBuilder */
+export const buildProvisionSmartphoneCompletionBody: CompletionBodyBuilder = (
+  request: RequestListItem,
+  formData: FormData,
+) => {
+  if (request.requestedModel) {
+    // provision-request-details ticket: no Agent input needed — the model already came from
+    // submission.
+    return {};
+  }
+
+  const body: Record<string, unknown> = {
+    newSmartphone: {
+      model: String(formData.get("model")),
+      serial: String(formData.get("serial") ?? "") || undefined,
+    },
+  };
+  const replaces = String(formData.get("replacesSmartphoneId") ?? "");
+  if (replaces) body.replacesSmartphoneId = replaces;
+  return body;
+};

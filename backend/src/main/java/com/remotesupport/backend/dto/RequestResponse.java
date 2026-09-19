@@ -7,6 +7,7 @@ import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.domain.Smartphone;
 import com.remotesupport.backend.domain.TopupOption;
+import com.remotesupport.backend.domain.User;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
@@ -32,6 +33,12 @@ import java.util.UUID;
  * secondTargetSmartphoneModel} (sim-swap-moves ticket) are a SIM Swap exchange's second move —
  * {@code targetSimCardId}/{@code targetSmartphoneId} above double as its first. Absent for a plain
  * single move, every other type, and a SIM Swap Request that existed before this ticket.
+ *
+ * <p>{@code rejectionReason}/{@code decidedByUsername}/{@code decidedAt}
+ * (manager-approves-requests ticket): set only once a Manager has approved or rejected this
+ * Request (spec.md Manager approval: "the decision records who decided and when");
+ * {@code rejectionReason} only on a {@code REJECTED} one (CONTEXT.md "Rejected" — distinct from
+ * {@code cancellationReason}).
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record RequestResponse(
@@ -44,6 +51,9 @@ public record RequestResponse(
     boolean agentAuthored,
     String loggedByUsername,
     String cancellationReason,
+    String rejectionReason,
+    String decidedByUsername,
+    Instant decidedAt,
     String description,
     Instant createdAt,
     UUID targetSmartphoneId,
@@ -75,6 +85,7 @@ public record RequestResponse(
     PostpaidPlan requestedPlan = request.getRequestedPostpaidPlan();
     SimCard secondSimCard = request.getSecondSimCard();
     Smartphone secondTargetSmartphone = request.getSecondTargetSmartphone();
+    User decidedByUser = request.getDecidedByUser();
     return new RequestResponse(
         request.getId(),
         request.getContract().getId(),
@@ -85,6 +96,9 @@ public record RequestResponse(
         request.isAgentAuthored(),
         request.getRaisedByUser().getUsername(),
         request.getCancellationReason(),
+        request.getRejectionReason(),
+        decidedByUser == null ? null : decidedByUser.getUsername(),
+        request.getDecidedAt(),
         request.getDescription(),
         request.getCreatedAt(),
         targetSmartphone == null ? null : targetSmartphone.getId(),

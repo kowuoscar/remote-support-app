@@ -124,7 +124,7 @@ public class RequestController {
     request.setTester(tester);
     request.setRaisedByUser(tester.getUser());
     request.setAgentAuthored(false);
-    request.setStatus(RequestStatus.SUBMITTED);
+    request.setStatus(startingStatusFor(requestBody.type()));
     requestDetailsValidator.apply(contract, detailsInputOf(requestBody), request);
     requestRepository.save(request);
 
@@ -164,12 +164,7 @@ public class RequestController {
                     new NotFoundException(
                         "No Tester with id " + requestBody.testerId() + " on this Contract's Client"));
 
-    RequestStatus startingStatus =
-        requestBody.startingStatus() == null ? RequestStatus.SUBMITTED : requestBody.startingStatus();
-    if (startingStatus != RequestStatus.SUBMITTED && startingStatus != RequestStatus.COMPLETED) {
-      throw new InvalidRequestException(
-          "An Agent-logged Request can only start at SUBMITTED or COMPLETED, not " + startingStatus);
-    }
+    RequestStatus startingStatus = agentStartingStatusFor(requestBody.type(), requestBody.startingStatus());
 
     User raisedByUser =
         userRepository
@@ -230,6 +225,14 @@ public class RequestController {
     if (!oldStatus.canTransitionTo(newStatus)) {
       throw new ConflictException("Cannot transition a Request from " + oldStatus + " to " + newStatus);
     }
+    if (oldStatus == RequestStatus.PENDING_APPROVAL && newStatus != RequestStatus.CANCELLED) {
+      // manager-approves-requests ticket, Constraints: "An Agent can never move a Request out of
+      // Pending Approval except to Cancelled" — and a Manager approves/rejects through the
+      // dedicated, identity-addressed actions (RequestByIdController), never through this general
+      // status-change route, mirroring how Review Queue actions are addressed by invoice id.
+      throw new InvalidRequestException(
+          "Use the approve/reject actions to move a Request out of Pending Approval, other than cancelling it");
+    }
 
     if (newStatus == RequestStatus.CANCELLED) {
       if (requestBody.cancellationReason() == null || requestBody.cancellationReason().isBlank()) {
@@ -262,6 +265,40 @@ public class RequestController {
         principal.tenantId());
 
     return RequestResponse.of(request);
+  }
+
+  /**
+   * A Tester-authored Request's starting status (request-types-and-flow spec, Lifecycle):
+   * approval-required types always start {@link RequestStatus#PENDING_APPROVAL}; every other type
+   * starts {@link RequestStatus#SUBMITTED} as before.
+   */
+  static RequestStatus startingStatusFor(RequestType type) {
+    return type.requiresApproval() ? RequestStatus.PENDING_APPROVAL : RequestStatus.SUBMITTED;
+  }
+
+  /**
+   * An Agent-proactive Request's starting status: for one of the four approval-required types,
+   * always {@link RequestStatus#PENDING_APPROVAL} regardless of what {@code requestedStartingStatus}
+   * asked for (spec.md Lifecycle: "an Agent logging one proactively can no longer start it at
+   * Submitted or Completed") — refused outright rather than silently overridden, so a caller that
+   * still thinks it can choose finds out immediately. Every other type keeps the existing choice
+   * between {@code SUBMITTED} (default) and immediately {@code COMPLETED}.
+   */
+  static RequestStatus agentStartingStatusFor(RequestType type, RequestStatus requestedStartingStatus) {
+    if (type.requiresApproval()) {
+      if (requestedStartingStatus != null && requestedStartingStatus != RequestStatus.PENDING_APPROVAL) {
+        throw new InvalidRequestException(
+            "A " + type + " Request always starts Pending Approval; it cannot start " + requestedStartingStatus);
+      }
+      return RequestStatus.PENDING_APPROVAL;
+    }
+    RequestStatus startingStatus =
+        requestedStartingStatus == null ? RequestStatus.SUBMITTED : requestedStartingStatus;
+    if (startingStatus != RequestStatus.SUBMITTED && startingStatus != RequestStatus.COMPLETED) {
+      throw new InvalidRequestException(
+          "An Agent-logged Request can only start at SUBMITTED or COMPLETED, not " + startingStatus);
+    }
+    return startingStatus;
   }
 
   private Contract findContract(UUID contractId, AuthenticatedPrincipal principal) {

@@ -26,5 +26,19 @@ public enum RequestType {
   PROVISION_SIM,
   REPLACE_SMARTPHONE,
   REPLACE_SIM,
-  OTHER
+  OTHER;
+
+  /**
+   * Whether this type always starts at {@link RequestStatus#PENDING_APPROVAL}, whoever raises it
+   * (request-types-and-flow spec, Lifecycle: "Provision Smartphone, Provision SIM, Replace
+   * Smartphone and Replace SIM always start at Pending Approval"; manager-approves-requests
+   * ticket). The four types this names are exactly the ones that add a net-new unit or retire one
+   * — a real spend the Company Manager agrees to before it happens.
+   */
+  public boolean requiresApproval() {
+    return switch (this) {
+      case PROVISION_SMARTPHONE, PROVISION_SIM, REPLACE_SMARTPHONE, REPLACE_SIM -> true;
+      case REBOOT, TOPUP, SIM_SWAP, OTHER -> false;
+    };
+  }
 }

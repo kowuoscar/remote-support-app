@@ -136,6 +136,7 @@ class FeeApiTest extends IntegrationTest {
     String testerToken =
         createTesterAndLogin(managerToken, clientId, "owen.reyes@meridian.example", "Passw0rd!23");
     UUID requestId = submitRequest(testerToken, contractId, "PROVISION_SMARTPHONE");
+    approveAsManager(managerToken, requestId);
 
     mockMvc
         .perform(
@@ -160,6 +161,7 @@ class FeeApiTest extends IntegrationTest {
     String testerToken =
         createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example", "Passw0rd!23");
     UUID requestId = submitRequest(testerToken, contractId, "REPLACE_SMARTPHONE");
+    approveAsManager(managerToken, requestId);
 
     mockMvc
         .perform(
@@ -183,6 +185,7 @@ class FeeApiTest extends IntegrationTest {
     String testerToken =
         createTesterAndLogin(managerToken, clientId, "helena.voss@kessler.example", "Passw0rd!23");
     UUID requestId = submitRequest(testerToken, contractId, "REPLACE_SIM");
+    approveAsManager(managerToken, requestId);
 
     mockMvc
         .perform(
@@ -355,7 +358,11 @@ class FeeApiTest extends IntegrationTest {
   }
 
   @Test
-  void aProactiveProvisionSmartphoneFeeAlsoAddsTheUnitToTheFleet() throws Exception {
+  void aProactiveProvisionSmartphoneFeeIsRefusedTheAgentLogsTheRequestInstead() throws Exception {
+    // manager-approves-requests ticket AC: "A proactive Fee for one of the four types is refused
+    // with a message telling the Agent to log the Request instead" — supersedes this test's former
+    // "a proactive Provision Smartphone Fee also adds the unit to the Fleet" scenario, which the
+    // spec's Fees-and-approval rule no longer allows.
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Bright Path Clinics");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
@@ -364,10 +371,6 @@ class FeeApiTest extends IntegrationTest {
     String agentToken = agentToken();
     UUID testerId = findTesterId(agentToken, contractId, "marco.diaz@brightpath.example");
 
-    // provision-request-details ticket: the linking Request now carries its own requestedModel
-    // (ticket AC: "An Agent logging one proactively gives the same details"); completing a
-    // Provision Smartphone needs no further Agent input, so newSmartphone is gone — the new unit
-    // has no serial until the Agent sets one later from the Fleet page.
     mockMvc
         .perform(
             post("/api/contracts/" + contractId + "/fees")
@@ -379,7 +382,49 @@ class FeeApiTest extends IntegrationTest {
                      "requestedModel":"iPhone 15"}
                     """
                         .formatted(testerId)))
-        .andExpect(status().isCreated());
+        .andExpect(status().isBadRequest());
+
+    mockMvc
+        .perform(
+            get("/api/contracts/" + contractId + "/smartphones")
+                .header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(0));
+
+    // Logging the Request instead still works, once approved and completed.
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contractId + "/requests")
+                    .header("Authorization", "Bearer " + agentToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                        {"type":"PROVISION_SMARTPHONE","testerId":"%s","requestedModel":"iPhone 15"}
+                        """
+                            .formatted(testerId)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+            .andReturn();
+    UUID requestId =
+        UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    approveAsManager(managerToken, requestId);
+    mockMvc.perform(
+        patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
+            .header("Authorization", "Bearer " + agentToken)
+            .contentType(APPLICATION_JSON)
+            .content("""
+                {"status":"IN_PROGRESS"}
+                """));
+    mockMvc
+        .perform(
+            patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
+                .header("Authorization", "Bearer " + agentToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"status":"COMPLETED"}
+                    """))
+        .andExpect(status().isOk());
 
     mockMvc
         .perform(
@@ -423,6 +468,7 @@ class FeeApiTest extends IntegrationTest {
     String testerToken =
         createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example", "Passw0rd!23");
     UUID requestId = submitRequest(testerToken, contractId, "PROVISION_SMARTPHONE");
+    approveAsManager(managerToken, requestId);
 
     String agentToken = agentToken();
     mockMvc.perform(
@@ -483,6 +529,7 @@ class FeeApiTest extends IntegrationTest {
     String testerToken =
         createTesterAndLogin(managerToken, clientId, "elise.fabron@solene.example", "Passw0rd!23");
     UUID requestId = submitRequest(testerToken, contractId, "PROVISION_SIM");
+    approveAsManager(managerToken, requestId);
 
     String agentToken = agentToken();
     mockMvc
@@ -526,6 +573,7 @@ class FeeApiTest extends IntegrationTest {
     String testerToken =
         createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
     UUID requestId = submitRequest(testerToken, contractId, "PROVISION_SMARTPHONE");
+    approveAsManager(managerToken, requestId);
 
     String agentToken = agentToken();
     mockMvc.perform(
@@ -558,8 +606,7 @@ class FeeApiTest extends IntegrationTest {
   }
 
   @Test
-  void anAgentProactivelyLoggingAProvisionSmartphoneRequestStartingCompletedProvisionsTheUnit()
-      throws Exception {
+  void anAgentProactivelyLoggingAProvisionSmartphoneRequestAlwaysStartsPendingApproval() throws Exception {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Meridian Logistics");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
@@ -568,6 +615,8 @@ class FeeApiTest extends IntegrationTest {
     String agentToken = agentToken();
     UUID testerId = findTesterId(agentToken, contractId, "owen.reyes@meridian.example");
 
+    // manager-approves-requests ticket: an Agent-proactive Provision Request can no longer start
+    // Completed (spec.md Lifecycle) — asking for it is refused outright.
     mockMvc
         .perform(
             post("/api/contracts/" + contractId + "/requests")
@@ -579,8 +628,42 @@ class FeeApiTest extends IntegrationTest {
                      "requestedModel":"Pixel 9"}
                     """
                         .formatted(testerId)))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.status").value("COMPLETED"));
+        .andExpect(status().isBadRequest());
+
+    // Once approved and progressed, completion still provisions the unit with no further input.
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contractId + "/requests")
+                    .header("Authorization", "Bearer " + agentToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                        {"type":"PROVISION_SMARTPHONE","testerId":"%s","requestedModel":"Pixel 9"}
+                        """
+                            .formatted(testerId)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+            .andReturn();
+    UUID requestId =
+        UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    approveAsManager(managerToken, requestId);
+    mockMvc.perform(
+        patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
+            .header("Authorization", "Bearer " + agentToken)
+            .contentType(APPLICATION_JSON)
+            .content("""
+                {"status":"IN_PROGRESS"}
+                """));
+    mockMvc
+        .perform(
+            patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
+                .header("Authorization", "Bearer " + agentToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"status":"COMPLETED"}
+                    """))
+        .andExpect(status().isOk());
 
     mockMvc
         .perform(
@@ -690,6 +773,7 @@ class FeeApiTest extends IntegrationTest {
       String testerToken =
           createTesterAndLogin(managerToken, clientId, "marco.diaz@brightpath.example", "Passw0rd!23");
       UUID requestId = submitRequest(testerToken, contractId, "PROVISION_SMARTPHONE");
+      approveAsManager(managerToken, requestId);
 
       mockMvc.perform(
           patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")

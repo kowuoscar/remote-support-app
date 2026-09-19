@@ -189,14 +189,35 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
   }
 
   @Test
-  void anAgentProactiveProvisionSmartphoneStartingCompletedNeedsNoAgentInputEither() throws Exception {
+  void anAgentProactiveProvisionSmartphoneAlwaysStartsPendingApprovalEvenAskingForCompleted() throws Exception {
+    // manager-approves-requests ticket: an Agent logging a Provision Request proactively can no
+    // longer start it at Completed (spec.md Lifecycle) — asking for it is refused outright.
     postRequest(
             agentToken,
             ("{\"type\":\"PROVISION_SMARTPHONE\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
                     + "\"requestedModel\":\"Pixel 9\"}")
                 .formatted(testerId))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.status").value("COMPLETED"));
+        .andExpect(status().isBadRequest());
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/smartphones").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(0));
+  }
+
+  @Test
+  void onceApprovedAnAgentProactiveProvisionSmartphoneStillNeedsNoAgentInputToComplete() throws Exception {
+    MvcResult result =
+        postRequest(agentToken, "{\"type\":\"PROVISION_SMARTPHONE\",\"testerId\":\"%s\",\"requestedModel\":\"Pixel 9\"}"
+                .formatted(testerId))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+            .andReturn();
+    UUID requestId =
+        UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    approveAsManager(managerToken, requestId);
+    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
 
     mockMvc
         .perform(get("/api/contracts/" + contractId + "/smartphones").header("Authorization", "Bearer " + agentToken))
@@ -348,23 +369,36 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
   // --- AC: an Agent logging one proactively at Completed also gives the SIM number ---------------
 
   @Test
-  void anAgentProactiveProvisionSimStartingCompletedRequiresTheSimNumber() throws Exception {
-    postRequest(
-            agentToken,
-            ("{\"type\":\"PROVISION_SIM\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
-                    + "\"requestedFlavor\":\"PREPAID\",\"requestedCarrierId\":\"%s\"}")
-                .formatted(testerId, SEEDED_US_CARRIER_ID))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  void anAgentProactiveProvisionSimStartingCompletedWithASimNumberProvisionsIt() throws Exception {
+  void anAgentProactiveProvisionSimAlwaysStartsPendingApprovalEvenAskingForCompleted() throws Exception {
+    // manager-approves-requests ticket: an Agent logging a Provision Request proactively can no
+    // longer start it at Completed (spec.md Lifecycle) — asking for it is refused outright,
+    // regardless of whether a SIM number was given too.
     postRequest(
             agentToken,
             ("{\"type\":\"PROVISION_SIM\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
                     + "\"requestedFlavor\":\"PREPAID\",\"requestedCarrierId\":\"%s\",\"simCardNumber\":\"+1-555-0166\"}")
                 .formatted(testerId, SEEDED_US_CARRIER_ID))
-        .andExpect(status().isCreated())
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void onceApprovedAnAgentProactiveProvisionSimStillNeedsOnlyTheSimNumberToComplete() throws Exception {
+    MvcResult result =
+        postRequest(
+                agentToken,
+                ("{\"type\":\"PROVISION_SIM\",\"testerId\":\"%s\",\"requestedFlavor\":\"PREPAID\","
+                        + "\"requestedCarrierId\":\"%s\"}")
+                    .formatted(testerId, SEEDED_US_CARRIER_ID))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+            .andReturn();
+    UUID requestId =
+        UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    approveAsManager(managerToken, requestId);
+    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+
+    patchStatus(requestId, "{\"status\":\"COMPLETED\",\"simCardNumber\":\"+1-555-0166\"}")
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("COMPLETED"));
 
     mockMvc
@@ -431,19 +465,36 @@ class ProvisionRequestDetailsApiTest extends IntegrationTest {
 
   // --- helpers -----------------------------------------------------------------------------------
 
+  /**
+   * Submits a Provision Smartphone Request and has the Manager approve it immediately
+   * (manager-approves-requests ticket: Provision Smartphone now starts Pending Approval, and every
+   * caller of this helper goes straight on to progress/complete it).
+   */
   private UUID submitProvisionSmartphone(String requestedModel) throws Exception {
     MvcResult result =
         postRequest(
                 testerToken,
                 "{\"type\":\"PROVISION_SMARTPHONE\",\"requestedModel\":\"%s\"}".formatted(requestedModel))
             .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
             .andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    UUID requestId =
+        UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    approveAsManager(managerToken, requestId);
+    return requestId;
   }
 
+  /** Submits a Provision SIM Request and has the Manager approve it immediately — see above. */
   private UUID submitProvisionSim(String json) throws Exception {
-    MvcResult result = postRequest(testerToken, json).andExpect(status().isCreated()).andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    MvcResult result =
+        postRequest(testerToken, json)
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+            .andReturn();
+    UUID requestId =
+        UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    approveAsManager(managerToken, requestId);
+    return requestId;
   }
 
   private org.springframework.test.web.servlet.ResultActions postRequest(String token, String json)

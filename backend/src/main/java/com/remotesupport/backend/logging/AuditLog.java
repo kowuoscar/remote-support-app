@@ -473,6 +473,39 @@ public final class AuditLog {
         tenantId);
   }
 
+  /**
+   * A Manager approving a Pending Approval Request, moving it to Submitted
+   * (manager-approves-requests ticket Observability: "Request approved and rejected: Request id,
+   * actor, tenant, and that a reason was given" — approving never carries one, so this event omits
+   * the field entirely rather than always logging {@code reasonGiven=false}).
+   */
+  public static void requestApproved(UUID requestId, UUID contractId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=REQUEST_APPROVED entity=Request entityId={} contractId={} actorUserId={} tenantId={}",
+        requestId,
+        contractId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A Manager rejecting a Pending Approval Request, moving it to Rejected — {@code reasonGiven} is
+   * always {@code true} (a reject without one is refused before this is ever logged), kept as an
+   * explicit field to match the ticket's Observability wording and mirror {@link
+   * #requestSubmitted}'s own {@code descriptionGiven}, never logging the reason's text itself.
+   */
+  public static void requestRejected(
+      UUID requestId, UUID contractId, boolean reasonGiven, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=REQUEST_REJECTED entity=Request entityId={} contractId={} reasonGiven={} "
+            + "actorUserId={} tenantId={}",
+        requestId,
+        contractId,
+        reasonGiven,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

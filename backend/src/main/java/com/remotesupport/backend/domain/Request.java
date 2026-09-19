@@ -77,6 +77,27 @@ public class Request {
   private String cancellationReason;
 
   /**
+   * The Company Manager's reason for rejecting this Request (request-types-and-flow spec, Manager
+   * approval: "reject, reason required"; manager-approves-requests ticket) — set only when {@code
+   * status} is {@link RequestStatus#REJECTED}. Distinct from {@code cancellationReason}: Rejected
+   * means "the Manager said no", Cancelled means "no longer needed" (CONTEXT.md "Rejected").
+   */
+  @Column(name = "rejection_reason")
+  private String rejectionReason;
+
+  /**
+   * Who approved or rejected this Request, and when (spec.md Manager approval: "the decision
+   * records who decided and when") — both null until a Manager acts, on either the approve or the
+   * reject route ({@code RequestByIdController}).
+   */
+  @ManyToOne
+  @JoinColumn(name = "decided_by_user_id")
+  private User decidedByUser;
+
+  @Column(name = "decided_at")
+  private Instant decidedAt;
+
+  /**
    * Free-text detail given at submission (request-types-and-flow spec, Details at submission;
    * other-replaces-repair ticket): optional for every type except {@link RequestType#OTHER},
    * where {@link com.remotesupport.backend.web.RequestController} and {@link

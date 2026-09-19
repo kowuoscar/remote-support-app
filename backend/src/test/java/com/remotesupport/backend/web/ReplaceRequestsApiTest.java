@@ -224,15 +224,37 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   }
 
   @Test
-  void anAgentProactiveReplaceSmartphoneStartingCompletedNeedsNoAgentInputEither() throws Exception {
+  void anAgentProactiveReplaceSmartphoneAlwaysStartsPendingApprovalEvenAskingForCompleted() throws Exception {
     UUID oldId = createSmartphone(managerToken, contractId, "Pixel 8");
 
+    // manager-approves-requests ticket: an Agent logging a Replace Request proactively can no
+    // longer start it at Completed (spec.md Lifecycle) — asking for it is refused outright.
     postRequest(
             agentToken,
             ("{\"type\":\"REPLACE_SMARTPHONE\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
                     + "\"targetSmartphoneId\":\"%s\"}")
                 .formatted(testerId, oldId))
-        .andExpect(status().isCreated())
+        .andExpect(status().isBadRequest());
+    assertThat(smartphones()).hasSize(1);
+  }
+
+  @Test
+  void onceApprovedAnAgentProactiveReplaceSmartphoneStillNeedsNoAgentInputToComplete() throws Exception {
+    UUID oldId = createSmartphone(managerToken, contractId, "Pixel 8");
+
+    MvcResult result =
+        postRequest(agentToken, "{\"type\":\"REPLACE_SMARTPHONE\",\"testerId\":\"%s\",\"targetSmartphoneId\":\"%s\"}"
+                .formatted(testerId, oldId))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+            .andReturn();
+    UUID requestId =
+        UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    approveAsManager(managerToken, requestId);
+    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+
+    patchStatus(requestId, "{\"status\":\"COMPLETED\"}")
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("COMPLETED"));
 
     assertThat(smartphones()).hasSize(2);
@@ -377,28 +399,45 @@ class ReplaceRequestsApiTest extends IntegrationTest {
   }
 
   @Test
-  void anAgentProactiveReplaceSimStartingCompletedRequiresNewSimCardDetails() throws Exception {
+  void anAgentProactiveReplaceSimAlwaysStartsPendingApprovalEvenAskingForCompleted() throws Exception {
     UUID oldSimId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
 
-    postRequest(
-            agentToken,
-            ("{\"type\":\"REPLACE_SIM\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
-                    + "\"targetSimCardId\":\"%s\"}")
-                .formatted(testerId, oldSimId))
-        .andExpect(status().isBadRequest());
-  }
-
-  @Test
-  void anAgentProactiveReplaceSimStartingCompletedWithNewSimCardDetailsProvisionsIt() throws Exception {
-    UUID oldSimId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
-
+    // manager-approves-requests ticket: an Agent logging a Replace Request proactively can no
+    // longer start it at Completed (spec.md Lifecycle) — asking for it is refused outright,
+    // regardless of whether the new SIM Card's details were given too.
     postRequest(
             agentToken,
             ("{\"type\":\"REPLACE_SIM\",\"testerId\":\"%s\",\"startingStatus\":\"COMPLETED\","
                     + "\"targetSimCardId\":\"%s\",\"newSimCard\":{\"number\":\"+1-555-0122\","
                     + "\"carrierId\":\"%s\",\"flavor\":\"PREPAID\"}}")
                 .formatted(testerId, oldSimId, SEEDED_US_CARRIER_ID))
-        .andExpect(status().isCreated())
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void onceApprovedAnAgentProactiveReplaceSimStillNeedsTheNewSimCardsDetailsToComplete() throws Exception {
+    UUID oldSimId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
+    UUID requestId = logAndApproveAgentProactiveReplaceSim(oldSimId);
+    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+
+    // A failed completion PATCH still mutates the managed Request within this test's own
+    // transaction (see IntegrationTest's Javadoc), so this assertion gets its own fresh Request
+    // rather than chaining onto a later successful completion in the same test method.
+    patchStatus(requestId, "{\"status\":\"COMPLETED\"}").andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void onceApprovedAnAgentProactiveReplaceSimCompletesWithTheNewSimCardsDetails() throws Exception {
+    UUID oldSimId = createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
+    UUID requestId = logAndApproveAgentProactiveReplaceSim(oldSimId);
+    patchStatus(requestId, "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+
+    patchStatus(
+            requestId,
+            ("{\"status\":\"COMPLETED\",\"newSimCard\":{\"number\":\"+1-555-0122\","
+                    + "\"carrierId\":\"%s\",\"flavor\":\"PREPAID\"}}")
+                .formatted(SEEDED_US_CARRIER_ID))
+        .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("COMPLETED"));
 
     boolean found = false;
@@ -410,24 +449,55 @@ class ReplaceRequestsApiTest extends IntegrationTest {
     assertThat(found).isTrue();
   }
 
+  private UUID logAndApproveAgentProactiveReplaceSim(UUID oldSimId) throws Exception {
+    MvcResult result =
+        postRequest(agentToken, "{\"type\":\"REPLACE_SIM\",\"testerId\":\"%s\",\"targetSimCardId\":\"%s\"}"
+                .formatted(testerId, oldSimId))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+            .andReturn();
+    UUID requestId =
+        UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    approveAsManager(managerToken, requestId);
+    return requestId;
+  }
+
   // --- helpers -----------------------------------------------------------------------------------
 
+  /**
+   * Submits a Replace Smartphone Request and has the Manager approve it immediately
+   * (manager-approves-requests ticket: Replace Smartphone now starts Pending Approval, and every
+   * caller of this helper goes straight on to progress/complete it) — returns it at {@code
+   * SUBMITTED}, ready for the usual Agent-driven status PATCHes.
+   */
   private UUID submitReplaceSmartphone(UUID targetSmartphoneId, String requestedModel) throws Exception {
     String json =
         requestedModel == null
             ? "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\"}".formatted(targetSmartphoneId)
             : "{\"type\":\"REPLACE_SMARTPHONE\",\"targetSmartphoneId\":\"%s\",\"requestedModel\":\"%s\"}"
                 .formatted(targetSmartphoneId, requestedModel);
-    MvcResult result = postRequest(testerToken, json).andExpect(status().isCreated()).andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    MvcResult result =
+        postRequest(testerToken, json)
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
+            .andReturn();
+    UUID requestId =
+        UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    approveAsManager(managerToken, requestId);
+    return requestId;
   }
 
+  /** Submits a Replace SIM Request and has the Manager approve it immediately — see above. */
   private UUID submitReplaceSim(UUID targetSimCardId) throws Exception {
     MvcResult result =
         postRequest(testerToken, "{\"type\":\"REPLACE_SIM\",\"targetSimCardId\":\"%s\"}".formatted(targetSimCardId))
             .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
             .andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    UUID requestId =
+        UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    approveAsManager(managerToken, requestId);
+    return requestId;
   }
 
   private ResultActions postRequest(String token, String json) throws Exception {

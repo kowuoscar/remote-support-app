@@ -175,7 +175,13 @@ test.describe("agent request fulfillment", () => {
     page,
   }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const { clientId: otherClientId, contractId: otherContractId } = await createUnrelatedContract(page, RUN_ID);
+    // This file's own "Bright Path Clinics" test (above) already claims that name with the same
+    // RUN_ID — pass a different one so createUnrelatedContract's own Client isn't ambiguous with it.
+    const { clientId: otherClientId, contractId: otherContractId } = await createUnrelatedContract(
+      page,
+      RUN_ID,
+      `Solene Cosmetics ${RUN_ID}`,
+    );
 
     const otherTesterEmail = `elise.fabron+${RUN_ID}@solene.example`;
     await addTester(page, otherClientId, otherTesterEmail, "Passw0rd!23");

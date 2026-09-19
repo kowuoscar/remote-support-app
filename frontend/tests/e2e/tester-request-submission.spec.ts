@@ -33,6 +33,7 @@ async function submitEveryRequestType(
     await submitRequestAsTester(page, typeLabel, {
       smartphoneOptionLabel: fleet.smartphoneOptionLabel,
       simCardOptionLabel: fleet.simCardOptionLabel,
+      requestedModel: "iPhone 15",
       carrierLabel: "Verizon",
       flavorLabel: "Prepaid",
       // Other requires a description; every other type leaves it blank, exactly as before.

@@ -178,13 +178,15 @@ export async function installSimCard(page: Page, contractId: string, number: str
  * Creates a Contract the seeded Agent (Jordan Ellis) does NOT hold: a fresh Client and a fresh
  * Agent of its own. Shared by every "an agent/tester on a different contract is rejected" 403
  * boundary test, which only needs a Contract that isn't the seeded Agent's — the Client and Agent
- * names themselves are never asserted on. Returns both ids.
+ * names themselves are never asserted on, beyond needing to be unique within their own spec file
+ * (a caller whose file already uses the default name for something else passes its own).
  */
 export async function createUnrelatedContract(
   page: Page,
   suffix: string,
+  clientName = `Bright Path Clinics ${suffix}`,
 ): Promise<{ clientId: string; contractId: string }> {
-  const otherClientName = `Bright Path Clinics ${suffix}`;
+  const otherClientName = clientName;
   await page.goto("/manager/clients");
   await page.getByRole("button", { name: "Add client" }).first().click();
   await page.getByLabel("Client name").fill(otherClientName);

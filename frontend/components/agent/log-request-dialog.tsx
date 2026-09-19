@@ -257,6 +257,7 @@ export function LogRequestDialog({
                       checked={startingStatus === "SUBMITTED"}
                       onChange={() => setStartingStatus("SUBMITTED")}
                       disabled={submitting}
+                      className="h-4 w-4 accent-primary"
                     />
                     Submitted — queue it for follow-up
                   </label>
@@ -268,6 +269,7 @@ export function LogRequestDialog({
                       checked={startingStatus === "COMPLETED"}
                       onChange={() => setStartingStatus("COMPLETED")}
                       disabled={submitting}
+                      className="h-4 w-4 accent-primary"
                     />
                     Completed — already handled
                   </label>

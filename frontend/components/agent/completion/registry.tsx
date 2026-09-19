@@ -3,7 +3,7 @@ import type { RequestListItem, RequestTypeValue } from "@/lib/api/types";
 import { buildProvisionSimCompletionBody, ProvisionSimCompletion } from "./provision-sim-completion";
 import { buildProvisionSmartphoneCompletionBody, ProvisionSmartphoneCompletion } from "./provision-smartphone-completion";
 import { buildReplaceSimCompletionBody, ReplaceSimCompletion } from "./replace-sim-completion";
-import { ReplaceSmartphoneCompletion } from "./replace-smartphone-completion";
+import { buildReplaceSmartphoneCompletionBody, ReplaceSmartphoneCompletion } from "./replace-smartphone-completion";
 import { buildReturnCompletionBody, returnCompletionNeedsOwnForm, ReturnCompletion } from "./return-completion";
 import type { CompletionBodyBuilder, CompletionFormProps } from "./types";
 
@@ -28,13 +28,15 @@ export const REQUEST_COMPLETION_COMPONENTS: Partial<Record<RequestTypeValue, Com
  * The matching registry for how each type's completion piece turns its own form fields into the
  * type-specific part of the completion PATCH body (code review finding: this used to be an
  * `if/else if` cascade in `request-status-control.tsx`'s `confirmComplete`, kept in lockstep with
- * `REQUEST_COMPLETION_COMPONENTS` by hand). A type with no entry — Reboot, Topup, SIM Swap, Other,
- * and Replace Smartphone (no Agent input at all) — sends nothing beyond the shell's own base
- * `{ status: "COMPLETED" }` body.
+ * `REQUEST_COMPLETION_COMPONENTS` by hand). A type with no entry — Reboot, Topup, SIM Swap and
+ * Other — sends nothing beyond the shell's own base `{ status: "COMPLETED" }` body. Replace
+ * Smartphone gained an entry in fulfil-from-stock (it can now send
+ * `fulfillFromStockSmartphoneId`) even though it still needs no Agent input otherwise.
  */
 export const REQUEST_COMPLETION_BODY_BUILDERS: Partial<Record<RequestTypeValue, CompletionBodyBuilder>> = {
   PROVISION_SMARTPHONE: buildProvisionSmartphoneCompletionBody,
   PROVISION_SIM: buildProvisionSimCompletionBody,
+  REPLACE_SMARTPHONE: buildReplaceSmartphoneCompletionBody,
   REPLACE_SIM: buildReplaceSimCompletionBody,
   RETURN: buildReturnCompletionBody,
 };

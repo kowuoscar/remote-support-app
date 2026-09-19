@@ -14,6 +14,7 @@ import com.remotesupport.backend.web.ConflictException;
 import com.remotesupport.backend.web.InvalidRequestException;
 import com.remotesupport.backend.web.NotFoundException;
 import com.remotesupport.backend.web.SimInstallationService;
+import com.remotesupport.backend.web.StockFulfilmentService;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
@@ -28,17 +29,26 @@ import org.springframework.util.StringUtils;
  * previous full form — the same {@code newSmartphone}/{@code replacesSmartphoneId} shape
  * fee-logging-and-provisioning originally shipped (ticket AC: "completes through the previous
  * full form").
+ *
+ * <p>{@code fulfillFromStockSmartphoneId} (fulfil-from-stock ticket): when the Agent names a
+ * Smartphone from their own Stock, it's moved onto the Contract instead of a new one being
+ * created — the one difference from both branches above is only how the Smartphone is obtained;
+ * everything after (the legacy branch's optional retire) is unchanged.
  */
 @Component
 public class ProvisionSmartphoneCompletionEffect implements RequestCompletionEffect {
 
   private final SmartphoneRepository smartphoneRepository;
   private final SimInstallationService simInstallationService;
+  private final StockFulfilmentService stockFulfilmentService;
 
   public ProvisionSmartphoneCompletionEffect(
-      SmartphoneRepository smartphoneRepository, SimInstallationService simInstallationService) {
+      SmartphoneRepository smartphoneRepository,
+      SimInstallationService simInstallationService,
+      StockFulfilmentService stockFulfilmentService) {
     this.smartphoneRepository = smartphoneRepository;
     this.simInstallationService = simInstallationService;
+    this.stockFulfilmentService = stockFulfilmentService;
   }
 
   @Override
@@ -48,23 +58,31 @@ public class ProvisionSmartphoneCompletionEffect implements RequestCompletionEff
 
   @Override
   public void apply(Contract contract, Request request, RequestCompletionInput input, AuthenticatedPrincipal principal) {
-    if (request.getRequestedModel() != null) {
+    if (input.fulfillFromStockSmartphoneId() != null) {
+      stockFulfilmentService.takeSmartphoneFromStock(
+          contract, input.fulfillFromStockSmartphoneId(), request.getId(), principal);
+    } else if (request.getRequestedModel() != null) {
       addProvisionedSmartphone(contract, request, request.getRequestedModel(), null, principal);
-      return;
+    } else {
+      // Legacy fallback: a Request submitted before this ticket carries no requestedModel, so it
+      // completes exactly the way it always did — the full form, optionally retiring a named unit.
+      SmartphoneCreateRequest newSmartphone = input.newSmartphone();
+      if (newSmartphone == null) {
+        throw new InvalidRequestException(
+            "newSmartphone details are required to complete a Provision Smartphone request");
+      }
+      addProvisionedSmartphone(contract, request, newSmartphone.model(), newSmartphone.serial(), principal);
     }
 
-    // Legacy fallback: a Request submitted before this ticket carries no requestedModel, so it
-    // completes exactly the way it always did — the full form, optionally retiring a named unit.
-    SmartphoneCreateRequest newSmartphone = input.newSmartphone();
-    if (newSmartphone == null) {
-      throw new InvalidRequestException(
-          "newSmartphone details are required to complete a Provision Smartphone request");
-    }
-    addProvisionedSmartphone(contract, request, newSmartphone.model(), newSmartphone.serial(), principal);
-
-    request.setReplacesSmartphoneId(input.replacesSmartphoneId());
-    if (input.replacesSmartphoneId() != null) {
-      retireReplacedSmartphone(contract, request.getId(), input.replacesSmartphoneId(), principal);
+    // The optional replace-on-completion is a legacy-only feature (new-style Provision never
+    // offers it — that's what Replace Smartphone is for), so it applies here whether the
+    // Smartphone was fulfilled from Stock or created fresh, as long as the Request itself is
+    // legacy.
+    if (request.getRequestedModel() == null) {
+      request.setReplacesSmartphoneId(input.replacesSmartphoneId());
+      if (input.replacesSmartphoneId() != null) {
+        retireReplacedSmartphone(contract, request.getId(), input.replacesSmartphoneId(), principal);
+      }
     }
   }
 

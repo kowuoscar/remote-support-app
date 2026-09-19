@@ -30,6 +30,17 @@ import java.util.UUID;
  * holding a SIM Card always starts Pending Approval, so it can never be created already {@code
  * COMPLETED} the way {@link com.remotesupport.backend.dto.RequestCreateRequest} allows for other
  * types — {@code null}/empty on every other path.
+ *
+ * <p>{@code fulfillFromStockSmartphoneId}/{@code fulfillFromStockSimCardId} (returns-and-agent-stock
+ * spec, Solution's Fulfilment from Stock; fulfil-from-stock ticket): only ever reachable through
+ * {@link com.remotesupport.backend.dto.RequestStatusUpdateRequest} (a later PATCH) — the Agent's
+ * completion-time choice to fulfil a Provision/Replace Request from their own Stock instead of
+ * adding a new unit or, for a SIM Card, asking for a number. {@code null} on every other path
+ * (an Agent-proactive Request starting immediately Completed, or a proactive Fee's linking Request)
+ * since those never go through the Agent's own completion step where the picker lives. {@link
+ * com.remotesupport.backend.web.StockFulfilmentService} is the one place both id's ownership/match
+ * rule is validated, called by whichever of the four effects (Provision Smartphone/SIM, Replace
+ * Smartphone/SIM) owns the field it's set on.
  */
 public record RequestCompletionInput(
     SmartphoneCreateRequest newSmartphone,
@@ -37,4 +48,6 @@ public record RequestCompletionInput(
     UUID replacesSmartphoneId,
     UUID replacesSimCardId,
     String simCardNumber,
-    List<SimCardCancellationRequest> simCardCancellations) {}
+    List<SimCardCancellationRequest> simCardCancellations,
+    UUID fulfillFromStockSmartphoneId,
+    UUID fulfillFromStockSimCardId) {}

@@ -15,6 +15,7 @@ import com.remotesupport.backend.web.InvalidRequestException;
 import com.remotesupport.backend.web.NotFoundException;
 import com.remotesupport.backend.web.SimCardFactory;
 import com.remotesupport.backend.web.SimInstallationService;
+import com.remotesupport.backend.web.StockFulfilmentService;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,11 @@ import org.springframework.util.StringUtils;
  * this ticket) takes this new, number-only path; one from before this ticket ({@code
  * requestedFlavor} null) falls back to the previous full form (ticket AC: "completes through the
  * previous full form").
+ *
+ * <p>{@code fulfillFromStockSimCardId} (fulfil-from-stock ticket): only offered on the new-style
+ * path — a legacy Request has no {@code requestedCarrier}/{@code requestedFlavor}/{@code
+ * requestedPostpaidPlan} of its own to match a Stock SIM Card against, so Stock fulfilment isn't
+ * offered there.
  */
 @Component
 public class ProvisionSimCompletionEffect implements RequestCompletionEffect {
@@ -35,14 +41,17 @@ public class ProvisionSimCompletionEffect implements RequestCompletionEffect {
   private final SimCardRepository simCardRepository;
   private final SimCardFactory simCardFactory;
   private final SimInstallationService simInstallationService;
+  private final StockFulfilmentService stockFulfilmentService;
 
   public ProvisionSimCompletionEffect(
       SimCardRepository simCardRepository,
       SimCardFactory simCardFactory,
-      SimInstallationService simInstallationService) {
+      SimInstallationService simInstallationService,
+      StockFulfilmentService stockFulfilmentService) {
     this.simCardRepository = simCardRepository;
     this.simCardFactory = simCardFactory;
     this.simInstallationService = simInstallationService;
+    this.stockFulfilmentService = stockFulfilmentService;
   }
 
   @Override
@@ -53,7 +62,7 @@ public class ProvisionSimCompletionEffect implements RequestCompletionEffect {
   @Override
   public void apply(Contract contract, Request request, RequestCompletionInput input, AuthenticatedPrincipal principal) {
     if (request.getRequestedFlavor() != null) {
-      completeFromRequestDetails(contract, request, input.simCardNumber(), principal);
+      completeFromRequestDetails(contract, request, input, principal);
       return;
     }
 
@@ -74,29 +83,46 @@ public class ProvisionSimCompletionEffect implements RequestCompletionEffect {
   }
 
   private void completeFromRequestDetails(
-      Contract contract, Request request, String simCardNumber, AuthenticatedPrincipal principal) {
-    if (!StringUtils.hasText(simCardNumber)) {
-      throw new InvalidRequestException("A simCardNumber is required to complete a Provision SIM request");
+      Contract contract, Request request, RequestCompletionInput input, AuthenticatedPrincipal principal) {
+    SimCard simCard;
+    if (input.fulfillFromStockSimCardId() != null) {
+      // fulfil-from-stock ticket: the Stock SIM Card keeps its own number and monthly fee (ticket
+      // AC) — only its Contract/holding Agent change, so no new row and no number is asked.
+      simCard =
+          stockFulfilmentService.takeMatchingSimCardFromStock(
+              contract,
+              input.fulfillFromStockSimCardId(),
+              request.getRequestedCarrier(),
+              request.getRequestedFlavor(),
+              request.getRequestedPostpaidPlan(),
+              request.getId(),
+              principal);
+    } else {
+      String simCardNumber = input.simCardNumber();
+      if (!StringUtils.hasText(simCardNumber)) {
+        throw new InvalidRequestException("A simCardNumber is required to complete a Provision SIM request");
+      }
+
+      simCard = new SimCard();
+      simCard.setId(UUID.randomUUID());
+      simCard.setTenant(contract.getTenant());
+      simCard.setContract(contract);
+      simCard.setNumber(simCardNumber.trim());
+      // Carrier, flavor and Plan come from the Request as it was at submission — never
+      // re-validated here, so a Carrier or Plan archived afterwards still lets this Request
+      // complete (spec.md: "archiving hides an entry from pickers, it never invalidates a record
+      // that already uses it").
+      simCard.setCarrier(request.getRequestedCarrier());
+      simCard.setFlavor(request.getRequestedFlavor());
+      simCard.setPostpaidPlan(request.getRequestedPostpaidPlan());
+      simCard.setMonthlyFeeAmount(
+          request.getRequestedPostpaidPlan() == null ? null : request.getRequestedPostpaidPlan().getPrice());
+      simCard.setStatus(SimCardStatus.ACTIVE);
+      simCard.setCreatedAt(Instant.now());
+      simCardRepository.save(simCard);
+
+      logProvisioned(contract, request, simCard, principal);
     }
-
-    SimCard simCard = new SimCard();
-    simCard.setId(UUID.randomUUID());
-    simCard.setTenant(contract.getTenant());
-    simCard.setContract(contract);
-    simCard.setNumber(simCardNumber.trim());
-    // Carrier, flavor and Plan come from the Request as it was at submission — never re-validated
-    // here, so a Carrier or Plan archived afterwards still lets this Request complete (spec.md:
-    // "archiving hides an entry from pickers, it never invalidates a record that already uses it").
-    simCard.setCarrier(request.getRequestedCarrier());
-    simCard.setFlavor(request.getRequestedFlavor());
-    simCard.setPostpaidPlan(request.getRequestedPostpaidPlan());
-    simCard.setMonthlyFeeAmount(
-        request.getRequestedPostpaidPlan() == null ? null : request.getRequestedPostpaidPlan().getPrice());
-    simCard.setStatus(SimCardStatus.ACTIVE);
-    simCard.setCreatedAt(Instant.now());
-    simCardRepository.save(simCard);
-
-    logProvisioned(contract, request, simCard, principal);
 
     Smartphone target = request.getTargetSmartphone();
     if (target != null) {

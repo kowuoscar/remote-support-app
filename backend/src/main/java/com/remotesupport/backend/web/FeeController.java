@@ -295,7 +295,11 @@ public class FeeController {
             requestBody.simCardNumber(),
             // A proactive Fee can never auto-create a RETURN linking Request (FeeType structurally
             // excludes it), so there is never a cancellation to record here.
-            List.of()),
+            List.of(),
+            // fulfil-from-stock ticket: same reasoning as RequestController#completionInputOf —
+            // there is no completion step here to hang a "from my Stock" picker off.
+            null,
+            null),
         principal);
 
     requestRepository.save(request);

@@ -572,6 +572,27 @@ public final class AuditLog {
         tenantId);
   }
 
+  /**
+   * A unit fulfilled from an Agent's own Stock onto a Contract, completing a Provision or Replace
+   * Request (returns-and-agent-stock spec, Solution's Fulfilment from Stock; fulfil-from-stock
+   * ticket Observability: "A unit-fulfilled-from-Stock audit event: unit id, Agent, to Contract,
+   * Request id, actor, tenant") — the reverse of {@link #unitMovedToStock}. {@code entity} is
+   * {@code Smartphone} or {@code SimCard}.
+   */
+  public static void unitFulfilledFromStock(
+      String entity, UUID unitId, UUID agentId, UUID toContractId, UUID requestId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=UNIT_FULFILLED_FROM_STOCK entity={} entityId={} agentId={} toContractId={} requestId={} "
+            + "actorUserId={} tenantId={}",
+        entity,
+        unitId,
+        agentId,
+        toContractId,
+        requestId,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

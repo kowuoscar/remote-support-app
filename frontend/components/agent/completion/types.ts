@@ -1,4 +1,10 @@
-import type { CatalogCarrierItem, RequestListItem, SimCardListItem, SmartphoneListItem } from "@/lib/api/types";
+import type {
+  CatalogCarrierItem,
+  RequestListItem,
+  SimCardListItem,
+  SmartphoneListItem,
+  StockUnitItem,
+} from "@/lib/api/types";
 
 /**
  * The shared props every per-type completion-form piece receives (provision-request-details
@@ -18,6 +24,14 @@ export interface CompletionFormProps {
   currency: string;
   activeSmartphones: SmartphoneListItem[];
   activeSimCards: SimCardListItem[];
+  /**
+   * The Contract's own Agent's Stock (fulfil-from-stock ticket), split by kind — a Provision/
+   * Replace piece offers a "from my Stock" picker built from whichever of these it owns. Optional,
+   * defaulting to empty, so a caller that has no Stock context to thread through (or an existing
+   * test) doesn't need to pass it.
+   */
+  stockSmartphones?: StockUnitItem[];
+  stockSimCards?: StockUnitItem[];
   disabled?: boolean;
 }
 

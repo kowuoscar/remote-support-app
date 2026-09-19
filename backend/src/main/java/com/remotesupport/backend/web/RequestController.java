@@ -264,7 +264,9 @@ public class RequestController {
             requestBody.replacesSmartphoneId(),
             requestBody.replacesSimCardId(),
             requestBody.simCardNumber(),
-            requestBody.simCardCancellations()),
+            requestBody.simCardCancellations(),
+            requestBody.fulfillFromStockSmartphoneId(),
+            requestBody.fulfillFromStockSimCardId()),
         principal);
 
     requestRepository.save(request);
@@ -394,7 +396,12 @@ public class RequestController {
         // A RETURN holding a SIM Card always starts Pending Approval (see
         // #returnRequiresApproval), so it can never reach this immediately-Completed,
         // Agent-proactive path with a cancellation to record.
-        List.of());
+        List.of(),
+        // fulfil-from-stock ticket: the "from my Stock" picker lives in the Agent's own
+        // completion step (a later PATCH), never in the creation body an immediately-Completed,
+        // Agent-proactive Request submits.
+        null,
+        null);
   }
 
   /**

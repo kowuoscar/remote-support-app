@@ -14,6 +14,7 @@ import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import com.remotesupport.backend.web.ConflictException;
 import com.remotesupport.backend.web.SimInstallationService;
 import com.remotesupport.backend.web.SimInstallationService.Move;
+import com.remotesupport.backend.web.StockFulfilmentService;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +28,11 @@ import org.springframework.stereotype.Component;
  * {@code ReplaceSmartphoneRequestDetailsHandler} — every Replace Smartphone Request has been able
  * to set it since this type was introduced, so there is no legacy Request predating it to fall
  * back for, unlike Provision Smartphone/SIM.
+ *
+ * <p>{@code fulfillFromStockSmartphoneId} (fulfil-from-stock ticket): the Agent may name a
+ * Smartphone from their own Stock instead of a new one being created — its model is whatever it
+ * already was in Stock (never {@code requestedModel}, which only applies to a freshly created
+ * unit); everything after (the SIM-Card carry-over, retiring the old one) is unchanged.
  */
 @Component
 public class ReplaceSmartphoneCompletionEffect implements RequestCompletionEffect {
@@ -34,14 +40,17 @@ public class ReplaceSmartphoneCompletionEffect implements RequestCompletionEffec
   private final SmartphoneRepository smartphoneRepository;
   private final SimCardRepository simCardRepository;
   private final SimInstallationService simInstallationService;
+  private final StockFulfilmentService stockFulfilmentService;
 
   public ReplaceSmartphoneCompletionEffect(
       SmartphoneRepository smartphoneRepository,
       SimCardRepository simCardRepository,
-      SimInstallationService simInstallationService) {
+      SimInstallationService simInstallationService,
+      StockFulfilmentService stockFulfilmentService) {
     this.smartphoneRepository = smartphoneRepository;
     this.simCardRepository = simCardRepository;
     this.simInstallationService = simInstallationService;
+    this.stockFulfilmentService = stockFulfilmentService;
   }
 
   @Override
@@ -58,25 +67,32 @@ public class ReplaceSmartphoneCompletionEffect implements RequestCompletionEffec
           "Cannot complete this Replace Smartphone Request — the named Smartphone is no longer Active");
     }
 
-    String model = request.getRequestedModel() != null ? request.getRequestedModel() : old.getModel();
+    Smartphone savedReplacement;
+    if (input.fulfillFromStockSmartphoneId() != null) {
+      savedReplacement =
+          stockFulfilmentService.takeSmartphoneFromStock(
+              contract, input.fulfillFromStockSmartphoneId(), request.getId(), principal);
+    } else {
+      String model = request.getRequestedModel() != null ? request.getRequestedModel() : old.getModel();
 
-    Smartphone replacement = new Smartphone();
-    replacement.setId(UUID.randomUUID());
-    replacement.setTenant(contract.getTenant());
-    replacement.setContract(contract);
-    replacement.setModel(model);
-    replacement.setSerial(null);
-    // A Smartphone reached through a Replace Request is always company-owned, exactly like
-    // Provision (spec.md Solution — Fleet model).
-    replacement.setOwner(SmartphoneOwner.COMPANY);
-    replacement.setStatus(SmartphoneStatus.ACTIVE);
-    replacement.setCreatedAt(Instant.now());
-    // save()'s own return value, not `replacement` itself: this entity's id was assigned before
-    // saving (every entity in this codebase is), so Spring Data merges rather than persists,
-    // handing back a distinct managed instance — reusing the original, still-detached `replacement`
-    // as a SIM Card's association target below would fail at flush with "object references an
-    // unsaved transient instance".
-    Smartphone savedReplacement = smartphoneRepository.save(replacement);
+      Smartphone replacement = new Smartphone();
+      replacement.setId(UUID.randomUUID());
+      replacement.setTenant(contract.getTenant());
+      replacement.setContract(contract);
+      replacement.setModel(model);
+      replacement.setSerial(null);
+      // A Smartphone reached through a Replace Request is always company-owned, exactly like
+      // Provision (spec.md Solution — Fleet model).
+      replacement.setOwner(SmartphoneOwner.COMPANY);
+      replacement.setStatus(SmartphoneStatus.ACTIVE);
+      replacement.setCreatedAt(Instant.now());
+      // save()'s own return value, not `replacement` itself: this entity's id was assigned before
+      // saving (every entity in this codebase is), so Spring Data merges rather than persists,
+      // handing back a distinct managed instance — reusing the original, still-detached
+      // `replacement` as a SIM Card's association target below would fail at flush with "object
+      // references an unsaved transient instance".
+      savedReplacement = smartphoneRepository.save(replacement);
+    }
 
     // Carry the old Smartphone's SIM Cards onto its replacement, atomically, before retiring the
     // old one — one applyMoves call so the two-SIM check sees the Fleet as it will be once every
@@ -100,13 +116,18 @@ public class ReplaceSmartphoneCompletionEffect implements RequestCompletionEffec
         principal.userId(),
         principal.tenantId());
 
-    AuditLog.smartphoneProvisioned(
-        savedReplacement.getId(),
-        contract.getId(),
-        request.getId(),
-        savedReplacement.getOwner().name(),
-        principal.userId(),
-        principal.tenantId());
+    if (input.fulfillFromStockSmartphoneId() == null) {
+      // fulfil-from-stock ticket: a Stock-fulfilled unit already logged its own
+      // unitFulfilledFromStock event inside StockFulfilmentService — a "provisioned" event here
+      // too would misleadingly imply a freshly created unit.
+      AuditLog.smartphoneProvisioned(
+          savedReplacement.getId(),
+          contract.getId(),
+          request.getId(),
+          savedReplacement.getOwner().name(),
+          principal.userId(),
+          principal.tenantId());
+    }
 
     AuditLog.unitReplaced(
         "Smartphone",

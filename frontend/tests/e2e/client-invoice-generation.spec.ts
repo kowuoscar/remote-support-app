@@ -29,9 +29,14 @@ test.describe("client invoice generation", () => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Aurora Retail Group ${RUN_ID}`;
     const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
-    await addPostpaidSimCard(page, contractId, `+1-555-${RUN_ID.slice(-4)}`, "25.00");
+    const simNumber = `+1-555-${RUN_ID.slice(-4)}`;
+    await addPostpaidSimCard(page, contractId, simNumber, "25.00");
     const testerEmail = `priya.raman+${RUN_ID}@aurora.example`;
-    await addTesterAndSubmitRequestAsAgent(page, clientId, clientName, testerEmail, "Topup");
+    // reboot-and-topup-details ticket: a Topup Request now names the SIM Card it tops up, and
+    // Verizon (its Carrier here) has active Topup Options (V22 migration).
+    await addTesterAndSubmitRequestAsAgent(page, clientId, clientName, testerEmail, "Topup", {
+      simCardOptionLabel: `${simNumber} — Verizon`,
+    });
 
     const row = page.getByRole("row", { name: /Topup/ });
     await row.getByRole("button", { name: "Mark In Progress" }).click();

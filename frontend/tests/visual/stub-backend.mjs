@@ -67,6 +67,55 @@ function catalog(country) {
   return { country, currency: CURRENCY[country], carriers };
 }
 
+// manager-approves-requests ticket: two Pending Approval Requests for the Pending Requests page
+// surface — one Tester-raised Provision Smartphone, one Agent-authored Replace SIM, so both a
+// "raised by" and a "logged by" row, and both a Provision and a Replace details summary, are
+// covered. Ages are fixed, not computed against a live clock, but the page's own "waiting" column
+// still resolves them against the *real* current time, so tests/visual/surfaces.spec.ts masks it
+// rather than freezing it into the golden (it would otherwise drift by a day every day the suite
+// runs — see that file's `timeDrivenRegions`).
+const PENDING_REQUESTS = [
+  {
+    request: {
+      id: "11111111-0000-0000-0000-000000000001",
+      contractId: "22222222-0000-0000-0000-000000000001",
+      type: "PROVISION_SMARTPHONE",
+      status: "PENDING_APPROVAL",
+      raisedByTesterId: "33333333-0000-0000-0000-000000000001",
+      raisedByUsername: "priya.raman@aurora.example",
+      agentAuthored: false,
+      loggedByUsername: "priya.raman@aurora.example",
+      cancellationReason: null,
+      description: null,
+      createdAt: "2026-09-14T09:00:00Z",
+      requestedModel: "iPhone 15 Pro",
+    },
+    clientName: "Aurora Retail Group",
+    agentName: "Jordan Ellis",
+    waitingSince: "2026-09-14T09:00:00Z",
+  },
+  {
+    request: {
+      id: "11111111-0000-0000-0000-000000000002",
+      contractId: "22222222-0000-0000-0000-000000000002",
+      type: "REPLACE_SIM",
+      status: "PENDING_APPROVAL",
+      raisedByTesterId: "33333333-0000-0000-0000-000000000002",
+      raisedByUsername: "owen.reyes@meridian.example",
+      agentAuthored: true,
+      loggedByUsername: "agent@example.com",
+      cancellationReason: null,
+      description: null,
+      createdAt: "2026-09-12T09:00:00Z",
+      targetSimCardId: "44444444-0000-0000-0000-000000000001",
+      targetSimCardNumber: "+1-555-0100",
+    },
+    clientName: "Meridian Logistics",
+    agentName: "Priya Nair",
+    waitingSince: "2026-09-12T09:00:00Z",
+  },
+];
+
 function send(response, status, body) {
   response.writeHead(status, { "Content-Type": "application/json" });
   response.end(body === undefined ? "" : JSON.stringify(body));
@@ -86,6 +135,9 @@ createServer((request, response) => {
   if (url.pathname === "/api/carriers" && request.method === "GET") {
     const country = url.searchParams.get("country") ?? caller.country;
     return CURRENCY[country] ? send(response, 200, catalog(country)) : send(response, 400);
+  }
+  if (url.pathname === "/api/pending-requests" && request.method === "GET") {
+    return caller.role === "MANAGER" ? send(response, 200, PENDING_REQUESTS) : send(response, 403);
   }
   return send(response, 404);
 }).listen(PORT, "127.0.0.1");

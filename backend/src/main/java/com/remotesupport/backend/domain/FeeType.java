@@ -1,8 +1,9 @@
 package com.remotesupport.backend.domain;
 
 /**
- * The four {@link RequestType}s that can carry a {@link Fee} (spec.md Solution: "Topup, Provision
- * Smartphone, Provision SIM and Repair do [produce a Fee]"; fee-logging-and-provisioning ticket).
+ * The six {@link RequestType}s that can carry a {@link Fee} (spec.md Solution: "The fee-capable
+ * subset (FeeType) is Topup, Provision Smartphone, Provision SIM, Replace Smartphone, Replace
+ * SIM, Other"; fee-logging-and-provisioning, other-replaces-repair and replace-requests tickets).
  * Deliberately narrower than {@code RequestType} rather than reusing it directly: {@code REBOOT}
  * and {@code SIM_SWAP} must never be constructible as a Fee's type, so the compiler rules them out
  * everywhere a {@code FeeType} is asked for, instead of relying on a runtime check alone. A
@@ -13,7 +14,9 @@ public enum FeeType {
   TOPUP,
   PROVISION_SMARTPHONE,
   PROVISION_SIM,
-  REPAIR;
+  REPLACE_SMARTPHONE,
+  REPLACE_SIM,
+  OTHER;
 
   /** The {@link RequestType} this Fee type corresponds to 1:1 — the two enums share every name. */
   public RequestType toRequestType() {
@@ -23,7 +26,7 @@ public enum FeeType {
   /** Whether an existing Request of this type is allowed to carry a Fee at all. */
   public static boolean requestTypeCanCarryFee(RequestType requestType) {
     return switch (requestType) {
-      case TOPUP, PROVISION_SMARTPHONE, PROVISION_SIM, REPAIR -> true;
+      case TOPUP, PROVISION_SMARTPHONE, PROVISION_SIM, REPLACE_SMARTPHONE, REPLACE_SIM, OTHER -> true;
       case REBOOT, SIM_SWAP -> false;
     };
   }

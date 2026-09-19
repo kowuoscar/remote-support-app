@@ -3,8 +3,20 @@
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { IconAlertTriangle, IconPlus } from "@/components/icons";
-import { REQUEST_TYPE_LABEL, type ContractTesterListItem, type RequestTypeValue } from "@/lib/api/types";
+import { Input } from "@/components/ui/input";
+import { IconPlus } from "@/components/icons";
+import { FormErrorAlert, TesterSelectField } from "@/components/agent/proactive-dialog-fields";
+import { REQUEST_DETAILS_COMPONENTS } from "@/components/requests/details/registry";
+import {
+  REQUEST_TYPE_LABEL,
+  requestTypeRequiresApproval,
+  type CatalogCarrierItem,
+  type ContractTesterListItem,
+  type RequestStatusValue,
+  type RequestTypeValue,
+  type SimCardListItem,
+  type SmartphoneListItem,
+} from "@/lib/api/types";
 
 const requestTypes: RequestTypeValue[] = [
   "REBOOT",
@@ -12,7 +24,9 @@ const requestTypes: RequestTypeValue[] = [
   "SIM_SWAP",
   "PROVISION_SMARTPHONE",
   "PROVISION_SIM",
-  "REPAIR",
+  "REPLACE_SMARTPHONE",
+  "REPLACE_SIM",
+  "OTHER",
 ];
 
 /**
@@ -22,21 +36,48 @@ const requestTypes: RequestTypeValue[] = [
  * same "Contract already chosen via the switcher, then act within it" shape as CreateSmartphoneDialog.
  * Distinct from the Tester's own SubmitRequestDialog: this one also names which Tester it's for and
  * lets the Agent choose the starting status, since it's Agent-authored, not Tester-authored.
+ *
+ * <p>reboot-and-topup-details ticket: the type-specific fields below the type picker come from
+ * `REQUEST_DETAILS_COMPONENTS` — the same registry and components `SubmitRequestDialog` uses —
+ * scoped to this dialog's own fixed `contractId`.
  */
 export function LogRequestDialog({
   contractId,
   testers,
+  smartphones = [],
+  simCards = [],
+  carriers = [],
+  currency = "",
+  carriersHref = "/agent/carriers",
 }: {
   contractId: string;
   testers: ContractTesterListItem[];
+  smartphones?: SmartphoneListItem[];
+  simCards?: SimCardListItem[];
+  carriers?: CatalogCarrierItem[];
+  currency?: string;
+  carriersHref?: string;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [type, setType] = useState<RequestTypeValue>(requestTypes[0]);
+  const [startingStatus, setStartingStatus] = useState<RequestStatusValue>("SUBMITTED");
+
+  const DetailsComponent = REQUEST_DETAILS_COMPONENTS[type];
+  // manager-approves-requests ticket: Provision Smartphone/SIM and Replace Smartphone/SIM always
+  // start Pending Approval now, whoever raises them — an Agent logging one proactively can no
+  // longer choose Submitted or Completed (spec.md Lifecycle), so the choice below is hidden for
+  // these four types, and the SIM-number-at-creation field (only ever meaningful when a Provision
+  // SIM could start immediately Completed) can never apply to them either.
+  const approvalRequired = requestTypeRequiresApproval(type);
+  const needsSimCardNumber = !approvalRequired && type === "PROVISION_SIM" && startingStatus === "COMPLETED";
 
   function open() {
     setError(null);
+    setType(requestTypes[0]);
+    setStartingStatus("SUBMITTED");
     dialogRef.current?.showModal();
   }
 
@@ -49,16 +90,41 @@ export function LogRequestDialog({
     setError(null);
 
     const formData = new FormData(event.currentTarget);
-    const type = String(formData.get("type"));
     const testerId = String(formData.get("testerId"));
-    const startingStatus = String(formData.get("startingStatus"));
+    const description = String(formData.get("description") ?? "").trim();
+    const targetSmartphoneId = String(formData.get("targetSmartphoneId") ?? "");
+    const targetSimCardId = String(formData.get("targetSimCardId") ?? "");
+    const topupOptionId = String(formData.get("topupOptionId") ?? "");
+    const requestedModel = String(formData.get("requestedModel") ?? "").trim();
+    const requestedFlavor = String(formData.get("requestedFlavor") ?? "");
+    const requestedCarrierId = String(formData.get("requestedCarrierId") ?? "");
+    const requestedPostpaidPlanId = String(formData.get("requestedPostpaidPlanId") ?? "");
+    // provision-request-details ticket AC: an Agent logging a Provision SIM proactively that
+    // starts immediately Completed also gives the SIM number right here.
+    const simCardNumber = String(formData.get("simCardNumber") ?? "");
+    // sim-swap-moves ticket: only present for a SIM Swap exchange.
+    const secondSimCardId = String(formData.get("secondSimCardId") ?? "");
 
     setSubmitting(true);
     try {
       const response = await fetch(`/api/contracts/${contractId}/requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, testerId, startingStatus }),
+        body: JSON.stringify({
+          type,
+          testerId,
+          startingStatus: approvalRequired ? undefined : startingStatus,
+          description: description || undefined,
+          targetSmartphoneId: targetSmartphoneId || undefined,
+          targetSimCardId: targetSimCardId || undefined,
+          topupOptionId: topupOptionId || undefined,
+          requestedModel: requestedModel || undefined,
+          requestedFlavor: requestedFlavor || undefined,
+          requestedCarrierId: requestedCarrierId || undefined,
+          requestedPostpaidPlanId: requestedPostpaidPlanId || undefined,
+          simCardNumber: simCardNumber || undefined,
+          secondSimCardId: secondSimCardId || undefined,
+        }),
       });
 
       if (!response.ok) {
@@ -98,15 +164,7 @@ export function LogRequestDialog({
             </p>
           </div>
 
-          {error ? (
-            <div
-              role="alert"
-              className="flex items-start gap-2 rounded-lg bg-danger-bg px-3 py-2.5 text-[13px] text-danger"
-            >
-              <IconAlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{error}</span>
-            </div>
-          ) : null}
+          <FormErrorAlert error={error} />
 
           {testers.length === 0 ? (
             <p className="text-[13px] text-ink-mute">
@@ -114,51 +172,94 @@ export function LogRequestDialog({
             </p>
           ) : (
             <>
-              <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                Tester
-                <select
-                  name="testerId"
-                  required
-                  defaultValue={testers[0]?.id}
-                  disabled={submitting}
-                  className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
-                >
-                  {testers.map((tester) => (
-                    <option key={tester.id} value={tester.id}>
-                      {tester.username}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <TesterSelectField testers={testers} disabled={submitting} />
 
               <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
                 Request type
                 <select
                   name="type"
                   required
-                  defaultValue={requestTypes[0]}
+                  value={type}
+                  onChange={(event) => setType(event.target.value as RequestTypeValue)}
                   disabled={submitting}
                   className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
                 >
-                  {requestTypes.map((type) => (
-                    <option key={type} value={type}>
-                      {REQUEST_TYPE_LABEL[type]}
+                  {requestTypes.map((option) => (
+                    <option key={option} value={option}>
+                      {REQUEST_TYPE_LABEL[option]}
                     </option>
                   ))}
                 </select>
               </label>
 
-              <fieldset className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                <legend className="mb-0.5">Starting status</legend>
-                <label className="flex items-center gap-2 font-normal text-ink">
-                  <input type="radio" name="startingStatus" value="SUBMITTED" defaultChecked disabled={submitting} />
-                  Submitted — queue it for follow-up
+              {DetailsComponent ? (
+                <DetailsComponent
+                  key={type}
+                  smartphones={smartphones}
+                  simCards={simCards}
+                  carriers={carriers}
+                  carriersHref={carriersHref}
+                  currency={currency}
+                  disabled={submitting}
+                />
+              ) : (
+                <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+                  Description{" "}
+                  {type === "OTHER" ? null : <span className="font-normal text-ink-mute">(optional)</span>}
+                  <textarea
+                    name="description"
+                    required={type === "OTHER"}
+                    rows={3}
+                    disabled={submitting}
+                    placeholder={
+                      type === "OTHER" ? "What did you help with?" : "Anything worth recording"
+                    }
+                    className="rounded-lg border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink focus-visible:border-primary"
+                  />
                 </label>
-                <label className="flex items-center gap-2 font-normal text-ink">
-                  <input type="radio" name="startingStatus" value="COMPLETED" disabled={submitting} />
-                  Completed — already handled
+              )}
+
+              {approvalRequired ? (
+                <p className="rounded-lg bg-warning-bg px-3 py-2 text-[12px] text-warning">
+                  {REQUEST_TYPE_LABEL[type]} always starts Pending Approval — the Company Manager
+                  decides before it moves on.
+                </p>
+              ) : (
+                <fieldset className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+                  <legend className="mb-0.5">Starting status</legend>
+                  <label className="flex items-center gap-2 font-normal text-ink">
+                    <input
+                      type="radio"
+                      name="startingStatus"
+                      value="SUBMITTED"
+                      checked={startingStatus === "SUBMITTED"}
+                      onChange={() => setStartingStatus("SUBMITTED")}
+                      disabled={submitting}
+                      className="h-4 w-4 accent-primary"
+                    />
+                    Submitted — queue it for follow-up
+                  </label>
+                  <label className="flex items-center gap-2 font-normal text-ink">
+                    <input
+                      type="radio"
+                      name="startingStatus"
+                      value="COMPLETED"
+                      checked={startingStatus === "COMPLETED"}
+                      onChange={() => setStartingStatus("COMPLETED")}
+                      disabled={submitting}
+                      className="h-4 w-4 accent-primary"
+                    />
+                    Completed — already handled
+                  </label>
+                </fieldset>
+              )}
+
+              {needsSimCardNumber ? (
+                <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+                  New SIM number
+                  <Input name="simCardNumber" required disabled={submitting} placeholder="+1-555-0100" />
                 </label>
-              </fieldset>
+              ) : null}
             </>
           )}
 

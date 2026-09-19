@@ -15,6 +15,8 @@ import com.remotesupport.backend.support.IntegrationTest;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,16 +70,26 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .andExpect(status().isOk());
   }
 
+  // Other now requires a description; every other type still submits with none, exactly as
+  // before. reboot-and-topup-details ticket: Reboot/Topup now each require their own target unit.
   private UUID submitRequest(String testerToken, UUID contractId, String type) throws Exception {
+    Map<String, Object> body = new HashMap<>();
+    body.put("type", type);
+    if ("OTHER".equals(type)) {
+      body.put("description", "Screen replacement");
+    } else if ("REBOOT".equals(type)) {
+      body.put("targetSmartphoneId", createSmartphone(managerToken(), contractId, "Fixture Phone"));
+    } else if ("TOPUP".equals(type)) {
+      body.put("targetSimCardId", createTopupTargetSimCard(managerToken(), contractId));
+      body.put("description", "Top-up needed");
+    }
     MvcResult result =
         mockMvc
             .perform(
                 post("/api/contracts/" + contractId + "/requests")
                     .header("Authorization", "Bearer " + testerToken)
                     .contentType(APPLICATION_JSON)
-                    .content("""
-                        {"type":"%s"}
-                        """.formatted(type)))
+                    .content(objectMapper.writeValueAsString(body)))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
@@ -180,8 +192,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
 
     UUID topupRequestId = submitRequest(testerToken, contractId, "TOPUP");
     logFee(agentToken, contractId, topupRequestId, "TOPUP", "45.00");
-    UUID repairRequestId = submitRequest(testerToken, contractId, "REPAIR");
-    logFee(agentToken, contractId, repairRequestId, "REPAIR", "60.00");
+    UUID otherRequestId = submitRequest(testerToken, contractId, "OTHER");
+    logFee(agentToken, contractId, otherRequestId, "OTHER", "60.00");
 
     // A Fee logged this month, but attributed to last month's billing month (the kind of
     // backdating Fee.java's Javadoc anticipates — bypassing the controller, which always sets
@@ -444,8 +456,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
     // A Fee logged against this same Contract/month *after* sending must never change the sent
     // invoice's already-frozen numbers — the whole point of the snapshot-on-send decision
     // (ClientInvoice's Javadoc / CONTEXT.md).
-    UUID repairRequestId = submitRequest(testerToken, contractId, "REPAIR");
-    logFee(agentToken, contractId, repairRequestId, "REPAIR", "999.00");
+    UUID otherRequestId = submitRequest(testerToken, contractId, "OTHER");
+    logFee(agentToken, contractId, otherRequestId, "OTHER", "999.00");
 
     mockMvc
         .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))

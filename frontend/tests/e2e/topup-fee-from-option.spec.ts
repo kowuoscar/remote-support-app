@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SEEDED_USERS, createContractWithTester, login, logout, selectContractInSwitcher } from "./helpers";
+import { SEEDED_USERS, addSimCard, createContractWithTester, login, logout, selectContractInSwitcher } from "./helpers";
 
 /**
  * An Agent logs a Topup Fee from a Topup Option (carrier-catalog spec; topup-fee-from-option
@@ -15,7 +15,12 @@ test.describe("topup fee from a topup option", () => {
     const clientName = `Lumen Outfitters ${RUN_ID}`;
     const testerEmail = `ana.ortiz+${RUN_ID}@lumen.example`;
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    await createContractWithTester(page, clientName, testerEmail);
+    const { contractId } = await createContractWithTester(page, clientName, testerEmail);
+    // reboot-and-topup-details ticket: a proactive Topup Fee's auto-created linking Request now
+    // names a target SIM Card. AT&T is the seeded active US Carrier whose "Prepaid Refill 25" this
+    // suite exercises.
+    const simNumber = `+1-555-${RUN_ID}`;
+    await addSimCard(page, contractId, simNumber, "AT&T");
     await logout(page);
 
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -27,7 +32,8 @@ test.describe("topup fee from a topup option", () => {
     await dialog.getByLabel("Tester").selectOption({ label: testerEmail });
     await expect(dialog.getByLabel("Fee type")).toHaveValue("TOPUP");
 
-    await dialog.getByLabel("Topup option (optional)").selectOption({ label: "AT&T — Prepaid Refill 25 · $25.00" });
+    await dialog.getByLabel("SIM Card to top up").selectOption({ label: `${simNumber} — AT&T` });
+    await dialog.getByLabel("Topup option").selectOption({ label: "AT&T — Prepaid Refill 25 · $25.00" });
     const amount = dialog.getByLabel("Amount (USD)");
     await expect(amount).toHaveValue("25.00");
 

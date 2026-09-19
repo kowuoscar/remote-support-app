@@ -94,6 +94,14 @@ public class SecurityConfig {
                     // FleetAccessGuard in ContractTestersController, same shape as Fleet/Requests.
                     .requestMatchers(HttpMethod.GET, "/api/contracts/*/testers")
                     .authenticated()
+                    // reboot-and-topup-details ticket: anyone who can view a Contract (Manager,
+                    // its own Agent, its own Client's Tester) can read its Country's active
+                    // Carrier catalog through this Contract-scoped route — Contract ownership
+                    // itself is re-checked in ContractCarrierController via FleetAccessGuard,
+                    // same shape as every other Contract-scoped resource above. The Country-scoped
+                    // /api/carriers routes below stay Agent/Manager only, unchanged.
+                    .requestMatchers(HttpMethod.GET, "/api/contracts/*/carriers")
+                    .authenticated()
                     // fee-logging-and-provisioning ticket: only the Contract's own Agent (or a
                     // Manager) may log a Fee (spec.md Access control: "Agent: full CRUD on ...
                     // Fees ... within their own Contracts"); Contract ownership itself is
@@ -163,6 +171,14 @@ public class SecurityConfig {
                     .requestMatchers("/api/carriers", "/api/carriers/**")
                     .hasAnyRole("MANAGER", "AGENT")
                     .requestMatchers("/api/review-queue","/api/client-invoices/**", "/api/agent-invoices/**")
+                    .hasRole("MANAGER")
+                    // manager-approves-requests ticket: the Pending Requests list and a Request's
+                    // own approve/reject are Manager-only (spec.md Constraints: "An Agent or
+                    // Tester gets 403 on those routes and on the pending list") — a distinct
+                    // top-level path from the Contract-scoped /api/contracts/*/requests/** above,
+                    // so this doesn't narrow that route's existing access. Tenant scoping (an
+                    // unknown or other-tenant id is 404) is enforced in RequestByIdController.
+                    .requestMatchers("/api/pending-requests", "/api/requests/**")
                     .hasRole("MANAGER")
                     .requestMatchers("/api/clients/**", "/api/agents/**", "/api/contracts/**")
                     .hasRole("MANAGER")

@@ -10,9 +10,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.support.IntegrationTest;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -30,42 +31,153 @@ import org.springframework.test.web.servlet.MvcResult;
  */
 class RequestApiTest extends IntegrationTest {
 
+  // Other now requires a description; every other type still submits with none, exactly as
+  // before. reboot-and-topup-details ticket: Reboot/Topup now each require their own target unit
+  // — a fresh fixture per call, since a Smartphone/SIM Card can't be shared across Requests here.
+  // provision-request-details ticket: Provision Smartphone/SIM each require their own details too.
   private UUID submitRequest(String testerToken, UUID contractId, String type) throws Exception {
+    Map<String, Object> body = new HashMap<>();
+    body.put("type", type);
+    if ("OTHER".equals(type)) {
+      body.put("description", "Screen replacement");
+    } else if ("REBOOT".equals(type)) {
+      body.put("targetSmartphoneId", createSmartphone(managerToken(), contractId, "Fixture Phone"));
+    } else if ("TOPUP".equals(type)) {
+      body.put("targetSimCardId", createTopupTargetSimCard(managerToken(), contractId));
+      body.put("description", "Top-up needed");
+    } else if ("PROVISION_SMARTPHONE".equals(type)) {
+      body.put("requestedModel", "Fixture Model");
+    } else if ("PROVISION_SIM".equals(type)) {
+      body.put("requestedFlavor", "PREPAID");
+      body.put("requestedCarrierId", SEEDED_US_CARRIER_ID);
+    } else if ("SIM_SWAP".equals(type)) {
+      // sim-swap-moves ticket: a SIM Swap now needs a move — an Active SIM Card and its
+      // (different) destination Smartphone, a fresh fixture per call.
+      body.put("targetSmartphoneId", createSmartphone(managerToken(), contractId, "Fixture Phone"));
+      body.put("targetSimCardId", createSimCard(managerToken(), contractId, SEEDED_US_CARRIER_ID));
+    }
     MvcResult result =
         mockMvc
             .perform(
                 post("/api/contracts/" + contractId + "/requests")
                     .header("Authorization", "Bearer " + testerToken)
                     .contentType(APPLICATION_JSON)
-                    .content("""
-                        {"type":"%s"}
-                        """.formatted(type)))
+                    .content(objectMapper.writeValueAsString(body)))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
   }
 
-  /** Looks up a Tester's id by username via the Contract-scoped testers listing. */
-  private UUID findTesterId(String callerToken, UUID contractId, String username) throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = {"REBOOT", "TOPUP", "SIM_SWAP", "OTHER"})
+  void testerCanSubmitEachRequestTypeAndItStartsSubmitted(String type) throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Aurora Retail Group");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
+
+    // A description is required only for Other, but harmless to give for every type — this covers
+    // both "every type accepts an optional description" and Other's own requirement in one loop.
+    // reboot-and-topup-details ticket: Reboot/Topup also need their own target unit.
+    Map<String, Object> body = new HashMap<>();
+    body.put("type", type);
+    body.put("description", "Details for the agent");
+    if ("REBOOT".equals(type)) {
+      body.put("targetSmartphoneId", createSmartphone(managerToken, contractId, "Fixture Phone"));
+    } else if ("TOPUP".equals(type)) {
+      body.put("targetSimCardId", createTopupTargetSimCard(managerToken, contractId));
+    } else if ("SIM_SWAP".equals(type)) {
+      // sim-swap-moves ticket: a SIM Swap now needs a move.
+      body.put("targetSmartphoneId", createSmartphone(managerToken, contractId, "Fixture Phone"));
+      body.put("targetSimCardId", createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID));
+    }
+
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/requests")
+                .header("Authorization", "Bearer " + testerToken)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.type").value(type))
+        .andExpect(jsonPath("$.status").value("SUBMITTED"))
+        .andExpect(jsonPath("$.contractId").value(contractId.toString()))
+        .andExpect(jsonPath("$.raisedByUsername").value("priya.raman@aurora.example"))
+        .andExpect(jsonPath("$.description").value("Details for the agent"));
+  }
+
+  // --- manager-approves-requests: the four approval-required types start Pending Approval -------
+
+  @ParameterizedTest
+  @ValueSource(strings = {"PROVISION_SMARTPHONE", "PROVISION_SIM", "REPLACE_SMARTPHONE", "REPLACE_SIM"})
+  void anApprovalRequiredTypeStartsPendingApprovalWhoeverSubmitsIt(String type) throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Aurora Retail Group");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
+
+    UUID requestId = submitApprovalRequiredRequest(testerToken, contractId, type);
+    mockMvc
+        .perform(
+            get("/api/contracts/" + contractId + "/requests")
+                .header("Authorization", "Bearer " + testerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].id").value(requestId.toString()))
+        .andExpect(jsonPath("$[0].status").value("PENDING_APPROVAL"));
+
+    // An Agent logging the same type proactively also starts Pending Approval — even when it asks
+    // for something else — never Submitted or Completed (spec.md Lifecycle).
+    String agentToken = agentToken();
+    UUID testerId = findTesterId(agentToken, contractId, "priya.raman@aurora.example");
+    Map<String, Object> agentBody = approvalRequiredFields(managerToken, contractId, type);
+    agentBody.put("testerId", testerId.toString());
+    agentBody.put("startingStatus", "COMPLETED");
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/requests")
+                .header("Authorization", "Bearer " + agentToken)
+                .contentType(APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(agentBody)))
+        .andExpect(status().isBadRequest());
+  }
+
+  private Map<String, Object> approvalRequiredFields(String managerToken, UUID contractId, String type)
+      throws Exception {
+    Map<String, Object> body = new HashMap<>();
+    body.put("type", type);
+    switch (type) {
+      case "PROVISION_SMARTPHONE" -> body.put("requestedModel", "Fixture Model");
+      case "PROVISION_SIM" -> {
+        body.put("requestedFlavor", "PREPAID");
+        body.put("requestedCarrierId", SEEDED_US_CARRIER_ID);
+      }
+      case "REPLACE_SMARTPHONE" ->
+          body.put("targetSmartphoneId", createSmartphone(managerToken, contractId, "Fixture Phone"));
+      case "REPLACE_SIM" -> body.put("targetSimCardId", createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID));
+      default -> throw new IllegalArgumentException("Not an approval-required type: " + type);
+    }
+    return body;
+  }
+
+  private UUID submitApprovalRequiredRequest(String testerToken, UUID contractId, String type) throws Exception {
+    Map<String, Object> body = approvalRequiredFields(managerToken(), contractId, type);
     MvcResult result =
         mockMvc
             .perform(
-                get("/api/contracts/" + contractId + "/testers")
-                    .header("Authorization", "Bearer " + callerToken))
-            .andExpect(status().isOk())
+                post("/api/contracts/" + contractId + "/requests")
+                    .header("Authorization", "Bearer " + testerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(body)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"))
             .andReturn();
-    for (JsonNode node : objectMapper.readTree(result.getResponse().getContentAsString())) {
-      if (username.equals(node.get("username").asText())) {
-        return UUID.fromString(node.get("id").asText());
-      }
-    }
-    throw new IllegalStateException("No tester named " + username + " found on contract " + contractId);
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
   }
 
-  @ParameterizedTest
-  @ValueSource(
-      strings = {"REBOOT", "TOPUP", "SIM_SWAP", "PROVISION_SMARTPHONE", "PROVISION_SIM", "REPAIR"})
-  void testerCanSubmitEachRequestTypeAndItStartsSubmitted(String type) throws Exception {
+  @Test
+  void anOtherRequestIsRefusedWithoutADescriptionOnBothTheTesterAndTheAgentPath() throws Exception {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
@@ -78,13 +190,32 @@ class RequestApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + testerToken)
                 .contentType(APPLICATION_JSON)
                 .content("""
-                    {"type":"%s"}
-                    """.formatted(type)))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.type").value(type))
-        .andExpect(jsonPath("$.status").value("SUBMITTED"))
-        .andExpect(jsonPath("$.contractId").value(contractId.toString()))
-        .andExpect(jsonPath("$.raisedByUsername").value("priya.raman@aurora.example"));
+                    {"type":"OTHER"}
+                    """))
+        .andExpect(status().isBadRequest());
+
+    // A blank description is refused exactly like a missing one.
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/requests")
+                .header("Authorization", "Bearer " + testerToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"type":"OTHER","description":"   "}
+                    """))
+        .andExpect(status().isBadRequest());
+
+    String agentToken = agentToken();
+    UUID testerId = findTesterId(agentToken, contractId, "priya.raman@aurora.example");
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/requests")
+                .header("Authorization", "Bearer " + agentToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"type":"OTHER","testerId":"%s"}
+                    """.formatted(testerId)))
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -123,7 +254,7 @@ class RequestApiTest extends IntegrationTest {
     String testerToken =
         createTesterAndLogin(managerToken, clientId, "helena.voss@kessler.example", "Passw0rd!23");
     submitRequest(testerToken, firstContract, "REBOOT");
-    submitRequest(testerToken, secondContract, "REPAIR");
+    submitRequest(testerToken, secondContract, "OTHER");
 
     mockMvc
         .perform(
@@ -139,7 +270,7 @@ class RequestApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + testerToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(1))
-        .andExpect(jsonPath("$[0].type").value("REPAIR"));
+        .andExpect(jsonPath("$[0].type").value("OTHER"));
   }
 
   @Test
@@ -468,6 +599,7 @@ class RequestApiTest extends IntegrationTest {
 
     String agentToken = agentToken();
     UUID testerId = findTesterId(agentToken, contractId, "priya.raman@aurora.example");
+    UUID targetSimCardId = createTopupTargetSimCard(managerToken, contractId);
 
     mockMvc
         .perform(
@@ -476,9 +608,9 @@ class RequestApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"type":"TOPUP","testerId":"%s"}
+                    {"type":"TOPUP","testerId":"%s","targetSimCardId":"%s","description":"Top-up needed"}
                     """
-                        .formatted(testerId)))
+                        .formatted(testerId, targetSimCardId)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.status").value("SUBMITTED"))
         .andExpect(jsonPath("$.agentAuthored").value(true))
@@ -503,7 +635,7 @@ class RequestApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"type":"REPAIR","testerId":"%s","startingStatus":"COMPLETED"}
+                    {"type":"OTHER","testerId":"%s","startingStatus":"COMPLETED","description":"Screen replacement"}
                     """
                         .formatted(testerId)))
         .andExpect(status().isCreated())
@@ -587,26 +719,25 @@ class RequestApiTest extends IntegrationTest {
 
       String agentToken = agentToken();
       UUID testerId = findTesterId(agentToken, contractId, "charlotte.finch@harborfinch.example");
+      UUID targetSimCardId = createTopupTargetSimCard(managerToken, contractId);
 
-      // fee-logging-and-provisioning ticket: completing a Provision SIM Request — even
-      // immediately, via an Agent-proactive creation — requires the new unit's details.
       mockMvc.perform(
           post("/api/contracts/" + contractId + "/requests")
               .header("Authorization", "Bearer " + agentToken)
               .contentType(APPLICATION_JSON)
               .content(
                   """
-                  {"type":"PROVISION_SIM","testerId":"%s","startingStatus":"COMPLETED",
-                   "newSimCard":{"number":"+1-555-0177","carrierId":"%s","flavor":"PREPAID"}}
+                  {"type":"TOPUP","testerId":"%s","startingStatus":"COMPLETED",
+                   "targetSimCardId":"%s","description":"Top-up at kiosk"}
                   """
-                      .formatted(testerId, SEEDED_US_CARRIER_ID)));
+                      .formatted(testerId, targetSimCardId)));
 
       String logged =
           appender.list.stream().map(ILoggingEvent::getFormattedMessage).reduce("", String::concat);
       Assertions.assertThat(logged).contains("action=REQUEST_LOGGED_BY_AGENT");
       Assertions.assertThat(logged).contains("entity=Request");
       Assertions.assertThat(logged).contains("contractId=" + contractId);
-      Assertions.assertThat(logged).contains("requestType=PROVISION_SIM");
+      Assertions.assertThat(logged).contains("requestType=TOPUP");
       Assertions.assertThat(logged).contains("startingStatus=COMPLETED");
     } finally {
       auditLogger.detachAppender(appender);
@@ -634,7 +765,7 @@ class RequestApiTest extends IntegrationTest {
                     .contentType(APPLICATION_JSON)
                     .content(
                         """
-                        {"type":"REPAIR","testerId":"%s"}
+                        {"type":"OTHER","testerId":"%s","description":"Screen replacement"}
                         """
                             .formatted(testerId)))
             .andExpect(status().isCreated())
@@ -649,9 +780,10 @@ class RequestApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + testerToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(1))
-        .andExpect(jsonPath("$[0].type").value("REPAIR"))
+        .andExpect(jsonPath("$[0].type").value("OTHER"))
         .andExpect(jsonPath("$[0].agentAuthored").value(true))
-        .andExpect(jsonPath("$[0].status").value("SUBMITTED"));
+        .andExpect(jsonPath("$[0].status").value("SUBMITTED"))
+        .andExpect(jsonPath("$[0].description").value("Screen replacement"));
 
     // Once the Agent progresses it, the Tester's list reflects the new status.
     mockMvc.perform(

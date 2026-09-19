@@ -2,9 +2,11 @@ package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Smartphone;
+import com.remotesupport.backend.domain.SmartphoneOwner;
 import com.remotesupport.backend.domain.SmartphoneStatus;
 import com.remotesupport.backend.dto.SmartphoneCreateRequest;
 import com.remotesupport.backend.dto.SmartphoneResponse;
+import com.remotesupport.backend.dto.SmartphoneSerialUpdateRequest;
 import com.remotesupport.backend.dto.SmartphoneStatusUpdateRequest;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.ContractRepository;
@@ -18,6 +20,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,14 +42,17 @@ public class SmartphoneController {
   private final ContractRepository contractRepository;
   private final SmartphoneRepository smartphoneRepository;
   private final FleetAccessGuard fleetAccessGuard;
+  private final SimInstallationService simInstallationService;
 
   public SmartphoneController(
       ContractRepository contractRepository,
       SmartphoneRepository smartphoneRepository,
-      FleetAccessGuard fleetAccessGuard) {
+      FleetAccessGuard fleetAccessGuard,
+      SimInstallationService simInstallationService) {
     this.contractRepository = contractRepository;
     this.smartphoneRepository = smartphoneRepository;
     this.fleetAccessGuard = fleetAccessGuard;
+    this.simInstallationService = simInstallationService;
   }
 
   @PostMapping
@@ -61,13 +67,18 @@ public class SmartphoneController {
     smartphone.setTenant(contract.getTenant());
     smartphone.setContract(contract);
     smartphone.setModel(request.model());
-    smartphone.setSerial(request.serial());
-    smartphone.setAssignedTo(request.assignedTo());
+    smartphone.setSerial(blankToNull(request.serial()));
+    smartphone.setOwner(request.owner() != null ? request.owner() : SmartphoneOwner.COMPANY);
     smartphone.setStatus(SmartphoneStatus.ACTIVE);
     smartphone.setCreatedAt(Instant.now());
     smartphoneRepository.save(smartphone);
 
-    AuditLog.created("Smartphone", smartphone.getId(), principal.userId(), principal.tenantId());
+    AuditLog.smartphoneCreated(
+        smartphone.getId(),
+        contract.getId(),
+        smartphone.getOwner().name(),
+        principal.userId(),
+        principal.tenantId());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(SmartphoneResponse.of(smartphone));
   }
@@ -115,7 +126,48 @@ public class SmartphoneController {
         principal.userId(),
         principal.tenantId());
 
+    // Retiring a Smartphone clears the Installed-in link on its SIM Cards (spec.md Solution —
+    // Fleet model; sim-installed-in-smartphone ticket AC).
+    if (newStatus == SmartphoneStatus.RETIRED) {
+      simInstallationService.clearLinksForRetiredSmartphone(smartphone, null, principal);
+    }
+
     return SmartphoneResponse.of(smartphone);
+  }
+
+  /**
+   * Sets or changes a Smartphone's serial from the Fleet page (smartphone-owner-and-optional-serial
+   * ticket AC: "the Agent (own Contract) or the Manager can set or change the serial later ...
+   * a Tester cannot"). Same allowed callers as a status change, so this reuses {@link
+   * FleetAccessGuard#requireCanChangeStatus} rather than adding a same-shaped guard method.
+   */
+  @PatchMapping("/{smartphoneId}/serial")
+  public SmartphoneResponse updateSerial(
+      @PathVariable UUID contractId,
+      @PathVariable UUID smartphoneId,
+      @Valid @RequestBody SmartphoneSerialUpdateRequest request,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    Contract contract = findContract(contractId, principal);
+    fleetAccessGuard.requireCanChangeStatus(contract, principal);
+
+    Smartphone smartphone =
+        smartphoneRepository
+            .findByIdAndContractId(smartphoneId, contractId)
+            .orElseThrow(() -> new NotFoundException("No smartphone with id " + smartphoneId));
+
+    String oldSerial = smartphone.getSerial();
+    String newSerial = blankToNull(request.serial());
+    smartphone.setSerial(newSerial);
+    smartphoneRepository.save(smartphone);
+
+    AuditLog.smartphoneSerialChanged(
+        smartphone.getId(), oldSerial, newSerial, principal.userId(), principal.tenantId());
+
+    return SmartphoneResponse.of(smartphone);
+  }
+
+  private static String blankToNull(String value) {
+    return StringUtils.hasText(value) ? value : null;
   }
 
   private Contract findContract(UUID contractId, AuthenticatedPrincipal principal) {

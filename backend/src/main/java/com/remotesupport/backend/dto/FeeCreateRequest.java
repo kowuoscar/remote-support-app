@@ -1,6 +1,7 @@
 package com.remotesupport.backend.dto;
 
 import com.remotesupport.backend.domain.FeeType;
+import com.remotesupport.backend.domain.SimCardFlavor;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +26,25 @@ import java.util.UUID;
  * (topup-fee-from-option ticket). It is allowed only when {@code feeType} is {@code TOPUP}, and the
  * Option must be active, of an active Carrier in the Contract's Country. It never sets {@code
  * amount}, which stays required and is whatever the Agent submits.
+ *
+ * <p>{@code targetSimCardId} (reboot-and-topup-details ticket): only meaningful, and only
+ * required, when a proactive Fee's {@code feeType} is {@code TOPUP} — the SIM Card the
+ * auto-created linking Request's Topup detail names, validated by the same {@link
+ * com.remotesupport.backend.web.requestdetails.RequestDetailsValidator} the Tester and
+ * Agent-proactive Request-creation paths call, so logging a Topup Fee with no pre-existing
+ * Request is held to the same rule as logging the Request directly. {@code topupOptionId} above
+ * doubles as that same Request's own Topup Option once its Fee-side checks pass.
+ *
+ * <p>{@code requestedModel}/{@code requestedFlavor}/{@code requestedCarrierId}/{@code
+ * requestedPostpaidPlanId}/{@code simCardNumber} (provision-request-details ticket): only
+ * meaningful, and only required, when a proactive Fee's {@code feeType} is {@code
+ * PROVISION_SMARTPHONE}/{@code PROVISION_SIM} — the auto-created linking Request always starts
+ * (and stays) {@code COMPLETED}, so it needs both its own submission-time details (ticket AC: "An
+ * Agent logging one proactively gives the same details") and, for a Provision SIM, the SIM number
+ * needed to complete it immediately (AC: "one that starts at Completed also gives the SIM
+ * number") — validated by the same {@link
+ * com.remotesupport.backend.web.requestdetails.RequestDetailsValidator} the Request-creation paths
+ * call.
  */
 public record FeeCreateRequest(
     UUID requestId,
@@ -36,4 +56,10 @@ public record FeeCreateRequest(
     @Valid SimCardCreateRequest newSimCard,
     UUID replacesSmartphoneId,
     UUID replacesSimCardId,
-    UUID topupOptionId) {}
+    UUID topupOptionId,
+    UUID targetSimCardId,
+    String requestedModel,
+    SimCardFlavor requestedFlavor,
+    UUID requestedCarrierId,
+    UUID requestedPostpaidPlanId,
+    String simCardNumber) {}

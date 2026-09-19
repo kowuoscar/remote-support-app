@@ -3,6 +3,7 @@ package com.remotesupport.backend.web;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
+import com.remotesupport.backend.domain.RequestType;
 import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.dto.RequestCreateRequest;
@@ -16,6 +17,9 @@ import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.FleetAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import com.remotesupport.backend.security.RequestAccessGuard;
+import com.remotesupport.backend.web.completion.RequestCompletionInput;
+import com.remotesupport.backend.web.requestdetails.RequestDetailsInput;
+import com.remotesupport.backend.web.requestdetails.RequestDetailsValidator;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
@@ -56,6 +60,7 @@ public class RequestController {
   private final FleetAccessGuard fleetAccessGuard;
   private final RequestAccessGuard requestAccessGuard;
   private final ProvisioningService provisioningService;
+  private final RequestDetailsValidator requestDetailsValidator;
 
   public RequestController(
       ContractRepository contractRepository,
@@ -64,7 +69,8 @@ public class RequestController {
       UserRepository userRepository,
       FleetAccessGuard fleetAccessGuard,
       RequestAccessGuard requestAccessGuard,
-      ProvisioningService provisioningService) {
+      ProvisioningService provisioningService,
+      RequestDetailsValidator requestDetailsValidator) {
     this.contractRepository = contractRepository;
     this.requestRepository = requestRepository;
     this.testerRepository = testerRepository;
@@ -72,6 +78,7 @@ public class RequestController {
     this.fleetAccessGuard = fleetAccessGuard;
     this.requestAccessGuard = requestAccessGuard;
     this.provisioningService = provisioningService;
+    this.requestDetailsValidator = requestDetailsValidator;
   }
 
   @PostMapping
@@ -81,17 +88,21 @@ public class RequestController {
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
 
+    String description = normalizeDescription(requestBody.description());
+    requireDescriptionWhenOther(requestBody.type(), description);
+
     Request request = new Request();
     request.setId(UUID.randomUUID());
     request.setTenant(contract.getTenant());
     request.setContract(contract);
     request.setType(requestBody.type());
+    request.setDescription(description);
     request.setCreatedAt(Instant.now());
 
     if ("AGENT".equals(principal.role())) {
       createAgentAuthored(contract, requestBody, principal, request);
     } else {
-      createTesterAuthored(contract, principal, request);
+      createTesterAuthored(contract, requestBody, principal, request);
     }
 
     return ResponseEntity.status(HttpStatus.CREATED).body(RequestResponse.of(request));
@@ -102,7 +113,7 @@ public class RequestController {
    * {@code SUBMITTED}, always attributed to the caller's own Tester profile.
    */
   private void createTesterAuthored(
-      Contract contract, AuthenticatedPrincipal principal, Request request) {
+      Contract contract, RequestCreateRequest requestBody, AuthenticatedPrincipal principal, Request request) {
     requestAccessGuard.requireCanSubmit(contract, principal);
 
     Tester tester =
@@ -113,13 +124,18 @@ public class RequestController {
     request.setTester(tester);
     request.setRaisedByUser(tester.getUser());
     request.setAgentAuthored(false);
-    request.setStatus(RequestStatus.SUBMITTED);
+    request.setStatus(startingStatusFor(requestBody.type()));
+    requestDetailsValidator.apply(contract, detailsInputOf(requestBody), request);
     requestRepository.save(request);
 
     AuditLog.requestSubmitted(
         request.getId(),
         contract.getId(),
         request.getType().name(),
+        request.getDescription() != null,
+        targetSmartphoneIdOf(request),
+        targetSimCardIdOf(request),
+        topupOptionIdOf(request),
         principal.userId(),
         principal.tenantId());
   }
@@ -148,12 +164,7 @@ public class RequestController {
                     new NotFoundException(
                         "No Tester with id " + requestBody.testerId() + " on this Contract's Client"));
 
-    RequestStatus startingStatus =
-        requestBody.startingStatus() == null ? RequestStatus.SUBMITTED : requestBody.startingStatus();
-    if (startingStatus != RequestStatus.SUBMITTED && startingStatus != RequestStatus.COMPLETED) {
-      throw new InvalidRequestException(
-          "An Agent-logged Request can only start at SUBMITTED or COMPLETED, not " + startingStatus);
-    }
+    RequestStatus startingStatus = agentStartingStatusFor(requestBody.type(), requestBody.startingStatus());
 
     User raisedByUser =
         userRepository
@@ -165,14 +176,9 @@ public class RequestController {
     request.setAgentAuthored(true);
     request.setStatus(startingStatus);
 
-    provisioningService.applyIfNeeded(
-        contract,
-        request,
-        requestBody.newSmartphone(),
-        requestBody.newSimCard(),
-        requestBody.replacesSmartphoneId(),
-        requestBody.replacesSimCardId(),
-        principal);
+    requestDetailsValidator.apply(contract, detailsInputOf(requestBody), request);
+
+    provisioningService.applyIfNeeded(contract, request, completionInputOf(requestBody), principal);
 
     requestRepository.save(request);
 
@@ -181,6 +187,10 @@ public class RequestController {
         contract.getId(),
         request.getType().name(),
         startingStatus.name(),
+        request.getDescription() != null,
+        targetSmartphoneIdOf(request),
+        targetSimCardIdOf(request),
+        topupOptionIdOf(request),
         principal.userId(),
         principal.tenantId());
   }
@@ -215,6 +225,14 @@ public class RequestController {
     if (!oldStatus.canTransitionTo(newStatus)) {
       throw new ConflictException("Cannot transition a Request from " + oldStatus + " to " + newStatus);
     }
+    if (oldStatus == RequestStatus.PENDING_APPROVAL && newStatus != RequestStatus.CANCELLED) {
+      // manager-approves-requests ticket, Constraints: "An Agent can never move a Request out of
+      // Pending Approval except to Cancelled" — and a Manager approves/rejects through the
+      // dedicated, identity-addressed actions (RequestByIdController), never through this general
+      // status-change route, mirroring how Review Queue actions are addressed by invoice id.
+      throw new InvalidRequestException(
+          "Use the approve/reject actions to move a Request out of Pending Approval, other than cancelling it");
+    }
 
     if (newStatus == RequestStatus.CANCELLED) {
       if (requestBody.cancellationReason() == null || requestBody.cancellationReason().isBlank()) {
@@ -228,10 +246,12 @@ public class RequestController {
     provisioningService.applyIfNeeded(
         contract,
         request,
-        requestBody.newSmartphone(),
-        requestBody.newSimCard(),
-        requestBody.replacesSmartphoneId(),
-        requestBody.replacesSimCardId(),
+        new RequestCompletionInput(
+            requestBody.newSmartphone(),
+            requestBody.newSimCard(),
+            requestBody.replacesSmartphoneId(),
+            requestBody.replacesSimCardId(),
+            requestBody.simCardNumber()),
         principal);
 
     requestRepository.save(request);
@@ -247,9 +267,113 @@ public class RequestController {
     return RequestResponse.of(request);
   }
 
+  /**
+   * A Tester-authored Request's starting status (request-types-and-flow spec, Lifecycle):
+   * approval-required types always start {@link RequestStatus#PENDING_APPROVAL}; every other type
+   * starts {@link RequestStatus#SUBMITTED} as before.
+   */
+  static RequestStatus startingStatusFor(RequestType type) {
+    return type.requiresApproval() ? RequestStatus.PENDING_APPROVAL : RequestStatus.SUBMITTED;
+  }
+
+  /**
+   * An Agent-proactive Request's starting status: for one of the four approval-required types,
+   * always {@link RequestStatus#PENDING_APPROVAL} regardless of what {@code requestedStartingStatus}
+   * asked for (spec.md Lifecycle: "an Agent logging one proactively can no longer start it at
+   * Submitted or Completed") — refused outright rather than silently overridden, so a caller that
+   * still thinks it can choose finds out immediately. Every other type keeps the existing choice
+   * between {@code SUBMITTED} (default) and immediately {@code COMPLETED}.
+   */
+  static RequestStatus agentStartingStatusFor(RequestType type, RequestStatus requestedStartingStatus) {
+    if (type.requiresApproval()) {
+      if (requestedStartingStatus != null && requestedStartingStatus != RequestStatus.PENDING_APPROVAL) {
+        throw new InvalidRequestException(
+            "A " + type + " Request always starts Pending Approval; it cannot start " + requestedStartingStatus);
+      }
+      return RequestStatus.PENDING_APPROVAL;
+    }
+    RequestStatus startingStatus =
+        requestedStartingStatus == null ? RequestStatus.SUBMITTED : requestedStartingStatus;
+    if (startingStatus != RequestStatus.SUBMITTED && startingStatus != RequestStatus.COMPLETED) {
+      throw new InvalidRequestException(
+          "An Agent-logged Request can only start at SUBMITTED or COMPLETED, not " + startingStatus);
+    }
+    return startingStatus;
+  }
+
   private Contract findContract(UUID contractId, AuthenticatedPrincipal principal) {
     return contractRepository
         .findByIdAndTenantId(contractId, principal.tenantId())
         .orElseThrow(() -> new NotFoundException("No contract with id " + contractId));
+  }
+
+  /** Pulls {@link RequestDetailsValidator}'s inputs out of the creation body — same on both paths. */
+  static RequestDetailsInput detailsInputOf(RequestCreateRequest requestBody) {
+    return new RequestDetailsInput(
+        requestBody.targetSmartphoneId(),
+        requestBody.targetSimCardId(),
+        requestBody.topupOptionId(),
+        requestBody.requestedModel(),
+        requestBody.requestedFlavor(),
+        requestBody.requestedCarrierId(),
+        requestBody.requestedPostpaidPlanId(),
+        requestBody.secondSimCardId());
+  }
+
+  /**
+   * Pulls {@link ProvisioningService}'s completion inputs out of the creation body — only ever
+   * meaningful when an Agent logs a Request that starts immediately {@code COMPLETED}.
+   */
+  static RequestCompletionInput completionInputOf(RequestCreateRequest requestBody) {
+    return new RequestCompletionInput(
+        requestBody.newSmartphone(),
+        requestBody.newSimCard(),
+        requestBody.replacesSmartphoneId(),
+        requestBody.replacesSimCardId(),
+        requestBody.simCardNumber());
+  }
+
+  /**
+   * The three audit fields reboot-and-topup-details ticket's Observability AC asks for ("the
+   * target unit id and the Topup Option id"), read off {@code request} after {@link
+   * RequestDetailsValidator} has set them — null for every type but the one that sets each.
+   * Shared with {@link FeeController}'s proactive-Fee path, which logs the same auto-created
+   * linking Request the same way.
+   */
+  static UUID targetSmartphoneIdOf(Request request) {
+    return request.getTargetSmartphone() == null ? null : request.getTargetSmartphone().getId();
+  }
+
+  static UUID targetSimCardIdOf(Request request) {
+    return request.getTargetSimCard() == null ? null : request.getTargetSimCard().getId();
+  }
+
+  static UUID topupOptionIdOf(Request request) {
+    return request.getTopupOption() == null ? null : request.getTopupOption().getId();
+  }
+
+  /**
+   * Blank-to-null, trimmed (request-types-and-flow spec, Details at submission;
+   * other-replaces-repair ticket): every Request's optional description is stored this way, so
+   * "no description" is always {@code null}, never an empty or whitespace-only string. Shared with
+   * {@link FeeController}'s proactive-Fee path, which creates a Request the same way.
+   */
+  static String normalizeDescription(String description) {
+    if (description == null) {
+      return null;
+    }
+    String trimmed = description.trim();
+    return trimmed.isEmpty() ? null : trimmed;
+  }
+
+  /**
+   * The one AC both creation paths — Tester-submitted and Agent-proactive — and {@link
+   * FeeController}'s proactive-Fee path enforce identically: "an Other Request is refused without
+   * [a description]" (other-replaces-repair ticket AC).
+   */
+  static void requireDescriptionWhenOther(RequestType type, String normalizedDescription) {
+    if (type == RequestType.OTHER && normalizedDescription == null) {
+      throw new InvalidRequestException("A description is required for an Other Request");
+    }
   }
 }

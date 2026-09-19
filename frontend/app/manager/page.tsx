@@ -3,7 +3,7 @@ import { SurfacePage } from "@/components/app-shell/surface-page";
 import { ManagerDashboardStats } from "@/components/manager/dashboard-stats";
 import { PendingApprovalsCard } from "@/components/manager/pending-approvals-card";
 import { backendFetch } from "@/lib/api/backend";
-import type { ReviewQueueItem } from "@/lib/api/types";
+import type { PendingRequestItem, ReviewQueueItem } from "@/lib/api/types";
 import { tenantStats } from "@/lib/demo/manager";
 
 export const metadata = { title: "Dashboard" };
@@ -30,8 +30,28 @@ async function loadReviewQueue(): Promise<ReviewQueueItem[] | null> {
   }
 }
 
+/**
+ * Reads the Pending Requests list for the dashboard's own count stat (manager-approves-requests
+ * ticket AC: "The Manager's dashboard shows the pending count") — same failure shape as
+ * `loadReviewQueue` above: a failed load only takes the one stat unavailable, never the page.
+ */
+async function loadPendingRequests(): Promise<PendingRequestItem[] | null> {
+  try {
+    const response = await backendFetch("/api/pending-requests");
+    if (!response.ok) {
+      console.error(`Dashboard: Pending Requests load failed with status ${response.status}`);
+      return null;
+    }
+    return (await response.json()) as PendingRequestItem[];
+  } catch (error) {
+    unstable_rethrow(error);
+    console.error("Dashboard: Pending Requests load failed with no response", error);
+    return null;
+  }
+}
+
 export default async function ManagerDashboardPage() {
-  const reviewQueue = await loadReviewQueue();
+  const [reviewQueue, pendingRequests] = await Promise.all([loadReviewQueue(), loadPendingRequests()]);
 
   return (
     <SurfacePage
@@ -41,6 +61,7 @@ export default async function ManagerDashboardPage() {
     >
       <ManagerDashboardStats
         pendingApprovalsCount={reviewQueue?.length ?? null}
+        pendingRequestsCount={pendingRequests?.length ?? null}
         billedThisMonth={tenantStats.billedThisMonthUSD}
         payoutThisMonth={tenantStats.payoutThisMonthUSD}
         clientCount={tenantStats.clientCount}

@@ -1,8 +1,8 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { stubFetch } from "@/tests/component/fetch";
-import type { CatalogCarrierItem } from "@/lib/api/types";
+import type { CatalogCarrierItem, SimCardListItem } from "@/lib/api/types";
 import { LogFeeDialog } from "./log-fee-dialog";
 
 const testers = [{ id: "tester-1", username: "priya@aurora.example" }] as never;
@@ -31,6 +31,37 @@ const carriers: CatalogCarrierItem[] = [
     topupOptions: [offer("sprint-10", "sprint", "Sprint Refill 10", 10)],
     postpaidPlans: [],
   },
+  {
+    id: "no-options",
+    country: "UNITED_STATES",
+    name: "Boost Mobile",
+    archivedAt: null,
+    topupOptions: [],
+    postpaidPlans: [],
+  },
+];
+
+const simCards: SimCardListItem[] = [
+  {
+    id: "sim-att",
+    contractId: "contract-1",
+    number: "+1-555-0100",
+    carrierId: "att",
+    carrierName: "AT&T",
+    flavor: "PREPAID",
+    monthlyFeeAmount: null,
+    status: "ACTIVE",
+  },
+  {
+    id: "sim-no-options",
+    contractId: "contract-1",
+    number: "+1-555-0200",
+    carrierId: "no-options",
+    carrierName: "Boost Mobile",
+    flavor: "PREPAID",
+    monthlyFeeAmount: null,
+    status: "ACTIVE",
+  },
 ];
 
 async function openDialog() {
@@ -39,6 +70,7 @@ async function openDialog() {
       contractId="contract-1"
       currency="USD"
       testers={testers}
+      simCards={simCards}
       carriers={carriers}
       carriersHref="/agent/carriers"
     />,
@@ -47,33 +79,31 @@ async function openDialog() {
   return screen.getByRole("dialog");
 }
 
-describe("LogFeeDialog's Topup Option picker", () => {
-  beforeAll(() => {
-    // jsdom has no modal dialog; opening it is all these tests need.
-    HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
-      this.open = true;
-    };
-    HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
-      this.open = false;
-    };
+// reboot-and-topup-details ticket: a proactive Topup Fee's auto-created linking Request now names
+// a target SIM Card, and the Topup Option picker (topup-fee-from-option ticket) follows that SIM
+// Card's own Carrier — the same rule TopupRequestDetails enforces for submitting a Request.
+describe("LogFeeDialog's target SIM Card and Topup Option", () => {
+  it("shows no Topup Option picker until a SIM Card is chosen", async () => {
+    const dialog = await openDialog();
+    expect(within(dialog).queryByLabelText("Topup option")).not.toBeInTheDocument();
   });
 
-  it("lists only the active Options of active Carriers, labelled by Carrier and Option", async () => {
+  it("lists only the active Options of the chosen SIM Card's own Carrier", async () => {
     const dialog = await openDialog();
-    const picker = within(dialog).getByLabelText("Topup option (optional)");
+    await userEvent.selectOptions(within(dialog).getByLabelText("SIM Card to top up"), "sim-att");
 
-    expect(
-      within(picker).getByRole("option", { name: "AT&T — Prepaid Refill 25 · $25.00" }),
-    ).toBeInTheDocument();
+    const picker = within(dialog).getByLabelText("Topup option");
+    expect(within(picker).getByRole("option", { name: "AT&T — Prepaid Refill 25 · $25.00" })).toBeInTheDocument();
     expect(within(picker).queryByRole("option", { name: /Refill 5\b/ })).not.toBeInTheDocument();
     expect(within(picker).queryByRole("option", { name: /Sprint/ })).not.toBeInTheDocument();
   });
 
-  it("pre-fills the amount from the picked Option, keeps it editable, and sends both", async () => {
+  it("pre-fills the amount from the picked Option, keeps it editable, and sends both the SIM Card and the Option", async () => {
     const fetchMock = stubFetch(201, {});
     const dialog = await openDialog();
 
-    const picker = within(dialog).getByLabelText("Topup option (optional)");
+    await userEvent.selectOptions(within(dialog).getByLabelText("SIM Card to top up"), "sim-att");
+    const picker = within(dialog).getByLabelText("Topup option");
     await userEvent.selectOptions(
       picker,
       within(picker).getByRole("option", { name: "AT&T — Prepaid Refill 25 · $25.00" }),
@@ -90,28 +120,58 @@ describe("LogFeeDialog's Topup Option picker", () => {
     expect(JSON.parse(String(init.body))).toMatchObject({
       feeType: "TOPUP",
       amount: 27.5,
+      targetSimCardId: "sim-att",
       topupOptionId: "refill-25",
     });
   });
 
-  it("logs a Topup Fee with no Option", async () => {
+  it("requires a description instead when the chosen SIM Card's Carrier has no active Option", async () => {
     const fetchMock = stubFetch(201, {});
     const dialog = await openDialog();
 
+    await userEvent.selectOptions(within(dialog).getByLabelText("SIM Card to top up"), "sim-no-options");
+    expect(within(dialog).queryByLabelText("Topup option")).not.toBeInTheDocument();
+    expect(within(dialog).getByLabelText("Description")).toBeRequired();
+
     await userEvent.type(within(dialog).getByLabelText("Amount (USD)"), "12");
+    await userEvent.type(within(dialog).getByLabelText("Description"), "Cash top-up at kiosk");
     await userEvent.click(within(dialog).getByRole("button", { name: "Log fee" }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
     const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(JSON.parse(String(init.body))).toMatchObject({
+      feeType: "TOPUP",
+      targetSimCardId: "sim-no-options",
+      description: "Cash top-up at kiosk",
+    });
     expect(JSON.parse(String(init.body))).not.toHaveProperty("topupOptionId");
   });
 
   it("is hidden for Fee types other than Topup", async () => {
     const dialog = await openDialog();
 
-    for (const label of ["Provision Smartphone", "Provision SIM", "Repair"]) {
+    for (const label of ["Provision Smartphone", "Provision SIM", "Other"]) {
       await userEvent.selectOptions(within(dialog).getByLabelText("Fee type"), label);
-      expect(within(dialog).queryByLabelText("Topup option (optional)")).not.toBeInTheDocument();
+      expect(within(dialog).queryByLabelText("SIM Card to top up")).not.toBeInTheDocument();
+      expect(within(dialog).queryByLabelText("Topup option")).not.toBeInTheDocument();
     }
+  });
+});
+
+describe("LogFeeDialog's description field", () => {
+  it("is optional for every Fee type except Other, and Topup before a SIM Card is chosen", async () => {
+    const dialog = await openDialog();
+
+    for (const label of ["Topup", "Provision Smartphone", "Provision SIM"]) {
+      await userEvent.selectOptions(within(dialog).getByLabelText("Fee type"), label);
+      expect(within(dialog).getByLabelText("Description (optional)")).not.toBeRequired();
+    }
+  });
+
+  it("is required once Other is picked", async () => {
+    const dialog = await openDialog();
+
+    await userEvent.selectOptions(within(dialog).getByLabelText("Fee type"), "Other");
+    expect(within(dialog).getByLabelText("Description")).toBeRequired();
   });
 });

@@ -1,45 +1,34 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
 import { SubmitRequestDialog } from "@/components/client/submit-request-dialog";
-import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { IconInbox } from "@/components/icons";
-import { formatRelativeAge } from "@/lib/format";
-import { requestStatusToneByValue } from "@/lib/status";
+import { RequestCreatedCell, RequestStatusCell, RequestTypeCell } from "@/components/requests/request-list-cells";
+import { StatusFilterTabs } from "@/components/requests/status-filter-tabs";
+import { useFilteredRequests } from "@/components/requests/use-filtered-requests";
 import {
-  REQUEST_STATUS_LABEL,
-  REQUEST_TYPE_LABEL,
+  type CatalogCarrierItem,
   type RequestListItem,
-  type RequestStatusValue,
+  type SimCardListItem,
+  type SmartphoneListItem,
 } from "@/lib/api/types";
-
-const statusFilters: (RequestStatusValue | "All")[] = [
-  "All",
-  "SUBMITTED",
-  "IN_PROGRESS",
-  "COMPLETED",
-  "CANCELLED",
-];
 
 export function ClientRequestsView({
   requests,
   contracts,
+  smartphonesByContract = {},
+  simCardsByContract = {},
+  carriersByContract = {},
 }: {
   requests: RequestListItem[];
   contracts: ContractOption[];
+  smartphonesByContract?: Record<string, SmartphoneListItem[]>;
+  simCardsByContract?: Record<string, SimCardListItem[]>;
+  carriersByContract?: Record<string, CatalogCarrierItem[]>;
 }) {
-  const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
-  const [status, setStatus] = useState<RequestStatusValue | "All">("All");
-
-  const filtered = useMemo(() => {
-    return requests
-      .filter((r) => r.contractId === contractId)
-      .filter((r) => status === "All" || r.status === status)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [requests, contractId, status]);
+  const { contractId, setContractId, status, setStatus, filtered } = useFilteredRequests(requests, contracts);
 
   if (contracts.length === 0) {
     return (
@@ -56,28 +45,14 @@ export function ClientRequestsView({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <ContractSwitcher contracts={contracts} value={contractId} onChange={setContractId} />
-          <div
-            role="tablist"
-            aria-label="Filter by status"
-            className="inline-flex flex-wrap items-center gap-1 rounded-lg border border-hairline bg-canvas-soft p-1"
-          >
-            {statusFilters.map((value) => (
-              <button
-                key={value}
-                role="tab"
-                type="button"
-                aria-selected={status === value}
-                onClick={() => setStatus(value)}
-                className={`rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors ${
-                  status === value ? "bg-canvas text-ink shadow-sm" : "text-ink-mute hover:text-ink"
-                }`}
-              >
-                {value === "All" ? "All" : REQUEST_STATUS_LABEL[value]}
-              </button>
-            ))}
-          </div>
+          <StatusFilterTabs status={status} onChange={setStatus} />
         </div>
-        <SubmitRequestDialog contracts={contracts} />
+        <SubmitRequestDialog
+          contracts={contracts}
+          smartphonesByContract={smartphonesByContract}
+          simCardsByContract={simCardsByContract}
+          carriersByContract={carriersByContract}
+        />
       </div>
 
       {filtered.length === 0 ? (
@@ -100,16 +75,10 @@ export function ClientRequestsView({
             <Tbody>
               {filtered.map((request) => (
                 <Tr key={request.id}>
-                  <Td className="font-medium text-ink">{REQUEST_TYPE_LABEL[request.type]}</Td>
+                  <RequestTypeCell request={request} />
                   <Td className="text-ink-secondary">{request.raisedByUsername}</Td>
-                  <Td>
-                    <Badge tone={requestStatusToneByValue[request.status]}>
-                      {REQUEST_STATUS_LABEL[request.status]}
-                    </Badge>
-                  </Td>
-                  <Td className="whitespace-nowrap text-ink-mute">
-                    {formatRelativeAge(request.createdAt)}
-                  </Td>
+                  <RequestStatusCell request={request} />
+                  <RequestCreatedCell request={request} />
                 </Tr>
               ))}
             </Tbody>

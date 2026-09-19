@@ -60,15 +60,34 @@ public final class AuditLog {
 
   /**
    * A Request's submission (tester-request-submission ticket Observability: "Request-submitted
-   * event logged with Contract, Request type, actor").
+   * event logged with Contract, Request type, actor"). {@code descriptionGiven} is whether the
+   * submitter gave an optional description — never its text (request-types-and-flow spec,
+   * Details at submission; other-replaces-repair ticket Observability). {@code
+   * targetSmartphoneId}/{@code targetSimCardId}/{@code topupOptionId} (reboot-and-topup-details
+   * ticket Observability: "The Request submitted and logged audit events carry the target unit id
+   * and the Topup Option id") are null for every type but the one that set them.
    */
   public static void requestSubmitted(
-      UUID requestId, UUID contractId, String requestType, UUID actorUserId, UUID tenantId) {
+      UUID requestId,
+      UUID contractId,
+      String requestType,
+      boolean descriptionGiven,
+      UUID targetSmartphoneId,
+      UUID targetSimCardId,
+      UUID topupOptionId,
+      UUID actorUserId,
+      UUID tenantId) {
     log.info(
-        "audit action=REQUEST_SUBMITTED entity=Request entityId={} contractId={} requestType={} actorUserId={} tenantId={}",
+        "audit action=REQUEST_SUBMITTED entity=Request entityId={} contractId={} requestType={} "
+            + "descriptionGiven={} targetSmartphoneId={} targetSimCardId={} topupOptionId={} "
+            + "actorUserId={} tenantId={}",
         requestId,
         contractId,
         requestType,
+        descriptionGiven,
+        targetSmartphoneId,
+        targetSimCardId,
+        topupOptionId,
         actorUserId,
         tenantId);
   }
@@ -77,22 +96,35 @@ public final class AuditLog {
    * An Agent logging a Request proactively, on a Tester's behalf (agent-request-fulfillment
    * ticket Observability), distinct from {@link #requestSubmitted} so a log scan can tell a
    * Tester-authored submission from an Agent-authored one, and see which starting status the
-   * Agent chose (Submitted or immediately Completed).
+   * Agent chose (Submitted or immediately Completed). {@code descriptionGiven} is whether an
+   * optional description was given — never its text (other-replaces-repair ticket Observability).
+   * {@code targetSmartphoneId}/{@code targetSimCardId}/{@code topupOptionId}
+   * (reboot-and-topup-details ticket Observability) are null for every type but the one that set
+   * them.
    */
   public static void requestLoggedByAgent(
       UUID requestId,
       UUID contractId,
       String requestType,
       String startingStatus,
+      boolean descriptionGiven,
+      UUID targetSmartphoneId,
+      UUID targetSimCardId,
+      UUID topupOptionId,
       UUID actorUserId,
       UUID tenantId) {
     log.info(
         "audit action=REQUEST_LOGGED_BY_AGENT entity=Request entityId={} contractId={} "
-            + "requestType={} startingStatus={} actorUserId={} tenantId={}",
+            + "requestType={} startingStatus={} descriptionGiven={} targetSmartphoneId={} "
+            + "targetSimCardId={} topupOptionId={} actorUserId={} tenantId={}",
         requestId,
         contractId,
         requestType,
         startingStatus,
+        descriptionGiven,
+        targetSmartphoneId,
+        targetSimCardId,
+        topupOptionId,
         actorUserId,
         tenantId);
   }
@@ -131,6 +163,58 @@ public final class AuditLog {
    * log scan can tell a Manager's direct Fleet addition from one that happened as a byproduct of
    * fulfilling a Request.
    */
+
+  /**
+   * A Manager adding a Smartphone to a Fleet directly: {@link #created}'s event, plus the
+   * Contract and the Owner (smartphone-owner-and-optional-serial ticket Observability: "Owner
+   * added to the Smartphone created ... events").
+   */
+  public static void smartphoneCreated(
+      UUID smartphoneId, UUID contractId, String owner, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CREATE entity=Smartphone entityId={} contractId={} owner={} actorUserId={} tenantId={}",
+        smartphoneId,
+        contractId,
+        owner,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * {@link #fleetItemProvisioned}'s event for a Smartphone, plus the Owner -- always {@code
+   * COMPANY} (smartphone-owner-and-optional-serial ticket Observability: "Owner added to ... the
+   * provisioned events").
+   */
+  public static void smartphoneProvisioned(
+      UUID smartphoneId, UUID contractId, UUID requestId, String owner, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=FLEET_ITEM_PROVISIONED entity=Smartphone entityId={} contractId={} requestId={} "
+            + "owner={} actorUserId={} tenantId={}",
+        smartphoneId,
+        contractId,
+        requestId,
+        owner,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A Smartphone's serial set or changed from the Fleet page (smartphone-owner-and-optional-serial
+   * ticket Observability: "Audit event for a serial set or changed: Smartphone id, actor,
+   * tenant").
+   */
+  public static void smartphoneSerialChanged(
+      UUID smartphoneId, String oldSerial, String newSerial, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=SERIAL_CHANGED entity=Smartphone entityId={} oldSerial={} newSerial={} "
+            + "actorUserId={} tenantId={}",
+        smartphoneId,
+        oldSerial,
+        newSerial,
+        actorUserId,
+        tenantId);
+  }
+
   /**
    * A Manager changing an Agent's standing salary or standing Rollout Advance
    * (agent-standing-amounts-and-invoice-generation ticket Observability: "standing-amount change
@@ -330,6 +414,94 @@ public final class AuditLog {
         carrierId,
         postpaidPlanId,
         monthlyFeeAmount,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A SIM Card installed into a Smartphone (sim-installed-in-smartphone ticket Observability:
+   * "SIM Card id, Smartphone id, actor, tenant, and the Request id when a Request caused it").
+   * {@code requestId} is {@code null} for a Fleet-page action with no Request behind it.
+   */
+  public static void simCardInstalled(
+      UUID simCardId, UUID smartphoneId, UUID requestId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=SIM_CARD_INSTALLED entity=SimCard entityId={} smartphoneId={} requestId={} "
+            + "actorUserId={} tenantId={}",
+        simCardId,
+        smartphoneId,
+        requestId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A SIM Card uninstalled from a Smartphone, whether by an explicit clear/move or as the
+   * cascading side-effect of retiring the Smartphone or the SIM Card itself
+   * (sim-installed-in-smartphone ticket Observability). {@code requestId} is {@code null} for a
+   * Fleet-page action with no Request behind it.
+   */
+  public static void simCardUninstalled(
+      UUID simCardId, UUID smartphoneId, UUID requestId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=SIM_CARD_UNINSTALLED entity=SimCard entityId={} smartphoneId={} requestId={} "
+            + "actorUserId={} tenantId={}",
+        simCardId,
+        smartphoneId,
+        requestId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * Completing a Replace Smartphone/SIM Request (replace-requests ticket Observability: "A
+   * unit-replaced audit event: Request id, retired unit id, new unit id, actor, tenant"). {@code
+   * entity} is {@code Smartphone} or {@code SimCard}, matching {@link #statusChanged}'s own
+   * vocabulary. Distinct from {@link #fleetItemProvisioned} — a replacement always retires one
+   * unit too, which this event ties directly to the new one it was traded for.
+   */
+  public static void unitReplaced(
+      String entity, UUID requestId, UUID retiredUnitId, UUID newUnitId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=UNIT_REPLACED entity={} requestId={} retiredUnitId={} newUnitId={} "
+            + "actorUserId={} tenantId={}",
+        entity,
+        requestId,
+        retiredUnitId,
+        newUnitId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A Manager approving a Pending Approval Request, moving it to Submitted
+   * (manager-approves-requests ticket Observability: "Request approved and rejected: Request id,
+   * actor, tenant, and that a reason was given" — approving never carries one, so this event omits
+   * the field entirely rather than always logging {@code reasonGiven=false}).
+   */
+  public static void requestApproved(UUID requestId, UUID contractId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=REQUEST_APPROVED entity=Request entityId={} contractId={} actorUserId={} tenantId={}",
+        requestId,
+        contractId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A Manager rejecting a Pending Approval Request, moving it to Rejected — {@code reasonGiven} is
+   * always {@code true} (a reject without one is refused before this is ever logged), kept as an
+   * explicit field to match the ticket's Observability wording and mirror {@link
+   * #requestSubmitted}'s own {@code descriptionGiven}, never logging the reason's text itself.
+   */
+  public static void requestRejected(
+      UUID requestId, UUID contractId, boolean reasonGiven, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=REQUEST_REJECTED entity=Request entityId={} contractId={} reasonGiven={} "
+            + "actorUserId={} tenantId={}",
+        requestId,
+        contractId,
+        reasonGiven,
         actorUserId,
         tenantId);
   }

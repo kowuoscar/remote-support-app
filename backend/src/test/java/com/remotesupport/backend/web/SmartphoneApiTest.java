@@ -58,12 +58,12 @@ class SmartphoneApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"model":"iPhone 14","serial":"SN-12345","assignedTo":"Front desk"}
+                    {"model":"iPhone 14","serial":"SN-12345","owner":"CLIENT"}
                     """))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.model").value("iPhone 14"))
         .andExpect(jsonPath("$.serial").value("SN-12345"))
-        .andExpect(jsonPath("$.assignedTo").value("Front desk"))
+        .andExpect(jsonPath("$.owner").value("CLIENT"))
         .andExpect(jsonPath("$.status").value("ACTIVE"));
 
     mockMvc
@@ -73,6 +73,131 @@ class SmartphoneApiTest extends IntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(1))
         .andExpect(jsonPath("$[0].model").value("iPhone 14"));
+  }
+
+  @Test
+  void ownerDefaultsToCompanyWhenOmittedAndRoundTripsWhenGiven() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Solene Cosmetics");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/smartphones")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {"model":"iPhone 14","serial":"SN-OWNER-1"}
+                    """))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.owner").value("COMPANY"));
+
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/smartphones")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {"model":"Pixel 8","serial":"SN-OWNER-2","owner":"CLIENT"}
+                    """))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.owner").value("CLIENT"));
+  }
+
+  @Test
+  void aSmartphoneCanBeCreatedWithoutASerialAndShowsNullUntilSet() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Bright Path Clinics");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/smartphones")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content(
+                    """
+                    {"model":"iPhone 14"}
+                    """))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.serial").isEmpty());
+  }
+
+  @Test
+  void theContractsAgentOrTheManagerCanSetOrChangeTheSerialFromTheFleetPageButATesterCannot()
+      throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Kessler & Vance LLP");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    UUID smartphoneId = createSmartphone(managerToken, contractId, "iPhone 14", "SN-INITIAL");
+
+    String agentToken = agentToken();
+    mockMvc
+        .perform(
+            patch("/api/contracts/" + contractId + "/smartphones/" + smartphoneId + "/serial")
+                .header("Authorization", "Bearer " + agentToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"serial":"SN-SET-BY-AGENT"}
+                    """))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.serial").value("SN-SET-BY-AGENT"));
+
+    mockMvc
+        .perform(
+            patch("/api/contracts/" + contractId + "/smartphones/" + smartphoneId + "/serial")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"serial":"SN-SET-BY-MANAGER"}
+                    """))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.serial").value("SN-SET-BY-MANAGER"));
+
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "clara.vance@kesslervance.example", "Passw0rd!23");
+    mockMvc
+        .perform(
+            patch("/api/contracts/" + contractId + "/smartphones/" + smartphoneId + "/serial")
+                .header("Authorization", "Bearer " + testerToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"serial":"SN-SET-BY-TESTER"}
+                    """))
+        .andExpect(status().isForbidden());
+
+    UUID otherClient = createClient(managerToken, "Meridian Logistics");
+    UUID otherAgent = createAgent(managerToken, "Priya Nair", Country.PHILIPPINES);
+    UUID otherContract = createContract(managerToken, otherClient, otherAgent);
+    UUID otherSmartphoneId = createSmartphone(managerToken, otherContract, "Pixel 8", "SN-OTHER");
+    mockMvc
+        .perform(
+            patch("/api/contracts/" + otherContract + "/smartphones/" + otherSmartphoneId + "/serial")
+                .header("Authorization", "Bearer " + agentToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"serial":"SN-SET-BY-OTHER-AGENT"}
+                    """))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void settingTheSerialOfAnUnknownSmartphoneReturnsNotFound() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Meridian Logistics");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+
+    mockMvc
+        .perform(
+            patch("/api/contracts/" + contractId + "/smartphones/" + UUID.randomUUID() + "/serial")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"serial":"SN-404"}
+                    """))
+        .andExpect(status().isNotFound());
   }
 
   @Test

@@ -4,17 +4,14 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CarrierPicker } from "@/components/fleet/carrier-picker";
-import { PostpaidPlanPicker } from "@/components/fleet/postpaid-plan-picker";
+import { REQUEST_COMPLETION_BODY_BUILDERS, REQUEST_COMPLETION_COMPONENTS } from "@/components/agent/completion/registry";
 import {
   REQUEST_STATUS_LABEL,
   canCancelRequest,
   nextRequestStatus,
   requestTypeCanCarryFee,
   type CatalogCarrierItem,
-  type RequestStatusValue,
-  type RequestTypeValue,
-  type SimCardFlavorValue,
+  type RequestListItem,
   type SimCardListItem,
   type SmartphoneListItem,
 } from "@/lib/api/types";
@@ -42,48 +39,46 @@ function FormError({ error }: { error: string | null }) {
  * rather than escalating to a `<dialog>` or a crude `prompt()`.
  *
  * <p>fee-logging-and-provisioning ticket: completing a Request whose type can carry a Fee (Topup,
- * Provision Smartphone, Provision SIM, Repair — {@link requestTypeCanCarryFee}) expands the same
- * inline form to also collect the Fee amount, and for a Provision type, the new Fleet unit's
- * details (reusing the Manager's Add Smartphone/SIM Card field shape) plus an optional "retiring
- * which unit" picker. Reboot and SIM Swap complete exactly as before — a single click, no form —
- * since neither can ever carry a Fee.
+ * Provision Smartphone, Provision SIM, Other — {@link requestTypeCanCarryFee}) expands the same
+ * inline form to also collect the Fee amount. Reboot and SIM Swap complete exactly as before — a
+ * single click, no form — since neither can ever carry a Fee.
+ *
+ * <p>provision-request-details ticket: the type-specific completion fields (a Provision
+ * Smartphone/SIM Request's own new-style, narrow input, or the legacy full form for a Request that
+ * predates this ticket) come from `REQUEST_COMPLETION_COMPONENTS` — one piece per type, registered
+ * the same way `REQUEST_DETAILS_COMPONENTS` registers a submission-time details section — so this
+ * shell only ever grows a registry entry, never a body of per-type conditionals. This takes the
+ * whole {@link RequestListItem} (not a scattering of its own fields) so a piece can read whatever
+ * of that Request's own fields it needs without this shell knowing about them.
  */
 export function RequestStatusControl({
-  contractId,
-  requestId,
-  status,
-  type,
+  request,
   currency,
   activeSmartphones = [],
   activeSimCards = [],
   carriers = [],
   carriersHref = "/agent/carriers",
 }: {
-  contractId: string;
-  requestId: string;
-  status: RequestStatusValue;
-  type: RequestTypeValue;
+  request: RequestListItem;
   currency: string;
   activeSmartphones?: SmartphoneListItem[];
   activeSimCards?: SimCardListItem[];
   carriers?: CatalogCarrierItem[];
   carriersHref?: string;
 }) {
+  const { contractId, id: requestId, status, type, topupOptionId, topupOptionPrice } = request;
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [note, setNote] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [reason, setReason] = useState("");
   const [completing, setCompleting] = useState(false);
-  const [flavor, setFlavor] = useState<SimCardFlavorValue>("POSTPAID");
-  // The Carrier and Plan are controlled, not just FormData fields: the Plan picker lists the
-  // chosen Carrier's Plans and shows the monthly fee the chosen one sets (postpaid-sim-plan).
-  const [carrierId, setCarrierId] = useState("");
-  const [postpaidPlanId, setPostpaidPlanId] = useState("");
 
   const next = nextRequestStatus(status);
   const canCancel = canCancelRequest(status);
   const completingNeedsFeeForm = next === "COMPLETED" && requestTypeCanCarryFee(type);
+  const CompletionComponent = REQUEST_COMPLETION_COMPONENTS[type];
 
   function resetLocalState() {
     // Reset immediately rather than relying on router.refresh() to remount this component: the
@@ -96,27 +91,31 @@ export function RequestStatusControl({
     setPending(false);
   }
 
-  async function submitStatus(body: {
-    status: RequestStatusValue;
-    cancellationReason?: string;
-    newSmartphone?: { model: string; serial: string; assignedTo?: string };
-    newSimCard?: { number: string; carrierId: string; flavor: SimCardFlavorValue; postpaidPlanId?: string };
-    replacesSmartphoneId?: string;
-    replacesSimCardId?: string;
-  }): Promise<boolean> {
+  async function submitStatus(body: Record<string, unknown>): Promise<{ ok: boolean; completionNote?: string }> {
     const response = await fetch(`/api/contracts/${contractId}/requests/${requestId}/status`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    return response.ok;
+    if (!response.ok) return { ok: false };
+    const data = await response.json().catch(() => null);
+    return { ok: true, completionNote: data?.completionNote ?? undefined };
   }
 
   async function logFee(amount: number, description: string): Promise<boolean> {
     const response = await fetch(`/api/contracts/${contractId}/fees`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestId, feeType: type, amount, description: description || undefined }),
+      body: JSON.stringify({
+        requestId,
+        feeType: type,
+        amount,
+        description: description || undefined,
+        // The Fee stays linked to the same Option the Request itself named at submission
+        // (reboot-and-topup-details ticket AC) — the amount above is whatever the Agent
+        // submitted, adjusted or not from the pre-filled suggestion below.
+        topupOptionId: type === "TOPUP" ? topupOptionId : undefined,
+      }),
     });
     return response.ok;
   }
@@ -126,12 +125,14 @@ export function RequestStatusControl({
     if (completingNeedsFeeForm) {
       setCompleting(true);
       setError(null);
+      setNote(null);
       return;
     }
     setPending(true);
     setError(null);
+    setNote(null);
     try {
-      const ok = await submitStatus({ status: next });
+      const { ok } = await submitStatus({ status: next });
       if (!ok) {
         setError("Couldn't update. Try again.");
         setPending(false);
@@ -149,34 +150,25 @@ export function RequestStatusControl({
     event.preventDefault();
     setPending(true);
     setError(null);
+    setNote(null);
 
     const formData = new FormData(event.currentTarget);
     const amount = Number(formData.get("amount"));
     const description = String(formData.get("description") ?? "").trim();
 
-    const statusBody: Parameters<typeof submitStatus>[0] = { status: "COMPLETED" };
-    if (type === "PROVISION_SMARTPHONE") {
-      statusBody.newSmartphone = {
-        model: String(formData.get("model")),
-        serial: String(formData.get("serial")),
-        assignedTo: String(formData.get("assignedTo") ?? "") || undefined,
-      };
-      const replaces = String(formData.get("replacesSmartphoneId") ?? "");
-      if (replaces) statusBody.replacesSmartphoneId = replaces;
-    } else if (type === "PROVISION_SIM") {
-      statusBody.newSimCard = {
-        number: String(formData.get("number")),
-        carrierId,
-        flavor,
-        postpaidPlanId: flavor === "POSTPAID" ? postpaidPlanId : undefined,
-      };
-      const replaces = String(formData.get("replacesSimCardId") ?? "");
-      if (replaces) statusBody.replacesSimCardId = replaces;
-    }
+    // Payload-building lives in the same per-type registry as rendering (code review finding: this
+    // used to be an `if/else if` cascade duplicating `REQUEST_COMPLETION_COMPONENTS`'s own list of
+    // types) — a type with no builder (Reboot, Topup, SIM Swap, Other, Replace Smartphone) sends
+    // nothing beyond the base body.
+    const buildBody = REQUEST_COMPLETION_BODY_BUILDERS[type];
+    const statusBody: Record<string, unknown> = {
+      status: "COMPLETED",
+      ...(buildBody ? buildBody(request, formData) : {}),
+    };
 
     try {
-      const statusOk = await submitStatus(statusBody);
-      if (!statusOk) {
+      const { ok, completionNote } = await submitStatus(statusBody);
+      if (!ok) {
         setError("Couldn't complete the request. Try again.");
         setPending(false);
         return;
@@ -191,6 +183,7 @@ export function RequestStatusControl({
       }
 
       resetLocalState();
+      if (completionNote) setNote(completionNote);
       router.refresh();
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
@@ -204,7 +197,7 @@ export function RequestStatusControl({
     setPending(true);
     setError(null);
     try {
-      const ok = await submitStatus({ status: "CANCELLED", cancellationReason: reason.trim() });
+      const { ok } = await submitStatus({ status: "CANCELLED", cancellationReason: reason.trim() });
       if (!ok) {
         setError("Couldn't cancel. Try again.");
         setPending(false);
@@ -266,6 +259,9 @@ export function RequestStatusControl({
             step="0.01"
             required
             disabled={pending}
+            // reboot-and-topup-details ticket AC: pre-filled from the Request's own Topup Option,
+            // still editable — a plain `defaultValue`, not a controlled field.
+            defaultValue={type === "TOPUP" && topupOptionPrice != null ? topupOptionPrice : undefined}
             className="h-7 text-[12px]"
           />
         </label>
@@ -274,103 +270,16 @@ export function RequestStatusControl({
           <Input name="description" disabled={pending} className="h-7 text-[12px]" />
         </label>
 
-        {type === "PROVISION_SMARTPHONE" ? (
-          <>
-            <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-              New smartphone model
-              <Input name="model" required disabled={pending} className="h-7 text-[12px]" />
-            </label>
-            <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-              New smartphone serial
-              <Input name="serial" required disabled={pending} className="h-7 text-[12px]" />
-            </label>
-            <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-              Assigned to (optional)
-              <Input name="assignedTo" disabled={pending} className="h-7 text-[12px]" />
-            </label>
-            {activeSmartphones.length > 0 ? (
-              <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-                Retiring which smartphone? (optional)
-                <select
-                  name="replacesSmartphoneId"
-                  disabled={pending}
-                  defaultValue=""
-                  className="h-7 rounded-md border border-hairline-strong bg-canvas px-2 text-[12px] text-ink"
-                >
-                  <option value="">None — first-time provisioning</option>
-                  {activeSmartphones.map((phone) => (
-                    <option key={phone.id} value={phone.id}>
-                      {phone.model} — {phone.serial}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
-          </>
-        ) : null}
-
-        {type === "PROVISION_SIM" ? (
-          <>
-            <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-              New SIM number
-              <Input name="number" required disabled={pending} className="h-7 text-[12px]" />
-            </label>
-            <CarrierPicker
-              name="carrierId"
-              carriers={carriers}
-              carriersHref={carriersHref}
-              value={carrierId}
-              onChange={(id) => {
-                setCarrierId(id);
-                setPostpaidPlanId("");
-              }}
-              disabled={pending}
-              size="sm"
-            />
-            <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-              Flavor
-              <select
-                required
-                value={flavor}
-                onChange={(event) => setFlavor(event.target.value as SimCardFlavorValue)}
-                disabled={pending}
-                className="h-7 rounded-md border border-hairline-strong bg-canvas px-2 text-[12px] text-ink"
-              >
-                <option value="POSTPAID">Postpaid</option>
-                <option value="PREPAID">Prepaid</option>
-              </select>
-            </label>
-            {flavor === "POSTPAID" ? (
-              <PostpaidPlanPicker
-                name="postpaidPlanId"
-                carrier={carriers.find((carrier) => carrier.id === carrierId)}
-                currency={currency}
-                carriersHref={carriersHref}
-                value={postpaidPlanId}
-                onChange={setPostpaidPlanId}
-                disabled={pending}
-                size="sm"
-              />
-            ) : null}
-            {activeSimCards.length > 0 ? (
-              <label className="flex w-full flex-col gap-1 text-[11px] font-medium text-ink-secondary">
-                Retiring which SIM? (optional)
-                <select
-                  name="replacesSimCardId"
-                  disabled={pending}
-                  defaultValue=""
-                  className="h-7 rounded-md border border-hairline-strong bg-canvas px-2 text-[12px] text-ink"
-                >
-                  <option value="">None — first-time provisioning</option>
-                  {activeSimCards.map((sim) => (
-                    <option key={sim.id} value={sim.id}>
-                      {sim.number}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
-          </>
+        {CompletionComponent ? (
+          <CompletionComponent
+            request={request}
+            carriers={carriers}
+            carriersHref={carriersHref}
+            currency={currency}
+            activeSmartphones={activeSmartphones}
+            activeSimCards={activeSimCards}
+            disabled={pending}
+          />
         ) : null}
 
         <div className="flex items-center gap-1.5 pt-0.5">
@@ -379,7 +288,11 @@ export function RequestStatusControl({
             variant="row"
             size="sm"
             loading={pending}
-            disabled={type === "PROVISION_SIM" && !carriers.some((carrier) => carrier.archivedAt === null)}
+            disabled={
+              type === "PROVISION_SIM" &&
+              !request.requestedFlavor &&
+              !carriers.some((carrier) => carrier.archivedAt === null)
+            }
           >
             Mark Completed
           </Button>
@@ -411,6 +324,7 @@ export function RequestStatusControl({
         ) : null}
       </div>
       <FormError error={error} />
+      {note ? <span className="text-[11px] text-warning">{note}</span> : null}
     </div>
   );
 }

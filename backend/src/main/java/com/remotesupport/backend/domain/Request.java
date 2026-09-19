@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.time.Instant;
 import java.util.UUID;
 import lombok.Getter;
@@ -75,12 +76,149 @@ public class Request {
   @Column(name = "cancellation_reason")
   private String cancellationReason;
 
+  /**
+   * The Company Manager's reason for rejecting this Request (request-types-and-flow spec, Manager
+   * approval: "reject, reason required"; manager-approves-requests ticket) — set only when {@code
+   * status} is {@link RequestStatus#REJECTED}. Distinct from {@code cancellationReason}: Rejected
+   * means "the Manager said no", Cancelled means "no longer needed" (CONTEXT.md "Rejected").
+   */
+  @Column(name = "rejection_reason")
+  private String rejectionReason;
+
+  /**
+   * Who approved or rejected this Request, and when (spec.md Manager approval: "the decision
+   * records who decided and when") — both null until a Manager acts, on either the approve or the
+   * reject route ({@code RequestByIdController}).
+   */
+  @ManyToOne
+  @JoinColumn(name = "decided_by_user_id")
+  private User decidedByUser;
+
+  @Column(name = "decided_at")
+  private Instant decidedAt;
+
+  /**
+   * Free-text detail given at submission (request-types-and-flow spec, Details at submission;
+   * other-replaces-repair ticket): optional for every type except {@link RequestType#OTHER},
+   * where {@link com.remotesupport.backend.web.RequestController} and {@link
+   * com.remotesupport.backend.web.FeeController} both refuse a blank one before saving — the same
+   * validation both the Tester and the Agent-proactive paths call. Nullable at the database level
+   * because every other type leaves it empty far more often than not.
+   */
+  @Column private String description;
+
   @Column(name = "replaces_smartphone_id")
   private UUID replacesSmartphoneId;
 
   @Column(name = "replaces_sim_card_id")
   private UUID replacesSimCardId;
 
+  /**
+   * The Smartphone a {@link RequestType#REBOOT} Request asks to reboot (request-types-and-flow
+   * spec, Details at submission; reboot-and-topup-details ticket). Set at submission by {@link
+   * com.remotesupport.backend.web.requestdetails.RebootRequestDetailsHandler}, on both the
+   * Tester and the Agent-proactive path. Null for every other type, and for a Reboot Request that
+   * existed before this ticket. An actual {@code @ManyToOne} (unlike {@code replacesSmartphoneId}
+   * above) because the Requests lists need to show the target's model on every row (AC:
+   * "summarise the details"), not just its id.
+   */
+  @ManyToOne
+  @JoinColumn(name = "target_smartphone_id")
+  private Smartphone targetSmartphone;
+
+  /**
+   * The SIM Card a {@link RequestType#TOPUP} Request asks to top up — same shape and rationale as
+   * {@code targetSmartphone} above, set by {@code TopupRequestDetailsHandler}.
+   */
+  @ManyToOne
+  @JoinColumn(name = "target_sim_card_id")
+  private SimCard targetSimCard;
+
+  /**
+   * The Topup Option a Topup Request asked for, when {@code targetSimCard}'s Carrier had an
+   * active one at submission (request-types-and-flow spec, Details at submission: "otherwise a
+   * description" — {@code description} above carries that fallback). Archiving the Option
+   * afterwards leaves this Request's choice valid (spec.md: "archiving hides an entry from
+   * pickers, it never invalidates a record that already uses it"). Completing this Request reads
+   * it back to pre-fill the Fee amount and link the Fee to it (ticket AC), but never re-reads its
+   * price at submission time beyond the one check that it belongs to this SIM Card's Carrier.
+   */
+  @ManyToOne
+  @JoinColumn(name = "topup_option_id")
+  private TopupOption topupOption;
+
+  /**
+   * The brand-and-model text a {@link RequestType#PROVISION_SMARTPHONE} Request asks for
+   * (request-types-and-flow spec, Details at submission; provision-request-details ticket). Set
+   * at submission by {@link com.remotesupport.backend.web.requestdetails.ProvisionSmartphoneRequestDetailsHandler}.
+   * Null for every other type, and for a Provision Smartphone Request that existed before this
+   * ticket — completing one falls back to the previous full form (ticket AC).
+   */
+  @Column(name = "requested_model")
+  private String requestedModel;
+
+  /**
+   * The flavor a {@link RequestType#PROVISION_SIM} Request asks for, together with {@code
+   * requestedCarrier}/{@code requestedPostpaidPlan} below (provision-request-details ticket). Set
+   * by {@link com.remotesupport.backend.web.requestdetails.ProvisionSimRequestDetailsHandler}.
+   * Null for every other type, and for a Provision SIM Request that existed before this ticket.
+   */
+  @Enumerated(EnumType.STRING)
+  @Column(name = "requested_flavor")
+  private SimCardFlavor requestedFlavor;
+
+  /**
+   * The Carrier a Provision SIM Request asks for — an active Carrier of the Contract's Country at
+   * submission (spec.md: "archiving hides an entry from pickers, it never invalidates a record
+   * that already uses it" — this Request's choice stays valid even once archived).
+   */
+  @ManyToOne
+  @JoinColumn(name = "requested_carrier_id")
+  private Carrier requestedCarrier;
+
+  /**
+   * The Postpaid Plan a postpaid Provision SIM Request asks for, when {@code requestedFlavor} is
+   * {@code POSTPAID} — null for a prepaid Provision SIM Request. Completing the Request copies its
+   * price as the new SIM Card's monthly fee, exactly like {@code SimCardFactory} already does for
+   * every other SIM-creation path (carrier-catalog spec).
+   */
+  @ManyToOne
+  @JoinColumn(name = "requested_postpaid_plan_id")
+  private PostpaidPlan requestedPostpaidPlan;
+
+  /**
+   * A {@link RequestType#SIM_SWAP} Request's own detail (request-types-and-flow spec's table: "SIM
+   * Swap — one move (SIM Card → Smartphone), or an exchange: two SIM Cards installed in two
+   * different Smartphones"; sim-swap-moves ticket). A single move stores "this SIM Card goes into
+   * this Smartphone" on the existing {@code targetSimCard}/{@code targetSmartphone} columns above
+   * (reboot-and-topup-details/provision-request-details tickets) rather than a pair of its own —
+   * no other type ever sets both of those together, so SIM Swap's first move can reuse them
+   * unambiguously. An exchange is stored as two such moves: {@code targetSimCard} into {@code
+   * secondSimCard}'s current Smartphone, and vice versa, both fixed once at submission (from where
+   * each SIM Card sat then) rather than re-derived at completion — {@code
+   * com.remotesupport.backend.web.SimInstallationService#applyMoves} re-validates the two stored
+   * moves against the Fleet as it is at completion time, so a move that no longer fits is refused
+   * then, not silently re-targeted. Null for a plain single move, and for a SIM Swap Request that
+   * existed before this ticket (ticket AC: "completes without changing the Fleet").
+   */
+  @ManyToOne
+  @JoinColumn(name = "second_sim_card_id")
+  private SimCard secondSimCard;
+
+  /** The Smartphone {@code secondSimCard} moves into — see {@code secondSimCard} above. */
+  @ManyToOne
+  @JoinColumn(name = "second_target_smartphone_id")
+  private Smartphone secondTargetSmartphone;
+
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
+
+  /**
+   * A one-time, non-persisted note set by a completion effect to tell the Agent something about
+   * what just happened that isn't otherwise visible on the Request (provision-request-details
+   * ticket AC: "the SIM Card is installed in the target Smartphone when one was named and it has
+   * room; otherwise it is added uninstalled and the Agent is told"). Never stored — it only rides
+   * back on the one {@code RequestResponse} the completion PATCH itself returns.
+   */
+  @Transient private String completionNote;
 }

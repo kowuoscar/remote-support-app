@@ -6,6 +6,7 @@ import com.remotesupport.backend.domain.Fee;
 import com.remotesupport.backend.domain.FeeType;
 import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
+import com.remotesupport.backend.domain.RequestType;
 import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.TopupOption;
 import com.remotesupport.backend.domain.User;
@@ -21,6 +22,9 @@ import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.FleetAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import com.remotesupport.backend.security.RequestAccessGuard;
+import com.remotesupport.backend.web.completion.RequestCompletionInput;
+import com.remotesupport.backend.web.requestdetails.RequestDetailsInput;
+import com.remotesupport.backend.web.requestdetails.RequestDetailsValidator;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -76,6 +80,7 @@ public class FeeController {
   private final RequestAccessGuard requestAccessGuard;
   private final ProvisioningService provisioningService;
   private final TopupOptionRepository topupOptionRepository;
+  private final RequestDetailsValidator requestDetailsValidator;
 
   public FeeController(
       ContractRepository contractRepository,
@@ -86,7 +91,8 @@ public class FeeController {
       FleetAccessGuard fleetAccessGuard,
       RequestAccessGuard requestAccessGuard,
       ProvisioningService provisioningService,
-      TopupOptionRepository topupOptionRepository) {
+      TopupOptionRepository topupOptionRepository,
+      RequestDetailsValidator requestDetailsValidator) {
     this.contractRepository = contractRepository;
     this.requestRepository = requestRepository;
     this.feeRepository = feeRepository;
@@ -96,6 +102,7 @@ public class FeeController {
     this.requestAccessGuard = requestAccessGuard;
     this.provisioningService = provisioningService;
     this.topupOptionRepository = topupOptionRepository;
+    this.requestDetailsValidator = requestDetailsValidator;
   }
 
   @PostMapping
@@ -192,12 +199,32 @@ public class FeeController {
       throw new InvalidRequestException(
           "feeType " + requestBody.feeType() + " does not match this Request's type " + request.getType());
     }
+    // request-types-and-flow spec, Fees and approval: "A Fee can't be logged against a Request
+    // that is Pending Approval, Rejected or Cancelled" (manager-approves-requests ticket AC).
+    if (request.getStatus() == RequestStatus.PENDING_APPROVAL
+        || request.getStatus() == RequestStatus.REJECTED
+        || request.getStatus() == RequestStatus.CANCELLED) {
+      throw new InvalidRequestException(
+          "A Fee can't be logged against a Request that is " + request.getStatus());
+    }
     return request;
   }
 
   /** The proactive branch: auto-creates the linking Request (agent-request-fulfillment shape). */
   private Request createProactiveLinkingRequest(
       Contract contract, FeeCreateRequest requestBody, AuthenticatedPrincipal principal) {
+    // request-types-and-flow spec, Fees and approval: "A proactive Fee (no existing Request) is
+    // refused for the four approval-required types; the Agent logs the Request instead"
+    // (manager-approves-requests ticket AC). Checked before anything else in this branch — a
+    // proactive Provision/Replace Fee never gets far enough to name a Tester or auto-create a Row.
+    if (requestBody.feeType().toRequestType().requiresApproval()) {
+      throw new InvalidRequestException(
+          "A proactive "
+              + requestBody.feeType()
+              + " Fee is refused — log the "
+              + requestBody.feeType().toRequestType()
+              + " Request instead, which waits for the Manager's approval before it can carry a Fee");
+    }
     if (requestBody.testerId() == null) {
       throw new InvalidRequestException("testerId is required when logging a Fee with no pre-existing Request");
     }
@@ -213,24 +240,55 @@ public class FeeController {
             .findById(principal.userId())
             .orElseThrow(() -> new AccessDeniedException("No login found for this Agent"));
 
+    // The auto-created linking Request carries the same description the Agent gave the Fee
+    // (request-types-and-flow spec, Details at submission; other-replaces-repair ticket): it's one
+    // submission producing both rows, so an Other proactive Fee is refused the same way a Tester's
+    // Other Request submission is — no description, no Request.
+    RequestType requestType = requestBody.feeType().toRequestType();
+    String description = RequestController.normalizeDescription(requestBody.description());
+    RequestController.requireDescriptionWhenOther(requestType, description);
+
     Request request = new Request();
     request.setId(UUID.randomUUID());
     request.setTenant(contract.getTenant());
     request.setContract(contract);
-    request.setType(requestBody.feeType().toRequestType());
+    request.setType(requestType);
+    request.setDescription(description);
     request.setTester(tester);
     request.setRaisedByUser(raisedByUser);
     request.setAgentAuthored(true);
     request.setStatus(RequestStatus.COMPLETED);
     request.setCreatedAt(Instant.now());
 
+    // reboot-and-topup-details ticket AC: "The same rules apply when an Agent logs the Request
+    // proactively" — a proactive Topup Fee auto-creates a Topup Request exactly like the Agent
+    // logging one directly would, so it's held to the same targetSimCardId/topupOptionId rule via
+    // the one shared validator, rather than skipping it because no separate Request POST happened.
+    requestDetailsValidator.apply(
+        contract,
+        new RequestDetailsInput(
+            null,
+            requestBody.targetSimCardId(),
+            requestBody.topupOptionId(),
+            requestBody.requestedModel(),
+            requestBody.requestedFlavor(),
+            requestBody.requestedCarrierId(),
+            requestBody.requestedPostpaidPlanId(),
+            // sim-swap-moves ticket: a proactive Fee can never auto-create a SIM_SWAP linking
+            // Request (FeeType structurally excludes it), so there is no second SIM Card to name
+            // here.
+            null),
+        request);
+
     provisioningService.applyIfNeeded(
         contract,
         request,
-        requestBody.newSmartphone(),
-        requestBody.newSimCard(),
-        requestBody.replacesSmartphoneId(),
-        requestBody.replacesSimCardId(),
+        new RequestCompletionInput(
+            requestBody.newSmartphone(),
+            requestBody.newSimCard(),
+            requestBody.replacesSmartphoneId(),
+            requestBody.replacesSimCardId(),
+            requestBody.simCardNumber()),
         principal);
 
     requestRepository.save(request);
@@ -240,6 +298,10 @@ public class FeeController {
         contract.getId(),
         request.getType().name(),
         request.getStatus().name(),
+        request.getDescription() != null,
+        RequestController.targetSmartphoneIdOf(request),
+        RequestController.targetSimCardIdOf(request),
+        RequestController.topupOptionIdOf(request),
         principal.userId(),
         principal.tenantId());
 

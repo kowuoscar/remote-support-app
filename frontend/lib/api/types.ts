@@ -90,6 +90,14 @@ export interface ContractListItem {
 // Mirrors backend/.../domain/SmartphoneStatus.java
 export type SmartphoneStatusValue = "ACTIVE" | "IN_REPAIR" | "RETIRED";
 
+// Mirrors backend/.../domain/SmartphoneOwner.java
+export type SmartphoneOwnerValue = "CLIENT" | "COMPANY";
+
+export const SMARTPHONE_OWNER_LABEL: Record<SmartphoneOwnerValue, string> = {
+  CLIENT: "Client",
+  COMPANY: "Company",
+};
+
 // Mirrors backend/.../domain/SimCardStatus.java
 export type SimCardStatusValue = "ACTIVE" | "RETIRED";
 
@@ -124,19 +132,22 @@ export function nextSmartphoneStatuses(current: SmartphoneStatusValue): Smartpho
   }
 }
 
-// Mirrors backend/.../dto/SmartphoneResponse.java
+// Mirrors backend/.../dto/SmartphoneResponse.java. serial is null for a Smartphone created
+// without one (smartphone-owner-and-optional-serial ticket) until set later from the Fleet page.
 export interface SmartphoneListItem {
   id: string;
   contractId: string;
   model: string;
-  serial: string;
-  assignedTo: string | null;
+  serial: string | null;
+  owner: SmartphoneOwnerValue;
   status: SmartphoneStatusValue;
 }
 
 // Mirrors backend/.../dto/SimCardResponse.java. The three carrier fields are absent for a SIM Card
 // from before the Carrier catalog that never had a carrier, and the three plan fields for a Prepaid
 // SIM or a Postpaid SIM from before the catalog, which keeps its own monthly fee.
+// installedInSmartphoneId/Model are absent when the SIM Card isn't Installed in any Smartphone
+// (spec.md Solution — Fleet model: "Installed in"; sim-installed-in-smartphone ticket).
 export interface SimCardListItem {
   id: string;
   contractId: string;
@@ -150,25 +161,42 @@ export interface SimCardListItem {
   flavor: SimCardFlavorValue;
   monthlyFeeAmount: number | null;
   status: SimCardStatusValue;
+  installedInSmartphoneId?: string;
+  installedInSmartphoneModel?: string;
 }
 
-// Mirrors backend/.../domain/RequestType.java
+// Mirrors backend/.../domain/RequestType.java. OTHER replaces the former REPAIR
+// (other-replaces-repair ticket) — a free-text Request for support no other type covers.
+// REPLACE_SMARTPHONE/REPLACE_SIM (replace-requests ticket) swap out one named Fleet unit for a
+// new one — distinct from PROVISION_SMARTPHONE/PROVISION_SIM, which only ever mean a net-new unit.
 export type RequestTypeValue =
   | "REBOOT"
   | "TOPUP"
   | "SIM_SWAP"
   | "PROVISION_SMARTPHONE"
   | "PROVISION_SIM"
-  | "REPAIR";
+  | "REPLACE_SMARTPHONE"
+  | "REPLACE_SIM"
+  | "OTHER";
 
-// Mirrors backend/.../domain/RequestStatus.java.
-export type RequestStatusValue = "SUBMITTED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+// Mirrors backend/.../domain/RequestStatus.java. PENDING_APPROVAL/REJECTED
+// (manager-approves-requests ticket): the starting status of every approval-required type, and the
+// Manager's "no" — see requiresApproval below.
+export type RequestStatusValue =
+  | "PENDING_APPROVAL"
+  | "SUBMITTED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED"
+  | "REJECTED";
 
 /**
  * Mirrors backend/.../domain/RequestStatus.java#canTransitionTo — the single forward-progress
  * step an Agent can take next (agent-request-fulfillment ticket AC: "Agent can move a Request
- * from Submitted to In Progress, and from In Progress to Completed"), or `null` once terminal.
- * Cancelling is a separate action (needs a reason), not part of this forward path.
+ * from Submitted to In Progress, and from In Progress to Completed"), or `null` once terminal or
+ * once only the Manager's own approve/reject actions move it on (manager-approves-requests
+ * ticket: Pending Approval has no "next" an Agent can reach this way). Cancelling is a separate
+ * action (needs a reason), not part of this forward path.
  */
 export function nextRequestStatus(current: RequestStatusValue): RequestStatusValue | null {
   switch (current) {
@@ -176,15 +204,17 @@ export function nextRequestStatus(current: RequestStatusValue): RequestStatusVal
       return "IN_PROGRESS";
     case "IN_PROGRESS":
       return "COMPLETED";
+    case "PENDING_APPROVAL":
     case "COMPLETED":
     case "CANCELLED":
+    case "REJECTED":
       return null;
   }
 }
 
 /** Whether a Request in this status can still be cancelled (mirrors RequestStatus#canTransitionTo). */
 export function canCancelRequest(current: RequestStatusValue): boolean {
-  return current === "SUBMITTED" || current === "IN_PROGRESS";
+  return current === "PENDING_APPROVAL" || current === "SUBMITTED" || current === "IN_PROGRESS";
 }
 
 export const REQUEST_TYPE_LABEL: Record<RequestTypeValue, string> = {
@@ -193,15 +223,30 @@ export const REQUEST_TYPE_LABEL: Record<RequestTypeValue, string> = {
   SIM_SWAP: "SIM Swap",
   PROVISION_SMARTPHONE: "Provision Smartphone",
   PROVISION_SIM: "Provision SIM",
-  REPAIR: "Repair",
+  REPLACE_SMARTPHONE: "Replace Smartphone",
+  REPLACE_SIM: "Replace SIM",
+  OTHER: "Other",
 };
 
 export const REQUEST_STATUS_LABEL: Record<RequestStatusValue, string> = {
+  PENDING_APPROVAL: "Pending Approval",
   SUBMITTED: "Submitted",
   IN_PROGRESS: "In Progress",
   COMPLETED: "Completed",
   CANCELLED: "Cancelled",
+  REJECTED: "Rejected",
 };
+
+// Mirrors backend/.../domain/RequestType.java#requiresApproval (manager-approves-requests
+// ticket): the four types that always start Pending Approval, whoever raises them.
+export function requestTypeRequiresApproval(type: RequestTypeValue): boolean {
+  return (
+    type === "PROVISION_SMARTPHONE" ||
+    type === "PROVISION_SIM" ||
+    type === "REPLACE_SMARTPHONE" ||
+    type === "REPLACE_SIM"
+  );
+}
 
 // Mirrors backend/.../dto/RequestResponse.java
 export interface RequestListItem {
@@ -217,7 +262,63 @@ export interface RequestListItem {
   agentAuthored: boolean;
   loggedByUsername: string;
   cancellationReason: string | null;
+  // manager-approves-requests ticket: set only once a Manager has decided (spec.md Manager
+  // approval: "the decision records who decided and when"); rejectionReason only on a REJECTED
+  // one, shown the same way cancellationReason is (CONTEXT.md "Rejected" — distinct from Cancelled).
+  rejectionReason?: string;
+  decidedByUsername?: string;
+  decidedAt?: string;
+  // Free-text detail given at submission (other-replaces-repair ticket): optional for every type
+  // except OTHER, where it's required.
+  description: string | null;
   createdAt: string;
+  // reboot-and-topup-details ticket: the target unit a Reboot/Topup Request names, and the Topup
+  // Option it asked for, denormalized so a Requests list row never needs a second round-trip.
+  // Absent for every other type, and for a Request that existed before this ticket.
+  targetSmartphoneId?: string;
+  targetSmartphoneModel?: string;
+  targetSimCardId?: string;
+  targetSimCardNumber?: string;
+  topupOptionId?: string;
+  topupOptionName?: string;
+  // The Option's price, for the Agent's completion step to pre-fill the Fee amount from
+  // (still editable) — the amount itself is never re-read from the Option after that.
+  topupOptionPrice?: number;
+  // provision-request-details ticket: a Provision Smartphone Request's own requested model, and a
+  // Provision SIM Request's flavor, Carrier and, for postpaid, Postpaid Plan — denormalized the
+  // same way as the target/Topup fields above. A Provision SIM's optional target Smartphone
+  // reuses targetSmartphoneId/targetSmartphoneModel above. Absent for every other type, and for a
+  // Request that existed before this ticket.
+  requestedModel?: string;
+  requestedFlavor?: SimCardFlavorValue;
+  requestedCarrierId?: string;
+  requestedCarrierName?: string;
+  requestedCarrierArchived?: boolean;
+  requestedPostpaidPlanId?: string;
+  requestedPostpaidPlanName?: string;
+  requestedPostpaidPlanArchived?: boolean;
+  // A one-time note from completing this Request (e.g. "added uninstalled, no room") — only ever
+  // present on the single response a completion PATCH itself returns.
+  completionNote?: string;
+  // sim-swap-moves ticket: a SIM Swap exchange's second move — targetSimCardId/targetSmartphoneId
+  // above double as its first. Absent for a plain single move, every other type, and a SIM Swap
+  // Request that existed before this ticket.
+  secondSimCardId?: string;
+  secondSimCardNumber?: string;
+  secondTargetSmartphoneId?: string;
+  secondTargetSmartphoneModel?: string;
+}
+
+// Mirrors backend/.../dto/PendingRequestItemResponse.java, as returned by GET
+// /api/pending-requests (manager-approves-requests ticket): one Request at Pending Approval, for
+// the Manager's Pending Requests page — request carries the type, Tester, Agent-authored flag and
+// every type's own denormalized details (for a Replace, the unit that would be retired);
+// clientName/agentName/waitingSince are this list's own addition on top.
+export interface PendingRequestItem {
+  request: RequestListItem;
+  clientName: string;
+  agentName: string;
+  waitingSince: string;
 }
 
 // Mirrors backend/.../dto/TesterResponse.java, as returned by GET /api/contracts/{id}/testers
@@ -230,21 +331,37 @@ export interface ContractTesterListItem {
   isPrimaryContact: boolean;
 }
 
-// Mirrors backend/.../domain/FeeType.java — the four RequestTypeValues that can carry a Fee
-// (fee-logging-and-provisioning ticket). A Reboot or a like-for-like SIM Swap is never one of
-// these; a swap that really needed a new physical SIM is logged as PROVISION_SIM instead.
-export type FeeTypeValue = "TOPUP" | "PROVISION_SMARTPHONE" | "PROVISION_SIM" | "REPAIR";
+// Mirrors backend/.../domain/FeeType.java — the six RequestTypeValues that can carry a Fee
+// (fee-logging-and-provisioning, other-replaces-repair, replace-requests tickets). A Reboot or a
+// like-for-like SIM Swap is never one of these; a swap that really needed a new physical SIM is
+// logged as PROVISION_SIM instead.
+export type FeeTypeValue =
+  | "TOPUP"
+  | "PROVISION_SMARTPHONE"
+  | "PROVISION_SIM"
+  | "REPLACE_SMARTPHONE"
+  | "REPLACE_SIM"
+  | "OTHER";
 
 export const FEE_TYPE_LABEL: Record<FeeTypeValue, string> = {
   TOPUP: "Topup",
   PROVISION_SMARTPHONE: "Provision Smartphone",
   PROVISION_SIM: "Provision SIM",
-  REPAIR: "Repair",
+  REPLACE_SMARTPHONE: "Replace Smartphone",
+  REPLACE_SIM: "Replace SIM",
+  OTHER: "Other",
 };
 
 /** Mirrors backend/.../domain/FeeType.java#requestTypeCanCarryFee. */
 export function requestTypeCanCarryFee(type: RequestTypeValue): type is FeeTypeValue {
-  return type === "TOPUP" || type === "PROVISION_SMARTPHONE" || type === "PROVISION_SIM" || type === "REPAIR";
+  return (
+    type === "TOPUP" ||
+    type === "PROVISION_SMARTPHONE" ||
+    type === "PROVISION_SIM" ||
+    type === "REPLACE_SMARTPHONE" ||
+    type === "REPLACE_SIM" ||
+    type === "OTHER"
+  );
 }
 
 // Mirrors backend/.../dto/FeeResponse.java

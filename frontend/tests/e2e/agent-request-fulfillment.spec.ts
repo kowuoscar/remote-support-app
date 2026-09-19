@@ -1,4 +1,16 @@
-import { test, expect, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import {
+  SEEDED_USERS,
+  addSimCard,
+  addSmartphone,
+  addTester,
+  createClientAndContractWithSeededAgent,
+  createUnrelatedContract,
+  login,
+  logout,
+  selectContractInSwitcher,
+  submitRequestAsTester,
+} from "./helpers";
 
 /**
  * Request status lifecycle and Agent-authored/proactive logging (agent-request-fulfillment
@@ -7,83 +19,6 @@ import { test, expect, type Page } from "@playwright/test";
  * tests/e2e/tester-request-submission.spec.ts's pattern. The seeded agent@example.com login
  * resolves to the "Jordan Ellis" Agent (V5 migration).
  */
-const SEEDED_USERS = {
-  manager: { username: "manager@example.com", password: "ChangeMe123!" },
-  agent: { username: "agent@example.com", password: "AgentDemo123!" },
-} as const;
-
-const SEEDED_AGENT_LABEL = "Jordan Ellis · USD";
-
-async function login(page: Page, username: string, password: string) {
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(username);
-  await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  // Wait for the post-login redirect before the caller navigates anywhere else — otherwise a
-  // page.goto() right after this can race and cancel the in-flight session-cookie exchange,
-  // leaving no session and every following action silently bounced back to /login.
-  await page.waitForURL((url) => !url.pathname.startsWith("/login"));
-}
-
-async function logout(page: Page) {
-  await page.getByRole("button", { name: "Log out" }).click();
-  await expect(page).toHaveURL(/\/login/);
-}
-
-/** Creates a fresh Client, then a Contract linking it to the seeded Agent. Returns both ids. */
-async function createClientAndContractWithSeededAgent(
-  page: Page,
-  clientName: string,
-): Promise<{ clientId: string; contractId: string }> {
-  await page.goto("/manager/clients");
-  await page.getByRole("button", { name: "Add client" }).first().click();
-  await page.getByLabel("Client name").fill(clientName);
-  await page.getByRole("dialog").getByRole("button", { name: "Add client" }).click();
-  await expect(page.getByRole("cell", { name: clientName })).toBeVisible();
-  const clientHref = await page.getByRole("link", { name: clientName }).getAttribute("href");
-  const clientId = clientHref!.split("/").pop()!;
-
-  await page.goto("/manager/contracts");
-  await page.getByRole("button", { name: "Add contract" }).first().click();
-  await page.getByLabel("Client").selectOption({ label: clientName });
-  await page.getByLabel("Agent").selectOption({ label: SEEDED_AGENT_LABEL });
-  await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
-  await expect(page.getByRole("row", { name: new RegExp(clientName) })).toBeVisible();
-
-  await page.getByRole("link", { name: clientName }).click();
-  await expect(page).toHaveURL(/\/manager\/contracts\/.+/);
-  const contractId = page.url().split("/").pop()!;
-
-  return { clientId, contractId };
-}
-
-/** Adds a Tester under an existing Client (from its manager detail page) and returns their email. */
-async function addTester(page: Page, clientId: string, email: string, password: string) {
-  await page.goto(`/manager/clients/${clientId}`);
-  await page.getByRole("button", { name: "Add tester" }).first().click();
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Temporary password").fill(password);
-  await page.getByRole("dialog").getByRole("button", { name: "Add tester" }).click();
-  await expect(page.getByRole("cell", { name: email })).toBeVisible();
-}
-
-/** Selects the Contract matching `clientName` in a Requests page's Contract switcher, if more than one exists. */
-async function selectContractInSwitcher(page: Page, clientName: string) {
-  const trigger = page.locator('[aria-haspopup="listbox"]');
-  if ((await trigger.count()) > 0) {
-    await trigger.click();
-    await page.getByRole("option", { name: new RegExp(clientName) }).click();
-  }
-}
-
-async function submitRequestAsTester(page: Page, requestTypeLabel: string) {
-  await page.goto("/client/requests");
-  await page.getByRole("button", { name: "Submit Request" }).first().click();
-  await page.getByLabel("Request type").selectOption({ label: requestTypeLabel });
-  await page.getByRole("dialog").getByRole("button", { name: "Submit Request" }).click();
-  await expect(page.getByText("Request submitted")).toBeVisible();
-  await page.getByRole("button", { name: "Close" }).click();
-}
 
 // Date.now() alone can collide across spec files: Playwright's collection phase can
 // import several spec files within the same millisecond, and more than one file in this
@@ -92,12 +27,12 @@ async function submitRequestAsTester(page: Page, requestTypeLabel: string) {
 const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 
 test.describe("agent request fulfillment", () => {
-  test("an agent progresses a request from submitted through in progress to completed", async ({
-    page,
-  }) => {
+  test("an agent progresses a request from submitted through in progress to completed", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Aurora Retail Group ${RUN_ID}`;
-    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const serial = `SN-${RUN_ID}`;
+    await addSmartphone(page, contractId, "Pixel 9", serial);
     const testerEmail = `priya.raman+${RUN_ID}@aurora.example`;
     await addTester(page, clientId, testerEmail, "Passw0rd!23");
 
@@ -106,7 +41,7 @@ test.describe("agent request fulfillment", () => {
     // Reboot, not Topup: this test is about the plain status-progression mechanics, and
     // fee-logging-and-provisioning ticket makes completing a fee-eligible type (Topup included)
     // prompt for a Fee amount first — covered by its own suite (fee-logging-and-provisioning.spec.ts).
-    await submitRequestAsTester(page, "Reboot");
+    await submitRequestAsTester(page, "Reboot", { smartphoneOptionLabel: `Pixel 9 — ${serial}` });
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -127,13 +62,15 @@ test.describe("agent request fulfillment", () => {
   test("an agent cancels a request with a reason", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Meridian Logistics ${RUN_ID}`;
-    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const serial = `SN-${RUN_ID}`;
+    await addSmartphone(page, contractId, "Pixel 9", serial);
     const testerEmail = `owen.reyes+${RUN_ID}@meridian.example`;
     await addTester(page, clientId, testerEmail, "Passw0rd!23");
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "Reboot");
+    await submitRequestAsTester(page, "Reboot", { smartphoneOptionLabel: `Pixel 9 — ${serial}` });
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -176,11 +113,13 @@ test.describe("agent request fulfillment", () => {
     // open), so scope to the open one rather than the page as a whole.
     const dialog = page.locator("dialog[open]");
     await dialog.getByLabel("Tester").selectOption({ label: testerEmail });
-    await dialog.getByLabel("Request type").selectOption({ label: "Repair" });
+    await dialog.getByLabel("Request type").selectOption({ label: "Other" });
+    // Other requires a description.
+    await dialog.getByLabel("Description").fill("On-site battery replacement");
     await dialog.getByRole("radio", { name: /Completed/ }).check();
     await dialog.getByRole("button", { name: "Log request" }).click();
 
-    const row = page.getByRole("row", { name: /Repair/ });
+    const row = page.getByRole("row", { name: /Other/ });
     await expect(row).toContainText("Completed");
     await expect(row).toContainText(testerEmail);
     await expect(row).toContainText(`Logged by ${SEEDED_USERS.agent.username}`);
@@ -190,19 +129,26 @@ test.describe("agent request fulfillment", () => {
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
     await page.goto("/client/requests");
-    await expect(page.getByRole("row", { name: /Repair/ })).toContainText("Completed");
+    await expect(page.getByRole("row", { name: /Other/ })).toContainText("Completed");
   });
 
   test("a tester cannot change a request's status", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Kessler & Vance LLP ${RUN_ID}`;
     const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const serial = `SN-${RUN_ID}`;
+    await addSmartphone(page, contractId, "Pixel 9", serial);
+    const simNumber = `+1-555-${RUN_ID}`;
+    await addSimCard(page, contractId, simNumber);
     const testerEmail = `helena.voss+${RUN_ID}@kessler.example`;
     await addTester(page, clientId, testerEmail, "Passw0rd!23");
 
     await logout(page);
     await login(page, testerEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "SIM Swap");
+    await submitRequestAsTester(page, "SIM Swap", {
+      smartphoneOptionLabel: `Pixel 9 — ${serial}`,
+      simCardOptionLabel: `${simNumber} — Verizon`,
+    });
 
     // No status controls exist on the Tester's own Requests view — verified directly at the API.
     const requestId = await page.evaluate(async (contractId) => {
@@ -229,44 +175,22 @@ test.describe("agent request fulfillment", () => {
     page,
   }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-
-    // A Contract the seeded Agent (Jordan Ellis) does NOT hold: a different Client, a different Agent.
-    const otherClientName = `Solene Cosmetics ${RUN_ID}`;
-    await page.goto("/manager/clients");
-    await page.getByRole("button", { name: "Add client" }).first().click();
-    await page.getByLabel("Client name").fill(otherClientName);
-    await page.getByRole("dialog").getByRole("button", { name: "Add client" }).click();
-
-    const otherAgentName = `Priya Nair ${RUN_ID}`;
-    await page.goto("/manager/agents");
-    await page.getByRole("button", { name: "Add agent" }).first().click();
-    await page.getByLabel("Agent name").fill(otherAgentName);
-    await page.getByLabel("Country").selectOption("PHILIPPINES");
-    await page.getByLabel("Standing monthly salary").fill("1500");
-    await page.getByLabel("Email").fill(`priya.nair+${RUN_ID}@agents.example`);
-    await page.getByLabel("Temporary password").fill("Passw0rd!23");
-    await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
-    await expect(page.getByRole("row", { name: new RegExp(otherAgentName) })).toBeVisible();
-
-    await page.goto("/manager/contracts");
-    await page.getByRole("button", { name: "Add contract" }).first().click();
-    await page.getByLabel("Client").selectOption({ label: otherClientName });
-    await page.getByLabel("Agent").selectOption({ label: `${otherAgentName} · PHP` });
-    await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
-    await page.getByRole("link", { name: otherClientName }).click();
-    await expect(page).toHaveURL(/\/manager\/contracts\/.+/);
-    const otherContractId = page.url().split("/").pop()!;
+    // This file's own "Bright Path Clinics" test (above) already claims that name with the same
+    // RUN_ID — pass a different one so createUnrelatedContract's own Client isn't ambiguous with it.
+    const { clientId: otherClientId, contractId: otherContractId } = await createUnrelatedContract(
+      page,
+      RUN_ID,
+      `Solene Cosmetics ${RUN_ID}`,
+    );
 
     const otherTesterEmail = `elise.fabron+${RUN_ID}@solene.example`;
-    await page.goto(`/manager/clients`);
-    await page.getByRole("link", { name: otherClientName }).click();
-    await expect(page).toHaveURL(/\/manager\/clients\/.+/);
-    const otherClientId = page.url().split("/").pop()!;
     await addTester(page, otherClientId, otherTesterEmail, "Passw0rd!23");
+    const otherSerial = `SN-${RUN_ID}`;
+    await addSmartphone(page, otherContractId, "Pixel 9", otherSerial);
 
     await logout(page);
     await login(page, otherTesterEmail, "Passw0rd!23");
-    await submitRequestAsTester(page, "Reboot");
+    await submitRequestAsTester(page, "Reboot", { smartphoneOptionLabel: `Pixel 9 — ${otherSerial}` });
     const otherRequestId = await page.evaluate(async (contractId) => {
       const response = await fetch(`/api/contracts/${contractId}/requests`);
       const body = (await response.json()) as { id: string }[];

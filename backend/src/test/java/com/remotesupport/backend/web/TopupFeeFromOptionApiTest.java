@@ -43,6 +43,9 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
   private String agentToken;
   private UUID contractId;
   private UUID testerId;
+  // reboot-and-topup-details ticket: a Topup Request/Fee now names the SIM Card it tops up — on
+  // the seeded AT&T Carrier, matching SEEDED_ATT_REFILL_25's own Carrier.
+  private UUID simCardOnAtt;
 
   @BeforeEach
   void aContractOfTheSeededAgentWithOneTester() throws Exception {
@@ -58,6 +61,7 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
                     Map.of("username", "priya.raman@aurora.example", "password", "Passw0rd!23"))
                 .andExpect(status().isCreated())
                 .andReturn());
+    simCardOnAtt = createSimCard(managerToken, contractId, SEEDED_ATT);
   }
 
   @Test
@@ -78,10 +82,18 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
 
   @Test
   void aTopupFeeAgainstAnExistingTopupRequestCanNameAnOption() throws Exception {
+    // reboot-and-topup-details ticket: submitting a Topup Request now requires its target SIM
+    // Card and, since this SIM Card's Carrier (AT&T) has an active Option, that Option too.
     String testerToken = loginAs("priya.raman@aurora.example", "Passw0rd!23");
     UUID requestId =
         idOf(
-            postJson("/api/contracts/" + contractId + "/requests", testerToken, Map.of("type", "TOPUP"))
+            postJson(
+                    "/api/contracts/" + contractId + "/requests",
+                    testerToken,
+                    Map.of(
+                        "type", "TOPUP",
+                        "targetSimCardId", simCardOnAtt,
+                        "topupOptionId", SEEDED_ATT_REFILL_25))
                 .andExpect(status().isCreated())
                 .andReturn());
 
@@ -99,8 +111,20 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
   }
 
   @Test
-  void aTopupFeeWithNoOptionStillWorks() throws Exception {
-    logFee("TOPUP", "12.00", null)
+  void aTopupFeeWithNoOptionStillWorksWhenTheCarrierHasNoActiveOption() throws Exception {
+    // reboot-and-topup-details ticket: naming no Option is only still allowed when the target SIM
+    // Card's Carrier truly has none active — unlike AT&T (SEEDED_ATT), which does.
+    UUID carrierWithNoOptions = createCarrierWithNoOptions(managerToken, contractId);
+    UUID simCardWithNoOptions = createSimCard(managerToken, contractId, carrierWithNoOptions);
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("feeType", "TOPUP");
+    body.put("amount", "12.00");
+    body.put("testerId", testerId);
+    body.put("targetSimCardId", simCardWithNoOptions);
+    body.put("description", "Cash top-up at kiosk");
+
+    postJson(feesUrl(), agentToken, body)
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.amount").value(12.00))
         .andExpect(jsonPath("$.topupOptionId").doesNotExist())
@@ -109,7 +133,7 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
 
   @Test
   void anOptionIsRefusedOnAFeeThatIsNotATopupFee() throws Exception {
-    logFee("REPAIR", "40.00", SEEDED_ATT_REFILL_25).andExpect(status().isBadRequest());
+    logFee("OTHER", "40.00", SEEDED_ATT_REFILL_25).andExpect(status().isBadRequest());
     assertNoFeeLogged();
   }
 
@@ -203,7 +227,11 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
     return "/api/contracts/" + contractId + "/fees";
   }
 
-  /** A proactive Fee, the way the log-Fee dialog sends it. */
+  /**
+   * A proactive Fee, the way the log-Fee dialog sends it. A Topup Fee also names the target SIM
+   * Card its auto-created linking Request requires (reboot-and-topup-details ticket) — the seeded
+   * AT&amp;T SIM Card, whose Carrier is exactly SEEDED_ATT_REFILL_25's own.
+   */
   private ResultActions logFee(String feeType, String amount, UUID topupOptionId) throws Exception {
     Map<String, Object> body = new HashMap<>();
     body.put("feeType", feeType);
@@ -211,6 +239,9 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
     body.put("testerId", testerId);
     if (topupOptionId != null) {
       body.put("topupOptionId", topupOptionId);
+    }
+    if ("TOPUP".equals(feeType)) {
+      body.put("targetSimCardId", simCardOnAtt);
     }
     return postJson(feesUrl(), agentToken, body);
   }

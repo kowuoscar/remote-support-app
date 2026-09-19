@@ -47,7 +47,8 @@ export function AgentFleetView({
       >
         <SmartphoneFleetTable
           phones={phones}
-          showSerial
+          simCards={sims}
+          contractId={contractId}
           changeStatus={(phone) => (
             <SmartphoneStatusControl contractId={contractId} smartphoneId={phone.id} status={phone.status} />
           )}
@@ -67,6 +68,8 @@ export function AgentFleetView({
           sims={sims}
           currency={currency}
           showMonthlyFee
+          contractId={contractId}
+          smartphones={phones}
           changeStatus={(sim) => (
             <SimCardStatusControl contractId={contractId} simCardId={sim.id} status={sim.status} />
           )}

@@ -47,7 +47,7 @@ export function ClientFleetView({
         emptyTitle="No smartphones on this contract yet"
         emptyDescription="Your Agent provisions smartphones onto this contract's fleet."
       >
-        <SmartphoneFleetTable phones={phones} />
+        <SmartphoneFleetTable phones={phones} simCards={sims} />
       </FleetTableCard>
 
       <FleetTableCard

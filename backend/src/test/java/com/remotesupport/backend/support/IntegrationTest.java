@@ -2,7 +2,9 @@ package com.remotesupport.backend.support;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -280,6 +282,78 @@ public abstract class IntegrationTest {
         .andExpect(status().isOk());
   }
 
+  /** This Contract's Country, as {@link #carrierFor} already derives it from GET /api/contracts. */
+  protected Country contractCountry(String managerToken, UUID contractId) throws Exception {
+    JsonNode contracts =
+        objectMapper.readTree(
+            mockMvc
+                .perform(get("/api/contracts").header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
+    for (JsonNode contract : contracts) {
+      if (contract.get("id").asText().equals(contractId.toString())) {
+        return Country.valueOf(contract.get("country").asText());
+      }
+    }
+    throw new IllegalStateException("No contract with id " + contractId);
+  }
+
+  /**
+   * A freshly created Carrier of this Contract's Country with no Topup Options at all
+   * (reboot-and-topup-details ticket) — for a fixture that needs a SIM Card whose Carrier
+   * definitely has no active Option, regardless of what else the seed or an earlier test step
+   * added to this Country's catalog.
+   */
+  protected UUID createCarrierWithNoOptions(String managerToken, UUID contractId) throws Exception {
+    return createCarrier(
+        managerToken, contractCountry(managerToken, contractId), "Fixture Carrier " + UUID.randomUUID());
+  }
+
+  /** Creates an Active Smartphone on this Contract's Fleet, as the Manager, and returns its id. */
+  protected UUID createSmartphone(String managerToken, UUID contractId, String model) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contractId + "/smartphones")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content("""
+                        {"model":"%s"}
+                        """.formatted(model)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /** Creates an Active, Prepaid SIM Card on this Contract's Fleet naming {@code carrierId}. */
+  protected UUID createSimCard(String managerToken, UUID contractId, UUID carrierId) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contractId + "/sim-cards")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                        {"number":"+1-555-%s","carrierId":"%s","flavor":"PREPAID"}
+                        """
+                            .formatted(String.valueOf(System.nanoTime()).substring(0, 7), carrierId)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /**
+   * A target SIM Card for a Topup Request/Fee fixture that doesn't care about the Topup Option
+   * rule either way: a fresh Carrier with no Options, so the caller only ever needs to supply a
+   * description (reboot-and-topup-details ticket AC).
+   */
+  protected UUID createTopupTargetSimCard(String managerToken, UUID contractId) throws Exception {
+    return createSimCard(managerToken, contractId, createCarrierWithNoOptions(managerToken, contractId));
+  }
+
   /** Creates a Contract linking a Client and an Agent, as the Manager, and returns its id. */
   protected UUID createContract(String managerToken, UUID clientId, UUID agentId) throws Exception {
     MvcResult result =
@@ -292,6 +366,33 @@ public abstract class IntegrationTest {
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /**
+   * Approves a Pending Approval Request as the Manager (manager-approves-requests ticket): every
+   * fixture that submits a Provision/Replace Request now has to clear this gate before the Agent
+   * can progress it, so this is the one shared place that does it rather than repeating the POST
+   * across every test file that needed updating for the new approval step.
+   */
+  protected void approveAsManager(String managerToken, UUID requestId) throws Exception {
+    mockMvc
+        .perform(post("/api/requests/" + requestId + "/approve").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SUBMITTED"));
+  }
+
+  /** Rejects a Pending Approval Request as the Manager, with the given reason. */
+  protected void rejectAsManager(String managerToken, UUID requestId, String reason) throws Exception {
+    mockMvc
+        .perform(
+            post("/api/requests/" + requestId + "/reject")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("""
+                    {"reason":"%s"}
+                    """.formatted(reason)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("REJECTED"));
   }
 
   /**
@@ -310,5 +411,58 @@ public abstract class IntegrationTest {
                     objectMapper.writeValueAsString(new TesterCreateRequest(username, password, false))))
         .andExpect(status().isCreated());
     return loginAs(username, password);
+  }
+
+  /**
+   * POSTs a Request-creation body to a Contract, as {@code token} — the shape behind almost every
+   * Request-submission test across the per-type detail suites. Hoisted here (code review finding)
+   * from four near-identical private copies (`ProvisionRequestDetailsApiTest`,
+   * `ReplaceRequestsApiTest`, `SimSwapRequestDetailsApiTest`, `ManagerApprovesRequestsApiTest`),
+   * each of which only ever differed in the {@code contractId} field it closed over — that field
+   * is now the first parameter instead.
+   */
+  protected ResultActions postRequest(UUID contractId, String token, String json) throws Exception {
+    return mockMvc.perform(
+        post("/api/contracts/" + contractId + "/requests")
+            .header("Authorization", "Bearer " + token)
+            .contentType(APPLICATION_JSON)
+            .content(json));
+  }
+
+  /**
+   * PATCHes a Request's status on a Contract, as {@code token} — mirrors {@link #postRequest},
+   * hoisted from the same four test classes for the same reason. The token was always the
+   * Agent's own in every call site this replaces, but a base-class method can't close over a
+   * subclass's {@code agentToken} field, so it becomes an explicit parameter alongside
+   * {@code contractId}.
+   */
+  protected ResultActions patchStatus(UUID contractId, UUID requestId, String token, String json) throws Exception {
+    return mockMvc.perform(
+        patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
+            .header("Authorization", "Bearer " + token)
+            .contentType(APPLICATION_JSON)
+            .content(json));
+  }
+
+  /**
+   * Finds a Contract's Tester by username (agent-request-fulfillment ticket: the Agent-proactive
+   * path names whose behalf a Request is raised on by id, not username). Hoisted here (code
+   * review finding) from two identical private copies (`RequestApiTest`,
+   * `RebootAndTopupDetailsApiTest`) — already fully parameterised, so the move is a straight cut.
+   */
+  protected UUID findTesterId(String callerToken, UUID contractId, String username) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                get("/api/contracts/" + contractId + "/testers")
+                    .header("Authorization", "Bearer " + callerToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    for (JsonNode node : objectMapper.readTree(result.getResponse().getContentAsString())) {
+      if (username.equals(node.get("username").asText())) {
+        return UUID.fromString(node.get("id").asText());
+      }
+    }
+    throw new IllegalStateException("No tester named " + username + " found on contract " + contractId);
   }
 }

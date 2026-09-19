@@ -18,4 +18,10 @@ public interface SimCardRepository extends JpaRepository<SimCard, UUID> {
    * Smartphone reads it to know which links to clear.
    */
   List<SimCard> findByInstalledInSmartphoneId(UUID smartphoneId);
+
+  /** One Agent's own Stock (agent-stock ticket), tenant-scoped. */
+  List<SimCard> findByTenantIdAndHoldingAgentIdOrderByCreatedAtAsc(UUID tenantId, UUID holdingAgentId);
+
+  /** Every Agent's Stock in the tenant (the Manager's own, unfiltered read). */
+  List<SimCard> findByTenantIdAndHoldingAgentIdIsNotNullOrderByCreatedAtAsc(UUID tenantId);
 }

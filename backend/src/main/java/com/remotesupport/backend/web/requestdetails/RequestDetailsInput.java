@@ -1,6 +1,7 @@
 package com.remotesupport.backend.web.requestdetails;
 
 import com.remotesupport.backend.domain.SimCardFlavor;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -26,6 +27,12 @@ import java.util.UUID;
  * only for an exchange of two SIM Cards, naming the second one. {@code targetSimCardId}/{@code
  * targetSmartphoneId} above double as SIM Swap's first move: the SIM Card to move, and (for a
  * plain single move, not an exchange) its destination Smartphone.
+ *
+ * <p>{@code returnedSmartphoneIds}/{@code returnedSimCardIds} (returns-and-agent-stock spec,
+ * Return type; return-client-owned-smartphones ticket): a Return Request's own units — every
+ * other type ever names at most one target, so Return is the first to need a list rather than a
+ * single id. Either may be {@code null} or empty; a Return requires at least one entry across the
+ * two combined.
  */
 public record RequestDetailsInput(
     UUID targetSmartphoneId,
@@ -35,4 +42,6 @@ public record RequestDetailsInput(
     SimCardFlavor flavor,
     UUID carrierId,
     UUID postpaidPlanId,
-    UUID secondSimCardId) {}
+    UUID secondSimCardId,
+    List<UUID> returnedSmartphoneIds,
+    List<UUID> returnedSimCardIds) {}

@@ -506,6 +506,26 @@ public final class AuditLog {
         tenantId);
   }
 
+  /**
+   * One unit named on a completed Return (return-client-owned-smartphones ticket Observability:
+   * "A unit-returned audit event per unit: Request id, unit id, Disposition, actor, tenant").
+   * {@code entity} is {@code Smartphone} or {@code SimCard}, matching {@link #statusChanged}'s own
+   * vocabulary; {@code unitId} is that unit's own id, not the {@link
+   * com.remotesupport.backend.domain.ReturnedUnit} row's.
+   */
+  public static void unitReturned(
+      String entity, UUID unitId, UUID requestId, String disposition, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=UNIT_RETURNED entity={} entityId={} requestId={} disposition={} "
+            + "actorUserId={} tenantId={}",
+        entity,
+        unitId,
+        requestId,
+        disposition,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

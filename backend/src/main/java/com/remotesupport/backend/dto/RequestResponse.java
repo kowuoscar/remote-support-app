@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.remotesupport.backend.domain.Carrier;
 import com.remotesupport.backend.domain.PostpaidPlan;
 import com.remotesupport.backend.domain.Request;
+import com.remotesupport.backend.domain.ReturnedUnit;
 import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.domain.Smartphone;
 import com.remotesupport.backend.domain.TopupOption;
 import com.remotesupport.backend.domain.User;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -39,6 +41,14 @@ import java.util.UUID;
  * Request (spec.md Manager approval: "the decision records who decided and when");
  * {@code rejectionReason} only on a {@code REJECTED} one (CONTEXT.md "Rejected" — distinct from
  * {@code cancellationReason}).
+ *
+ * <p>{@code returnedUnits} (returns-and-agent-stock spec, Return type; return-client-owned-smartphones
+ * ticket): every unit a {@code RETURN} Request names, with its own Disposition — absent (never an
+ * empty array) for every other type. Unlike every other denormalized field above, this one isn't
+ * reachable off {@code request} itself (a Return holds several units, not one association), so
+ * {@link #of(Request)} always builds it empty; callers that need it populated — {@code
+ * RequestController}'s create/list/status-update endpoints — use {@link #of(Request, List)}
+ * instead, passing in a fetched {@code List<ReturnedUnit>}.
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record RequestResponse(
@@ -75,9 +85,14 @@ public record RequestResponse(
     UUID secondSimCardId,
     String secondSimCardNumber,
     UUID secondTargetSmartphoneId,
-    String secondTargetSmartphoneModel) {
+    String secondTargetSmartphoneModel,
+    List<ReturnedUnitResponse> returnedUnits) {
 
   public static RequestResponse of(Request request) {
+    return of(request, List.of());
+  }
+
+  public static RequestResponse of(Request request, List<ReturnedUnit> returnedUnits) {
     Smartphone targetSmartphone = request.getTargetSmartphone();
     SimCard targetSimCard = request.getTargetSimCard();
     TopupOption topupOption = request.getTopupOption();
@@ -120,6 +135,7 @@ public record RequestResponse(
         secondSimCard == null ? null : secondSimCard.getId(),
         secondSimCard == null ? null : secondSimCard.getNumber(),
         secondTargetSmartphone == null ? null : secondTargetSmartphone.getId(),
-        secondTargetSmartphone == null ? null : secondTargetSmartphone.getModel());
+        secondTargetSmartphone == null ? null : secondTargetSmartphone.getModel(),
+        returnedUnits.isEmpty() ? null : returnedUnits.stream().map(ReturnedUnitResponse::of).toList());
   }
 }

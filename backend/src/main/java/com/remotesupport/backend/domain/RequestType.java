@@ -17,6 +17,11 @@ package com.remotesupport.backend.domain;
  * unit of a Contract's Fleet for a new one — distinct from {@code PROVISION_SMARTPHONE}/{@code
  * PROVISION_SIM}, which only ever mean a net-new unit with nothing to retire (spec.md Solution:
  * "Provision no longer names a unit to replace — that is what Replace is for").
+ *
+ * <p>{@code RETURN} (returns-and-agent-stock spec, Return type; return-client-owned-smartphones
+ * ticket): names one or more Smartphones and SIM Cards leaving a Contract's Fleet, each with its
+ * own {@link Disposition}. Never carries a Fee (see {@link FeeType}, which structurally excludes
+ * it exactly like {@code REBOOT} and {@code SIM_SWAP}).
  */
 public enum RequestType {
   REBOOT,
@@ -26,7 +31,8 @@ public enum RequestType {
   PROVISION_SIM,
   REPLACE_SMARTPHONE,
   REPLACE_SIM,
-  OTHER;
+  OTHER,
+  RETURN;
 
   /**
    * Whether this type always starts at {@link RequestStatus#PENDING_APPROVAL}, whoever raises it
@@ -34,11 +40,19 @@ public enum RequestType {
    * Smartphone and Replace SIM always start at Pending Approval"; manager-approves-requests
    * ticket). The four types this names are exactly the ones that add a net-new unit or retire one
    * — a real spend the Company Manager agrees to before it happens.
+   *
+   * <p>{@code RETURN} is {@code false} here even though a Return holding a company-owned unit will
+   * eventually need approval too (spec.md Solution: "A Return holding at least one company-owned
+   * unit ... starts at Pending Approval") — that depends on a Return's own *content*, not its type
+   * alone, unlike every type this method already names, so it's decided at the content level
+   * instead ({@code ReturnRequestDetailsHandler}, this ticket, refuses a company-owned unit outright
+   * rather than deferring it to approval; {@code manager-decides-return-disposition} is the ticket
+   * that makes the starting-status logic content-aware for Return).
    */
   public boolean requiresApproval() {
     return switch (this) {
       case PROVISION_SMARTPHONE, PROVISION_SIM, REPLACE_SMARTPHONE, REPLACE_SIM -> true;
-      case REBOOT, TOPUP, SIM_SWAP, OTHER -> false;
+      case REBOOT, TOPUP, SIM_SWAP, OTHER, RETURN -> false;
     };
   }
 }

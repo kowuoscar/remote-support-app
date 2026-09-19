@@ -44,10 +44,14 @@ public enum RequestType {
    * <p>{@code RETURN} is {@code false} here even though a Return holding a company-owned unit does
    * need approval (spec.md Solution: "A Return holding at least one company-owned unit ... starts
    * at Pending Approval") — that depends on a Return's own *content*, not its type alone, unlike
-   * every type this method already names, so it's decided at the content level instead: {@code
-   * RequestController}'s own {@code returnRequiresApproval} helper (manager-decides-return-disposition
-   * ticket) checks the named units' ownership directly, before/alongside {@code
-   * ReturnRequestDetailsHandler} building them.
+   * every type this method already names, so it's decided at the content level instead, by {@code
+   * ReturnApprovalHandler} ({@code web.requestapproval} package, manager-decides-return-disposition
+   * ticket; moved out of {@code RequestController} into this per-type seam by the feature's
+   * finisher pass), which checks the named units' ownership directly, before/alongside {@code
+   * ReturnRequestDetailsHandler} building them. {@link
+   * com.remotesupport.backend.web.requestapproval.RequestApprovalValidator} is what every caller
+   * actually asks — it falls back to this method for a type, like the four named above, whose
+   * approval doesn't depend on content.
    */
   public boolean requiresApproval() {
     return switch (this) {

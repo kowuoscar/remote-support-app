@@ -3,7 +3,6 @@ package com.remotesupport.backend.web;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -11,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.remotesupport.backend.domain.Agent;
 import com.remotesupport.backend.domain.AgentStandingAmount;
 import com.remotesupport.backend.domain.Country;
@@ -111,60 +109,6 @@ class AgentInvoiceApiTest extends IntegrationTest {
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
-  }
-
-  /**
-   * Cancels a SIM Card with the given effective date through the real Return flow (submit → the
-   * Manager approves with Disposition {@code CANCELLED} → the Agent progresses and completes with
-   * the date) — the only way {@code SimCard.cancellationEffectiveDate} is ever set
-   * (returns-and-agent-stock spec, Solution's Completion table). Mirrors {@link
-   * ClientInvoiceApiTest}'s own local copy of this helper — kept local per {@code
-   * ReturnRequestsApiTest}'s own instruction to keep Return-specific test helpers local rather
-   * than hoisted.
-   */
-  private void cancelSimCard(
-      UUID contractId, String managerToken, String testerToken, String agentToken, UUID simCardId, LocalDate effectiveDate)
-      throws Exception {
-    MvcResult created =
-        mockMvc
-            .perform(
-                post("/api/contracts/" + contractId + "/requests")
-                    .header("Authorization", "Bearer " + testerToken)
-                    .contentType(APPLICATION_JSON)
-                    .content("{\"type\":\"RETURN\",\"returnedSimCardIds\":[\"%s\"]}".formatted(simCardId)))
-            .andExpect(status().isCreated())
-            .andReturn();
-    JsonNode request = objectMapper.readTree(created.getResponse().getContentAsString());
-    UUID requestId = UUID.fromString(request.get("id").asText());
-    UUID unitId = UUID.fromString(request.get("returnedUnits").get(0).get("id").asText());
-
-    mockMvc
-        .perform(
-            post("/api/requests/" + requestId + "/approve")
-                .header("Authorization", "Bearer " + managerToken)
-                .contentType(APPLICATION_JSON)
-                .content(
-                    "{\"dispositions\":[{\"returnedUnitId\":\"%s\",\"disposition\":\"CANCELLED\"}]}"
-                        .formatted(unitId)))
-        .andExpect(status().isOk());
-
-    mockMvc
-        .perform(
-            patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
-                .header("Authorization", "Bearer " + agentToken)
-                .contentType(APPLICATION_JSON)
-                .content("{\"status\":\"IN_PROGRESS\"}"))
-        .andExpect(status().isOk());
-
-    mockMvc
-        .perform(
-            patch("/api/contracts/" + contractId + "/requests/" + requestId + "/status")
-                .header("Authorization", "Bearer " + agentToken)
-                .contentType(APPLICATION_JSON)
-                .content(
-                    "{\"status\":\"COMPLETED\",\"simCardCancellations\":[{\"simCardId\":\"%s\",\"effectiveDate\":\"%s\"}]}"
-                        .formatted(simCardId, effectiveDate)))
-        .andExpect(status().isOk());
   }
 
   /**

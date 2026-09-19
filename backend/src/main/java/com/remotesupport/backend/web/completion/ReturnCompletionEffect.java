@@ -80,7 +80,7 @@ public class ReturnCompletionEffect implements RequestCompletionEffect {
   @Override
   public void apply(
       Contract contract, Request request, RequestCompletionInput input, AuthenticatedPrincipal principal) {
-    List<ReturnedUnit> units = returnedUnitRepository.findByRequestIdOrderByCreatedAtAsc(request.getId());
+    List<ReturnedUnit> units = returnedUnitRepository.forRequest(request);
     Map<UUID, LocalDate> cancellationDates = indexCancellationDates(input.simCardCancellations());
 
     // Every named unit must still be Active, and every SIM Card being Cancelled must have its

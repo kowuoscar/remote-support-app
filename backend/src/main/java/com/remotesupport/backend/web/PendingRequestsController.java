@@ -1,8 +1,6 @@
 package com.remotesupport.backend.web;
 
-import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
-import com.remotesupport.backend.domain.ReturnedUnit;
 import com.remotesupport.backend.dto.PendingRequestItemResponse;
 import com.remotesupport.backend.repository.RequestRepository;
 import com.remotesupport.backend.repository.ReturnedUnitRepository;
@@ -39,13 +37,8 @@ public class PendingRequestsController {
   @GetMapping("/api/pending-requests")
   public List<PendingRequestItemResponse> list(@AuthenticationPrincipal AuthenticatedPrincipal principal) {
     return requestRepository.findByTenantIdAndStatus(principal.tenantId(), RequestStatus.PENDING_APPROVAL).stream()
-        .map(request -> PendingRequestItemResponse.of(request, returnedUnitsOf(request)))
+        .map(request -> PendingRequestItemResponse.of(request, returnedUnitRepository.forRequest(request)))
         .sorted(LONGEST_WAITING_FIRST)
         .toList();
-  }
-
-  /** Mirrors {@link RequestController#returnedUnitsOf} — cheap and empty for every non-Return type. */
-  private List<ReturnedUnit> returnedUnitsOf(Request request) {
-    return returnedUnitRepository.findByRequestIdOrderByCreatedAtAsc(request.getId());
   }
 }

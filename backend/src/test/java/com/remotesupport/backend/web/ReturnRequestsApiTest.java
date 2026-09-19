@@ -17,13 +17,15 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 /**
- * Return's own details and no-approval path (return-client-owned-smartphones ticket: spec.md
- * Solution's "Return type" and the Client-owned rows of its Approval/Disposition/Completion
- * tables; ticket ACs). Only Client-owned Smartphones are accepted in this ticket — any SIM Card,
- * or a company-owned Smartphone, is refused (ticket AC). Mirrors {@link ReplaceRequestsApiTest}'s
- * pattern, with its own helper names per this ticket's instructions (a finisher elsewhere is
- * hoisting {@code postRequest}/{@code patchStatus}/{@code findTesterId} into {@code
- * IntegrationTest} — this file defines its own instead of colliding with that).
+ * Return's own details, approval-by-content, Disposition and completion (spec.md Solution's
+ * "Return type"/"Approval"/"Disposition"/"Completion" tables, and Agent Stock's "Kept in Stock"
+ * Disposition; return-client-owned-smartphones and manager-decides-return-disposition tickets'
+ * ACs). Covers Client-owned Smartphones (no approval needed, fixed {@code POSTED_TO_CLIENT}) and
+ * company-owned Smartphones/SIM Cards (Pending Approval, Manager-chosen Disposition — {@code
+ * POSTED_TO_COMPANY}/{@code CANCELLED} or {@code KEPT_IN_STOCK}) alike. Mirrors {@link
+ * ReplaceRequestsApiTest}'s pattern, with its own helper names per this ticket's instructions (a
+ * finisher elsewhere is hoisting {@code postRequest}/{@code patchStatus}/{@code findTesterId} into
+ * {@code IntegrationTest} — this file defines its own instead of colliding with that).
  */
 class ReturnRequestsApiTest extends IntegrationTest {
 

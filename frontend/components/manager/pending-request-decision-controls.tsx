@@ -5,30 +5,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconCheckCircle } from "@/components/icons";
-import { DISPOSITION_LABEL, type DispositionValue, type ReturnedUnitItem, type RequestListItem } from "@/lib/api/types";
+import type { RequestListItem } from "@/lib/api/types";
+import {
+  REQUEST_APPROVAL_BODY_BUILDERS,
+  REQUEST_APPROVAL_NEEDS_FORM,
+  REQUEST_APPROVAL_PAYLOAD_COMPONENTS,
+} from "./approval/registry";
 
 const CONFLICT_MESSAGE = "This Request is no longer Pending Approval. Refresh to see its current status.";
-
-/**
- * Two choices per unit kind (spec.md Disposition table; agent-stock ticket AC: "The Manager can
- * choose Kept in Stock for a company-owned Smartphone or a SIM Card when approving a Return").
- */
-function dispositionOptionsFor(unit: ReturnedUnitItem): DispositionValue[] {
-  return unit.smartphoneId ? ["POSTED_TO_COMPANY", "KEPT_IN_STOCK"] : ["CANCELLED", "KEPT_IN_STOCK"];
-}
-
-function unitLabel(unit: ReturnedUnitItem): string {
-  return unit.smartphoneModel ?? unit.simCardNumber ?? "Unit";
-}
-
-/**
- * agent-stock ticket AC: "on a Postpaid SIM the picker notes that the carrier keeps charging with
- * no Client to bill" (spec.md user story 17) — shown next to a Postpaid SIM Card unit's picker
- * regardless of which Disposition is currently selected, so the Manager reads it before choosing.
- */
-function isPostpaidSimCard(unit: ReturnedUnitItem): boolean {
-  return !unit.smartphoneId && unit.simCardFlavor === "POSTPAID";
-}
 
 /**
  * The Manager's approve/reject row actions on the Pending Requests page (request-types-and-flow
@@ -48,10 +32,17 @@ function isPostpaidSimCard(unit: ReturnedUnitItem): boolean {
  * decided) shows nothing to choose here — the row's own Details cell already names it via
  * `requestDetailsSummary`. A Return with nothing left to choose approves exactly as any other type
  * always has: one click, no body.
+ *
+ * <p>Which type gets an extra approval form, what it renders, and how it turns into the approve
+ * body is delegated to `./approval/registry` (review finding on this feature's finisher pass) —
+ * this control itself no longer knows `RETURN`/Disposition exist, mirroring how
+ * `components/agent/completion/`'s registries keep `RequestStatusControl` generic over type.
  */
 export function PendingRequestDecisionControls({ request }: { request: RequestListItem }) {
   const requestId = request.id;
-  const unitsNeedingDisposition = (request.returnedUnits ?? []).filter((unit) => !unit.disposition);
+  const needsForm = REQUEST_APPROVAL_NEEDS_FORM[request.type]?.(request) ?? false;
+  const ApprovalPayload = REQUEST_APPROVAL_PAYLOAD_COMPONENTS[request.type];
+  const buildApprovalBody = REQUEST_APPROVAL_BODY_BUILDERS[request.type];
 
   const router = useRouter();
   const [pending, setPending] = useState(false);
@@ -66,15 +57,10 @@ export function PendingRequestDecisionControls({ request }: { request: RequestLi
     setError(null);
     try {
       const init: RequestInit = { method: "POST" };
-      if (unitsNeedingDisposition.length > 0 && event) {
+      if (needsForm && event && buildApprovalBody) {
         const formData = new FormData(event.currentTarget);
         init.headers = { "Content-Type": "application/json" };
-        init.body = JSON.stringify({
-          dispositions: unitsNeedingDisposition.map((unit) => ({
-            returnedUnitId: unit.id,
-            disposition: String(formData.get(`disposition-${unit.id}`)),
-          })),
-        });
+        init.body = JSON.stringify(buildApprovalBody(request, formData));
       }
       const response = await fetch(`/api/requests/${requestId}/approve`, init);
       if (!response.ok) {
@@ -156,36 +142,10 @@ export function PendingRequestDecisionControls({ request }: { request: RequestLi
     );
   }
 
-  if (unitsNeedingDisposition.length > 0) {
+  if (needsForm && ApprovalPayload) {
     return (
       <form onSubmit={approve} className="flex flex-col items-end gap-1.5">
-        <div className="flex flex-col items-end gap-1">
-          {unitsNeedingDisposition.map((unit) => (
-            <div key={unit.id} className="flex flex-col items-end gap-0.5">
-              <label className="flex items-center gap-1.5 text-[11px] font-medium text-ink-secondary">
-                {unitLabel(unit)}
-                <select
-                  name={`disposition-${unit.id}`}
-                  required
-                  disabled={pending}
-                  defaultValue={dispositionOptionsFor(unit)[0]}
-                  className="h-7 rounded-md border border-hairline-strong bg-canvas px-2 text-[12px] text-ink"
-                >
-                  {dispositionOptionsFor(unit).map((disposition) => (
-                    <option key={disposition} value={disposition}>
-                      {DISPOSITION_LABEL[disposition]}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {isPostpaidSimCard(unit) ? (
-                <span className="max-w-[220px] text-right text-[11px] text-warning">
-                  Kept in Stock: the carrier keeps charging with no Client to bill.
-                </span>
-              ) : null}
-            </div>
-          ))}
-        </div>
+        <ApprovalPayload request={request} disabled={pending} />
         <div className="flex items-center gap-1.5">
           <Button type="submit" variant="row" size="sm" loading={pending}>
             <IconCheckCircle className="h-3.5 w-3.5" />

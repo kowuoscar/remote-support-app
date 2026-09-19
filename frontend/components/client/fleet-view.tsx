@@ -12,6 +12,7 @@ import { simCardNumbersInstalledIn } from "@/components/fleet/installed-in";
 import { SimCardPlan } from "@/components/fleet/sim-card-plan";
 import { IconContracts, IconSim, IconSmartphone } from "@/components/icons";
 import { simCardStatusToneByValue, smartphoneStatusToneByValue } from "@/lib/status";
+import { formatLocalDate } from "@/lib/format";
 import {
   SIM_CARD_FLAVOR_LABEL,
   SIM_CARD_STATUS_LABEL,
@@ -148,7 +149,7 @@ export function ClientFleetView({
                       </Badge>
                       {sim.cancellationEffectiveDate ? (
                         <span className="mt-1 block text-[12px] text-ink-mute">
-                          Cancelled {sim.cancellationEffectiveDate}
+                          Cancelled {formatLocalDate(sim.cancellationEffectiveDate)}
                         </span>
                       ) : null}
                     </Td>

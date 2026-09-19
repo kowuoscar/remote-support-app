@@ -98,9 +98,7 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
             post("/api/contracts/" + contractId + "/sim-cards")
                 .header("Authorization", "Bearer " + managerToken)
                 .contentType(APPLICATION_JSON)
-                .content("""
-                    {"number":"%s","flavor":"POSTPAID","monthlyFeeAmount":%s}
-                    """.formatted(number, fee)))
+                .content(postpaidSimCardJson(managerToken, contractId, number, fee)))
         .andExpect(status().isCreated());
   }
 

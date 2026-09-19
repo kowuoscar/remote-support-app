@@ -5,35 +5,43 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconAlertTriangle, IconPlus } from "@/components/icons";
-import type { SimCardFlavorValue } from "@/lib/api/types";
+import { SimCardFlavorFields } from "@/components/fleet/sim-card-flavor-fields";
+import type { CatalogCarrierItem, SimCardFlavorValue } from "@/lib/api/types";
 
 /**
  * Manager adds a SIM Card, Postpaid or Prepaid, to a Contract's Fleet (fleet-management ticket
- * AC: "Manager can add a SIM Card (Postpaid or Prepaid) to a Contract's Fleet"). The monthly fee
- * field only appears for Postpaid — mirrors CreateAgentDialog's "derived/conditional field
- * follows the choice" pattern, here as visibility rather than a read-only derivation.
+ * AC: "Manager can add a SIM Card (Postpaid or Prepaid) to a Contract's Fleet"). The Carrier is
+ * picked from the Contract's Country's active Carriers (sim-card-carrier ticket); a Postpaid SIM
+ * also names one of that Carrier's active Postpaid Plans, which sets its monthly fee
+ * (postpaid-sim-plan ticket) — CreateAgentDialog's "derived field follows the choice" pattern,
+ * here as a read-only fee the Plan decides rather than a number to type.
  */
 export function CreateSimCardDialog({
   contractId,
   currency,
+  carriers,
+  carriersHref,
 }: {
   contractId: string;
   currency: string;
+  carriers: CatalogCarrierItem[];
+  carriersHref: string;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const [number, setNumber] = useState("");
-  const [carrier, setCarrier] = useState("");
+  const [carrierId, setCarrierId] = useState("");
   const [flavor, setFlavor] = useState<SimCardFlavorValue>("POSTPAID");
-  const [monthlyFeeAmount, setMonthlyFeeAmount] = useState("");
+  const [postpaidPlanId, setPostpaidPlanId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const hasActiveCarrier = carriers.some((carrier) => carrier.archivedAt === null);
 
   function open() {
     setNumber("");
-    setCarrier("");
+    setCarrierId("");
     setFlavor("POSTPAID");
-    setMonthlyFeeAmount("");
+    setPostpaidPlanId("");
     setError(null);
     dialogRef.current?.showModal();
   }
@@ -53,16 +61,16 @@ export function CreateSimCardDialog({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           number,
-          carrier: carrier || undefined,
+          carrierId,
           flavor,
-          monthlyFeeAmount: flavor === "POSTPAID" ? Number(monthlyFeeAmount) : undefined,
+          postpaidPlanId: flavor === "POSTPAID" ? postpaidPlanId : undefined,
         }),
       });
 
       if (!response.ok) {
         setError(
           response.status === 400
-            ? "A Postpaid SIM needs a monthly fee; a Prepaid SIM can't have one."
+            ? "Check the carrier and the plan: both must still be active, and a Postpaid SIM needs a plan."
             : "Couldn't add the SIM card. Try again.",
         );
         setSubmitting(false);
@@ -121,52 +129,28 @@ export function CreateSimCardDialog({
             />
           </label>
 
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Carrier (optional)
-            <Input
-              value={carrier}
-              onChange={(event) => setCarrier(event.target.value)}
-              disabled={submitting}
-              placeholder="Verizon"
-            />
-          </label>
-
-          <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-            Flavor
-            <select
-              required
-              value={flavor}
-              onChange={(event) => setFlavor(event.target.value as SimCardFlavorValue)}
-              disabled={submitting}
-              className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              <option value="POSTPAID">Postpaid</option>
-              <option value="PREPAID">Prepaid</option>
-            </select>
-          </label>
-
-          {flavor === "POSTPAID" ? (
-            <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-              Monthly fee ({currency})
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                required
-                value={monthlyFeeAmount}
-                onChange={(event) => setMonthlyFeeAmount(event.target.value)}
-                disabled={submitting}
-                invalid={Boolean(error)}
-                placeholder="25.00"
-              />
-            </label>
-          ) : null}
+          <SimCardFlavorFields
+            carriers={carriers}
+            carriersHref={carriersHref}
+            currency={currency}
+            carrierId={carrierId}
+            onCarrierChange={(id) => {
+              setCarrierId(id);
+              setPostpaidPlanId("");
+            }}
+            flavor={flavor}
+            onFlavorChange={setFlavor}
+            postpaidPlanId={postpaidPlanId}
+            onPostpaidPlanChange={setPostpaidPlanId}
+            disabled={submitting}
+            flavorSelectClassName="disabled:cursor-not-allowed disabled:opacity-70"
+          />
 
           <div className="flex justify-end gap-2 pt-1">
             <Button type="button" variant="secondary" onClick={close} disabled={submitting}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={submitting}>
+            <Button type="submit" variant="primary" loading={submitting} disabled={!hasActiveCarrier}>
               Add SIM card
             </Button>
           </div>

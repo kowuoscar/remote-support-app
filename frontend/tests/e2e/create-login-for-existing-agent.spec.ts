@@ -13,8 +13,23 @@ import { Client } from "pg";
  * E2E_DATABASE_URL points it elsewhere.
  */
 const MANAGER = { username: "manager@example.com", password: "ChangeMe123!" } as const;
-const DATABASE_URL =
-  process.env.E2E_DATABASE_URL ?? "postgres://remote_support:remote_support@127.0.0.1:5432/remote_support";
+const DEFAULT_DATABASE_URL = "postgres://remote_support:remote_support@127.0.0.1:5432/remote_support";
+const DATABASE_URL = process.env.E2E_DATABASE_URL ?? DEFAULT_DATABASE_URL;
+
+if (!process.env.E2E_DATABASE_URL) {
+  // Loud on purpose: this is docker-compose's own Postgres — the one a developer's local stack
+  // and any other in-progress work point at. Right for a single dev running `npm run test:e2e`
+  // against their own compose stack; wrong, and silently so, for anything running against an
+  // isolated database (e.g. a worktree). Set E2E_DATABASE_URL there instead of relying on this.
+  console.warn(
+    `\n${"!".repeat(78)}\n` +
+      `! create-login-for-existing-agent.spec.ts: E2E_DATABASE_URL is not set.\n` +
+      `! Writing test fixtures straight into ${DEFAULT_DATABASE_URL}\n` +
+      `! That is docker-compose's own Postgres, not an isolated test database.\n` +
+      `! If this isn't your own local dev stack, set E2E_DATABASE_URL and re-run.\n` +
+      `${"!".repeat(78)}\n`,
+  );
+}
 
 // Unique per run so re-runs against a persistent dev database don't collide on names or usernames.
 const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;

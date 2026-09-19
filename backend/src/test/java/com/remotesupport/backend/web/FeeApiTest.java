@@ -420,8 +420,8 @@ class FeeApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     """
-                    {"status":"COMPLETED","newSimCard":{"number":"+1-555-0199","flavor":"PREPAID"}}
-                    """))
+                    {"status":"COMPLETED","newSimCard":{"number":"+1-555-0199","carrierId":"%s","flavor":"PREPAID"}}
+                    """.formatted(SEEDED_US_CARRIER_ID)))
         .andExpect(status().isOk());
 
     mockMvc

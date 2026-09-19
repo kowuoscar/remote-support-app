@@ -1,6 +1,7 @@
 import type { ComponentType, SVGProps } from "react";
 import {
   IconAgents,
+  IconCarrier,
   IconClients,
   IconContracts,
   IconDashboard,
@@ -21,6 +22,7 @@ export const managerNav: NavItem[] = [
   { href: "/manager/clients", label: "Clients", icon: IconClients },
   { href: "/manager/agents", label: "Agents", icon: IconAgents },
   { href: "/manager/contracts", label: "Contracts", icon: IconContracts },
+  { href: "/manager/carriers", label: "Carriers", icon: IconCarrier },
   { href: "/manager/invoices", label: "Invoices", icon: IconInvoices },
 ];
 
@@ -28,6 +30,7 @@ export const agentNav: NavItem[] = [
   { href: "/agent", label: "Dashboard", icon: IconDashboard },
   { href: "/agent/requests", label: "Requests", icon: IconRequests },
   { href: "/agent/fleet", label: "Fleet", icon: IconFleet },
+  { href: "/agent/carriers", label: "Carriers", icon: IconCarrier },
   { href: "/agent/client-invoices", label: "Client Invoices", icon: IconInvoices },
   { href: "/agent/my-invoice", label: "My Invoice", icon: IconMyInvoice },
 ];

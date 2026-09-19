@@ -4,11 +4,13 @@ import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { ManagerContractFleetView } from "@/components/manager/contract-fleet-view";
 import { InvoiceSummaryCard } from "@/components/manager/invoice-summary-card";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
+import { loadActiveCarriers } from "@/lib/api/carriers";
 import { requireManager } from "@/lib/api/guard";
 import {
   countryLabel,
   type ClientInvoiceDetail,
   type ContractListItem,
+  type Country,
   type SimCardListItem,
   type SmartphoneListItem,
 } from "@/lib/api/types";
@@ -37,10 +39,13 @@ export default async function ManagerContractDetailPage({
     notFound();
   }
 
-  const [smartphones, simCards, invoiceResponse] = await Promise.all([
+  const country = contract.country as Country;
+  const [smartphones, simCards, invoiceResponse, carriers] = await Promise.all([
     backendFetchList<SmartphoneListItem>(`/api/contracts/${contractId}/smartphones`),
     backendFetchList<SimCardListItem>(`/api/contracts/${contractId}/sim-cards`),
     backendFetch(`/api/contracts/${contractId}/client-invoice`),
+    // A new SIM Card names one of the Contract's Country's active Carriers (sim-card-carrier).
+    loadActiveCarriers(country),
   ]);
   const invoice = invoiceResponse.ok ? ((await invoiceResponse.json()) as ClientInvoiceDetail) : null;
 
@@ -60,6 +65,8 @@ export default async function ManagerContractDetailPage({
           currency={contract.currency}
           smartphones={smartphones}
           simCards={simCards}
+          carriers={carriers}
+          carriersHref={`/manager/carriers?country=${country}`}
         />
       </div>
     </SurfacePage>

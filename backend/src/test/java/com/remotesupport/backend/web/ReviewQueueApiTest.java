@@ -310,9 +310,7 @@ class ReviewQueueApiTest extends IntegrationTest {
             post("/api/contracts/" + contractId + "/sim-cards")
                 .header("Authorization", "Bearer " + managerToken)
                 .contentType(APPLICATION_JSON)
-                .content("""
-                    {"number":"+1-555-0142","flavor":"POSTPAID","monthlyFeeAmount":25.00}
-                    """))
+                .content(postpaidSimCardJson(managerToken, contractId, "+1-555-0142", "25.00")))
         .andExpect(status().isCreated());
     logTopupFee(agentToken, contractId, submitRequest(testerToken, contractId), "45.00");
     logTopupFee(agentToken, contractId, submitRequest(testerToken, contractId), "5.50");

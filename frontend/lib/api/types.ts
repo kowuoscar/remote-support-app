@@ -15,6 +15,39 @@ export function countryLabel(country: string): string {
   return COUNTRIES.find((c) => c.value === country)?.label ?? country;
 }
 
+// Mirrors backend/.../dto/CarrierResponse.java — archivedAt is null while the Carrier is active.
+export interface CarrierItem {
+  id: string;
+  country: Country;
+  name: string;
+  archivedAt: string | null;
+}
+
+// Mirrors backend/.../dto/CarrierOfferResponse.java — a Topup Option or a Postpaid Plan. `price`
+// is in the catalog's currency; archivedAt is null while the entry is active.
+export interface CarrierOfferItem {
+  id: string;
+  carrierId: string;
+  name: string;
+  price: number;
+  archivedAt: string | null;
+}
+
+// Mirrors backend/.../dto/CatalogCarrierResponse.java — a Carrier as the catalog lists it, with
+// its Topup Options and Postpaid Plans (active first, then cheapest first).
+export interface CatalogCarrierItem extends CarrierItem {
+  topupOptions: CarrierOfferItem[];
+  postpaidPlans: CarrierOfferItem[];
+}
+
+// Mirrors backend/.../dto/CarrierCatalogResponse.java — one Country's Carriers, active first,
+// with the currency every price in that catalog is in.
+export interface CarrierCatalog {
+  country: Country;
+  currency: string;
+  carriers: CatalogCarrierItem[];
+}
+
 // Mirrors backend/.../dto/ClientResponse.java
 export interface ClientListItem {
   id: string;
@@ -101,12 +134,19 @@ export interface SmartphoneListItem {
   status: SmartphoneStatusValue;
 }
 
-// Mirrors backend/.../dto/SimCardResponse.java
+// Mirrors backend/.../dto/SimCardResponse.java. The three carrier fields are absent for a SIM Card
+// from before the Carrier catalog that never had a carrier, and the three plan fields for a Prepaid
+// SIM or a Postpaid SIM from before the catalog, which keeps its own monthly fee.
 export interface SimCardListItem {
   id: string;
   contractId: string;
   number: string;
-  carrier: string | null;
+  carrierId?: string;
+  carrierName?: string;
+  carrierArchived?: boolean;
+  postpaidPlanId?: string;
+  postpaidPlanName?: string;
+  postpaidPlanArchived?: boolean;
   flavor: SimCardFlavorValue;
   monthlyFeeAmount: number | null;
   status: SimCardStatusValue;
@@ -219,6 +259,9 @@ export interface FeeListItem {
   description: string | null;
   billingMonth: string;
   createdAt: string;
+  // The Topup Option a Topup Fee was bought from; absent when it names none.
+  topupOptionId?: string;
+  topupOptionName?: string;
 }
 
 // Mirrors backend/.../domain/ClientInvoiceStatus.java. DRAFT is the only value this ticket

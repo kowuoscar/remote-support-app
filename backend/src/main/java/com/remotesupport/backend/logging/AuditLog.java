@@ -99,7 +99,8 @@ public final class AuditLog {
 
   /**
    * An Agent logging a Fee against a Request (fee-logging-and-provisioning ticket Observability:
-   * "Fee-logged ... events logged with Contract, Request id, amount, actor").
+   * "Fee-logged ... events logged with Contract, Request id, amount, actor"). {@code topupOptionId}
+   * is the Topup Option a Topup Fee was bought from, or {@code null} (topup-fee-from-option ticket).
    */
   public static void feeLogged(
       UUID feeId,
@@ -107,16 +108,18 @@ public final class AuditLog {
       UUID requestId,
       String feeType,
       BigDecimal amount,
+      UUID topupOptionId,
       UUID actorUserId,
       UUID tenantId) {
     log.info(
         "audit action=FEE_LOGGED entity=Fee entityId={} contractId={} requestId={} feeType={} "
-            + "amount={} actorUserId={} tenantId={}",
+            + "amount={} topupOptionId={} actorUserId={} tenantId={}",
         feeId,
         contractId,
         requestId,
         feeType,
         amount,
+        topupOptionId,
         actorUserId,
         tenantId);
   }
@@ -173,6 +176,160 @@ public final class AuditLog {
         field,
         oldValue,
         newValue,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * Carrier catalog changes (agent-maintains-carriers ticket Observability: "Carrier created,
+   * renamed and archived: Carrier id, Country, actor, tenant, and the old and new name on a
+   * rename"), so a surprising catalog entry can be traced back to its author.
+   */
+  public static void carrierCreated(
+      UUID carrierId, String country, String name, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CARRIER_CREATED entity=Carrier entityId={} country={} name={} actorUserId={} tenantId={}",
+        carrierId,
+        country,
+        name,
+        actorUserId,
+        tenantId);
+  }
+
+  public static void carrierRenamed(
+      UUID carrierId, String country, String oldName, String newName, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CARRIER_RENAMED entity=Carrier entityId={} country={} oldName={} newName={} "
+            + "actorUserId={} tenantId={}",
+        carrierId,
+        country,
+        oldName,
+        newName,
+        actorUserId,
+        tenantId);
+  }
+
+  public static void carrierArchived(UUID carrierId, String country, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CARRIER_ARCHIVED entity=Carrier entityId={} country={} actorUserId={} tenantId={}",
+        carrierId,
+        country,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * Topup Option and Postpaid Plan changes (topup-options-and-postpaid-plans ticket Observability:
+   * "entry id, Carrier id, actor, tenant, and the old and new name and price on an edit").
+   * {@code actionPrefix} is {@code TOPUP_OPTION} or {@code POSTPAID_PLAN}; {@code entity} names the
+   * matching domain type.
+   */
+  public static void carrierOfferCreated(
+      String actionPrefix,
+      String entity,
+      UUID entryId,
+      UUID carrierId,
+      String name,
+      BigDecimal price,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action={}_CREATED entity={} entityId={} carrierId={} name={} price={} actorUserId={} "
+            + "tenantId={}",
+        actionPrefix,
+        entity,
+        entryId,
+        carrierId,
+        name,
+        price,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A Manager adding a SIM Card to a Fleet: {@link #created}'s event, plus the Contract and the
+   * Carrier it names (sim-card-carrier ticket Observability).
+   */
+  public static void simCardCreated(
+      UUID simCardId,
+      UUID contractId,
+      UUID carrierId,
+      UUID postpaidPlanId,
+      BigDecimal monthlyFeeAmount,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action=CREATE entity=SimCard entityId={} contractId={} carrierId={} postpaidPlanId={} "
+            + "monthlyFeeAmount={} actorUserId={} tenantId={}",
+        simCardId,
+        contractId,
+        carrierId,
+        postpaidPlanId,
+        monthlyFeeAmount,
+        actorUserId,
+        tenantId);
+  }
+
+  public static void carrierOfferEdited(
+      String actionPrefix,
+      String entity,
+      UUID entryId,
+      UUID carrierId,
+      String oldName,
+      String newName,
+      BigDecimal oldPrice,
+      BigDecimal newPrice,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action={}_EDITED entity={} entityId={} carrierId={} oldName={} newName={} oldPrice={} "
+            + "newPrice={} actorUserId={} tenantId={}",
+        actionPrefix,
+        entity,
+        entryId,
+        carrierId,
+        oldName,
+        newName,
+        oldPrice,
+        newPrice,
+        actorUserId,
+        tenantId);
+  }
+
+  public static void carrierOfferArchived(
+      String actionPrefix, String entity, UUID entryId, UUID carrierId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action={}_ARCHIVED entity={} entityId={} carrierId={} actorUserId={} tenantId={}",
+        actionPrefix,
+        entity,
+        entryId,
+        carrierId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * {@link #fleetItemProvisioned}'s event for a SIM Card, plus the Carrier it names
+   * (sim-card-carrier ticket Observability).
+   */
+  public static void simCardProvisioned(
+      UUID simCardId,
+      UUID contractId,
+      UUID requestId,
+      UUID carrierId,
+      UUID postpaidPlanId,
+      BigDecimal monthlyFeeAmount,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action=FLEET_ITEM_PROVISIONED entity=SimCard entityId={} contractId={} requestId={} "
+            + "carrierId={} postpaidPlanId={} monthlyFeeAmount={} actorUserId={} tenantId={}",
+        simCardId,
+        contractId,
+        requestId,
+        carrierId,
+        postpaidPlanId,
+        monthlyFeeAmount,
         actorUserId,
         tenantId);
   }

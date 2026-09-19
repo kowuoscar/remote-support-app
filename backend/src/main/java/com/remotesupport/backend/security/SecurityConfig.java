@@ -156,7 +156,13 @@ public class SecurityConfig {
                     // manager-invoice-review-queue spec: the Review Queue and every Client Invoice
                     // and Agent Invoice addressed by its own id are Manager-only. Tenant scoping (an unknown or
                     // other-tenant id is 404) is enforced in the controllers.
-                    .requestMatchers("/api/review-queue", "/api/client-invoices/**", "/api/agent-invoices/**")
+                    // agent-maintains-carriers ticket: the Carrier catalog is the Manager's and
+                    // the Agents'; a Tester has no access at all (carrier-catalog spec, Access).
+                    // Which Country an Agent may touch is checked per request in
+                    // CarrierCatalogAccessGuard.
+                    .requestMatchers("/api/carriers", "/api/carriers/**")
+                    .hasAnyRole("MANAGER", "AGENT")
+                    .requestMatchers("/api/review-queue","/api/client-invoices/**", "/api/agent-invoices/**")
                     .hasRole("MANAGER")
                     .requestMatchers("/api/clients/**", "/api/agents/**", "/api/contracts/**")
                     .hasRole("MANAGER")

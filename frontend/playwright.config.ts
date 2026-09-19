@@ -2,9 +2,9 @@ import { defineConfig } from "@playwright/test";
 
 /**
  * Visual regression baseline for the three Operate surfaces (Manager
- * Console, Agent Console, Client Portal) across light/dark theme and
- * desktop/mobile breakpoint — 3 × 2 × 2 = 12 golden screenshots, committed
- * under tests/visual/__screenshots__/.
+ * Console, Agent Console, Client Portal) and the Agent and Manager Carriers
+ * pages, across light/dark theme and desktop/mobile breakpoint — 5 × 2 × 2 =
+ * 20 golden screenshots, committed under tests/visual/__screenshots__/.
  */
 export default defineConfig({
   testDir: "./tests/visual",
@@ -31,10 +31,20 @@ export default defineConfig({
   use: {
     baseURL: "http://127.0.0.1:4173",
   },
-  webServer: {
-    command: "npm run build && npm run start -- -p 4173",
-    url: "http://127.0.0.1:4173",
-    reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
-  },
+  webServer: [
+    {
+      // Deterministic data for backend-driven pages (the Carriers pages) — see the file itself.
+      command: "node tests/visual/stub-backend.mjs",
+      url: "http://127.0.0.1:4174/health",
+      reuseExistingServer: !process.env.CI,
+      timeout: 10_000,
+    },
+    {
+      command: "npm run build && npm run start -- -p 4173",
+      url: "http://127.0.0.1:4173",
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+      env: { BACKEND_URL: "http://127.0.0.1:4174" },
+    },
+  ],
 });

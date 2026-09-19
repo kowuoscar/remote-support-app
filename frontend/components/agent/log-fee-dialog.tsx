@@ -1,12 +1,15 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SimCardFlavorFields } from "@/components/fleet/sim-card-flavor-fields";
 import { IconAlertTriangle, IconCoins } from "@/components/icons";
+import { formatMoney } from "@/lib/format";
 import {
   FEE_TYPE_LABEL,
+  type CatalogCarrierItem,
   type ContractTesterListItem,
   type FeeTypeValue,
   type SimCardFlavorValue,
@@ -29,21 +32,37 @@ export function LogFeeDialog({
   contractId,
   currency,
   testers,
+  carriers,
+  carriersHref,
 }: {
   contractId: string;
   currency: string;
   testers: ContractTesterListItem[];
+  /** The Contract's Country's Carrier catalog, archived entries included; each picker drops them. */
+  carriers: CatalogCarrierItem[];
+  carriersHref: string;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const [feeType, setFeeType] = useState<FeeTypeValue>("TOPUP");
   const [flavor, setFlavor] = useState<SimCardFlavorValue>("POSTPAID");
+  const [topupOptionId, setTopupOptionId] = useState("");
+  const [amount, setAmount] = useState("");
+  // The Carrier and Plan are controlled, not just FormData fields: the Plan picker lists the
+  // chosen Carrier's Plans and shows the monthly fee the chosen one sets (postpaid-sim-plan).
+  const [carrierId, setCarrierId] = useState("");
+  const [postpaidPlanId, setPostpaidPlanId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const hasActiveCarrier = carriers.some((carrier) => carrier.archivedAt === null);
 
   function open() {
     setFeeType("TOPUP");
     setFlavor("POSTPAID");
+    setTopupOptionId("");
+    setAmount("");
+    setCarrierId("");
+    setPostpaidPlanId("");
     setError(null);
     dialogRef.current?.showModal();
   }
@@ -58,15 +77,18 @@ export function LogFeeDialog({
 
     const formData = new FormData(event.currentTarget);
     const testerId = String(formData.get("testerId"));
-    const amount = Number(formData.get("amount"));
     const description = String(formData.get("description") ?? "").trim();
 
     const body: Record<string, unknown> = {
       feeType,
-      amount,
+      amount: Number(amount),
       testerId,
       description: description || undefined,
     };
+
+    if (feeType === "TOPUP" && topupOptionId) {
+      body.topupOptionId = topupOptionId;
+    }
 
     if (feeType === "PROVISION_SMARTPHONE") {
       body.newSmartphone = {
@@ -77,9 +99,9 @@ export function LogFeeDialog({
     } else if (feeType === "PROVISION_SIM") {
       body.newSimCard = {
         number: String(formData.get("number")),
-        carrier: String(formData.get("carrier") ?? "") || undefined,
+        carrierId,
         flavor,
-        monthlyFeeAmount: flavor === "POSTPAID" ? Number(formData.get("monthlyFeeAmount")) : undefined,
+        postpaidPlanId: flavor === "POSTPAID" ? postpaidPlanId : undefined,
       };
     }
 
@@ -168,7 +190,10 @@ export function LogFeeDialog({
                   name="feeType"
                   required
                   value={feeType}
-                  onChange={(event) => setFeeType(event.target.value as FeeTypeValue)}
+                  onChange={(event) => {
+                    setFeeType(event.target.value as FeeTypeValue);
+                    setTopupOptionId("");
+                  }}
                   disabled={submitting}
                   className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
                 >
@@ -180,11 +205,26 @@ export function LogFeeDialog({
                 </select>
               </label>
 
+              {feeType === "TOPUP" ? (
+                <TopupOptionPicker
+                  carriers={carriers}
+                  currency={currency}
+                  value={topupOptionId}
+                  disabled={submitting}
+                  onPick={(optionId, price) => {
+                    setTopupOptionId(optionId);
+                    if (price !== null) setAmount(price.toFixed(2));
+                  }}
+                />
+              ) : null}
+
               <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
                 Amount ({currency})
                 <Input
                   type="number"
                   name="amount"
+                  value={amount}
+                  onChange={(event) => setAmount(event.target.value)}
                   min="0.01"
                   step="0.01"
                   required
@@ -224,37 +264,22 @@ export function LogFeeDialog({
                     Number
                     <Input name="number" required disabled={submitting} placeholder="+1-555-0100" />
                   </label>
-                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                    Carrier (optional)
-                    <Input name="carrier" disabled={submitting} placeholder="Verizon" />
-                  </label>
-                  <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                    Flavor
-                    <select
-                      required
-                      value={flavor}
-                      onChange={(event) => setFlavor(event.target.value as SimCardFlavorValue)}
-                      disabled={submitting}
-                      className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
-                    >
-                      <option value="POSTPAID">Postpaid</option>
-                      <option value="PREPAID">Prepaid</option>
-                    </select>
-                  </label>
-                  {flavor === "POSTPAID" ? (
-                    <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
-                      Monthly fee ({currency})
-                      <Input
-                        type="number"
-                        name="monthlyFeeAmount"
-                        min="0"
-                        step="0.01"
-                        required
-                        disabled={submitting}
-                        placeholder="25.00"
-                      />
-                    </label>
-                  ) : null}
+                  <SimCardFlavorFields
+                    carrierFieldName="carrierId"
+                    carriers={carriers}
+                    carriersHref={carriersHref}
+                    currency={currency}
+                    carrierId={carrierId}
+                    onCarrierChange={(id) => {
+                      setCarrierId(id);
+                      setPostpaidPlanId("");
+                    }}
+                    flavor={flavor}
+                    onFlavorChange={setFlavor}
+                    postpaidPlanId={postpaidPlanId}
+                    onPostpaidPlanChange={setPostpaidPlanId}
+                    disabled={submitting}
+                  />
                 </div>
               ) : null}
             </>
@@ -264,12 +289,79 @@ export function LogFeeDialog({
             <Button type="button" variant="secondary" onClick={close} disabled={submitting}>
               Cancel
             </Button>
-            <Button type="submit" variant="primary" loading={submitting} disabled={testers.length === 0}>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={submitting}
+              disabled={testers.length === 0 || (feeType === "PROVISION_SIM" && !hasActiveCarrier)}
+            >
               Log fee
             </Button>
           </div>
         </form>
       </dialog>
     </>
+  );
+}
+
+/**
+ * The optional Topup Option a Topup Fee is bought from (topup-fee-from-option ticket): the active
+ * Options of the active Carriers, each labelled by its Carrier so two Carriers' identically named
+ * Options stay apart while the picker is collapsed. Picking one hands its price back as the
+ * suggested amount, which the Agent can still change. "No option" leaves the amount alone. With
+ * nothing to pick, the picker isn't shown at all: a Topup Fee never needs one.
+ */
+function TopupOptionPicker({
+  carriers,
+  currency,
+  value,
+  disabled,
+  onPick,
+}: {
+  carriers: CatalogCarrierItem[];
+  currency: string;
+  value: string;
+  disabled: boolean;
+  onPick: (optionId: string, price: number | null) => void;
+}) {
+  const groups = carriers
+    .filter((carrier) => !carrier.archivedAt)
+    .map((carrier) => ({ carrier, options: carrier.topupOptions.filter((option) => !option.archivedAt) }))
+    .filter((group) => group.options.length > 0);
+
+  const hintId = useId();
+
+  if (groups.length === 0) return null;
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+        Topup option (optional)
+        <select
+          name="topupOptionId"
+          value={value}
+          onChange={(event) => {
+            const optionId = event.target.value;
+            const picked = groups.flatMap((group) => group.options).find((option) => option.id === optionId);
+            onPick(optionId, picked ? picked.price : null);
+          }}
+          disabled={disabled}
+          aria-describedby={hintId}
+          className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
+        >
+          <option value="">No option</option>
+          {groups.map(({ carrier, options }) =>
+            options.map((option) => (
+              <option key={option.id} value={option.id}>
+                {carrier.name} — {option.name} · {formatMoney(option.price, currency)}
+              </option>
+            )),
+          )}
+        </select>
+      </label>
+      <p id={hintId} className="text-[12px] text-ink-mute">
+        Fills in the amount with the option’s price. You can still change it.
+      </p>
+    </div>
   );
 }

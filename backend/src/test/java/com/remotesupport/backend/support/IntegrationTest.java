@@ -1,6 +1,7 @@
 package com.remotesupport.backend.support;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,8 +76,15 @@ public abstract class IntegrationTest {
   public static final UUID SEEDED_AGENT_ID =
       UUID.fromString("55555555-5555-5555-5555-555555555555");
 
+  // The seeded United States "Verizon" Carrier (V20 migration) — the Carrier a new SIM Card on a
+  // Contract of the seeded Agent names, for tests that only need some valid Carrier.
+  public static final UUID SEEDED_US_CARRIER_ID =
+      UUID.fromString("c0000000-0000-0000-0000-000000000003");
+
+  // Public so a test that migrates its own throwaway database (V23's migration test) can reach
+  // the same container rather than starting a second one.
   @ServiceConnection
-  static final PostgreSQLContainer<?> POSTGRES =
+  public static final PostgreSQLContainer<?> POSTGRES =
       new PostgreSQLContainer<>(DockerImageName.parse("postgres:16-alpine"));
 
   static {
@@ -170,6 +178,106 @@ public abstract class IntegrationTest {
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /** Creates an active Carrier in a Country, as the Manager, and returns its id. */
+  protected UUID createCarrier(String managerToken, Country country, String name) throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/carriers")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                        {"country":"%s","name":"%s"}
+                        """
+                            .formatted(country.name(), name)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /**
+   * An active Carrier a new SIM Card on this Contract may name — one of its Agent's Country's, or a
+   * freshly created one when that Country has none yet. For tests whose subject isn't the Carrier.
+   */
+  protected UUID carrierFor(String managerToken, UUID contractId) throws Exception {
+    JsonNode contracts =
+        objectMapper.readTree(
+            mockMvc
+                .perform(get("/api/contracts").header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
+    String country = null;
+    for (JsonNode contract : contracts) {
+      if (contract.get("id").asText().equals(contractId.toString())) {
+        country = contract.get("country").asText();
+      }
+    }
+    if (country == null) {
+      throw new IllegalStateException("No contract with id " + contractId);
+    }
+    JsonNode carriers =
+        objectMapper
+            .readTree(
+                mockMvc
+                    .perform(
+                        get("/api/carriers?country=" + country).header("Authorization", "Bearer " + managerToken))
+                    .andExpect(status().isOk())
+                    .andReturn()
+                    .getResponse()
+                    .getContentAsString())
+            .get("carriers");
+    if (!carriers.isEmpty()) {
+      return UUID.fromString(carriers.get(0).get("id").asText());
+    }
+    return createCarrier(managerToken, Country.valueOf(country), "Test Carrier");
+  }
+
+  /** Creates an active Postpaid Plan on a Carrier, as the Manager, and returns its id. */
+  protected UUID createPostpaidPlan(String managerToken, UUID carrierId, String name, String price)
+      throws Exception {
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/carriers/" + carrierId + "/postpaid-plans")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                        {"name":"%s","price":%s}
+                        """
+                            .formatted(name, price)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  /**
+   * The JSON body of a new Postpaid SIM on this Contract whose monthly fee is {@code price}: a
+   * Carrier of the Contract's Country, and a freshly created Plan of it at that price. For tests
+   * whose subject is the monthly fee rather than the catalog.
+   */
+  protected String postpaidSimCardJson(String managerToken, UUID contractId, String number, String price)
+      throws Exception {
+    UUID carrierId = carrierFor(managerToken, contractId);
+    UUID planId = createPostpaidPlan(managerToken, carrierId, "Plan " + UUID.randomUUID(), price);
+    return """
+        {"number":"%s","carrierId":"%s","flavor":"POSTPAID","postpaidPlanId":"%s"}
+        """
+        .formatted(number, carrierId, planId)
+        .strip();
+  }
+
+  /** Archives a Carrier, as the Manager. */
+  protected void archiveCarrier(String managerToken, UUID carrierId) throws Exception {
+    mockMvc
+        .perform(
+            post("/api/carriers/" + carrierId + "/archive").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk());
   }
 
   /** Creates a Contract linking a Client and an Agent, as the Manager, and returns its id. */

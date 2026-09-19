@@ -81,6 +81,15 @@ public class Fee {
 
   @Column private String description;
 
+  /**
+   * The Topup Option this Topup Fee was bought from, if any (topup-fee-from-option ticket). Only a
+   * Topup Fee carries one. It records where the Fee came from, not its price: {@code amount} is
+   * what the Agent submitted, and editing the Option's price never changes it.
+   */
+  @ManyToOne
+  @JoinColumn(name = "topup_option_id")
+  private TopupOption topupOption;
+
   @Column(name = "billing_month", nullable = false)
   private LocalDate billingMonth;
 

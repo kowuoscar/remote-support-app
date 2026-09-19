@@ -1,7 +1,7 @@
 ---
 id: cancelled-sim-billed-through-its-month
 title: A cancelled Postpaid SIM is billed through the month of its cancellation date
-status: ready-for-agent
+status: done
 depends_on: [manager-decides-return-disposition]
 labels: [backend, invoicing]
 ---
@@ -12,12 +12,12 @@ Implements `spec.md` Solution (Billing a cancelled Postpaid SIM) and user storie
 
 ## Acceptance criteria
 
-- [ ] A Contract's base amount for a billing month counts every Active Postpaid SIM, plus every Postpaid SIM of the Contract cancelled with an effective date on or after that month's first day
-- [ ] A cancelled Postpaid SIM is absent from the base amount of every month after its cancellation month
-- [ ] No part-month amount exists
-- [ ] The Client Invoice and the Agent Invoice's Local Support Fees move together, through the shared Contract amount computation
-- [ ] A sent or approved Client Invoice, and a sent, approved or paid Agent Invoice, keeps its total
-- [ ] The draft Client Invoice view lists a cancelled SIM Card it still bills, marked with its cancellation date
+- [x] A Contract's base amount for a billing month counts every Active Postpaid SIM, plus every Postpaid SIM of the Contract cancelled with an effective date on or after that month's first day
+- [x] A cancelled Postpaid SIM is absent from the base amount of every month after its cancellation month
+- [x] No part-month amount exists
+- [x] The Client Invoice and the Agent Invoice's Local Support Fees move together, through the shared Contract amount computation
+- [x] A sent or approved Client Invoice, and a sent, approved or paid Agent Invoice, keeps its total
+- [x] The draft Client Invoice view lists a cancelled SIM Card it still bills, marked with its cancellation date
 
 ## Tests
 

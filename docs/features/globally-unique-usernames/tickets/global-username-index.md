@@ -1,7 +1,7 @@
 ---
 id: global-username-index
 title: Enforce a global unique username index without leaving the branch red
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [backend, auth, testing]
 stories: [1, 2, 10, 11, 12, 13]

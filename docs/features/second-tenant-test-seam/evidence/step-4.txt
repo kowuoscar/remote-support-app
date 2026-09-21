@@ -1,0 +1,41 @@
+Step 4 [agent]: Show the pinning test: a username created in both Tenants, and the concrete
+response asserted, with the comment stating what the epic predicted and what actually happens.
+
+Test: CollidingUsernameSignInApiTest.collidingUsernameDoesNotSignTheCallerInToTheSecondTenant
+(backend/src/test/java/com/remotesupport/backend/web/CollidingUsernameSignInApiTest.java)
+
+Javadoc (lines 14-25), stating epic prediction vs. observed behaviour:
+"""
+Pins today's (`main`'s) defective behaviour for a username that exists in two Tenants
+(second-tenant-test-seam spec, "The pinning test, precisely"; stories 7, 8) — a record of the
+defect, not a regression net.
+
+Observed vs. predicted. The epic's feature line predicts a colliding username
+"authenticates against whichever row is found first". Run against this ticket's fixture,
+POST /api/auth/login instead returns 401 Unauthorized with an empty body: the two matching rows
+make UserRepository.findByUsername's derived Optional query fail rather than pick one, and that
+failure surfaces through Spring Security as an authentication failure — not as a 200 naming the
+wrong Tenant. This test pins that observed 401, and only that.
+"""
+
+Test body (lines 38-53):
+  OtherTenantLogin collidingLogin =
+      otherTenantFixture.managerLoginInAnotherTenant(MANAGER_USERNAME, "Different#Passw0rd1");
+  // MANAGER_USERNAME is the seeded Tenant's own Manager username -> now created a second time
+  // in a brand-new Tenant, producing the collision.
+
+  mockMvc.perform(post("/api/auth/login")...)
+      .andExpect(status().isUnauthorized());
+
+Real run output (JAVA_HOME on JDK 21, -Dtest=CollidingUsernameSignInApiTest):
+
+16:10:48.195 INFO  c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 401
+16:10:48.389 INFO  c.r.backend.web.AuthController - login success tenantId=fbd9e562-a177-4f70-a36e-33379c57a7b2 ... username=colliding-username-control@example.com
+16:10:48.394 INFO  c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in com.remotesupport.backend.web.CollidingUsernameSignInApiTest (BUILD SUCCESS)
+
+Observed: the colliding-username request really does return 401 (matching the assertion and the
+javadoc's recorded observation), and the control test (a non-colliding login from the same
+fixture) really does return 200 — proving the 401 is attributable to the collision, not to a
+broken fixture or a mistyped password.

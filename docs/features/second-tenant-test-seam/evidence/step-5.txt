@@ -1,0 +1,17 @@
+Step 5 [agent]: Show that the pinning test's own text names globally-unique-usernames as the
+feature that deletes it and states the assertion that replaces it.
+
+Source: backend/src/test/java/com/remotesupport/backend/web/CollidingUsernameSignInApiTest.java,
+lines 27-31 (class Javadoc):
+
+"""
+Deleted by globally-unique-usernames. That feature adds a global unique index on username,
+above the Tenant-scoped uq_users_tenant_username; at that point the fixture's second insert of a
+colliding username fails at flush, before this test can even reach its assertion. It is deleted
+and replaced, not adapted — its replacement asserts that creating a login whose username is
+already taken in another Tenant is refused.
+"""
+
+Confirmed: the test's own text (a) names "globally-unique-usernames" as the feature that deletes
+it, and (b) states the replacement assertion ("creating a login whose username is already taken
+in another Tenant is refused").

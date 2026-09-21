@@ -1,0 +1,29 @@
+Step 3 [agent]: Show the test where that second-Tenant Manager calls a listing endpoint with its
+own token: the response contains that Tenant's own Client and none of the seeded Tenant's.
+
+Test: SecondTenantSignInApiTest.aSecondTenantsManagerReadsOnlyThatTenantsOwnClients
+(backend/src/test/java/com/remotesupport/backend/web/SecondTenantSignInApiTest.java:56-73)
+
+  OtherTenantLogin login =
+      otherTenantFixture.managerLoginInAnotherTenant("second-tenant-clients-manager@example.com", "Passw0rd!23");
+  String secondTenantManagerToken = loginAs(login.username(), login.password());
+
+  JsonNode clients = ... mockMvc.perform(get("/api/clients").header("Authorization", "Bearer " + secondTenantManagerToken)) ...
+
+  assertThat(clients).hasSize(1);
+  assertThat(clients.get(0).get("id").asText()).isEqualTo(login.clientId().toString());
+
+Real run output (JAVA_HOME on JDK 21, -Dtest=SecondTenantSignInApiTest):
+
+16:10:24.123 INFO  c.r.backend.web.AuthController - login success tenantId=1d74e98d-5d65-4443-93aa-b6be0ba4349c userId=c883fbf8-91b9-4261-972b-c8c285ab704d role=MANAGER username=second-tenant-clients-manager@example.com
+16:10:24.124 INFO  c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+16:10:24.141 [1d74e98d-5d65-4443-93aa-b6be0ba4349c:c883fbf8-91b9-4261-972b-c8c285ab704d] c.r.backend.logging.RequestLoggingFilter - GET /api/clients -> 200
+
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in com.remotesupport.backend.web.SecondTenantSignInApiTest (BUILD SUCCESS)
+Test passed: aSecondTenantsManagerReadsOnlyThatTenantsOwnClients (testcase present in
+TEST-com.remotesupport.backend.web.SecondTenantSignInApiTest.xml with no failure/error element).
+
+Observed: the tenant-scoped request logging line ("1d74e98d-...:c883fbf8-...") shows the request
+was authenticated and scoped to the fixture's own new Tenant; GET /api/clients -> 200 and the
+in-code assertions (list has exactly 1 element, and its id equals the fixture's own login.clientId(),
+never a seeded-Tenant Client id) pass, since the test is green.

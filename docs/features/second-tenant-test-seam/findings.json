@@ -1,0 +1,71 @@
+{
+  "feature": "second-tenant-test-seam",
+  "findings": [
+    {
+      "id": "F1",
+      "type": "spec-partial",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/SecondTenantSignInApiTest.java:71",
+      "citation": "spec.md:161-162 — \"That Manager's token, used against a real listing endpoint, returns that Tenant's own Client and does not return the seeded Tenant's Clients.\"",
+      "note": "The exclusion half of story 5 is vacuous. The seeded Tenant holds no Clients in the test baseline — V17's Demo Client is deleted by V54__trim_seed_to_test_baseline.sql:161 — so assertThat(clients).hasSize(1) plus the id check passes even against a fully tenant-blind listing. There is nothing to exclude, so that leg can never fail. Fix: create a Client in the seeded Tenant within the same test (managerToken() + POST /api/clients) and assert it is absent from the second-Tenant Manager's list. Verified independently by the orchestrator before the fix pass."
+    },
+    {
+      "id": "F2",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": false,
+      "where": "docs/inbox/merge-sdlc-handover-pr.md:1-41",
+      "citation": "",
+      "note": "Loop bookkeeping rides along in the feature diff: the answered handover-approval item is deleted and docs/inbox/.gitkeep added, asked for by no story, decision or ticket. Not a code smell and not in source lines this feature changed — the orchestrator's own state-keeping, which the loop requires to live on a branch because it never pushes main. Left for the delivery report to explain rather than for the fixer to undo."
+    },
+    {
+      "id": "F3",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/SecondTenantSignInApiTest.java:36",
+      "citation": "",
+      "note": "Duplicated Code: the inline post(\"/api/auth/login\") + text block shape duplicates IntegrationTest.loginAs, which already returns the token and which line 60 of this same file uses. CollidingUsernameSignInApiTest.java:65 duplicates it again for a plain 200 assertion. The 401 case at CollidingUsernameSignInApiTest.java:44 is a legitimate exception, since loginAs asserts isOk()."
+    },
+    {
+      "id": "F4",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/SecondTenantSignInApiTest.java:53",
+      "citation": "",
+      "note": "Mysterious Name: bare UUID literal 11111111-1111-1111-1111-111111111111 (the V2-seeded Default Tenant) with nothing naming it, where IntegrationTest.java:70-78 already establishes named SEEDED_* constants for exactly this."
+    },
+    {
+      "id": "F5",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/support/OtherTenantFixture.java:233",
+      "citation": "",
+      "note": "Speculative Generality: OtherTenantLogin.userId is read by no caller anywhere in backend/src."
+    },
+    {
+      "id": "F6",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/support/OtherTenantFixture.java:218",
+      "citation": "",
+      "note": "Duplicated Code: the Client-building block (five setters, literal name \"Other Tenant Client\") duplicates lines 88-93, where the file's own pattern is a private helper like newTenant/newAgent. The shared literal name also yields two same-named Clients across two fixture calls in one run."
+    }
+  ]
+}

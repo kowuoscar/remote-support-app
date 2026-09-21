@@ -3,3 +3,10 @@
 .impeccable/review/
 .impeccable/build/
 .impeccable/mocks/
+
+# sdlc: local lock and session state.
+.sdlc/
+
+# Claude Code: machine-local session state (settings.json is committed).
+.claude/*
+!.claude/settings.json

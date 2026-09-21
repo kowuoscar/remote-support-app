@@ -54,6 +54,8 @@ something the database index does for you.
 
 ## Regression
 
+- `AgentApiTest` gains one new test method, `aUsernameWithSurroundingWhitespaceIsStoredAndReturnedTrimmed`, and nothing else: the diff is 23 insertions and 0 deletions, with no existing method body, assertion or import touched. It is named here because `sdlc-test-guard` flags any modified test file and the merger must not decide for itself that an addition is harmless. The method proves this ticket's own acceptance criterion that a clean `POST /api/agents` with a padded username succeeds and returns the trimmed value; every pre-existing method in the class must keep passing unmodified.
+
 - `AgentLoginApiTest`'s full suite (same-Tenant taken username, second login on an Agent, already-has-a-login-and-username-taken, missing fields, role checks, audit-without-password) must keep passing unmodified — the pre-check's *source* query changes, its *behaviour* for every case that test already covers does not.
 - `AgentCreationAtomicityTest` is unaffected — it exercises `POST /api/agents`'s flush-time catch (already fixed by `global-username-index`), not `requireLoginCreatable`.
 - Deleting `existsByTenantIdAndUsername` is safe only because `AgentLoginService` was its one caller (confirmed by search); if a caller has appeared since, this ticket's implementer re-checks before deleting.

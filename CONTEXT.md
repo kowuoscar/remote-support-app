@@ -5,7 +5,7 @@ A platform for a business that hires local support people in different countries
 ## Language
 
 **Tenant**:
-One customer company operating this platform — the business that hires the Agents, employs the Manager, and owns every Client, Contract, Fleet and invoice underneath it. It is the outermost boundary in the data model: `tenant_id` appears in 22 of the 46 Flyway migrations. A single Tenant is seeded and operated today, with a second expected. Usernames are unique *within* a Tenant, not across the deployment — which is what makes tenant-blind sign-in a defect (`tenant-scoped-sign-in` epic).
+One customer company operating this platform — the business that hires the Agents, employs the Manager, and owns every Client, Contract, Fleet and invoice underneath it. It is the outermost boundary in the data model: `tenant_id` appears in 22 of the 46 Flyway migrations. A single Tenant is seeded and operated today, with a second expected. Usernames are now unique across the whole deployment, not merely within one Tenant, compared case-insensitively and ignoring surrounding whitespace (`lower(btrim(username))`, index `uq_users_username_global`) — so one person cannot hold logins in two Tenants (`globally-unique-usernames` feature).
 _Avoid_: Organisation, workspace, account (this last one is the Client's word).
 
 **Agent** (Local Support Agent):

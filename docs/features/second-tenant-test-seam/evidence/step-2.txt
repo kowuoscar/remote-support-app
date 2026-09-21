@@ -1,0 +1,32 @@
+Step 2 [agent]: Show the test that signs in with a login existing only in a second Tenant:
+200, and the Tenant id read from the returned token equals the fixture's Tenant and is not
+11111111-1111-1111-1111-111111111111.
+
+Test: SecondTenantSignInApiTest.signingInWithASecondTenantsOnlyLoginNamesThatTenant
+(backend/src/test/java/com/remotesupport/backend/web/SecondTenantSignInApiTest.java:32-54)
+
+  OtherTenantLogin login =
+      otherTenantFixture.managerLoginInAnotherTenant("second-tenant-manager@example.com", "Passw0rd!23");
+
+  MvcResult result =
+      mockMvc.perform(post("/api/auth/login")...)
+          .andExpect(status().isOk())
+          .andReturn();
+
+  JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
+  UUID tenantId = tenantIdOf(body.get("token").asText());
+
+  assertThat(tenantId).isEqualTo(login.tenantId());
+  assertThat(tenantId).isNotEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+
+Real run output (JAVA_HOME on JDK 21, -Dtest=SecondTenantSignInApiTest):
+
+16:10:23.921 INFO  c.r.backend.web.AuthController - login success tenantId=94e5c800-a6c5-4d98-b144-a178273144e5 userId=e70e0d52-6613-4ba9-bdec-885bbf2dc252 role=MANAGER username=second-tenant-manager@example.com
+16:10:23.926 INFO  c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in com.remotesupport.backend.web.SecondTenantSignInApiTest (BUILD SUCCESS)
+Test passed: signingInWithASecondTenantsOnlyLoginNamesThatTenant (see TEST-...xml, testcase present with no failure/error element).
+
+Observed: request returns HTTP 200; the resolved tenantId (94e5c800-...) is a freshly-created
+fixture Tenant, not the seeded 11111111-1111-1111-1111-111111111111 — and the assertions on
+lines 52-53 (equals login.tenantId(), not-equals the seeded id) pass, since the test is green.

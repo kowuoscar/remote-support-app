@@ -72,6 +72,8 @@ Components may call the backend directly through
 - `frontend/app/api` · the BFF route handlers, one subtree per backend resource.
 - `frontend/proxy.ts` · the request proxy in front of the app.
 - `scripts/run-backend-for-e2e.sh` · starts docker-compose Postgres and the backend on 8080 for the e2e suite.
+- `scripts/run-backend-for-e2e-isolated.sh` · starts a throwaway Postgres container and the backend against it for the isolated e2e stage, torn down by exact container name and PID on exit.
+- `scripts/run-e2e-isolated.sh` · runs `frontend/tests/e2e` against that throwaway stack, driven by `frontend/playwright.e2e.isolated.config.ts`; what `verify`'s e2e stage calls.
 
 ## Tests
 
@@ -80,6 +82,7 @@ Components may call the backend directly through
 - `frontend/components` · Vitest component tests, colocated with the component as `*.test.tsx`.
 - `frontend/tests/visual` · Playwright visual goldens, rendered against the stub backend named in `frontend/playwright.config.ts` — no database.
 - `frontend/tests/e2e` · Playwright end-to-end journeys against a real backend and Postgres, configured by `frontend/playwright.e2e.config.ts`. Which database they write to is set by `E2E_DATABASE_URL`; see `docs/agents/implementer-notes.md` before running them.
+- `frontend/playwright.e2e.isolated.config.ts` · same `frontend/tests/e2e` specs run against a throwaway Postgres/backend/frontend stack that the run creates and destroys, never the docker-compose database.
 
 ## Invariants
 

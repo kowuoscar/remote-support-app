@@ -1,0 +1,96 @@
+Step 3 [agent]: Show the test where that second-Tenant Manager calls a listing endpoint with its
+own token: the response contains that Tenant's own Client and none of the seeded Tenant's.
+
+Re-played on 2026-09-21 on branch feature/second-tenant-test-seam (tip 1e0034c) because F1 found
+the earlier version of this test vacuous: it never created a Client in the seeded Tenant, so the
+"and none of the seeded Tenant's" half of the step could never fail. The test now does, and this
+evidence replaces the stale run that predates that fix.
+
+Test: SecondTenantSignInApiTest.aSecondTenantsManagerReadsOnlyThatTenantsOwnClients
+(backend/src/test/java/com/remotesupport/backend/web/SecondTenantSignInApiTest.java:39-58)
+
+  39    @Test
+  40    void aSecondTenantsManagerReadsOnlyThatTenantsOwnClients() throws Exception {
+  41      UUID seededTenantClientId = createClient(managerToken(), "Seeded Tenant Own Client");
+  42
+  43      OtherTenantLogin login =
+  44          otherTenantFixture.managerLoginInAnotherTenant("second-tenant-clients-manager@example.com", "Passw0rd!23");
+  45      String secondTenantManagerToken = loginAs(login.username(), login.password());
+  46
+  47      JsonNode clients =
+  48          objectMapper.readTree(
+  49              mockMvc
+  50                  .perform(get("/api/clients").header("Authorization", "Bearer " + secondTenantManagerToken))
+  51                  .andExpect(status().isOk())
+  52                  .andReturn()
+  53                  .getResponse()
+  54                  .getContentAsString());
+  55
+  56      assertThat(clients).hasSize(1);
+  57      assertThat(clients.get(0).get("id").asText()).isEqualTo(login.clientId().toString());
+  58      assertThat(clients).noneMatch(client -> client.get("id").asText().equals(seededTenantClientId.toString()));
+  59    }
+
+Command actually run:
+
+  JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home mvn -f backend/pom.xml test -Dtest=SecondTenantSignInApiTest
+
+(Docker running; Testcontainers Postgres 16-alpine started for the run.)
+
+Real run output (relevant lines, chronological):
+
+18:44:06.664 INFO  c.r.backend.web.AuthController - login success tenantId=c3a00159-bd09-4411-b3e3-b6f9b77f035a userId=ad51de86-a096-4587-b485-5a4ee564c4b9 role=MANAGER username=second-tenant-manager@example.com
+18:44:06.669 INFO  c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+  (^ this pair is the first test, signingInWithASecondTenantsOnlyLoginNamesThatTenant, not this step)
+
+18:44:06.788 INFO  c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+18:44:06.789 INFO  c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+18:44:06.797 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=9e52df28-2695-46a1-a89c-01eaf10c09aa actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+18:44:06.808 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+18:44:06.963 INFO  c.r.backend.web.AuthController - login success tenantId=26ff9d4f-94c7-4b0f-9f80-d1e16fe80573 userId=0d08822c-0a94-4d4a-a73e-079d28f4396f role=MANAGER username=second-tenant-clients-manager@example.com
+18:44:06.963 INFO  c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+18:44:06.974 INFO  [26ff9d4f-94c7-4b0f-9f80-d1e16fe80573:0d08822c-0a94-4d4a-a73e-079d28f4396f] c.r.backend.logging.RequestLoggingFilter - GET /api/clients -> 200
+
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.464 s -- in com.remotesupport.backend.web.SecondTenantSignInApiTest
+[INFO] Results:
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+
+Surefire report (backend/target/surefire-reports/TEST-com.remotesupport.backend.web.SecondTenantSignInApiTest.xml):
+
+  <testsuite ... tests="2" errors="0" skipped="0" failures="0">
+    <testcase name="signingInWithASecondTenantsOnlyLoginNamesThatTenant" .../>
+    <testcase name="aSecondTenantsManagerReadsOnlyThatTenantsOwnClients" classname="com.remotesupport.backend.web.SecondTenantSignInApiTest" time="0.27">
+    </testcase>
+
+Observed:
+
+- Line 41 (`createClient(managerToken(), "Seeded Tenant Own Client")`) runs the seeded-Tenant
+  Manager's login (username=manager@example.com, tenantId=11111111-1111-1111-1111-111111111111)
+  and posts the Client, which the application's own AUDIT log line records as
+  `action=CREATE entity=Client entityId=9e52df28-2695-46a1-a89c-01eaf10c09aa ...
+  tenantId=11111111-1111-1111-1111-111111111111` — direct evidence, independent of the test's own
+  assertions, that a Client genuinely exists in the seeded Tenant (11111111-...-111111111111)
+  during this run, with id 9e52df28-2695-46a1-a89c-01eaf10c09aa. This is the value bound to
+  `seededTenantClientId` in the test.
+
+- Lines 43-45 then sign in a fresh Manager (second-tenant-clients-manager@example.com) who is
+  seeded in a different Tenant (tenantId=26ff9d4f-94c7-4b0f-9f80-d1e16fe80573, per the fixture's
+  own login success line) and lines 47-54 call GET /api/clients with that Manager's token,
+  returning 200.
+
+- The test then asserts, and the green result confirms, all three things at once:
+  (line 56) the response list has exactly one element — that second Tenant's own Client, not a
+    mix that happens to still exclude the seeded one by luck;
+  (line 57) that one element's id equals `login.clientId()`, the fixture's own Client, created in
+    the fixture's Tenant (26ff9d4f-...), not the seeded Tenant;
+  (line 58) none of the elements' ids equal `seededTenantClientId` (9e52df28-2695-46a1-a89c-
+    01eaf10c09aa) — the Client the AUDIT line above proves was created in the seeded Tenant
+    (11111111-...-111111111111). Because that Client now genuinely exists and the list is size 1
+    with a different id, this assertion is no longer vacuously true: had `/api/clients` failed to
+    scope by Tenant, the seeded-Tenant Client would have shown up here (either bloating the list
+    past size 1, or replacing the fixture's own Client) and the test would fail.
+
+- Test passed (aSecondTenantsManagerReadsOnlyThatTenantsOwnClients, in the surefire XML above,
+  with no failure/error element), with both the seeded-Tenant Client's existence and the second
+  Tenant's isolated, correct listing independently evidenced by the application's own log lines.

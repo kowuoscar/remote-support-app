@@ -1,0 +1,65 @@
+{
+  "feature": "second-tenant-test-seam",
+  "played_at": "2026-09-21",
+  "played_on": "feature/second-tenant-test-seam",
+  "environment": "Backend only. JDK 21 (JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home) via mvn -f backend/pom.xml, against IntegrationTest's Testcontainers-managed Postgres. No frontend or e2e involved, matching the feature's non-goals.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1.txt",
+      "note": "Both new test classes run alone under JDK 21: 2/2 each, all four test names read from the surefire XML."
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2.txt",
+      "note": "signingInWithASecondTenantsOnlyLoginNamesThatTenant: 200, application log shows the resolved tenant id 94e5c800-\u2026 and not the seeded 11111111-\u2026."
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3.txt",
+      "note": "Replayed after the F1 fix. The test now creates a Client in the seeded Tenant first (line 41) and the application's own AUDIT line proves it lands with tenantId=11111111-1111-1111-1111-111111111111, so all three assertions \u2014 size 1, id matches the fixture's own Client, seeded-Tenant Client absent \u2014 run against a populated seeded Tenant. Green 2/2. The first evidence for this step was captured before the fix and was replaced, not amended.",
+      "replayed": true
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4.txt",
+      "note": "Colliding username observed 401; the same-run non-colliding control observed 200."
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": "The pinning class's Javadoc names globally-unique-usernames as its deleter and states the replacing assertion."
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": "mvn verify: 495 tests, 0 failures, 0 Checkstyle violations, BUILD SUCCESS. Regression classes green by name: ClientInvoiceByIdApiTest 15/15, AgentInvoiceByIdApiTest 17/17, DemoDataLoaderApiTest 2/2."
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": "Diff since merge-base c0a6f6c touches four code files, all under backend/src/test; nothing under backend/src/main or db/migration; V55 confirmed unused."
+    },
+    {
+      "step": 8,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "Confirming the pinning test pins the intended defect, and that deleting it later is right, is the human's to judge."
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+Step 1 [agent]: Run the new sign-in test class(es) alone with JAVA_HOME on JDK 21; show every test name and a green result.
+
+Command 1:
+JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home mvn -f backend/pom.xml test -Dtest=SecondTenantSignInApiTest
+
+Result:
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.487 s -- in com.remotesupport.backend.web.SecondTenantSignInApiTest
+[INFO] BUILD SUCCESS
+
+Test names (from backend/target/surefire-reports/TEST-com.remotesupport.backend.web.SecondTenantSignInApiTest.xml):
+testcase name="signingInWithASecondTenantsOnlyLoginNamesThatTenant"
+testcase name="aSecondTenantsManagerReadsOnlyThatTenantsOwnClients"
+
+Command 2:
+JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home mvn -f backend/pom.xml test -Dtest=CollidingUsernameSignInApiTest
+
+Result:
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.175 s -- in com.remotesupport.backend.web.CollidingUsernameSignInApiTest
+[INFO] BUILD SUCCESS
+
+Test names (from backend/target/surefire-reports/TEST-com.remotesupport.backend.web.CollidingUsernameSignInApiTest.xml):
+testcase name="collidingUsernameDoesNotSignTheCallerInToTheSecondTenant"
+testcase name="aNonCollidingLoginFromTheSameFixtureStillSignsIn"
+
+Note: the spec names two distinct new test classes for stories 4, 5 (SecondTenantSignInApiTest)
+and 7 (CollidingUsernameSignInApiTest). Both were run alone (via -Dtest, isolating each class)
+and both are green with all test names shown above.

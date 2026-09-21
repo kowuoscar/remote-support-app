@@ -1,7 +1,7 @@
 ---
 id: second-tenant-login-fixture
 title: Sign in against a second Tenant's login and read only that Tenant's data
-status: ready-for-agent
+status: done
 depends_on: []
 labels: [backend, testing]
 stories: [1, 2, 3, 4, 5, 6, 9, 10]
@@ -44,6 +44,7 @@ method.
 
 - `ClientInvoiceByIdApiTest` and `AgentInvoiceByIdApiTest` assert `repository.count()` deltas (baseline captured inside the test method, re-counted after, transaction rolled back) on `clientInvoiceRepository`, `agentInvoiceRepository` and `agentStandingAmountRepository` — none of which this new fixture method writes to. Checked per spec.md's "Debt and hazards" section; both must keep passing unchanged, and no fixture call is placed between either test's baseline count and its re-count.
 - `DemoDataLoaderApiTest` counts `clientRepository` (which this method *does* write to) but does not import `OtherTenantFixture`, so it is unaffected; it must keep passing unchanged.
+- `IntegrationTest` is modified, and every subclass in the suite inherits it, so it is named here for the test guard: the change is **additive only** — one import, one `@Autowired protected JwtService` field, and one new `tenantIdOf(String)` helper. No existing field, method body or assertion is touched and nothing is removed. The helper is required by this ticket's own acceptance criteria and by the approved spec's "Asserting which Tenant a sign-in resolved to". Every existing subclass must keep passing unchanged.
 - The eight existing importers of `OtherTenantFixture` (`SimCardCarrierApiTest`, `CarrierOfferApiTest`, `StockApiTest`, `TopupFeeFromOptionApiTest`, `ReviewQueueApiTest`, `CarrierApiTest`, plus the two `ByIdApiTest` classes above) call none of the fixture's existing methods differently — this ticket only adds a method, it does not change one — so they need no review beyond staying green.
 
 ## Observability

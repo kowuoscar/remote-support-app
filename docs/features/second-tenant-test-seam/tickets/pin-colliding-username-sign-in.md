@@ -1,7 +1,7 @@
 ---
 id: pin-colliding-username-sign-in
 title: Pin today's sign-in behaviour for a username that exists in two Tenants
-status: ready-for-agent
+status: done
 depends_on: [second-tenant-login-fixture]
 labels: [backend, testing]
 stories: [7, 8]

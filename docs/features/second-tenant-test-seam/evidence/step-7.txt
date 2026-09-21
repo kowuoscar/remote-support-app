@@ -1,0 +1,45 @@
+Step 7 [agent]: Show the feature's full diff stat: every changed file under backend/src/test,
+no file under backend/src/main, no file under db/migration, and V55 still unused.
+
+Command: git merge-base main HEAD
+c0a6f6cedb4cbdfbe02db6111505ede01ca07aac
+
+Command: git diff --stat $BASE HEAD  (HEAD=a9567f5736b28069937138167d119f596c318c29, branch feature/second-tenant-test-seam)
+ .../backend/support/IntegrationTest.java           | 12 ++++
+ .../backend/support/OtherTenantFixture.java        | 52 ++++++++++++++-
+ .../web/CollidingUsernameSignInApiTest.java        | 77 ++++++++++++++++++++++
+ .../backend/web/SecondTenantSignInApiTest.java     | 74 +++++++++++++++++++++
+ .../tickets/pin-colliding-username-sign-in.md      |  2 +-
+ .../tickets/second-tenant-login-fixture.md         |  3 +-
+ docs/inbox/.gitkeep                                |  0
+ docs/inbox/merge-sdlc-handover-pr.md               | 41 ------------
+ docs/roadmap/tenant-scoped-sign-in.md              | 17 ++++-
+ 9 files changed, 233 insertions(+), 45 deletions(-)
+
+Command: git diff --stat $BASE HEAD -- backend/src/main
+(empty output above = no backend/src/main changes)
+
+Command: git diff --stat $BASE HEAD -- '**/db/migration/**'
+(empty output above = no migration file changes)
+
+Command: ls backend/src/main/resources/db/migration | grep -i V55
+exit code: 1 (1 = no match = V55 still unused)
+
+Highest migration present:
+V54__trim_seed_to_test_baseline.sql
+
+Command: git diff --name-only $BASE HEAD
+backend/src/test/java/com/remotesupport/backend/support/IntegrationTest.java
+backend/src/test/java/com/remotesupport/backend/support/OtherTenantFixture.java
+backend/src/test/java/com/remotesupport/backend/web/CollidingUsernameSignInApiTest.java
+backend/src/test/java/com/remotesupport/backend/web/SecondTenantSignInApiTest.java
+docs/features/second-tenant-test-seam/tickets/pin-colliding-username-sign-in.md
+docs/features/second-tenant-test-seam/tickets/second-tenant-login-fixture.md
+docs/inbox/.gitkeep
+docs/inbox/merge-sdlc-handover-pr.md
+docs/roadmap/tenant-scoped-sign-in.md
+
+All 4 code files (IntegrationTest.java, OtherTenantFixture.java,
+CollidingUsernameSignInApiTest.java, SecondTenantSignInApiTest.java) are under
+backend/src/test/java/... ; remaining changed files are docs/tickets/roadmap only,
+none under backend/src/main and none under db/migration.

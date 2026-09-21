@@ -37,7 +37,7 @@ every remaining single-tenant assumption found and what was done about each.
 
 ## Features
 
-- [ ] `second-tenant-test-seam` — the suite can seed a second Tenant and sign in against it, and a test pins today's wrong behaviour: a username present in two Tenants authenticates against whichever row is found first.
+- [x] `second-tenant-test-seam` — the suite can seed a second Tenant and sign in against it, and a test pins today's wrong behaviour: a username present in two Tenants is refused **401 Unauthorized**, indistinguishable from a wrong password.
 - [ ] `globally-unique-usernames` — a username is unique across the whole deployment, rejected at creation if already taken in any Tenant, so sign-in resolves to exactly one user; plus the audit of the remaining single-tenant assumptions.
 
 ## Reworked
@@ -66,6 +66,21 @@ seeded Tenant `11111111-1111-1111-1111-111111111111`, as do `DemoDataLoader`
 and the seed migrations, and no helper creates a second one. The test seam is
 therefore the first feature rather than a detail of the fix — the human chose
 this cut over folding the two together.
+
+**Corrected by observation, 2026-09-21.** This epic and that feature line both
+predicted the colliding username would authenticate "against whichever row is
+found first". It does not. `pin-colliding-username-sign-in` ran it and
+observed **401 Unauthorized with an empty body**: `findByUsername`'s derived
+`Optional` query fails on two matching rows, and Spring Security turns that
+into an ordinary authentication failure inside the filter chain — no exception
+reaches the controller, so it is not a 5xx either.
+
+That makes the defect a **lockout, not a cross-tenant leak**. No caller can
+reach another Tenant's data through it; the affected user simply cannot sign
+in, and cannot tell that from a mistyped password. The reason for scheduling
+this epic first — that the fix gets more expensive as code lands on top of it
+— is unaffected, but the severity is lower than the epic assumed, and
+`globally-unique-usernames` should be written against the real symptom.
 
 Carried into `globally-unique-usernames` from this exploration:
 `UserRepository.findByAgentId` and `CallerIdentityResolver`'s

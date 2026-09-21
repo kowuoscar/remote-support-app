@@ -14,6 +14,7 @@ import com.remotesupport.backend.dto.AgentCreateRequest;
 import com.remotesupport.backend.dto.ClientCreateRequest;
 import com.remotesupport.backend.dto.ContractCreateRequest;
 import com.remotesupport.backend.dto.TesterCreateRequest;
+import com.remotesupport.backend.security.JwtService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -69,6 +70,12 @@ public abstract class IntegrationTest {
   public static final UUID SEEDED_AGENT_ID =
       UUID.fromString("55555555-5555-5555-5555-555555555555");
 
+  // The one Tenant seeded by the V2 migration ("Default Tenant"), home to every MANAGER_USERNAME/
+  // AGENT_USERNAME/TESTER_USERNAME login above. Tests that assert a sign-in landed somewhere else
+  // compare against this id rather than a bare literal.
+  public static final UUID SEEDED_TENANT_ID =
+      UUID.fromString("11111111-1111-1111-1111-111111111111");
+
   // The seeded United States "Verizon" Carrier (V20 migration) — the Carrier a new SIM Card on a
   // Contract of the seeded Agent names, for tests that only need some valid Carrier.
   public static final UUID SEEDED_US_CARRIER_ID =
@@ -86,6 +93,7 @@ public abstract class IntegrationTest {
 
   @Autowired protected MockMvc mockMvc;
   @Autowired protected ObjectMapper objectMapper;
+  @Autowired protected JwtService jwtService;
 
   /**
    * POSTs a JSON body with a bearer token — the shape behind most write requests in this suite,
@@ -128,6 +136,16 @@ public abstract class IntegrationTest {
 
   protected String testerToken() throws Exception {
     return loginAs(TESTER_USERNAME, TESTER_PASSWORD);
+  }
+
+  /**
+   * The Tenant id carried in an issued token's {@code tenantId} claim (second-tenant-test-seam
+   * spec: "Asserting which Tenant a sign-in resolved to") — the one place in the suite that reads
+   * this off a token, via the {@link JwtService} bean already in the context, rather than a test
+   * decoding the JWT itself.
+   */
+  protected UUID tenantIdOf(String token) {
+    return jwtService.parse(token).orElseThrow(() -> new IllegalStateException("Not a valid token")).tenantId();
   }
 
   /**

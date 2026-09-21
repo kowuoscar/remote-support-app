@@ -335,3 +335,4 @@ way, since the next feature removes both outcomes.)
 2. `pin-colliding-username-sign-in` — observes and pins today's behaviour for a
    username present in two Tenants, marked with what deletes it. Depends on
    ticket 1. (stories 7, 8)
+3. `isolate-e2e-database-for-verify` — `enabler`, added at delivery. The merge gate's e2e stage runs against the developer's live docker-compose Postgres and failed there on accumulated state, which no part of this feature can affect; it gets its own throwaway database instead. No story: it carries no product behaviour, it makes `verify` mean something. (stories: none)

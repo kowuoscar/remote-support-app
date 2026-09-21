@@ -1,0 +1,31 @@
+=== Named tests cited by journeys.md as proof for the epic, run for real against a fresh isolated Testcontainers Postgres (mvn test, JAVA_HOME=openjdk@21) ===
+--- com.remotesupport.backend.migration.GlobalUsernameIndexMigrationTest.txt ---
+-------------------------------------------------------------------------------
+Test set: com.remotesupport.backend.migration.GlobalUsernameIndexMigrationTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.951 s -- in com.remotesupport.backend.migration.GlobalUsernameIndexMigrationTest
+
+--- com.remotesupport.backend.web.CrossTenantUsernameAgentCreationApiTest.txt ---
+-------------------------------------------------------------------------------
+Test set: com.remotesupport.backend.web.CrossTenantUsernameAgentCreationApiTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.369 s -- in com.remotesupport.backend.web.CrossTenantUsernameAgentCreationApiTest
+
+--- com.remotesupport.backend.web.AgentLoginApiTest.txt ---
+-------------------------------------------------------------------------------
+Test set: com.remotesupport.backend.web.AgentLoginApiTest
+-------------------------------------------------------------------------------
+Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.916 s -- in com.remotesupport.backend.web.AgentLoginApiTest
+
+--- com.remotesupport.backend.web.TesterUsernameConflictApiTest.txt ---
+-------------------------------------------------------------------------------
+Test set: com.remotesupport.backend.web.TesterUsernameConflictApiTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.035 s -- in com.remotesupport.backend.web.TesterUsernameConflictApiTest
+
+--- com.remotesupport.backend.web.SecondTenantSignInApiTest.txt ---
+-------------------------------------------------------------------------------
+Test set: com.remotesupport.backend.web.SecondTenantSignInApiTest
+-------------------------------------------------------------------------------
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.263 s -- in com.remotesupport.backend.web.SecondTenantSignInApiTest
+

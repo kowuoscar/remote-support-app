@@ -1,0 +1,27 @@
+=== Baseline counts before the collision attempt (Tenant 2 testers/users) ===
+ testers 
+---------
+       0
+(1 row)
+
+ users 
+-------
+     1
+(1 row)
+
+
+=== Tenant 2 Manager attempts POST /api/clients/{clientId}/testers using Tenant 1's Tester username 'tester@example.com' (cross-tenant collision, Tester path) ===
+{"code":"USERNAME_TAKEN","message":"That email is already in use. Choose another one and try again."}
+HTTP_STATUS:409
+
+=== Counts after the refusal: nothing left behind ===
+ testers 
+---------
+       0
+(1 row)
+
+ users 
+-------
+     1
+(1 row)
+

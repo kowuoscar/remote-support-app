@@ -1,0 +1,19 @@
+=== Legitimate second-Tenant operation: a brand-new, non-colliding Agent login in Tenant 2 ===
+{"id":"a37dbe5f-629c-41d0-bf79-ec9292c82b8d","name":"Genuine Second Tenant Agent","country":"UNITED_STATES","currency":"USD","salaryAmount":1500,"contractCount":0,"loginUsername":"agent@second-tenant.example.com"}
+HTTP_STATUS:201
+
+=== That Agent signs in and its token names Tenant 2 ===
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZ2VudEBzZWNvbmQtdGVuYW50LmV4YW1wbGUuY29tIiwianRpIjoiYTgzOWVhYmEtMTc2Zi00MjU1LTlkM2QtODFiMWRkY2UyNzhkIiwidGVuYW50SWQiOiIyMjIyMjIyMi0zMzMzLTQ0NDQtNTU1NS02NjY2NjY2NjY2NjYiLCJyb2xlIjoiQUdFTlQiLCJpYXQiOjE3OTAwMzQ0OTEsImV4cCI6MTc5MDAzODA5MX0.Q0NCHfbYTBVZT-QfAtV9DwquP3JAbUeCJyBbe_cw-cA","role":"AGENT"}
+{
+  "sub": "agent@second-tenant.example.com",
+  "jti": "a839eaba-176f-4255-9d3d-81b1ddce278d",
+  "tenantId": "22222222-3333-4444-5555-666666666666",
+  "role": "AGENT",
+  "iat": 1790034491,
+  "exp": 1790038091
+}
+
+=== A brand-new, non-colliding Tester login in Tenant 2 ===
+{"id":"af56c211-4c16-4b03-a28f-d28a30b22791","clientId":"bbbbbbbb-cccc-dddd-eeee-ffffffffffff","username":"tester@second-tenant.example.com","isPrimaryContact":true}
+HTTP_STATUS:201
+

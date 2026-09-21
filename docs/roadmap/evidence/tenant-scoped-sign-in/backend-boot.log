@@ -1,0 +1,161 @@
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+2026-09-22T01:44:59.956+02:00 INFO  [:] c.r.backend.BackendApplication - Starting BackendApplication using Java 21.0.11 with PID 65062 (/Users/oscar/myspace/projects/remote-support-app/backend/target/classes started by oscar in /Users/oscar/myspace/projects/remote-support-app/backend)
+2026-09-22T01:44:59.957+02:00 INFO  [:] c.r.backend.BackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-09-22T01:45:00.368+02:00 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-09-22T01:45:00.407+02:00 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 36 ms. Found 19 JPA repository interfaces.
+2026-09-22T01:45:00.701+02:00 INFO  [:] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8199 (http)
+2026-09-22T01:45:00.708+02:00 INFO  [:] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-09-22T01:45:00.708+02:00 INFO  [:] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-09-22T01:45:00.737+02:00 INFO  [:] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-09-22T01:45:00.737+02:00 INFO  [:] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 765 ms
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-09-22T01:45:00.905+02:00 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-09-22T01:45:00.987+02:00 INFO  [:] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@13c90c06
+2026-09-22T01:45:00.988+02:00 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-09-22T01:45:01.002+02:00 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:55480/remote_support (PostgreSQL 16.15)
+2026-09-22T01:45:01.034+02:00 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+2026-09-22T01:45:01.035+02:00 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 47 migrations (execution time 00:00.019s)
+2026-09-22T01:45:01.047+02:00 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+2026-09-22T01:45:01.083+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+2026-09-22T01:45:01.086+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+2026-09-22T01:45:01.102+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+2026-09-22T01:45:01.108+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+2026-09-22T01:45:01.114+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+2026-09-22T01:45:01.136+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+2026-09-22T01:45:01.143+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+2026-09-22T01:45:01.156+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+2026-09-22T01:45:01.165+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+2026-09-22T01:45:01.173+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+2026-09-22T01:45:01.184+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+2026-09-22T01:45:01.190+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+2026-09-22T01:45:01.200+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+2026-09-22T01:45:01.208+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+2026-09-22T01:45:01.216+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+2026-09-22T01:45:01.228+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+2026-09-22T01:45:01.232+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+2026-09-22T01:45:01.238+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+2026-09-22T01:45:01.244+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+2026-09-22T01:45:01.249+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+2026-09-22T01:45:01.256+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+2026-09-22T01:45:01.260+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+2026-09-22T01:45:01.271+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+2026-09-22T01:45:01.275+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+2026-09-22T01:45:01.283+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+2026-09-22T01:45:01.287+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+2026-09-22T01:45:01.292+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+2026-09-22T01:45:01.297+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+2026-09-22T01:45:01.301+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+2026-09-22T01:45:01.305+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+2026-09-22T01:45:01.310+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+2026-09-22T01:45:01.316+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+2026-09-22T01:45:01.320+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+2026-09-22T01:45:01.324+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+2026-09-22T01:45:01.329+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+2026-09-22T01:45:01.333+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+2026-09-22T01:45:01.337+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+2026-09-22T01:45:01.341+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+2026-09-22T01:45:01.345+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+2026-09-22T01:45:01.348+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+2026-09-22T01:45:01.354+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+2026-09-22T01:45:01.358+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+2026-09-22T01:45:01.365+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+2026-09-22T01:45:01.369+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+2026-09-22T01:45:01.372+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+2026-09-22T01:45:01.376+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+2026-09-22T01:45:01.381+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+2026-09-22T01:45:01.386+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+2026-09-22T01:45:01.392+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+2026-09-22T01:45:01.395+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+2026-09-22T01:45:01.403+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 47 migrations to schema "public", now at version v55 (execution time 00:00.142s)
+2026-09-22T01:45:01.444+02:00 INFO  [:] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-09-22T01:45:01.473+02:00 INFO  [:] org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-09-22T01:45:01.486+02:00 INFO  [:] o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-09-22T01:45:01.599+02:00 INFO  [:] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-09-22T01:45:02.126+02:00 INFO  [:] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-09-22T01:45:02.150+02:00 INFO  [:] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-09-22T01:45:02.282+02:00 INFO  [:] o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-09-22T01:45:02.658+02:00 INFO  [:] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name appUserDetailsService
+2026-09-22T01:45:03.093+02:00 INFO  [:] o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-09-22T01:45:03.311+02:00 INFO  [:] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8199 (http) with context path '/'
+2026-09-22T01:45:03.319+02:00 INFO  [:] c.r.backend.BackendApplication - Started BackendApplication in 3.521 seconds (process running for 3.662)
+2026-09-22T01:45:03.483+02:00 INFO  [:] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-22T01:45:03.483+02:00 INFO  [:] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-09-22T01:45:03.485+02:00 INFO  [:] o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-09-22T01:45:03.526+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - GET /actuator/health -> 200
+2026-09-22T01:45:03.538+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - GET /actuator/health -> 200
+2026-09-22T01:45:58.458+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+2026-09-22T01:45:58.460+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-09-22T01:45:58.604+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=22222222-3333-4444-5555-666666666666 userId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee role=MANAGER username=manager@second-tenant.example.com
+2026-09-22T01:45:58.604+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-09-22T01:46:06.587+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=a8540f48-fa98-44f6-b44c-4ac78bdb3776 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-09-22T01:46:06.597+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/clients -> 201
+2026-09-22T01:46:06.619+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-09-22T01:46:06.634+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-09-22T01:46:17.534+02:00 WARN  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 23505
+2026-09-22T01:46:17.534+02:00 ERROR [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] o.h.e.jdbc.spi.SqlExceptionHelper - ERROR: duplicate key value violates unique constraint "uq_users_username_global"
+  Detail: Key (lower(btrim(username::text)))=(agent@example.com) already exists.
+2026-09-22T01:46:17.541+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/agents -> 409
+2026-09-22T01:46:27.190+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/clients/bbbbbbbb-cccc-dddd-eeee-ffffffffffff/testers -> 409
+2026-09-22T01:46:37.285+02:00 WARN  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 23505
+2026-09-22T01:46:37.285+02:00 ERROR [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] o.h.e.jdbc.spi.SqlExceptionHelper - ERROR: duplicate key value violates unique constraint "uq_users_username_global"
+  Detail: Key (lower(btrim(username::text)))=(agent@example.com) already exists.
+2026-09-22T01:46:37.287+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/agents -> 409
+2026-09-22T01:46:37.303+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/clients/bbbbbbbb-cccc-dddd-eeee-ffffffffffff/testers -> 409
+2026-09-22T01:46:37.315+02:00 WARN  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.http.converter.HttpMessageNotReadableException: JSON parse error: Illegal unquoted character ((CTRL-CHAR, code 9)): has to be escaped using backslash to be included in string value]
+2026-09-22T01:46:37.315+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/agents -> 400
+2026-09-22T01:46:47.148+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=797330ad-d31c-4634-a9fd-24549c784611 agentId=4e780e99-9cff-4e4d-ba29-19693e285b45 actorUserId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee tenantId=22222222-3333-4444-5555-666666666666
+2026-09-22T01:46:47.148+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] AUDIT - audit action=CREATE entity=Agent entityId=4e780e99-9cff-4e4d-ba29-19693e285b45 actorUserId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee tenantId=22222222-3333-4444-5555-666666666666
+2026-09-22T01:46:47.154+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/agents -> 201
+2026-09-22T01:47:02.233+02:00 WARN  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 23505
+2026-09-22T01:47:02.233+02:00 ERROR [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] o.h.e.jdbc.spi.SqlExceptionHelper - ERROR: duplicate key value violates unique constraint "uq_users_username_global"
+  Detail: Key (lower(btrim(username::text)))=(agent@example.com) already exists.
+2026-09-22T01:47:02.234+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/agents -> 409
+2026-09-22T01:47:02.250+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/clients/bbbbbbbb-cccc-dddd-eeee-ffffffffffff/testers -> 409
+2026-09-22T01:47:02.378+02:00 WARN  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] o.h.e.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 23505
+2026-09-22T01:47:02.378+02:00 ERROR [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] o.h.e.jdbc.spi.SqlExceptionHelper - ERROR: duplicate key value violates unique constraint "uq_users_tenant_username"
+  Detail: Key (tenant_id, username)=(22222222-3333-4444-5555-666666666666, 	agent@example.com	) already exists.
+2026-09-22T01:47:02.379+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/agents -> 409
+2026-09-22T01:47:29.464+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=54820b3b-abf9-4257-a655-4f5994fc6d12 agentId=5918fa96-aaed-4f7a-a3ce-588f5db483da actorUserId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee tenantId=22222222-3333-4444-5555-666666666666
+2026-09-22T01:47:29.465+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] AUDIT - audit action=CREATE entity=Agent entityId=5918fa96-aaed-4f7a-a3ce-588f5db483da actorUserId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee tenantId=22222222-3333-4444-5555-666666666666
+2026-09-22T01:47:29.472+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/agents -> 201
+2026-09-22T01:47:45.650+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+2026-09-22T01:47:45.650+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-09-22T01:47:45.753+02:00 WARN  [:] c.r.backend.web.AuthController - login failed username=agent@example.com
+2026-09-22T01:47:45.754+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 401
+2026-09-22T01:47:56.961+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+2026-09-22T01:47:56.962+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-09-22T01:48:11.437+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=a839eaba-176f-4255-9d3d-81b1ddce278d agentId=a37dbe5f-629c-41d0-bf79-ec9292c82b8d actorUserId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee tenantId=22222222-3333-4444-5555-666666666666
+2026-09-22T01:48:11.437+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] AUDIT - audit action=CREATE entity=Agent entityId=a37dbe5f-629c-41d0-bf79-ec9292c82b8d actorUserId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee tenantId=22222222-3333-4444-5555-666666666666
+2026-09-22T01:48:11.439+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/agents -> 201
+2026-09-22T01:48:11.535+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=22222222-3333-4444-5555-666666666666 userId=a839eaba-176f-4255-9d3d-81b1ddce278d role=AGENT username=agent@second-tenant.example.com
+2026-09-22T01:48:11.536+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-09-22T01:48:11.695+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] AUDIT - audit action=CREATE entity=Tester entityId=af56c211-4c16-4b03-a28f-d28a30b22791 actorUserId=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee tenantId=22222222-3333-4444-5555-666666666666
+2026-09-22T01:48:11.697+02:00 INFO  [22222222-3333-4444-5555-666666666666:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee] c.r.b.logging.RequestLoggingFilter - POST /api/clients/bbbbbbbb-cccc-dddd-eeee-ffffffffffff/testers -> 201
+2026-09-22T01:49:36.676+02:00 INFO  [:] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-09-22T01:49:36.680+02:00 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-09-22T01:49:36.686+02:00 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

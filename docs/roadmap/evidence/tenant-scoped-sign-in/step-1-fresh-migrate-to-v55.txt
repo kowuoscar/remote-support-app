@@ -1,0 +1,66 @@
+=== Fresh Postgres 16 in throwaway container tsst-pg (host port 55480), backend on 8199 with JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home ===
+
+2026-09-22T01:45:01.086+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+2026-09-22T01:45:01.102+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+2026-09-22T01:45:01.108+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+2026-09-22T01:45:01.114+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+2026-09-22T01:45:01.136+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+2026-09-22T01:45:01.143+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+2026-09-22T01:45:01.156+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+2026-09-22T01:45:01.165+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+2026-09-22T01:45:01.173+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+2026-09-22T01:45:01.184+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+2026-09-22T01:45:01.190+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+2026-09-22T01:45:01.200+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+2026-09-22T01:45:01.208+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+2026-09-22T01:45:01.216+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+2026-09-22T01:45:01.228+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+2026-09-22T01:45:01.232+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+2026-09-22T01:45:01.238+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+2026-09-22T01:45:01.244+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+2026-09-22T01:45:01.249+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+2026-09-22T01:45:01.256+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+2026-09-22T01:45:01.260+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+2026-09-22T01:45:01.271+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+2026-09-22T01:45:01.275+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+2026-09-22T01:45:01.287+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+2026-09-22T01:45:01.292+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+2026-09-22T01:45:01.297+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+2026-09-22T01:45:01.301+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+2026-09-22T01:45:01.305+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+2026-09-22T01:45:01.310+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+2026-09-22T01:45:01.316+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+2026-09-22T01:45:01.320+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+2026-09-22T01:45:01.324+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+2026-09-22T01:45:01.329+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+2026-09-22T01:45:01.333+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+2026-09-22T01:45:01.337+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+2026-09-22T01:45:01.341+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+2026-09-22T01:45:01.345+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+2026-09-22T01:45:01.348+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+2026-09-22T01:45:01.354+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+2026-09-22T01:45:01.358+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+2026-09-22T01:45:01.365+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+2026-09-22T01:45:01.369+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+2026-09-22T01:45:01.372+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+2026-09-22T01:45:01.376+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+2026-09-22T01:45:01.381+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+2026-09-22T01:45:01.386+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+2026-09-22T01:45:01.395+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+2026-09-22T01:45:01.403+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 47 migrations to schema "public", now at version v55 (execution time 00:00.142s)
+
+=== flyway_schema_history tail, confirming V55 applied and success=true ===
+ version |                       description                        | success 
+---------+----------------------------------------------------------+---------
+ 55      | add global username index                                | t
+ 54      | trim seed to test baseline                               | t
+ 53      | add sim card agent stock                                 | t
+ 52      | add smartphone agent stock                               | t
+ 51      | widen returned units disposition check for kept in stock | t
+(5 rows)
+
+
+=== index present ===
+    "uq_users_one_login_per_agent" UNIQUE, btree (agent_id) WHERE agent_id IS NOT NULL
+    "uq_users_tenant_username" UNIQUE CONSTRAINT, btree (tenant_id, username)
+    "uq_users_username_global" UNIQUE, btree (lower(btrim(username::text)))

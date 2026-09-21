@@ -1,0 +1,8 @@
+=== Tenant 1 Manager creates a Client of its own ===
+{"id":"a8540f48-fa98-44f6-b44c-4ac78bdb3776","name":"Default Tenant Only Client","primaryContactUsername":null,"contractCount":0}
+
+=== Tenant 1 Manager lists Clients (expect only its own) ===
+[{"id":"a8540f48-fa98-44f6-b44c-4ac78bdb3776","name":"Default Tenant Only Client","primaryContactUsername":null,"contractCount":0}]
+
+=== Tenant 2 Manager lists Clients (expect only its own, none of Tenant 1's) ===
+[{"id":"bbbbbbbb-cccc-dddd-eeee-ffffffffffff","name":"Second Tenant Only Client","primaryContactUsername":null,"contractCount":0}]

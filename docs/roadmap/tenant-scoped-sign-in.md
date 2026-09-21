@@ -1,7 +1,7 @@
 ---
 id: tenant-scoped-sign-in
 title: Operate a second tenant safely
-status: in-progress
+status: done
 journeys: [operate-a-second-tenant-safely, sign-in]
 ---
 
@@ -90,6 +90,16 @@ later.
 
 ## Later
 
-- A SuperAdmin surface for creating and managing tenants in-app.
-- Choosing or being routed to a tenant at sign-in (subdomain or a field),
-  needed only if one person is ever to belong to two tenants.
+Emptied at closure, 2026-09-22. Every entry received an explicit decision.
+
+- ~A SuperAdmin surface for creating and managing tenants in-app.~ —
+  **promoted** to `docs/roadmap/tenant-administration.md`, `status: proposed`.
+  A Tenant is still created by a hand-written `INSERT`; whether that is worth
+  a surface depends on how often one is created, which is the human's to say.
+- ~Choosing or being routed to a tenant at sign-in (subdomain or a field).~ —
+  **dropped.** It is only needed if one person is ever to hold logins in two
+  Tenants, and the human ruled that out at planning when choosing globally
+  unique usernames over a tenant selector. The decision is now enforced in the
+  database by `uq_users_username_global`, so reviving this would mean dropping
+  that index in a new forward migration. The trigger that would revive it: a
+  real person needing to work in two Tenants under one email address.

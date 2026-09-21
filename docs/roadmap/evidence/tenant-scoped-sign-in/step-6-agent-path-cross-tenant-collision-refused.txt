@@ -1,0 +1,37 @@
+=== Baseline counts before the collision attempt (Tenant 2) ===
+ agents 
+--------
+      0
+(1 row)
+
+ users 
+-------
+     1
+(1 row)
+
+ agent_standing_amounts 
+------------------------
+                      0
+(1 row)
+
+
+=== Tenant 2 Manager attempts POST /api/agents using Tenant 1's username 'agent@example.com' (cross-tenant collision, Agent path) ===
+{"code":"USERNAME_TAKEN","message":"Username agent@example.com is already in use"}
+HTTP_STATUS:409
+
+=== Counts after the refusal: nothing left behind ===
+ agents 
+--------
+      0
+(1 row)
+
+ users 
+-------
+     1
+(1 row)
+
+ agent_standing_amounts 
+------------------------
+                      0
+(1 row)
+

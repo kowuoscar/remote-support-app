@@ -1,0 +1,405 @@
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+01:48:41.038 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.web.SecondTenantSignInApiTest]: SecondTenantSignInApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+01:48:41.069 INFO  [:] org.testcontainers.images.PullPolicy - Image pull policy will be performed by: DefaultPullPolicy()
+01:48:41.070 INFO  [:] o.t.utility.ImageNameSubstitutor - Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+01:48:41.086 INFO  [:] org.testcontainers.DockerClientFactory - Testcontainers version: 1.21.4
+01:48:41.191 INFO  [:] o.t.d.DockerClientProviderStrategy - Loaded org.testcontainers.dockerclient.UnixSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+01:48:41.315 INFO  [:] o.t.d.DockerClientProviderStrategy - Found Docker environment with local Unix socket (unix:///var/run/docker.sock)
+01:48:41.316 INFO  [:] org.testcontainers.DockerClientFactory - Docker host IP address is localhost
+01:48:41.331 INFO  [:] org.testcontainers.DockerClientFactory - Connected to docker: 
+  Server Version: 29.7.2
+  API Version: 1.55
+  Operating System: Docker Desktop
+  Total Memory: 7934 MB
+  Labels: 
+    com.docker.desktop.address=unix:///Users/oscar/Library/Containers/com.docker.docker/Data/docker-cli.sock
+01:48:41.387 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Creating container for image: testcontainers/ryuk:0.12.0
+01:48:41.624 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Container testcontainers/ryuk:0.12.0 is starting: adccae6be868c567c0dfe34fd61abef4a58c4276077c776d6b7ed230c77120d7
+01:48:41.781 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Container testcontainers/ryuk:0.12.0 started in PT0.393846S
+01:48:41.784 INFO  [:] o.t.utility.RyukResourceReaper - Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+01:48:41.784 INFO  [:] org.testcontainers.DockerClientFactory - Checking the system...
+01:48:41.785 INFO  [:] org.testcontainers.DockerClientFactory - ✔︎ Docker server version should be at least 1.6.0
+01:48:41.785 INFO  [:] tc.postgres:16-alpine - Creating container for image: postgres:16-alpine
+01:48:41.846 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine is starting: 92fca86ec76666af8eab3eb29f25c7270650135a06db11bb607c49dfe978287f
+01:48:43.118 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine started in PT1.333456S
+01:48:43.119 INFO  [:] tc.postgres:16-alpine - Container is started (JDBC URL: jdbc:postgresql://localhost:49458/test?loggerLevel=OFF)
+01:48:43.204 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.web.SecondTenantSignInApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+01:48:43.348 INFO  [:] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+01:48:43.361 INFO  [:] c.r.b.web.SecondTenantSignInApiTest - Starting SecondTenantSignInApiTest using Java 21.0.11 with PID 69197 (started by oscar in /Users/oscar/myspace/projects/remote-support-app/backend)
+01:48:43.361 DEBUG [:] c.r.b.web.SecondTenantSignInApiTest - Running with Spring Boot v3.3.4, Spring v6.1.13
+01:48:43.362 INFO  [:] c.r.b.web.SecondTenantSignInApiTest - The following 1 profile is active: "test"
+01:48:43.961 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+01:48:43.998 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 34 ms. Found 19 JPA repository interfaces.
+01:48:44.564 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:49458/test (PostgreSQL 16.15)
+01:48:44.609 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+01:48:44.613 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 47 migrations (execution time 00:00.031s)
+01:48:44.626 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+01:48:44.658 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+01:48:44.662 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+01:48:44.678 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+01:48:44.686 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+01:48:44.693 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+01:48:44.709 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+01:48:44.718 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+01:48:44.730 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+01:48:44.739 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+01:48:44.748 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+01:48:44.759 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+01:48:44.766 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+01:48:44.774 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+01:48:44.782 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+01:48:44.791 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+01:48:44.802 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+01:48:44.808 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+01:48:44.814 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+01:48:44.822 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+01:48:44.828 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+01:48:44.835 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+01:48:44.841 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+01:48:44.850 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+01:48:44.857 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+01:48:44.864 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+01:48:44.869 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+01:48:44.875 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+01:48:44.881 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+01:48:44.886 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+01:48:44.891 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+01:48:44.897 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+01:48:44.906 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+01:48:44.911 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+01:48:44.916 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+01:48:44.921 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+01:48:44.925 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+01:48:44.931 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+01:48:44.936 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+01:48:44.941 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+01:48:44.946 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+01:48:44.953 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+01:48:44.959 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+01:48:44.966 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+01:48:44.971 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+01:48:44.975 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+01:48:44.984 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+01:48:44.991 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+01:48:44.998 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+01:48:45.005 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+01:48:45.005 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+01:48:45.005 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+01:48:45.005 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+01:48:45.005 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+01:48:45.005 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+01:48:45.005 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+01:48:45.005 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+01:48:45.005 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+01:48:45.005 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+01:48:45.005 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+01:48:45.006 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+01:48:45.006 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+01:48:45.006 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+01:48:45.006 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+01:48:45.006 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+01:48:45.009 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+01:48:45.016 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 47 migrations to schema "public", now at version v55 (execution time 00:00.152s)
+01:48:45.059 INFO  [:] o.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+01:48:45.083 INFO  [:] org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+01:48:45.095 INFO  [:] o.h.c.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+01:48:45.210 INFO  [:] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+01:48:45.221 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+01:48:45.237 INFO  [:] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@662b199
+01:48:45.238 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+01:48:45.772 INFO  [:] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+01:48:45.808 INFO  [:] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+01:48:45.999 INFO  [:] o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+01:48:46.469 INFO  [:] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name appUserDetailsService
+01:48:46.866 INFO  [:] o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+01:48:47.097 INFO  [:] o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+01:48:47.097 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Initializing Servlet ''
+01:48:47.098 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Completed initialization in 1 ms
+01:48:47.133 INFO  [:] c.r.b.web.SecondTenantSignInApiTest - Started SecondTenantSignInApiTest in 3.88 seconds (process running for 6.513)
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (/Users/oscar/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+01:48:47.851 INFO  [:] c.r.backend.web.AuthController - login success tenantId=4287603d-8774-4e06-972d-215555fce93d userId=77993e0f-7aad-455d-82d1-75f4f58a1670 role=MANAGER username=second-tenant-manager@example.com
+01:48:47.857 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:47.991 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:47.992 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:48.001 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=7a5795df-06e8-4c96-94ad-973655eacf2d actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:48.014 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+01:48:48.172 INFO  [:] c.r.backend.web.AuthController - login success tenantId=b6c97d91-6bb0-4680-aca7-e56a597309b9 userId=12dfa913-2181-4729-ab11-43da4f168521 role=MANAGER username=second-tenant-clients-manager@example.com
+01:48:48.173 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:48.183 INFO  [b6c97d91-6bb0-4680-aca7-e56a597309b9:12dfa913-2181-4729-ab11-43da4f168521] c.r.backend.logging.RequestLoggingFilter - GET /api/clients -> 200
+01:48:48.193 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.web.CrossTenantUsernameAgentCreationApiTest]: CrossTenantUsernameAgentCreationApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+01:48:48.196 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.web.CrossTenantUsernameAgentCreationApiTest
+01:48:48.383 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:48.383 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:48.504 WARN  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] o.h.engine.jdbc.spi.SqlExceptionHelper - SQL Error: 0, SQLState: 23505
+01:48:48.504 ERROR [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] o.h.engine.jdbc.spi.SqlExceptionHelper - ERROR: duplicate key value violates unique constraint "uq_users_username_global"
+  Detail: Key (lower(btrim(username::text)))=(cross-tenant-taken-ae86555b-d236-4003-9ac8-97a98671b75f@example.com) already exists.
+01:48:48.510 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents -> 409
+01:48:48.541 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents -> 200
+01:48:48.564 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.web.TesterUsernameConflictApiTest]: TesterUsernameConflictApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+01:48:48.566 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.web.TesterUsernameConflictApiTest
+01:48:48.733 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:48.734 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:48.739 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=601522c0-579a-4344-a291-66ab9f8a6a5f actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:48.742 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+01:48:48.764 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/601522c0-579a-4344-a291-66ab9f8a6a5f/testers -> 409
+01:48:48.846 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:48.846 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:48.850 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=676f6e31-f733-4016-a8f0-929145ddbe80 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:48.854 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+01:48:48.945 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=791c41a6-5e3d-449f-898c-136ebe5a9fca actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:48.946 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/676f6e31-f733-4016-a8f0-929145ddbe80/testers -> 201
+01:48:48.955 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/676f6e31-f733-4016-a8f0-929145ddbe80/testers -> 409
+01:48:49.037 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:49.037 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:49.041 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=2f799cdc-2054-43c2-8275-8b1e45ff01ff actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:49.044 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+01:48:49.127 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=b51945d6-e111-4080-bccd-08b98e931788 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:49.127 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/2f799cdc-2054-43c2-8275-8b1e45ff01ff/testers -> 201
+01:48:49.223 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=3df9c798-e214-4d6a-bb1c-3c1f87df8d61 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:49.223 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/2f799cdc-2054-43c2-8275-8b1e45ff01ff/testers -> 201
+01:48:49.304 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:49.305 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:49.309 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=309828eb-394a-41f6-a290-40a7993ee223 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:49.313 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+01:48:49.398 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=c3efc394-4192-40cc-8778-c5459c73d999 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:49.399 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/309828eb-394a-41f6-a290-40a7993ee223/testers -> 201
+01:48:49.405 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/309828eb-394a-41f6-a290-40a7993ee223/testers -> 409
+01:48:49.485 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:49.485 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:49.489 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=b94c5219-3201-4845-b083-e15e486b2b93 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:49.496 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+01:48:49.583 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=26e732e0-3a51-464e-b5bd-f04a68cb1e21 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:49.583 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/b94c5219-3201-4845-b083-e15e486b2b93/testers -> 201
+01:48:49.594 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/b94c5219-3201-4845-b083-e15e486b2b93/testers -> 409
+01:48:49.600 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.web.AgentLoginApiTest]: AgentLoginApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+01:48:49.606 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.web.AgentLoginApiTest
+01:48:49.684 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:49.685 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:49.698 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/da9a3f00-c5f0-4e8c-8691-bd4cd0f67995/login -> 409
+01:48:49.706 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents -> 200
+01:48:49.790 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:49.790 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:49.872 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=b91e9761-813f-4c7f-b448-f59f40417e10 agentId=c23bf332-284d-446f-800c-2a5730c8a172 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:49.874 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/c23bf332-284d-446f-800c-2a5730c8a172/login -> 201
+01:48:49.882 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents -> 200
+01:48:49.957 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=b91e9761-813f-4c7f-b448-f59f40417e10 role=AGENT username=sofia.marin@agents.example
+01:48:49.958 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:49.965 INFO  [11111111-1111-1111-1111-111111111111:b91e9761-813f-4c7f-b448-f59f40417e10] c.r.backend.logging.RequestLoggingFilter - GET /api/me -> 200
+01:48:50.043 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:50.043 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:50.049 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/login -> 409
+01:48:50.124 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:50.125 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:50.137 WARN  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [1] in public org.springframework.http.ResponseEntity<com.remotesupport.backend.dto.AgentResponse> com.remotesupport.backend.web.AgentController.createLogin(java.util.UUID,com.remotesupport.backend.dto.AgentLoginCreateRequest,com.remotesupport.backend.security.JwtService$AuthenticatedPrincipal): [Field error in object 'agentLoginCreateRequest' on field 'username': rejected value [null]; codes [NotBlank.agentLoginCreateRequest.username,NotBlank.username,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [agentLoginCreateRequest.username,username]; arguments []; default message [username]]; default message [must not be blank]] ]
+01:48:50.137 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/dd378512-7794-411f-a34d-bdee3e9a234d/login -> 400
+01:48:50.139 WARN  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [1] in public org.springframework.http.ResponseEntity<com.remotesupport.backend.dto.AgentResponse> com.remotesupport.backend.web.AgentController.createLogin(java.util.UUID,com.remotesupport.backend.dto.AgentLoginCreateRequest,com.remotesupport.backend.security.JwtService$AuthenticatedPrincipal): [Field error in object 'agentLoginCreateRequest' on field 'password': rejected value [ ]; codes [NotBlank.agentLoginCreateRequest.password,NotBlank.password,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [agentLoginCreateRequest.password,password]; arguments []; default message [password]]; default message [must not be blank]] ]
+01:48:50.139 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/dd378512-7794-411f-a34d-bdee3e9a234d/login -> 400
+01:48:50.140 WARN  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [1] in public org.springframework.http.ResponseEntity<com.remotesupport.backend.dto.AgentResponse> com.remotesupport.backend.web.AgentController.createLogin(java.util.UUID,com.remotesupport.backend.dto.AgentLoginCreateRequest,com.remotesupport.backend.security.JwtService$AuthenticatedPrincipal): [Field error in object 'agentLoginCreateRequest' on field 'password': rejected value [null]; codes [NotBlank.agentLoginCreateRequest.password,NotBlank.password,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [agentLoginCreateRequest.password,password]; arguments []; default message [password]]; default message [must not be blank]] ]
+01:48:50.140 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/dd378512-7794-411f-a34d-bdee3e9a234d/login -> 400
+01:48:50.148 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents -> 200
+01:48:50.227 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+01:48:50.227 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:50.301 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=44444444-4444-4444-4444-444444444444 role=TESTER username=tester@example.com
+01:48:50.301 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:50.304 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/a8ed784a-8e7f-4d8a-a438-1428a4141e15/login -> 403
+01:48:50.305 INFO  [11111111-1111-1111-1111-111111111111:44444444-4444-4444-4444-444444444444] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/a8ed784a-8e7f-4d8a-a438-1428a4141e15/login -> 403
+01:48:50.387 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:50.388 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:50.392 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/5cd177c9-821a-4e2b-80bd-8482742dfe63/login -> 404
+01:48:50.559 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:50.559 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:50.569 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/f3e04289-5f6f-4973-b440-d6118218cb16/login -> 409
+01:48:50.580 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents -> 200
+01:48:50.735 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:50.735 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:50.743 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/7877334f-eb67-419d-8f5f-256f00679336/login -> 409
+01:48:50.749 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents -> 200
+01:48:50.909 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:50.910 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:50.919 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/f6a136ea-64d5-4082-a46e-ccc9323e3abf/login -> 409
+01:48:50.927 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents -> 200
+01:48:51.007 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:51.007 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:51.091 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=a01c8515-0d91-41f4-9d16-06b956366570 agentId=4a4944c1-3989-4293-a868-568d81dbb013 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:51.093 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/4a4944c1-3989-4293-a868-568d81dbb013/login -> 201
+01:48:51.098 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/4a4944c1-3989-4293-a868-568d81dbb013/login -> 409
+01:48:51.104 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents -> 200
+01:48:51.183 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:51.184 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:51.193 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents -> 200
+01:48:51.272 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:51.272 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:51.354 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=62d0337c-4b33-4ef3-8288-4fd758a6405c agentId=4404a8e0-44f3-4f08-952a-7f1fc76bd21b actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+01:48:51.355 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/4404a8e0-44f3-4f08-952a-7f1fc76bd21b/login -> 201
+01:48:51.431 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:51.431 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:51.436 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/login -> 409
+01:48:51.511 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+01:48:51.511 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+01:48:51.514 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/b0021861-6142-4f5d-b341-834a1d176048/login -> 404
+01:48:51.592 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:49458/v55_1d43d1dbbb994d23af35f22c67b99a61 (PostgreSQL 16.15)
+01:48:51.600 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+01:48:51.622 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:49458/v55_1d43d1dbbb994d23af35f22c67b99a61 (PostgreSQL 16.15)
+01:48:51.630 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+01:48:51.630 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 47 migrations (execution time 00:00.005s)
+01:48:51.634 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+01:48:51.646 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+01:48:51.648 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+01:48:51.658 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+01:48:51.663 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+01:48:51.668 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+01:48:51.682 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+01:48:51.688 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+01:48:51.697 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+01:48:51.705 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+01:48:51.712 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+01:48:51.720 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+01:48:51.726 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+01:48:51.732 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+01:48:51.738 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+01:48:51.746 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+01:48:51.757 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+01:48:51.761 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+01:48:51.766 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+01:48:51.774 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+01:48:51.778 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+01:48:51.785 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+01:48:51.789 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+01:48:51.797 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+01:48:51.803 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+01:48:51.807 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+01:48:51.812 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+01:48:51.817 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+01:48:51.823 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+01:48:51.827 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+01:48:51.832 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+01:48:51.837 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+01:48:51.843 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+01:48:51.847 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+01:48:51.851 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+01:48:51.856 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+01:48:51.860 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+01:48:51.865 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+01:48:51.869 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+01:48:51.874 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+01:48:51.879 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+01:48:51.885 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+01:48:51.890 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+01:48:51.898 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+01:48:51.902 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+01:48:51.906 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+01:48:51.910 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+01:48:51.915 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+01:48:51.922 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+01:48:51.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+01:48:51.935 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 46 migrations to schema "public", now at version v54 (execution time 00:00.135s)
+01:48:51.966 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:49458/v55_1d43d1dbbb994d23af35f22c67b99a61 (PostgreSQL 16.15)
+01:48:51.987 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 47 migrations (execution time 00:00.013s)
+01:48:51.994 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": 54
+01:48:51.995 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+01:48:52.001 ERROR [:] o.f.core.internal.command.DbMigrate - Migration of schema "public" to version "55 - add global username index" failed! Changes successfully rolled back.
+01:48:52.059 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:49458/v55_847c231e18974590b8e834a24fe5aa13 (PostgreSQL 16.15)
+01:48:52.066 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+01:48:52.082 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:49458/v55_847c231e18974590b8e834a24fe5aa13 (PostgreSQL 16.15)
+01:48:52.090 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+01:48:52.090 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 47 migrations (execution time 00:00.004s)
+01:48:52.095 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+01:48:52.105 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+01:48:52.107 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+01:48:52.116 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+01:48:52.121 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+01:48:52.126 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+01:48:52.138 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+01:48:52.144 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+01:48:52.157 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+01:48:52.167 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+01:48:52.177 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+01:48:52.195 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+01:48:52.202 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+01:48:52.209 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+01:48:52.215 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+01:48:52.222 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+01:48:52.232 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+01:48:52.237 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+01:48:52.242 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+01:48:52.249 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+01:48:52.253 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+01:48:52.259 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+01:48:52.263 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+01:48:52.271 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+01:48:52.277 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+01:48:52.281 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+01:48:52.285 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+01:48:52.290 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+01:48:52.295 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+01:48:52.300 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+01:48:52.305 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+01:48:52.310 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+01:48:52.316 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+01:48:52.321 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+01:48:52.325 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+01:48:52.330 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+01:48:52.334 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+01:48:52.339 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+01:48:52.344 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+01:48:52.349 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+01:48:52.354 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+01:48:52.359 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+01:48:52.364 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+01:48:52.372 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+01:48:52.376 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+01:48:52.380 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+01:48:52.384 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+01:48:52.389 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+01:48:52.396 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+01:48:52.403 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+01:48:52.406 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 46 migrations to schema "public", now at version v54 (execution time 00:00.140s)
+01:48:52.416 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:49458/v55_847c231e18974590b8e834a24fe5aa13 (PostgreSQL 16.15)
+01:48:52.426 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 47 migrations (execution time 00:00.006s)
+01:48:52.432 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": 54
+01:48:52.434 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+01:48:52.443 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 1 migration to schema "public", now at version v55 (execution time 00:00.004s)

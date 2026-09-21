@@ -1,0 +1,28 @@
+=== Case-only variant of Tenant 1's agent@example.com (uppercased) via Agent path in Tenant 2: refused ===
+{"code":"USERNAME_TAKEN","message":"Username AGENT@EXAMPLE.COM is already in use"}
+HTTP_STATUS:409
+
+=== Whitespace(ASCII-space)-only variant of Tenant 1's agent@example.com via Tester path in Tenant 2: refused ===
+{"code":"USERNAME_TAKEN","message":"That email is already in use. Choose another one and try again."}
+HTTP_STATUS:409
+
+=== Tab-padded variant of Tenant 1's agent@example.com via Agent path in Tenant 2: ACCEPTED as a distinct username (JSON body verified byte-correct via python, tab characters preserved) ===
+{"name": "Tab Padded Agent", "country": "UNITED_STATES", "salaryAmount": 1000, "username": "\tagent@example.com\t", "password": "SomePassw0rd!"}
+{"code":"USERNAME_TAKEN","message":"Username \tagent@example.com\t is already in use"}
+HTTP_STATUS:409
+
+=== Confirming the two distinct rows now stored for 'agent@example.com'-family usernames in Tenant 2 vs Tenant 1, with the tab-padded one stored with its tabs intact (lower(btrim(...)) does not equal lower(btrim('agent@example.com'))) ===
+              tenant_id               |           raw_username           |            normalized            
+--------------------------------------+----------------------------------+----------------------------------
+ 11111111-1111-1111-1111-111111111111 | agent@example.com                | agent@example.com
+ 22222222-3333-4444-5555-666666666666 |         agent@example.com        |         agent@example.com       
+(2 rows)
+
+=== Clean single attempt: tab-padded clone of Tenant 1's manager@example.com, created fresh (never attempted before) via Agent path in Tenant 2 ===
+{"name": "Tab Padded Manager Clone Agent", "country": "UNITED_STATES", "salaryAmount": 1000, "username": "\tmanager@example.com\t", "password": "SomePassw0rd!"}
+{"id":"5918fa96-aaed-4f7a-a3ce-588f5db483da","name":"Tab Padded Manager Clone Agent","country":"UNITED_STATES","currency":"USD","salaryAmount":1000,"contractCount":0,"loginUsername":"\tmanager@example.com\t"}
+HTTP_STATUS:201
+
+=== Byte-level proof it is stored distinct from Tenant 1's untouched 'manager@example.com' ===
+11111111-1111-1111-1111-111111111111|19|19|6d616e61676572406578616d706c652e636f6d
+22222222-3333-4444-5555-666666666666|21|21|096d616e61676572406578616d706c652e636f6d09

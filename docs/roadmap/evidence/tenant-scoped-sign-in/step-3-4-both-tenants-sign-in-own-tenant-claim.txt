@@ -1,0 +1,23 @@
+=== Tenant 1 Manager login ===
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGV4YW1wbGUuY29tIiwianRpIjoiMjIyMjIyMjItMjIyMi0yMjIyLTIyMjItMjIyMjIyMjIyMjIyIiwidGVuYW50SWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJyb2xlIjoiTUFOQUdFUiIsImlhdCI6MTc5MDAzNDM1OCwiZXhwIjoxNzkwMDM3OTU4fQ.6qrtLXd0qanGq06rRQ0WdcjkyDcRI7jemwUgOpLkYs4","role":"MANAGER"}
+T1 token payload:
+{
+  "sub": "manager@example.com",
+  "jti": "22222222-2222-2222-2222-222222222222",
+  "tenantId": "11111111-1111-1111-1111-111111111111",
+  "role": "MANAGER",
+  "iat": 1790034358,
+  "exp": 1790037958
+}
+
+=== Tenant 2 Manager login ===
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQHNlY29uZC10ZW5hbnQuZXhhbXBsZS5jb20iLCJqdGkiOiJhYWFhYWFhYS1iYmJiLWNjY2MtZGRkZC1lZWVlZWVlZWVlZWUiLCJ0ZW5hbnRJZCI6IjIyMjIyMjIyLTMzMzMtNDQ0NC01NTU1LTY2NjY2NjY2NjY2NiIsInJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzkwMDM0MzU4LCJleHAiOjE3OTAwMzc5NTh9.y1AlsjFsDD-mj4e4jX0qVG66rijsWdI7wrF312PPpIk","role":"MANAGER"}
+T2 token payload:
+{
+  "sub": "manager@second-tenant.example.com",
+  "jti": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+  "tenantId": "22222222-3333-4444-5555-666666666666",
+  "role": "MANAGER",
+  "iat": 1790034358,
+  "exp": 1790037958
+}

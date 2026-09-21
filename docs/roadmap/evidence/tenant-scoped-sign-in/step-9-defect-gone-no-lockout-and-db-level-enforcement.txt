@@ -1,0 +1,14 @@
+=== The database itself refuses a colliding normalized username as a last line of defense (uq_users_username_global) ===
+
+=== The original defect is gone: Tenant 1's Manager (whose username was targeted by every collision attempt above) still signs in normally -- no lockout ===
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGV4YW1wbGUuY29tIiwianRpIjoiMjIyMjIyMjItMjIyMi0yMjIyLTIyMjItMjIyMjIyMjIyMjIyIiwidGVuYW50SWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJyb2xlIjoiTUFOQUdFUiIsImlhdCI6MTc5MDAzNDQ2NSwiZXhwIjoxNzkwMDM4MDY1fQ.hFTekraOFJftLg0atG9bMPLw-HJ2jPAoFGfs22aYdyc","role":"MANAGER"}
+HTTP_STATUS:200
+
+=== Tenant 1's Agent (also targeted) still signs in normally too ===
+
+HTTP_STATUS:401
+
+=== Correction: seeded Agent's real password is AgentDemo123! (V3 seed comment), not ChangeMe123! -- retrying ===
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZ2VudEBleGFtcGxlLmNvbSIsImp0aSI6IjMzMzMzMzMzLTMzMzMtMzMzMy0zMzMzLTMzMzMzMzMzMzMzMyIsInRlbmFudElkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwicm9sZSI6IkFHRU5UIiwiaWF0IjoxNzkwMDM0NDc2LCJleHAiOjE3OTAwMzgwNzZ9.hXfK0UFYUBRSP3JY1eSBPy6WNjkG5Vd6xtpwaOXi0nA","role":"AGENT"}
+HTTP_STATUS:200
+

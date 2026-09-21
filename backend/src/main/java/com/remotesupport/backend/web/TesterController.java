@@ -1,26 +1,22 @@
 package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.Client;
-import com.remotesupport.backend.domain.Role;
 import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.User;
+import com.remotesupport.backend.domain.Username;
 import com.remotesupport.backend.dto.TesterCreateRequest;
 import com.remotesupport.backend.dto.TesterResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.ClientRepository;
 import com.remotesupport.backend.repository.TesterRepository;
-import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import jakarta.validation.Valid;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,34 +29,28 @@ import org.springframework.web.bind.annotation.RestController;
  * Manager-only Tester CRUD (create + list), nested under the owning Client: a Tester is a login
  * (a {@link User} with role {@code TESTER}) that belongs to exactly one {@link Client}. Lives on
  * a Client detail view, not a top-level list (manager-entity-setup ticket).
+ *
+ * <p>The username-uniqueness rule and the write itself live in {@link TesterLoginService} — a
+ * controller translates HTTP <-> domain and never branches on domain state (docs/agents/
+ * coding-standards.md Backend rule 2; globally-unique-usernames spec.md review, finding F5). The
+ * primary-contact conflict stays here: it is a read of the {@link Client} this controller already
+ * looked up, decided before {@link TesterLoginService} is asked to write anything.
  */
 @RestController
 @RequestMapping("/api/clients/{clientId}/testers")
 public class TesterController {
 
-  // V1's Tenant-scoped users unique constraint and V55's global unique index, as Postgres names
-  // them in a violation — how a conflict caught at flush time (the human's requirement: this
-  // stays reachable, and refused 409, even though the pre-check below makes it unreachable in
-  // ordinary use; globally-unique-usernames spec.md "Decisions taken") is told apart. A caller
-  // must not be able to tell which of the two fired, so both map to the same USERNAME_TAKEN
-  // reason, matching AgentLoginService's own violation-name matching.
-  private static final String TENANT_USERNAME_CONSTRAINT = "uq_users_tenant_username";
-  private static final String GLOBAL_USERNAME_CONSTRAINT = "uq_users_username_global";
-
   private final ClientRepository clientRepository;
   private final TesterRepository testerRepository;
-  private final UserRepository userRepository;
-  private final PasswordEncoder passwordEncoder;
+  private final TesterLoginService testerLoginService;
 
   public TesterController(
       ClientRepository clientRepository,
       TesterRepository testerRepository,
-      UserRepository userRepository,
-      PasswordEncoder passwordEncoder) {
+      TesterLoginService testerLoginService) {
     this.clientRepository = clientRepository;
     this.testerRepository = testerRepository;
-    this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
+    this.testerLoginService = testerLoginService;
   }
 
   @PostMapping
@@ -80,36 +70,12 @@ public class TesterController {
           "Client " + clientId + " already has a primary contact");
     }
 
-    String username = request.username().strip();
-    if (userRepository.existsByUsernameNormalized(username)) {
-      throw usernameTaken();
-    }
-
-    User user = new User();
-    user.setId(UUID.randomUUID());
-    user.setTenant(client.getTenant());
-    user.setUsername(username);
-    user.setPasswordHash(passwordEncoder.encode(request.password()));
-    user.setRole(Role.TESTER);
-    user.setCreatedAt(Instant.now());
-    try {
-      userRepository.saveAndFlush(user);
-    } catch (DataIntegrityViolationException e) {
-      String detail = String.valueOf(e.getMostSpecificCause().getMessage());
-      if (detail.contains(TENANT_USERNAME_CONSTRAINT) || detail.contains(GLOBAL_USERNAME_CONSTRAINT)) {
-        throw usernameTaken();
-      }
-      throw e;
-    }
-
-    Tester tester = new Tester();
-    tester.setId(UUID.randomUUID());
-    tester.setTenant(client.getTenant());
-    tester.setClient(client);
-    tester.setUser(user);
-    tester.setPrimaryContact(request.isPrimaryContact());
-    tester.setCreatedAt(Instant.now());
-    testerRepository.save(tester);
+    Tester tester =
+        testerLoginService.create(
+            client,
+            Username.trim(request.username()),
+            request.password(),
+            request.isPrimaryContact());
 
     AuditLog.created("Tester", tester.getId(), principal.userId(), principal.tenantId());
 
@@ -128,12 +94,6 @@ public class TesterController {
         .toList();
   }
 
-  private static TesterConflictException usernameTaken() {
-    return new TesterConflictException(
-        TesterConflictException.Reason.USERNAME_TAKEN,
-        "That email is already in use. Choose another one and try again.");
-  }
-
   /**
    * Both create-conflict 409s carry a {@code code} ({@code USERNAME_TAKEN} or {@code
    * PRIMARY_CONTACT_EXISTS}) so the dialog can tell "pick another email" from "this Client
@@ -145,26 +105,5 @@ public class TesterController {
   public ResponseEntity<Map<String, String>> conflict(TesterConflictException e) {
     return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(Map.of("code", e.reason().name(), "message", e.getMessage()));
-  }
-
-  /** A 409 from creating a Tester, carrying which of its two causes applies. */
-  static class TesterConflictException extends ConflictException {
-
-    /** The machine-readable cause, sent to the client as {@code code}. */
-    enum Reason {
-      USERNAME_TAKEN,
-      PRIMARY_CONTACT_EXISTS
-    }
-
-    private final Reason reason;
-
-    TesterConflictException(Reason reason, String message) {
-      super(message);
-      this.reason = reason;
-    }
-
-    Reason reason() {
-      return reason;
-    }
   }
 }

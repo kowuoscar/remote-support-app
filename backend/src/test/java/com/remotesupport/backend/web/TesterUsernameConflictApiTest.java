@@ -134,6 +134,36 @@ class TesterUsernameConflictApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
   }
 
+  /**
+   * Pins Java's normalization to what the database's own {@code lower(btrim(username))} index
+   * enforces (review finding F6): a tab is not a space, so it is not trimmed, and a username
+   * padded with one is stored as-is and does not collide with the un-padded username above. A
+   * regression here — Java normalizing with {@link String#strip()} instead of {@link
+   * com.remotesupport.backend.domain.Username#trim} — would either strip the tab (storing a
+   * different value than intended) or, more dangerously, disagree with the database about which
+   * usernames collide.
+   */
+  @Test
+  void aTabIsNotTrimmedUnlikeAnAsciiSpace() throws Exception {
+    String token = managerToken();
+    UUID clientId = createClient(token, "Tab Whitespace Tester Client " + UUID.randomUUID());
+    String clean = "tab-tester-" + UUID.randomUUID() + "@example.com";
+
+    postJson(
+            "/api/clients/" + clientId + "/testers",
+            token,
+            new TesterCreateRequest(clean, PASSWORD, false))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.username").value(clean));
+
+    postJson(
+            "/api/clients/" + clientId + "/testers",
+            token,
+            new TesterCreateRequest("\t" + clean + "\t", PASSWORD, false))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.username").value("\t" + clean + "\t"));
+  }
+
   private long countUsers() {
     return userRepository.count();
   }

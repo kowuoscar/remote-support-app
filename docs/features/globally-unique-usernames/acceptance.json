@@ -1,0 +1,92 @@
+{
+  "feature": "globally-unique-usernames",
+  "played_at": "2026-09-22",
+  "played_on": "feature/globally-unique-usernames",
+  "environment": "A throwaway postgres:16-alpine container on an unused host port plus the built backend jar pointed at it through DB_URL/DB_USERNAME/DB_PASSWORD, driven with curl and psql; frontend suites run directly. The developer's docker-compose stack on 5432/3000/8080 was never touched and npm run test:e2e was never run.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1.txt",
+      "note": "Fresh throwaway Postgres and the backend jar against it: Flyway reaches V55 with no manual step, and \\d users lists both uq_users_username_global (lower(btrim(username))) and uq_users_tenant_username."
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2.txt",
+      "note": "GlobalUsernameIndexMigrationTest: both cases pass by name \u2014 clean database reaches V55 with both indexes, and a hand-inserted cross-Tenant duplicate fails the migration naming it."
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3.txt",
+      "note": "POST /api/agents with a username held only in a second Tenant -> 409 USERNAME_TAKEN; the seeded Tenant's Agent count is unchanged and no row was left behind."
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4.txt",
+      "note": "POST /api/agents/{id}/login with the same second-Tenant username -> 409 USERNAME_TAKEN; the Agent still has no login afterwards."
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": "Tester with a second-Tenant username -> 409 USERNAME_TAKEN; a clean primary contact -> 201; a second primary contact with a clean username -> 409 with the distinct PRIMARY_CONTACT_EXISTS code."
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": "Case-only and whitespace-only variants both -> 409 USERNAME_TAKEN; a clean padded username -> 201 and reads back trimmed in both the create response and the list."
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": "Both Managers sign in and their decoded JWTs carry their own tenantId; SecondTenantSignInApiTest passes 2/2 and its diff against main is empty."
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8.txt",
+      "note": "CollidingUsernameSignInApiTest is absent, deleted in 4151537 \u2014 the same commit that adds CrossTenantUsernameAgentCreationApiTest, whose single test asserts the replacement and passes."
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9-backend.txt and evidence/step-9-frontend.txt",
+      "note": "mvn verify 504 tests / 0 failures / 0 Checkstyle violations; frontend vitest 172/172, eslint clean, build ok, tsc clean, visual 32/32 with no golden recaptured."
+    },
+    {
+      "step": 10,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "Read the inline dialog copy in the running app."
+    },
+    {
+      "step": 11,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "Read and judge delivery.md's ## Audit section."
+    },
+    {
+      "step": 12,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "Judge the disclosure bounds against ## Open questions."
+    }
+  ]
+}

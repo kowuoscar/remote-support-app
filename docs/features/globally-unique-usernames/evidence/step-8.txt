@@ -1,0 +1,47 @@
+=== find backend/src/test -iname 'CollidingUsernameSignInApiTest.java' (must be empty -- deleted) ===
+(no output above = file is gone)
+
+=== git log --diff-filter=D showing its deletion ===
+4151537 feat(global-username-index): enforce a global unique username index
+
+=== Replacement: CrossTenantUsernameAgentCreationApiTest.java, added in the same commit ===
+    Deletes CollidingUsernameSignInApiTest and its control in the same
+    CrossTenantUsernameAgentCreationApiTest as the replacement its own
+ .../web/CollidingUsernameSignInApiTest.java        |  68 ----------
+ .../CrossTenantUsernameAgentCreationApiTest.java   | 129 +++++++++++++++++++
+
+=== The replacement test's assertion (excerpt) ===
+  @Test
+  void aUsernameTakenInAnotherTenantIsRefusedLeavingNoAgentStandingAmountOrUserBehind()
+      throws Exception {
+    OtherTenantLogin otherTenantLogin =
+        otherTenantFixture.managerLoginInAnotherTenant(
+            "cross-tenant-taken-" + UUID.randomUUID() + "@example.com", "Different#Passw0rd1");
+    otherTenantId = otherTenantLogin.tenantId();
+    otherTenantUsername = otherTenantLogin.username();
+
+    String token = managerToken();
+    String name = NAME_PREFIX + "Other Tenant Name Clash";
+    Snapshot before = snapshot();
+
+    postJson("/api/agents", token, agentBody(name, otherTenantUsername))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
+
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM agents WHERE name = ?", Long.class, name))
+        .as("Agent rows named %s", name)
+        .isZero();
+    assertThat(snapshot()).isEqualTo(before);
+
+    mockMvc
+        .perform(get("/api/agents").header("Authorization", "Bearer " + token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.name == '" + name + "')]").isEmpty());
+  }
+
+=== mvn test -Dtest=CrossTenantUsernameAgentCreationApiTest ===
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0 -- in com.remotesupport.backend.web.CrossTenantUsernameAgentCreationApiTest
+BUILD SUCCESS
+(real 409 USERNAME_TAKEN observed in the test's own log: 'duplicate key value violates unique constraint "uq_users_username_global"' -> POST /api/agents -> 409)

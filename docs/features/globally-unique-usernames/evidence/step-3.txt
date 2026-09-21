@@ -1,0 +1,20 @@
+=== Fixture: second Tenant 5adb8496-8e9b-490f-b5e6-20bafe44356f with a MANAGER user 'CROSS_USERNAME' inserted directly (no API creates a Tenant) ===
+CROSS_USERNAME=cross-tenant-username-b6a53f4e@example.com
+
+=== Agents count before (seeded tenant) ===
+     1
+
+
+=== POST /api/agents as seeded Manager, username = the second-Tenant username ===
+{"message":"Username cross-tenant-username-b6a53f4e@example.com is already in use","code":"USERNAME_TAKEN"}
+HTTP_STATUS:409
+
+=== Agents count after (must be unchanged) ===
+     1
+
+
+=== Agents named 'Cross Tenant Candidate' (must be none -- no Agent row left behind) ===
+ id | tenant_id | name | country | currency | salary_amount | created_at 
+----+-----------+------+---------+----------+---------------+------------
+(0 rows)
+

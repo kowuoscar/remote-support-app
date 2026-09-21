@@ -17,8 +17,11 @@ Any of the three roles signs in with an email and a password and lands on
 their own console. An unauthenticated request to a protected route redirects
 to the login page. Proof: `frontend/tests/e2e/login.spec.ts`.
 
-Known defect, scoped to `tenant-scoped-sign-in`: the lookup is by username
-across **all** tenants, though usernames are only unique **within** one.
+The defect this journey carried is gone: the lookup was by username across
+**all** tenants though usernames were unique only **within** one, so a username
+held in two Tenants was refused 401, indistinguishable from a wrong password.
+`globally-unique-usernames` made usernames unique across the whole deployment
+(V55, `uq_users_username_global`), so the lookup resolves to at most one user.
 
 ### Set up the operating picture — exists
 
@@ -128,9 +131,19 @@ or a Tester who is locked out; a login is deactivated when a person leaves,
 without destroying the Agent record and the invoice history hanging off it.
 Today a password can never be changed by anyone.
 
-### Operate a second tenant safely — wanted
+### Operate a second tenant safely — exists
 
 A second customer company can be operated in the same deployment without a
 user of one signing in to the other. Tenants continue to be created directly
 in the database; this journey is about correctness, not about a SuperAdmin
 surface.
+
+Brought to `exists` by the `tenant-scoped-sign-in` epic. No username can be
+held in two Tenants — creation is refused on both the Agent and the Tester
+path, and V55's `uq_users_username_global` enforces it in the database — so
+the sign-in lookup can no longer match more than one row. Proof:
+`GlobalUsernameIndexMigrationTest`, `CrossTenantUsernameAgentCreationApiTest`,
+`AgentLoginApiTest`, `TesterUsernameConflictApiTest`, with
+`SecondTenantSignInApiTest` proving legitimate second-Tenant operation still
+works. Every remaining single-tenant assumption is named and dispositioned in
+`docs/features/globally-unique-usernames/delivery.md`.

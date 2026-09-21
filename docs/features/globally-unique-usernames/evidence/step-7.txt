@@ -1,0 +1,33 @@
+=== Sign in as the seeded Tenant's Manager ===
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYW5hZ2VyQGV4YW1wbGUuY29tIiwianRpIjoiMjIyMjIyMjItMjIyMi0yMjIyLTIyMjItMjIyMjIyMjIyMjIyIiwidGVuYW50SWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJyb2xlIjoiTUFOQUdFUiIsImlhdCI6MTc5MDAzMTUzOCwiZXhwIjoxNzkwMDM1MTM4fQ.rrMLmYCy3G8qPkzdG6Xcbmq0BI6wTTckEofp3PQmQy4","role":"MANAGER"}
+--- decoded JWT payload ---
+{
+  "sub": "manager@example.com",
+  "jti": "22222222-2222-2222-2222-222222222222",
+  "tenantId": "11111111-1111-1111-1111-111111111111",
+  "role": "MANAGER",
+  "iat": 1790031538,
+  "exp": 1790035138
+}
+
+=== Sign in as the second Tenant's Manager ===
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzZWNvbmQtdGVuYW50LW1hbmFnZXItYWNjZXB0YW5jZS0wZmJjOWU1YUBleGFtcGxlLmNvbSIsImp0aSI6IjdiOWVkNzcxLWMwNDMtNDMxNS05MmE5LTU3OWUwZjI5NWEwNSIsInRlbmFudElkIjoiNWFkYjg0OTYtOGU5Yi00OTBmLWI1ZTYtMjBiYWZlNDQzNTZmIiwicm9sZSI6Ik1BTkFHRVIiLCJpYXQiOjE3OTAwMzE1MzgsImV4cCI6MTc5MDAzNTEzOH0.ldJbgyM5JstmR1J9rg00pwVBmUHteHp4dMnIJ6jW224","role":"MANAGER"}
+--- decoded JWT payload ---
+{
+  "sub": "second-tenant-manager-acceptance-0fbc9e5a@example.com",
+  "jti": "7b9ed771-c043-4315-92a9-579e0f295a05",
+  "tenantId": "5adb8496-8e9b-490f-b5e6-20bafe44356f",
+  "role": "MANAGER",
+  "iat": 1790031538,
+  "exp": 1790035138
+}
+
+Expected seeded tenantId: 11111111-1111-1111-1111-111111111111
+Expected second tenantId: 5adb8496-8e9b-490f-b5e6-20bafe44356f
+
+=== git diff main...HEAD -- SecondTenantSignInApiTest.java (must be empty) ===
+(empty diff confirmed above -- file untouched by this feature branch)
+
+=== mvn test -Dtest=SecondTenantSignInApiTest result ===
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0 -- in com.remotesupport.backend.web.SecondTenantSignInApiTest
+BUILD SUCCESS

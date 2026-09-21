@@ -9,6 +9,8 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.remotesupport.backend.support.IntegrationTest;
+import com.remotesupport.backend.support.OtherTenantFixture;
+import com.remotesupport.backend.support.OtherTenantFixture.OtherTenantLogin;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -16,6 +18,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -27,11 +30,13 @@ import org.springframework.test.web.servlet.ResultActions;
  * the API (agent-login-on-creation spec, Testing decisions). The insert joins the test's
  * rolled-back transaction.
  */
+@Import(OtherTenantFixture.class)
 class AgentLoginApiTest extends IntegrationTest {
 
   private static final String PASSWORD = "Passw0rd!23";
 
   @Autowired private JdbcTemplate jdbcTemplate;
+  @Autowired private OtherTenantFixture otherTenantFixture;
 
   @Test
   void managerCreatesALoginForALoginLessAgentWhichCanThenSignIn() throws Exception {
@@ -96,6 +101,54 @@ class AgentLoginApiTest extends IntegrationTest {
     UUID agentId = insertLoginLessAgent(managerTenantId(), "Name Clash");
 
     postLogin(token, agentId, loginBody(MANAGER_USERNAME, PASSWORD))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
+
+    assertLoginUsername(token, agentId, null);
+  }
+
+  @Test
+  void aUsernameTakenInAnotherTenantIsRejectedAndTheAgentStaysWithoutALogin() throws Exception {
+    OtherTenantLogin otherTenantLogin =
+        otherTenantFixture.managerLoginInAnotherTenant(
+            "cross-tenant-login-" + UUID.randomUUID() + "@example.com", "Different#Passw0rd1");
+
+    String token = managerToken();
+    UUID agentId = insertLoginLessAgent(managerTenantId(), "Cross Tenant Name Clash");
+
+    postLogin(token, agentId, loginBody(otherTenantLogin.username(), PASSWORD))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
+
+    assertLoginUsername(token, agentId, null);
+  }
+
+  @Test
+  void aUsernameDifferingOnlyByCaseFromAnotherTenantsIsRejected() throws Exception {
+    OtherTenantLogin otherTenantLogin =
+        otherTenantFixture.managerLoginInAnotherTenant(
+            "case-clash-" + UUID.randomUUID() + "@example.com", "Different#Passw0rd1");
+
+    String token = managerToken();
+    UUID agentId = insertLoginLessAgent(managerTenantId(), "Case Only Clash");
+
+    postLogin(token, agentId, loginBody(otherTenantLogin.username().toUpperCase(), PASSWORD))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
+
+    assertLoginUsername(token, agentId, null);
+  }
+
+  @Test
+  void aUsernameDifferingOnlyBySurroundingWhitespaceFromAnotherTenantsIsRejected() throws Exception {
+    OtherTenantLogin otherTenantLogin =
+        otherTenantFixture.managerLoginInAnotherTenant(
+            "whitespace-clash-" + UUID.randomUUID() + "@example.com", "Different#Passw0rd1");
+
+    String token = managerToken();
+    UUID agentId = insertLoginLessAgent(managerTenantId(), "Whitespace Only Clash");
+
+    postLogin(token, agentId, loginBody("  " + otherTenantLogin.username() + "  ", PASSWORD))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
 

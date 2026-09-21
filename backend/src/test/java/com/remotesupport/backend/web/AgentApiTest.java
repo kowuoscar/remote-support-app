@@ -59,6 +59,29 @@ class AgentApiTest extends IntegrationTest {
   }
 
   @Test
+  void aUsernameWithSurroundingWhitespaceIsStoredAndReturnedTrimmed() throws Exception {
+    String token = managerToken();
+    AgentCreateRequest request =
+        new AgentCreateRequest(
+            "Whitespace Padded",
+            Country.FRANCE,
+            new BigDecimal("2000.00"),
+            "  padded.username@agents.example  ",
+            PASSWORD);
+
+    postJson("/api/agents", token, request)
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.loginUsername").value("padded.username@agents.example"));
+
+    mockMvc
+        .perform(get("/api/agents").header("Authorization", "Bearer " + token))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$[?(@.name == 'Whitespace Padded')].loginUsername")
+                .value("padded.username@agents.example"));
+  }
+
+  @Test
   void aCreatedAgentCanSignInImmediatelyAndResolvesToThatAgent() throws Exception {
     String token = managerToken();
     AgentCreateRequest request =

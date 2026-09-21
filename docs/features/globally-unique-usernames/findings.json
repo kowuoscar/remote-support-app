@@ -37,79 +37,86 @@
     {
       "id": "F4",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/create-tester-dialog.tsx:100",
       "citation": "",
-      "note": "passwordInvalid was removed outright rather than wired to error?.field === 'password' as the reference create-agent-login-dialog.tsx does. Harmless today, since no Tester error targets the password field."
+      "note": "passwordInvalid was removed outright rather than wired to error?.field === 'password' as the reference create-agent-login-dialog.tsx does. Harmless today, since no Tester error targets the password field.",
+      "fixed_in": "0436e15"
     },
     {
       "id": "F5",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/TesterController.java:84",
       "citation": "docs/agents/coding-standards.md, Backend rule 2: \"Business rules live in the service layer; a controller translates HTTP <-> domain and never branches on domain state.\"",
-      "note": "The global-uniqueness pre-check and the flush-time branching on Postgres constraint names sit in the controller. The identical rule lives in a service on the Agent path (AgentLoginService.requireLoginCreatable / toConflict), so a compliant pattern exists in this repository and was not used. The controller's pre-existing primary-contact branch does not license adding more."
+      "note": "The global-uniqueness pre-check and the flush-time branching on Postgres constraint names sit in the controller. The identical rule lives in a service on the Agent path (AgentLoginService.requireLoginCreatable / toConflict), so a compliant pattern exists in this repository and was not used. The controller's pre-existing primary-contact branch does not license adding more.",
+      "fixed_in": "c9278f0"
     },
     {
       "id": "F6",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/repository/UserRepository.java:24",
       "citation": "",
-      "note": "Username normalization is expressed four times in three dialects \u2014 String.strip() at AgentController:103 and :126 and TesterController:83, JPQL lower(trim(...)) here, SQL lower(btrim(...)) in V55. They are NOT equivalent: Java strip() removes all Unicode whitespace, trim/btrim remove spaces only, so a username padded with a tab or NBSP normalizes differently in Java than in the index. Latent correctness, not merely duplication."
+      "note": "Username normalization is expressed four times in three dialects \u2014 String.strip() at AgentController:103 and :126 and TesterController:83, JPQL lower(trim(...)) here, SQL lower(btrim(...)) in V55. They are NOT equivalent: Java strip() removes all Unicode whitespace, trim/btrim remove spaces only, so a username padded with a tab or NBSP normalizes differently in Java than in the index. Latent correctness, not merely duplication.",
+      "fixed_in": "2d9dadb"
     },
     {
       "id": "F7",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/TesterController.java:151",
       "citation": "",
-      "note": "TesterConflictException is a package-private nested class inside the controller, while the AgentLoginConflictException its own Javadoc claims to mirror is a top-level public class in its own file. The @ExceptionHandler body is byte-identical to AgentController's."
+      "note": "TesterConflictException is a package-private nested class inside the controller, while the AgentLoginConflictException its own Javadoc claims to mirror is a top-level public class in its own file. The @ExceptionHandler body is byte-identical to AgentController's.",
+      "fixed_in": "c9278f0"
     },
     {
       "id": "F8",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/create-tester-dialog.tsx:129",
       "citation": "",
-      "note": "Third copy of the SubmitError type plus errorFor() pair, with the USERNAME_TAKEN wording repeated verbatim as a literal (also in create-agent-dialog.tsx and create-agent-login-dialog.tsx). A shared helper beside readErrorCode in lib/api/errors.ts would hold the wording once \u2014 which matters because the human chose that exact wording."
+      "note": "Third copy of the SubmitError type plus errorFor() pair, with the USERNAME_TAKEN wording repeated verbatim as a literal (also in create-agent-dialog.tsx and create-agent-login-dialog.tsx). A shared helper beside readErrorCode in lib/api/errors.ts would hold the wording once \u2014 which matters because the human chose that exact wording.",
+      "fixed_in": "0436e15"
     },
     {
       "id": "F9",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/test/java/com/remotesupport/backend/web/AgentLoginApiTest.java:110",
       "citation": "",
-      "note": "Three added tests identical but for the username transformation (identity / toUpperCase / padding). Backend rule 12 does not bind \u2014 its trigger is more than two branch conditions \u2014 so this is judgement only; a @ParameterizedTest would carry the same coverage."
+      "note": "Three added tests identical but for the username transformation (identity / toUpperCase / padding). Backend rule 12 does not bind \u2014 its trigger is more than two branch conditions \u2014 so this is judgement only; a @ParameterizedTest would carry the same coverage.",
+      "fixed_in": "704da9f"
     },
     {
       "id": "F10",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/TesterController.java:96",
       "citation": "",
-      "note": "saveAndFlush runs in a controller method with no @Transactional, so the User insert commits independently of the Tester insert that follows; a failure between them leaves an orphan login row. Not new behaviour and not a rule 3 violation. Fixing F5 by moving the write into a service with a transaction boundary fixes this too."
+      "note": "saveAndFlush runs in a controller method with no @Transactional, so the User insert commits independently of the Tester insert that follows; a failure between them leaves an orphan login row. Not new behaviour and not a rule 3 violation. Fixing F5 by moving the write into a service with a transaction boundary fixes this too.",
+      "fixed_in": "c9278f0"
     }
   ]
 }

@@ -3,6 +3,7 @@ package com.remotesupport.backend.web;
 import com.remotesupport.backend.domain.Agent;
 import com.remotesupport.backend.domain.StandingAmountType;
 import com.remotesupport.backend.domain.User;
+import com.remotesupport.backend.domain.Username;
 import com.remotesupport.backend.dto.AgentCreateRequest;
 import com.remotesupport.backend.dto.AgentLoginCreateRequest;
 import com.remotesupport.backend.dto.AgentResponse;
@@ -100,7 +101,7 @@ public class AgentController {
 
     User login =
         agentLoginService.create(
-            agent, request.username().strip(), request.password(), principal.userId());
+            agent, Username.trim(request.username()), request.password(), principal.userId());
 
     AuditLog.created("Agent", agent.getId(), principal.userId(), principal.tenantId());
 
@@ -123,7 +124,7 @@ public class AgentController {
         agentRepository
             .findByIdAndTenantId(agentId, principal.tenantId())
             .orElseThrow(() -> new NotFoundException("No agent with id " + agentId));
-    String username = request.username().strip();
+    String username = Username.trim(request.username());
     agentLoginService.requireLoginCreatable(agent, username);
 
     User login = agentLoginService.create(agent, username, request.password(), principal.userId());

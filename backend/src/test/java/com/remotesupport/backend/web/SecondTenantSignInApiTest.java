@@ -55,6 +55,8 @@ class SecondTenantSignInApiTest extends IntegrationTest {
 
   @Test
   void aSecondTenantsManagerReadsOnlyThatTenantsOwnClients() throws Exception {
+    UUID seededTenantClientId = createClient(managerToken(), "Seeded Tenant Own Client");
+
     OtherTenantLogin login =
         otherTenantFixture.managerLoginInAnotherTenant("second-tenant-clients-manager@example.com", "Passw0rd!23");
     String secondTenantManagerToken = loginAs(login.username(), login.password());
@@ -70,5 +72,6 @@ class SecondTenantSignInApiTest extends IntegrationTest {
 
     assertThat(clients).hasSize(1);
     assertThat(clients.get(0).get("id").asText()).isEqualTo(login.clientId().toString());
+    assertThat(clients).noneMatch(client -> client.get("id").asText().equals(seededTenantClientId.toString()));
   }
 }

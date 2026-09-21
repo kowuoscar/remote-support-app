@@ -1,7 +1,7 @@
 ---
 id: second-tenant-login-fixture
 title: Sign in against a second Tenant's login and read only that Tenant's data
-status: in-progress
+status: done
 depends_on: []
 labels: [backend, testing]
 stories: [1, 2, 3, 4, 5, 6, 9, 10]

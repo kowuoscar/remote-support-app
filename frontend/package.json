@@ -10,6 +10,7 @@
     "test:visual": "playwright test",
     "test:visual:update": "playwright test --update-snapshots",
     "test:e2e": "playwright test --config=playwright.e2e.config.ts",
+    "test:e2e:isolated": "bash ../scripts/run-e2e-isolated.sh",
     "test": "vitest run",
     "test:watch": "vitest"
   },

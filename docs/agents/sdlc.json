@@ -1,7 +1,7 @@
 {
   "template": "sdlc-config 1",
   "schema": 1,
-  "verify": "mvn -f backend/pom.xml verify && (cd frontend && npm run lint && npm run build && npx tsc --noEmit && npm test && npm run test:e2e)",
+  "verify": "mvn -f backend/pom.xml verify && (cd frontend && npm run lint && npm run build && npx tsc --noEmit && npm test && npm run test:e2e:isolated)",
   "spec_gate": "always",
   "merge": "auto",
   "max_implementers": 3,

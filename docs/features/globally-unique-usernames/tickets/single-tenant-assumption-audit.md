@@ -1,7 +1,7 @@
 ---
 id: single-tenant-assumption-audit
 title: Record the single-tenant-assumption audit that closes the epic
-status: in-progress
+status: done
 depends_on: [refuse-taken-username-on-agent-login, refuse-taken-username-on-tester-login]
 labels: [docs]
 stories: [14]

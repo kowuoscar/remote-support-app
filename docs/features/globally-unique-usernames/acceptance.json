@@ -64,8 +64,8 @@
       "step": 9,
       "actor": "agent",
       "status": "passed",
-      "evidence": "evidence/step-9-backend.txt and evidence/step-9-frontend.txt",
-      "note": "mvn verify 504 tests / 0 failures / 0 Checkstyle violations; frontend vitest 172/172, eslint clean, build ok, tsc clean, visual 32/32 with no golden recaptured."
+      "evidence": "evidence/step-9.txt",
+      "note": "mvn verify 504 tests / 0 failures / 0 Checkstyle violations; frontend vitest 172/172, eslint clean, build ok, tsc clean, visual 32/32 with no golden recaptured. Evidence is the concatenation of step-9-backend.txt and step-9-frontend.txt, both of which remain beside it; the single path is what the gate can check."
     },
     {
       "step": 10,

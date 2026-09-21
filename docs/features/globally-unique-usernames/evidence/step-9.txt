@@ -1,0 +1,77 @@
+=== Step 9 evidence — the full verify, both halves ===
+
+This file is the single cited evidence for walkthrough step 9. It is the
+concatenation of the two capture files beside it, which remain on disk:
+  step-9-backend.txt, step-9-frontend.txt
+
+===================== BACKEND =====================
+
+=== mvn -f backend/pom.xml verify (JAVA_HOME=openjdk@21) ===
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.23 s -- in com.remotesupport.backend.demo.DemoDataLoaderApiTest
+[INFO] Tests run: 26, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 15.19 s -- in com.remotesupport.backend.web.ProvisionRequestDetailsApiTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.873 s -- in com.remotesupport.backend.web.SimCardInstalledInApiTest
+[INFO] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.800 s -- in com.remotesupport.backend.web.PostpaidSimPlanApiTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.479 s -- in com.remotesupport.backend.web.SecondTenantSignInApiTest
+[INFO] Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.504 s -- in com.remotesupport.backend.web.SimCardApiTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.325 s -- in com.remotesupport.backend.web.CrossTenantUsernameAgentCreationApiTest
+[INFO] Tests run: 7, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.165 s -- in com.remotesupport.backend.web.StockApiTest
+[INFO] Tests run: 29, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.70 s -- in com.remotesupport.backend.web.ReturnRequestsApiTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.410 s -- in com.remotesupport.backend.web.StockFulfilmentApiTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.780 s -- in com.remotesupport.backend.web.ReviewQueueApiTest
+[INFO] Tests run: 15, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.372 s -- in com.remotesupport.backend.web.ClientInvoiceByIdApiTest
+[INFO] Tests run: 33, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.466 s -- in com.remotesupport.backend.web.CarrierOfferApiTest
+[INFO] Tests run: 28, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.25 s -- in com.remotesupport.backend.web.RequestApiTest
+[INFO] Tests run: 23, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.130 s -- in com.remotesupport.backend.web.AgentInvoiceApiTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.315 s -- in com.remotesupport.backend.web.AuthLoginTest
+[INFO] Tests run: 21, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.684 s -- in com.remotesupport.backend.web.FeeApiTest
+[INFO] Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.047 s -- in com.remotesupport.backend.web.ContractApiTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.660 s -- in com.remotesupport.backend.web.TesterUsernameConflictApiTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.389 s -- in com.remotesupport.backend.web.ClientApiTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.417 s -- in com.remotesupport.backend.web.AgentCreationAtomicityTest
+[INFO] Tests run: 13, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.053 s -- in com.remotesupport.backend.web.SmartphoneApiTest
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.529 s -- in com.remotesupport.backend.web.SimSwapRequestDetailsApiTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.156 s -- in com.remotesupport.backend.web.AuthLoginObservabilityTest
+[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.648 s -- in com.remotesupport.backend.web.RebootAndTopupDetailsApiTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.003 s -- in com.remotesupport.backend.web.CarrierApiTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.774 s -- in com.remotesupport.backend.web.TesterApiTest
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.133 s -- in com.remotesupport.backend.web.TopupFeeFromOptionApiTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.577 s -- in com.remotesupport.backend.web.ManagerApprovesRequestsApiTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.237 s -- in com.remotesupport.backend.web.AgentIdentityApiTest
+[INFO] Tests run: 29, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.325 s -- in com.remotesupport.backend.web.ClientInvoiceApiTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.083 s -- in com.remotesupport.backend.web.ProtectedEndpointTest
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.629 s -- in com.remotesupport.backend.web.AgentInvoiceByIdApiTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.396 s -- in com.remotesupport.backend.web.AgentApiTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.009 s -- in com.remotesupport.backend.web.HealthEndpointTest
+[INFO] Tests run: 26, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.273 s -- in com.remotesupport.backend.web.ReplaceRequestsApiTest
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.726 s -- in com.remotesupport.backend.web.AgentLoginApiTest
+[INFO] Tests run: 17, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.333 s -- in com.remotesupport.backend.web.SimCardCarrierApiTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.289 s -- in com.remotesupport.backend.migration.TrimSeedToTestBaselineMigrationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.439 s -- in com.remotesupport.backend.migration.RepairToOtherMigrationTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.689 s -- in com.remotesupport.backend.migration.SmartphoneOwnerMigrationTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.669 s -- in com.remotesupport.backend.migration.SimCardInstalledInSmartphoneMigrationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.395 s -- in com.remotesupport.backend.migration.SimCardCarrierMigrationTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.762 s -- in com.remotesupport.backend.migration.GlobalUsernameIndexMigrationTest
+[INFO] Tests run: 504, Failures: 0, Errors: 0, Skipped: 0
+[INFO] You have 0 Checkstyle violations.
+[INFO] BUILD SUCCESS
+
+===================== FRONTEND ====================
+
+=== cd frontend && npm test (vitest run) ===
+Test Files  33 passed (33)
+Tests  172 passed (172)
+
+=== npm run lint (eslint) ===
+(no output = clean)
+
+=== rm -rf .next && npm run build (also drives the typecheck route generation) ===
+Build succeeded (Next.js production build completed, all routes compiled)
+
+=== npx tsc --noEmit ===
+(no output = clean)
+
+=== npx playwright test (visual suite, tests/visual/stub-backend.mjs, no live DB) ===
+32 passed (11.3s)
+
+=== git status --short frontend/tests/visual/__screenshots__/ (must be empty -- no golden recaptured) ===
+(empty output above confirms no golden changed)

@@ -1,0 +1,17 @@
+=== Create a Client to host Testers ===
+{"id":"6c742b9e-5ff3-4b6e-8be1-1881b55c605f","name":"Acceptance Client","primaryContactUsername":null,"contractCount":0}
+CLIENT_ID=6c742b9e-5ff3-4b6e-8be1-1881b55c605f
+
+=== POST tester with username taken in the second Tenant -> expect 409 USERNAME_TAKEN ===
+{"message":"That email is already in use. Choose another one and try again.","code":"USERNAME_TAKEN"}
+HTTP_STATUS:409
+
+=== Create a first, distinct primary-contact Tester -> expect 201 ===
+{"id":"5c305d40-9f64-4bce-94c2-347092538e8c","clientId":"6c742b9e-5ff3-4b6e-8be1-1881b55c605f","username":"acceptance-primary-contact-1-c48712a6@example.com","isPrimaryContact":true}
+HTTP_STATUS:201
+
+=== Create a second primary-contact Tester on same Client, distinct clean username -> expect 409 with the PRIMARY_CONTACT_EXISTS code (distinct from USERNAME_TAKEN) ===
+{"message":"Client 6c742b9e-5ff3-4b6e-8be1-1881b55c605f already has a primary contact","code":"PRIMARY_CONTACT_EXISTS"}
+HTTP_STATUS:409
+
+CLIENT_ID=6c742b9e-5ff3-4b6e-8be1-1881b55c605f

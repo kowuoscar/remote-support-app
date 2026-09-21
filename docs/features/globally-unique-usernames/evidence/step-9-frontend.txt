@@ -1,0 +1,18 @@
+=== cd frontend && npm test (vitest run) ===
+Test Files  33 passed (33)
+Tests  172 passed (172)
+
+=== npm run lint (eslint) ===
+(no output = clean)
+
+=== rm -rf .next && npm run build (also drives the typecheck route generation) ===
+Build succeeded (Next.js production build completed, all routes compiled)
+
+=== npx tsc --noEmit ===
+(no output = clean)
+
+=== npx playwright test (visual suite, tests/visual/stub-backend.mjs, no live DB) ===
+32 passed (11.3s)
+
+=== git status --short frontend/tests/visual/__screenshots__/ (must be empty -- no golden recaptured) ===
+(empty output above confirms no golden changed)

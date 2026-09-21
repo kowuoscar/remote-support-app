@@ -5,8 +5,12 @@ A platform for a business that hires local support people in different countries
 ## Language
 
 **Tenant**:
-One customer company operating this platform — the business that hires the Agents, employs the Manager, and owns every Client, Contract, Fleet and invoice underneath it. It is the outermost boundary in the data model: `tenant_id` appears in 22 of the 46 Flyway migrations. A single Tenant is seeded and operated today, with a second expected. Usernames are unique *within* a Tenant, not across the deployment — which is what makes tenant-blind sign-in a defect (`tenant-scoped-sign-in` epic).
+One customer company operating this platform — the business that hires the Agents, employs the Manager, and owns every Client, Contract, Fleet and invoice underneath it. It is the outermost boundary in the data model: `tenant_id` appears in 22 of the 46 Flyway migrations. A single Tenant is seeded and operated today, with a second expected. Usernames are now unique across the whole deployment, not merely within one Tenant, compared case-insensitively and ignoring surrounding whitespace (`lower(btrim(username))`, index `uq_users_username_global`) — so one person cannot hold logins in two Tenants (`globally-unique-usernames` feature).
 _Avoid_: Organisation, workspace, account (this last one is the Client's word).
+
+**Login**:
+The username and password a person signs in with — a `User` row belonging to exactly one Tenant, optionally linked to an Agent or a Tester (unlinked for a Manager). Its username is unique across the whole deployment, compared case- and trim-insensitively (`globally-unique-usernames`).
+_Avoid_: Account, credentials.
 
 **Agent** (Local Support Agent):
 A person hired remotely in a specific country who supplies smartphones and SIM cards to a Client's Testers and executes support tasks (topups, reboots, SIM swaps) on request. Submits a monthly invoice claiming salary and reimbursable expenses. Signs in with exactly one login (a User with role `AGENT`), which the Manager creates together with the Agent in a single step — email and temporary password, the same way a Tester's login is created — so no newly created Agent is ever unable to sign in. An Agent created before that rule existed may still lack a login; the Manager gives it one from the Agent's page, and it never gets a second. `Agent.salaryAmount` is only ever the value supplied at creation — the *current* standing salary, and its full history, live in `AgentStandingAmount` (see below); `agent-standing-amounts-and-invoice-generation` writes both, in the same request, so the two never disagree at creation time.

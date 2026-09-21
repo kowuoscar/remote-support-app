@@ -1,0 +1,12 @@
+=== Fixture: a login-less Agent, inserted directly (the API has no way to create one without a login, per AgentLoginApiTest's own Javadoc) ===
+INSERT 0 1
+
+=== POST /api/agents/{agentId}/login with the same second-Tenant username ===
+{"message":"Username cross-tenant-username-b6a53f4e@example.com is already in use","code":"USERNAME_TAKEN"}
+HTTP_STATUS:409
+
+=== Agent still has no login afterward ===
+ id | username 
+----+----------
+(0 rows)
+

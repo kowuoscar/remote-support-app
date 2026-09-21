@@ -1,0 +1,136 @@
+{
+  "feature": "globally-unique-usernames",
+  "findings": [
+    {
+      "id": "F1",
+      "type": "spec-missing",
+      "state": "confirmed",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "docs/journeys.md:20",
+      "citation": "spec.md ## Journeys: \"its recorded known defect is gone. `docs/journeys.md`'s \\\"Known defect, scoped to `tenant-scoped-sign-in`\\\" line is removed as part of this feature.\"",
+      "note": "The line still claimed the lookup is by username across all tenants \u2014 false once V55 landed. Fixed by the orchestrator, who is the single writer of docs/journeys.md: no implementer or fixer may edit it. Replaced with what the defect was and what removed it. [re-review: CONFIRMED. The old line is gone and its replacement is true in every claim \u2014 V55 creates exactly uq_users_username_global, and it does not overclaim a change to findByUsername, which the spec's non-goals forbid.]",
+      "confirmed_by": "reviewer-spec (fresh instance, re-review)"
+    },
+    {
+      "id": "F2",
+      "type": "spec-missing",
+      "state": "confirmed",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "docs/journeys.md:131",
+      "citation": "spec.md ## Journeys: \"- **Operate a second tenant safely** (`wanted` \u2192 `exists`)\"",
+      "note": "The journey still read `wanted`. Moved to `exists` by the orchestrator, with the proof named: GlobalUsernameIndexMigrationTest, CrossTenantUsernameAgentCreationApiTest, AgentLoginApiTest, TesterUsernameConflictApiTest, and SecondTenantSignInApiTest for legitimate second-Tenant operation. [re-review: CONFIRMED. All five tests named as proof exist and cover the claim; CollidingUsernameSignInApiTest is confirmed deleted and delivery.md's Audit section is real. The reviewer read the whole file and found nothing else this feature falsified.]",
+      "confirmed_by": "reviewer-spec (fresh instance, re-review)"
+    },
+    {
+      "id": "F3",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "CONTEXT.md:9",
+      "citation": "",
+      "note": "The new Login glossary entry has no source in any story, Decisions taken entry or ticket \u2014 it was decided inside the audit ticket and declared through harness.terms. Documentation rather than behaviour. Left as is: the term is true and useful, and removing it would leave the glossary poorer."
+    },
+    {
+      "id": "F4",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/create-tester-dialog.tsx:100",
+      "citation": "",
+      "note": "passwordInvalid was removed outright rather than wired to error?.field === 'password' as the reference create-agent-login-dialog.tsx does. Harmless today, since no Tester error targets the password field.",
+      "fixed_in": "0436e15"
+    },
+    {
+      "id": "F5",
+      "type": "rule-violated",
+      "state": "confirmed",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/TesterController.java:84",
+      "citation": "docs/agents/coding-standards.md, Backend rule 2: \"Business rules live in the service layer; a controller translates HTTP <-> domain and never branches on domain state.\"",
+      "note": "The global-uniqueness pre-check and the flush-time branching on Postgres constraint names sit in the controller. The identical rule lives in a service on the Agent path (AgentLoginService.requireLoginCreatable / toConflict), so a compliant pattern exists in this repository and was not used. The controller's pre-existing primary-contact branch does not license adding more. [re-review: CONFIRMED. TesterController no longer holds the pre-check, the saveAndFlush, the constraint-name catch or the constants; they live in TesterLoginService whose @Transactional create() is the transaction boundary, satisfying rule 3 and closing F10. Both constraint names still map to 409 USERNAME_TAKEN with the human's wording verbatim, so the never-a-500 requirement survived relocation. TesterConflictException is top-level and still a domain exception, so rule 7 is no worse than before.]",
+      "fixed_in": "c9278f0",
+      "confirmed_by": "reviewer-standards (fresh instance, re-review)"
+    },
+    {
+      "id": "F6",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/repository/UserRepository.java:24",
+      "citation": "",
+      "note": "Username normalization is expressed four times in three dialects \u2014 String.strip() at AgentController:103 and :126 and TesterController:83, JPQL lower(trim(...)) here, SQL lower(btrim(...)) in V55. They are NOT equivalent: Java strip() removes all Unicode whitespace, trim/btrim remove spaces only, so a username padded with a tab or NBSP normalizes differently in Java than in the index. Latent correctness, not merely duplication.",
+      "fixed_in": "2d9dadb"
+    },
+    {
+      "id": "F7",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/TesterController.java:151",
+      "citation": "",
+      "note": "TesterConflictException is a package-private nested class inside the controller, while the AgentLoginConflictException its own Javadoc claims to mirror is a top-level public class in its own file. The @ExceptionHandler body is byte-identical to AgentController's.",
+      "fixed_in": "c9278f0"
+    },
+    {
+      "id": "F8",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/create-tester-dialog.tsx:129",
+      "citation": "",
+      "note": "Third copy of the SubmitError type plus errorFor() pair, with the USERNAME_TAKEN wording repeated verbatim as a literal (also in create-agent-dialog.tsx and create-agent-login-dialog.tsx). A shared helper beside readErrorCode in lib/api/errors.ts would hold the wording once \u2014 which matters because the human chose that exact wording.",
+      "fixed_in": "0436e15"
+    },
+    {
+      "id": "F9",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/AgentLoginApiTest.java:110",
+      "citation": "",
+      "note": "Three added tests identical but for the username transformation (identity / toUpperCase / padding). Backend rule 12 does not bind \u2014 its trigger is more than two branch conditions \u2014 so this is judgement only; a @ParameterizedTest would carry the same coverage.",
+      "fixed_in": "704da9f"
+    },
+    {
+      "id": "F10",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/TesterController.java:96",
+      "citation": "",
+      "note": "saveAndFlush runs in a controller method with no @Transactional, so the User insert commits independently of the Tester insert that follows; a failure between them leaves an orphan login row. Not new behaviour and not a rule 3 violation. Fixing F5 by moving the write into a service with a transaction boundary fixes this too.",
+      "fixed_in": "c9278f0"
+    },
+    {
+      "id": "F11",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/TesterController.java:66",
+      "citation": "",
+      "note": "The primary-contact rule stays in the controller: request.isPrimaryContact() && testerRepository.existsByClientIdAndPrimaryContactTrue(clientId) is a fresh repository query plus a thrown domain conflict \u2014 branching on domain state in the shape Backend rule 2 names. The fix pass justified leaving it as 'a read of an already-fetched Client'; the reviewer checked and that is not what the code does. Not raised as rule-violated because the branch predates this feature (identical condition on main) and F5's citation explicitly scoped it out \u2014 widening a citation at re-review is how a reviewer starts blocking on taste. Debt for whoever next touches this controller: it belongs in TesterLoginService or a TesterService beside it."
+    }
+  ]
+}

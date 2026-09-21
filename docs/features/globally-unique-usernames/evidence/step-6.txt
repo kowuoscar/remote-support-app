@@ -1,0 +1,16 @@
+=== Existing username: manager@example.com (seeded Manager) ===
+
+=== Create tester differing only by letter case: 'Manager@Example.Com' -> expect 409 USERNAME_TAKEN ===
+{"message":"That email is already in use. Choose another one and try again.","code":"USERNAME_TAKEN"}
+HTTP_STATUS:409
+
+=== Create tester differing only by surrounding whitespace: '  manager@example.com  ' -> expect 409 USERNAME_TAKEN ===
+{"message":"That email is already in use. Choose another one and try again.","code":"USERNAME_TAKEN"}
+HTTP_STATUS:409
+
+=== Create a clean login with surrounding whitespace: '  brand.new.acceptance.user@example.com  ' -> expect 201, stored trimmed ===
+{"id":"7658d431-0684-4f3f-b10f-b7a7ee7b9802","clientId":"6c742b9e-5ff3-4b6e-8be1-1881b55c605f","username":"brand.new.acceptance.user@example.com","isPrimaryContact":false}
+HTTP_STATUS:201
+
+=== List testers on the Client to read back the stored (trimmed) username through the API ===
+[{"id":"5c305d40-9f64-4bce-94c2-347092538e8c","clientId":"6c742b9e-5ff3-4b6e-8be1-1881b55c605f","username":"acceptance-primary-contact-1-c48712a6@example.com","isPrimaryContact":true},{"id":"7658d431-0684-4f3f-b10f-b7a7ee7b9802","clientId":"6c742b9e-5ff3-4b6e-8be1-1881b55c605f","username":"brand.new.acceptance.user@example.com","isPrimaryContact":false}]

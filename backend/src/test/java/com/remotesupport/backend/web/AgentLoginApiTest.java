@@ -9,13 +9,21 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.remotesupport.backend.support.IntegrationTest;
+import com.remotesupport.backend.support.OtherTenantFixture;
+import com.remotesupport.backend.support.OtherTenantFixture.OtherTenantLogin;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -27,11 +35,13 @@ import org.springframework.test.web.servlet.ResultActions;
  * the API (agent-login-on-creation spec, Testing decisions). The insert joins the test's
  * rolled-back transaction.
  */
+@Import(OtherTenantFixture.class)
 class AgentLoginApiTest extends IntegrationTest {
 
   private static final String PASSWORD = "Passw0rd!23";
 
   @Autowired private JdbcTemplate jdbcTemplate;
+  @Autowired private OtherTenantFixture otherTenantFixture;
 
   @Test
   void managerCreatesALoginForALoginLessAgentWhichCanThenSignIn() throws Exception {
@@ -100,6 +110,41 @@ class AgentLoginApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
 
     assertLoginUsername(token, agentId, null);
+  }
+
+  /**
+   * The same cross-Tenant collision, told three ways: the exact username, one differing only by
+   * case, and one differing only by surrounding whitespace — one {@link ParameterizedTest} in
+   * place of three copies identical but for the transformation (review finding F9;
+   * docs/agents/coding-standards.md Backend rule 12 doesn't bind here, but carries the same
+   * coverage with one body).
+   */
+  @ParameterizedTest
+  @MethodSource("usernameTransformations")
+  void aUsernameTakenInAnotherTenantIsRejectedAndTheAgentStaysWithoutALogin(
+      UnaryOperator<String> transformation) throws Exception {
+    OtherTenantLogin otherTenantLogin =
+        otherTenantFixture.managerLoginInAnotherTenant(
+            "cross-tenant-login-" + UUID.randomUUID() + "@example.com", "Different#Passw0rd1");
+
+    String token = managerToken();
+    UUID agentId = insertLoginLessAgent(managerTenantId(), "Cross Tenant Name Clash");
+
+    postLogin(token, agentId, loginBody(transformation.apply(otherTenantLogin.username()), PASSWORD))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
+
+    assertLoginUsername(token, agentId, null);
+  }
+
+  static Stream<Named<UnaryOperator<String>>> usernameTransformations() {
+    UnaryOperator<String> identical = UnaryOperator.identity();
+    UnaryOperator<String> upperCased = String::toUpperCase;
+    UnaryOperator<String> whitespacePadded = username -> "  " + username + "  ";
+    return Stream.of(
+        Named.of("identical", identical),
+        Named.of("upper-cased", upperCased),
+        Named.of("surrounded by whitespace", whitespacePadded));
   }
 
   @Test

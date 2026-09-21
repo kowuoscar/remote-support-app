@@ -21,9 +21,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class AgentLoginService {
 
-  // V1's users unique constraint and V16's one-login-per-Agent index, as Postgres names them in a
-  // violation — how a conflict caught at flush time is told apart.
-  private static final String USERNAME_CONSTRAINT = "uq_users_tenant_username";
+  // V1's Tenant-scoped users unique constraint, V55's global unique index and V16's
+  // one-login-per-Agent index, as Postgres names them in a violation — how a conflict caught at
+  // flush time is told apart. A caller must not be able to tell which of the two username
+  // constraints fired, so both map to the same USERNAME_TAKEN reason
+  // (globally-unique-usernames spec.md "One rule, five creation paths").
+  private static final String TENANT_USERNAME_CONSTRAINT = "uq_users_tenant_username";
+  private static final String GLOBAL_USERNAME_CONSTRAINT = "uq_users_username_global";
   private static final String ONE_LOGIN_PER_AGENT_INDEX = "uq_users_one_login_per_agent";
 
   private final UserRepository userRepository;
@@ -36,14 +40,16 @@ public class AgentLoginService {
 
   /**
    * Throws {@link AgentLoginConflictException} (409) when the Agent already has a login, or the
-   * username is already in use in the Agent's tenant. For a caller with nothing written yet (giving
-   * an existing Agent its login), so the common conflicts answer cleanly without a failed insert.
+   * username is already taken anywhere in the deployment — the global, case- and trim-insensitive
+   * check (globally-unique-usernames spec.md "One rule, five creation paths"), not merely the
+   * Agent's own tenant. For a caller with nothing written yet (giving an existing Agent its
+   * login), so the common conflicts answer cleanly without a failed insert.
    */
   public void requireLoginCreatable(Agent agent, String username) {
     if (userRepository.existsByAgentId(agent.getId())) {
       throw agentAlreadyHasLogin(agent);
     }
-    if (userRepository.existsByTenantIdAndUsername(agent.getTenant().getId(), username)) {
+    if (userRepository.existsByUsernameNormalized(username)) {
       throw usernameTaken(username);
     }
   }
@@ -76,7 +82,7 @@ public class AgentLoginService {
   private static RuntimeException toConflict(
       DataIntegrityViolationException e, Agent agent, String username) {
     String detail = String.valueOf(e.getMostSpecificCause().getMessage());
-    if (detail.contains(USERNAME_CONSTRAINT)) {
+    if (detail.contains(TENANT_USERNAME_CONSTRAINT) || detail.contains(GLOBAL_USERNAME_CONSTRAINT)) {
       return usernameTaken(username);
     }
     if (detail.contains(ONE_LOGIN_PER_AGENT_INDEX)) {

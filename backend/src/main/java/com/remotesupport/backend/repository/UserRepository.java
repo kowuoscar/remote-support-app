@@ -13,7 +13,15 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   Optional<User> findByUsername(String username);
 
-  boolean existsByTenantIdAndUsername(UUID tenantId, String username);
+  /**
+   * Whether any {@link User} anywhere in the deployment already holds this username once both are
+   * normalized case- and trim-insensitively — the same normalization V55's {@code
+   * uq_users_username_global} index applies (globally-unique-usernames spec.md "Normalization,
+   * the same three layers as {@code carrier-catalog}"). Used as a pre-check ahead of a write, the
+   * database index remaining the authority either way.
+   */
+  @Query("SELECT COUNT(u) > 0 FROM User u WHERE lower(trim(u.username)) = lower(trim(:username))")
+  boolean existsByUsernameNormalized(@Param("username") String username);
 
   boolean existsByAgentId(UUID agentId);
 

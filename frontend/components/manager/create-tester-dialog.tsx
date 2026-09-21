@@ -7,12 +7,18 @@ import { IconPlus } from "@/components/icons";
 import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
 import { DialogShell, type DialogShellHandle } from "@/components/manager/dialog-shell";
 import { LoginCredentialFields } from "@/components/manager/login-credential-fields";
+import { readErrorCode, usernameTakenError, type SubmitError } from "@/lib/api/errors";
 
 /**
  * Manager creates a Tester under a specific Client (manager-entity-setup ticket): lives on the
  * Client detail view, not a top-level list, since a Tester only makes sense scoped to one
  * Client. Creates the Tester's own login (username/password) in the same step, following the
  * same auth pattern as the seeded users.
+ *
+ * Its 409 carries a `code` (globally-unique-usernames spec.md "The Tester path's asymmetry is
+ * fixed here, not left") so a username already taken can be told apart from this Client already
+ * having a primary contact, exactly as `CreateAgentLoginDialog`'s own `code` branch already does
+ * for the Agent path — the taken-email wording is adopted verbatim from there.
  */
 export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>) {
   const shellRef = useRef<DialogShellHandle>(null);
@@ -20,7 +26,7 @@ export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>)
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isPrimaryContact, setIsPrimaryContact] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<SubmitError | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   function open() {
@@ -48,11 +54,7 @@ export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>)
       });
 
       if (!response.ok) {
-        setError(
-          response.status === 409
-            ? "This client already has a primary contact, or that email is already in use."
-            : "Couldn't create the tester. Try again.",
-        );
+        setError(await errorFor(response));
         setSubmitting(false);
         return;
       }
@@ -61,7 +63,7 @@ export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>)
       close();
       router.refresh();
     } catch {
-      setError("Couldn't reach the server. Check your connection and try again.");
+      setError({ message: "Couldn't reach the server. Check your connection and try again.", field: null });
       setSubmitting(false);
     }
   }
@@ -81,7 +83,7 @@ export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>)
             </p>
           </div>
 
-          {error ? <DialogErrorAlert message={error} /> : null}
+          {error ? <DialogErrorAlert message={error.message} /> : null}
 
           <LoginCredentialFields
             username={username}
@@ -90,8 +92,8 @@ export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>)
             onPasswordChange={setPassword}
             emailPlaceholder="tom.reyes@client.example"
             disabled={submitting}
-            emailInvalid={Boolean(error)}
-            passwordInvalid={Boolean(error)}
+            emailInvalid={error?.field === "email"}
+            passwordInvalid={error?.field === "password"}
             autoFocusEmail
           />
 
@@ -118,4 +120,13 @@ export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>)
       </DialogShell>
     </>
   );
+}
+
+async function errorFor(response: Response): Promise<SubmitError> {
+  if (response.status === 409) {
+    return (await readErrorCode(response)) === "USERNAME_TAKEN"
+      ? usernameTakenError()
+      : { message: "This client already has a primary contact.", field: null };
+  }
+  return { message: "Couldn't create the tester. Try again.", field: null };
 }

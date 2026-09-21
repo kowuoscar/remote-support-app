@@ -154,8 +154,118 @@ either creation path has no single term to look up. Declared in this result's
 
 ## What was built
 
-Carried by the three prior tickets on this feature branch
-(`global-username-index`, `refuse-taken-username-on-agent-login`,
-`refuse-taken-username-on-tester-login`), each already merged with its own
-`chore(sdlc)` commit. This ticket adds no code — only this `## Audit` section,
-closing story 14.
+A username is now unique across the whole deployment — compared
+case-insensitively and ignoring surrounding spaces — so the sign-in lookup can
+match at most one row. That closes the `tenant-scoped-sign-in` epic.
+
+**What the defect actually was.** Not a cross-tenant leak. `findByUsername`
+returns `Optional<User>` from a derived query, so two matching rows made it
+fail inside Spring Security's filter chain and the caller got **401
+Unauthorized with an empty body** — a lockout indistinguishable from a wrong
+password. The previous feature observed and pinned that rather than assuming
+it; the epic's own prediction had been wrong.
+
+- **Stories 1, 10, 11** — `V55__add_global_username_index.sql`: a pre-check
+  that raises, naming each offending username with its row count and the
+  Tenant ids holding it, writing nothing; then
+  `CREATE UNIQUE INDEX uq_users_username_global ON users (lower(btrim(username)))`.
+  It never de-duplicates, and `uq_users_tenant_username` stays. Ticket:
+  `global-username-index`.
+- **Stories 2, 3, 7, 8** — both Agent paths refuse a username held anywhere in
+  the deployment, with `409 USERNAME_TAKEN`; the tenant-scoped
+  `existsByTenantIdAndUsername` is gone. Tickets: `global-username-index`,
+  `refuse-taken-username-on-agent-login`.
+- **Stories 4, 5, 6, 9, 15** — the Tester path gains the same rule *and* the
+  error codes it never had: it used to throw a codeless conflict, so the
+  dialog could not tell "email taken" from "this Client already has a primary
+  contact". Both now carry distinct codes and the dialog branches on them.
+  Ticket: `refuse-taken-username-on-tester-login`.
+- **Stories 12, 13** — `CollidingUsernameSignInApiTest`, which existed only to
+  record the defect, is deleted and replaced by a test asserting a login taken
+  in another Tenant is refused — exactly what its own Javadoc promised would
+  happen. `SecondTenantSignInApiTest` passes untouched, proving legitimate
+  second-Tenant operation still works.
+- **Story 14** — the audit above.
+
+## Acceptance walkthrough
+
+1. Fresh database reaches V55 unaided, with both indexes present — played — evidence: `evidence/step-1.txt`
+2. The migration test's two cases, clean and duplicate — played — evidence: `evidence/step-2.txt`
+3. `POST /api/agents` with a second Tenant's username refused, nothing left behind — played — evidence: `evidence/step-3.txt`
+4. Giving an existing Agent that login refused, Agent stays login-less — played — evidence: `evidence/step-4.txt`
+5. Tester refused; the two conflict causes carry distinct codes — played — evidence: `evidence/step-5.txt`
+6. Case-only and whitespace-only variants refused; a clean padded username stores trimmed — played — evidence: `evidence/step-6.txt`
+7. Both Tenants' Managers sign in to their own Tenant; seam tests untouched — played — evidence: `evidence/step-7.txt`
+8. The pinning test is gone and its replacement asserts the refusal — played — evidence: `evidence/step-8.txt`
+9. Full `verify` green, both halves — played — evidence: `evidence/step-9.txt`
+10. Read the inline dialog copy in the running app — **yours**
+11. Read and judge the `## Audit` section above — **yours**
+12. Judge the disclosure bounds against what you accepted — **yours**
+
+## Decisions taken alone
+
+Thirteen entries in the spec's `## Decisions taken`, all settled by the
+intention or by the code. Two were **the human's**, taken at gates rather than
+alone, and both are worth re-reading because neither is protected by a test:
+
+- **The refusal says the same thing whether the address is taken in this
+  Tenant or another** — "That email is already in use. Choose another one and
+  try again." One message means the two cases cannot be told apart, which
+  discloses strictly less than two would. The wording now lives once, in
+  `frontend/lib/api/errors.ts` and `TesterLoginService`.
+- **A collision caught only by the database returns 409, never an unmapped
+  500.** Recorded as a stated requirement rather than an acceptance criterion,
+  because the pre-check makes that path unreachable by any test at the
+  permitted seam. The `saveAndFlush` and its `catch` survive in
+  `TesterLoginService` and map both constraint names.
+
+**(after review)** The fix pass corrected a real bug the reviewers found:
+Postgres `btrim` and JPQL `trim`, called with no explicit character set, strip
+**only** the ASCII space — never a tab or a non-breaking space — while Java's
+`String.strip()` strips every Unicode whitespace character it recognises. A
+tab-padded username therefore normalised one way in Java and another at the
+index enforcing uniqueness. `Username.trim` now matches the database exactly,
+at all three call sites, pinned by a unit test and an API test. V55 was not
+edited: an applied migration is forward-only, so Java was made to match the
+database rather than the reverse.
+
+**(after review)** The Tester path's uniqueness rule moved out of the
+controller into `TesterLoginService`, whose `@Transactional create()` also
+stopped the `User` and `Tester` inserts committing independently.
+
+## Debt recorded
+
+- `TesterController` · the "one primary contact per Client" rule branches on a fresh repository query in the controller. It predates this feature, which only changed the exception it throws (F11).
+- `AgentController` · `@Transactional` on two controller methods, which Backend rule 3 forbids. Pre-exists `main`, found while re-reviewing (F5's re-review).
+
+Seven smells found in lines this feature changed were **fixed** in the one fix
+pass rather than recorded. One finding, F3, is left open by choice: the
+`CONTEXT.md` `Login` entry has no source in any story — it was decided inside
+the audit ticket — but the term is true and useful, and removing it would
+leave the glossary poorer.
+
+## How to undo
+
+```
+git revert -m 1 d47a587
+```
+
+**Read this before reverting.** Unlike the previous feature, this one carries
+a migration. `git revert` removes the Java and the frontend, but **it does not
+drop `uq_users_username_global`** — Flyway will not un-apply V55, and the index
+stays in every database that has run it. A reverted deployment therefore keeps
+enforcing global uniqueness at the database level while the application stops
+pre-checking it, so a cross-Tenant duplicate would surface as a flush-time
+error rather than a clean 409. Dropping the index is a new forward migration,
+not part of the revert.
+
+## What happens next
+
+`tenant-scoped-sign-in` closes with this feature. The next epic in
+`docs/roadmap/README.md` is `login-lifecycle`, already planned into three
+features: self-service password change, Manager reset for Agents and Testers,
+and deactivating a login.
+
+If you veto a decision above, it reopens as an open question on the next
+spec. The two most worth your eye are the refusal wording and the 409
+requirement, since both are load-bearing and neither is protected by a test.

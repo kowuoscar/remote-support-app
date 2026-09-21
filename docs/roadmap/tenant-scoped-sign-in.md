@@ -38,7 +38,7 @@ every remaining single-tenant assumption found and what was done about each.
 ## Features
 
 - [x] `second-tenant-test-seam` — the suite can seed a second Tenant and sign in against it, and a test pins today's wrong behaviour: a username present in two Tenants is refused **401 Unauthorized**, indistinguishable from a wrong password.
-- [ ] `globally-unique-usernames` — a username is unique across the whole deployment, rejected at creation if already taken in any Tenant, so sign-in resolves to exactly one user; plus the audit of the remaining single-tenant assumptions.
+- [x] `globally-unique-usernames` — a username is unique across the whole deployment, rejected at creation if already taken in any Tenant, so sign-in resolves to exactly one user; plus the audit of the remaining single-tenant assumptions.
 
 ## Reworked
 

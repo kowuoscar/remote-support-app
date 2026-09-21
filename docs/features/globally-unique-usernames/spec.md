@@ -1,7 +1,7 @@
 ---
 feature: globally-unique-usernames
 epic: tenant-scoped-sign-in
-status: approved
+status: delivered
 date: 2026-09-21
 ---
 

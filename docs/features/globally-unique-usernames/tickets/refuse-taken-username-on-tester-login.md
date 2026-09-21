@@ -1,7 +1,7 @@
 ---
 id: refuse-taken-username-on-tester-login
 title: Give a Tester's conflict its own machine-readable code, symmetric with the Agent path
-status: ready-for-agent
+status: in-progress
 depends_on: [global-username-index]
 labels: [backend, frontend, auth]
 stories: [4, 5, 6, 9, 15]

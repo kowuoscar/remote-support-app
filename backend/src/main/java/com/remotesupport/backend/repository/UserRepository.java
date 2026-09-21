@@ -15,6 +15,16 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   boolean existsByTenantIdAndUsername(UUID tenantId, String username);
 
+  /**
+   * Whether any {@code users} row, in any Tenant, already holds this username once normalized
+   * the same way as V55's {@code uq_users_username_global} index — case-insensitive, surrounding
+   * whitespace ignored. The pre-insert convenience check every login-creation path runs ahead of
+   * the index itself, which remains the authority (globally-unique-usernames spec.md "One rule,
+   * five creation paths").
+   */
+  @Query("SELECT COUNT(u) > 0 FROM User u WHERE LOWER(TRIM(u.username)) = LOWER(TRIM(:username))")
+  boolean existsByUsernameNormalized(@Param("username") String username);
+
   boolean existsByAgentId(UUID agentId);
 
   /** An Agent's own login, if it has one (at most one, per V16's unique index) — demo-story-loader

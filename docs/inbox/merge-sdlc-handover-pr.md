@@ -35,7 +35,9 @@ behind it.
 
 ## Meanwhile
 
-Nothing. Every other epic would need its own exploration and would produce
-work on the same blocked footing. The loop stops here.
+Planning, which needs no branch and no `main`. While this waited,
+`invoice-correction-and-history` was explored and cut into three features.
+What cannot proceed is any code: every implementer works in a worktree off
+`feature/<feature>`, and that branch comes off `main`.
 
 ## Answer

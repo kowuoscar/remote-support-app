@@ -341,6 +341,20 @@ No visual golden should move. If one does, that is a finding, not a recapture.
 
 ## Decisions taken
 
+- **A collision that only the database catches returns 409 `USERNAME_TAKEN`,
+  never an unmapped 500.** Answered by the human on 2026-09-21, after the
+  ticket critic failed the same requirement twice as an acceptance criterion:
+  the Tester path's own pre-check makes the flush-time path unreachable by any
+  single sequential request, and MockMvc cannot manufacture a mid-request
+  collision, so no reviewer could fail such a criterion by running anything.
+  It is therefore a stated requirement on `refuse-taken-username-on-tester-login`
+  rather than a criterion of it — the `saveAndFlush` and the `catch` that map
+  the constraint violation stay, and are not removed merely because the
+  pre-check hides them in ordinary use. The mapping is proved for real on
+  `POST /api/agents`, which has no pre-check and genuinely reaches the
+  constraint. Chosen over adding a concurrency test for a second proof of the
+  same mapping.
+
 - **The refusal says the same thing whether the address is taken in this
   Tenant or in another: "That email is already in use. Choose another one and
   try again."** Answered by the human at the spec gate on 2026-09-21, chosen
@@ -420,16 +434,18 @@ on 2026-09-21 and answered. It is recorded as the last entry of
 
 ## Execution order
 
-1. `global-username-index` — V55: the duplicate pre-check and the
-   `lower(btrim(username))` unique index, its migration test, and the
-   violation-name inspection taught the new index name so a flush-time
-   collision still answers 409 `USERNAME_TAKEN`. (stories 10, 11)
-2. `refuse-taken-username-on-agent-login` — the global, case- and
-   trim-insensitive pre-check on both Agent login paths; deletes
-   `CollidingUsernameSignInApiTest` and adds its replacement. Depends on
-   ticket 1. (stories 1, 2, 3, 7, 8, 12, 13)
-3. `refuse-taken-username-on-tester-login` — the same rule on the Tester path,
-   with its coded 409 and the dialog copy that tells the two conflicts apart.
-   Depends on ticket 1. (stories 4, 5, 6, 9, 15)
-4. `single-tenant-assumption-audit` — the sweep and its written record in the
-   delivery report. Depends on tickets 2 and 3. (stories 14)
+1. `global-username-index` — V55's duplicate pre-check and `lower(btrim(username))` unique index, its migration test, the shared global existence query `UserRepository` needs, the violation-name inspection taught the new index name, and — forced by the index itself, since it would otherwise fail the moment this ticket lands — `CollidingUsernameSignInApiTest`'s deletion and its replacement, in the same commit. (stories: 1, 2, 10, 11, 12, 13)
+2. `refuse-taken-username-on-agent-login` — the global, case- and trim-insensitive pre-check on giving an existing Agent a login, `existsByTenantIdAndUsername` deleted, and trimmed storage on both Agent-login paths. Depends on `global-username-index`. (stories: 3, 7, 8)
+3. `refuse-taken-username-on-tester-login` — the same rule on the Tester path, with its coded 409 and the dialog copy that tells the two conflicts apart. Depends on `global-username-index`. (stories: 4, 5, 6, 9, 15)
+4. `single-tenant-assumption-audit` — the sweep and its written record in the delivery report. Depends on `refuse-taken-username-on-agent-login` and `refuse-taken-username-on-tester-login`. (stories: 14)
+
+Ticket 1 carries more stories than its name suggests: the global index makes
+`CollidingUsernameSignInApiTest`'s own fixture call fail at flush the moment
+it lands (it inserts a second Tenant's colliding row straight through the
+repository), so the deletion-and-replacement this feature owes that test
+cannot wait for ticket 2 without leaving the branch red in between. The
+replacement is demonstrated on `POST /api/agents` (create-with-login), which
+has no pre-check today and already relies solely on the flush-time catch this
+ticket fixes — so story 2 lands here too, alongside 1, 12 and 13. Tickets 2
+and 3 stay independent of each other: both consume the query ticket 1 adds
+to `UserRepository`, so neither blocks the other.

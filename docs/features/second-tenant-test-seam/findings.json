@@ -4,14 +4,15 @@
     {
       "id": "F1",
       "type": "spec-partial",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/test/java/com/remotesupport/backend/web/SecondTenantSignInApiTest.java:71",
       "citation": "spec.md:161-162 \u2014 \"That Manager's token, used against a real listing endpoint, returns that Tenant's own Client and does not return the seeded Tenant's Clients.\"",
-      "note": "The exclusion half of story 5 is vacuous. The seeded Tenant holds no Clients in the test baseline \u2014 V17's Demo Client is deleted by V54__trim_seed_to_test_baseline.sql:161 \u2014 so assertThat(clients).hasSize(1) plus the id check passes even against a fully tenant-blind listing. There is nothing to exclude, so that leg can never fail. Fix: create a Client in the seeded Tenant within the same test (managerToken() + POST /api/clients) and assert it is absent from the second-Tenant Manager's list. Verified independently by the orchestrator before the fix pass. [fix pass d696632]",
-      "fixed_in": "d696632"
+      "note": "The exclusion half of story 5 is vacuous. The seeded Tenant holds no Clients in the test baseline \u2014 V17's Demo Client is deleted by V54__trim_seed_to_test_baseline.sql:161 \u2014 so assertThat(clients).hasSize(1) plus the id check passes even against a fully tenant-blind listing. There is nothing to exclude, so that leg can never fail. Fix: create a Client in the seeded Tenant within the same test (managerToken() + POST /api/clients) and assert it is absent from the second-Tenant Manager's list. Verified independently by the orchestrator before the fix pass. [fix pass d696632] [re-review: CONFIRMED. The seeded-Tenant Client is created via createClient(managerToken(), ...) and the audit line shows tenantId=11111111-1111-1111-1111-111111111111, so it really lands in the seeded Tenant; ClientController.list() scopes by principal.tenantId(), so a tenant-blind listing would return 2 rows and break both hasSize(1) and the new noneMatch. Story 9 unaffected - the two usernames are distinct and neither is reused across Tenants. backend/src/main carries no diff against main.]",
+      "fixed_in": "d696632",
+      "confirmed_by": "reviewer-spec (fresh instance, re-review)"
     },
     {
       "id": "F2",

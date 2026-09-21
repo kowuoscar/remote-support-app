@@ -1,7 +1,7 @@
 ---
 feature: second-tenant-test-seam
 epic: tenant-scoped-sign-in
-status: approved
+status: delivered
 date: 2026-09-21
 ---
 

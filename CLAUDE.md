@@ -17,6 +17,7 @@ Verify command: see `docs/agents/sdlc.json`.
 | Planned work, epic order | `docs/roadmap/` |
 | A feature's spec and tickets | `docs/features/` |
 | Past irreversible decisions | `docs/adr/` |
+| Known debt | `docs/tech-debt.md` |
 | Open questions, approvals, alerts awaiting a human | `docs/inbox/` |
 
 Every rule an agent must follow is indexed in `docs/agents/README.md` — read

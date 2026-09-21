@@ -63,15 +63,6 @@ class CollidingUsernameSignInApiTest extends IntegrationTest {
         otherTenantFixture.managerLoginInAnotherTenant(
             "colliding-username-control@example.com", "Different#Passw0rd1");
 
-    mockMvc
-        .perform(
-            post("/api/auth/login")
-                .contentType(APPLICATION_JSON)
-                .content(
-                    """
-                    {"username":"%s","password":"%s"}
-                    """
-                        .formatted(cleanLogin.username(), cleanLogin.password())))
-        .andExpect(status().isOk());
+    loginAs(cleanLogin.username(), cleanLogin.password());
   }
 }

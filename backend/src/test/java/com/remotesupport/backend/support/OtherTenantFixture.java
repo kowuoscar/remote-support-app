@@ -86,12 +86,7 @@ public class OtherTenantFixture {
     Tenant tenant = newTenant(now);
     Agent agent = newAgent(tenant, now);
 
-    Client client = new Client();
-    client.setId(UUID.randomUUID());
-    client.setTenant(tenant);
-    client.setName("Other Tenant Client");
-    client.setCreatedAt(now);
-    clientRepository.save(client);
+    Client client = newClient(tenant, "Other Tenant Client", now);
 
     Contract contract = new Contract();
     contract.setId(UUID.randomUUID());
@@ -214,23 +209,19 @@ public class OtherTenantFixture {
     user.setCreatedAt(now);
     userRepository.saveAndFlush(user);
 
-    Client client = new Client();
-    client.setId(UUID.randomUUID());
-    client.setTenant(tenant);
-    client.setName("Other Tenant Client");
-    client.setCreatedAt(now);
-    clientRepository.saveAndFlush(client);
+    Client client = newClient(tenant, "Other Tenant Manager's Client", now);
+    clientRepository.flush();
 
-    return new OtherTenantLogin(tenant.getId(), user.getId(), username, password, client.getId());
+    return new OtherTenantLogin(tenant.getId(), username, password, client.getId());
   }
 
   /**
    * A second Tenant's login and its data, as built by {@link #managerLoginInAnotherTenant}: the
    * Tenant to compare a sign-in against, the credentials that sign in to it, and the Client that
    * proves it reads only its own data. {@code password} is the plaintext, never recoverable from
-   * {@code userId}'s stored hash.
+   * the stored hash.
    */
-  public record OtherTenantLogin(UUID tenantId, UUID userId, String username, String password, UUID clientId) {}
+  public record OtherTenantLogin(UUID tenantId, String username, String password, UUID clientId) {}
 
   private Tenant newTenant(Instant now) {
     Tenant tenant = new Tenant();
@@ -250,5 +241,14 @@ public class OtherTenantFixture {
     agent.setSalaryAmount(new BigDecimal("1000.00"));
     agent.setCreatedAt(now);
     return agentRepository.save(agent);
+  }
+
+  private Client newClient(Tenant tenant, String name, Instant now) {
+    Client client = new Client();
+    client.setId(UUID.randomUUID());
+    client.setTenant(tenant);
+    client.setName(name);
+    client.setCreatedAt(now);
+    return clientRepository.save(client);
   }
 }

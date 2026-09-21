@@ -1,9 +1,7 @@
 package com.remotesupport.backend.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,7 +12,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.web.servlet.MvcResult;
 
 /**
  * Signing in against a second Tenant's own login, and that Tenant's Manager reading only its own
@@ -33,24 +30,10 @@ class SecondTenantSignInApiTest extends IntegrationTest {
     OtherTenantLogin login =
         otherTenantFixture.managerLoginInAnotherTenant("second-tenant-manager@example.com", "Passw0rd!23");
 
-    MvcResult result =
-        mockMvc
-            .perform(
-                post("/api/auth/login")
-                    .contentType(APPLICATION_JSON)
-                    .content(
-                        """
-                        {"username":"%s","password":"%s"}
-                        """
-                            .formatted(login.username(), login.password())))
-            .andExpect(status().isOk())
-            .andReturn();
-
-    JsonNode body = objectMapper.readTree(result.getResponse().getContentAsString());
-    UUID tenantId = tenantIdOf(body.get("token").asText());
+    UUID tenantId = tenantIdOf(loginAs(login.username(), login.password()));
 
     assertThat(tenantId).isEqualTo(login.tenantId());
-    assertThat(tenantId).isNotEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+    assertThat(tenantId).isNotEqualTo(SEEDED_TENANT_ID);
   }
 
   @Test

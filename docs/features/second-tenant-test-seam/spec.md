@@ -317,31 +317,14 @@ way, since the next feature removes both outcomes.)
 
 ## Acceptance walkthrough
 
-1. [agent] Run the new sign-in test class alone with `JAVA_HOME` on JDK 21 and
-   show every test name and a green result. (stories: 4, 5, 7)
-2. [agent] Show the test that signs in with a login existing only in a second
-   Tenant: it gets 200, and the Tenant id read from the returned token equals
-   the fixture's Tenant and is not
-   `11111111-1111-1111-1111-111111111111`. (stories: 1, 2, 3, 4)
-3. [agent] Show the test where that second-Tenant Manager calls a listing
-   endpoint with its own token: the response contains that Tenant's own Client
-   and none of the seeded Tenant's. (stories: 5, 6)
-4. [agent] Show the pinning test: a username created in both Tenants, and the
-   concrete response asserted, with the comment stating what the epic
-   predicted and what actually happens. (stories: 7)
-5. [agent] Show that the pinning test's own text names
-   `globally-unique-usernames` as the feature that deletes it and states the
-   assertion that replaces it. (stories: 8)
-6. [agent] Run the full backend suite (`mvn verify`) green, and call out
-   `ClientInvoiceByIdApiTest`, `AgentInvoiceByIdApiTest` and
-   `DemoDataLoaderApiTest` as passing by name — the `count()` hazard.
-   (stories: 9, 10)
-7. [agent] Show the feature's full diff stat: every changed file under
-   `backend/src/test`, no file under `backend/src/main`, no file under
-   `db/migration`, and V55 still unused. (stories: 10)
-8. [human] Read the pinning test and confirm that what it pins is the defect
-   the epic means to fix, and that deleting it is the right move once
-   usernames are globally unique. (stories: 7, 8)
+1. [agent] Run the new sign-in test class alone with `JAVA_HOME` on JDK 21 and show every test name and a green result. (stories: 4, 5, 7)
+2. [agent] Show the test that signs in with a login existing only in a second Tenant: it gets 200, and the Tenant id read from the returned token equals the fixture's Tenant and is not `11111111-1111-1111-1111-111111111111`. (stories: 1, 2, 3, 4)
+3. [agent] Show the test where that second-Tenant Manager calls a listing endpoint with its own token: the response contains that Tenant's own Client and none of the seeded Tenant's. (stories: 5, 6)
+4. [agent] Show the pinning test: a username created in both Tenants, and the concrete response asserted, with the comment stating what the epic predicted and what actually happens. (stories: 7)
+5. [agent] Show that the pinning test's own text names `globally-unique-usernames` as the feature that deletes it and states the assertion that replaces it. (stories: 8)
+6. [agent] Run the full backend suite (`mvn verify`) green, and call out `ClientInvoiceByIdApiTest`, `AgentInvoiceByIdApiTest` and `DemoDataLoaderApiTest` as passing by name — the `count()` hazard. (stories: 9, 10)
+7. [agent] Show the feature's full diff stat: every changed file under `backend/src/test`, no file under `backend/src/main`, no file under `db/migration`, and V55 still unused. (stories: 10)
+8. [human] Read the pinning test and confirm that what it pins is the defect the epic means to fix, and that deleting it is the right move once usernames are globally unique. (stories: 7, 8)
 
 ## Execution order
 

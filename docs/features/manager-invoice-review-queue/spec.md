@@ -1,6 +1,6 @@
 ---
 feature: manager-invoice-review-queue
-status: approved
+status: accepted
 date: 2026-09-17
 ---
 

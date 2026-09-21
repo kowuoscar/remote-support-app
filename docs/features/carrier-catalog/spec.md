@@ -1,6 +1,6 @@
 ---
 feature: carrier-catalog
-status: implemented
+status: accepted
 date: 2026-09-18
 ---
 

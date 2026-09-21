@@ -3,10 +3,11 @@
 ## Hard rules for every implementer
 - The user's docker-compose stack owns ports 3000/8080/5432. NEVER write to it. Run e2e/visual against your own isolated Postgres/backend/frontend on other ports, with `E2E_DATABASE_URL` pointing at YOUR Postgres, using a temporary uncommitted Playwright config. Use a fresh database for the final full run.
 - Tear down only what you started, by PID or container name. NEVER use broad kills like `pkill -f spring-boot:run` — other implementers share this machine.
-- Use exactly the Flyway version numbers your prompt reserves for you. Latest merged so far: V29.
+- Use exactly the Flyway version numbers your prompt reserves for you. Latest merged on `main`: **V54** (checked 2026-09-21 against `backend/src/main/resources/db/migration`; the per-feature notes further down quote older numbers and are history, not the frontier). Never pick a number by reading those notes — list the migration directory.
 - Maven needs `JAVA_HOME=/opt/homebrew/opt/openjdk@21` (JDK 26 breaks Lombok).
 - Run long suites in the background and poll with short checks.
 - If a command you need is blocked by permissions, stop and report it — never work around it.
+- `npx tsc --noEmit` reads generated files: `frontend/tsconfig.json` includes `.next/types/**` and `.next/dev/types/**`, so a stale `.next` fails the typecheck on routes that no longer exist. Run `npm run build` first (the `verify` command does), or `rm -rf .next` if it is already stale.
 
 - Both e2e specs that touch the database directly (`create-login-for-existing-agent`, `manager-invoice-review-queue`) now honour `E2E_DATABASE_URL` — set it and no docker-compose redirection is needed. Use a production frontend build (`next build && next start`) for e2e, as the committed config does.
 

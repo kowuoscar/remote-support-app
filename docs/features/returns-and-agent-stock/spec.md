@@ -1,6 +1,6 @@
 ---
 feature: returns-and-agent-stock
-status: implemented
+status: accepted
 date: 2026-09-18
 ---
 

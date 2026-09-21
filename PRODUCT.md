@@ -34,11 +34,11 @@ A monthly cycle. Through the month, Agents log Requests and Fees against their C
 
 ## Capabilities and Constraints
 
-- Multi-tenant schema; a single tenant is seeded and operated for the MVP.
+- Multi-tenant schema (`tenant_id` in 22 of the 46 migrations); a single tenant is seeded and operated today, with a second expected — see the `tenant-scoped-sign-in` epic.
 - Responsive web only — no native mobile app this iteration.
 - No payment-processor integration; invoice status is set manually by the Manager.
 - Every monetary field carries an explicit currency code; a Contract's currency is derived from its Agent's country.
-- Topup fees are free-typed by the Agent in the MVP — a per-country carrier topup catalog is deferred.
+- Topup fees are priced from a per-country Carrier catalog of Topup Options, with the Agent free to adjust the amount. (Superseded 2026-09-21: this line previously recorded the catalog as deferred; `carrier-catalog` shipped it.)
 
 ## Brand Commitments
 

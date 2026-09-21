@@ -1,11 +1,31 @@
-## Engineering workflow
+<!-- sdlc:map:start -->
+# Remote Support App
 
-Feature work runs through `/sdlc <idea>`, or `/sdlc-implement <feature-slug>`
-to resume one whose tickets already exist.
+<!-- sdlc:template agent-map 1 -->
 
-`docs/agents/issue-tracker.md` defines where specs and tickets live, what shape
-they take, the status lifecycle and the Definition of Done. Read it before
-writing a spec, a ticket, or a commit that closes one.
+A shared system of record for the phones, SIM cards, support requests and two monthly invoicing cycles of a company that works through in-country local-support agents.
+For that company's Managers, its local support Agents, and its Clients' Testers.
+
+Verify command: see `docs/agents/sdlc.json`.
+
+| You need | Read |
+|---|---|
+| Who and why | `PRODUCT.md` |
+| Where code lives, module boundaries, entry points | `ARCHITECTURE.md` |
+| Domain vocabulary | `CONTEXT.md` |
+| The visual world (UI work only) | `DESIGN.md` |
+| Planned work, epic order | `docs/roadmap/` |
+| A feature's spec and tickets | `docs/features/` |
+| Past irreversible decisions | `docs/adr/` |
+| Open questions, approvals, alerts awaiting a human | `docs/inbox/` |
+
+Every rule an agent must follow is indexed in `docs/agents/README.md` — read
+it before writing code, a spec or a ticket.
+
+Feature work runs through the `sdlc` skill: it reads the state of this repository and takes the next step.
+<!-- sdlc:map:end -->
+
+## Skill arbitration
 
 The engineering skills in `~/.agents/skills/` overlap with superpowers. Prefer
 `grilling` over `superpowers:brainstorming`, `tdd` over
@@ -13,12 +33,3 @@ The engineering skills in `~/.agents/skills/` overlap with superpowers. Prefer
 `superpowers:systematic-debugging`, and let `implement-spec` manage its own
 worktrees rather than `superpowers:using-git-worktrees` or
 `subagent-driven-development`. Superpowers keeps everything else.
-
-Maintain the domain model as you go with `domain-modeling`: update `CONTEXT.md`
-the moment a term settles, and record an ADR only when a decision is hard to
-reverse, surprising without context, and a genuine trade-off.
-
-Before any UI work, read `~/.claude/sdlc/frontend.md`. `impeccable` is the only
-design system active during implementation; `DESIGN.md` is committed before the
-first line of UI, and every visual change either conforms to it or changes it in
-the same commit.

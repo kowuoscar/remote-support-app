@@ -14,6 +14,7 @@ import com.remotesupport.backend.dto.AgentCreateRequest;
 import com.remotesupport.backend.dto.ClientCreateRequest;
 import com.remotesupport.backend.dto.ContractCreateRequest;
 import com.remotesupport.backend.dto.TesterCreateRequest;
+import com.remotesupport.backend.security.JwtService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -86,6 +87,7 @@ public abstract class IntegrationTest {
 
   @Autowired protected MockMvc mockMvc;
   @Autowired protected ObjectMapper objectMapper;
+  @Autowired protected JwtService jwtService;
 
   /**
    * POSTs a JSON body with a bearer token — the shape behind most write requests in this suite,
@@ -128,6 +130,16 @@ public abstract class IntegrationTest {
 
   protected String testerToken() throws Exception {
     return loginAs(TESTER_USERNAME, TESTER_PASSWORD);
+  }
+
+  /**
+   * The Tenant id carried in an issued token's {@code tenantId} claim (second-tenant-test-seam
+   * spec: "Asserting which Tenant a sign-in resolved to") — the one place in the suite that reads
+   * this off a token, via the {@link JwtService} bean already in the context, rather than a test
+   * decoding the JWT itself.
+   */
+  protected UUID tenantIdOf(String token) {
+    return jwtService.parse(token).orElseThrow(() -> new IllegalStateException("Not a valid token")).tenantId();
   }
 
   /**

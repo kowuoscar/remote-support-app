@@ -10,11 +10,13 @@ import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.domain.Currency;
+import com.remotesupport.backend.domain.Role;
 import com.remotesupport.backend.domain.Smartphone;
 import com.remotesupport.backend.domain.SmartphoneOwner;
 import com.remotesupport.backend.domain.SmartphoneStatus;
 import com.remotesupport.backend.domain.Tenant;
 import com.remotesupport.backend.domain.TopupOption;
+import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.repository.AgentInvoiceRepository;
 import com.remotesupport.backend.repository.AgentRepository;
 import com.remotesupport.backend.repository.CarrierRepository;
@@ -24,11 +26,13 @@ import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.SmartphoneRepository;
 import com.remotesupport.backend.repository.TenantRepository;
 import com.remotesupport.backend.repository.TopupOptionRepository;
+import com.remotesupport.backend.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.UUID;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 /**
@@ -48,6 +52,8 @@ public class OtherTenantFixture {
   private final CarrierRepository carrierRepository;
   private final TopupOptionRepository topupOptionRepository;
   private final SmartphoneRepository smartphoneRepository;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
   public OtherTenantFixture(
       TenantRepository tenantRepository,
@@ -58,7 +64,9 @@ public class OtherTenantFixture {
       AgentInvoiceRepository agentInvoiceRepository,
       CarrierRepository carrierRepository,
       TopupOptionRepository topupOptionRepository,
-      SmartphoneRepository smartphoneRepository) {
+      SmartphoneRepository smartphoneRepository,
+      UserRepository userRepository,
+      PasswordEncoder passwordEncoder) {
     this.tenantRepository = tenantRepository;
     this.clientRepository = clientRepository;
     this.agentRepository = agentRepository;
@@ -68,6 +76,8 @@ public class OtherTenantFixture {
     this.carrierRepository = carrierRepository;
     this.topupOptionRepository = topupOptionRepository;
     this.smartphoneRepository = smartphoneRepository;
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
   }
 
   /** A sent Client Invoice, for the current month, on a Contract in a brand-new tenant. */
@@ -181,6 +191,46 @@ public class OtherTenantFixture {
     smartphoneRepository.saveAndFlush(smartphone);
     return smartphone.getId();
   }
+
+  /**
+   * A brand-new Tenant with a working {@code MANAGER}-role login and one {@link Client} of its
+   * own (second-tenant-test-seam spec's {@code OtherTenantLogin}): a sign-in assertion needs the
+   * Tenant to compare against and the plaintext password, neither recoverable from the stored
+   * hash, and the Client rides along so the signed-in Manager has something of its own to read.
+   * {@code username}/{@code password} are parameters rather than fixed, so the same method serves
+   * both a clean username and one colliding with the seeded Tenant's own (pin-colliding-username-
+   * sign-in ticket).
+   */
+  public OtherTenantLogin managerLoginInAnotherTenant(String username, String password) {
+    Instant now = Instant.now();
+    Tenant tenant = newTenant(now);
+
+    User user = new User();
+    user.setId(UUID.randomUUID());
+    user.setTenant(tenant);
+    user.setUsername(username);
+    user.setPasswordHash(passwordEncoder.encode(password));
+    user.setRole(Role.MANAGER);
+    user.setCreatedAt(now);
+    userRepository.saveAndFlush(user);
+
+    Client client = new Client();
+    client.setId(UUID.randomUUID());
+    client.setTenant(tenant);
+    client.setName("Other Tenant Client");
+    client.setCreatedAt(now);
+    clientRepository.saveAndFlush(client);
+
+    return new OtherTenantLogin(tenant.getId(), user.getId(), username, password, client.getId());
+  }
+
+  /**
+   * A second Tenant's login and its data, as built by {@link #managerLoginInAnotherTenant}: the
+   * Tenant to compare a sign-in against, the credentials that sign in to it, and the Client that
+   * proves it reads only its own data. {@code password} is the plaintext, never recoverable from
+   * {@code userId}'s stored hash.
+   */
+  public record OtherTenantLogin(UUID tenantId, UUID userId, String username, String password, UUID clientId) {}
 
   private Tenant newTenant(Instant now) {
     Tenant tenant = new Tenant();

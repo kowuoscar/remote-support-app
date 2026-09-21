@@ -1,7 +1,7 @@
 ---
 id: login-lifecycle
 title: Keep a login working over time
-status: planned
+status: in-progress
 journeys: [keep-a-login-working-over-time]
 ---
 
@@ -30,7 +30,53 @@ history remain intact and readable.
 
 ## Features
 
+- [ ] `self-service-password-change` — a signed-in user of any role changes their own password, proving their current one, and signs in again with the new one.
+- [ ] `manager-resets-a-password` — a Manager sets a new password for an Agent or a Tester in their own Tenant who cannot sign in, and hands it over out of band.
+- [ ] `deactivate-a-login` — a login can be switched off and back on; a deactivated one is refused at sign-in while its user row, and everything hanging off it, stays intact.
+
 ## Reworked
+
+The exploration changed the order and put a prefactor inside feature two.
+
+**There is no notion of an enabled or disabled login anywhere.** `User`
+carries id, tenant, username, password hash, role, a nullable agent link and
+`created_at` — nothing else (`V1__create_tenants_and_users.sql:11-22`). And
+`AppUserPrincipal` overrides none of `isEnabled()`,
+`isAccountNonLocked()`, `isCredentialsNonExpired()` or
+`isAccountNonExpired()`, so Spring Security's permissive defaults are in
+force. Deactivation is therefore a new concept end to end — a column, the
+`UserDetails` wiring, and a refusal at sign-in — which is why it is the last
+feature rather than the first: the other two need none of it.
+
+**Self-service change goes first because it needs nothing new.** It acts on
+the caller's own user row, reached from the authenticated principal, so it
+crosses neither of the two problems below.
+
+**The two login paths are not one.** An Agent's login is written by
+`AgentLoginService` (`.../web/AgentLoginService.java:62`), while a Tester's
+password is hashed inline in the controller
+(`.../web/TesterController.java:74`). A Manager resetting either would mean
+writing the same thing twice, so `manager-resets-a-password` prefactors the
+password write into one place first.
+
+**There are no guard classes for Agent or Tester administration.** Access is
+role-based in `SecurityConfig.java:189`, where `/api/agents/**` and
+`/api/clients/**` simply require `ROLE_MANAGER`. The existing guard classes
+govern fleets, contracts and the carrier catalog, not people. A reset needs
+one, and `manager-resets-a-password` creates it.
+
+**Deactivation cannot be deletion**, and the spec for it must say so: four
+tables hold foreign keys into `users` — `testers.user_id`,
+`requests.raised_by_user_id`, `requests.decided_by_user_id` and
+`agent_standing_amounts.set_by_user_id` — and V16's
+`uq_users_one_login_per_agent` partial index means a switched-off Agent login
+still occupies its Agent's one slot.
+
+Left for `deactivate-a-login`'s spec to settle, since it is a *what* the user
+will notice rather than something the cut decides: whether deactivation takes
+effect immediately for a session already holding a valid JWT, or only when
+that token expires. `CallerIdentityResolver` re-resolves the caller on every
+request but checks no account state, so either answer is reachable.
 
 ## Later
 

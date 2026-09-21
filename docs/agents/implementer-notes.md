@@ -7,6 +7,7 @@
 - Maven needs `JAVA_HOME=/opt/homebrew/opt/openjdk@21` (JDK 26 breaks Lombok).
 - Run long suites in the background and poll with short checks.
 - If a command you need is blocked by permissions, stop and report it — never work around it.
+- `npx tsc --noEmit` reads generated files: `frontend/tsconfig.json` includes `.next/types/**` and `.next/dev/types/**`, so a stale `.next` fails the typecheck on routes that no longer exist. Run `npm run build` first (the `verify` command does), or `rm -rf .next` if it is already stale.
 
 - Both e2e specs that touch the database directly (`create-login-for-existing-agent`, `manager-invoice-review-queue`) now honour `E2E_DATABASE_URL` — set it and no docker-compose redirection is needed. Use a production frontend build (`next build && next start`) for e2e, as the committed config does.
 

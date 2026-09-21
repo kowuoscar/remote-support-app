@@ -5,14 +5,7 @@ import { Button } from "@/components/ui/button";
 import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
 import { DialogShell, type DialogShellHandle } from "@/components/manager/dialog-shell";
 import { LoginCredentialFields } from "@/components/manager/login-credential-fields";
-import { readErrorCode } from "@/lib/api/errors";
-
-type SubmitError = {
-  message: string;
-  field: "email" | "password" | null;
-  /** A way out when retrying can't help, e.g. the Agent is gone. */
-  link?: { href: string; label: string };
-};
+import { readErrorCode, usernameTakenError, type SubmitError } from "@/lib/api/errors";
 
 /**
  * Manager gives a login to an Agent that has none (create-login-for-existing-agent ticket),
@@ -130,7 +123,7 @@ export function CreateAgentLoginDialog({
 async function errorFor(response: Response): Promise<SubmitError> {
   if (response.status === 409) {
     return (await readErrorCode(response)) === "USERNAME_TAKEN"
-      ? { message: "That email is already in use. Choose another one and try again.", field: "email" }
+      ? usernameTakenError()
       : {
           message: "This agent already has a login. Refresh the page to see it.",
           field: null,

@@ -8,14 +8,12 @@ import { IconPlus } from "@/components/icons";
 import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
 import { DialogShell, type DialogShellHandle } from "@/components/manager/dialog-shell";
 import { LoginCredentialFields } from "@/components/manager/login-credential-fields";
-import { readErrorCode } from "@/lib/api/errors";
+import { readErrorCode, usernameTakenError, type SubmitError } from "@/lib/api/errors";
 import { COUNTRIES, type Country } from "@/lib/api/types";
-
-type SubmitError = { message: string; field: "email" | "password" | null };
 
 function errorFor(code: string | null, status: number): SubmitError {
   if (code === "USERNAME_TAKEN") {
-    return { message: "That email is already in use. Choose another one and try again.", field: "email" };
+    return usernameTakenError();
   }
   if (status === 400) {
     return {

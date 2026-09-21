@@ -7,12 +7,7 @@ import { IconPlus } from "@/components/icons";
 import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
 import { DialogShell, type DialogShellHandle } from "@/components/manager/dialog-shell";
 import { LoginCredentialFields } from "@/components/manager/login-credential-fields";
-import { readErrorCode } from "@/lib/api/errors";
-
-type SubmitError = {
-  message: string;
-  field: "email" | null;
-};
+import { readErrorCode, usernameTakenError, type SubmitError } from "@/lib/api/errors";
 
 /**
  * Manager creates a Tester under a specific Client (manager-entity-setup ticket): lives on the
@@ -98,6 +93,7 @@ export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>)
             emailPlaceholder="tom.reyes@client.example"
             disabled={submitting}
             emailInvalid={error?.field === "email"}
+            passwordInvalid={error?.field === "password"}
             autoFocusEmail
           />
 
@@ -129,7 +125,7 @@ export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>)
 async function errorFor(response: Response): Promise<SubmitError> {
   if (response.status === 409) {
     return (await readErrorCode(response)) === "USERNAME_TAKEN"
-      ? { message: "That email is already in use. Choose another one and try again.", field: "email" }
+      ? usernameTakenError()
       : { message: "This client already has a primary contact.", field: null };
   }
   return { message: "Couldn't create the tester. Try again.", field: null };

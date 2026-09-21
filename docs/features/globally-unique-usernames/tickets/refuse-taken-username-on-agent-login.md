@@ -1,7 +1,7 @@
 ---
 id: refuse-taken-username-on-agent-login
 title: Give an existing Agent a login through the global, normalized username check
-status: in-progress
+status: done
 depends_on: [global-username-index]
 labels: [backend, auth]
 stories: [3, 7, 8]

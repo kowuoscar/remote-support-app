@@ -40,14 +40,16 @@ public class AgentLoginService {
 
   /**
    * Throws {@link AgentLoginConflictException} (409) when the Agent already has a login, or the
-   * username is already in use in the Agent's tenant. For a caller with nothing written yet (giving
-   * an existing Agent its login), so the common conflicts answer cleanly without a failed insert.
+   * username is already taken anywhere in the deployment — the global, case- and trim-insensitive
+   * check (globally-unique-usernames spec.md "One rule, five creation paths"), not merely the
+   * Agent's own tenant. For a caller with nothing written yet (giving an existing Agent its
+   * login), so the common conflicts answer cleanly without a failed insert.
    */
   public void requireLoginCreatable(Agent agent, String username) {
     if (userRepository.existsByAgentId(agent.getId())) {
       throw agentAlreadyHasLogin(agent);
     }
-    if (userRepository.existsByTenantIdAndUsername(agent.getTenant().getId(), username)) {
+    if (userRepository.existsByUsernameNormalized(username)) {
       throw usernameTaken(username);
     }
   }

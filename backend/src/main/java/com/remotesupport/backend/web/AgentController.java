@@ -99,7 +99,8 @@ public class AgentController {
         principal.userId());
 
     User login =
-        agentLoginService.create(agent, request.username(), request.password(), principal.userId());
+        agentLoginService.create(
+            agent, request.username().strip(), request.password(), principal.userId());
 
     AuditLog.created("Agent", agent.getId(), principal.userId(), principal.tenantId());
 
@@ -122,10 +123,10 @@ public class AgentController {
         agentRepository
             .findByIdAndTenantId(agentId, principal.tenantId())
             .orElseThrow(() -> new NotFoundException("No agent with id " + agentId));
-    agentLoginService.requireLoginCreatable(agent, request.username());
+    String username = request.username().strip();
+    agentLoginService.requireLoginCreatable(agent, username);
 
-    User login =
-        agentLoginService.create(agent, request.username(), request.password(), principal.userId());
+    User login = agentLoginService.create(agent, username, request.password(), principal.userId());
 
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(

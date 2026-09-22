@@ -1,0 +1,19 @@
+=== Step 1: purpose-made (non-seeded) Login, POST /api/me/password ===
+-- creating fresh Agent login via POST /api/agents as Manager
+{"id":"1ee573c0-c765-4f4a-a259-6036f270ddcc","name":"Fresh Agent Step1","country":"UNITED_STATES","currency":"USD","salaryAmount":2000.00,"contractCount":0,"loginUsername":"fresh-agent-step1-1790068621@agents.example"}
+HTTP_STATUS:201
+-- signing in as the fresh Agent
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmcmVzaC1hZ2VudC1zdGVwMS0xNzkwMDY4NjIxQGFnZW50cy5leGFtcGxlIiwianRpIjoiNGUzMWU1YzctZGMwNC00YzI2LWJlOGItZWUzYTM0OGQ1YWYzIiwidGVuYW50SWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJyb2xlIjoiQUdFTlQiLCJpYXQiOjE3OTAwNjg2MjEsImV4cCI6MTc5MDA3MjIyMX0.Cs8t-WKZpk3R7l_74C1Rk2KZs5W5yxF8Y7CLkeeMOAE","role":"AGENT"}
+-- POST /api/me/password with correct current password and a valid new one
+HTTP/1.1 204 
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Date: Tue, 22 Sep 2026 09:17:01 GMT
+
+HTTP_STATUS:204
+-- response body (should be empty):
+[END BODY, byte count:        0]

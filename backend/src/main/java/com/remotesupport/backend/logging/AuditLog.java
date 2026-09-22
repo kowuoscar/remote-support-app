@@ -593,6 +593,21 @@ public final class AuditLog {
         tenantId);
   }
 
+  /**
+   * A successful self-service password change (change-own-password-endpoint ticket
+   * Observability: "one PASSWORD_CHANGED audit line, subject and actor both the caller"). Subject
+   * and actor are always the same user here; both are written anyway so
+   * manager-resets-a-password, where they differ, can reuse the exact line shape. Never carries
+   * the password, the hash, or its length. A failed verification is not audited.
+   */
+  public static void passwordChanged(UUID subjectUserId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=PASSWORD_CHANGED entity=User entityId={} actorUserId={} tenantId={}",
+        subjectUserId,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

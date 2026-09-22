@@ -1,0 +1,8 @@
+=== Step 2: sign in with new password (expect token), sign in with old password (expect 401) ===
+-- sign in with NEW password:
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmcmVzaC1hZ2VudC1zdGVwMS0xNzkwMDY4NjIxQGFnZW50cy5leGFtcGxlIiwianRpIjoiNGUzMWU1YzctZGMwNC00YzI2LWJlOGItZWUzYTM0OGQ1YWYzIiwidGVuYW50SWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJyb2xlIjoiQUdFTlQiLCJpYXQiOjE3OTAwNjg2MjIsImV4cCI6MTc5MDA3MjIyMn0.sNC7y-VY5kCn4sfeFevQDpMeqhtu321NcvYOL0I2Um0","role":"AGENT"}
+HTTP_STATUS:200
+
+-- sign in with OLD password (expect 401):
+
+HTTP_STATUS:401

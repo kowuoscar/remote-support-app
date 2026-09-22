@@ -1,0 +1,25 @@
+- dialog [ref=f3e91]:
+  - generic [ref=f3e92]:
+    - generic [ref=f3e93]:
+      - heading "Change password" [level=2] [ref=f3e94]
+      - paragraph [ref=f3e95]: Enter your current password and choose a new one.
+    - alert [ref=f3e110]:
+      - generic [ref=f3e114]: That's not your current password. Try again.
+    - generic [ref=f3e96]:
+      - text: Current password
+      - textbox "Current password" [invalid] [ref=f3e97]:
+        - /placeholder: ••••••••
+        - text: WrongCurrentPassword!
+    - generic [ref=f3e98]:
+      - text: New password
+      - textbox "New password" [ref=f3e99]:
+        - /placeholder: ••••••••
+        - text: NewPassword12345
+    - generic [ref=f3e100]:
+      - text: Confirm new password
+      - textbox "Confirm new password" [ref=f3e101]:
+        - /placeholder: ••••••••
+        - text: NewPassword12345
+    - generic [ref=f3e102]:
+      - button "Cancel" [ref=f3e103]
+      - button "Change password" [ref=f3e104]

@@ -1,0 +1,81 @@
+- generic [ref=e1]:
+  - alert [ref=e25]: Dashboard · Remote Support Platform
+  - generic [ref=e26]:
+    - complementary [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]: "N"
+        - generic [ref=e30]:
+          - paragraph [ref=e31]: Northwind Field Services
+          - paragraph [ref=e32]: Manager Console
+      - navigation [ref=e33]:
+        - link "Dashboard" [ref=e34] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=e40] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=e44] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=e48] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=e52] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=e57] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=e61] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=e67] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=e72]:
+      - banner [ref=e73]:
+        - generic [ref=e75]:
+          - heading "Dashboard" [level=1] [ref=e76]
+          - paragraph [ref=e77]: Tenant-wide overview
+        - generic [ref=e78]:
+          - generic [ref=e79]:
+            - button "Priya Ashford · Manager" [expanded] [ref=e80]
+            - menu [ref=e137]:
+              - menuitem "Change password" [active] [ref=e138]
+              - menuitem "Log out" [ref=e139]
+          - button "Switch to dark theme" [ref=e82]
+      - main [ref=e86]:
+        - generic [ref=e87]:
+          - generic [ref=e88]:
+            - generic [ref=e89]:
+              - generic [ref=e90]: Pending approvals
+              - generic [ref=e91]: "0"
+              - generic [ref=e92]: Client + Agent Invoices awaiting review
+            - generic [ref=e93]:
+              - generic [ref=e94]: Pending Requests
+              - generic [ref=e95]: "0"
+              - link "Review requests" [ref=e97] [cursor=pointer]:
+                - /url: /manager/requests
+            - generic [ref=e100]:
+              - generic [ref=e101]: Billed this month
+              - generic [ref=e102]: $41,280.00
+              - generic [ref=e103]: Tenant-wide, all Contracts
+            - generic [ref=e104]:
+              - generic [ref=e105]: Payout this month
+              - generic [ref=e106]: $22,940.00
+              - generic [ref=e107]: Tenant-wide, all Agents
+            - generic [ref=e108]:
+              - generic [ref=e109]: Clients
+              - generic [ref=e110]: "6"
+              - generic [ref=e111]: Active this tenant
+            - generic [ref=e112]:
+              - generic [ref=e113]: Agents
+              - generic [ref=e114]: "5"
+              - generic [ref=e115]: Across all countries
+            - generic [ref=e116]:
+              - generic [ref=e117]: Contracts
+              - generic [ref=e118]: "8"
+              - generic [ref=e119]: Client × Agent pairs
+          - generic [ref=e120]:
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - heading "Pending approvals" [level=2] [ref=e123]
+                - paragraph [ref=e124]: Longest waiting first
+              - link "Review all" [ref=e125] [cursor=pointer]:
+                - /url: /manager/invoices
+            - generic [ref=e133]:
+              - paragraph [ref=e134]: Nothing is waiting on you
+              - paragraph [ref=e135]: Invoices appear here as soon as an Agent sends them.
+      - paragraph [ref=e136]: Demo data — names, amounts and statuses on this screen are synthetic and do not represent real Clients, Agents or invoices.

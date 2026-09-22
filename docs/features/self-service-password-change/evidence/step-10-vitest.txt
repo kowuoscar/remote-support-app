@@ -1,0 +1,13 @@
+
+> frontend@0.1.0 test
+> vitest run --run
+
+
+ RUN  v4.1.11 /Users/oscar/myspace/projects/remote-support-app/frontend
+
+
+ Test Files  35 passed (35)
+      Tests  186 passed (186)
+   Start at  11:19:34
+   Duration  7.95s (transform 1.94s, setup 5.52s, import 3.73s, tests 16.71s, environment 24.15s)
+

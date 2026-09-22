@@ -1,0 +1,7 @@
+- generic [ref=f1e73]:
+  - generic [ref=f1e74]:
+    - button "Camille Duforet · Agent" [expanded] [ref=f1e75]
+    - menu [ref=f1e167]:
+      - menuitem "Change password" [active] [ref=f1e168]
+      - menuitem "Log out" [ref=f1e169]
+  - button "Switch to dark theme" [ref=f1e77]

@@ -1,0 +1,23 @@
+- generic [ref=f1e1]:
+  - alert [ref=f1e25]: Sign in
+  - generic [ref=f1e170]:
+    - banner [ref=f1e171]:
+      - generic [ref=f1e172]:
+        - generic [ref=f1e173]: "N"
+        - generic [ref=f1e174]: Remote Support Platform
+      - button "Switch to dark theme" [ref=f1e175]
+    - main [ref=f1e179]:
+      - generic [ref=f1e180]:
+        - generic [ref=f1e181]:
+          - heading "Sign in" [level=1] [ref=f1e182]
+          - paragraph [ref=f1e183]: Use your Manager, Agent or Client Portal credentials.
+        - generic [ref=f1e185]:
+          - generic [ref=f1e186]:
+            - generic [ref=f1e187]: Email
+            - textbox "Email" [active] [ref=f1e188]:
+              - /placeholder: you@example.com
+          - generic [ref=f1e189]:
+            - generic [ref=f1e190]: Password
+            - textbox "Password" [ref=f1e191]:
+              - /placeholder: ••••••••
+          - button "Sign in" [ref=f1e192]

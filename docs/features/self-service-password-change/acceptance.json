@@ -1,0 +1,169 @@
+{
+  "feature": "self-service-password-change",
+  "played_at": "2026-09-22",
+  "played_on": "feature/self-service-password-change",
+  "environment": "A throwaway Postgres started with docker run on an unused port, the backend via mvn spring-boot:run pointed at it, and a production frontend build pointed at that backend \u2014 all on OS-assigned ports, driven with playwright-cli. mvn verify and the isolated e2e suite each ran against their own separate throwaway stacks. The developer's docker-compose stack on 5432, 8080 and 3000 was never touched.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1.txt",
+      "note": "Fresh non-seeded Agent login: POST /api/me/password with the correct current password returned 204 with a 0-byte body."
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2.txt",
+      "note": "The new password signs in (200 with a token); the old one is refused 401."
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3.txt",
+      "note": "Repeated for a fresh Manager (a raw User row linked to neither an Agent nor a Tester), an Agent and a Tester; all three succeeded."
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4.txt",
+      "note": "Wrong current password returns 400 with code WRONG_CURRENT_PASSWORD, and the unchanged password still signs in afterwards."
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": "No Authorization header returns 401. All three seeded role tokens given a wrong current password return 400, never 403 \u2014 refused on the field, never on the role."
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": "A 7-character new password returns 400 with code PASSWORD_TOO_SHORT; 8 characters returns 204. Both sides of the boundary."
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": "Creating an Agent and a Tester each with a 7-character password are both refused 400 in the ordinary Bean Validation shape. AuthLoginTest's diff against main is empty and the class was run for real: 4 tests, 0 failures \u2014 the evidence nobody is locked out."
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8.txt",
+      "note": "Exactly one PASSWORD_CHANGED audit line naming entityId, actorUserId and tenantId. The whole log was grepped for the old password, the new password and a bcrypt prefix \u2014 none present."
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9.txt",
+      "note": "The diff against main contains no migration, an empty SecurityConfig diff, an empty lib/nav.tsx diff, and neither login service at all."
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-10.txt",
+      "note": "mvn verify 529 tests 0 failures; vitest 186/186; tsc exit 0; eslint clean; isolated e2e read from Playwright's own summary line as 59 passed 0 failed; the visual suite run deliberately (it is not part of verify) as 40 passed, with no golden updated."
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-11-manager-menu.yml",
+      "note": "The viewer chip opens the identical menu \u2014 exactly Change password and Log out \u2014 in the Manager, Agent and Client consoles."
+    },
+    {
+      "step": 12,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-12-escape-closed.yml",
+      "note": "Escape closes the menu and returns focus to the chip; reopening and clicking outside does the same."
+    },
+    {
+      "step": 13,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-13-keyboard-menu-dialog.yml",
+      "note": "Keyboard only: Tab to the chip, Enter opens with focus on the first item, arrows cycle both items, Enter activates and focus lands in the dialog's Current password field."
+    },
+    {
+      "step": 14,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-14-mismatch.yml",
+      "note": "A mismatched confirmation is caught in the browser with no network request fired, proved from the request log. A wrong current password shows an inline alert naming the field, marks it invalid, and keeps every typed value."
+    },
+    {
+      "step": 15,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-15-confirmation.yml",
+      "note": "A real change redirects to /login?passwordChanged=1 with a status region reading the confirmation."
+    },
+    {
+      "step": 16,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-16-old-password-refused.yml",
+      "note": "Signed in with the new password, logged out through the menu, and the old password is then refused with the sign-in page's existing wording \u2014 no new message was introduced."
+    },
+    {
+      "step": 17,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-17-mobile-menu.yml",
+      "note": "At 390x844 the chip is present and clickable and the menu panel's bounding box sits fully inside the viewport; the same change completes with the same confirmation."
+    },
+    {
+      "step": 18,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-18-tab-order.txt",
+      "note": "Tabbing chip to menu items to the three dialog fields to Cancel to submit showed a solid 2px focus-visible outline at every stop, confirmed by computed style and a screenshot."
+    },
+    {
+      "step": 19,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "Wording and behaviour parity across the three consoles' menus."
+    },
+    {
+      "step": 20,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "Sign-off that moving Log out into the chip menu is accepted."
+    },
+    {
+      "step": 21,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "Sign-off that neither the menu item nor the dialog title uses the word account, and that it is discoverable."
+    },
+    {
+      "step": 22,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "Your own live password change, plus the second-browser check that the other session survives until it expires."
+    },
+    {
+      "step": 23,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "Review of the DESIGN.md diff alongside the code commit."
+    }
+  ]
+}

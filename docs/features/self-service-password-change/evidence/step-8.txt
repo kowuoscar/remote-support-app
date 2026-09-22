@@ -1,0 +1,12 @@
+=== Step 8: audit log has exactly one PASSWORD_CHANGED line naming user/actor/tenant; no password or hash anywhere in the log ===
+create HTTP_STATUS:201
+log line count before change:      185
+change HTTP_STATUS:204
+-- new log lines since the change, filtered for PASSWORD_CHANGED:
+1:2026-09-22T11:18:03.381+02:00 INFO  [11111111-1111-1111-1111-111111111111:677e74a5-64b9-4968-8d44-1f927140c535] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=677e74a5-64b9-4968-8d44-1f927140c535 actorUserId=677e74a5-64b9-4968-8d44-1f927140c535 tenantId=11111111-1111-1111-1111-111111111111
+-- count of PASSWORD_CHANGED lines since the change:
+1
+-- searching the WHOLE log file for the plaintext old/new password or a bcrypt hash prefix (expect nothing):
+old password: NOT FOUND (good)
+new password: NOT FOUND (good)
+bcrypt hash prefix: NOT FOUND (good)

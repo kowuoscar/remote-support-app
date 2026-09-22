@@ -1,0 +1,80 @@
+- generic [ref=f6e1]:
+  - generic [ref=f6e2]:
+    - complementary [ref=f6e3]:
+      - generic [ref=f6e4]:
+        - generic [ref=f6e5]: "N"
+        - generic [ref=f6e6]:
+          - paragraph [ref=f6e7]: Northwind Field Services
+          - paragraph [ref=f6e8]: Client Portal
+      - navigation [ref=f6e9]:
+        - link "Dashboard" [ref=f6e10] [cursor=pointer]:
+          - /url: /client
+        - link "Fleet" [ref=f6e16] [cursor=pointer]:
+          - /url: /client/fleet
+        - link "Requests" [ref=f6e19] [cursor=pointer]:
+          - /url: /client/requests
+        - link "Invoices" [ref=f6e23] [cursor=pointer]:
+          - /url: /client/invoices
+    - generic [ref=f6e28]:
+      - banner [ref=f6e29]:
+        - generic [ref=f6e31]:
+          - heading "Dashboard" [level=1] [ref=f6e32]
+          - paragraph [ref=f6e33]: Aurora Retail Group
+        - generic [ref=f6e34]:
+          - button "Nadia Okafor · Tester" [ref=f6e36]
+          - dialog [ref=f6e91]:
+            - generic [ref=f6e92]:
+              - generic [ref=f6e93]:
+                - heading "Change password" [level=2] [ref=f6e94]
+                - paragraph [ref=f6e95]: Enter your current password and choose a new one.
+              - generic [ref=f6e96]:
+                - text: Current password
+                - textbox "Current password" [active] [ref=f6e97]:
+                  - /placeholder: ••••••••
+              - generic [ref=f6e98]:
+                - text: New password
+                - textbox "New password" [ref=f6e99]:
+                  - /placeholder: ••••••••
+              - generic [ref=f6e100]:
+                - text: Confirm new password
+                - textbox "Confirm new password" [ref=f6e101]:
+                  - /placeholder: ••••••••
+              - generic [ref=f6e102]:
+                - button "Cancel" [ref=f6e103]
+                - button "Change password" [ref=f6e104]
+          - button "Switch to dark theme" [ref=f6e38]
+      - main [ref=f6e42]:
+        - generic [ref=f6e43]:
+          - generic [ref=f6e44]:
+            - generic [ref=f6e83]:
+              - generic [ref=f6e84]: Active Fleet
+              - generic [ref=f6e85]: "7"
+              - generic [ref=f6e86]: Smartphones + SIM Cards, all Contracts
+            - generic [ref=f6e87]:
+              - generic [ref=f6e88]: Open Requests
+              - generic [ref=f6e89]: "3"
+              - generic [ref=f6e90]: Submitted or In Progress
+          - generic [ref=f6e53]:
+            - generic [ref=f6e54]:
+              - generic [ref=f6e55]:
+                - heading "Latest Client Invoice" [level=2] [ref=f6e56]
+                - paragraph [ref=f6e57]: Most recent month per Contract
+              - link "View all" [ref=f6e58] [cursor=pointer]:
+                - /url: /client/invoices
+            - list [ref=f6e61]:
+              - listitem [ref=f6e62]:
+                - generic [ref=f6e63]:
+                  - paragraph [ref=f6e64]: Aurora Retail Group — France
+                  - paragraph [ref=f6e65]: August 2026
+                - generic [ref=f6e66]:
+                  - generic [ref=f6e67]: Approved
+                  - generic [ref=f6e69]: €2,452.50
+              - listitem [ref=f6e70]:
+                - generic [ref=f6e71]:
+                  - paragraph [ref=f6e72]: Aurora Retail Group — United Kingdom
+                  - paragraph [ref=f6e73]: August 2026
+                - generic [ref=f6e74]:
+                  - generic [ref=f6e75]: Awaiting approval
+                  - generic [ref=f6e77]: £1,260.00
+      - paragraph [ref=f6e78]: Demo data — names, amounts and statuses on this screen are synthetic and do not represent real Clients, Agents or invoices.
+  - alert [ref=f6e79]

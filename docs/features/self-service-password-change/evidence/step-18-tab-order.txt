@@ -1,0 +1,33 @@
+=== Step 18: tab-through with visible focus ring at each stop ===
+tab 1 -> "{\"i\":\"\",\"tag\":\"A\",\"role\":null,\"name\":\"Dashboard\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 2 -> "{\"i\":\"\",\"tag\":\"A\",\"role\":null,\"name\":\"Fleet\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 3 -> "{\"i\":\"\",\"tag\":\"A\",\"role\":null,\"name\":\"Requests\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 4 -> "{\"i\":\"\",\"tag\":\"A\",\"role\":null,\"name\":\"Invoices\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 5 -> "{\"i\":\"\",\"tag\":\"BUTTON\",\"role\":null,\"name\":\"Nadia Okafor · Tester\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 6 -> "{\"i\":\"\",\"tag\":\"BUTTON\",\"role\":null,\"name\":\"Switch to dark theme\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 7 -> "{\"i\":\"\",\"tag\":\"A\",\"role\":null,\"name\":\"View all\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 8 -> "{\"i\":\"\",\"tag\":\"A\",\"role\":null,\"name\":\"Dashboard\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 9 -> "{\"i\":\"\",\"tag\":\"A\",\"role\":null,\"name\":\"Fleet\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 10 -> "{\"i\":\"\",\"tag\":\"A\",\"role\":null,\"name\":\"Requests\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 11 -> "{\"i\":\"\",\"tag\":\"A\",\"role\":null,\"name\":\"Invoices\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 12 -> "{\"i\":\"\",\"tag\":\"BUTTON\",\"role\":null,\"name\":\"Nadia Okafor · Tester\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 13 -> "{\"i\":\"\",\"tag\":\"BUTTON\",\"role\":null,\"name\":\"Switch to dark theme\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+tab 14 -> "{\"i\":\"\",\"tag\":\"A\",\"role\":null,\"name\":\"View all\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\",\"outlineColor\":\"rgb(83, 58, 253)\"}"
+-- 5th tab stop (chip):
+"{\"tag\":\"BUTTON\",\"role\":null,\"name\":\"Nadia Okafor · Tester\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\"}"
+-- Enter opens menu, focus stop:
+"{\"tag\":\"BUTTON\",\"role\":\"menuitem\",\"name\":\"Change password\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\"}"
+-- Tab within menu, next stop:
+"{\"tag\":\"BUTTON\",\"role\":\"menuitem\",\"name\":\"Log out\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\"}"
+-- Shift+Tab back to Change password:
+"{\"tag\":\"BUTTON\",\"role\":\"menuitem\",\"name\":\"Change password\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\"}"
+-- Enter activates Change password -> dialog opens, focus stop:
+"{\"tag\":\"INPUT\",\"role\":null,\"name\":\"\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\"}"
+-- Tab (field 2):
+"{\"tag\":\"INPUT\",\"role\":null,\"name\":\"\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\"}"
+-- Tab (field 3):
+"{\"tag\":\"INPUT\",\"role\":null,\"name\":\"\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\"}"
+-- Tab (Cancel button):
+"{\"tag\":\"BUTTON\",\"role\":null,\"name\":\"Cancel\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\"}"
+-- Tab (Change password submit button):
+"{\"tag\":\"BUTTON\",\"role\":null,\"name\":\"Change password\",\"outlineStyle\":\"solid\",\"outlineWidth\":\"2px\"}"

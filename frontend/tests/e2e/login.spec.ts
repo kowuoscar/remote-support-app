@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { logout } from "./helpers";
 
 /**
  * The real login flow (auth-login-flow ticket), driven against a real backend + Postgres (see
@@ -49,8 +50,7 @@ test.describe("login", () => {
     await fillAndSubmit(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     await expect(page).toHaveURL(/\/manager$/);
 
-    await page.getByRole("button", { name: "Log out" }).click();
-    await expect(page).toHaveURL(/\/login/);
+    await logout(page);
 
     await page.goto("/manager");
     await expect(page).toHaveURL(/\/login/);

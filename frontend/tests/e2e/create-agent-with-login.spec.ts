@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { logout } from "./helpers";
 
 /**
  * A Manager creates an Agent together with its login (agent-login-on-creation spec,
@@ -42,8 +43,7 @@ test.describe("create agent with login", () => {
     await expect(page).toHaveURL(/\/manager\/agents\/.+/);
     await expect(page.getByText(agentEmail)).toBeVisible();
 
-    await page.getByRole("button", { name: "Log out" }).click();
-    await expect(page).toHaveURL(/\/login/);
+    await logout(page);
 
     await login(page, agentEmail, agentPassword);
     await expect(page).toHaveURL(/\/agent$/);

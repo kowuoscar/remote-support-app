@@ -1,0 +1,25 @@
+- generic [ref=f4e1]:
+  - alert [ref=f4e25]: Sign in
+  - generic [ref=f4e131]:
+    - banner [ref=f4e132]:
+      - generic [ref=f4e133]:
+        - generic [ref=f4e134]: "N"
+        - generic [ref=f4e135]: Remote Support Platform
+      - button "Switch to dark theme" [ref=f4e136]
+    - main [ref=f4e140]:
+      - generic [ref=f4e141]:
+        - generic [ref=f4e142]:
+          - heading "Sign in" [level=1] [ref=f4e143]
+          - paragraph [ref=f4e144]: Use your Manager, Agent or Client Portal credentials.
+        - status [ref=f4e145]:
+          - generic [ref=f4e149]: Your password was changed. Sign in with your new password.
+        - generic [ref=f4e151]:
+          - generic [ref=f4e152]:
+            - generic [ref=f4e153]: Email
+            - textbox "Email" [active] [ref=f4e154]:
+              - /placeholder: you@example.com
+          - generic [ref=f4e155]:
+            - generic [ref=f4e156]: Password
+            - textbox "Password" [ref=f4e157]:
+              - /placeholder: ••••••••
+          - button "Sign in" [ref=f4e158]

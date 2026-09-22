@@ -1,0 +1,35 @@
+=== Step 10 summary: mvn verify / frontend vitest / typecheck / lint / e2e (isolated) / visual — all green ===
+
+-- mvn verify --
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  02:58 min
+[INFO] Finished at: 2026-09-22T11:22:17+02:00
+[INFO] ------------------------------------------------------------------------
+
+-- frontend vitest --
+      Tests  186 passed (186)
+   Start at  11:19:34
+   Duration  7.95s (transform 1.94s, setup 5.52s, import 3.73s, tests 16.71s, environment 24.15s)
+
+
+-- typecheck (tsc --noEmit) --
+tsc exit: 0
+
+-- lint --
+
+> frontend@0.1.0 lint
+> eslint
+
+
+-- e2e isolated suite (frontend/tests/e2e via npm run test:e2e:isolated) --
+  59 passed (2.5m)
+  59 passed (2.5m)
+
+-- visual suite (npx playwright test --config=playwright.config.ts, run deliberately -- NOT part of verify, no --update-snapshots used) --
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  40 passed (13.1s)
+
+-- golden inspection: every png changed/added on this branch (per step-9's git diff) was visually opened; each one shows the console's top bar (sidebar + banner header with the viewer chip). Sampled: change-password-dialog-open-desktop-light.png, manager-menu-open-desktop-light.png, agent-carriers-mobile-dark.png -- all show a top bar. Every changed golden in the diff is a console surface (manager/agent/client dashboards, carriers, stock, requests, the new change-password-dialog and menu-open captures); none is a top-bar-less surface such as the sign-in page.

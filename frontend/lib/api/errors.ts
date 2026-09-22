@@ -12,10 +12,15 @@ export async function readErrorCode(response: Response): Promise<string | null> 
  * flag invalid, and an optional way out when retrying can't help (e.g. the Agent it targets is
  * gone). Held once so `create-tester-dialog.tsx`, `create-agent-dialog.tsx` and
  * `create-agent-login-dialog.tsx` share one shape instead of three copies (review finding F8).
+ *
+ * `field`'s union is widened to also cover `ChangePasswordDialog`'s three password fields
+ * ("current"/"new"/"confirmNew") rather than that dialog declaring a fourth, parallel error type
+ * beside this one (review finding F5) — a dialog with only one or two of these fields simply never
+ * produces the values it doesn't have.
  */
 export type SubmitError = {
   message: string;
-  field: "email" | "password" | null;
+  field: "email" | "password" | "current" | "new" | "confirmNew" | null;
   link?: { href: string; label: string };
 };
 

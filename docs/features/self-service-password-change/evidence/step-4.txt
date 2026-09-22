@@ -1,0 +1,21 @@
+=== Step 4: wrong current password -> 400 with code (not 401/403); unchanged old password still works ===
+create HTTP_STATUS:201
+-- POST /api/me/password with deliberately wrong current password:
+HTTP/1.1 400 
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Tue, 22 Sep 2026 09:18:01 GMT
+Connection: close
+
+HTTP_STATUS:400
+body:
+{"message":"The current password is incorrect","code":"WRONG_CURRENT_PASSWORD"}
+-- confirm unchanged old password still signs in:
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmcmVzaC1hZ2VudC1zdGVwNC0xNzkwMDY4NjgxQGFnZW50cy5leGFtcGxlIiwianRpIjoiNTIxZmQzZjQtOTQwZC00YTRkLTlkNGUtOGY3YTc3MjA3MDZmIiwidGVuYW50SWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJyb2xlIjoiQUdFTlQiLCJpYXQiOjE3OTAwNjg2ODIsImV4cCI6MTc5MDA3MjI4Mn0._BEAwO3oDa8hC0Z7DK3xeTD6me6vl3I_fjSy6nQfPLg","role":"AGENT"}
+HTTP_STATUS:200

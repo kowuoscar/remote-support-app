@@ -1,0 +1,45 @@
+=== npm run test:e2e:isolated (frontend/tests/e2e via playwright.e2e.isolated.config.ts) ===
+Running 59 tests using 1 worker
+  59 passed (2.5m)
+
+-- full test list (tail) --
+[WebServer]   digest: '3054102308'
+[WebServer] }
+  ✓  32 tests/e2e/fee-logging-and-provisioning.spec.ts:364:7 › fee logging and provisioning › a tester submits a replace sim; completing it retires the old one and installs the new one in its smartphone (4.7s)
+  ✓  33 tests/e2e/fleet-management.spec.ts:27:7 › fleet management › manager adds a smartphone and a SIM card to a contract's fleet (1.8s)
+  ✓  34 tests/e2e/fleet-management.spec.ts:57:7 › fleet management › an agent sees their contract's fleet and changes a smartphone's status (2.8s)
+  ✓  35 tests/e2e/fleet-management.spec.ts:115:7 › fleet management › a tester sees their client's fleet (2.0s)
+  ✓  36 tests/e2e/fleet-management.spec.ts:139:7 › fleet management › a manager adds a client-owned smartphone without a serial, and the agent sets it from the fleet page (2.1s)
+  ✓  37 tests/e2e/fleet-management.spec.ts:171:7 › fleet management › an agent installs a SIM card into a smartphone from the fleet page and the tester's fleet shows it (2.6s)
+  ✓  38 tests/e2e/fleet-management.spec.ts:226:7 › fleet management › an agent and a tester are rejected from a contract that isn't theirs (2.8s)
+  ✓  39 tests/e2e/login.spec.ts:22:7 › login › visiting a protected route while unauthenticated redirects to login (107ms)
+  ✓  40 tests/e2e/login.spec.ts:28:7 › login › invalid credentials show an error and grant no access (173ms)
+  ✓  41 tests/e2e/login.spec.ts:41:9 › login › manager login reaches their own shell (325ms)
+  ✓  42 tests/e2e/login.spec.ts:41:9 › login › agent login reaches their own shell (323ms)
+  ✓  43 tests/e2e/login.spec.ts:41:9 › login › tester login reaches their own shell (326ms)
+  ✓  44 tests/e2e/login.spec.ts:48:7 › login › logout ends the session, then a protected route redirects to login (505ms)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3054102308'
+[WebServer] }
+  ✓  45 tests/e2e/manager-approves-requests.spec.ts:29:7 › manager approves requests › a tester submits a provision sim, the manager approves it from pending requests, and the agent completes it (5.6s)
+  ✓  46 tests/e2e/manager-approves-requests.spec.ts:105:7 › manager approves requests › a manager rejects a request with a reason, and the tester sees it (2.5s)
+  ✓  47 tests/e2e/manager-decides-return-disposition.spec.ts:31:7 › manager decides return disposition › a tester returns a company-owned smartphone and a sim card, the manager posts one and cancels the other, and the agent completes with a date (4.9s)
+  ✓  48 tests/e2e/manager-entity-setup.spec.ts:31:7 › manager entity setup › manager creates a client, an agent and a contract, and sees them listed (1.3s)
+  ✓  49 tests/e2e/manager-entity-setup.spec.ts:74:7 › manager entity setup › manager adds a tester under a client, flagged as primary contact (1.1s)
+  ✓  50 tests/e2e/manager-entity-setup.spec.ts:97:7 › manager entity setup › an agent session is rejected from a manager-only page and API route (373ms)
+  ✓  51 tests/e2e/manager-entity-setup.spec.ts:118:7 › manager entity setup › a tester session is rejected from a manager-only page and API route (382ms)
+  ✓  52 tests/e2e/manager-invoice-review-queue.spec.ts:118:7 › manager invoice review queue › a manager opens a sent client invoice from the review queue, approves it, and it leaves the queue (2.3s)
+  ✓  53 tests/e2e/manager-invoice-review-queue.spec.ts:164:7 › manager invoice review queue › a manager opens a sent invoice from the dashboard's pending approvals card (2.2s)
+  ✓  54 tests/e2e/manager-invoice-review-queue.spec.ts:184:7 › manager invoice review queue › a manager overrides and approves a sent agent invoice from the review queue, then marks it paid and it leaves the queue (1.5s)
+  ✓  55 tests/e2e/return-client-owned-smartphones.spec.ts:28:7 › return client-owned smartphones › a tester returns a client-owned smartphone, the agent completes it, and the fleet shows it retired with its sim card uninstalled (3.6s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3054102308'
+[WebServer] }
+  ✓  56 tests/e2e/sim-swap-moves.spec.ts:26:7 › sim swap moves › a tester submits an exchange between two smartphones, the agent completes it, and both fleet rows swap (4.0s)
+  ✓  57 tests/e2e/tester-request-submission.spec.ts:53:7 › tester request submission › a tester submits every request type, another tester at the same client sees them, and the agent sees them filtered by contract (4.5s)
+  ✓  58 tests/e2e/tester-request-submission.spec.ts:102:7 › tester request submission › a tester from a different client and an agent on a different contract are both rejected (3.2s)
+  ✓  59 tests/e2e/topup-fee-from-option.spec.ts:14:7 › topup fee from a topup option › an agent logs a topup fee by picking an option and adjusting the amount (3.0s)
+
+  59 passed (2.5m)

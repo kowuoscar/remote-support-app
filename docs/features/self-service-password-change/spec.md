@@ -1,7 +1,7 @@
 ---
 feature: self-service-password-change
 epic: login-lifecycle
-status: draft
+status: approved
 date: 2026-09-22
 ---
 
@@ -576,6 +576,17 @@ which repository method ran, never a `PasswordEncoder` interaction.
   coverage belongs.
 
 ## Decisions taken
+
+- **Log out moves into the chip's menu and the standalone log-out button is
+  removed from all three consoles' top bars.** Put to the human at the spec
+  gate on 2026-09-22 and confirmed there, rather than left as an inference
+  from the chip answer: the spec-writer had recorded it for veto, and it is
+  the one user-visible change the chip choice implies without stating. A menu
+  of one item is not a menu, and two controls doing the same thing side by
+  side is a defect. The chip becomes the single place for account actions.
+  The menu item keeps the shipped accessible name "Log out", so the shared
+  `logout(page)` helper in `frontend/tests/e2e/helpers.ts` gains one step and
+  no existing spec is edited.
 
 ### Answered by the human at the spec gate, 2026-09-22
 

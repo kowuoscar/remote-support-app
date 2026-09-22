@@ -58,7 +58,10 @@ Goals:
   other way the request can fail, and does not look like an expired session.
 - A password is never rendered, logged, echoed in a response, or stored as
   anything but a BCrypt hash produced by the existing `PasswordEncoder` bean.
-- A surface exists that a user can actually find — see `## Open questions` 3.
+- A new password is held to one rule — at least 8 characters — and that same
+  rule holds everywhere a password is set, not only here.
+- The capability is reachable from every console without being told a URL, from
+  a menu on the top bar's viewer chip.
 
 Non-goals — each is something a reasonable agent would otherwise build:
 
@@ -74,8 +77,8 @@ Non-goals — each is something a reasonable agent would otherwise build:
   would make this feature's diff mostly about code it does not use.
 - **No login deactivation, no enabled/disabled concept.** That is
   `deactivate-a-login`, and it is the feature that introduces a per-request
-  account-state check — which is also where global session revocation belongs
-  (see `## Open questions` 2).
+  account-state check — which is also where global session revocation belongs,
+  as the human settled on 2026-09-22 (see `## Decisions taken`).
 - **No change to a Login's email/username.** Explicitly left out of scope at
   epic init (`docs/roadmap/login-lifecycle.md` `## Later`).
 - **No forgotten-password flow.** A user who cannot sign in at all cannot use
@@ -90,13 +93,18 @@ Non-goals — each is something a reasonable agent would otherwise build:
   infrastructure and introducing one is its own decision.
 - **No two-factor authentication, no session list, no "sign out everywhere"
   button.**
-- **No profile or settings surface beyond the password.** Whatever surface
-  answers `## Open questions` 3 carries exactly one thing: changing the
-  password. No name, no email, no preferences, no avatar.
+- **No profile or settings surface, and no account page.** The new menu carries
+  exactly two items — changing the password, and the sign-out that already
+  exists. No name, no email, no preferences, no avatar, and no route of its own.
+- **No general-purpose menu component library.** The menu this feature adds is
+  built for this one trigger, in the repository's own idiom. No headless-UI or
+  menu package is introduced.
 - **No change to how sign-in validates a password.** `LoginRequest` keeps
-  `@NotBlank` and only `@NotBlank`, whatever is decided about rules for *setting*
-  a password. Enforcing a shape at sign-in would lock out every existing
-  password that does not meet it.
+  `@NotBlank` and only `@NotBlank`. The 8-character minimum applies where a
+  password is *written*, never where one is checked — enforcing a shape at
+  sign-in would lock out every existing password that does not meet it.
+- **No re-validation of existing passwords.** Nobody is asked to change a
+  password because the new minimum exists, and no existing Login stops working.
 
 ## User stories
 
@@ -128,32 +136,38 @@ Non-goals — each is something a reasonable agent would otherwise build:
     sign-in, so that the secret that was handed around no longer works.
 11. As a user, I want unambiguous confirmation that the change took effect, so
     that I am not left wondering whether to try again.
-12. As a user, I want the new password held to the same rule as every other
-    place in this product where a password is set, so that a password I am
-    allowed to have in one place is not refused in another. (Which rule —
-    `## Open questions` 1.)
-13. As a user, I want to know what my password change does to sessions — mine
-    here, and any other browser I am signed in on. (`## Open questions` 2.)
-14. As a user, I want to be able to find the screen without being told a URL,
-    so that the capability exists in practice and not only in the API.
-    (`## Open questions` 3.)
-15. As a user, I want my password never shown on screen in the clear, never
+12. As a user, I want a new password of at least 8 characters required, so that
+    I cannot quietly reduce my own Login to a single letter.
+13. As a Manager creating an Agent or a Tester, I want the same 8-character
+    minimum applied to the temporary password I assign, so that the product is
+    not stricter about the password someone chooses for themselves than about
+    the one I hand them.
+14. As a user who has just changed my password, I want to be signed out here and
+    returned to sign-in with a confirmation, so that I immediately prove the new
+    password works rather than taking the product's word for it.
+15. As a user, I want to reach the password change from a menu on my own
+    identity chip, in any console, so that the capability exists in practice and
+    not only in the API.
+16. As a user opening that menu, I want Escape and a click elsewhere to close it
+    and keyboard focus to behave, so that a menu is not a trap.
+17. As a user, I want my password never shown on screen in the clear, never
     written to a log, and never returned in a response, so that using the
     feature does not itself leak the secret.
-16. As the company, I want an audit line recording that a password was changed,
+18. As the company, I want an audit line recording that a password was changed,
     by whom and when — carrying no password and no hash — so that the event is
     traceable afterwards.
-17. As a user of any of the three consoles, I want the same screen, the same
-    wording and the same behaviour, so that support does not depend on which
-    console someone is looking at.
-18. As a user on a phone, I want the form usable at the mobile breakpoint, so
-    that the rail becoming a drawer does not strand the screen.
-19. As a user reaching the form by keyboard, I want visible focus and a working
-    tab order, so that the product's stated accessibility floor holds on a new
-    surface.
-20. As everyone else already using the product, I want nothing about sign-in,
-    login creation or any existing screen to change, so that this carries no
-    release risk.
+19. As a user of any of the three consoles, I want the same menu, the same form,
+    the same wording and the same behaviour, so that support does not depend on
+    which console someone is looking at.
+20. As a user on a phone, I want the menu and the form usable at the mobile
+    breakpoint, so that the top bar's narrow layout does not strand them.
+21. As a user working by keyboard, I want to open the menu, move through it,
+    reach the form and dismiss either one without a mouse, with visible focus
+    throughout, so that the product's stated accessibility floor holds on the
+    first overlay menu it has ever had.
+22. As everyone else already using the product, I want nothing about sign-in,
+    login creation or any existing screen to change beyond sign-out's new home,
+    so that this carries no release risk.
 
 ## Solution
 
@@ -208,8 +222,9 @@ this feature exists to fix, and would destroy what they had typed. The `400`
 carries a `code` the form branches on, in the same `{code, message}` shape
 `USERNAME_TAKEN` already established and `readErrorCode` already reads.
 
-Codes: a wrong current password, and (if `## Open questions` 1 is answered with
-a rule) a new password that fails it, each get their own.
+Three distinct codes, so the form can point at the right field: a wrong current
+password, a new password shorter than the minimum, and a new password identical
+to the current one.
 
 ### Verifying the current password
 
@@ -244,13 +259,29 @@ creation paths — and their tests — for a feature that writes neither.
 `users.password_hash`, a column that has existed since `V1`. V55 is the highest
 migration on `main` and stays the highest.
 
-The one thing that would change this is `## Open questions` 2 being answered
-with "changing a password ends other sessions" — a stateless JWT cannot be
-revoked, so that answer requires a `password_changed_at` column on `users` and a
-check of it in the JWT filter on every request. That is a real feature of its
-own, and it is the same per-request account-state check `deactivate-a-login`
-must build anyway. If the human chooses it, this feature reserves **V56** and
-the recommendation in that question is overridden.
+In particular there is **no `password_changed_at` column and no per-request
+account-state check**. The human settled the session question in favour of
+signing the user out of this browser only (see `## Decisions taken`), and a
+stateless JWT needs no help to do that — the cookie is simply dropped. Tokens
+already issued to other browsers expire on their own within the hour. Revoking
+them would need exactly the per-request check `deactivate-a-login` must build
+anyway, and that is where it stays.
+
+### The password rule
+
+One rule: **a password must be at least 8 characters.** No complexity classes,
+no character-set requirements. It is a Bean Validation constraint on the request
+DTO at every boundary that *writes* a password — this feature's change request,
+`AgentCreateRequest` and `TesterCreateRequest` — so the controller enforces it
+and no service re-validates it (Backend rule 1).
+
+`LoginRequest` is **not** touched and keeps `@NotBlank` alone. This asymmetry is
+the point: a rule at sign-in would lock out every existing password shorter than
+8 characters, and there is no upgrade path for a password nobody can read. A
+violation on the change path returns the coded `400` described above; on the two
+creation paths it returns the ordinary Bean Validation `400` those endpoints
+already produce for a blank password, so no existing error-handling code changes
+shape.
 
 ### Observability
 
@@ -263,24 +294,63 @@ failed verification is not audited — a mistyped password is ordinary, and
 logging attempts on a per-user basis would be the beginning of a lockout feature
 this spec has ruled out.
 
-### Frontend
+### Frontend: a menu on the viewer chip, opening a dialog
 
-One new surface, holding one form, plus a plain pass-through BFF proxy in the
-caller's own namespace — the same shape every other proxy in this app already
-has, calling the backend through the shared `backendFetch` helper so the JWT
-never leaves the httpOnly cookie and never reaches the browser.
+The human chose the top bar's viewer identity chip as the way in. That decides
+two things and raises a third.
 
-The form is a Client Component (it has state and validation), with three
-password inputs: current, new, and confirm-new. The confirm field is checked in
-the browser only and is never sent — the backend has no use for a field whose
-only job is to catch a typo in another field. Submission is a fetch to the BFF
-proxy; failure renders the coded message inline on the field it concerns, using
-the existing inline error alert the three creation dialogs already use.
+**The chip becomes a menu trigger.** Today it is a static `<span>` rendered by
+`TopBar`, a Server Component, beside a standalone sign-out button and the theme
+toggle. It becomes a button that opens a small overlay menu. This is a new
+interactive pattern for this design system and is treated as such — see
+`## Design direction`.
 
-Where that surface lives, and what it is called, is `## Open questions` 3. Note
-for whoever answers it: `CONTEXT.md` puts "account" on the _Avoid_ list twice —
-under **Tenant** and under **Client** — so this surface must not be called
-"Account". The glossary's word for the thing being changed is **Login**.
+**Logging out moves into that menu.** The menu holds two items: *Change
+password* and *Log out*. The standalone log-out button is absorbed rather than
+left beside its own menu — a menu of one item is not a menu, and two ways to log
+out sitting next to each other is a defect, not a convenience. The item keeps
+the shipped accessible name, "Log out", so the copy a user reads does not change
+and neither does the selector the e2e helper uses. The theme toggle stays where
+it is; it is a control, not an identity action. This is the one user-visible
+consequence of the human's choice that the human did not state outright, so it
+is recorded in `## Decisions taken` for veto and has its own `[human]` step in
+the walkthrough.
+
+**The form is a dialog, not a route.** *Change password* opens a modal dialog on
+whatever page the user is on, built on the repository's existing `DialogShell` —
+a native `<dialog>` opened with `showModal()`, so the focus trap, Escape,
+backdrop click and inertness of the page behind come from the platform rather
+than from new code. A route would have to exist three times over (one per console
+shell, since each console's layout supplies its own rail) or grow a shell of its
+own, and it would navigate the user away from whatever they were doing for a
+task that takes fifteen seconds. Reasons recorded in `## Decisions taken`.
+
+The dialog is a Client Component with three password inputs — current, new,
+confirm-new — following the field shape `LoginCredentialFields` established
+(label above an `Input`, explicit `autoComplete` hints: `current-password` for
+the first, `new-password` for the other two). That component is **not** reused
+verbatim: it pairs an email with a single password, and this form has three
+passwords and no email. Failures render through the existing
+`DialogErrorAlert` the three creation dialogs already use, branching on the
+response `code` via `readErrorCode`, exactly as `create-agent-login-dialog` does.
+
+Behind it sits a plain pass-through BFF proxy in the caller's own namespace —
+the same shape every other proxy in this app has, calling the backend through
+the shared `backendFetch` helper, so the JWT never leaves the httpOnly cookie.
+
+**On success the dialog does not simply close.** Per the session decision, it
+drops the session cookie through the existing sign-out route and sends the user
+to the sign-in page carrying a confirmation that the password was changed. The
+confirm-new field is checked in the browser only and never sent; the backend has
+no use for a field whose only job is catching a typo in another field.
+
+**Naming:** neither the menu item nor the dialog uses the word "account".
+`CONTEXT.md` puts it on the _Avoid_ list twice, under **Tenant** and under
+**Client**. The menu item reads *Change password* — the action, which is all the
+menu contains.
+
+`lib/nav.tsx` is not touched. No nav item is added to any of the three rails, and
+no route is added to any console.
 
 ### Prefactoring
 
@@ -290,54 +360,114 @@ two login services each encoding a password — is named above and is
 
 ## Design direction
 
-One new surface, one mode: **Operate** — the visitor completes a task and
-leaves. It is not Persuade (nothing to decide), not Read (nothing to
-understand), not Experience.
+Two surfaces, both **Operate** — the visitor completes a task and leaves. The
+viewer-chip **menu** (choosing where to go), and the **change-password dialog**
+(doing the thing). Neither is Persuade, Read or Experience.
 
-The visual world is already committed in `DESIGN.md` and nothing about it is
-reopened here. This surface introduces **no new token, no new component and no
-new interaction pattern**; it is assembled entirely from the shipped vocabulary,
-pinned against the three existing creation dialogs:
+### This feature adds a pattern; it does not only assemble existing ones
 
-- A single `Card` (12px radius, flat hairline border, no shadow — the
-  Flat-At-Rest Rule; this is not an overlay) holding the form, on the standard
-  page canvas inside the existing shell.
-- Inputs at the shipped spec: 8px radius, `hairline-strong` border, `canvas`
-  background, 36px height, border shifting to `primary` on `:focus-visible`.
-- Exactly **one** pill-radius control on the screen — the "Change password"
-  primary action — per the Pill-Is-Primary Rule. Any secondary action (Cancel,
-  or a link away) stays at the 8px control radius.
-- Failure uses the existing inline error alert component the creation dialogs
-  use, in `danger`/`danger-bg`; success uses the `success` tone. No new alert
-  style.
-- Below `md` the rail is already a drawer and the card is full-width; the form
-  reflows to one column, which it already is.
+An earlier draft of this spec claimed the feature introduced no new component
+and no new interaction. The human's choice of the viewer chip over a nav item
+makes that false, and the spec says so plainly rather than quietly: **the
+actions menu is the first of its kind in this design system**, and this feature
+is what commits it.
 
-If `## Open questions` 3 is answered with a nav entry, then **`DESIGN.md`'s
-per-role nav item list is updated in the same commit as the code** — frontend
-rule 7 — and the item takes the identical rail styling and active-state
-treatment as every existing item, per the Do's list. If it is answered with a
-top-bar change, the viewer identity chip stops being a static `<span>` and that
-*is* a new interaction, which is why the recommendation does not go there.
+What exists today is not a menu. `ContractSwitcher` is the only overlay this
+system has ever shipped, and `DESIGN.md` names it the signature component — but
+it is a `role="listbox"` that *scopes data*, opened from a 220px-wide labelled
+control, with no focus management at all: nothing moves focus into the panel,
+nothing returns it to the trigger, and arrow keys do nothing. Its dismissal
+listeners are mounted unconditionally rather than only while open. It is
+genuine visual prior art and no more than that.
 
-Visual goldens: one new surface × theme × breakpoint set, captured against the
-existing stub-backend fixtures rather than a live database. No existing golden
-should move; one that does is a finding, not a recapture.
+So this feature owes real new behaviour: a trigger with
+`aria-haspopup="menu"`/`aria-expanded`, a `role="menu"` panel of
+`role="menuitem"` buttons, focus moving into the panel on open and **returning
+to the trigger** on close, arrow-key movement between items, and dismissal on
+Escape and on an outside pointer press — with the listeners bound only while the
+menu is open. None of that exists anywhere in the repository to copy.
+
+The **dialog**, by contrast, genuinely is assembled: `DialogShell` is a native
+`<dialog>` opened with `showModal()`, so the platform supplies the focus trap,
+the Escape handling, the backdrop and the inertness of the page behind.
+
+### What is pinned against what
+
+The menu's *appearance* is pinned against `ContractSwitcher`'s open panel so the
+system gains a behaviour, not a second look: `rounded-xl` (12px),
+`canvas-overlay`, hairline border, `shadow-elevated` — the overlay z-layer,
+which is the only place shadow is permitted (the Flat-At-Rest Rule). Items take
+the 8px control radius and the rail's own row rhythm (`px-3 py-2`, `text-sm
+font-medium`), `ink-secondary` at rest, `canvas-soft` on hover — the same
+language nav items already speak. No indigo fill: the Reserved Indigo Rule
+allots indigo to the primary stat number, current selection and the one pill
+action, and a menu item is none of those.
+
+The dialog is pinned against the three creation dialogs, which it matches
+exactly: `DialogShell`'s 12px radius, `canvas-overlay`, `shadow-elevated-strong`
+and `bg-ink/40` backdrop; inputs at 8px radius, `hairline-strong` border, 36px
+height, border shifting to `primary` on `:focus-visible`; the existing
+`DialogErrorAlert` in `danger`/`danger-bg` for failures. Exactly **one**
+pill-radius control in the dialog — the "Change password" commit action — per
+the Pill-Is-Primary Rule; Cancel stays at the 8px control radius.
+
+At the mobile breakpoint the chip is currently hidden below `sm`; the trigger
+must **not** inherit that, or the capability disappears on a phone. The menu
+panel is right-aligned to the trigger and width-capped so it cannot overflow the
+viewport; the dialog is already `w-[min(440px,90vw)]` via `DialogShell`'s
+default.
+
+### What `DESIGN.md` gains, in the same commit
+
+Frontend rule 7: every visual change either conforms to `DESIGN.md` or changes
+it in the same commit. This one changes it, in four places:
+
+1. **Components → Menu**, a new entry: the trigger-plus-panel actions-menu
+   pattern, its tokens, and its distinction from `ContractSwitcher` (a menu
+   performs actions; the switcher scopes data — they must not converge).
+2. **A named rule** for the overlay layer's new inhabitant: a menu returns focus
+   to its trigger on close and is dismissible by Escape and by an outside press.
+3. **Layout**, where the top bar is described as "(title, viewer identity chip,
+   theme toggle)": the chip becomes the menu trigger, and logging out moves
+   inside it.
+4. **Elevation**, where `shadow-elevated` today lists "review dialogs, the
+   Contract switcher's open dropdown panel": the menu joins that list.
+
+### This feature needs the `design` slot
+
+Because it commits a pattern rather than assembling shipped ones, the
+implementation must run with the **`design` slot** engaged, not built freehand
+against `DESIGN.md` alone. A menu is exactly the component where an agent
+left to its own devices produces the category default. The frontend playbook's
+rule holds: one system decides during implementation.
+
+Visual goldens: the top bar with the menu **open**, and the dialog **open**, per
+theme and breakpoint, captured against the existing stub-backend fixtures rather
+than a live database. Every existing golden containing a top bar **will** move,
+because the chip and the sign-out button change — those recaptures are expected
+and travel in the same commit as the `DESIGN.md` edit, which is what makes them
+a decided evolution rather than drift. A golden moving on a surface with no top
+bar is a finding, not a recapture.
 
 ## Constraints
 
-- **No Flyway migration.** V55 is the highest on `main` and remains so. The
-  single exception is `## Open questions` 2 being answered against its
-  recommendation, which reserves **V56** for a `password_changed_at` column.
+- **No Flyway migration.** V55 is the highest on `main` and remains so. No
+  `password_changed_at` column, no per-request account-state check.
 - Success is `204 No Content`. Every refusal is `400` with
   `{"code": "...", "message": "..."}`. **Never `401`, never `403`** — the
   frontend session layer reads `401` as an expired session.
 - The password is hashed by the existing `PasswordEncoder` bean
   (`BCryptPasswordEncoder`, `security/SecurityConfig`). No second encoder, no
   cost-factor change, no algorithm change.
-- `LoginRequest`'s password validation stays `@NotBlank` and nothing else,
-  whatever is decided in `## Open questions` 1. A shape rule at sign-in would
-  lock out every existing password shorter than it.
+- The password minimum is **8 characters**, no complexity classes, enforced at
+  every boundary that writes a password: this feature's change request,
+  `AgentCreateRequest` and `TesterCreateRequest`.
+- `LoginRequest`'s password validation stays `@NotBlank` and nothing else. A
+  shape rule at sign-in would lock out every existing password shorter than it.
+- No existing password is re-validated, expired, or migrated. The minimum binds
+  writes only.
+- The menu trigger must be reachable at every breakpoint, including below `sm`
+  where the viewer chip is hidden today.
 - The endpoint is reachable by `MANAGER`, `AGENT` and `TESTER` alike, and acts
   only on the caller's own `User` row. No request field may name a user, and no
   path variable may either.
@@ -404,19 +534,41 @@ which repository method ran, never a `PasswordEncoder` interaction.
   is `400` (not `401`), the body carries the expected `code`, and a subsequent
   `loginAs` with the *old* password still succeeds — i.e. a failed attempt left
   the password alone.
-- **Frontend component tests** (Vitest + Testing Library) for the form, in the
+- **The 8-character minimum is asserted at the same HTTP seam, on all three
+  write paths** — the change endpoint, Agent creation and Tester creation each
+  refuse a 7-character password with `400` — and `AuthLoginTest` is shown
+  untouched and passing, which is what proves sign-in did not inherit the rule.
+  A table-driven `@ParameterizedTest` covers the boundary (7 refused, 8
+  accepted) rather than copy-pasted per-path tests, per Backend rule 12.
+- **Frontend component tests** (Vitest + Testing Library) for the dialog, in the
   shape `create-agent-login-dialog`'s own tests already use: stub the BFF
   response with each `code`, assert the rendered message and the flagged field;
   assert the mismatch between new and confirm is caught before any request is
   made. The network is stubbed at the fetch boundary, never by reaching into an
   internal function.
+- **Component tests for the menu assert behaviour, not markup**: it opens from
+  the chip, Escape closes it, an outside press closes it, focus lands inside on
+  open and is back on the trigger after close, and both items are reachable by
+  keyboard. This is the feature's genuinely new code and it has no prior art in
+  the repository to lean on — `ContractSwitcher` has no focus behaviour to copy
+  — so it carries the most test weight per line of anything here. Assertions go
+  through the accessibility tree (roles, `aria-expanded`), never class names.
 - **One e2e spec**, under `frontend/tests/e2e/`, one file for this journey step:
-  create a Login through the UI as a Manager, sign in as that person, change the
-  password, then sign in again with the new password and be refused with the
-  old. This is the only place the whole path is exercised in a browser, and it
-  is what the acceptance walkthrough replays.
-- **Visual goldens** for the new surface, per the frontend DoD — one per theme
-  and breakpoint, against the stub backend, not a live database.
+  create a Login through the UI as a Manager, sign in as that person, open the
+  chip menu, change the password, land back on sign-in with the confirmation,
+  sign in with the new password, and be refused with the old. This is the only
+  place the whole path is exercised in a browser, and it is what the acceptance
+  walkthrough replays.
+- **Existing e2e specs log out through the menu now, and the fix is one line.**
+  The shared `logout(page)` helper in `frontend/tests/e2e/helpers.ts` clicks the
+  control by its accessible name, and every spec that logs out imports it. The
+  helper gains the step that opens the menu first; no spec is edited. Keeping
+  the item's accessible name as the shipped "Log out" is what holds that to one
+  line — see `## Decisions taken`. Any spec found clicking the control directly
+  instead of through the helper is moved onto the helper rather than patched.
+- **Visual goldens** for both new surfaces (menu open, dialog open), per theme
+  and breakpoint, against the stub backend. Unlike every previous feature, the
+  existing top-bar goldens are **expected to move** — see `## Design direction`.
 - **No unit test of the change-password service.** It has one branch and a
   Spring context behind it; a unit test with a mocked `PasswordEncoder` would
   assert the mock. Coding standards Backend rule 6 puts a test needing a context
@@ -424,6 +576,76 @@ which repository method ran, never a `PasswordEncoder` interaction.
   coverage belongs.
 
 ## Decisions taken
+
+### Answered by the human at the spec gate, 2026-09-22
+
+These three were filed as `## Open questions` and are now settled. They are
+recorded here, attributed and dated, so a later reader can tell what the human
+chose from what an agent chose.
+
+- **A password must be at least 8 characters, with no complexity classes, and
+  the rule applies to all three paths that set one — this feature's change,
+  Agent creation and Tester creation.** Answered by the human on 2026-09-22,
+  accepting the recommendation. One rule means no asymmetry between the password
+  you choose for yourself and the one a Manager assigns you; length beats
+  composition rules, which push people toward `Passw0rd!`; and it costs no
+  existing user anything, because it binds writes only. `LoginRequest` keeps
+  `@NotBlank`, so no existing password is locked out.
+
+- **Changing a password signs the user out of this browser and returns them to
+  sign-in with a confirmation; other sessions expire on their own within the
+  hour.** Answered by the human on 2026-09-22, accepting the recommendation.
+  Signing out here is free — the session cookie is dropped by a route that
+  already exists — and it makes the user prove the new password immediately,
+  which is the epic's own closing proof. Revoking tokens already issued
+  elsewhere would need a `password_changed_at` column and a check of it on every
+  request, which is the same per-request account-state check `deactivate-a-login`
+  must build and where the epic has already parked the identical question.
+  Consequence: no migration, and V55 stays the highest on `main`.
+
+- **The way in is a menu on the top bar's viewer identity chip, in every
+  console — not a nav item.** Answered by the human on 2026-09-22, **against**
+  the recommendation, which was a "My login" item on all three rails. The
+  consequences are taken seriously rather than absorbed quietly: the chip stops
+  being a static `<span>`, the design system gains its first actions menu, and
+  `## Design direction` was rewritten to say so. `lib/nav.tsx` is not touched
+  and no console gains a route.
+
+### Taken alone — frontend, forced by the chip answer
+
+- **The form is a modal dialog opened from the menu, not a route the menu links
+  to** — `DialogShell` is a native `<dialog>` opened with `showModal()`, so the
+  focus trap, Escape, backdrop and page inertness come from the platform rather
+  than from new code, and the three creation dialogs already establish the exact
+  form vocabulary. A route would have to exist three times over (each console's
+  layout supplies its own rail) or grow a shell of its own, and it would
+  navigate the user away from their work for a fifteen-second task.
+- **Logging out moves into the menu and the standalone button is removed** — a
+  menu of one item is not a menu, and two ways to log out side by side is a
+  defect. This is the one user-visible consequence the human's answer implies
+  without stating; it is cheap to undo, and the walkthrough has a `[human]` step
+  that puts it in front of them.
+- **The menu item keeps the shipped accessible name "Log out"** — the copy a
+  user reads does not change, and the shared e2e `logout(page)` helper needs
+  only the extra step that opens the menu, rather than every spec being edited.
+- **The theme toggle stays outside the menu** — it is a display control, not an
+  identity action, and moving it would be churn this feature has no reason for.
+- **The menu's appearance is pinned to `ContractSwitcher`'s open panel, but none
+  of its code is reused** — the switcher is a data-scoping listbox with no focus
+  management, mounted listeners and a different trigger shape; copying it would
+  inherit exactly the accessibility gaps this pattern must not have. The system
+  gains a behaviour, not a second look.
+- **No menu or headless-UI package is added** — one trigger with two items does
+  not justify a dependency, and the frontend playbook's rule is that one system
+  decides during implementation.
+- **`LoginCredentialFields` is not reused** — it pairs an email with a single
+  "Temporary password"; this form has three password fields and no email. Its
+  field shape and `autoComplete` hints are followed, not its component.
+- **The success path routes through the existing sign-out route rather than a
+  new one** — the cookie-dropping behaviour needed is exactly what that route
+  already does.
+
+### Taken alone — backend and testing
 
 - **The endpoint is `POST /api/me/password`, in the caller's own `/api/me`
   namespace** — `MeController` already establishes `/api/me` as "the signed-in
@@ -479,6 +701,16 @@ which repository method ran, never a `PasswordEncoder` interaction.
   mostly in code it does not call.
 - **No Flyway migration** — the feature overwrites a `V1` column and stores
   nothing new. V55 stays the highest on `main`.
+- **The 8-character minimum is a Bean Validation annotation on each request DTO,
+  not a check inside a service** — Backend rule 1 puts validation at the
+  controller boundary and forbids a service re-validating it; three DTOs is
+  three annotations and one shared message constant.
+- **On the two creation paths the minimum returns the ordinary Bean Validation
+  `400` those endpoints already produce for a blank password, not a new coded
+  body** — no existing frontend error-handling changes shape, and the Manager
+  dialogs already render that response. Only the change-password path, which
+  needs to tell a rule violation from a wrong current password, carries a
+  `code`.
 - **Testing: the existing HTTP seam is reused and no new seam is added**; the
   decisive assertion is a real sign-in through `IntegrationTest.loginAs`, the
   highest seam available, with `AuthLoginTest` and `AgentLoginApiTest` as prior
@@ -493,121 +725,59 @@ which repository method ran, never a `PasswordEncoder` interaction.
 
 ## Open questions
 
-Three. Each is about behaviour a user will see, none is settled by `PRODUCT.md`,
-`docs/journeys.md` or the epic, and the first two are also hard to undo once
-people's real passwords depend on them — cases 1 and 2 of
-`docs/agents/escalation.md`. No ticket may be cut while they stand
-(`docs/agents/issue-tracker.md` rule 1).
+None.
 
-**1. Should a password rule be introduced, and if so does it apply everywhere a
-password is set — or does this feature leave it at "not blank"?**
-
-Today the only rule anywhere is `@NotBlank`, on `LoginRequest`,
-`AgentCreateRequest` and `TesterCreateRequest`. No minimum length, no
-complexity. So a user could change their password to `a`. But adding a minimum
-*only* to changing a password would make this product stricter about the
-password you choose for yourself than about the one a Manager assigns you —
-which is backwards, and which this spec will not do silently.
-
-*Recommendation:* **introduce one rule — a minimum of 8 characters, no
-complexity classes — and apply it to all three places a password is set: this
-feature's change, Agent creation, and Tester creation.** Reasons: one rule in
-one sentence means no asymmetry a user can trip over; length beats composition
-rules (which push people toward `Passw0rd!`); the widening is genuinely small,
-being one annotation on two existing request DTOs plus a shared message; and it
-costs no existing user anything, because the rule is checked only when a
-password is *written* — nothing re-validates an existing password, and sign-in
-keeps `@NotBlank` exactly as it is, so nobody is locked out. All three seeded
-passwords already exceed 8 characters.
-*Blocks:* the ticket cut, and story 12. *Meanwhile:* everything else in this
-spec is independent of the answer.
-*The alternatives, if you prefer one:* (a) no rule at all, leaving `a` a legal
-password; (b) a rule on change-password only, accepting the asymmetry; (c) a
-longer minimum, or a complexity requirement.
-
-**2. What should changing a password do to sessions — this browser's, and any
-other browser already signed in?**
-
-The JWT is stateless and carries only an expiry, so today the answer is
-"nothing": every token already issued keeps working until it expires, up to 60
-minutes. Someone who changes their password *because* they believe it was seen
-would reasonably expect the other person to be kicked out, and would not be.
-
-*Recommendation:* **sign the user out of this browser on success — drop the
-session cookie and send them to the sign-in page with a confirmation — and leave
-any other session to expire on its own within the hour.** Reasons: signing out
-here is free (the cookie is already dropped by an existing route), it makes the
-user prove the new password immediately, and it is what the epic's own closing
-proof describes ("changes their own password and signs in with the new one").
-Ending *other* sessions is not free: a stateless JWT cannot be revoked, so it
-needs a `password_changed_at` column and a check of it in the JWT filter on
-every request — which is the same per-request account-state check
-`deactivate-a-login` must build, and where the epic has already parked the
-identical question ("whether deactivation takes effect immediately for a session
-already holding a valid JWT"). Deciding both in one place, once, beats building
-half the mechanism here.
-*Blocks:* story 13, the walkthrough's sign-in step, and — if answered against
-the recommendation — the "no migration" constraint, which would reserve V56.
-*Meanwhile:* the endpoint and the form are unaffected either way.
-*The alternatives:* (a) stay signed in here and show a confirmation in place
-(fewest clicks, but the new password is never exercised); (b) end every session
-everywhere immediately, paying for the column and the filter check now.
-
-**3. Where does this screen live, and what is it called?**
-
-This is the first account-shaped screen in the product and the navigation has
-nowhere to put it. The three rails hold only work surfaces (Dashboard, Requests,
-Fleet, Invoices…), there is no `/account`, `/profile`, `/settings` or `/me`
-route anywhere, and the top bar's viewer identity chip is a static `<span>` next
-to a sign-out button.
-
-*Recommendation:* **a new last nav item, "My login", on all three rails, leading
-to a per-console route that renders one shared form** — `/manager/…`,
-`/agent/…`, `/client/…`, so each console keeps its own shell and its own correct
-rail. Reasons: the rail is the product's only established way to reach a screen,
-it is the one pattern all three consoles already share identically, and adding
-an item is three one-line changes plus the matching line in `DESIGN.md`'s
-per-role item list. The name is **not "Account"**: `CONTEXT.md` puts "account"
-on the _Avoid_ list under both **Tenant** and **Client**, and the glossary's word
-for the thing being changed is **Login**.
-*Blocks:* story 14, the frontend ticket, and the `DESIGN.md` edit that must
-travel in the same commit.
-*Meanwhile:* the backend endpoint is entirely independent of the answer.
-*The alternatives:* (a) turn the top bar's viewer chip into a dropdown menu
-holding "Change password" and "Sign out" — the most conventional answer in
-products generally, but it converts a static element into a new interactive
-component with its own overlay, focus and keyboard behaviour, which is real work
-and a genuinely new pattern for this design system; (b) a bare route reachable
-only by typing the URL — cheapest, but it means shipping a capability nobody can
-find, which fails the journey in practice; (c) a different name — "Password",
-"My password", "Security".
+All three questions this spec raised — the password rule, what happens to
+sessions, and where the surface lives — were put to the human at the spec gate
+on 2026-09-22 and answered. Each answer is recorded, attributed and dated, at
+the top of `## Decisions taken`. Two accepted the recommendation; the third,
+where the surface lives, went against it, and `## Design direction`,
+`## Solution` and the tickets below were rewritten to follow the human's choice
+rather than argue with it.
 
 ## Acceptance walkthrough
 
-1. [agent] Sign in through the API as a purpose-made Login (not a seeded one), `POST /api/me/password` with the correct current password and a valid new one, and show the response is `204` with an empty body. (stories: 1, 2, 15)
+1. [agent] Sign in through the API as a purpose-made Login (not a seeded one), `POST /api/me/password` with the correct current password and a valid new one, and show the response is `204` with an empty body. (stories: 1, 2, 17)
 2. [agent] Immediately sign in with the new password and show a token comes back, then sign in with the old password and show `401`. (stories: 9, 10)
 3. [agent] Repeat step 1's change for a Manager Login, an Agent Login and a Tester Login, and show all three succeed — the Manager one proving a Login linked to neither an Agent nor a Tester works. (stories: 6, 7, 8)
 4. [agent] `POST /api/me/password` with a deliberately wrong current password and show the response is `400` (not `401`, not `403`) carrying the expected `code`, and that signing in with the unchanged old password still works. (stories: 3, 4)
 5. [agent] Call `POST /api/me/password` with no JWT and show it is refused, then with a valid JWT of each of the three roles and show none of them is refused on role grounds. (stories: 6, 7, 8)
-6. [agent] Submit the new password decided in `## Open questions` 1 as a value that breaks the rule, and show a `400` with its own distinct `code`. (stories: 12)
-7. [agent] Grep the backend log output produced by a successful change and show one `PASSWORD_CHANGED` audit line naming the user, the actor and the tenant, and no line anywhere containing the password or a hash. (stories: 15, 16)
-8. [agent] Show `git diff` touching no Flyway migration, no `SecurityConfig` matcher, and neither login service's `create`. (stories: 20)
-9. [agent] Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full e2e suite and the visual suite, all green, with no pre-existing golden recaptured. (stories: 20)
-10. [agent] In a browser at the desktop breakpoint, reach the password screen the way `## Open questions` 3 was answered, change the password, and show the confirmation and the session behaviour decided in `## Open questions` 2. (stories: 11, 13, 14)
-11. [agent] In the same browser, sign in with the new password and reach the console, then sign out and show the old password refused with the sign-in page's existing error. (stories: 9, 10)
-12. [agent] Submit the form with the new and confirm fields differing and show it is caught in the browser with no request sent; then submit a wrong current password and show the inline message names that field and the form keeps what was typed. (stories: 3, 4, 5)
-13. [agent] Load the screen at the mobile breakpoint with the rail drawer closed, and tab through the form from the top showing a visible focus ring on every control and a sane tab order. (stories: 18, 19)
-14. [human] Open the screen in each of the three consoles and confirm the wording, layout and behaviour are identical, and that nothing on it offers anything but changing the password. (stories: 17)
-15. [human] Read the screen's name and its nav entry and confirm it does not use the word "account", and that you could have found it without being told the URL. (stories: 14)
-16. [human] Change your own password in the running app, then confirm by whatever the answer to `## Open questions` 2 was — that you were or were not signed out here — and that a second browser you left signed in behaves as that answer says. (stories: 13)
+6. [agent] Change a password to a 7-character value and show a `400` with its own distinct `code`, then to an 8-character value and show `204` — the boundary, both sides. (stories: 12)
+7. [agent] Create an Agent and a Tester with a 7-character temporary password and show both refused `400`, then show `AuthLoginTest` passing with an empty diff — the rule binds writes, never sign-in. (stories: 13, 22)
+8. [agent] Grep the backend log output produced by a successful change and show one `PASSWORD_CHANGED` audit line naming the user, the actor and the tenant, and no line anywhere containing the password or a hash. (stories: 17, 18)
+9. [agent] Show `git diff` touching no Flyway migration, no `SecurityConfig` matcher, no `lib/nav.tsx`, and neither login service's `create`. (stories: 22)
+10. [agent] Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full e2e suite and the visual suite, all green, with every recaptured golden being one that contains a top bar and none that does not. (stories: 22)
+11. [agent] In a browser, click the viewer chip in each of the three consoles and show the same menu opening with exactly two items, Change password and Log out. (stories: 15, 19)
+12. [agent] With the menu open, press Escape and show it closes with focus back on the chip; reopen it, press outside it, and show the same. (stories: 16)
+13. [agent] Open the menu by keyboard alone, move to Change password with the arrow keys, activate it, and show focus landing inside the dialog. (stories: 16, 21)
+14. [agent] In the dialog, submit new and confirm differing and show it caught in the browser with no request sent; then submit a wrong current password and show the inline message naming that field with the form keeping what was typed. (stories: 3, 4, 5)
+15. [agent] Complete a real change in the dialog and show the user landing on the sign-in page with a confirmation that the password was changed. (stories: 11, 14)
+16. [agent] Sign in there with the new password and reach the console; log out through the menu; then show the old password refused with the sign-in page's existing error. (stories: 9, 10, 19)
+17. [agent] Repeat steps 11 and 15 at the mobile breakpoint and show the chip trigger reachable and the menu panel inside the viewport — the chip is hidden below `sm` today and the trigger must not inherit that. (stories: 20)
+18. [agent] Tab through the whole path — chip, menu items, every dialog field, Cancel, Change password — and show a visible focus ring at each stop and a sane order. (stories: 21)
+19. [human] Open the menu in each of the three consoles and confirm the wording and behaviour are identical, and that it offers nothing beyond changing the password and logging out. (stories: 19)
+20. [human] Confirm you accept Log out having moved from its own top-bar button into this menu — this follows from choosing the chip, but you did not ask for it, and it is cheap to reverse. (stories: 19, 22)
+21. [human] Read the menu item and the dialog title and confirm neither uses the word "account", and that you could have found the capability without being told where it was. (stories: 15)
+22. [human] Change your own password in the running app, confirm you were returned to sign-in here, and confirm a second browser you left signed in keeps working until its token expires — the session answer, as you gave it. (stories: 14)
+23. [human] Open the `DESIGN.md` diff and confirm the new Menu component entry, its named focus/dismissal rule, the top-bar layout line and the elevation list all changed in the same commit as the code. (stories: 15, 16)
 
 ## Execution order
 
-**Provisional — tickets are not cut while `## Open questions` is non-empty**
-(`docs/agents/issue-tracker.md` rule 1). The shape below is what the answers
-will be poured into; answer 1 may add a slice, answer 2 may add a migration to
-the first, and answer 3 decides the third's surface.
+Final — `## Open questions` is `None`, so tickets may be cut
+(`docs/agents/issue-tracker.md` rule 1). Four slices, each a complete path
+through its layers and demoable on its own. Ticket 3 is the one that commits a
+design pattern and must run with the `design` slot engaged.
 
-1. `change-own-password-endpoint` — `POST /api/me/password`, the change-password service, the coded `400` contract, the audit line, and the integration tests proving the change through a real sign-in for all three roles. (stories: 1, 2, 3, 6, 7, 8, 9, 10, 15, 16, 20)
-2. `password-rule` — the rule decided in `## Open questions` 1, applied to every path that sets a password, with its own code and message. Depends on `change-own-password-endpoint`. (stories: 12)
-3. `change-password-surface` — the BFF proxy, the form, its place in the navigation, the session behaviour decided in `## Open questions` 2, the `DESIGN.md` nav-list edit in the same commit, component tests, one e2e spec and the visual goldens. Depends on `change-own-password-endpoint`. (stories: 4, 5, 11, 13, 14, 17, 18, 19)
+1. `change-own-password-endpoint` — `POST /api/me/password`, the change-password service, `204` on success and the coded `400` contract, the audit line, and the integration tests proving the change through a real sign-in for all three roles. (stories: 1, 2, 3, 6, 7, 8, 9, 10, 17, 18, 22)
+2. `password-minimum-length` — the 8-character minimum as a Bean Validation constraint on all three write paths, with `AuthLoginTest` proven untouched. Depends on `change-own-password-endpoint`. (stories: 12, 13)
+3. `viewer-chip-menu` — the chip becomes a menu trigger; the actions menu with its focus, keyboard and dismissal behaviour; Log out absorbed and the standalone button removed; the shared e2e `logout` helper updated; the `DESIGN.md` Menu entry, named rule, layout line and elevation list in the same commit; component tests and the menu's visual goldens. Needs the `design` slot. Depends on nothing. (stories: 15, 16, 19, 20, 21)
+4. `change-password-dialog` — the BFF proxy, the dialog on `DialogShell` with its three fields and coded error branching, the sign-out-and-confirm success path, component tests, one e2e spec and the dialog's visual goldens. Depends on `change-own-password-endpoint` and `viewer-chip-menu`. (stories: 4, 5, 11, 14, 19, 20, 21)
+
+Ticket 3 depends on nothing and can run in parallel with ticket 1: the menu is
+pure frontend chrome and its *Change password* item can land pointing at a
+dialog that does not exist yet only if ticket 4 follows immediately — so in
+practice 3 is cut to deliver the menu with both items working, Log out for real
+and Change password wired in ticket 4. Splitting the menu from the dialog is
+deliberate: the menu is the part that changes a shipped design system and
+touches every existing top-bar golden and the shared e2e helper, and mixing that
+blast radius into the same review as a new form would make both harder to judge.

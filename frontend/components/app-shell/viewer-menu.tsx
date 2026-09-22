@@ -18,12 +18,21 @@ const ITEM_COUNT = 2;
  * arrow keys cycle between the two items, and every dismissal listener is bound only while the
  * menu is open — closed, an outside press or Escape has no effect on the page.
  *
- * "Change password" is a real `menuitem`, keyboard-reachable, but inert until
- * `change-password-dialog` swaps `handleChangePassword` for one that opens the dialog; today
- * activating it only closes the menu, the same as Escape. "Log out" absorbs the standalone
- * `LogoutButton` this component replaces, keeping its shipped accessible name "Log out".
+ * "Change password" is a real `menuitem`, keyboard-reachable; activating it always closes the
+ * menu and returns focus to the trigger first (`closeMenu`), then calls the optional
+ * `onChangePassword` callback (change-password-dialog ticket) — `TopBar` passes one that opens
+ * `ChangePasswordDialog`. The callback is optional, not required, so a caller with nothing to
+ * open on that item (and this component's own tests) sees exactly the old close-only behaviour,
+ * the same as Escape. "Log out" absorbs the standalone `LogoutButton` this component replaces,
+ * keeping its shipped accessible name "Log out".
  */
-export function ViewerMenu({ viewerLabel }: { viewerLabel: string }) {
+export function ViewerMenu({
+  viewerLabel,
+  onChangePassword,
+}: {
+  viewerLabel: string;
+  onChangePassword?: () => void;
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -79,9 +88,8 @@ export function ViewerMenu({ viewerLabel }: { viewerLabel: string }) {
   }
 
   function handleChangePassword() {
-    // Inert until change-password-dialog wires the real handler — closing here is deliberate,
-    // not a stub left half-built: it behaves exactly like Escape (see ticket `## Context`).
     closeMenu();
+    onChangePassword?.();
   }
 
   async function handleLogout() {

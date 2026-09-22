@@ -1,7 +1,7 @@
 ---
 id: password-minimum-length
 title: Hold every password-writing path to the same 8-character minimum
-status: in-progress
+status: done
 depends_on: [change-own-password-endpoint]
 labels: [backend]
 stories: [12, 13]

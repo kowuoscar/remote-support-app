@@ -2,11 +2,14 @@ package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.dto.ChangePasswordRequest;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
+import com.remotesupport.backend.web.ChangePasswordRefusedException.Reason;
 import jakarta.validation.Valid;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,5 +57,27 @@ public class ChangePasswordController {
   public ResponseEntity<Map<String, String>> changePasswordRefused(ChangePasswordRefusedException e) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(Map.of("code", e.reason().name(), "message", e.getMessage()));
+  }
+
+  /**
+   * A {@code newPassword} shorter than {@link com.remotesupport.backend.dto.PasswordPolicy#MIN_LENGTH}
+   * fails its {@code @Size} constraint before this controller's method body ever runs
+   * (password-minimum-length ticket); this is what gives that refusal its own {@code
+   * PASSWORD_TOO_SHORT} code, distinct from {@code WRONG_CURRENT_PASSWORD} and {@code
+   * PASSWORD_UNCHANGED}, so the change-password dialog this ticket unblocks can point at the
+   * new-password field specifically rather than treating every refusal alike.
+   */
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<Map<String, String>> requestBodyInvalid(MethodArgumentNotValidException e) {
+    boolean newPasswordTooShort =
+        e.getBindingResult().getFieldErrors().stream()
+            .anyMatch(fieldError -> "newPassword".equals(fieldError.getField()));
+    String code = newPasswordTooShort ? Reason.PASSWORD_TOO_SHORT.name() : "INVALID_REQUEST";
+    String message =
+        e.getBindingResult().getFieldErrors().stream()
+            .findFirst()
+            .map(FieldError::getDefaultMessage)
+            .orElse("The request is invalid");
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("code", code, "message", message));
   }
 }

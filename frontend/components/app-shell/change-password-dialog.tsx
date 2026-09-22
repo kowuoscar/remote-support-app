@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useId, useImperativeHandle, useRef, useState, type FormEvent } from "react";
+import { forwardRef, useEffect, useId, useImperativeHandle, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,6 +52,16 @@ const CODE_ERRORS: Record<string, ChangePasswordError> = {
  * renders through `DialogErrorAlert` with the typed values left alone — none of them signs the
  * user out or navigates away, since every refusal from `/api/me/password` is a `400`, never a
  * `401` (spec.md Constraints).
+ *
+ * `DialogShell` renders its children — this component's whole `<form>` — into the DOM
+ * unconditionally, same as every other `DialogShell` consumer; fine for those, since each is
+ * scoped to the one page that renders it. This dialog's trigger (`ViewerActions`, inside `TopBar`)
+ * is on every page of every console, so mounting the form unconditionally put a hidden `<form>`
+ * ahead of every page's own forms in document order — exactly what broke
+ * `agent-standing-amounts-and-invoice-generation.spec.ts`'s index-based
+ * `page.locator("form").nth(0)` on a page this feature never touches. `mounted` defers rendering
+ * `DialogShell` at all until `open()` is first called, so a page nobody has changed a password
+ * from keeps exactly the DOM it had before this ticket.
  */
 export const ChangePasswordDialog = forwardRef<ChangePasswordDialogHandle>(function ChangePasswordDialog(
   _props,
@@ -64,6 +74,7 @@ export const ChangePasswordDialog = forwardRef<ChangePasswordDialogHandle>(funct
   const confirmRef = useRef<HTMLInputElement>(null);
   const titleId = useId();
 
+  const [mounted, setMounted] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -76,9 +87,19 @@ export const ChangePasswordDialog = forwardRef<ChangePasswordDialogHandle>(funct
       setNewPassword("");
       setConfirmNewPassword("");
       setError(null);
-      shellRef.current?.open();
+      // First open of this session: mount `DialogShell` and let the effect below call its
+      // `showModal()` once the `<dialog>` element exists. Every later open: it's already mounted
+      // from before (closing never unmounts it), so `shellRef` is already populated and this can
+      // call it directly — `setMounted(true)` again would be a same-value no-op that never
+      // re-triggers the mount effect.
+      if (mounted) shellRef.current?.open();
+      else setMounted(true);
     },
   }));
+
+  useEffect(() => {
+    if (mounted) shellRef.current?.open();
+  }, [mounted]);
 
   function close() {
     shellRef.current?.close();
@@ -128,6 +149,8 @@ export const ChangePasswordDialog = forwardRef<ChangePasswordDialogHandle>(funct
       setSubmitting(false);
     }
   }
+
+  if (!mounted) return null;
 
   return (
     <DialogShell ref={shellRef} submitting={submitting} widthClassName="w-[min(440px,90vw)]" titleId={titleId}>

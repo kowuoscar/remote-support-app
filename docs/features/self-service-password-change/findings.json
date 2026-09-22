@@ -17,14 +17,15 @@
     {
       "id": "F2",
       "type": "out-of-scope",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "docs/roadmap/package-by-feature.md:1",
       "citation": "No story, no ## Decisions taken entry and no ticket of this spec is the source for docs/roadmap/package-by-feature.md, docs/roadmap/README.md, the deleted docs/inbox/proposal-after-tenant-scoped-sign-in.md, or docs/agents/ticket-critic.md.",
-      "note": "These ride in from the branch's first commit, where the orchestrator applied the human's answers to the retro proposal. The first answer to this finding justified them by claiming the loop never pushes main, so records must travel inside a feature branch. A re-reviewer checked the reflog and found that false: origin/main shows 'update by push' at 7dafd39, the same class of bookkeeping, pushed nine minutes before 4a921e1 was committed here, and 4a921e1's parent is 7dafd39. The entry has been rewritten to say what is true \u2014 the loop's rule is that it never pushes main, the orchestrator broke that rule earlier in this session and disclosed it, and putting these files on the branch is consistent with the rule rather than with that violation. The coding-standards exclusion is also restated: the commit amends rules 7, 10 and 13, and all three are sourced by this feature.",
-      "fixed_in": "4cbb4ae"
+      "note": "These ride in from the branch's first commit, where the orchestrator applied the human's answers to the retro proposal. The first answer to this finding justified them by claiming the loop never pushes main, so records must travel inside a feature branch. A re-reviewer checked the reflog and found that false: origin/main shows 'update by push' at 7dafd39, the same class of bookkeeping, pushed nine minutes before 4a921e1 was committed here, and 4a921e1's parent is 7dafd39. The entry has been rewritten to say what is true \u2014 the loop's rule is that it never pushes main, the orchestrator broke that rule earlier in this session and disclosed it, and putting these files on the branch is consistent with the rule rather than with that violation. The coding-standards exclusion is also restated: the commit amends rules 7, 10 and 13, and all three are sourced by this feature. [re-review: CONFIRMED. Every claim verified against the reflog, the parent chain and the diff. Two residues it flagged are now corrected: the interval is eight minutes, not nine, and the disclosure claim is marked as conversational and uncorroborable by the repository, with the reflog named as what does corroborate the violation. It also found the same push carried the deliver commit too, so the route was used twice.]",
+      "fixed_in": "4cbb4ae",
+      "confirmed_by": "reviewer-spec (fresh instance, second re-review)"
     },
     {
       "id": "F3",

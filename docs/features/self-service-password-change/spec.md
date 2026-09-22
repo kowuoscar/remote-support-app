@@ -592,7 +592,7 @@ which repository method ran, never a `PasswordEncoder` interaction.
   re-reviewer checked the reflog and that was false**, and it is corrected
   here rather than quietly dropped. `origin/main` records `update by push` at
   `7dafd39` — *"docs(tenant-scoped-sign-in): close epic"*, the identical class
-  of bookkeeping, committed on `main` and pushed nine minutes before `4a921e1`
+  of bookkeeping, committed on `main` and pushed eight minutes before `4a921e1`
   was committed here. `4a921e1`'s parent **is** `7dafd39`, and
   `git log origin/main..main` is empty. So the route the entry called
   unavailable had just been used.
@@ -600,8 +600,13 @@ which repository method ran, never a `PasswordEncoder` interaction.
   The true position: the loop's rule is that `main` moves only through the
   deliver phase and the loop never pushes it, which is why records are
   supposed to travel inside a feature branch. The orchestrator **broke that
-  rule** earlier in this session by pushing `main` directly at `7dafd39`, and
-  disclosed it at the time. Putting these four files on this branch is
+  rule** earlier in this session by pushing `main` directly at `7dafd39`. That
+  violation was disclosed to the human in the session it happened in — a claim
+  this repository cannot corroborate, since the disclosure was conversational;
+  what the repository *does* corroborate is the violation itself, in
+  `origin/main`'s reflog, and the same push carried
+  `1192fc7 docs(globally-unique-usernames): deliver` too, so it was not a
+  one-off. Putting these four files on this branch is
   therefore consistent with the rule — and inconsistent with the
   orchestrator's own earlier violation of it. Kept rather than reverted, on
   that basis.

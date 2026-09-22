@@ -6,13 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
 import { DialogShell, type DialogShellHandle } from "@/components/manager/dialog-shell";
-import { readErrorCode } from "@/lib/api/errors";
+import { readErrorCode, type SubmitError } from "@/lib/api/errors";
+import { signOutAndRedirect } from "@/lib/auth/sign-out";
 
 export type ChangePasswordDialogHandle = { open: () => void };
 
 type FieldName = "current" | "new" | "confirmNew";
 
-type ChangePasswordError = { message: string; field: FieldName | null };
+// `SubmitError`'s own field union is widened (in lib/api/errors.ts) to cover this dialog's three
+// fields rather than this file declaring a fourth, parallel error shape (review finding F5).
+type ChangePasswordError = SubmitError & { field: FieldName | null };
 
 const MISMATCH_ERROR: ChangePasswordError = {
   message: "New password and confirmation don't match.",
@@ -140,10 +143,8 @@ export const ChangePasswordDialog = forwardRef<ChangePasswordDialogHandle>(funct
         return;
       }
 
-      await fetch("/api/session", { method: "DELETE" });
       close();
-      router.push("/login?passwordChanged=1");
-      router.refresh();
+      await signOutAndRedirect(router, "/login?passwordChanged=1");
     } catch {
       setError({ message: "Couldn't reach the server. Check your connection and try again.", field: null });
       setSubmitting(false);
@@ -153,7 +154,7 @@ export const ChangePasswordDialog = forwardRef<ChangePasswordDialogHandle>(funct
   if (!mounted) return null;
 
   return (
-    <DialogShell ref={shellRef} submitting={submitting} widthClassName="w-[min(440px,90vw)]" titleId={titleId}>
+    <DialogShell ref={shellRef} submitting={submitting} titleId={titleId}>
       <form className="flex flex-col gap-4 p-6" onSubmit={handleSubmit}>
         <div>
           <h2 id={titleId} className="text-base font-semibold text-ink">

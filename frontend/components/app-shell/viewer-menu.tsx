@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { FocusEvent, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
+import { signOutAndRedirect } from "@/lib/auth/sign-out";
 
 const ITEM_COUNT = 2;
 
@@ -95,12 +96,7 @@ export function ViewerMenu({
 
   async function handleLogout() {
     closeMenu();
-    try {
-      await fetch("/api/session", { method: "DELETE" });
-    } finally {
-      router.push("/login");
-      router.refresh();
-    }
+    await signOutAndRedirect(router, "/login");
   }
 
   return (
@@ -111,6 +107,12 @@ export function ViewerMenu({
         onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={open}
+        // A dedicated test id (review finding F9), not the accessible name — that's `viewerLabel`
+        // itself, which varies per signed-in user and per console, so it can't anchor a shared
+        // e2e selector. `[aria-haspopup="menu"]` was unambiguous only because `ContractSwitcher`
+        // is `aria-haspopup="listbox"`; a second menu anywhere in the shell would have broken
+        // every caller of the shared `logout(page)` helper in `frontend/tests/e2e/helpers.ts`.
+        data-testid="viewer-menu-trigger"
         className="inline-flex max-w-[45vw] items-center gap-1 truncate rounded-full border border-hairline bg-canvas-soft px-3 py-1 text-[12px] text-ink-mute transition-colors hover:border-hairline-strong hover:text-ink sm:max-w-none"
       >
         <span className="truncate">{viewerLabel}</span>

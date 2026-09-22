@@ -578,21 +578,43 @@ which repository method ran, never a `PasswordEncoder` interaction.
 ## Decisions taken
 
 - **(after review) This feature's branch also carries the loop's own
-  bookkeeping, and that is not an accident.** The reviewer raised it as
-  `out-of-scope` and was right to: `docs/roadmap/package-by-feature.md`,
-  the roadmap ordering, the deleted
+  bookkeeping, by choice rather than by necessity.** The reviewer raised it as
+  `out-of-scope` and was right to: `docs/roadmap/package-by-feature.md`, the
+  roadmap ordering, the deleted
   `docs/inbox/proposal-after-tenant-scoped-sign-in.md` and the
   `docs/agents/ticket-critic.md` amendment have no story, no ticket and no
   other decision behind them. They are the human's answers to the retro
   proposal filed when `tenant-scoped-sign-in` closed, applied by the
-  orchestrator on this branch's first commit.
-  They ride here because the loop never pushes `main`: records committed on
-  local `main` reach the remote inside the next feature branch, and this was
-  the next feature branch. The alternative — a separate pull request for four
-  documentation files — costs the human a review for no gain.
-  Kept rather than reverted. The `docs/agents/coding-standards.md` rule
-  rewrite in the same commit is **not** part of this finding: this spec's own
-  decisions cite the amended rule 13 by name, so it is sourced.
+  orchestrator on this branch's first commit, `4a921e1`.
+
+  **A first version of this entry justified them by saying the loop never
+  pushes `main`, so its records must travel inside the next feature branch. A
+  re-reviewer checked the reflog and that was false**, and it is corrected
+  here rather than quietly dropped. `origin/main` records `update by push` at
+  `7dafd39` — *"docs(tenant-scoped-sign-in): close epic"*, the identical class
+  of bookkeeping, committed on `main` and pushed nine minutes before `4a921e1`
+  was committed here. `4a921e1`'s parent **is** `7dafd39`, and
+  `git log origin/main..main` is empty. So the route the entry called
+  unavailable had just been used.
+
+  The true position: the loop's rule is that `main` moves only through the
+  deliver phase and the loop never pushes it, which is why records are
+  supposed to travel inside a feature branch. The orchestrator **broke that
+  rule** earlier in this session by pushing `main` directly at `7dafd39`, and
+  disclosed it at the time. Putting these four files on this branch is
+  therefore consistent with the rule — and inconsistent with the
+  orchestrator's own earlier violation of it. Kept rather than reverted, on
+  that basis.
+
+  The `docs/agents/coding-standards.md` rewrite in the same commit is **not**
+  part of this finding, and the reason is more than rule 13. That commit
+  amends rules 7, 10 and 13. Rule 13 and rule 7's amended text are both cited
+  by name in this spec — and under the *pre*-amendment rule 7, which
+  prescribed a single `@ControllerAdvice`, this feature's per-controller
+  `@ExceptionHandler` would have been a rule violation. Rule 10's amendment,
+  excepting Spring test classes from constructor injection, is cited by no
+  spec line but is relied on directly by this feature's own new test code.
+  All three are sourced by this feature; none is a convenient inclusion.
 
 - **Log out moves into the chip's menu and the standalone log-out button is
   removed from all three consoles' top bars.** Put to the human at the spec

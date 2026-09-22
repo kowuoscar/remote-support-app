@@ -4,14 +4,15 @@
     {
       "id": "F1",
       "type": "spec-partial",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": false,
       "where": "backend/src/main/java/com/remotesupport/backend/dto/AgentLoginCreateRequest.java:9",
       "citation": "spec.md Goals: \"A new password is held to one rule \u2014 at least 8 characters \u2014 and that same rule holds everywhere a password is set, not only here.\" Story 13: \"the same 8-character minimum applied to the temporary password I assign\".",
-      "note": "A fourth boundary that writes a password \u2014 creating a login for an existing Agent \u2014 keeps @NotBlank alone and accepts a 1-character password, while encoding through AgentLoginService.create like the other paths. The spec's Constraints enumerate only three DTOs, so the implementer followed the letter; the Goal says everywhere, and the human's own rationale was that there must be no asymmetry between the password you choose for yourself and the one a Manager assigns you. The orchestrator confirmed it and found the file's Javadoc now contradicts the code: it says password follows 'exactly the same rules as TesterCreateRequest's', which became false when TesterCreateRequest gained @Size.",
-      "fixed_in": "df82711"
+      "note": "A fourth boundary that writes a password \u2014 creating a login for an existing Agent \u2014 keeps @NotBlank alone and accepts a 1-character password, while encoding through AgentLoginService.create like the other paths. The spec's Constraints enumerate only three DTOs, so the implementer followed the letter; the Goal says everywhere, and the human's own rationale was that there must be no asymmetry between the password you choose for yourself and the one a Manager assigns you. The orchestrator confirmed it and found the file's Javadoc now contradicts the code: it says password follows 'exactly the same rules as TesterCreateRequest's', which became false when TesterCreateRequest gained @Size. [re-review: CONFIRMED, after an independent hunt for a fifth boundary. The only passwordEncoder.encode call sites are ChangePasswordService, AgentLoginService and TesterLoginService, reached from exactly four request DTOs, all four of which now carry the constraint; no other @RequestBody type in backend/src/main mentions a password; LoginRequest is untouched.]",
+      "fixed_in": "df82711",
+      "confirmed_by": "reviewer-spec (fresh instance, re-review)"
     },
     {
       "id": "F2",
@@ -22,8 +23,8 @@
       "in_changed_lines": true,
       "where": "docs/roadmap/package-by-feature.md:1",
       "citation": "No story, no ## Decisions taken entry and no ticket of this spec is the source for docs/roadmap/package-by-feature.md, docs/roadmap/README.md, the deleted docs/inbox/proposal-after-tenant-scoped-sign-in.md, or docs/agents/ticket-critic.md.",
-      "note": "These ride in from the branch's first commit, where the orchestrator applied the human's answers to the retro proposal. They are the loop's own bookkeeping and have nowhere else to live, because the loop never pushes main \u2014 records travel to the remote inside the next feature branch. The reviewer correctly did not flag the coding-standards rule-13 amendment in the same commit, since the spec's Decisions taken cites it by name. Answered by an (after review) entry in Decisions taken, which docs/agents/review.md permits. [Answered by an (after review) entry in the spec's Decisions taken, written by the orchestrator, since the finding concerns the orchestrator's own commit. docs/agents/review.md permits exactly this remedy for an out-of-scope finding.]",
-      "fixed_in": "ac6f140"
+      "note": "These ride in from the branch's first commit, where the orchestrator applied the human's answers to the retro proposal. The first answer to this finding justified them by claiming the loop never pushes main, so records must travel inside a feature branch. A re-reviewer checked the reflog and found that false: origin/main shows 'update by push' at 7dafd39, the same class of bookkeeping, pushed nine minutes before 4a921e1 was committed here, and 4a921e1's parent is 7dafd39. The entry has been rewritten to say what is true \u2014 the loop's rule is that it never pushes main, the orchestrator broke that rule earlier in this session and disclosed it, and putting these files on the branch is consistent with the rule rather than with that violation. The coding-standards exclusion is also restated: the commit amends rules 7, 10 and 13, and all three are sourced by this feature.",
+      "fixed_in": "4cbb4ae"
     },
     {
       "id": "F3",
@@ -107,6 +108,17 @@
       "citation": "",
       "note": "page.locator('[aria-haspopup=\"menu\"]') selects by attribute rather than accessible name. Unambiguous today \u2014 ContractSwitcher is aria-haspopup='listbox' \u2014 but a second menu anywhere in the shell becomes a strict-mode failure in every caller of the shared logout helper.",
       "fixed_in": "bf103cf"
+    },
+    {
+      "id": "F10",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/PasswordMinimumLengthApiTest.java:62",
+      "citation": "",
+      "note": "The F1 fix added a fourth write path and a third creation path, but left two Javadoc lines saying 'each of the three write paths' and 'the two creation paths'. The class Javadoc was updated correctly; these two were not."
     }
   ]
 }

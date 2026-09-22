@@ -4,24 +4,26 @@
     {
       "id": "F1",
       "type": "spec-partial",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": false,
       "where": "backend/src/main/java/com/remotesupport/backend/dto/AgentLoginCreateRequest.java:9",
       "citation": "spec.md Goals: \"A new password is held to one rule \u2014 at least 8 characters \u2014 and that same rule holds everywhere a password is set, not only here.\" Story 13: \"the same 8-character minimum applied to the temporary password I assign\".",
-      "note": "A fourth boundary that writes a password \u2014 creating a login for an existing Agent \u2014 keeps @NotBlank alone and accepts a 1-character password, while encoding through AgentLoginService.create like the other paths. The spec's Constraints enumerate only three DTOs, so the implementer followed the letter; the Goal says everywhere, and the human's own rationale was that there must be no asymmetry between the password you choose for yourself and the one a Manager assigns you. The orchestrator confirmed it and found the file's Javadoc now contradicts the code: it says password follows 'exactly the same rules as TesterCreateRequest's', which became false when TesterCreateRequest gained @Size."
+      "note": "A fourth boundary that writes a password \u2014 creating a login for an existing Agent \u2014 keeps @NotBlank alone and accepts a 1-character password, while encoding through AgentLoginService.create like the other paths. The spec's Constraints enumerate only three DTOs, so the implementer followed the letter; the Goal says everywhere, and the human's own rationale was that there must be no asymmetry between the password you choose for yourself and the one a Manager assigns you. The orchestrator confirmed it and found the file's Javadoc now contradicts the code: it says password follows 'exactly the same rules as TesterCreateRequest's', which became false when TesterCreateRequest gained @Size.",
+      "fixed_in": "df82711"
     },
     {
       "id": "F2",
       "type": "out-of-scope",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "docs/roadmap/package-by-feature.md:1",
       "citation": "No story, no ## Decisions taken entry and no ticket of this spec is the source for docs/roadmap/package-by-feature.md, docs/roadmap/README.md, the deleted docs/inbox/proposal-after-tenant-scoped-sign-in.md, or docs/agents/ticket-critic.md.",
-      "note": "These ride in from the branch's first commit, where the orchestrator applied the human's answers to the retro proposal. They are the loop's own bookkeeping and have nowhere else to live, because the loop never pushes main \u2014 records travel to the remote inside the next feature branch. The reviewer correctly did not flag the coding-standards rule-13 amendment in the same commit, since the spec's Decisions taken cites it by name. Answered by an (after review) entry in Decisions taken, which docs/agents/review.md permits."
+      "note": "These ride in from the branch's first commit, where the orchestrator applied the human's answers to the retro proposal. They are the loop's own bookkeeping and have nowhere else to live, because the loop never pushes main \u2014 records travel to the remote inside the next feature branch. The reviewer correctly did not flag the coding-standards rule-13 amendment in the same commit, since the spec's Decisions taken cites it by name. Answered by an (after review) entry in Decisions taken, which docs/agents/review.md permits. [Answered by an (after review) entry in the spec's Decisions taken, written by the orchestrator, since the finding concerns the orchestrator's own commit. docs/agents/review.md permits exactly this remedy for an out-of-scope finding.]",
+      "fixed_in": "ac6f140"
     },
     {
       "id": "F3",
@@ -37,68 +39,74 @@
     {
       "id": "F4",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/app-shell/viewer-menu.tsx:96",
       "citation": "",
-      "note": "The sign-out shape \u2014 DELETE /api/session, router.push('/login\u2026'), router.refresh() \u2014 now exists twice, in viewer-menu.tsx and change-password-dialog.tsx. The deleted LogoutButton held the only copy; this feature turned one into two. One signOutAndRedirect(router, target) would hold it."
+      "note": "The sign-out shape \u2014 DELETE /api/session, router.push('/login\u2026'), router.refresh() \u2014 now exists twice, in viewer-menu.tsx and change-password-dialog.tsx. The deleted LogoutButton held the only copy; this feature turned one into two. One signOutAndRedirect(router, target) would hold it.",
+      "fixed_in": "582e0d7"
     },
     {
       "id": "F5",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/app-shell/change-password-dialog.tsx:15",
       "citation": "",
-      "note": "A local ChangePasswordError {message, field} parallels SubmitError in lib/api/errors.ts, whose own doc says it was created so the dialogs share one shape rather than three copies \u2014 the consolidation an earlier review bought. The new dialog shares only readErrorCode and adds a fourth shape."
+      "note": "A local ChangePasswordError {message, field} parallels SubmitError in lib/api/errors.ts, whose own doc says it was created so the dialogs share one shape rather than three copies \u2014 the consolidation an earlier review bought. The new dialog shares only readErrorCode and adds a fourth shape.",
+      "fixed_in": "582e0d7"
     },
     {
       "id": "F6",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ChangePasswordController.java:70",
       "citation": "",
-      "note": "A real inconsistency, not merely a smell: code is derived from whether ANY field error is newPassword, while message is taken from the FIRST field error. A body with a blank currentPassword and a 5-character newPassword returns {code: PASSWORD_TOO_SHORT, message: 'must not be blank'} \u2014 the dialog would mark the new-password field with the current-password's message. Derive both from the same chosen FieldError."
+      "note": "A real inconsistency, not merely a smell: code is derived from whether ANY field error is newPassword, while message is taken from the FIRST field error. A body with a blank currentPassword and a 5-character newPassword returns {code: PASSWORD_TOO_SHORT, message: 'must not be blank'} \u2014 the dialog would mark the new-password field with the current-password's message. Derive both from the same chosen FieldError.",
+      "fixed_in": "9f0a06f"
     },
     {
       "id": "F7",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/app-shell/change-password-dialog.tsx:156",
       "citation": "",
-      "note": "widthClassName is passed byte-identical to DialogShell's own default; the prop can go."
+      "note": "widthClassName is passed byte-identical to DialogShell's own default; the prop can go.",
+      "fixed_in": "582e0d7"
     },
     {
       "id": "F8",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/tests/e2e/change-password.spec.ts:23",
       "citation": "",
-      "note": "The same six-line fixture \u2014 runId, Manager sign-in, client and contract, addTester, logout, Tester sign-in \u2014 is repeated in both tests."
+      "note": "The same six-line fixture \u2014 runId, Manager sign-in, client and contract, addTester, logout, Tester sign-in \u2014 is repeated in both tests.",
+      "fixed_in": "bf103cf"
     },
     {
       "id": "F9",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/tests/e2e/helpers.ts:33",
       "citation": "",
-      "note": "page.locator('[aria-haspopup=\"menu\"]') selects by attribute rather than accessible name. Unambiguous today \u2014 ContractSwitcher is aria-haspopup='listbox' \u2014 but a second menu anywhere in the shell becomes a strict-mode failure in every caller of the shared logout helper."
+      "note": "page.locator('[aria-haspopup=\"menu\"]') selects by attribute rather than accessible name. Unambiguous today \u2014 ContractSwitcher is aria-haspopup='listbox' \u2014 but a second menu anywhere in the shell becomes a strict-mode failure in every caller of the shared logout helper.",
+      "fixed_in": "bf103cf"
     }
   ]
 }

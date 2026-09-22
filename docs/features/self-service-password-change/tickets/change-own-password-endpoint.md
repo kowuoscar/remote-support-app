@@ -1,7 +1,7 @@
 ---
 id: change-own-password-endpoint
 title: A signed-in user changes their own password through a new /api/me endpoint
-status: in-progress
+status: done
 depends_on: []
 labels: [backend]
 stories: [1, 2, 3, 6, 7, 8, 9, 10, 17, 18, 22]

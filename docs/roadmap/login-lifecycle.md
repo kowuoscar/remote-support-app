@@ -72,6 +72,18 @@ tables hold foreign keys into `users` — `testers.user_id`,
 `uq_users_one_login_per_agent` partial index means a switched-off Agent login
 still occupies its Agent's one slot.
 
+**Found while delivering `self-service-password-change`, 2026-09-22 — read this
+before specifying `deactivate-a-login`.** `ChangePasswordService` verifies the
+caller's current password with `PasswordEncoder.matches` directly rather than
+through `AuthenticationManager`. That is exactly equivalent to sign-in **today**,
+and only because `AppUserPrincipal` leaves every `UserDetails` account-status
+flag at its default `true`, so `DaoAuthenticationProvider`'s extra checks are
+no-ops. The moment `deactivate-a-login` adds an enabled flag and wires
+`isEnabled()`, this call site diverges from sign-in **silently**: a deactivated
+Login would be refused at sign-in but could still change its own password. No
+test will catch that, because nothing today can express a disabled account.
+`deactivate-a-login` owns closing it.
+
 Left for `deactivate-a-login`'s spec to settle, since it is a *what* the user
 will notice rather than something the cut decides: whether deactivation takes
 effect immediately for a session already holding a valid JWT, or only when

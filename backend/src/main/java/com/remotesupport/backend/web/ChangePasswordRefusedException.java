@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * merely mistyped a field to the sign-in page, discarding whatever else they had typed. {@link
  * ChangePasswordController}'s own {@code @ExceptionHandler} renders {@code reason()} as the body's
  * {@code code}, so the form can tell a wrong current password apart from a no-op new password.
+ *
+ * <p>{@code PASSWORD_TOO_SHORT} (password-minimum-length ticket) is never thrown as this
+ * exception — a too-short {@code newPassword} is caught by Bean Validation before {@link
+ * ChangePasswordService} ever runs (coding standards Backend rule 1) — but lives in this same
+ * {@link Reason} enum so every code this endpoint can return is declared in one place, and so it
+ * is provably distinct from {@code WRONG_CURRENT_PASSWORD}.
  */
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class ChangePasswordRefusedException extends RuntimeException {
@@ -17,7 +23,8 @@ public class ChangePasswordRefusedException extends RuntimeException {
   /** The machine-readable cause, sent to the client as {@code code}. */
   public enum Reason {
     WRONG_CURRENT_PASSWORD,
-    PASSWORD_UNCHANGED
+    PASSWORD_UNCHANGED,
+    PASSWORD_TOO_SHORT
   }
 
   private final Reason reason;

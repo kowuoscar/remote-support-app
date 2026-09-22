@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.dto.AgentCreateRequest;
+import com.remotesupport.backend.dto.AgentLoginCreateRequest;
 import com.remotesupport.backend.dto.ChangePasswordRequest;
 import com.remotesupport.backend.dto.TesterCreateRequest;
 import com.remotesupport.backend.support.IntegrationTest;
@@ -16,12 +17,17 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * The 8-character minimum (password-minimum-length ticket, spec.md "The password rule") on every
  * write path that sets a password: the change-password endpoint {@code
- * change-own-password-endpoint} adds, Agent creation and Tester creation. A new class rather than
- * added cases in {@code AgentApiTest}/{@code TesterApiTest}/{@code ChangeOwnPasswordApiTest} —
+ * change-own-password-endpoint} adds, Agent creation, Tester creation, and giving an existing,
+ * login-less Agent its login ({@code create-login-for-existing-agent} ticket's {@code
+ * AgentLoginCreateRequest} — review finding F1: a fourth boundary that writes a password, missed
+ * by this spec's own enumeration of three DTOs). A new class rather than added cases in {@code
+ * AgentApiTest}/{@code TesterApiTest}/{@code ChangeOwnPasswordApiTest}/{@code AgentLoginApiTest} —
  * spec.md Testing decisions and this ticket's own {@code ## Tests} both require the table-driven
  * boundary coverage to live on its own so no pre-existing test file is touched.
  *
@@ -34,10 +40,13 @@ class PasswordMinimumLengthApiTest extends IntegrationTest {
   private static final String SEVEN_CHARACTERS = "Ab3defg";
   private static final String EIGHT_CHARACTERS = "Ab3defgh";
 
+  @Autowired private JdbcTemplate jdbcTemplate;
+
   private enum WritePath {
     CHANGE_PASSWORD,
     AGENT_CREATION,
-    TESTER_CREATION
+    TESTER_CREATION,
+    AGENT_LOGIN_CREATION
   }
 
   private static Stream<Arguments> boundaryCases() {
@@ -65,6 +74,7 @@ class PasswordMinimumLengthApiTest extends IntegrationTest {
       case CHANGE_PASSWORD -> assertChangePasswordBoundary(password, refused);
       case AGENT_CREATION -> assertAgentCreationBoundary(password, refused);
       case TESTER_CREATION -> assertTesterCreationBoundary(password, refused);
+      case AGENT_LOGIN_CREATION -> assertAgentLoginCreationBoundary(password, refused);
     }
   }
 
@@ -96,7 +106,7 @@ class PasswordMinimumLengthApiTest extends IntegrationTest {
   @ParameterizedTest
   @EnumSource(
       value = WritePath.class,
-      names = {"AGENT_CREATION", "TESTER_CREATION"})
+      names = {"AGENT_CREATION", "TESTER_CREATION", "AGENT_LOGIN_CREATION"})
   void creationPathsSevenCharacterRefusalCarriesNoCode(WritePath path) throws Exception {
     switch (path) {
       case AGENT_CREATION ->
@@ -121,6 +131,19 @@ class PasswordMinimumLengthApiTest extends IntegrationTest {
                     "boundary-tester-" + UUID.randomUUID() + "@example.com",
                     SEVEN_CHARACTERS,
                     false))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.code").doesNotExist());
+      }
+      case AGENT_LOGIN_CREATION -> {
+        String managerToken = managerToken();
+        UUID agentId =
+            insertLoginLessAgent(managerTenantId(), "Boundary Agent Login " + UUID.randomUUID());
+        postJson(
+                "/api/agents/" + agentId + "/login",
+                managerToken,
+                new AgentLoginCreateRequest(
+                    "boundary-agent-login-" + UUID.randomUUID() + "@agents.example",
+                    SEVEN_CHARACTERS))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.code").doesNotExist());
       }
@@ -164,6 +187,56 @@ class PasswordMinimumLengthApiTest extends IntegrationTest {
             new TesterCreateRequest(
                 "boundary-tester-" + UUID.randomUUID() + "@example.com", password, false))
         .andExpect(refused ? status().isBadRequest() : status().isCreated());
+  }
+
+  /**
+   * The fourth write path (review finding F1): giving an existing, login-less Agent its login
+   * ({@code create-login-for-existing-agent} ticket, {@code POST /api/agents/{id}/login}). The
+   * accepting side really creates a working Login, proven the same way every other boundary case
+   * here is — a real sign-in, never a hash read.
+   */
+  private void assertAgentLoginCreationBoundary(String password, boolean refused) throws Exception {
+    String managerToken = managerToken();
+    UUID agentId =
+        insertLoginLessAgent(managerTenantId(), "Boundary Agent Login " + UUID.randomUUID());
+    String username = "boundary-agent-login-" + UUID.randomUUID() + "@agents.example";
+
+    postJson(
+            "/api/agents/" + agentId + "/login",
+            managerToken,
+            new AgentLoginCreateRequest(username, password))
+        .andExpect(refused ? status().isBadRequest() : status().isCreated());
+
+    if (!refused) {
+      loginAs(username, password);
+    }
+  }
+
+  /**
+   * The Tenant id of the seeded {@code MANAGER_USERNAME} login — the same query {@code
+   * AgentLoginApiTest.managerTenantId} uses, duplicated here rather than hoisted onto {@code
+   * IntegrationTest}, since this ticket touches no pre-existing test file.
+   */
+  private UUID managerTenantId() {
+    return jdbcTemplate.queryForObject(
+        "SELECT tenant_id FROM users WHERE username = ?", UUID.class, MANAGER_USERNAME);
+  }
+
+  /**
+   * A login-less Agent, inserted directly rather than through the API — the API can no longer
+   * create an Agent without a login (agent-login-on-creation spec, Testing decisions) — the same
+   * fixture shape {@code AgentLoginApiTest.insertLoginLessAgent} uses, duplicated here for the
+   * same reason as {@link #managerTenantId()}.
+   */
+  private UUID insertLoginLessAgent(UUID tenantId, String name) {
+    UUID agentId = UUID.randomUUID();
+    jdbcTemplate.update(
+        "INSERT INTO agents (id, tenant_id, name, country, currency, salary_amount)"
+            + " VALUES (?, ?, ?, 'FRANCE', 'EUR', 2000.00)",
+        agentId,
+        tenantId,
+        name);
+    return agentId;
   }
 
   /**

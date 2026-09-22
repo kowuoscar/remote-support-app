@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { ViewerMenu } from "@/components/app-shell/viewer-menu";
+import { ViewerActions } from "@/components/app-shell/viewer-actions";
 import { MobileNavToggle } from "@/components/app-shell/mobile-nav-toggle";
 import { IconChevronRight } from "@/components/icons";
 
@@ -29,7 +29,7 @@ export function TopBar({
       </div>
       <div className="flex shrink-0 items-center gap-3">
         {actions}
-        <ViewerMenu viewerLabel={viewerLabel} />
+        <ViewerActions viewerLabel={viewerLabel} />
         <ThemeToggle />
       </div>
     </header>

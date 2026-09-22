@@ -20,11 +20,12 @@ const ITEM_COUNT = 2;
  *
  * "Change password" is a real `menuitem`, keyboard-reachable; activating it always closes the
  * menu and returns focus to the trigger first (`closeMenu`), then calls the optional
- * `onChangePassword` callback (change-password-dialog ticket) — `TopBar` passes one that opens
- * `ChangePasswordDialog`. The callback is optional, not required, so a caller with nothing to
- * open on that item (and this component's own tests) sees exactly the old close-only behaviour,
- * the same as Escape. "Log out" absorbs the standalone `LogoutButton` this component replaces,
- * keeping its shipped accessible name "Log out".
+ * `onChangePassword` callback (change-password-dialog ticket) — `ViewerActions` passes one that
+ * opens `ChangePasswordDialog`, keeping that pairing's ref out of this component and out of
+ * `TopBar`. The callback is optional, not required, so a caller with nothing to open on that item
+ * (and this component's own tests) sees exactly the old close-only behaviour, the same as Escape.
+ * "Log out" absorbs the standalone `LogoutButton` this component replaces, keeping its shipped
+ * accessible name "Log out".
  */
 export function ViewerMenu({
   viewerLabel,

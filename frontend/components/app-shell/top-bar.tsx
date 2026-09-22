@@ -1,23 +1,10 @@
-"use client";
-
-import { useRef, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { ViewerMenu } from "@/components/app-shell/viewer-menu";
-import {
-  ChangePasswordDialog,
-  type ChangePasswordDialogHandle,
-} from "@/components/app-shell/change-password-dialog";
+import { ViewerActions } from "@/components/app-shell/viewer-actions";
 import { MobileNavToggle } from "@/components/app-shell/mobile-nav-toggle";
 import { IconChevronRight } from "@/components/icons";
 
-/**
- * `"use client"`: change-password-dialog ticket, so this can hold the ref that opens
- * `ChangePasswordDialog` from `ViewerMenu`'s "Change password" item — the dialog has no trigger
- * button of its own; `ViewerMenu`'s `menuitem` is it. `title`/`subtitle`/`viewerLabel` stay plain
- * strings and `actions` stays server-rendered `ReactNode` passed through as a prop, same as
- * before this file needed client interactivity of its own.
- */
 export function TopBar({
   title,
   subtitle,
@@ -29,8 +16,6 @@ export function TopBar({
   actions?: ReactNode;
   viewerLabel: string;
 }) {
-  const changePasswordRef = useRef<ChangePasswordDialogHandle>(null);
-
   return (
     <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-4 border-b border-hairline bg-canvas px-4 sm:px-6">
       <div className="flex min-w-0 items-center gap-1">
@@ -44,13 +29,9 @@ export function TopBar({
       </div>
       <div className="flex shrink-0 items-center gap-3">
         {actions}
-        <ViewerMenu
-          viewerLabel={viewerLabel}
-          onChangePassword={() => changePasswordRef.current?.open()}
-        />
+        <ViewerActions viewerLabel={viewerLabel} />
         <ThemeToggle />
       </div>
-      <ChangePasswordDialog ref={changePasswordRef} />
     </header>
   );
 }

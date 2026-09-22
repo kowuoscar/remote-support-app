@@ -8,7 +8,7 @@ import { ChangePasswordDialog, type ChangePasswordDialogHandle } from "./change-
 
 /**
  * `ChangePasswordDialog` has no trigger button of its own — like `ArchiveCarrierDialog`, it is
- * opened imperatively by whatever renders it (`TopBar`, from `ViewerMenu`'s "Change password"
+ * opened imperatively by whatever renders it (`ViewerActions`, from `ViewerMenu`'s "Change password"
  * item). This harness stands in for that caller, the same shape `carriers-view.tsx` uses for
  * `ArchiveCarrierDialog`.
  */

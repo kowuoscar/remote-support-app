@@ -1,7 +1,7 @@
 ---
 id: viewer-chip-menu
 title: Turn the top bar's viewer chip into an accessible actions menu, absorbing log out
-status: in-progress
+status: done
 depends_on: []
 labels: [frontend, design]
 stories: [15, 16, 19, 20, 21]

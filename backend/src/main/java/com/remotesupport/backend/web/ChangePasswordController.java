@@ -66,18 +66,29 @@ public class ChangePasswordController {
    * PASSWORD_TOO_SHORT} code, distinct from {@code WRONG_CURRENT_PASSWORD} and {@code
    * PASSWORD_UNCHANGED}, so the change-password dialog this ticket unblocks can point at the
    * new-password field specifically rather than treating every refusal alike.
+   *
+   * <p>{@code code} and {@code message} are both derived from the same chosen {@link FieldError}
+   * (review finding F6): a request can fail validation on both fields at once — e.g. a blank
+   * {@code currentPassword} together with a too-short {@code newPassword} — and picking {@code
+   * code} from "is any error on newPassword" while picking {@code message} from "the first error"
+   * used to let the two disagree, answering {@code PASSWORD_TOO_SHORT} paired with the
+   * current-password field's own message. Preferring the {@code newPassword} error when one
+   * exists keeps that case honest; otherwise the first (and, in practice, only remaining) error
+   * is used for both.
    */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Map<String, String>> requestBodyInvalid(MethodArgumentNotValidException e) {
-    boolean newPasswordTooShort =
+    FieldError chosen =
         e.getBindingResult().getFieldErrors().stream()
-            .anyMatch(fieldError -> "newPassword".equals(fieldError.getField()));
-    String code = newPasswordTooShort ? Reason.PASSWORD_TOO_SHORT.name() : "INVALID_REQUEST";
-    String message =
-        e.getBindingResult().getFieldErrors().stream()
+            .filter(fieldError -> "newPassword".equals(fieldError.getField()))
             .findFirst()
-            .map(FieldError::getDefaultMessage)
-            .orElse("The request is invalid");
+            .or(() -> e.getBindingResult().getFieldErrors().stream().findFirst())
+            .orElse(null);
+    String code =
+        chosen != null && "newPassword".equals(chosen.getField())
+            ? Reason.PASSWORD_TOO_SHORT.name()
+            : "INVALID_REQUEST";
+    String message = chosen != null ? chosen.getDefaultMessage() : "The request is invalid";
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("code", code, "message", message));
   }
 }

@@ -14,6 +14,7 @@ import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.domain.Role;
 import com.remotesupport.backend.dto.AgentCreateRequest;
 import com.remotesupport.backend.dto.ChangePasswordRequest;
+import com.remotesupport.backend.dto.PasswordPolicy;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import java.math.BigDecimal;
@@ -106,6 +107,31 @@ class ChangeOwnPasswordApiTest extends IntegrationTest {
             new ChangePasswordRequest(login.password(), login.password()))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.code").value("PASSWORD_UNCHANGED"));
+
+    loginAs(login.username(), login.password());
+  }
+
+  /**
+   * Review finding F6: a request that fails validation on two fields at once — a blank {@code
+   * currentPassword} together with a too-short {@code newPassword} — used to derive {@code code}
+   * from "is any field error on newPassword" while deriving {@code message} from "the first field
+   * error", so the two could disagree: {@code PASSWORD_TOO_SHORT} paired with {@code
+   * currentPassword}'s own "must not be blank" message, which would have the dialog flag the
+   * new-password field with a message about the current-password one. Both must come from the
+   * same chosen {@link org.springframework.validation.FieldError}.
+   */
+  @Test
+  void aBlankCurrentPasswordWithATooShortNewPasswordDerivesCodeAndMessageFromTheSameFieldError()
+      throws Exception {
+    RoleLogin login = freshManagerLogin();
+
+    postJson(
+            "/api/me/password",
+            login.token(),
+            new ChangePasswordRequest("", "short1"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("PASSWORD_TOO_SHORT"))
+        .andExpect(jsonPath("$.message").value(PasswordPolicy.TOO_SHORT_MESSAGE));
 
     loginAs(login.username(), login.password());
   }

@@ -1,0 +1,22 @@
+=== mvn verify (backend, JAVA_HOME=/opt/homebrew/opt/openjdk@21) ===
+[INFO] Tests run: 529, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] Tests run: 529, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ backend ---
+[INFO] 
+[INFO] --- spring-boot:3.3.4:repackage (repackage) @ backend ---
+[INFO] Replacing main artifact /Users/oscar/myspace/projects/remote-support-app/backend/target/backend-0.1.0-SNAPSHOT.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[INFO] The original artifact has been renamed to /Users/oscar/myspace/projects/remote-support-app/backend/target/backend-0.1.0-SNAPSHOT.jar.original
+[INFO] 
+[INFO] --- checkstyle:3.5.0:check (checkstyle-check) @ backend ---
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  02:58 min
+[INFO] Finished at: 2026-09-22T11:22:17+02:00
+[INFO] ------------------------------------------------------------------------

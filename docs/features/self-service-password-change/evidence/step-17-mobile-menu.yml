@@ -1,0 +1,7 @@
+- generic [ref=f4e69] [box=178,10,196,36]:
+  - generic [ref=f4e70] [box=178,14,148,28]:
+    - button "Nadia Okafor · Tester" [expanded] [ref=f4e71] [box=178,14,148,28]
+    - menu [ref=f4e114] [box=102,50,224,82]:
+      - menuitem "Change password" [active] [ref=f4e115] [box=103,55,222,36]
+      - menuitem "Log out" [ref=f4e116] [box=103,91,222,36]
+  - button "Switch to dark theme" [ref=f4e73] [box=338,10,36,36]

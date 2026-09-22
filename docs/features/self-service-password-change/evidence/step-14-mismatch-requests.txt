@@ -1,0 +1,22 @@
+### Result
+13. [POST] http://127.0.0.1:49494/api/session => [200] OK
+14. [GET] http://127.0.0.1:49494/client?_rsc=Yaku0SukotyQAzL7 => [200] OK
+17. [GET] http://127.0.0.1:49494/client?_rsc=hc_InrVdmCqKbm_Q => [200] OK
+19. [GET] http://127.0.0.1:49494/client?_rsc=ARWzwCou1cJri0F_ => [200] OK
+20. [GET] http://127.0.0.1:49494/client/fleet?_rsc=ARWzwCou1cJri0F_ => [200] OK
+21. [GET] http://127.0.0.1:49494/client/requests?_rsc=ARWzwCou1cJri0F_ => [200] OK
+22. [GET] http://127.0.0.1:49494/client/invoices?_rsc=ARWzwCou1cJri0F_ => [200] OK
+23. [GET] http://127.0.0.1:49494/client?_rsc=m0hugd4Ez6mBlu2w => [200] OK
+24. [GET] http://127.0.0.1:49494/client/fleet?_rsc=_3weP793pGPDpknl => [200] OK
+25. [GET] http://127.0.0.1:49494/client/requests?_rsc=_3weP793pGPDpknl => [200] OK
+26. [GET] http://127.0.0.1:49494/client/invoices?_rsc=_3weP793pGPDpknl => [200] OK
+40. [GET] http://127.0.0.1:49494/client?_rsc=ARWzwCou1cJri0F_ => [200] OK
+41. [GET] http://127.0.0.1:49494/client/fleet?_rsc=ARWzwCou1cJri0F_ => [200] OK
+42. [GET] http://127.0.0.1:49494/client/requests?_rsc=ARWzwCou1cJri0F_ => [200] OK
+43. [GET] http://127.0.0.1:49494/client/invoices?_rsc=ARWzwCou1cJri0F_ => [200] OK
+44. [GET] http://127.0.0.1:49494/client/fleet?_rsc=_3weP793pGPDpknl => [200] OK
+45. [GET] http://127.0.0.1:49494/client?_rsc=m0hugd4Ez6mBlu2w => [200] OK
+46. [GET] http://127.0.0.1:49494/client/requests?_rsc=_3weP793pGPDpknl => [200] OK
+47. [GET] http://127.0.0.1:49494/client/invoices?_rsc=_3weP793pGPDpknl => [200] OK
+
+Note: 28 static requests not shown, run with --static option to see them.

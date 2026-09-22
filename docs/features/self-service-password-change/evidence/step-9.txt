@@ -1,0 +1,93 @@
+=== Step 9: git diff (main...feature/self-service-password-change) touches no Flyway migration, no SecurityConfig matcher, no lib/nav.tsx, and neither login service's create ===
+-- full list of changed files:
+M	DESIGN.md
+M	backend/src/main/java/com/remotesupport/backend/dto/AgentCreateRequest.java
+A	backend/src/main/java/com/remotesupport/backend/dto/ChangePasswordRequest.java
+A	backend/src/main/java/com/remotesupport/backend/dto/PasswordPolicy.java
+M	backend/src/main/java/com/remotesupport/backend/dto/TesterCreateRequest.java
+M	backend/src/main/java/com/remotesupport/backend/logging/AuditLog.java
+A	backend/src/main/java/com/remotesupport/backend/web/ChangePasswordController.java
+A	backend/src/main/java/com/remotesupport/backend/web/ChangePasswordRefusedException.java
+A	backend/src/main/java/com/remotesupport/backend/web/ChangePasswordService.java
+A	backend/src/test/java/com/remotesupport/backend/web/ChangeOwnPasswordApiTest.java
+A	backend/src/test/java/com/remotesupport/backend/web/PasswordMinimumLengthApiTest.java
+M	docs/agents/coding-standards.md
+M	docs/agents/ticket-critic.md
+A	docs/features/self-service-password-change/spec.md
+A	docs/features/self-service-password-change/tickets/change-own-password-endpoint.md
+A	docs/features/self-service-password-change/tickets/change-password-dialog.md
+A	docs/features/self-service-password-change/tickets/password-minimum-length.md
+A	docs/features/self-service-password-change/tickets/viewer-chip-menu.md
+D	docs/inbox/proposal-after-tenant-scoped-sign-in.md
+M	docs/roadmap/README.md
+M	docs/roadmap/login-lifecycle.md
+A	docs/roadmap/package-by-feature.md
+M	docs/tech-debt.md
+A	frontend/app/api/me/password/route.ts
+M	frontend/app/login/page.tsx
+A	frontend/components/app-shell/change-password-dialog.test.tsx
+A	frontend/components/app-shell/change-password-dialog.tsx
+D	frontend/components/app-shell/logout-button.tsx
+M	frontend/components/app-shell/top-bar.tsx
+A	frontend/components/app-shell/viewer-actions.tsx
+A	frontend/components/app-shell/viewer-menu.test.tsx
+A	frontend/components/app-shell/viewer-menu.tsx
+M	frontend/tests/e2e/agent-invoice-submission-and-approval.spec.ts
+M	frontend/tests/e2e/agent-standing-amounts-and-invoice-generation.spec.ts
+A	frontend/tests/e2e/change-password.spec.ts
+M	frontend/tests/e2e/create-agent-with-login.spec.ts
+M	frontend/tests/e2e/create-login-for-existing-agent.spec.ts
+M	frontend/tests/e2e/helpers.ts
+M	frontend/tests/e2e/login.spec.ts
+M	frontend/tests/visual/__screenshots__/agent-carriers-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/agent-carriers-desktop-light.png
+M	frontend/tests/visual/__screenshots__/agent-carriers-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/agent-carriers-mobile-light.png
+M	frontend/tests/visual/__screenshots__/agent-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/agent-desktop-light.png
+M	frontend/tests/visual/__screenshots__/agent-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/agent-mobile-light.png
+M	frontend/tests/visual/__screenshots__/agent-stock-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/agent-stock-desktop-light.png
+M	frontend/tests/visual/__screenshots__/agent-stock-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/agent-stock-mobile-light.png
+A	frontend/tests/visual/__screenshots__/change-password-dialog-open-desktop-dark.png
+A	frontend/tests/visual/__screenshots__/change-password-dialog-open-desktop-light.png
+A	frontend/tests/visual/__screenshots__/change-password-dialog-open-mobile-dark.png
+A	frontend/tests/visual/__screenshots__/change-password-dialog-open-mobile-light.png
+M	frontend/tests/visual/__screenshots__/client-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/client-mobile-light.png
+M	frontend/tests/visual/__screenshots__/manager-carriers-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/manager-carriers-desktop-light.png
+M	frontend/tests/visual/__screenshots__/manager-carriers-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/manager-carriers-mobile-light.png
+M	frontend/tests/visual/__screenshots__/manager-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/manager-desktop-light.png
+A	frontend/tests/visual/__screenshots__/manager-menu-open-desktop-dark.png
+A	frontend/tests/visual/__screenshots__/manager-menu-open-desktop-light.png
+A	frontend/tests/visual/__screenshots__/manager-menu-open-mobile-dark.png
+A	frontend/tests/visual/__screenshots__/manager-menu-open-mobile-light.png
+M	frontend/tests/visual/__screenshots__/manager-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/manager-mobile-light.png
+M	frontend/tests/visual/__screenshots__/manager-requests-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/manager-requests-desktop-light.png
+M	frontend/tests/visual/__screenshots__/manager-requests-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/manager-requests-mobile-light.png
+M	frontend/tests/visual/__screenshots__/manager-stock-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/manager-stock-desktop-light.png
+M	frontend/tests/visual/__screenshots__/manager-stock-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/manager-stock-mobile-light.png
+A	frontend/tests/visual/change-password-dialog.spec.ts
+A	frontend/tests/visual/viewer-menu.spec.ts
+
+-- grep for forbidden paths in the changed-files list (expect no matches):
+none found (good)
+
+-- confirm AgentLoginService.java / TesterLoginService.java are unchanged, or if changed, that 'create' itself is untouched:
+neither file appears in the diff at all (good)
+
+-- full diff of SecurityConfig.java (expect empty, proving no matcher change):
+[end SecurityConfig diff]
+
+-- full diff of lib/nav.tsx (expect empty):
+[end nav.tsx diff]

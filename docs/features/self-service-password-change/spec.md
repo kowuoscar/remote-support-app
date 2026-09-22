@@ -577,6 +577,23 @@ which repository method ran, never a `PasswordEncoder` interaction.
 
 ## Decisions taken
 
+- **(after review) This feature's branch also carries the loop's own
+  bookkeeping, and that is not an accident.** The reviewer raised it as
+  `out-of-scope` and was right to: `docs/roadmap/package-by-feature.md`,
+  the roadmap ordering, the deleted
+  `docs/inbox/proposal-after-tenant-scoped-sign-in.md` and the
+  `docs/agents/ticket-critic.md` amendment have no story, no ticket and no
+  other decision behind them. They are the human's answers to the retro
+  proposal filed when `tenant-scoped-sign-in` closed, applied by the
+  orchestrator on this branch's first commit.
+  They ride here because the loop never pushes `main`: records committed on
+  local `main` reach the remote inside the next feature branch, and this was
+  the next feature branch. The alternative — a separate pull request for four
+  documentation files — costs the human a review for no gain.
+  Kept rather than reverted. The `docs/agents/coding-standards.md` rule
+  rewrite in the same commit is **not** part of this finding: this spec's own
+  decisions cite the amended rule 13 by name, so it is sourced.
+
 - **Log out moves into the chip's menu and the standalone log-out button is
   removed from all three consoles' top bars.** Put to the human at the spec
   gate on 2026-09-22 and confirmed there, rather than left as an inference

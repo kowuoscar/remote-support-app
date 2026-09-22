@@ -1,0 +1,93 @@
+
+> frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.3.5 (Turbopack)
+✓ Running next.config.ts took 59ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 2.9s
+  Running TypeScript ...
+  Finished TypeScript in 2.6s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/30) ...
+  Generating static pages using 7 workers (7/30) 
+  Generating static pages using 7 workers (14/30) 
+  Generating static pages using 7 workers (22/30) 
+✓ Generating static pages using 7 workers (30/30) in 136ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /agent
+├ ƒ /agent/carriers
+├ ƒ /agent/client-invoices
+├ ƒ /agent/fleet
+├ ƒ /agent/my-invoice
+├ ƒ /agent/requests
+├ ƒ /agent/stock
+├ ƒ /api/agent-invoices/[invoiceId]/approve
+├ ƒ /api/agent-invoices/[invoiceId]/override
+├ ƒ /api/agent-invoices/[invoiceId]/paid
+├ ƒ /api/agents
+├ ƒ /api/agents/[agentId]/invoice
+├ ƒ /api/agents/[agentId]/invoice/send
+├ ƒ /api/agents/[agentId]/login
+├ ƒ /api/agents/[agentId]/standing-amounts
+├ ƒ /api/carriers
+├ ƒ /api/carriers/[carrierId]
+├ ƒ /api/carriers/[carrierId]/[list]
+├ ƒ /api/carriers/[carrierId]/[list]/[entryId]
+├ ƒ /api/carriers/[carrierId]/[list]/[entryId]/archive
+├ ƒ /api/carriers/[carrierId]/archive
+├ ƒ /api/client-invoices/[invoiceId]/approve
+├ ƒ /api/client-invoices/[invoiceId]/files/[fileId]
+├ ƒ /api/client-invoices/[invoiceId]/pdf
+├ ƒ /api/clients
+├ ƒ /api/clients/[clientId]/testers
+├ ƒ /api/contracts
+├ ƒ /api/contracts/[contractId]/client-invoice
+├ ƒ /api/contracts/[contractId]/client-invoice/files
+├ ƒ /api/contracts/[contractId]/client-invoice/files/[fileId]
+├ ƒ /api/contracts/[contractId]/client-invoice/pdf
+├ ƒ /api/contracts/[contractId]/client-invoice/send
+├ ƒ /api/contracts/[contractId]/fees
+├ ƒ /api/contracts/[contractId]/requests
+├ ƒ /api/contracts/[contractId]/requests/[requestId]/status
+├ ƒ /api/contracts/[contractId]/sim-cards
+├ ƒ /api/contracts/[contractId]/sim-cards/[simCardId]/installed-in
+├ ƒ /api/contracts/[contractId]/sim-cards/[simCardId]/status
+├ ƒ /api/contracts/[contractId]/smartphones
+├ ƒ /api/contracts/[contractId]/smartphones/[smartphoneId]/serial
+├ ƒ /api/contracts/[contractId]/smartphones/[smartphoneId]/status
+├ ƒ /api/contracts/[contractId]/testers
+├ ƒ /api/me/password
+├ ƒ /api/requests/[requestId]/approve
+├ ƒ /api/requests/[requestId]/reject
+├ ƒ /api/session
+├ ○ /client
+├ ƒ /client/fleet
+├ ƒ /client/invoices
+├ ƒ /client/requests
+├ ƒ /login
+├ ƒ /manager
+├ ƒ /manager/agents
+├ ƒ /manager/agents/[agentId]
+├ ƒ /manager/carriers
+├ ƒ /manager/clients
+├ ƒ /manager/clients/[clientId]
+├ ƒ /manager/contracts
+├ ƒ /manager/contracts/[contractId]
+├ ƒ /manager/invoices
+├ ƒ /manager/invoices/agent/[invoiceId]
+├ ƒ /manager/invoices/client/[invoiceId]
+├ ƒ /manager/requests
+└ ƒ /manager/stock
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

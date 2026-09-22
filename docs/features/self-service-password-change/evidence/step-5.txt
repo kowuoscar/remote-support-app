@@ -1,0 +1,28 @@
+=== Step 5: no JWT is refused; a valid JWT of each of the 3 roles is not refused on role grounds ===
+-- no Authorization header:
+HTTP/1.1 401 
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 0
+Date: Tue, 22 Sep 2026 09:18:27 GMT
+
+HTTP_STATUS:401
+body:
+
+-- Manager token (seeded manager@example.com), deliberately wrong current password (expect 400, never 403 -- proves not refused on role grounds):
+{"message":"The current password is incorrect","code":"WRONG_CURRENT_PASSWORD"}
+HTTP_STATUS:400
+
+-- Agent token (seeded agent@example.com), deliberately wrong current password:
+{"message":"The current password is incorrect","code":"WRONG_CURRENT_PASSWORD"}
+HTTP_STATUS:400
+
+-- Tester token (seeded tester@example.com), deliberately wrong current password:
+{"message":"The current password is incorrect","code":"WRONG_CURRENT_PASSWORD"}
+HTTP_STATUS:400
+
+None of these three wrote anything -- a wrong-current-password call never writes (spec.md Testing decisions), so using the seeded credentials here is safe and does not violate the no-seeded-password-change rule.

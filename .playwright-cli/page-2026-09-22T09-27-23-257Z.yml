@@ -1,0 +1,67 @@
+- generic [ref=f4e1]:
+  - alert [ref=f4e25]: Dashboard
+  - generic [ref=f4e31]:
+    - complementary [ref=f4e32]:
+      - generic [ref=f4e33]:
+        - generic [ref=f4e34]: "N"
+        - generic [ref=f4e35]:
+          - paragraph [ref=f4e36]: Northwind Field Services
+          - paragraph [ref=f4e37]: Client Portal
+        - button "Close navigation" [ref=f4e38]
+      - navigation [ref=f4e41]:
+        - link "Dashboard" [ref=f4e42] [cursor=pointer]:
+          - /url: /client
+        - link "Fleet" [ref=f4e48] [cursor=pointer]:
+          - /url: /client/fleet
+        - link "Requests" [ref=f4e51] [cursor=pointer]:
+          - /url: /client/requests
+        - link "Invoices" [ref=f4e55] [cursor=pointer]:
+          - /url: /client/invoices
+    - generic [ref=f4e60]:
+      - banner [ref=f4e61]:
+        - generic [ref=f4e62]:
+          - button "Open navigation" [ref=f4e63]
+          - generic [ref=f4e66]:
+            - heading "Dashboard" [level=1] [ref=f4e67]
+            - paragraph [ref=f4e68]: Aurora Retail Group
+        - generic [ref=f4e69]:
+          - generic [ref=f4e70]:
+            - button "Nadia Okafor · Tester" [expanded] [ref=f4e71]
+            - menu [ref=f4e114]:
+              - menuitem "Change password" [active] [ref=f4e115]
+              - menuitem "Log out" [ref=f4e116]
+          - button "Switch to dark theme" [ref=f4e73]
+      - main [ref=f4e77]:
+        - generic [ref=f4e78]:
+          - generic [ref=f4e79]:
+            - generic [ref=f4e80]:
+              - generic [ref=f4e81]: Active Fleet
+              - generic [ref=f4e82]: "7"
+              - generic [ref=f4e83]: Smartphones + SIM Cards, all Contracts
+            - generic [ref=f4e84]:
+              - generic [ref=f4e85]: Open Requests
+              - generic [ref=f4e86]: "3"
+              - generic [ref=f4e87]: Submitted or In Progress
+          - generic [ref=f4e88]:
+            - generic [ref=f4e89]:
+              - generic [ref=f4e90]:
+                - heading "Latest Client Invoice" [level=2] [ref=f4e91]
+                - paragraph [ref=f4e92]: Most recent month per Contract
+              - link "View all" [ref=f4e93] [cursor=pointer]:
+                - /url: /client/invoices
+            - list [ref=f4e96]:
+              - listitem [ref=f4e97]:
+                - generic [ref=f4e98]:
+                  - paragraph [ref=f4e99]: Aurora Retail Group — France
+                  - paragraph [ref=f4e100]: August 2026
+                - generic [ref=f4e101]:
+                  - generic [ref=f4e102]: Approved
+                  - generic [ref=f4e104]: €2,452.50
+              - listitem [ref=f4e105]:
+                - generic [ref=f4e106]:
+                  - paragraph [ref=f4e107]: Aurora Retail Group — United Kingdom
+                  - paragraph [ref=f4e108]: August 2026
+                - generic [ref=f4e109]:
+                  - generic [ref=f4e110]: Awaiting approval
+                  - generic [ref=f4e112]: £1,260.00
+      - paragraph [ref=f4e113]: Demo data — names, amounts and statuses on this screen are synthetic and do not represent real Clients, Agents or invoices.

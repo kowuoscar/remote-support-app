@@ -1,0 +1,89 @@
+- generic [ref=f1e1]:
+  - alert [ref=f1e25]: Dashboard
+  - generic [ref=f1e26]:
+    - complementary [ref=f1e27]:
+      - generic [ref=f1e28]:
+        - generic [ref=f1e29]: "N"
+        - generic [ref=f1e30]:
+          - paragraph [ref=f1e31]: Northwind Field Services
+          - paragraph [ref=f1e32]: Agent Console
+      - navigation [ref=f1e33]:
+        - link "Dashboard" [ref=f1e34] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f1e40] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f1e44] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f1e47] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f1e51] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f1e57] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f1e62] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f1e67]:
+      - banner [ref=f1e68]:
+        - generic [ref=f1e70]:
+          - heading "Dashboard" [level=1] [ref=f1e71]
+          - paragraph [ref=f1e72]: Camille Duforet · France
+        - generic [ref=f1e73]:
+          - generic [ref=f1e74]:
+            - button "Camille Duforet · Agent" [expanded] [ref=f1e75]
+            - menu [ref=f1e167]:
+              - menuitem "Change password" [active] [ref=f1e168]
+              - menuitem "Log out" [ref=f1e169]
+          - button "Switch to dark theme" [ref=f1e77]
+      - main [ref=f1e81]:
+        - generic [ref=f1e82]:
+          - generic [ref=f1e83]:
+            - generic [ref=f1e84]:
+              - generic [ref=f1e85]: Local Support Fees — September 2026
+              - generic [ref=f1e86]: €620.00
+              - generic [ref=f1e87]: Running total, all your Contracts
+            - generic [ref=f1e88]:
+              - generic [ref=f1e89]: Open Requests
+              - generic [ref=f1e90]: "4"
+              - generic [ref=f1e91]: Submitted or In Progress
+            - generic [ref=f1e92]:
+              - generic [ref=f1e93]: My Invoice status
+              - generic [ref=f1e94]: Approved
+              - generic [ref=f1e97]: August 2026
+            - generic [ref=f1e98]:
+              - generic [ref=f1e99]: Standing salary + advance
+              - generic [ref=f1e100]: €2,400.00
+              - generic [ref=f1e101]: + €300 Rollout Advance
+          - generic [ref=f1e102]:
+            - generic [ref=f1e103]:
+              - generic [ref=f1e104]:
+                - heading "Recent Requests" [level=2] [ref=f1e105]
+                - paragraph [ref=f1e106]: Across both your Contracts
+              - link "Open queue" [ref=f1e107] [cursor=pointer]:
+                - /url: /agent/requests
+            - list [ref=f1e110]:
+              - listitem [ref=f1e111]:
+                - generic [ref=f1e117]:
+                  - paragraph [ref=f1e118]: Repair · Solene Cosmetics — France
+                  - paragraph [ref=f1e119]: Raised by Élise Fabron · updated 7 days ago
+                - generic [ref=f1e120]: In Progress
+              - listitem [ref=f1e122]:
+                - generic [ref=f1e128]:
+                  - paragraph [ref=f1e129]: Topup · Aurora Retail Group — France
+                  - paragraph [ref=f1e130]: Raised by Nadia Okafor · updated 8 days ago
+                - generic [ref=f1e131]: Submitted
+              - listitem [ref=f1e133]:
+                - generic [ref=f1e139]:
+                  - paragraph [ref=f1e140]: SIM Swap · Aurora Retail Group — France
+                  - paragraph [ref=f1e141]: Raised by Nadia Okafor · updated 8 days ago
+                - generic [ref=f1e142]: Submitted
+              - listitem [ref=f1e144]:
+                - generic [ref=f1e150]:
+                  - paragraph [ref=f1e151]: Provision Smartphone · Solene Cosmetics — France
+                  - paragraph [ref=f1e152]: Raised by Élise Fabron · updated 8 days ago
+                - generic [ref=f1e153]: In Progress
+              - listitem [ref=f1e155]:
+                - generic [ref=f1e161]:
+                  - paragraph [ref=f1e162]: Reboot · Aurora Retail Group — France
+                  - paragraph [ref=f1e163]: Raised by Nadia Okafor · updated 12 days ago
+                - generic [ref=f1e164]: Completed
+      - paragraph [ref=f1e166]: Demo data — names, amounts and statuses on this screen are synthetic and do not represent real Clients, Agents or invoices.

@@ -1,0 +1,31 @@
+=== Step 6: new password boundary, 7 chars -> 400 distinct code; 8 chars -> 204 ===
+create HTTP_STATUS:201
+-- 7-character new password 'Ab3defg' (len=       7):
+HTTP/1.1 400 
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Type: application/json
+Transfer-Encoding: chunked
+Date: Tue, 22 Sep 2026 09:18:02 GMT
+Connection: close
+
+HTTP_STATUS:400
+body:
+{"message":"Password must be at least 8 characters long","code":"PASSWORD_TOO_SHORT"}
+-- 8-character new password 'Ab3defgh' (len=       8):
+HTTP/1.1 204 
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Date: Tue, 22 Sep 2026 09:18:02 GMT
+
+HTTP_STATUS:204
+body:
+[len=       0]

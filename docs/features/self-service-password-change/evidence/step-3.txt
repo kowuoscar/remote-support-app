@@ -1,0 +1,70 @@
+=== Step 3: repeat the change for a fresh Manager, Agent, and Tester Login ===
+--- Manager (linked to neither Agent nor Tester) ---
+creating raw Manager User row directly (no API exists to create a bare Manager Login), tenant_id=11111111-1111-1111-1111-111111111111, id=9492344C-D41E-4D17-8DCE-AEE73631B1F5
+INSERT 0 1
+confirm no agent_id and not referenced by testers table:
+                  id                  |                  username                  |  role   | agent_id 
+--------------------------------------+--------------------------------------------+---------+----------
+ 9492344c-d41e-4d17-8dce-aee73631b1f5 | fresh-manager-step3-1790068622@example.com | MANAGER | 
+(1 row)
+
+ tester_rows_for_this_user 
+---------------------------
+                         0
+(1 row)
+
+sign-in as fresh manager: {"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmcmVzaC1tYW5hZ2VyLXN0ZXAzLTE3OTAwNjg2MjJAZXhhbXBsZS5jb20iLCJqdGkiOiI5NDkyMzQ0Yy1kNDFlLTRkMTctOGRjZS1hZWU3MzYzMWIxZjUiLCJ0ZW5hbnRJZCI6IjExMTExMTExLTExMTEtMTExMS0xMTExLTExMTExMTExMTExMSIsInJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzkwMDY4NjIyLCJleHAiOjE3OTAwNzIyMjJ9.FhRP6bP46fHBotCyEonu7l1r8tfRKXa_cHro119Mjuw","role":"MANAGER"}
+POST /api/me/password for Manager:
+HTTP/1.1 204 
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Date: Tue, 22 Sep 2026 09:17:02 GMT
+
+HTTP_STATUS:204
+body:  [len=       0]
+verify new password signs in:
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmcmVzaC1tYW5hZ2VyLXN0ZXAzLTE3OTAwNjg2MjJAZXhhbXBsZS5jb20iLCJqdGkiOiI5NDkyMzQ0Yy1kNDFlLTRkMTctOGRjZS1hZWU3MzYzMWIxZjUiLCJ0ZW5hbnRJZCI6IjExMTExMTExLTExMTEtMTExMS0xMTExLTExMTExMTExMTExMSIsInJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzkwMDY4NjIzLCJleHAiOjE3OTAwNzIyMjN9.zodjls5JRqGUA0wpwMQW0VrhVlweLpvXWrmNizrFbI0","role":"MANAGER"}
+HTTP_STATUS:200
+
+--- Agent (fresh) ---
+{"id":"b961091c-1287-4922-abfd-2bc30c3bd863","name":"Fresh Agent Step3","country":"UNITED_STATES","currency":"USD","salaryAmount":2000.00,"contractCount":0,"loginUsername":"fresh-agent-step3-1790068623@agents.example"}
+HTTP_STATUS:201
+POST /api/me/password for Agent:
+HTTP/1.1 204 
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Date: Tue, 22 Sep 2026 09:17:02 GMT
+
+HTTP_STATUS:204
+body:  [len=       0]
+verify new password signs in:
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmcmVzaC1hZ2VudC1zdGVwMy0xNzkwMDY4NjIzQGFnZW50cy5leGFtcGxlIiwianRpIjoiOWMwZjE4ZjAtY2JlYS00ZmMxLWJlODAtMDk2ZmU2ZjU2MzQ2IiwidGVuYW50SWQiOiIxMTExMTExMS0xMTExLTExMTEtMTExMS0xMTExMTExMTExMTEiLCJyb2xlIjoiQUdFTlQiLCJpYXQiOjE3OTAwNjg2MjMsImV4cCI6MTc5MDA3MjIyM30.liMK4_jJq0d-zhYarQ4lGxLVslaY1PtfmBmbeDH1U88","role":"AGENT"}
+HTTP_STATUS:200
+
+--- Tester (fresh) ---
+client create resp: {"id":"5ed05686-3466-4f11-b13a-6637049b4a79","name":"Fresh Tester Client Step3","primaryContactUsername":null,"contractCount":0}
+{"id":"b328dccc-efce-4813-a46e-c37682a9d66d","clientId":"5ed05686-3466-4f11-b13a-6637049b4a79","username":"fresh-tester-step3-1790068623@example.com","isPrimaryContact":true}
+HTTP_STATUS:201
+POST /api/me/password for Tester:
+HTTP/1.1 204 
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Date: Tue, 22 Sep 2026 09:17:03 GMT
+
+HTTP_STATUS:204
+body:  [len=       0]
+verify new password signs in:
+{"token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJmcmVzaC10ZXN0ZXItc3RlcDMtMTc5MDA2ODYyM0BleGFtcGxlLmNvbSIsImp0aSI6Ijk0Nzk3NWM0LTJjZGMtNDFhYi04NjZhLWViYWZlNDUwYzBhYSIsInRlbmFudElkIjoiMTExMTExMTEtMTExMS0xMTExLTExMTEtMTExMTExMTExMTExIiwicm9sZSI6IlRFU1RFUiIsImlhdCI6MTc5MDA2ODYyNCwiZXhwIjoxNzkwMDcyMjI0fQ.GwUtUoj1gxM7cGW5cJf1Pf8pB6KodJ6jM5-tivQCfyk","role":"TESTER"}
+HTTP_STATUS:200

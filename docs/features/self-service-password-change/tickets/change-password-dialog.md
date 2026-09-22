@@ -1,7 +1,7 @@
 ---
 id: change-password-dialog
 title: Wire "Change password" to a dialog that changes the password and signs out here
-status: in-progress
+status: done
 depends_on: [password-minimum-length, viewer-chip-menu]
 labels: [frontend]
 stories: [4, 5, 11, 14, 19, 20, 21]

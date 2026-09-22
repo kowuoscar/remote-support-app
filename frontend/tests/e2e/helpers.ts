@@ -31,7 +31,12 @@ export async function logout(page: Page) {
   // viewer-chip-menu ticket: "Log out" moved from a standalone top-bar button into the viewer
   // chip's menu, opened first here — the item keeps its shipped accessible name, so this is the
   // only step every caller needed added.
-  await page.locator('[aria-haspopup="menu"]').click();
+  //
+  // A dedicated test id (review finding F9), not `[aria-haspopup="menu"]`: that attribute
+  // selector is unambiguous today only because `ContractSwitcher` is `aria-haspopup="listbox"`,
+  // and the trigger's own accessible name is the signed-in viewer's own label (varies per user
+  // and per console), so neither survives a second menu ever landing in the shared shell.
+  await page.getByTestId("viewer-menu-trigger").click();
   await page.getByRole("menuitem", { name: "Log out" }).click();
   await expect(page).toHaveURL(/\/login/);
 }

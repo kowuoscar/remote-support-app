@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import {
   SEEDED_USERS,
   addTester,
@@ -18,22 +18,44 @@ import {
  * password, since e2e state never rolls back) is the "Login through the UI as a Manager" this
  * journey names: `addTester` is the Manager-facing UI path that creates one.
  */
+/**
+ * Signs in as the Manager, creates a Client+Contract and a Tester under it with `password`, logs
+ * out, then signs back in as that Tester and lands on `/client` — the six-line fixture both tests
+ * below shared verbatim (review finding F8). Returns the Tester's email for the caller's own
+ * assertions.
+ */
+async function signedInTesterWithPassword(
+  page: Page,
+  options: { runId: string; emailPrefix: string; clientLabel: string; password: string },
+): Promise<string> {
+  const { runId, emailPrefix, clientLabel, password } = options;
+  const testerEmail = `${emailPrefix}+${runId}@client.example`;
+
+  await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+  const { clientId } = await createClientAndContractWithSeededAgent(page, `${clientLabel} ${runId}`);
+  await addTester(page, clientId, testerEmail, password);
+  await logout(page);
+
+  await login(page, testerEmail, password);
+  await expect(page).toHaveURL(/\/client$/);
+
+  return testerEmail;
+}
+
 test.describe("change password", () => {
   test("a Tester changes their own password, then must sign in with the new one", async ({ page }) => {
     const runId = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
-    const testerEmail = `password.change+${runId}@client.example`;
     const oldPassword = "OldPassw0rd!1";
     const newPassword = "NewPassw0rd!2";
 
-    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const { clientId } = await createClientAndContractWithSeededAgent(page, `Password Change ${runId}`);
-    await addTester(page, clientId, testerEmail, oldPassword);
-    await logout(page);
+    const testerEmail = await signedInTesterWithPassword(page, {
+      runId,
+      emailPrefix: "password.change",
+      clientLabel: "Password Change",
+      password: oldPassword,
+    });
 
-    await login(page, testerEmail, oldPassword);
-    await expect(page).toHaveURL(/\/client$/);
-
-    await page.locator('[aria-haspopup="menu"]').click();
+    await page.getByTestId("viewer-menu-trigger").click();
     await page.getByRole("menuitem", { name: "Change password" }).click();
 
     const dialog = page.getByRole("dialog");
@@ -64,18 +86,16 @@ test.describe("change password", () => {
 
   test("a wrong current password is refused inline, keeps the form and the session", async ({ page }) => {
     const runId = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
-    const testerEmail = `password.wrong+${runId}@client.example`;
     const password = "OriginalPassw0rd!";
 
-    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const { clientId } = await createClientAndContractWithSeededAgent(page, `Wrong Password ${runId}`);
-    await addTester(page, clientId, testerEmail, password);
-    await logout(page);
+    await signedInTesterWithPassword(page, {
+      runId,
+      emailPrefix: "password.wrong",
+      clientLabel: "Wrong Password",
+      password,
+    });
 
-    await login(page, testerEmail, password);
-    await expect(page).toHaveURL(/\/client$/);
-
-    await page.locator('[aria-haspopup="menu"]').click();
+    await page.getByTestId("viewer-menu-trigger").click();
     await page.getByRole("menuitem", { name: "Change password" }).click();
 
     const dialog = page.getByRole("dialog");

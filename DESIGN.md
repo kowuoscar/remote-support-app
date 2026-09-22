@@ -161,7 +161,7 @@ A restrained palette: two neutral scales (canvas, ink) carry nearly everything; 
 
 ## Layout
 
-Shared three-surface app shell: a fixed 240px left nav rail (`NavRail`, same width/styling/active-state treatment on all three surfaces, only the item list changes per role) and a sticky 56px top bar (title, viewer identity chip, theme toggle). Below the `md` breakpoint the rail becomes an off-canvas drawer (fixed, translated off-screen, slid in over a `bg-ink/40` backdrop via a mobile-nav toggle in the top bar) rather than collapsing to icons-only. At `md`+ the rail is `sticky`/full-viewport-height with no internal scroll container, so the document — not an inner `<main>` — scrolls, keeping the rail and top bar in view.
+Shared three-surface app shell: a fixed 240px left nav rail (`NavRail`, same width/styling/active-state treatment on all three surfaces, only the item list changes per role) and a sticky 56px top bar (title, viewer identity chip, theme toggle). The chip is the trigger for the viewer's actions **Menu** (self-service-password-change spec): Change password and Log out live inside it, and no standalone log-out control sits beside it. Below the `md` breakpoint the rail becomes an off-canvas drawer (fixed, translated off-screen, slid in over a `bg-ink/40` backdrop via a mobile-nav toggle in the top bar) rather than collapsing to icons-only. At `md`+ the rail is `sticky`/full-viewport-height with no internal scroll container, so the document — not an inner `<main>` — scrolls, keeping the rail and top bar in view.
 
 Dashboards use a responsive stat-card grid (3-column on Manager, up to 4 on Agent, 2 on Client — count follows the surface's own metrics, not a fixed template) followed by a linking preview list into the relevant full table. Tables scroll horizontally on narrow viewports (`min-w-[720px]` inside an `overflow-x-auto` wrapper) rather than reflowing to cards.
 
@@ -169,14 +169,16 @@ Spacing runs a tight, consistent rhythm: `4/8/12/16/20px` steps. Stat cards and 
 
 ## Elevation & Depth
 
-Flat by default. Cards, tables and the nav rail carry only a 1px hairline border, no shadow. A soft, diffuse shadow (`--shadow-elevated`: `0 12px 32px rgba(13,22,41,.14), 0 2px 8px rgba(13,22,41,.06)` light; deeper black-based values in dark) appears exclusively on the elevated overlay layer — review dialogs, the Contract switcher's open dropdown panel — via the `Panel` component and `shadow-elevated` utility. No hard offset or neobrutalist-style shadows anywhere in the system.
+Flat by default. Cards, tables and the nav rail carry only a 1px hairline border, no shadow. A soft, diffuse shadow (`--shadow-elevated`: `0 12px 32px rgba(13,22,41,.14), 0 2px 8px rgba(13,22,41,.06)` light; deeper black-based values in dark) appears exclusively on the elevated overlay layer — review dialogs, the Contract switcher's open dropdown panel, the viewer chip's open Menu panel — via the `Panel` component and `shadow-elevated` utility. No hard offset or neobrutalist-style shadows anywhere in the system.
 
 ### Shadow Vocabulary
-- **Elevated** (`shadow-elevated`): dialogs, dropdown/listbox panels — anything temporarily layered above the page.
+- **Elevated** (`shadow-elevated`): dialogs, dropdown/listbox panels, the viewer chip's open Menu panel — anything temporarily layered above the page.
 - **Elevated Strong** (`shadow-elevated-strong`): reserved for higher-emphasis overlays (defined in tokens; not yet exercised by a shipped component beyond the two above).
 
 ### Named Rules
 **The Flat-At-Rest Rule.** Surfaces are flat (hairline border only) at rest. Shadow is reserved for the overlay z-layer, never applied to inline cards or table rows.
+
+**The Menu Returns Focus Rule.** A Menu (self-service-password-change spec, `viewer-chip-menu` ticket) always returns focus to its trigger when it closes — by Escape, by an outside press, or by activating an item — and is dismissible by both Escape and an outside press while open, with those listeners bound only while it is open. `ContractSwitcher` predates this rule and does not follow it; a Menu built after this rule exists always does.
 
 ## Shapes
 
@@ -214,6 +216,14 @@ Two radius steps carry the whole system: `8px` (`rounded-lg`, Tailwind) for ever
 
 ### Contract Switcher (signature component)
 A dropdown — explicitly never a tab set — that scopes Requests/Fleet/Client Invoices (Agent Console) or the dashboard and lists (Client Portal, multi-Contract Clients) to one Contract at a time. Collapses to a static, non-interactive hairline chip when the viewer holds only one Contract. Open state is an `Panel`-style listbox (12px radius, `shadow-elevated`) with the current selection marked by the soft-indigo tone, matching nav's active-state language.
+
+### Menu
+The system's first actions menu (self-service-password-change spec, `viewer-chip-menu` ticket): a trigger-plus-panel pattern that runs an action rather than scoping data — the distinction from Contract Switcher above, which the two must never converge on. Today's one instance is the top bar's viewer identity chip, holding *Change password* and *Log out*.
+
+- **Trigger:** any button carrying `aria-haspopup="menu"` and `aria-expanded`; the viewer chip's own trigger keeps its existing hairline-chip look (`rounded-full`, `hairline` border, `canvas-soft` background) rather than adopting Contract Switcher's 220px labelled-control shape, and is never hidden below `sm`.
+- **Panel:** pinned to Contract Switcher's open-panel appearance only, not its code — `rounded-xl` (12px), `canvas-overlay`, hairline border, `shadow-elevated`; right-aligned to the trigger and width-capped so it cannot overflow the viewport.
+- **Items:** `role="menuitem"` buttons at the 8px control radius, the rail's own row rhythm (`px-3 py-2`, `text-sm font-medium`), `ink-secondary` at rest, `canvas-soft` on hover. No indigo fill — the Reserved Indigo Rule does not allot indigo to a menu item.
+- **Behaviour** (see the Elevation section's named rule): focus moves into the panel on open and back to the trigger on close by any means; arrow keys cycle between items; Escape and an outside pointer press dismiss it, with those listeners bound only while it is open. Contract Switcher predates this component and has none of this behaviour — it is visual prior art only, never a behavioural one.
 
 ## Do's and Don'ts
 

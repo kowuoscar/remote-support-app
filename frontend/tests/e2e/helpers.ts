@@ -28,7 +28,11 @@ export async function login(page: Page, username: string, password: string) {
 }
 
 export async function logout(page: Page) {
-  await page.getByRole("button", { name: "Log out" }).click();
+  // viewer-chip-menu ticket: "Log out" moved from a standalone top-bar button into the viewer
+  // chip's menu, opened first here — the item keeps its shipped accessible name, so this is the
+  // only step every caller needed added.
+  await page.locator('[aria-haspopup="menu"]').click();
+  await page.getByRole("menuitem", { name: "Log out" }).click();
   await expect(page).toHaveURL(/\/login/);
 }
 

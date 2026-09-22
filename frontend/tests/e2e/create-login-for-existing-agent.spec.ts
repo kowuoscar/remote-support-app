@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { test, expect, type Page } from "@playwright/test";
 import { Client } from "pg";
+import { logout } from "./helpers";
 
 /**
  * A Manager gives a login to an Agent that has none, from the Agent's detail view
@@ -86,8 +87,7 @@ test.describe("create login for existing agent", () => {
     await expect(page.getByText("No login")).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Create login" })).toHaveCount(0);
 
-    await page.getByRole("button", { name: "Log out" }).click();
-    await expect(page).toHaveURL(/\/login/);
+    await logout(page);
 
     await login(page, agentEmail, agentPassword);
     await expect(page).toHaveURL(/\/agent$/);

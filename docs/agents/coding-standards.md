@@ -52,23 +52,38 @@ the `check` goal), Flyway, Testcontainers.
    mocked; a test that needs a Spring context is an integration test, named
    and located accordingly, not a unit test.
 7. Exceptions crossing the service→controller boundary are domain
-   exceptions, translated to HTTP status by one `@ControllerAdvice` — no
-   `try/catch` producing an ad hoc `ResponseEntity` per controller.
+   exceptions carrying `@ResponseStatus`, translated to a response body by a
+   per-controller `@ExceptionHandler` when the body needs a machine-readable
+   `code` — never a `try/catch` producing an ad hoc `ResponseEntity`. (Corrected
+   2026-09-22: this rule previously prescribed one `@ControllerAdvice`, which
+   exists nowhere in `backend/src/main`; four controllers use their own
+   `@ExceptionHandler`, so the rule as written blocked every diff that followed
+   the project's only pattern. The prohibition was always obeyed and is kept.)
 8. A `@Transactional` method never calls an external HTTP or queue client
    inside the transaction; dispatch that call after commit (event listener,
    outbox) so a slow downstream never holds a database lock.
 9. Migrations are Flyway scripts, one per change, forward-only; never edit
    a migration that already ran in any shared environment.
-10. Constructor injection only, no field `@Autowired` — it makes required
-    dependencies explicit and the class constructible in a plain unit test.
+10. Constructor injection only in application beans, no field `@Autowired` —
+    it makes required dependencies explicit and the class constructible in a
+    plain unit test. Spring **test** classes are excepted: a `@SpringBootTest`
+    base class exposing shared helpers cannot practically constructor-inject,
+    and the whole existing suite uses `@Autowired` fields.
 11. A JPA relationship defaults to `LAZY`; `EAGER` requires a comment naming
     the query pattern that needs it.
 12. Table-driven tests (`@ParameterizedTest` + `@MethodSource`) for any
     method with more than two branch conditions, instead of copy-pasted
     per-case tests.
-13. Package by feature (`payments`, `bookings`), not by layer
-    (`controllers`, `services`, `repositories`) — a feature's files stay
-    next to each other.
+13. Package by feature (`authentication`, `fleet`, `requests`, `invoicing`),
+    not by layer (`controllers`, `services`, `repositories`) — a feature's
+    files stay next to each other. **This is the norm for new code**, decided
+    by the human on 2026-09-22.
+    The backend does not obey it yet: it is packaged by layer (`web`,
+    `repository`, `dto`, `domain`, `security`, `logging`), and moving it is
+    the `package-by-feature` epic, not something a feature ticket does on the
+    side. Until that epic lands, a reviewer cites this rule only against a
+    **new** package or module choosing the layered shape — never against a
+    change that follows the existing layout, which has nowhere else to go.
 14. Configuration is bound to typed `@ConfigurationProperties` classes,
     never scattered `@Value("${...}")` injections across unrelated beans.
 

@@ -64,6 +64,15 @@ Already-shipped behaviour this ticket could break, and the existing test that
 protects it — or `N/A — <reason>`. Any existing test the ticket expects to
 modify is listed here with the reason; the merger refuses the merge otherwise.
 
+**Modify means touch, not weaken.** `sdlc-test-guard` flags any existing test
+file the diff changes, including one that only gains a new method or an
+import — and the merger may not decide for itself that an addition is
+harmless, because that is the implementer justifying its own change. So a
+ticket that will add a case to an existing test class names that file here,
+with what it adds and the statement that every pre-existing method keeps
+passing unmodified. Added 2026-09-22: this was missed twice in one epic, and
+each time a correct, green merge was refused and cost a full round-trip.
+
 ## R7 — The walkthrough is reachable
 
 Every step of the spec's `## Acceptance walkthrough` is made possible by some

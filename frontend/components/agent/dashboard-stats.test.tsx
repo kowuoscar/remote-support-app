@@ -112,4 +112,24 @@ describe("AgentDashboardStats", () => {
 
     expect(screen.getByText(label)).toBeInTheDocument();
   });
+
+  it("renders Open Requests as — with Couldn't load your Requests while the other cards still render", () => {
+    renderStats({ openRequestsCount: null });
+
+    const card = screen.getByTestId("open-requests-stat");
+    expect(card).toHaveTextContent("—");
+    expect(card).toHaveTextContent("Couldn't load your Requests");
+    expect(card).not.toHaveTextContent("Submitted or In Progress");
+    expect(screen.getByText("$1,250.00")).toBeInTheDocument();
+    expect(screen.getByText("$3,200.00")).toBeInTheDocument();
+  });
+
+  it("renders a zero Open Requests count as 0, not as unavailable", () => {
+    renderStats({ openRequestsCount: 0 });
+
+    const card = screen.getByTestId("open-requests-stat");
+    expect(card).toHaveTextContent("0");
+    expect(card).not.toHaveTextContent("—");
+    expect(card).toHaveTextContent("Submitted or In Progress");
+  });
 });

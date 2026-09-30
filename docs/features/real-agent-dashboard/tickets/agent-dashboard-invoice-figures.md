@@ -33,7 +33,7 @@ Constraints from the spec: Local Support Fees is the invoice's own `localSupport
 ## Regression
 
 - At risk: My Invoice page (shares the get-or-create read), the Review Queue (a Draft must not enter it), and the other visual goldens.
-- Existing tests expected to change: none of the e2e specs (the new spec is a new file); the `AgentDashboardStats` component test file added by `agent-dashboard-identity-and-standing-amounts` gains cases (every pre-existing case keeps passing unmodified); `frontend/tests/visual/stub-backend.mjs` gains the invoice route and the degraded token's `500`; the four `agent-*` goldens are replaced for the reason in the spec's Visual suite section.
+- Existing tests expected to change: none of the e2e specs (the new spec is a new file); the `AgentDashboardStats` component test file added by `agent-dashboard-identity-and-standing-amounts` gains cases (every pre-existing case keeps passing unmodified); `frontend/tests/visual/stub-backend.mjs` gains the invoice route and the degraded token's `500`; the four `agent-*` goldens are replaced for the reason in the spec's Visual suite section. `frontend/tests/visual/surfaces.spec.ts` gains one case, `degraded-invoice-shows-both-invoice-cards-unavailable`, for the degraded token; existing cases unchanged (added by the orchestrator after the merger's test guard, 2026-09-30).
 
 ## Observability
 

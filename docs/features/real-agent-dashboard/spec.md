@@ -471,6 +471,14 @@ internals.
   checked that the three exist, and did not escalate. A wrong file name is not
   the spec being unclear, which is what a second failure escalates.
 
+- **`agent-dashboard-invoice-figures` was re-merged after a Regression line was
+  added, not rebuilt (orchestrator, 2026-09-30).** The merger's test guard
+  refused `frontend/tests/visual/surfaces.spec.ts` because the ticket's
+  `## Regression` did not name it. The diff was 13 lines added and 0 removed:
+  one new degraded-invoice case, the fixture for the ticket's own
+  unavailable-card criterion. The orchestrator named it in `## Regression`
+  instead of spending the ticket's one retry on identical work.
+
 ## Open questions
 
 None

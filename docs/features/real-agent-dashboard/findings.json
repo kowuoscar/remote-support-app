@@ -147,50 +147,54 @@
   {
    "id": "F13",
    "type": "smell",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "design-audit (impeccable + web-design-guidelines)",
    "after_review": false,
    "in_changed_lines": true,
    "where": "frontend/components/agent/dashboard-stats.tsx:43",
    "citation": "",
    "note": "'Local Support Fees — September 2026' wraps on desktop, so its value sits about 20px below the other three stat values.",
-   "fixed_in": "3095d5c"
+   "fixed_in": "3095d5c",
+   "confirmed_by": "reviewer-spec (fresh instance, re-review)"
   },
   {
    "id": "F14",
    "type": "smell",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "design-audit (impeccable + web-design-guidelines)",
    "after_review": false,
    "in_changed_lines": true,
    "where": "frontend/app/agent/page.tsx:112",
    "citation": "",
    "note": "On mobile, the Recent Requests rows truncate the Contract label and the requester, with no way to see the full value (consider line-clamp-2).",
-   "fixed_in": "3095d5c"
+   "fixed_in": "3095d5c",
+   "confirmed_by": "reviewer-spec (fresh instance, re-review)"
   },
   {
    "id": "F15",
    "type": "smell",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "design-audit (impeccable + web-design-guidelines)",
    "after_review": false,
    "in_changed_lines": true,
    "where": "frontend/components/agent/dashboard-stats.tsx:7",
    "citation": "",
    "note": "The unavailable value '—' has no text alternative (sr-only 'Unavailable', with the dash aria-hidden).",
-   "fixed_in": "d642954"
+   "fixed_in": "d642954",
+   "confirmed_by": "reviewer-spec (fresh instance, re-review)"
   },
   {
    "id": "F16",
    "type": "smell",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "design-audit (impeccable + web-design-guidelines)",
    "after_review": false,
    "in_changed_lines": true,
    "where": "frontend/components/agent/dashboard-stats.tsx:51",
    "citation": "DESIGN.md Reserved Indigo Rule",
    "note": "On primary cards, an unavailable '—' renders in reserved indigo, with the emphasis of a real figure.",
-   "fixed_in": "d642954"
+   "fixed_in": "d642954",
+   "confirmed_by": "reviewer-spec (fresh instance, re-review)"
   },
   {
    "id": "F17",
@@ -201,7 +205,7 @@
    "in_changed_lines": true,
    "where": "frontend/app/agent/page.tsx:179",
    "citation": "",
-   "note": "On mobile, the TopBar subtitle truncates the country ('Jordan Ellis · Unite…'), which is the only information the subtitle adds.",
+   "note": "On mobile, the TopBar subtitle truncates the country ('Jordan Ellis · Unite…'), which is the only information the subtitle adds. [re-review by reviewer-spec: OPEN — the fix dropped the name from the header, contradicting story 1; see F19.]",
    "fixed_in": "3095d5c"
   },
   {
@@ -214,6 +218,28 @@
    "where": "frontend/components/agent/dashboard-stats.tsx:79",
    "citation": "DESIGN.md Tabular Everywhere Rule",
    "note": "The Rollout Advance meta uses a hard-coded en-US Intl.NumberFormat with no .tnum, unlike Money/formatMoney."
+  },
+  {
+   "id": "F19",
+   "type": "spec-wrong",
+   "state": "open",
+   "raised_by": "reviewer-spec",
+   "after_review": true,
+   "in_changed_lines": true,
+   "where": "frontend/app/agent/(dashboard)/page.tsx:151",
+   "citation": "User story 1: \"As an Agent, I want my dashboard's header to show my own name and country, so that I know at a glance the page is about me.\" Solution table: \"Header name and country … `<name> · <country label>`\".",
+   "note": "Introduced by the fix pass (F17, 3095d5c): the subtitle became countryLabel(agent.country) alone. The name only in the viewer chip does not meet story 1, which the spec keeps separate from story 2. Fix: restore `<name> · <country>` and cure the mobile truncation another way (e.g. let it wrap), or amend the spec first."
+  },
+  {
+   "id": "F20",
+   "type": "spec-partial",
+   "state": "open",
+   "raised_by": "reviewer-spec",
+   "after_review": true,
+   "in_changed_lines": true,
+   "where": "frontend/tests/e2e/agent-dashboard.spec.ts:141",
+   "citation": "Testing decisions 3: \"sign in as the Agent and show the dashboard naming Jordan Ellis\"",
+   "note": "Introduced by the fix pass: the assertion went from 'Jordan Ellis · United States' to banner text 'United States'. No e2e or visual spec now asserts the Agent's name. Resolves with F19."
   }
  ]
 }

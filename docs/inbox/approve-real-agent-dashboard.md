@@ -1,7 +1,7 @@
 ---
 id: approve-real-agent-dashboard
 type: approval
-status: open
+status: answered
 blocks: [real-agent-dashboard]
 created: 2026-09-30
 ---
@@ -55,3 +55,5 @@ The loop moves on to whatever isn't blocked. `real-client-dashboard` is next
 in this epic, but it waits behind this feature.
 
 ## Answer
+
+Approved (ok), human, 2026-09-30.

@@ -1,7 +1,7 @@
 ---
 id: question-send-back-cannot-correct-a-fee
 type: question
-status: open
+status: answered
 blocks: [send-a-client-invoice-back]
 created: 2026-09-30
 ---
@@ -44,3 +44,16 @@ The loop works on anything not blocked. The rest of this epic follows this
 feature, and `manager-resets-a-password` waits on your spec approval.
 
 ## Answer
+
+Option 2, carry forward — this is how the business works today (human,
+2026-09-30). When an invoice turns out wrong after it is sent or approved, the
+**Manager** corrects it on the **following month's** invoice. No
+`correct-a-fee`: a past month is never reopened to edit or void a Fee.
+
+Keep both:
+- **Send-back stays**, for errors caught before approval. The Agent adds a
+  missing file or a late Fee and resends. The reason tells them what is wrong.
+- **Add a Manager adjustment feature to the epic.** The Manager records a
+  credit or a charge on the next month's invoice, so an overcharge can be
+  corrected. Today a Fee must be > 0 (`FeeCreateRequest.java:52`), which makes
+  a credit impossible.

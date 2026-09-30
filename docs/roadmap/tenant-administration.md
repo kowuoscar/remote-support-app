@@ -27,6 +27,12 @@ a Tenant is actually created, which only the human knows. If the answer is
 "twice a year, by me, with psql open anyway", the right decision is to drop
 this and say so.
 
+
+Added by the human on 2026-09-30: **resetting a Manager's password is the
+SuperAdmin's job**, and it belongs here. `manager-resets-a-password` lets a
+Manager reset only Agents and Testers, so until this epic lands, a locked-out
+Manager still needs the database.
+
 ## Journeys
 
 - **Administer the Tenants themselves** → `exists`: a SuperAdmin creates a

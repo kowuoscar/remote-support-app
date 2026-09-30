@@ -1,7 +1,7 @@
 ---
 id: question-sent-back-past-month-base-amount
 type: question
-status: open
+status: answered
 blocks: [send-a-client-invoice-back]
 created: 2026-09-30
 ---
@@ -42,3 +42,5 @@ The same as the other question on this feature: the loop works on anything
 not blocked.
 
 ## Answer
+
+Ok (human, 2026-09-30): a past month's base amount stays as sent when sent back; only its Fee lines go live. A current-month invoice goes fully live. An error in a past base amount is corrected by the Manager's next-month adjustment.

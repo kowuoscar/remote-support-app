@@ -1,7 +1,7 @@
 ---
 id: approve-manager-resets-a-password
 type: approval
-status: open
+status: answered
 blocks: [manager-resets-a-password]
 created: 2026-09-30
 ---
@@ -55,3 +55,16 @@ starting with the spec for `send-a-client-invoice-back`. `deactivate-a-login`
 waits behind this feature in its own epic.
 
 ## Answer
+
+Not approved as written — revise (human, 2026-09-30). Objections, verbatim:
+
+- "One manager can't reset another manager's password -> true, it's the role
+  of the admin/superadmin"
+- "password are generated, not typed"
+- "The new password should not be equal to the old one being replaced"
+
+Follow-ups answered in the same session:
+- Generated passwords apply to **reset and to login creation** (Agent and
+  Tester) — this feature switches both.
+- The admin/superadmin who resets a Manager's password belongs to the
+  `tenant-administration` epic.

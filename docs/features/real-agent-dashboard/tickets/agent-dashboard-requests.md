@@ -1,7 +1,7 @@
 ---
 id: agent-dashboard-requests
 title: Show the Agent's open Request count and five most recent Requests from their Contracts
-status: in-progress
+status: done
 depends_on: [agent-dashboard-invoice-figures]
 labels: [frontend]
 stories: [7, 12, 13, 14, 15, 18, 22, 23, 24]

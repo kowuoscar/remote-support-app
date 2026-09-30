@@ -1,7 +1,7 @@
 ---
 feature: self-service-password-change
 epic: login-lifecycle
-status: delivered
+status: accepted
 date: 2026-09-22
 ---
 

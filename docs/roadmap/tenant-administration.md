@@ -1,7 +1,7 @@
 ---
 id: tenant-administration
 title: Create and manage Tenants in the product
-status: proposed
+status: planned
 journeys: [administer-the-tenants-themselves]
 ---
 

@@ -9,7 +9,7 @@ stories: [3, 4, 5, 6, 8, 20]
 
 ## Context
 
-Second slice of `spec.md` (`## Execution order`, item 2). The Local Support Fees and My Invoice status cards read this month's Agent Invoice through `GET /api/agents/{agentId}/invoice`, the same get-or-create read My Invoice uses (spec `## Solution`, "Where each figure comes from" and "Frontend: the page"). It needs the Agent's id from the read and the loader and nullable stat props that `agent-dashboard-identity-and-standing-amounts` adds. `agent-dashboard-requests` follows it, because the page's remaining imports from `frontend/lib/demo/agent.ts` (`currentMonthLabel`, `myAgentInvoices`, `runningLocalSupportFees`) are removed here, so that ticket can delete the file.
+Third slice of `spec.md` (`## Execution order`, item 3). The Local Support Fees and My Invoice status cards read this month's Agent Invoice through `GET /api/agents/{agentId}/invoice`, the same get-or-create read My Invoice uses (spec `## Solution`, "Where each figure comes from" and "Frontend: the page"). It needs the Agent's id from the read and the loader and nullable stat props that `agent-dashboard-identity-and-standing-amounts` adds. `agent-dashboard-requests` follows it, because the page's remaining imports from `frontend/lib/demo/agent.ts` (`currentMonthLabel`, `myAgentInvoices`, `runningLocalSupportFees`) are removed here, so that ticket can delete the file.
 
 Constraints from the spec: Local Support Fees is the invoice's own `localSupportFees` line, never summed from Fees; every month label is the invoice's `billingMonth`, never the wall clock; a failed region renders `—`, never `0`.
 

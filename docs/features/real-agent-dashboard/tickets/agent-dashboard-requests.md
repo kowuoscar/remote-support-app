@@ -9,7 +9,7 @@ stories: [7, 12, 13, 14, 15, 18, 22, 23, 24]
 
 ## Context
 
-Third slice of `spec.md` (`## Execution order`, item 3). Open Requests and Recent Requests come from `GET /api/contracts` and each Contract's `GET /api/contracts/{contractId}/requests`, not `backendFetchList`, so a failure is never a quiet low count (spec `## Solution`, "Frontend: the page"). It finishes the page: `frontend/lib/demo/agent.ts` is deleted and the clock debt is paid by stub fixtures dated relative to the stub's own time. It depends on `agent-dashboard-invoice-figures`: `page.tsx` imports `currentMonthLabel`, `myAgentInvoices` and `runningLocalSupportFees` from `lib/demo/agent.ts` until that ticket removes them, so the deletion cannot compile earlier. The Agent id, loader and nullable props come from the identity ticket, already merged beneath it.
+Fourth slice of `spec.md` (`## Execution order`, item 4). Open Requests and Recent Requests come from `GET /api/contracts` and each Contract's `GET /api/contracts/{contractId}/requests`, not `backendFetchList`, so a failure is never a quiet low count (spec `## Solution`, "Frontend: the page"). It finishes the page: `frontend/lib/demo/agent.ts` is deleted and the clock debt is paid by stub fixtures dated relative to the stub's own time. It depends on `agent-dashboard-invoice-figures`: `page.tsx` imports `currentMonthLabel`, `myAgentInvoices` and `runningLocalSupportFees` from `lib/demo/agent.ts` until that ticket removes them, so the deletion cannot compile earlier. The Agent id, loader and nullable props come from the identity ticket, already merged beneath it.
 
 Decision on ordering by `createdAt` and "raised <age>" is the spec's (`## Decisions taken`).
 

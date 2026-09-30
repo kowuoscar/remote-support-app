@@ -463,6 +463,14 @@ internals.
   `maxDiffPixelRatio` debt means `--update-snapshots` can keep a stale file.
   Deleting first makes each recapture provable, without touching the setting.
 
+- **The ticket cut was accepted after the critic's recheck failed on one line
+  (orchestrator, 2026-09-30).** The recheck passed R1–R5 and R7–R8. R6 failed
+  on `agent-own-record-read`, which named a test class that does not exist.
+  The orchestrator applied the critic's own replacement verbatim, naming
+  `AgentInvoiceApiTest`, `AgentIdentityApiTest` and `ChangeOwnPasswordApiTest`,
+  checked that the three exist, and did not escalate. A wrong file name is not
+  the spec being unclear, which is what a second failure escalates.
+
 ## Open questions
 
 None

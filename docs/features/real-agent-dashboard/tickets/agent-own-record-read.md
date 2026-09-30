@@ -27,7 +27,7 @@ Constraints are the spec's: no `SecurityConfig` change, no migration, no id in p
 
 ## Regression
 
-- At risk: `MeController` and `MeResponse` (unchanged), the Manager-only standing-amounts route, `SecurityConfig` matching for `/api/me/**`. Protected by `AgentStandingAmountApiTest`-style existing tests and `ChangeOwnPasswordApiTest`.
+- At risk: `MeController` and `MeResponse` (unchanged), the Manager-only standing-amounts route, `SecurityConfig` matching for `/api/me/**`. Protected by existing tests, none modified: `AgentInvoiceApiTest` (the Manager-only `/api/agents/{id}/standing-amounts` route), `AgentIdentityApiTest` (`/api/me`, `MeResponse`) and `ChangeOwnPasswordApiTest` (`/api/me/**` matching).
 - Existing tests expected to change: none; every existing test keeps passing unmodified.
 
 ## Observability

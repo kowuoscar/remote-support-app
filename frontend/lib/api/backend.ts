@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { unstable_rethrow } from "next/navigation";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8080";
@@ -29,4 +30,26 @@ export async function backendFetchList<T>(path: string): Promise<T[]> {
   const response = await backendFetch(path);
   if (!response.ok) return [];
   return (await response.json()) as T[];
+}
+
+/**
+ * Calls the backend and parses a JSON body, or returns `null` when the read fails in any way. The
+ * failure is logged server-side with `label` and the response status (or "no response"), and never
+ * thrown, so one failing region leaves the rest of a page rendering — unlike `backendFetchList`,
+ * which turns a failure into an empty list that looks like real data.
+ */
+export async function backendFetchJsonOrNull<T>(path: string, label: string): Promise<T | null> {
+  try {
+    const response = await backendFetch(path);
+    if (!response.ok) {
+      console.error(`${label}: load failed with status ${response.status}`);
+      return null;
+    }
+    return (await response.json()) as T;
+  } catch (error) {
+    // Next.js signals a request-time render by throwing from cookies(); that must reach Next.js.
+    unstable_rethrow(error);
+    console.error(`${label}: load failed with no response`, error);
+    return null;
+  }
 }

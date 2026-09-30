@@ -1,12 +1,16 @@
-"use client";
-
-import { StatCard, StatCardSkeleton } from "@/components/ui/stat-card";
+import { StatCard } from "@/components/ui/stat-card";
 import { Money } from "@/components/ui/money";
 import { Badge } from "@/components/ui/badge";
-import { useSimulatedLoad } from "@/lib/use-simulated-load";
-import { agentInvoiceStatusLabel, agentInvoiceStatusTone } from "@/lib/status";
-import type { AgentInvoiceStatus } from "@/lib/demo/types";
+import { agentInvoiceStatusLabelByValue, agentInvoiceStatusToneByValue } from "@/lib/status";
+import type { AgentInvoiceStatusValue } from "@/lib/api/types";
 
+const UNAVAILABLE = "—";
+
+/**
+ * The Agent dashboard's four stat cards. Presentational: the page loads the figures and passes
+ * `null` for any region that could not be read, which renders `—` with a "Couldn't load…" meta
+ * (the `ManagerDashboardStats` contract). Renders at once — nothing here is loading.
+ */
 export function AgentDashboardStats({
   currentMonthLabel,
   runningLocalSupportFees,
@@ -17,45 +21,47 @@ export function AgentDashboardStats({
   salary,
   rolloutAdvance,
 }: {
-  currentMonthLabel: string;
-  runningLocalSupportFees: number;
+  currentMonthLabel: string | null;
+  runningLocalSupportFees: number | null;
   currency: string;
-  openRequestsCount: number;
-  latestInvoiceMonth: string;
-  latestInvoiceStatus: AgentInvoiceStatus;
+  openRequestsCount: number | null;
+  latestInvoiceMonth: string | null;
+  latestInvoiceStatus: AgentInvoiceStatusValue | null;
   salary: number;
   rolloutAdvance: number;
 }) {
-  const loading = useSimulatedLoad();
-
-  if (loading) {
-    return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" data-testid="dashboard-loading">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <StatCardSkeleton key={i} />
-        ))}
-      </div>
-    );
-  }
-
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" data-testid="dashboard-ready">
       <StatCard
-        label={`Local Support Fees — ${currentMonthLabel}`}
-        value={<Money amount={runningLocalSupportFees} currency={currency} emphasize />}
+        label={currentMonthLabel ? `Local Support Fees — ${currentMonthLabel}` : "Local Support Fees"}
+        value={
+          runningLocalSupportFees === null ? (
+            UNAVAILABLE
+          ) : (
+            <Money amount={runningLocalSupportFees} currency={currency} emphasize />
+          )
+        }
         primary
-        meta="Running total, all your Contracts"
+        meta={runningLocalSupportFees === null ? "Couldn't load your invoice" : "Running total, all your Contracts"}
       />
       <StatCard
         label="Open Requests"
-        value={openRequestsCount}
+        value={openRequestsCount ?? UNAVAILABLE}
         primary
-        meta="Submitted or In Progress"
+        meta={openRequestsCount === null ? "Couldn't load your Requests" : "Submitted or In Progress"}
       />
       <StatCard
         label="My Invoice status"
-        value={<Badge tone={agentInvoiceStatusTone[latestInvoiceStatus]}>{agentInvoiceStatusLabel[latestInvoiceStatus]}</Badge>}
-        meta={latestInvoiceMonth}
+        value={
+          latestInvoiceStatus === null ? (
+            UNAVAILABLE
+          ) : (
+            <Badge tone={agentInvoiceStatusToneByValue[latestInvoiceStatus]}>
+              {agentInvoiceStatusLabelByValue[latestInvoiceStatus]}
+            </Badge>
+          )
+        }
+        meta={latestInvoiceStatus === null ? "Couldn't load your invoice" : latestInvoiceMonth}
       />
       <StatCard
         label="Standing salary + advance"

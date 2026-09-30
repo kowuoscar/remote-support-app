@@ -21,7 +21,7 @@ interface Surface {
 
 const surfaces: Surface[] = [
   { slug: "manager", path: "/manager" },
-  { slug: "agent", path: "/agent" },
+  { slug: "agent", path: "/agent", session: "visual-agent-session" },
   { slug: "client", path: "/client" },
   { slug: "agent-carriers", path: "/agent/carriers", session: "visual-agent-session", ready: "carriers" },
   {
@@ -54,6 +54,11 @@ const breakpoints = [
 ] as const;
 
 const themes = ["light", "dark"] as const;
+
+async function gotoWithSession(page: Page, path: string, session: string) {
+  await page.context().addCookies([{ name: SESSION_COOKIE_NAME, value: session, url: "http://127.0.0.1:4173" }]);
+  await page.goto(path);
+}
 
 async function gotoAndSettle(page: Page, surface: Surface) {
   // The three surfaces sit behind middleware.ts's session-cookie gate (auth-login-flow). This
@@ -129,3 +134,22 @@ for (const surface of surfaces) {
     }
   }
 }
+
+// real-agent-dashboard: states no golden captures. The stub answers GET /api/me/agent with a 404
+// for the unlinked token and a 500 for the failing-identity token (tests/visual/stub-backend.mjs).
+test.describe("the Agent dashboard's identity states", () => {
+  test("unlinked-agent-shows-not-linked-message", async ({ page }) => {
+    await gotoWithSession(page, "/agent", "visual-agent-unlinked-session");
+
+    await expect(page.getByText("Your login isn't linked to an Agent record yet")).toBeVisible();
+    await expect(page.getByTestId("dashboard-ready")).toHaveCount(0);
+  });
+
+  test("failing-identity-shows-page-level-message", async ({ page }) => {
+    await gotoWithSession(page, "/agent", "visual-agent-failing-identity-session");
+
+    await expect(page.getByText(/Couldn.t load your dashboard/)).toBeVisible();
+    await expect(page.getByText("Couldn't load your dashboard — reload the page to try again")).toHaveCount(1);
+    await expect(page.getByTestId("dashboard-ready")).toHaveCount(0);
+  });
+});

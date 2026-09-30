@@ -1,14 +1,17 @@
 import Link from "next/link";
+import { unstable_rethrow } from "next/navigation";
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { AgentDashboardStats } from "@/components/agent/dashboard-stats";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { IconArrowRight, IconRequests } from "@/components/icons";
+import { EmptyState } from "@/components/ui/empty-state";
+import { IconAlertTriangle, IconArrowRight, IconRequests } from "@/components/icons";
+import { backendFetch } from "@/lib/api/backend";
+import { countryLabel, type AgentInvoiceStatusValue, type AgentOwnRecord } from "@/lib/api/types";
 import { formatRelativeAge } from "@/lib/format";
 import { requestStatusTone } from "@/lib/status";
 import {
   agentRequests,
-  currentAgent,
   currentMonthLabel,
   myAgentInvoices,
   runningLocalSupportFees,
@@ -16,7 +19,69 @@ import {
 
 export const metadata = { title: "Dashboard" };
 
-export default function AgentDashboardPage() {
+type Identity =
+  | { kind: "agent"; agent: AgentOwnRecord }
+  | { kind: "not-linked" }
+  | { kind: "failed" };
+
+/**
+ * Reads the caller's own Agent. A 404 means the login is not linked to an Agent; any other
+ * failure is logged with the endpoint and status and makes the whole page unavailable, because
+ * every figure on it is scoped by this read.
+ */
+async function loadIdentity(): Promise<Identity> {
+  try {
+    const response = await backendFetch("/api/me/agent");
+    if (response.status === 404) return { kind: "not-linked" };
+    if (!response.ok) {
+      console.error(`Agent dashboard: GET /api/me/agent failed with status ${response.status}`);
+      return { kind: "failed" };
+    }
+    return { kind: "agent", agent: (await response.json()) as AgentOwnRecord };
+  } catch (error) {
+    // Next.js signals a request-time render by throwing from cookies(); that must reach Next.js.
+    unstable_rethrow(error);
+    console.error("Agent dashboard: GET /api/me/agent failed with no response", error);
+    return { kind: "failed" };
+  }
+}
+
+function PageUnavailable({ title, description }: { title: string; description: string }) {
+  return (
+    <SurfacePage title="Dashboard" subtitle="Your Agent console" viewerLabel="Agent">
+      <Card className="p-0" data-testid="dashboard-unavailable">
+        <div className="p-5">
+          <EmptyState
+            icon={<IconAlertTriangle className="h-5 w-5" />}
+            title={title}
+            description={description}
+          />
+        </div>
+      </Card>
+    </SurfacePage>
+  );
+}
+
+export default async function AgentDashboardPage() {
+  const identity = await loadIdentity();
+  if (identity.kind === "not-linked") {
+    return (
+      <PageUnavailable
+        title="Your login isn't linked to an Agent record yet"
+        description="Ask your Manager to link your login to your Agent record before you can see your dashboard."
+      />
+    );
+  }
+  if (identity.kind === "failed") {
+    return (
+      <PageUnavailable
+        title="Couldn't load your dashboard — reload the page to try again"
+        description="Your name and standing amounts come from your Agent record, which could not be read."
+      />
+    );
+  }
+  const { agent } = identity;
+
   const openRequests = agentRequests.filter(
     (r) => r.status === "Submitted" || r.status === "In Progress",
   );
@@ -28,18 +93,18 @@ export default function AgentDashboardPage() {
   return (
     <SurfacePage
       title="Dashboard"
-      subtitle={`${currentAgent.name} · ${currentAgent.country}`}
-      viewerLabel={`${currentAgent.name} · Agent`}
+      subtitle={`${agent.name} · ${countryLabel(agent.country)}`}
+      viewerLabel={`${agent.name} · Agent`}
     >
       <AgentDashboardStats
         currentMonthLabel={currentMonthLabel}
         runningLocalSupportFees={runningLocalSupportFees}
-        currency={currentAgent.currency}
+        currency={agent.currency}
         openRequestsCount={openRequests.length}
         latestInvoiceMonth={latestInvoice.month}
-        latestInvoiceStatus={latestInvoice.status}
-        salary={currentAgent.salary}
-        rolloutAdvance={currentAgent.rolloutAdvance}
+        latestInvoiceStatus={latestInvoice.status.toUpperCase() as AgentInvoiceStatusValue}
+        salary={agent.salaryAmount}
+        rolloutAdvance={agent.rolloutAdvanceAmount}
       />
 
       <Card className="p-0">

@@ -6,6 +6,12 @@ import type { AgentInvoiceStatusValue } from "@/lib/api/types";
 
 const UNAVAILABLE = "—";
 
+/** While Draft the line is live across the Contracts; from Sent onward it is frozen (ADR 0003). */
+function localSupportFeesMeta(fees: number | null, status: AgentInvoiceStatusValue | null): string {
+  if (fees === null) return "Couldn't load your invoice";
+  return status === "DRAFT" ? "Running total, all your Contracts" : "As sent on your invoice";
+}
+
 /**
  * The Agent dashboard's four stat cards. Presentational: the page loads the figures and passes
  * `null` for any region that could not be read, which renders `—` with a "Couldn't load…" meta
@@ -33,6 +39,7 @@ export function AgentDashboardStats({
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" data-testid="dashboard-ready">
       <StatCard
+        data-testid="local-support-fees-stat"
         label={currentMonthLabel ? `Local Support Fees — ${currentMonthLabel}` : "Local Support Fees"}
         value={
           runningLocalSupportFees === null ? (
@@ -42,7 +49,7 @@ export function AgentDashboardStats({
           )
         }
         primary
-        meta={runningLocalSupportFees === null ? "Couldn't load your invoice" : "Running total, all your Contracts"}
+        meta={localSupportFeesMeta(runningLocalSupportFees, latestInvoiceStatus)}
       />
       <StatCard
         label="Open Requests"
@@ -51,6 +58,7 @@ export function AgentDashboardStats({
         meta={openRequestsCount === null ? "Couldn't load your Requests" : "Submitted or In Progress"}
       />
       <StatCard
+        data-testid="invoice-status-stat"
         label="My Invoice status"
         value={
           latestInvoiceStatus === null ? (

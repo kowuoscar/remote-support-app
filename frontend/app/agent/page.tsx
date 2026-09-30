@@ -6,16 +6,11 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconAlertTriangle, IconArrowRight, IconRequests } from "@/components/icons";
-import { backendFetch } from "@/lib/api/backend";
-import { countryLabel, type AgentInvoiceStatusValue, type AgentOwnRecord } from "@/lib/api/types";
-import { formatRelativeAge } from "@/lib/format";
+import { backendFetch, backendFetchJsonOrNull } from "@/lib/api/backend";
+import { countryLabel, type AgentInvoiceDetail, type AgentOwnRecord } from "@/lib/api/types";
+import { formatBillingMonth, formatRelativeAge } from "@/lib/format";
 import { requestStatusTone } from "@/lib/status";
-import {
-  agentRequests,
-  currentMonthLabel,
-  myAgentInvoices,
-  runningLocalSupportFees,
-} from "@/lib/demo/agent";
+import { agentRequests } from "@/lib/demo/agent";
 
 export const metadata = { title: "Dashboard" };
 
@@ -81,11 +76,16 @@ export default async function AgentDashboardPage() {
     );
   }
   const { agent } = identity;
+  // The same get-or-create read My Invoice uses: its first visit of the month creates the Draft.
+  const invoice = await backendFetchJsonOrNull<AgentInvoiceDetail>(
+    `/api/agents/${agent.agentId}/invoice`,
+    "agent invoice",
+  );
+  const billingMonth = invoice ? formatBillingMonth(invoice.billingMonth) : null;
 
   const openRequests = agentRequests.filter(
     (r) => r.status === "Submitted" || r.status === "In Progress",
   );
-  const latestInvoice = myAgentInvoices[0];
   const recentRequests = [...agentRequests]
     .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
     .slice(0, 5);
@@ -97,12 +97,12 @@ export default async function AgentDashboardPage() {
       viewerLabel={`${agent.name} · Agent`}
     >
       <AgentDashboardStats
-        currentMonthLabel={currentMonthLabel}
-        runningLocalSupportFees={runningLocalSupportFees}
+        currentMonthLabel={billingMonth}
+        runningLocalSupportFees={invoice?.localSupportFees ?? null}
         currency={agent.currency}
         openRequestsCount={openRequests.length}
-        latestInvoiceMonth={latestInvoice.month}
-        latestInvoiceStatus={latestInvoice.status.toUpperCase() as AgentInvoiceStatusValue}
+        latestInvoiceMonth={billingMonth}
+        latestInvoiceStatus={invoice?.status ?? null}
         salary={agent.salaryAmount}
         rolloutAdvance={agent.rolloutAdvanceAmount}
       />

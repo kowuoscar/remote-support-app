@@ -1,4 +1,7 @@
+import { execFileSync } from "node:child_process";
+import path from "node:path";
 import { expect, type Locator, type Page } from "@playwright/test";
+import { Client } from "pg";
 
 /**
  * Shared login and fixture setup for the e2e suite's real-backend specs (driven against a real
@@ -477,4 +480,55 @@ export async function fetchFees(page: Page, contractId: string) {
       topupOptionId?: string;
     }[];
   }, contractId);
+}
+
+const SEEDED_AGENT_ID = "55555555-5555-5555-5555-555555555555";
+
+/**
+ * Stands in for a month rollover on the seeded Agent's Agent Invoice: Jordan Ellis is the only
+ * Agent with a login, so his one current-month invoice is shared by every spec and earlier specs
+ * leave it Sent or Paid. Moving it to a month before all his others frees the current month, so
+ * the next read of it (My Invoice or the dashboard) creates a fresh Draft. Runs against
+ * `E2E_DATABASE_URL` when set (the isolated stack), else the docker-compose Postgres.
+ * (manager-invoice-review-queue.spec.ts still carries its own copy, from before this existed.)
+ */
+export async function rollSeededAgentInvoiceIntoThePast() {
+  const sql = `
+    update agent_invoices
+    set billing_month = (
+      select (min(billing_month) - interval '1 month')::date from agent_invoices where agent_id = '${SEEDED_AGENT_ID}'
+    )
+    where agent_id = '${SEEDED_AGENT_ID}'
+      and billing_month = date_trunc('month', now() at time zone 'utc')::date`;
+  if (process.env.E2E_DATABASE_URL) {
+    const client = new Client({ connectionString: process.env.E2E_DATABASE_URL });
+    await client.connect();
+    try {
+      await client.query(sql);
+    } finally {
+      await client.end();
+    }
+    return;
+  }
+  execFileSync(
+    "docker",
+    [
+      "compose",
+      "-f",
+      path.resolve(__dirname, "../../../docker-compose.yml"),
+      "exec",
+      "-T",
+      "postgres",
+      "psql",
+      "-v",
+      "ON_ERROR_STOP=1",
+      "-U",
+      "remote_support",
+      "-d",
+      "remote_support",
+      "-c",
+      sql,
+    ],
+    { stdio: "pipe" },
+  );
 }

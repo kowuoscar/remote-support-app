@@ -19,6 +19,9 @@ const ROLES = {
     role: "AGENT",
     failingIdentity: true,
   },
+  // real-agent-dashboard: a linked Agent whose invoice route answers 500 (and, once the Requests
+  // reads land, one Contract's Requests route), so the unavailable card states are playable.
+  "visual-agent-degraded-session": { username: "degraded@example.com", role: "AGENT", degraded: true },
 };
 
 const CURRENCY = {
@@ -213,6 +216,28 @@ createServer((request, response) => {
       currency,
       salaryAmount: 3200,
       rolloutAdvanceAmount: 500,
+    });
+  }
+  // real-agent-dashboard: this month's Agent Invoice — a Draft with a fixed billingMonth, so the
+  // Local Support Fees label never follows the wall clock. The degraded token gets a 500.
+  const invoiceMatch = url.pathname.match(/^\/api\/agents\/([^/]+)\/invoice$/);
+  if (invoiceMatch && request.method === "GET") {
+    if (caller.role !== "AGENT" || invoiceMatch[1] !== AGENTS[0].id) return send(response, 403);
+    if (caller.degraded) return send(response, 500);
+    return send(response, 200, {
+      id: "c0000000-0000-0000-0000-000000000001",
+      agentId: AGENTS[0].id,
+      billingMonth: "2026-09-01",
+      status: "DRAFT",
+      currency: AGENTS[0].currency,
+      localSupportFees: 1250.5,
+      salary: 3200,
+      rolloutAdvanceRepayment: -250,
+      rolloutAdvanceNewAdvance: 500,
+      totalAmount: 4700.5,
+      sentAt: null,
+      approvedAt: null,
+      paidAt: null,
     });
   }
   if (url.pathname === "/api/carriers" && request.method === "GET") {

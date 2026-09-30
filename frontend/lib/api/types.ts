@@ -64,6 +64,16 @@ export interface TesterListItem {
   isPrimaryContact: boolean;
 }
 
+// Mirrors backend/.../dto/AgentOwnRecordResponse.java — GET /api/me/agent, the caller's own Agent.
+export interface AgentOwnRecord {
+  agentId: string;
+  name: string;
+  country: Country;
+  currency: string;
+  salaryAmount: number;
+  rolloutAdvanceAmount: number;
+}
+
 // Mirrors backend/.../dto/AgentResponse.java
 export interface AgentListItem {
   id: string;

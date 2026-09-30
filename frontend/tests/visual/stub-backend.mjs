@@ -10,6 +10,15 @@ const PORT = Number(process.env.STUB_BACKEND_PORT ?? 4174);
 const ROLES = {
   "visual-agent-session": { username: "agent@example.com", role: "AGENT", country: "UNITED_STATES" },
   "visual-manager-session": { username: "manager@example.com", role: "MANAGER" },
+  // real-agent-dashboard: an Agent login that is linked to no Agent record (GET /api/me/agent is
+  // 404), and one whose identity read fails outright (500). Not captured as goldens; the
+  // not-linked and page-level failure states are asserted in surfaces.spec.ts.
+  "visual-agent-unlinked-session": { username: "unlinked@example.com", role: "AGENT", unlinked: true },
+  "visual-agent-failing-identity-session": {
+    username: "failing@example.com",
+    role: "AGENT",
+    failingIdentity: true,
+  },
 };
 
 const CURRENCY = {
@@ -190,6 +199,21 @@ createServer((request, response) => {
 
   if (url.pathname === "/api/me") {
     return send(response, 200, { username: caller.username, role: caller.role });
+  }
+  // real-agent-dashboard: the caller's own Agent — Jordan Ellis, with a salary and a non-zero
+  // Rollout Advance so the dashboard's "+ <amount> Rollout Advance" meta is exercised.
+  if (url.pathname === "/api/me/agent" && request.method === "GET") {
+    if (caller.role !== "AGENT" || caller.unlinked) return send(response, 404);
+    if (caller.failingIdentity) return send(response, 500);
+    const { id, name, country, currency } = AGENTS[0];
+    return send(response, 200, {
+      agentId: id,
+      name,
+      country,
+      currency,
+      salaryAmount: 3200,
+      rolloutAdvanceAmount: 500,
+    });
   }
   if (url.pathname === "/api/carriers" && request.method === "GET") {
     const country = url.searchParams.get("country") ?? caller.country;

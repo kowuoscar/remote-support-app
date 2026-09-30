@@ -1,7 +1,7 @@
 ---
 id: agent-dashboard-invoice-figures
 title: Show the Agent's Local Support Fees and invoice status from this month's Agent Invoice
-status: in-progress
+status: done
 depends_on: [agent-dashboard-identity-and-standing-amounts]
 labels: [frontend]
 stories: [3, 4, 5, 6, 8, 20]

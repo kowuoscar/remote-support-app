@@ -1,7 +1,7 @@
 ---
 feature: real-agent-dashboard
 epic: real-dashboards
-status: draft
+status: approved
 date: 2026-09-30
 ---
 

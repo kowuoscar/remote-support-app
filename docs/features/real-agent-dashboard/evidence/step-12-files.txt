@@ -1,0 +1,53 @@
+client.ts
+contracts.ts
+manager.ts
+types.ts
+--- agent.ts exists?
+ls: frontend/lib/demo/agent.ts: No such file or directory
+--- git log of deletion
+75a82a9 feat(agent-dashboard-requests): Open Requests and Recent Requests from the Agent's own Contracts
+--- @/lib/demo imports in dashboard page and AgentDashboardStats
+frontend/app/agent/page.tsx
+(eval):4: no matches found: frontend/components/*/AgentDashboardStats*
+--- any '@/lib/demo' import (incl. types) in page and stats component:
+grep exit: 1 (1 = none)
+--- types.ts present:
+frontend/lib/demo/types.ts
+--- stub createdAt fixtures:
+102:      createdAt: "2026-09-14T09:00:00Z",
+121:      createdAt: "2026-09-12T09:00:00Z",
+190:// real-agent-dashboard: the Agent's two Contracts and their Requests. `createdAt` is computed from
+231:  const now = Date.now();
+246:            createdAt: new Date(now - age).toISOString(),
+--- files naming AgentDashboardStats:
+frontend/app/agent/page.tsx
+frontend/components/agent/dashboard-stats.tsx
+frontend/components/agent/dashboard-stats.test.tsx
+--- lib/demo imports in them (non-test):
+(end; nothing above = none)
+  [0, "SIM_SWAP", "SUBMITTED", "nadia.okafor@aurora.example", 5 * DAY_MS + 2 * HOUR_MS],
+  [1, "REBOOT", "IN_PROGRESS", "owen.reyes@meridian.example", 9 * DAY_MS + 2 * HOUR_MS],
+  [0, "OTHER", "COMPLETED", "nadia.okafor@aurora.example", 20 * DAY_MS + 2 * HOUR_MS],
+];
+
+function agentRequests(contractIndex) {
+  const now = Date.now();
+  return AGENT_REQUESTS.flatMap(([index, type, status, raisedByUsername, age], position) =>
+    index === contractIndex
+      ? [
+          {
+            id: `66666666-0000-0000-0000-00000000000${position + 1}`,
+            contractId: AGENT_CONTRACTS[index].id,
+            type,
+            status,
+            raisedByTesterId: `33333333-0000-0000-0000-00000000000${index + 1}`,
+            raisedByUsername,
+            agentAuthored: false,
+            loggedByUsername: raisedByUsername,
+            cancellationReason: null,
+            description: type === "OTHER" ? "Counter display unit" : null,
+            createdAt: new Date(now - age).toISOString(),
+          },
+        ]
+      : [],
+  );

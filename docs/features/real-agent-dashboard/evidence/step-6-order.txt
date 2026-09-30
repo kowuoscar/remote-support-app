@@ -1,0 +1,7 @@
+API newest five by createdAt (step-5-requests-summary.txt) vs dashboard rows (step-6-recent-requests.yml), same order:
+1 RETURN COMPLETED  Harbor Line   noah.kim   -> Return · Harbor Line Logistics — United States · noah.kim · raised today · Completed
+2 RETURN PENDING_APPROVAL Harbor  noah.kim   -> same label, Pending Approval
+3 TOPUP SUBMITTED   Harbor Line   noah.kim   -> Topup · Harbor Line ... Submitted
+4 PROVISION_SMARTPHONE IN_PROGRESS Solstice dana.whitfield -> In Progress
+5 OTHER COMPLETED   Solstice      dana.whitfield -> Completed
+"Open queue" followed: landed on /agent/requests (step-6-open-queue.txt)

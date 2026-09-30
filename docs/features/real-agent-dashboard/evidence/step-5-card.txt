@@ -1,0 +1,4 @@
+API: 2 open (SUBMITTED+IN_PROGRESS), 1 PENDING_APPROVAL not counted (step-5-requests-summary.txt)
+              - generic [ref=f1e65]: Open Requests
+              - generic [ref=f1e66]: "2"
+              - generic [ref=f1e67]: Submitted or In Progress

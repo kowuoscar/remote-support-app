@@ -1,0 +1,83 @@
+
+Running 45 tests using 4 workers
+
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] agent invoice: load failed with status 500
+[WebServer] agent contract requests: load failed with status 500
+  ✓   1 tests/visual/agent-dashboard-requests.spec.ts:30:7 › the Agent dashboard's Request regions › degraded-requests-show-unavailable-never-a-dropped-contract-count (480ms)
+  ✓   4 tests/visual/agent-dashboard-requests.spec.ts:14:7 › the Agent dashboard's Request regions › healthy-agent-counts-open-requests-and-lists-the-five-newest (506ms)
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓   2 tests/visual/change-password-dialog.spec.ts:43:9 › change-password dialog — open — desktop — light (1.6s)
+  ✓   3 tests/visual/change-password-dialog.spec.ts:43:9 › change-password dialog — open — desktop — dark (1.6s)
+  ✓   6 tests/visual/change-password-dialog.spec.ts:43:9 › change-password dialog — open — mobile — dark (1.1s)
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓   5 tests/visual/change-password-dialog.spec.ts:43:9 › change-password dialog — open — mobile — light (1.2s)
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓   7 tests/visual/surfaces.spec.ts:124:11 › manager — desktop — light (1.1s)
+  ✓   8 tests/visual/surfaces.spec.ts:124:11 › manager — desktop — dark (1.1s)
+  ✓   9 tests/visual/surfaces.spec.ts:124:11 › manager — mobile — light (1.1s)
+  ✓  10 tests/visual/surfaces.spec.ts:124:11 › manager — mobile — dark (1.1s)
+A snapshot doesn't exist at /Users/oscar/myspace/projects/remote-support-app/frontend/tests/visual/__screenshots__/agent-desktop-light.png, writing actual.
+A snapshot doesn't exist at /Users/oscar/myspace/projects/remote-support-app/frontend/tests/visual/__screenshots__/agent-desktop-dark.png, writing actual.
+  ✓  11 tests/visual/surfaces.spec.ts:124:11 › agent — desktop — light (431ms)
+  ✓  12 tests/visual/surfaces.spec.ts:124:11 › agent — desktop — dark (430ms)
+A snapshot doesn't exist at /Users/oscar/myspace/projects/remote-support-app/frontend/tests/visual/__screenshots__/agent-mobile-light.png, writing actual.
+  ✓  13 tests/visual/surfaces.spec.ts:124:11 › agent — mobile — light (484ms)
+A snapshot doesn't exist at /Users/oscar/myspace/projects/remote-support-app/frontend/tests/visual/__screenshots__/agent-mobile-dark.png, writing actual.
+  ✓  14 tests/visual/surfaces.spec.ts:124:11 › agent — mobile — dark (431ms)
+  ✓  16 tests/visual/surfaces.spec.ts:124:11 › client — desktop — dark (1.0s)
+  ✓  15 tests/visual/surfaces.spec.ts:124:11 › client — desktop — light (1.0s)
+  ✓  17 tests/visual/surfaces.spec.ts:124:11 › client — mobile — light (948ms)
+  ✓  18 tests/visual/surfaces.spec.ts:124:11 › client — mobile — dark (974ms)
+  ✓  19 tests/visual/surfaces.spec.ts:124:11 › agent-carriers — desktop — light (311ms)
+  ✓  20 tests/visual/surfaces.spec.ts:124:11 › agent-carriers — desktop — dark (326ms)
+  ✓  21 tests/visual/surfaces.spec.ts:124:11 › agent-carriers — mobile — light (364ms)
+  ✓  22 tests/visual/surfaces.spec.ts:124:11 › agent-carriers — mobile — dark (335ms)
+  ✓  24 tests/visual/surfaces.spec.ts:124:11 › manager-carriers — desktop — dark (385ms)
+  ✓  23 tests/visual/surfaces.spec.ts:124:11 › manager-carriers — desktop — light (413ms)
+  ✓  25 tests/visual/surfaces.spec.ts:124:11 › manager-carriers — mobile — light (410ms)
+  ✓  26 tests/visual/surfaces.spec.ts:124:11 › manager-carriers — mobile — dark (360ms)
+  ✓  27 tests/visual/surfaces.spec.ts:124:11 › manager-requests — desktop — light (352ms)
+  ✓  28 tests/visual/surfaces.spec.ts:124:11 › manager-requests — desktop — dark (352ms)
+  ✓  30 tests/visual/surfaces.spec.ts:124:11 › manager-requests — mobile — dark (345ms)
+  ✓  29 tests/visual/surfaces.spec.ts:124:11 › manager-requests — mobile — light (429ms)
+  ✓  31 tests/visual/surfaces.spec.ts:124:11 › agent-stock — desktop — light (348ms)
+  ✓  32 tests/visual/surfaces.spec.ts:124:11 › agent-stock — desktop — dark (399ms)
+  ✓  33 tests/visual/surfaces.spec.ts:124:11 › agent-stock — mobile — light (327ms)
+  ✓  34 tests/visual/surfaces.spec.ts:124:11 › agent-stock — mobile — dark (284ms)
+  ✓  35 tests/visual/surfaces.spec.ts:124:11 › manager-stock — desktop — light (382ms)
+  ✓  38 tests/visual/surfaces.spec.ts:124:11 › manager-stock — mobile — dark (290ms)
+  ✓  37 tests/visual/surfaces.spec.ts:124:11 › manager-stock — mobile — light (325ms)
+[WebServer] Agent dashboard: GET /api/me/agent failed with status 500
+[WebServer] agent invoice: load failed with status 500
+  ✓  36 tests/visual/surfaces.spec.ts:124:11 › manager-stock — desktop — dark (448ms)
+[WebServer] agent contract requests: load failed with status 500
+  ✓  39 tests/visual/surfaces.spec.ts:141:7 › the Agent dashboard's identity states › unlinked-agent-shows-not-linked-message (184ms)
+  ✓  40 tests/visual/surfaces.spec.ts:148:7 › the Agent dashboard's identity states › failing-identity-shows-page-level-message (176ms)
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓  41 tests/visual/surfaces.spec.ts:156:7 › the Agent dashboard's identity states › degraded-invoice-shows-both-invoice-cards-unavailable (207ms)
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓  42 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — desktop — light (1.2s)
+  ✓  44 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — mobile — light (1.1s)
+  ✓  45 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — mobile — dark (1.1s)
+  ✓  43 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — desktop — dark (1.2s)
+
+  45 passed (13.1s)

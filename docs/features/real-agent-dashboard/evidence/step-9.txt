@@ -1,0 +1,19 @@
+== BEFORE visit (fresh non-demo DB, port 58082)
+-- review queue as Manager
+[]
+HTTP 200
+-- Jordan invoice via API not yet requested
+== AFTER Jordan's first dashboard visit
+-- review queue as Manager
+[]
+HTTP 200
+-- Jordan invoice (API)
+{"id":"c4e76d9d-fa19-4715-a67b-1b8754ec7188","agentId":"55555555-5555-5555-5555-555555555555","billingMonth":"2026-09-01","status":"DRAFT","currency":"USD","localSupportFees":0,"salary":2500.00,"rolloutAdvanceRepayment":0,"rolloutAdvanceNewAdvance":0,"totalAmount":2500.00,"sentAt":null,"approvedAt":null,"paidAt":null}
+HTTP 200
+-- My Invoice page as Jordan (UI)
+          - paragraph [ref=f2e48]: Local Support Fees, salary and Rollout Advance
+              - heading "September 2026" [level=2] [ref=f2e67]
+              - generic [ref=f2e68]: Draft
+              - term [ref=f2e76]: Local Support Fees
+            - generic [ref=f2e88]: Total
+      - paragraph [ref=f2e90]: Demo data — names, amounts and statuses on this screen are synthetic and do not represent real Clients, Agents or invoices.

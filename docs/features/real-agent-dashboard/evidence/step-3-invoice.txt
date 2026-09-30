@@ -1,0 +1,2 @@
+{"id":"b1325798-a14e-4d58-af54-cf619ca4d68b","agentId":"55555555-5555-5555-5555-555555555555","billingMonth":"2026-09-01","status":"SENT","currency":"USD","localSupportFees":135.99,"salary":2700.00,"rolloutAdvanceRepayment":0.00,"rolloutAdvanceNewAdvance":0.00,"totalAmount":2835.99,"sentAt":"2026-09-30T20:38:58.176088Z","approvedAt":null,"paidAt":null}
+HTTP 200

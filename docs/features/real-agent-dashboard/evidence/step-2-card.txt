@@ -1,0 +1,4 @@
+Cards from snapshot step-1-agent-dashboard.yml:
+              - generic [ref=f1e75]: Standing salary + advance
+              - generic [ref=f1e76]: $2,700.00
+              - generic [ref=f1e77]: + $0 Rollout Advance

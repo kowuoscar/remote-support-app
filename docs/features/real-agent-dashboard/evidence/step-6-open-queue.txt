@@ -1,0 +1,6 @@
+### Result
+"/agent/requests"
+### Ran Playwright code
+```js
+await page.evaluate('() => (location.pathname)');
+```

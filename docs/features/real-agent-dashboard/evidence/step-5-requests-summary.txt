@@ -1,0 +1,10 @@
+Jordan's contracts: f9429ee6 (Solstice US), 7c11d23a (Harbor Line); total requests 13
+Counter({'COMPLETED': 9, 'CANCELLED': 1, 'IN_PROGRESS': 1, 'SUBMITTED': 1, 'PENDING_APPROVAL': 1})
+open (SUBMITTED|IN_PROGRESS) = 2
+PENDING_APPROVAL (not counted): ['RETURN']
+--newest 5 by createdAt
+2026-09-30T20:38:57.924299Z RETURN COMPLETED noah.kim@harborline.example 7c11d23a
+2026-09-30T20:38:57.773639Z RETURN PENDING_APPROVAL noah.kim@harborline.example 7c11d23a
+2026-09-30T20:38:57.760240Z TOPUP SUBMITTED noah.kim@harborline.example 7c11d23a
+2026-09-30T20:38:57.385508Z PROVISION_SMARTPHONE IN_PROGRESS dana.whitfield@solsticeretail.example f9429ee6
+2026-09-30T20:38:57.328718Z OTHER COMPLETED dana.whitfield@solsticeretail.example f9429ee6

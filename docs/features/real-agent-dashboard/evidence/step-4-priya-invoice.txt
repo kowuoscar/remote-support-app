@@ -1,0 +1,2 @@
+{"id":"934babd0-7832-4b2b-aceb-4f0e8b51b5e8","agentId":"947f6ec6-e883-4020-ac41-c5255faa2c64","billingMonth":"2026-09-01","status":"DRAFT","currency":"GBP","localSupportFees":20.00,"salary":4500.00,"rolloutAdvanceRepayment":-500.00,"rolloutAdvanceNewAdvance":750.00,"totalAmount":4770.00,"sentAt":null,"approvedAt":null,"paidAt":null}
+HTTP 200

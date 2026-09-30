@@ -1,0 +1,5 @@
+--- (above: empty => recaptured goldens byte-identical to committed; else listed)
+frontend/tests/visual/__screenshots__/agent-desktop-dark.png
+frontend/tests/visual/__screenshots__/agent-desktop-light.png
+frontend/tests/visual/__screenshots__/agent-mobile-dark.png
+frontend/tests/visual/__screenshots__/agent-mobile-light.png

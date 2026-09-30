@@ -94,7 +94,7 @@ class AgentOwnRecordApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.agentId").value(agent.agentId().toString()))
         .andExpect(jsonPath("$.name").value("Own Record Agent"))
         .andExpect(jsonPath("$.country").value("UNITED_STATES"))
-        .andExpect(jsonPath("$.currency").isNotEmpty())
+        .andExpect(jsonPath("$.currency").value("USD"))
         .andExpect(jsonPath("$.salaryAmount").value(2000.00))
         .andExpect(jsonPath("$.rolloutAdvanceAmount").value(0));
   }

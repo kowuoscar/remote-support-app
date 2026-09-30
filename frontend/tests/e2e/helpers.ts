@@ -490,7 +490,6 @@ const SEEDED_AGENT_ID = "55555555-5555-5555-5555-555555555555";
  * leave it Sent or Paid. Moving it to a month before all his others frees the current month, so
  * the next read of it (My Invoice or the dashboard) creates a fresh Draft. Runs against
  * `E2E_DATABASE_URL` when set (the isolated stack), else the docker-compose Postgres.
- * (manager-invoice-review-queue.spec.ts still carries its own copy, from before this existed.)
  */
 export async function rollSeededAgentInvoiceIntoThePast() {
   const sql = `

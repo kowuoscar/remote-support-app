@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { unstable_rethrow } from "next/navigation";
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { AgentDashboardStats } from "@/components/agent/dashboard-stats";
 import { Card } from "@/components/ui/card";
@@ -21,31 +20,18 @@ import { requestStatusToneByValue } from "@/lib/status";
 
 export const metadata = { title: "Dashboard" };
 
-type Identity =
-  | { kind: "agent"; agent: AgentOwnRecord }
-  | { kind: "not-linked" }
-  | { kind: "failed" };
-
 /**
- * Reads the caller's own Agent. A 404 means the login is not linked to an Agent; any other
- * failure is logged with the endpoint and status and makes the whole page unavailable, because
- * every figure on it is scoped by this read.
+ * Reads the caller's own Agent. A 404 means the login is not linked to an Agent, which the page
+ * renders as a message; any other failure is thrown to this segment's `error.tsx`, because every
+ * figure on the page is scoped by this read.
  */
-async function loadIdentity(): Promise<Identity> {
-  try {
-    const response = await backendFetch("/api/me/agent");
-    if (response.status === 404) return { kind: "not-linked" };
-    if (!response.ok) {
-      console.error(`Agent dashboard: GET /api/me/agent failed with status ${response.status}`);
-      return { kind: "failed" };
-    }
-    return { kind: "agent", agent: (await response.json()) as AgentOwnRecord };
-  } catch (error) {
-    // Next.js signals a request-time render by throwing from cookies(); that must reach Next.js.
-    unstable_rethrow(error);
-    console.error("Agent dashboard: GET /api/me/agent failed with no response", error);
-    return { kind: "failed" };
+async function loadAgent(): Promise<AgentOwnRecord | null> {
+  const response = await backendFetch("/api/me/agent");
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new Error(`Agent dashboard: GET /api/me/agent failed with status ${response.status}`);
   }
+  return (await response.json()) as AgentOwnRecord;
 }
 
 type AgentRequest = RequestListItem & { contractLabel: string };
@@ -56,20 +42,20 @@ type AgentRequest = RequestListItem & { contractLabel: string };
  * on purpose: a count or a list that silently dropped a failed Contract would look like real data.
  */
 async function loadAgentRequests(): Promise<AgentRequest[] | null> {
-  const contracts = await backendFetchJsonOrNull<ContractListItem[]>("/api/contracts", "agent contracts");
+  const contracts = await backendFetchJsonOrNull<ContractListItem[]>("/api/contracts", "GET /api/contracts");
   if (contracts === null) return null;
   const perContract = await Promise.all(
     contracts.map(async (contract) => {
       const requests = await backendFetchJsonOrNull<RequestListItem[]>(
         `/api/contracts/${contract.id}/requests`,
-        "agent contract requests",
+        `GET /api/contracts/${contract.id}/requests`,
       );
       const contractLabel = `${contract.clientName} — ${countryLabel(contract.country)}`;
       return requests?.map((request) => ({ ...request, contractLabel })) ?? null;
     }),
   );
   if (perContract.some((requests) => requests === null)) return null;
-  return perContract.flat() as AgentRequest[];
+  return perContract.flatMap((requests) => requests ?? []);
 }
 
 const OPEN_STATUSES: readonly RequestListItem["status"][] = ["SUBMITTED", "IN_PROGRESS"];
@@ -109,10 +95,11 @@ function RecentRequestsBody({ requests, now }: { requests: AgentRequest[] | null
               <IconRequests className="h-4 w-4" />
             </span>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-ink">
+              <p className="line-clamp-2 text-sm font-medium text-ink">
                 {REQUEST_TYPE_LABEL[request.type]} · {request.contractLabel}
               </p>
-              <p className="truncate text-[12px] text-ink-mute">
+              {/* 12px: the app-wide metadata size, which no tailwind.config token provides. */}
+              <p className="line-clamp-2 text-[12px] text-ink-mute">
                 Raised by {request.raisedByUsername} · raised{" "}
                 <time dateTime={request.createdAt}>{formatRelativeAge(request.createdAt, now)}</time>
               </p>
@@ -127,44 +114,29 @@ function RecentRequestsBody({ requests, now }: { requests: AgentRequest[] | null
   );
 }
 
-function PageUnavailable({ title, description }: { title: string; description: string }) {
-  return (
-    <SurfacePage title="Dashboard" subtitle="Your Agent console" viewerLabel="Agent">
-      <Card className="p-0" data-testid="dashboard-unavailable">
-        <div className="p-5">
-          <EmptyState
-            icon={<IconAlertTriangle className="h-5 w-5" />}
-            title={title}
-            description={description}
-          />
-        </div>
-      </Card>
-    </SurfacePage>
-  );
-}
-
 export default async function AgentDashboardPage() {
-  const identity = await loadIdentity();
-  if (identity.kind === "not-linked") {
+  const agent = await loadAgent();
+  if (agent === null) {
     return (
-      <PageUnavailable
-        title="Your login isn't linked to an Agent record yet"
-        description="Ask your Manager to link your login to your Agent record before you can see your dashboard."
-      />
+      <SurfacePage title="Dashboard" subtitle="Your Agent console" viewerLabel="Agent">
+        <Card className="p-0" data-testid="dashboard-unavailable">
+          <div className="p-5">
+            <EmptyState
+              icon={<IconAlertTriangle className="h-5 w-5" />}
+              title="Your login isn't linked to an Agent record yet"
+              description="Ask your Manager to link your login to your Agent record before you can see your dashboard."
+            />
+          </div>
+        </Card>
+      </SurfacePage>
     );
   }
-  if (identity.kind === "failed") {
-    return (
-      <PageUnavailable
-        title="Couldn't load your dashboard — reload the page to try again"
-        description="Your name and standing amounts come from your Agent record, which could not be read."
-      />
-    );
-  }
-  const { agent } = identity;
   // The same get-or-create read My Invoice uses: its first visit of the month creates the Draft.
   const [invoice, requests] = await Promise.all([
-    backendFetchJsonOrNull<AgentInvoiceDetail>(`/api/agents/${agent.agentId}/invoice`, "agent invoice"),
+    backendFetchJsonOrNull<AgentInvoiceDetail>(
+      `/api/agents/${agent.agentId}/invoice`,
+      `GET /api/agents/${agent.agentId}/invoice`,
+    ),
     loadAgentRequests(),
   ]);
   const billingMonth = invoice ? formatBillingMonth(invoice.billingMonth) : null;
@@ -176,7 +148,7 @@ export default async function AgentDashboardPage() {
   return (
     <SurfacePage
       title="Dashboard"
-      subtitle={`${agent.name} · ${countryLabel(agent.country)}`}
+      subtitle={countryLabel(agent.country)}
       viewerLabel={`${agent.name} · Agent`}
     >
       <AgentDashboardStats
@@ -194,6 +166,7 @@ export default async function AgentDashboardPage() {
         <div className="flex items-center justify-between border-b border-hairline px-5 py-4">
           <div>
             <h2 className="text-sm font-semibold text-ink">Recent Requests</h2>
+            {/* 13px: the app-wide caption size, which no tailwind.config token provides. */}
             <p className="text-[13px] text-ink-mute">Across all your Contracts</p>
           </div>
           <Link

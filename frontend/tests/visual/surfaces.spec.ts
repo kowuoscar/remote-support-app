@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
+import { gotoWithSession } from "./helpers";
 
 interface Surface {
   slug:
@@ -54,11 +55,6 @@ const breakpoints = [
 ] as const;
 
 const themes = ["light", "dark"] as const;
-
-async function gotoWithSession(page: Page, path: string, session: string) {
-  await page.context().addCookies([{ name: SESSION_COOKIE_NAME, value: session, url: "http://127.0.0.1:4173" }]);
-  await page.goto(path);
-}
 
 async function gotoAndSettle(page: Page, surface: Surface) {
   // The three surfaces sit behind middleware.ts's session-cookie gate (auth-login-flow). This

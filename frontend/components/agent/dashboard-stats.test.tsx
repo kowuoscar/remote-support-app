@@ -51,6 +51,16 @@ describe("AgentDashboardStats", () => {
     expect(screen.getByText("Submitted or In Progress")).toBeInTheDocument();
   });
 
+  it("hides the dash from assistive tech, announces Unavailable, and mutes it instead of indigo", () => {
+    renderStats({ runningLocalSupportFees: null, latestInvoiceStatus: null, openRequestsCount: null });
+
+    expect(screen.getAllByText("Unavailable")).toHaveLength(3);
+    for (const dash of screen.getAllByText("—")) {
+      expect(dash).toHaveAttribute("aria-hidden", "true");
+      expect(dash).toHaveClass("text-ink-mute");
+    }
+  });
+
   it("renders — with a Couldn't load meta for each unavailable region", () => {
     renderStats({
       runningLocalSupportFees: null,

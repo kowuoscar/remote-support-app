@@ -1,6 +1,7 @@
 package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.Agent;
+import com.remotesupport.backend.domain.BillingMonth;
 import com.remotesupport.backend.domain.StandingAmountType;
 import com.remotesupport.backend.dto.AgentOwnRecordResponse;
 import com.remotesupport.backend.repository.AgentRepository;
@@ -8,7 +9,6 @@ import com.remotesupport.backend.security.CallerIdentityResolver;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +43,7 @@ public class MeAgentController {
             .resolveAgentId(principal)
             .flatMap(id -> agentRepository.findByIdAndTenantId(id, principal.tenantId()))
             .orElseThrow(() -> new NotFoundException("The caller is not linked to an Agent"));
-    LocalDate month = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1);
+    LocalDate month = BillingMonth.current();
     BigDecimal salary =
         standingAmountService.resolve(agent.getId(), StandingAmountType.SALARY, month);
     BigDecimal rolloutAdvance =

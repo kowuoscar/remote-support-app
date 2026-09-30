@@ -1,14 +1,9 @@
-import { test, expect, type Page } from "@playwright/test";
-import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
+import { test, expect } from "@playwright/test";
+import { gotoWithSession } from "./helpers";
 
 // real-agent-dashboard (ticket agent-dashboard-requests): the Agent dashboard's Request regions
 // against tests/visual/stub-backend.mjs, whose Request `createdAt`s are relative to the stub's own
 // clock. No golden: these assert the text a user reads, including the degraded states.
-
-async function gotoWithSession(page: Page, path: string, session: string) {
-  await page.context().addCookies([{ name: SESSION_COOKIE_NAME, value: session, url: "http://127.0.0.1:4173" }]);
-  await page.goto(path);
-}
 
 test.describe("the Agent dashboard's Request regions", () => {
   test("healthy-agent-counts-open-requests-and-lists-the-five-newest", async ({ page }) => {

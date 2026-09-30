@@ -50,8 +50,8 @@ answer.
 
 ## Meanwhile
 
-None. `deactivate-a-login` comes next in the same epic and builds on this
-feature's guard class, and the later epics wait their turn in the roadmap. The
-loop stops.
+The loop moves on to the next epic in order, `invoice-correction-and-history`,
+starting with the spec for `send-a-client-invoice-back`. `deactivate-a-login`
+waits behind this feature in its own epic.
 
 ## Answer

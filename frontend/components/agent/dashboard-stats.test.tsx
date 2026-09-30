@@ -64,6 +64,44 @@ describe("AgentDashboardStats", () => {
     expect(screen.getByText(/Couldn.t load your Requests/)).toBeInTheDocument();
   });
 
+  it("reads the Local Support Fees meta as a running total while the invoice is Draft", () => {
+    renderStats({ latestInvoiceStatus: "DRAFT" });
+
+    expect(screen.getByText("Running total, all your Contracts")).toBeInTheDocument();
+    expect(screen.queryByText("As sent on your invoice")).not.toBeInTheDocument();
+  });
+
+  it.each<AgentInvoiceStatusValue>(["SENT", "APPROVED", "PAID"])(
+    "reads the Local Support Fees meta as frozen once the invoice is %s",
+    (status) => {
+      renderStats({ latestInvoiceStatus: status });
+
+      expect(screen.getByText("As sent on your invoice")).toBeInTheDocument();
+      expect(screen.queryByText("Running total, all your Contracts")).not.toBeInTheDocument();
+    },
+  );
+
+  it("shows the invoice's own month on the Local Support Fees and My Invoice status cards", () => {
+    renderStats({ currentMonthLabel: "August 2026", latestInvoiceMonth: "August 2026" });
+
+    expect(screen.getByText("Local Support Fees — August 2026")).toBeInTheDocument();
+    expect(screen.getByText("August 2026")).toBeInTheDocument();
+  });
+
+  it("renders both invoice cards unavailable while the other cards still render", () => {
+    renderStats({
+      currentMonthLabel: null,
+      runningLocalSupportFees: null,
+      latestInvoiceMonth: null,
+      latestInvoiceStatus: null,
+    });
+
+    expect(screen.getByText("Local Support Fees")).toBeInTheDocument();
+    expect(screen.getAllByText(/Couldn.t load your invoice/)).toHaveLength(2);
+    expect(screen.getByText("4")).toBeInTheDocument();
+    expect(screen.getByText("$3,200.00")).toBeInTheDocument();
+  });
+
   it.each<[AgentInvoiceStatusValue, string]>([
     ["DRAFT", "Draft"],
     ["SENT", "Awaiting approval"],

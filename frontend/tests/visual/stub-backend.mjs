@@ -19,8 +19,8 @@ const ROLES = {
     role: "AGENT",
     failingIdentity: true,
   },
-  // real-agent-dashboard: a linked Agent whose invoice route answers 500 (and, once the Requests
-  // reads land, one Contract's Requests route), so the unavailable card states are playable.
+  // real-agent-dashboard: a linked Agent whose invoice route answers 500, and whose second
+  // Contract's Requests route does too, so the unavailable card states are playable.
   "visual-agent-degraded-session": { username: "degraded@example.com", role: "AGENT", degraded: true },
 };
 
@@ -187,6 +187,69 @@ const STOCK_UNITS = [
   },
 ];
 
+// real-agent-dashboard: the Agent's two Contracts and their Requests. `createdAt` is computed from
+// the stub's own current time (now minus a fixed age), never a calendar date, so the dashboard's
+// "raised <age>" rows read the same on every run and the goldens stop drifting. Four statuses
+// (Submitted, In Progress, Completed, Pending Approval) and seven Requests across both Contracts:
+// five fill the Recent Requests card, two older ones fall off it, and four are open.
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
+const AGENT_CONTRACTS = [
+  {
+    id: "22222222-0000-0000-0000-000000000001",
+    clientId: "55555555-0000-0000-0000-000000000001",
+    clientName: "Aurora Retail Group",
+    agentId: AGENTS[0].id,
+    agentName: AGENTS[0].name,
+    country: "UNITED_STATES",
+    currency: "USD",
+  },
+  {
+    id: "22222222-0000-0000-0000-000000000002",
+    clientId: "55555555-0000-0000-0000-000000000002",
+    clientName: "Meridian Logistics",
+    agentId: AGENTS[0].id,
+    agentName: AGENTS[0].name,
+    country: "UNITED_STATES",
+    currency: "USD",
+  },
+];
+
+// [contract index, type, status, raisedByUsername, age in ms]. Ages carry an extra couple of hours
+// so the elapsed whole-day count stays put however long a render takes.
+const AGENT_REQUESTS = [
+  [0, "TOPUP", "SUBMITTED", "nadia.okafor@aurora.example", 2 * HOUR_MS],
+  [1, "OTHER", "IN_PROGRESS", "owen.reyes@meridian.example", DAY_MS + 2 * HOUR_MS],
+  [0, "REBOOT", "COMPLETED", "nadia.okafor@aurora.example", 2 * DAY_MS + 2 * HOUR_MS],
+  [1, "PROVISION_SMARTPHONE", "PENDING_APPROVAL", "owen.reyes@meridian.example", 3 * DAY_MS + 2 * HOUR_MS],
+  [0, "SIM_SWAP", "SUBMITTED", "nadia.okafor@aurora.example", 5 * DAY_MS + 2 * HOUR_MS],
+  [1, "REBOOT", "IN_PROGRESS", "owen.reyes@meridian.example", 9 * DAY_MS + 2 * HOUR_MS],
+  [0, "OTHER", "COMPLETED", "nadia.okafor@aurora.example", 20 * DAY_MS + 2 * HOUR_MS],
+];
+
+function agentRequests(contractIndex) {
+  const now = Date.now();
+  return AGENT_REQUESTS.flatMap(([index, type, status, raisedByUsername, age], position) =>
+    index === contractIndex
+      ? [
+          {
+            id: `66666666-0000-0000-0000-00000000000${position + 1}`,
+            contractId: AGENT_CONTRACTS[index].id,
+            type,
+            status,
+            raisedByTesterId: `33333333-0000-0000-0000-00000000000${index + 1}`,
+            raisedByUsername,
+            agentAuthored: false,
+            loggedByUsername: raisedByUsername,
+            cancellationReason: null,
+            description: type === "OTHER" ? "Counter display unit" : null,
+            createdAt: new Date(now - age).toISOString(),
+          },
+        ]
+      : [],
+  );
+}
+
 function send(response, status, body) {
   response.writeHead(status, { "Content-Type": "application/json" });
   response.end(body === undefined ? "" : JSON.stringify(body));
@@ -239,6 +302,16 @@ createServer((request, response) => {
       approvedAt: null,
       paidAt: null,
     });
+  }
+  if (url.pathname === "/api/contracts" && request.method === "GET") {
+    return caller.role === "AGENT" ? send(response, 200, AGENT_CONTRACTS) : send(response, 403);
+  }
+  const requestsMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/requests$/);
+  if (requestsMatch && request.method === "GET") {
+    const contractIndex = AGENT_CONTRACTS.findIndex((contract) => contract.id === requestsMatch[1]);
+    if (caller.role !== "AGENT" || contractIndex === -1) return send(response, 403);
+    if (caller.degraded && contractIndex === 1) return send(response, 500);
+    return send(response, 200, agentRequests(contractIndex));
   }
   if (url.pathname === "/api/carriers" && request.method === "GET") {
     const country = url.searchParams.get("country") ?? caller.country;

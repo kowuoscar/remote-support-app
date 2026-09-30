@@ -52,6 +52,7 @@ export function AgentDashboardStats({
         meta={localSupportFeesMeta(runningLocalSupportFees, latestInvoiceStatus)}
       />
       <StatCard
+        data-testid="open-requests-stat"
         label="Open Requests"
         value={openRequestsCount ?? UNAVAILABLE}
         primary

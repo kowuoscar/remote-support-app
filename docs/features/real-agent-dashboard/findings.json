@@ -4,26 +4,28 @@
   {
    "id": "F1",
    "type": "rule-violated",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-standards",
    "after_review": false,
    "in_changed_lines": true,
    "where": "frontend/app/agent/page.tsx:34-48,155-161",
    "citation": "docs/agents/coding-standards.md: Frontend 6. \"An error that should show UI uses `error.tsx` at the nearest route segment; an error that should crash to a boundary above is thrown, never swallowed and logged.\"",
-   "note": "A non-404 failure of GET /api/me/agent is logged and swallowed, then rendered as a page-wide PageUnavailable instead of thrown to an error.tsx. Fix that keeps the spec: throw, and add an error.tsx scoped to the dashboard segment (e.g. a route group) rendering the same 'Couldn't load your dashboard' EmptyState. The 404 not-linked state and the region-level null loaders are data states, not flagged. The reviewer also proposes amending this rule (see rules_to_revisit).",
-   "fixed_in": "d642954"
+   "note": "A non-404 failure of GET /api/me/agent is logged and swallowed, then rendered as a page-wide PageUnavailable instead of thrown to an error.tsx. Fix that keeps the spec: throw, and add an error.tsx scoped to the dashboard segment (e.g. a route group) rendering the same 'Couldn't load your dashboard' EmptyState. The 404 not-linked state and the region-level null loaders are data states, not flagged. The reviewer also proposes amending this rule (see rules_to_revisit). [re-review: CONFIRMED]",
+   "fixed_in": "d642954",
+   "confirmed_by": "reviewer-standards (fresh instance, re-review)"
   },
   {
    "id": "F2",
    "type": "rule-violated",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-standards",
    "after_review": false,
    "in_changed_lines": true,
    "where": "frontend/app/agent/page.tsx:197 (text-[13px]); frontend/app/agent/page.tsx:115 (text-[12px])",
    "citation": "docs/agents/coding-standards.md: Frontend 8. \"Compose Tailwind classes from the tokens in `tailwind.config`; an arbitrary value (`w-[123px]`) needs a comment saying why it isn't a token.\"",
-   "note": "Arbitrary font sizes in changed lines with no comment. Cheap fix: a one-line comment each. The pattern is project-wide (233 uses); the reviewer proposes amending the rule.",
-   "fixed_in": "d642954"
+   "note": "Arbitrary font sizes in changed lines with no comment. Cheap fix: a one-line comment each. The pattern is project-wide (233 uses); the reviewer proposes amending the rule. [re-review: CONFIRMED]",
+   "fixed_in": "d642954",
+   "confirmed_by": "reviewer-standards (fresh instance, re-review)"
   },
   {
    "id": "F3",

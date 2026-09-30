@@ -12,11 +12,16 @@ date: 2026-09-30
 ## Problem
 
 A Company Manager who opens a sent Client Invoice from the Review Queue can do
-only two things with it: approve it, or leave it. If something is wrong, such
-as a missing Fee, a missing Carrier Invoice File, or a base amount that does
-not match the carrier's bill, there is no way to hand it back to the Agent and
-say so. The wrong invoice gets approved and becomes the final record for the
-month, or it sits in the Review Queue and nobody is told why.
+only two things with it: approve it, or leave it. If something is missing,
+such as a Carrier Invoice File or a Fee the Agent logged late in that month,
+there is no way to hand it back to the Agent and say so. The incomplete
+invoice gets approved and becomes the final record for the month, or it sits
+in the Review Queue and nobody is told why.
+
+Send-back is for errors caught **before approval**, that the Agent can fix by
+adding what was missing. An amount already billed that is wrong is corrected
+by the Manager on the following month's invoice (`invoice-adjustment`); a past
+month is never reopened to edit or void a Fee.
 
 The Client Invoice lifecycle only moves forward today
 (`ClientInvoiceStatus.canTransitionTo`: `DRAFT → SENT → APPROVED`). ADR 0001
@@ -37,10 +42,10 @@ three features.
 - **Send an invoice back for correction** (`wanted`, stays `wanted`). This
   feature delivers the Client Invoice half of the epic's closing proof: "a
   Manager sends a Client Invoice back with a reason; the Agent sees the reason,
-  sees the invoice live again as a draft, corrects …, resends it with a fresh
-  snapshot, and the Manager approves it". The journey reaches `exists` only
-  when `send-an-agent-invoice-back` lands too, so `docs/journeys.md` is not
-  edited here. Open question 1 concerns what "corrects a Fee" can mean.
+  and the invoice as a draft again, adds what was missing (a file, a late Fee
+  of that month), resends it with a fresh snapshot, and the Manager approves
+  it". The journey reaches `exists` only when `send-an-agent-invoice-back` and
+  `invoice-adjustment` land too, so `docs/journeys.md` is not edited here.
 - **Work through what is waiting** (`exists`, stays `exists`). A sent-back
   invoice leaves the Review Queue, and a resent one comes back. The queue
   itself does not change.
@@ -54,9 +59,10 @@ three features.
 - A Manager sends a `sent` Client Invoice of any billing month back to its
   Agent from its detail page. The Manager must give a reason.
 - The invoice goes back to `draft`. It leaves the Review Queue and the
-  Dashboard's Pending approvals card, and its numbers are computed live again,
-  exactly as for any draft. Open question 2 covers the one exception proposed
-  for a past month's base amount.
+  Dashboard's Pending approvals card. Its Fee lines are computed live again.
+  Its base amount is live again only while its billing month is the current
+  month; for a past month it stays as sent, because today's Fleet is not that
+  month's Fleet.
 - The Agent sees every Client Invoice sent back to them, from any billing
   month, together with the reason and when it was sent back. The Agent can
   open such an invoice by its own identity, attach Carrier Invoice Files to it
@@ -64,8 +70,9 @@ three features.
 - A resend freezes a fresh snapshot, taken from what the invoice shows at that
   moment. Nothing is left over from the earlier send. The invoice goes back
   into the Review Queue, and the Manager approves it or sends it back again.
-- ADR 0001 is amended to add the one backward edge, `SENT → DRAFT`, and to say
-  why the freeze still protects every figure a Manager is looking at.
+- ADR 0001 is amended to add the one backward edge, `SENT → DRAFT`, to say
+  why the freeze still protects every figure a Manager is looking at, and to
+  state that a past month's base amount stays frozen through a send-back.
 
 **Non-goals.** Each of these is something a reasonable agent would otherwise
 build.
@@ -77,9 +84,15 @@ build.
   them are named under `## Decisions taken`.
 - **No sending back an approved Client Invoice.** `approved` stays final and
   immutable (ADR 0001). Only `sent → draft` is added.
-- **No editing, removing or back-dating a Fee.** A Fee stays immutable, and its
-  `billingMonth` is still set from when it was logged. Open question 1 asks
-  whether that belongs in a follow-up feature.
+- **No editing, voiding or back-dating a Fee, now or later.** A Fee stays
+  immutable, and its `billingMonth` is still set from when it was logged. A
+  past month is never reopened to correct a Fee (human, 2026-09-30); there is
+  no `correct-a-fee` feature.
+- **No adjustment, credit or negative amount.** A wrong amount found after
+  sending or approval is corrected by the Manager on the next month's invoice,
+  which is `invoice-adjustment`, a separate feature of this epic.
+- **No recomputing a past month's base amount.** SIM membership of a Contract
+  carries no dates, so there is no Fleet history to recompute it from.
 - **No removing a Carrier Invoice File.** No such action exists anywhere today,
   and this feature does not add one.
 - **No notification** of any kind: no email, no badge in the nav, no count on
@@ -101,24 +114,24 @@ build.
 
 ## User stories
 
-1. As a Company Manager, I want to send a sent Client Invoice back to its Agent from the invoice's detail page, so that a wrong invoice is corrected instead of approved or left waiting.
-2. As a Company Manager, I want to be required to give a reason when I send an invoice back, so that the Agent knows what to fix.
+1. As a Company Manager, I want to send a sent Client Invoice back to its Agent from the invoice's detail page, so that an incomplete invoice is completed instead of approved or left waiting.
+2. As a Company Manager, I want to be required to give a reason when I send an invoice back, so that the Agent knows what is wrong and what to add.
 3. As a Company Manager who submits an empty reason, I want to be told inline and to keep the form open, so that I fix it rather than start again.
 4. As a Company Manager, I want the detail page to show the invoice as a draft right after I send it back, with my reason and no actions left, so that I can see the send-back took effect.
 5. As a Company Manager, I want a sent-back invoice to leave the Review Queue and the Dashboard's Pending approvals card, so that the queue shows only what is waiting on me.
-6. As a Company Manager, I want to send back a Client Invoice of any billing month, so that last month's invoice can be corrected just like this month's.
+6. As a Company Manager, I want to send back a Client Invoice of any billing month, so that last month's invoice can be completed before approval just like this month's.
 7. As a Company Manager, I want no send-back action on a draft or an approved invoice, so that an approved invoice stays the final record.
 8. As a Company Manager whose page is stale (another Manager already approved or sent it back), I want a clear message telling me to refresh, so that I do not assume my action worked.
-9. As a Company Manager, I want a resent invoice to come back into the Review Queue, waiting since it was resent, so that I review the corrected version.
-10. As a Company Manager reviewing a resent invoice, I want to see that it was sent back before, when, and the reason I gave, so that I can check the correction against my request.
-11. As a Company Manager, I want to approve a resent invoice exactly as I approve any sent one, so that correction ends in the normal final record.
-12. As a Company Manager, I want to send the same invoice back again if the correction is still wrong, so that there is no limit on getting it right.
+9. As a Company Manager, I want a resent invoice to come back into the Review Queue, waiting since it was resent, so that I review the completed version.
+10. As a Company Manager reviewing a resent invoice, I want to see that it was sent back before, when, and the reason I gave, so that I can check what was added against my request.
+11. As a Company Manager, I want to approve a resent invoice exactly as I approve any sent one, so that a send-back ends in the normal final record.
+12. As a Company Manager, I want to send the same invoice back again if it is still incomplete, so that there is no limit on getting it right.
 13. As an Agent, I want every Client Invoice sent back to me, from any Contract and any billing month, listed on my Client Invoices page, so that I never miss one.
-14. As an Agent, I want each sent-back invoice to show the Manager's reason and when it was sent back, so that I know what to fix.
+14. As an Agent, I want each sent-back invoice to show the Manager's reason and when it was sent back, so that I know what is wrong and what to add.
 15. As an Agent, I want to open a sent-back invoice of a past billing month on its own page, so that I can work on it even though it is not this month's.
-16. As an Agent, I want a sent-back invoice to show its numbers live again, exactly as a draft does, so that what I change shows up before I resend.
+16. As an Agent, I want a sent-back invoice to show its Fee lines live again, and for the current month its base amount too, exactly as a draft does, so that what I add shows up before I resend.
 17. As an Agent, I want to attach more Carrier Invoice Files to a sent-back invoice, so that a missing carrier bill can be supplied.
-18. As an Agent, I want to resend a sent-back invoice, freezing what I now see, so that the Manager reviews the corrected numbers.
+18. As an Agent, I want to resend a sent-back invoice, freezing what I now see, so that the Manager reviews the completed invoice.
 19. As an Agent, I want the send confirmation to tell me the truth, which is that only a Manager can send an invoice back, instead of "this can't be undone", so that I am not misled.
 20. As an Agent, I want a resent invoice to leave my sent-back list and show as sent, so that my list shows only what still needs me.
 21. As an Agent, I want my current month's invoice card to show the reason when that invoice was sent back, so that I see it where I build the invoice.
@@ -133,6 +146,8 @@ build.
 30. As an Agent, I want my Agent Invoice unaffected when one of my Client Invoices is sent back, so that my reimbursement does not wait on the Client paperwork (ADR 0002).
 31. As everyone already using the product, I want sending, approving, the Review Queue, the Tester's view and the PDF to behave exactly as before for invoices never sent back, so that this change carries no release risk.
 32. As a Manager or an Agent working by keyboard or on a phone, I want the send-back form and the sent-back list usable without a mouse and at the mobile breakpoint, so that the action is available wherever I work.
+33. As a Manager or an Agent looking at a sent-back invoice of a past billing month, I want its base amount kept as it was sent and marked as such, so that nobody expects it to change and a wrong base amount is left to the Manager's next-month adjustment.
+34. As the company, I want an invoice sent back in its own month but resent after that month has ended to keep the base amount it was first sent with, so that a month rolling over never bills a past month from today's Fleet.
 
 ## Solution
 
@@ -152,7 +167,8 @@ get-or-created draft never has one.
 The reads need no change for the Fee lines. `toResponse` already decides
 "frozen" as `status != DRAFT`, so a sent-back invoice serves live Fee lines,
 and they include any Fee logged against that Contract and month after the
-first send. For the base amount, see "The base amount of a past month" below.
+first send. The base amount gets one new rule, under "The base amount of a
+past month" below.
 
 ### ADR
 
@@ -160,12 +176,24 @@ first send. For the base amount, see "The base amount of a past month" below.
 backward edge, and why ADR 0001's reason still holds: the freeze protects
 every figure while a Manager is reviewing it (`sent`) or has approved it
 (`approved`). A send-back is the Manager deliberately handing that review back,
-and the resend is a new review of new frozen numbers. ADR 0004 names the
-Client Invoice as implemented now and leaves the Agent Invoice to
-`send-an-agent-invoice-back`, which will add its half and put the matching
-note on ADR 0003. ADR 0001 gets a dated note, in the shape ADR 0003's
+and the resend is a new review of new frozen numbers. It states precisely what
+goes live again:
+
+- the Fee lines, always, whatever the billing month;
+- the base amount, only while the invoice's billing month is the current
+  month. For a past billing month the base amount stays exactly as it was
+  sent, through the send-back and the resend, because SIM membership carries
+  no dates and today's Fleet is not that month's Fleet;
+- nothing else: a past month is never reopened to edit or void a Fee, and an
+  amount found wrong after sending or approval is corrected by the Manager on
+  the following month's invoice (`invoice-adjustment`).
+
+ADR 0004 names the Client Invoice as implemented now and leaves the Agent
+Invoice to `send-an-agent-invoice-back`, which will add its half and put the
+matching note on ADR 0003. ADR 0001 gets a dated note, in the shape ADR 0003's
 2026-09-17 note already set: "Amended by ADR 0004: `sent → draft` by a
-Manager's send-back; `approved` stays terminal."
+Manager's send-back; a past month's base amount stays frozen; `approved` stays
+terminal."
 
 ### Prefactoring: one send, in the service, in one transaction
 
@@ -186,7 +214,8 @@ code moves with it. Behaviour is unchanged, and `ClientInvoiceApiTest` and
 `/api/client-invoices/**` matcher), body `{ "reason": "…" }`.
 
 ```
-200 ClientInvoiceResponse   — now DRAFT, live numbers, sentBackAt/sentBackReason set
+200 ClientInvoiceResponse   — now DRAFT, live Fee lines, base amount per the rule below,
+                               sentBackAt/sentBackReason set
 400                          — reason blank, or longer than 1000 characters
 404                          — no such invoice in the caller's Tenant
 409                          — invoice is not SENT (draft, or already approved)
@@ -204,8 +233,9 @@ does the following:
 3. Deletes every `ClientInvoiceFeeSnapshot` row of the invoice. This is
    required: `UNIQUE (client_invoice_id, fee_id)` (V13) would otherwise make
    the resend fail on every Fee already pinned.
-4. Clears `snapshotBaseAmount` if the invoice's billing month is the current
-   month. For a past month, it keeps it (open question 2).
+4. Leaves `snapshotBaseAmount` in place, whatever the billing month. It is
+   never cleared; whether it is served is decided by the billing month at
+   read and at resend (below).
 5. Sets `status = DRAFT`, clears `sentAt`, and sets `sentBackAt = now` and
    `sentBackReason`.
 6. Writes `AuditLog.statusChanged("ClientInvoice", id, "SENT", "DRAFT", actor, tenant)`.
@@ -213,27 +243,43 @@ does the following:
    reason's text is never logged, following `requestRejected`'s rule. A
    reason is always required, so a `reasonGiven` flag would carry nothing.
 
-### The base amount of a past month (subject to open question 2)
+### The base amount of a past month (answered 2026-09-30)
 
 `ContractAmountService.baseAmount(contract, month)` reads **today's** Fleet.
 It counts every currently-Active Postpaid SIM, whenever it joined, and drops
 any SIM retired since without a cancellation date. For the current month that
-is the right number. For last month it is not. As proposed:
+is the right number. For a past month it is not, and nobody can correct it.
+So, as the human answered:
 
-- a sent-back invoice of the **current** billing month has its base amount
-  live, like its Fee lines;
+- a sent-back invoice of the **current** billing month goes fully live: base
+  amount and Fee lines;
 - a sent-back invoice of a **past** billing month keeps the base amount it was
-  sent with, and its Fee lines go live;
-- `toResponse` serves the base amount frozen whenever `snapshotBaseAmount` is
-  set, and live otherwise;
-- the resend's snapshot computes the base amount only when none is kept.
+  sent with; only its Fee lines go live.
 
-The draft view's per-SIM breakdown (`basePostpaidSims`) is shown only when the
-base amount is live.
+One rule in `ClientInvoiceService` implements both, evaluated against the
+current month (UTC) at the moment of the read or the resend:
 
-If the human instead answers "live for any month", steps 4 and the bullets
-above collapse to "always clear, always live", and nothing else in the spec
-changes.
+```
+base amount is live  ⇔  status = DRAFT
+                        ∧ (snapshotBaseAmount is null ∨ billingMonth = current month)
+otherwise            →  snapshotBaseAmount
+```
+
+- `toResponse` serves the base amount by that rule. A never-sent draft has no
+  `snapshotBaseAmount`, so it is live exactly as today. `SENT` and `APPROVED`
+  serve the snapshot exactly as today.
+- The resend's snapshot applies the same rule: it recomputes and overwrites
+  `snapshotBaseAmount` when the base amount is live, and leaves it as it is
+  otherwise.
+- Because the value is never cleared, an invoice sent back in its own month
+  and resent after the month has ended keeps the base amount it was first
+  sent with (story 34). It does not read the new month's Fleet.
+
+The response gains `baseAmountKept` (boolean): true when a `DRAFT` serves its
+kept base amount. The draft view's per-SIM breakdown (`basePostpaidSims`) is
+shown only when the base amount is live. When it is kept, the base amount line
+reads "As sent — a wrong base amount is corrected by the Manager on a later
+invoice" instead of the breakdown.
 
 ### Backend: the Agent reaches an invoice by its id
 
@@ -246,7 +292,7 @@ Tenant-scoped lookup:
 | `GET /api/client-invoices/{id}` | yes | yes (any status) | 403 |
 | `GET …/files`, `GET …/files/{fileId}` | yes | yes | 403 |
 | `POST …/files` (new) | yes | yes, `DRAFT` only (409 otherwise) | 403 |
-| `POST …/send` (new) | 403 | yes, `DRAFT` only (409 otherwise) | 403 |
+| `POST …/send` (new) | 403 | yes, a sent-back `DRAFT` or a current-month `DRAFT` only (409 otherwise) | 403 |
 | `POST …/approve`, `POST …/send-back` | yes | 403 | 403 |
 | `GET …/pdf` | yes | 403 (unchanged; the Agent's PDF stays on the current-month route) | 403 |
 
@@ -258,6 +304,13 @@ unknown or other-Tenant id is `404`. Another Agent's invoice in the same
 Tenant is `403`, the same as the current-month routes' "Not your Contract".
 File attach reuses the current-month route's storage and validation, which
 move into `ClientInvoiceService` with the send.
+
+The by-id send refuses a `DRAFT` that is neither sent back (no `sentBackAt`)
+nor of the current billing month, that is, a past-month draft never sent. It
+answers `409` with the coded body the other conflicts use,
+`{ "code": "PAST_MONTH_DRAFT_NOT_SENDABLE", "message": … }`, carried by a
+`Reason` enum on its conflict exception as `AgentLoginConflictException` and
+`TesterConflictException` do. A non-`DRAFT` stays the plain `409` it is today.
 
 **The sent-back list.** `GET /api/client-invoices/sent-back`, Agent only. It
 returns the caller's own Contracts' sent-back invoices, oldest send-back first,
@@ -272,8 +325,10 @@ to the invoice's own page. A Manager or a Tester gets `403`.
   `sent_back_reason varchar(1000)` on `client_invoices`. This follows
   `Request`'s distinct-reason-column prior art (`cancellation_reason`,
   `rejection_reason`), not a shared reason field. No data is rewritten.
-- **`ClientInvoiceResponse`** gains `sentBackAt` and `sentBackReason`.
-  Both are **null for a Tester caller**, on the current-month read and in the
+- **`ClientInvoiceResponse`** gains `sentBackAt`, `sentBackReason` and
+  `baseAmountKept`. `baseAmountKept` is false except on a `DRAFT` serving its
+  kept base amount, which a Tester can never read. `sentBackAt` and
+  `sentBackReason` are **null for a Tester caller**, on the current-month read and in the
   PDF, which never prints them. The reason is a note from the Manager to the
   Agent, not part of the statement.
 - The reason and `sentBackAt` **stay on the row through the resend**. They are
@@ -287,7 +342,10 @@ to the invoice's own page. A Manager or a Tester gets `403`.
   Invoice detail page, beside Approve, shown only while `SENT`. It follows
   `PendingRequestDecisionControls`' reject flow:
   - a **Send back** trigger expands a small inline form holding a required
-    reason field (a textarea, labelled "Reason for sending back"), **Confirm
+    reason field (a textarea, labelled "Reason for sending back", with the
+    hint "Tell the Agent what is missing. They can attach files and pick up
+    Fees logged during the invoice's month. They cannot change a Fee or the
+    base amount of a past month."), **Confirm
     send back** and **Back**;
   - an empty reason is refused before any request is made;
   - a `409` shows the "no longer awaiting approval — refresh" copy that
@@ -303,6 +361,8 @@ to the invoice's own page. A Manager or a Tester gets `403`.
   - a sent-back draft's status note reads "Sent back to the Agent on
     {date} — waiting for them to resend", followed by the reason in a quoted
     block;
+  - when `baseAmountKept`, the base amount line carries the "As sent" note
+    (see the base amount section);
   - a resent `SENT` invoice shows a quiet line under its timestamps:
     "Previously sent back on {date}: {reason}";
   - Approve stays the one pill, and Send back is a secondary control at the
@@ -326,8 +386,11 @@ to the invoice's own page. A Manager or a Tester gets `403`.
   too.
 - **New page `/agent/client-invoices/{invoiceId}`.** It has a breadcrumb back
   to Client Invoices and renders `AgentClientInvoiceCard`. A sent-back draft
-  gets a warning-toned notice ("Sent back by the Manager on {date}", followed
-  by the reason), live numbers, Attach file and Send. After a successful send
+  gets a warning-toned notice ("Sent back by the Manager on {date}", then the
+  reason, then "Add what is missing, then send it again."), live Fee lines,
+  the base amount live or marked "As sent" per `baseAmountKept`, Attach file
+  and Send. The notice promises no edit: the Agent can add files and pick up
+  Fees of that month, nothing more. After a successful send
   the page refreshes and shows the invoice as sent. Another Agent's id, or an
   unknown id, shows the not-found state.
 - **Badge.** A sent-back draft shows a **Sent back** badge in the `warning`
@@ -388,11 +451,14 @@ Visual goldens:
   on `UNIQUE (client_invoice_id, fee_id)`, and never serves Fee lines from
   the earlier send.
 - A send-back and an approval of the same invoice are serialized by a row
-  lock. No invoice may ever be `APPROVED` with a cleared snapshot.
+  lock. No invoice may ever be `APPROVED` with its Fee snapshot cleared.
 - A send-back reason is required, not blank, and at most 1000 characters. It
   never appears in a log line, the PDF, or any Tester-facing response.
 - From `SENT` onward every read still serves the snapshot (ADR 0001). The
-  only new live read is of a `DRAFT` that was sent back.
+  only new live read is of a `DRAFT` that was sent back: its Fee lines always,
+  its base amount only while its billing month is the current month.
+- A send-back never clears `snapshotBaseAmount`. A past month's base amount is
+  never recomputed from today's Fleet, by a read or by a resend.
 - By-id routes never create an invoice. An unknown or other-Tenant id is
   `404`. Role gates are enforced at the matcher and again in the guard.
 - Backend tests run under `IntegrationTest`: singleton Testcontainers Postgres,
@@ -413,16 +479,22 @@ or component internals.
    404) and `ClientInvoiceApiTest` (current-month send and live/frozen). A new
    `ClientInvoiceSendBackApiTest` covers:
    - send-back of a sent **current-month** invoice → `DRAFT`, live numbers,
-     reason and time returned;
+     `baseAmountKept` false, reason and time returned; a Postpaid SIM added
+     after the send-back moves its base amount;
    - a Fee logged after the first send appears live, and after the resend it
      appears **exactly once** in the frozen Fee lines. Before this feature,
      this resend produced a constraint violation;
    - send-back of a sent **past-month** invoice, written directly by a
      fixture in the way `DemoDataLoader.writePastClientInvoice` does:
-     - its base amount stays as sent even after a Postpaid SIM is added to
-       the Fleet (open question 2);
+     - its base amount stays as sent, with `baseAmountKept` true, even after
+       a Postpaid SIM is added to the Fleet;
      - its Fee lines go live;
-     - the Agent reads it by id, attaches a file and resends it;
+     - the Agent reads it by id, attaches a file and resends it, and the
+       resent snapshot's base amount is still the one first sent;
+     - this fixture is also the month-rollover case (story 34): a `DRAFT`
+       with a kept base amount and a past billing month is exactly the state
+       an invoice sent back in its own month is in once the month ends, so no
+       clock needs faking;
    - the Review Queue excludes the invoice after a send-back and includes it
      after the resend, ordered by the new `sentAt`;
    - send-back of a draft or an approved invoice → `409`, with a blank or
@@ -431,6 +503,10 @@ or component internals.
      with `403`;
    - the other Agent's token, and a Tester, are refused the by-id read, files
      and send with `403`;
+   - the Agent's by-id send of a past-month `DRAFT` that was never sent
+     (written by a fixture) → `409` with code
+     `PAST_MONTH_DRAFT_NOT_SENDABLE`, and the invoice stays `DRAFT` with no
+     snapshot; a current-month draft never sent is accepted;
    - `OtherTenantFixture`'s invoice gives `404` on every route;
    - the Agent gets the sent-back list for their own Contracts only, and a
      Manager or a Tester gets `403`;
@@ -440,7 +516,7 @@ or component internals.
 2. **The race is proven at the same seam, not with mocks.** Two threads send
    back and approve the same invoice. Exactly one wins, the other gets `409`,
    and the final invoice is either `APPROVED` with its full snapshot or
-   `DRAFT` with none. This test commits real transactions, so it cannot use
+   `DRAFT` with no Fee snapshot rows. This test commits real transactions, so it cannot use
    `IntegrationTest`'s rollback. It cleans up its own rows.
 3. **The prefactors are proven by existing suites passing unedited:**
    `ClientInvoiceApiTest`, `ClientInvoiceByIdApiTest`,
@@ -453,10 +529,12 @@ or component internals.
    - the send-back control: expand and Back, an empty reason blocked, `409`
      and generic copy, reason kept on failure, and the success callback;
    - the detail view: Send back only while `SENT`, the sent-back note on a
-     draft, and the "previously sent back" line on a resent invoice;
+     draft, the "As sent" base amount note when `baseAmountKept`, and the
+     "previously sent back" line on a resent invoice;
    - the Agent view: the section is absent when the list is empty, rows and
-     their links when it is not, the **Sent back** badge, and the new
-     send-confirmation copy.
+     their links when it is not, the **Sent back** badge, the notice's "Add
+     what is missing" line, the "As sent" base amount with no per-SIM
+     breakdown when `baseAmountKept`, and the new send-confirmation copy.
 5. **Frontend: one e2e spec, `send-a-client-invoice-back.spec.ts`
    (existing seam).** Prior art: `client-invoice-submission-and-visibility.spec.ts`.
    It plays the journey on a Contract the spec creates itself:
@@ -465,7 +543,8 @@ or component internals.
       with a reason;
    3. the queue no longer lists it;
    4. the Agent sees it under "Sent back to you" with the reason, opens it by
-      id, logs a Fee and resends;
+      id, adds what was missing (logs a Fee of the current month) and
+      resends;
    5. the Manager sees it back in the queue, with the new Fee and the earlier
       reason, and approves it.
 
@@ -477,7 +556,45 @@ or component internals.
 
 ## Decisions taken
 
+### Answered by the human (2026-09-30)
+
+- **Corrections carry forward; send-back is for errors caught before
+  approval.** (Was open question 1, `question-send-back-cannot-correct-a-fee`.)
+  When an invoice turns out wrong after it is sent or approved, the Manager
+  corrects it on the following month's invoice, through the new
+  `invoice-adjustment` feature, out of scope here. There is no
+  `correct-a-fee`: a past month is never reopened to edit or void a Fee.
+  Send-back ships as specified: the Agent adds what was missing (a file, a
+  late Fee of that month) and resends, and the reason says what is wrong.
+- **A past month's base amount stays as sent when sent back; only its Fee
+  lines go live. A current-month invoice goes fully live.** (Was open question
+  2, `question-sent-back-past-month-base-amount`.) Today's Fleet is not that
+  month's Fleet, because SIM membership carries no dates. An error in a past
+  base amount is corrected by the Manager's next-month adjustment. ADR 0004
+  states this rule.
+
 ### Taken alone
+
+- **The kept base amount is never cleared; the billing month decides, at read
+  and at resend, whether it is served.** Clearing it for the current month
+  only would let an invoice sent back on the last day of its month and resent
+  the next day bill that month from the new month's Fleet. Keeping it and
+  deciding by month covers that rollover with one rule, and makes the
+  past-month fixture test the rollover case too, with no clock to fake.
+- **The response carries `baseAmountKept`, and a kept base amount is marked
+  "As sent".** The Agent and the Manager must see which number cannot move,
+  and the note sends a wrong base amount to the Manager's next-month
+  adjustment instead of implying the Agent can fix it.
+- **The by-id send accepts only a sent-back draft or a current-month draft;
+  a past-month draft never sent is refused with `409`
+  `PAST_MONTH_DRAFT_NOT_SENDABLE`.** Such a draft has no kept base amount, so
+  sending it would bill its month from today's Fleet. The Agent could not
+  reach such drafts before this feature, so refusing them takes nothing away.
+- **The send-back hint and the Agent's notice name only what the Agent can
+  do.** The Manager's hint says the Agent can attach files and pick up Fees of
+  that month but cannot change a Fee or a past base amount; the Agent's notice
+  says "Add what is missing, then send it again." Neither promises a
+  correction the Agent cannot make.
 
 - **ADR 0004 is a new record, and ADR 0001 gets a dated "amended by" note.**
   Re-opening a snapshot is a real decision, with a trade-off and context
@@ -487,13 +604,13 @@ or component internals.
 - **The send moves into `ClientInvoiceService` as one transaction.** A second
   send path is added, and today's send is not atomic. One place keeps the
   snapshot rule single.
-- **Send-back clears the snapshot rows; send does not defensively delete
+- **Send-back clears the Fee snapshot rows; send does not defensively delete
   them.** A draft then never carries stale frozen rows, and the constraint
   still catches any path that forgets.
 - **A row lock serializes send-back and approve.** Without it, a race can
-  leave an `APPROVED` invoice whose snapshot was just cleared, and
-  `toResponse` would fail on a null base amount. A lock is cheaper than adding
-  a version column to every write.
+  leave an `APPROVED` invoice whose Fee snapshot rows were just deleted, so
+  its final record would list no Fees. A lock is cheaper than adding a
+  version column to every write.
 - **`sentAt` is cleared on a send-back and set again at the resend.** A draft
   has not been sent. The Review Queue then waits from the resend, which is
   when the wait on the Manager restarts.
@@ -548,30 +665,7 @@ or component internals.
 
 ## Open questions
 
-1. **(case 3, intention against code) What can an Agent actually correct on a
-   sent-back invoice?** The epic's proof has the Agent "correct a Fee", but no
-   Fee can be edited or removed. A new Fee always counts toward the month it
-   is logged in, so nothing can be added to last month's invoice, which is the
-   normal case. What a resend can pick up is:
-   - Fees of that month logged after the first send;
-   - new Carrier Invoice Files;
-   - for the current month only, Fleet changes.
-
-   **Recommendation:** ship send-back as specified, and add a feature
-   `correct-a-fee` to the epic before `send-an-agent-invoice-back`: log a Fee
-   into a sent-back invoice's month, and void a wrong Fee.
-   **Reason:** both change what the Agent Invoice reimburses (ADR 0002 reads
-   Fees by month), so they are their own product decision, and the send-back
-   mechanism is needed whatever that decision is.
-2. **(case 3) Should last month's base amount go live again when its invoice
-   is sent back?** Going live means reading **today's** Fleet. That would bill
-   last month for Postpaid SIMs added since, and drop SIMs retired since,
-   while the Agent has no way to fix it.
-   **Recommendation:** keep a past month's base amount as it was sent, and
-   make only its Fee lines live. The current month goes fully live.
-   **Reason:** the Fleet's history is not recorded, so a live past base amount
-   is wrong rather than corrected. The settled "numbers go live again" still
-   holds wherever the live number is right.
+None
 
 ## Acceptance walkthrough
 
@@ -583,23 +677,23 @@ or component internals.
 6. [agent] Call send-back with the Agent's and a Tester's token and show `403`. Call the by-id read, files and send with another Agent's token and show `403`. Call every by-id route on `OtherTenantFixture`'s invoice and show `404`. (stories: 22, 28, 29)
 7. [agent] As a Tester of the Contract's Client, read the current-month invoice while it is sent back and show `403`. Read it after the resend and show `200` with `sentBackReason` null, and download the PDF and show it carries no reason. (stories: 23, 24)
 8. [agent] Grep the backend log for step 1 and show one `action=STATUS_CHANGE` audit line for `ClientInvoice` from `SENT` to `DRAFT`, with the Manager as actor and the Tenant id, and no reason text anywhere in the log. (stories: 27)
-9. [agent] On the demo stack, pick a past-month `SENT` Client Invoice and add a Postpaid SIM to its Contract. Send the invoice back as the Manager. As its Agent, `GET /api/client-invoices/sent-back` and show it listed with its reason. Read it by id and show the base amount unchanged from what was sent while the Fee lines are live. Attach a file by id, resend, and show `SENT` with that file. (stories: 6, 13, 14, 15, 17, 18)
+9. [agent] On the demo stack, pick a past-month `SENT` Client Invoice, note its base amount, and add a Postpaid SIM to its Contract. Send the invoice back as the Manager. As its Agent, `GET /api/client-invoices/sent-back` and show it listed with its reason. Read it by id and show the base amount equal to the noted one with `baseAmountKept: true`, while the Fee lines are live. Attach a file by id, resend, and show `SENT` with that file and the base amount still equal to the noted one. Run the past-month case of `ClientInvoiceSendBackApiTest`, which is also the month-rollover state, and show it green. (stories: 6, 13, 14, 15, 17, 18, 33, 34)
 10. [agent] Show the Agent Invoice for that Agent and month reads the same before and after the send-back and the resend. (stories: 30)
 11. [agent] In a browser as the Manager, open a sent Client Invoice from the Review Queue. Show **Send back** beside **Approve**, which stays the only pill. Expand Send back, submit empty, and show it is refused inline with the form still open. Enter a reason and confirm, then show the page re-render in place as a draft with the reason and no actions. Go back to the queue and the Dashboard and show the invoice is on neither. (stories: 1, 3, 4, 5, 7)
 12. [agent] In a second tab, approve a sent invoice. In the first tab, still showing it as sent, try to send it back and show the "refresh" message. (stories: 8)
-13. [agent] Sign in as the Agent and open Client Invoices. Show "Sent back to you" listing the invoice with its Contract, month, date and reason, and the current month's card showing the reason and a **Sent back** badge. Open the row and show the by-id page with the notice, live numbers, Attach file and Send. (stories: 13, 14, 15, 16, 21)
-14. [agent] On that page, log a Fee on the Contract, reload, and show it among the live Fee lines. Click Send and show the confirmation says only the Manager can send it back. Confirm, and show the invoice as sent and gone from "Sent back to you". (stories: 16, 18, 19, 20)
+13. [agent] Sign in as the Agent and open Client Invoices. Show "Sent back to you" listing the invoice with its Contract, month, date and reason, and the current month's card showing the reason and a **Sent back** badge. Open the row and show the by-id page with the notice ending "Add what is missing, then send it again.", live numbers, Attach file and Send. (stories: 13, 14, 15, 16, 21)
+14. [agent] On that page, add what was missing: log a Fee of the current month on the Contract, reload, and show it among the live Fee lines. Click Send and show the confirmation says only the Manager can send it back. Confirm, and show the invoice as sent and gone from "Sent back to you". (stories: 16, 18, 19, 20)
 15. [agent] As the Manager, show the invoice back in the Review Queue. Open it and show the new Fee and "Previously sent back on …: {reason}". Approve it. (stories: 9, 10, 11)
-16. [agent] As an Agent with nothing sent back, show the Client Invoices page has no "Sent back to you" section. Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green, with `ClientInvoiceApiTest`, `ClientInvoiceByIdApiTest` and the two existing invoice e2e specs unedited, and no golden moved. (stories: 31)
-17. [agent] Do the Manager's send-back and the Agent's open-and-resend by keyboard alone, showing a visible focus ring at each stop. Repeat at the mobile breakpoint and show the reason form, the sent-back table and the by-id page usable within the viewport. (stories: 32)
-18. [human] Send back a real invoice with the reason you would really write, then read it as the Agent would. Confirm the wording tells the Agent what happened and what to do, and that nothing tells the Tester. (stories: 2, 14, 23)
-19. [human] Read ADR 0004 and ADR 0001's note, and confirm they say what you settled: a sent-back invoice goes live again, `approved` stays final, and the freeze still protects every number while it is under review. (stories: 4, 11)
-20. [human] Try to correct a real mistake on a sent-back last-month invoice, and confirm the answers you gave to open questions 1 and 2 leave the Agent able to do what you expect. (stories: 15, 16, 18)
+16. [agent] In a browser, as the Manager, open another past-month `SENT` demo invoice, expand Send back and show the form's hint saying the Agent cannot change a Fee or a past base amount, then send it back and show the base amount marked "As sent" with no per-SIM breakdown. As its Agent, open it by id and show the same "As sent" base amount and live Fee lines. (stories: 2, 16, 33)
+17. [agent] As an Agent with nothing sent back, show the Client Invoices page has no "Sent back to you" section. Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green, with `ClientInvoiceApiTest`, `ClientInvoiceByIdApiTest` and the two existing invoice e2e specs unedited, and no golden moved. (stories: 31)
+18. [agent] Do the Manager's send-back and the Agent's open-and-resend by keyboard alone, showing a visible focus ring at each stop. Repeat at the mobile breakpoint and show the reason form, the sent-back table and the by-id page usable within the viewport. (stories: 32)
+19. [human] Send back a real invoice with the reason you would really write, then read it as the Agent would. Confirm the wording tells the Agent what happened and what to do, and that nothing tells the Tester. (stories: 2, 14, 23)
+20. [human] Read ADR 0004 and ADR 0001's note, and confirm they say what you settled: a sent-back invoice's Fee lines go live again; its base amount goes live only in its own month and otherwise stays as sent; `approved` stays final; the freeze still protects every number while it is under review; and a wrong amount found later is corrected on the next month's invoice, never by reopening a past month. (stories: 4, 11, 33)
+21. [human] Send back a real last-month invoice that is missing something the Agent can supply (a Carrier Invoice File, or a Fee logged late in that month), then as the Agent add it and resend. Confirm this is how you want errors caught before approval handled, that the base amount stayed as sent, and that nothing on either screen suggests the Agent can change a Fee. (stories: 14, 15, 16, 17, 18, 33)
 
 ## Execution order
 
-The order is final only once `## Open questions` is resolved. There are three
-slices. Ticket 1 is an enabler. Tickets 2 and 3 are complete vertical paths,
+There are three slices. Ticket 1 is an enabler. Tickets 2 and 3 are complete vertical paths,
 each demoable on its own.
 
 1. `send-client-invoice-in-one-transaction`. Labels: `enabler`, `backend`.
@@ -609,20 +703,28 @@ each demoable on its own.
    - The existing suites pass unedited.
 2. `manager-sends-a-client-invoice-back`. Labels: `backend`, `frontend`.
    Depends on `send-client-invoice-in-one-transaction`. (stories: 1, 2, 3, 4,
-   5, 6, 7, 8, 10, 11, 12, 23, 25, 26, 27, 28, 29, 30, 31, 32)
+   5, 6, 7, 8, 10, 11, 12, 23, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34)
    - Backend: the migration, the `SENT → DRAFT` edge, the send-back endpoint
-     with the row lock (approve too), snapshot clearing and the past-month
-     base rule, the response fields and their omission for Testers, and the
-     audit line.
-   - Records: ADR 0004 and ADR 0001's note.
-   - Frontend: the Manager's inline control and the detail-view states.
+     with the row lock (approve too), deleting the Fee snapshot rows while
+     keeping `snapshotBaseAmount`, the base amount rule in `toResponse` and in
+     the snapshot (live only in the invoice's own month), the response fields
+     (`baseAmountKept` included) and their omission for Testers, and the audit
+     line.
+   - Records: ADR 0004, stating the base amount rule precisely, and ADR
+     0001's note.
+   - Frontend: the Manager's inline control with its hint, and the
+     detail-view states, including the "As sent" base amount.
    - Tests: API and race tests, and component tests.
 3. `agent-resends-a-sent-back-client-invoice`. Labels: `backend`, `frontend`.
    Depends on `manager-sends-a-client-invoice-back`. (stories: 9, 13, 14, 15,
-   16, 17, 18, 19, 20, 21, 22, 24, 25, 32)
+   16, 17, 18, 19, 20, 21, 22, 24, 25, 32, 33, 34)
    - Backend: the Agent's by-id read, files, attach and send routes with their
-     matcher changes, and the sent-back list endpoint.
+     matcher changes (the resend keeps a past month's base amount), and the
+     sent-back list endpoint.
+   - Backend: the by-id send refuses a past-month draft never sent with `409`
+     `PAST_MONTH_DRAFT_NOT_SENDABLE`.
    - Frontend: the extracted Agent card and by-id controls, the "Sent back to
-     you" section, the by-id Agent page, the badge, the copy change and the
-     BFF proxies.
+     you" section, the by-id Agent page with its "Add what is missing" notice
+     and "As sent" base amount, the badge, the copy change and the BFF
+     proxies.
    - Tests: API tests and component tests, plus the e2e spec.

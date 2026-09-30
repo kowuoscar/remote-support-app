@@ -490,12 +490,11 @@ fresh database, seeded by `DemoDataLoader`), never the user's compose stack.
 
 ## Execution order
 
-Provisional until the spec is approved. Three slices, each a complete path and
-demoable on its own; each extends the stub backend for what it wires and
-recaptures the four `agent-*` goldens.
+Four slices in a line, each a complete path and demoable on its own; the
+dashboard slices extend the stub backend for what they wire and recapture the
+four `agent-*` goldens, so they cannot run in parallel.
 
-1. `agent-dashboard-identity-and-standing-amounts` — `GET /api/me/agent` with its integration tests; the page's real header, viewer chip and not-linked state; the standing salary and advance card; the null-on-failure loader; `AgentDashboardStats` off `useSimulatedLoad` and off `@/lib/demo/types`, with its component tests; the `agent` visual surface moved onto `visual-agent-session`. (stories: 1, 2, 9, 10, 11, 16, 17, 19, 21)
-2. `agent-dashboard-invoice-figures` — Local Support Fees and My Invoice status from this month's Agent Invoice, with the month label, the Draft/sent meta and the unavailable state. Depends on `agent-dashboard-identity-and-standing-amounts`. (stories: 3, 4, 5, 6, 8, 20)
-3. `agent-dashboard-requests` — Open Requests and Recent Requests from the Agent's Contracts, ordered by `createdAt`, with the empty and unavailable states and one clock per render; stub fixtures with relative dates; `frontend/lib/demo/agent.ts` deleted; the e2e spec. Depends on `agent-dashboard-identity-and-standing-amounts`. (stories: 7, 12, 13, 14, 15, 18, 22, 23, 24)
-
-Tickets 2 and 3 are independent of each other and may run in parallel after 1.
+1. `agent-own-record-read` — `GET /api/me/agent` with its integration tests. (stories: 21)
+2. `agent-dashboard-identity-and-standing-amounts` — the page's real header, viewer chip, not-linked and failure states; the standing salary and advance card; the null-on-failure loader; `AgentDashboardStats` off `useSimulatedLoad` and off `@/lib/demo/types`, with its component tests; the `agent` visual surface moved onto `visual-agent-session`. Depends on `agent-own-record-read`. (stories: 1, 2, 9, 10, 11, 16, 17, 19)
+3. `agent-dashboard-invoice-figures` — Local Support Fees and My Invoice status from this month's Agent Invoice, with the month label, the Draft/sent meta and the unavailable state; the e2e spec's invoice cases. Depends on `agent-dashboard-identity-and-standing-amounts`. (stories: 3, 4, 5, 6, 8, 20)
+4. `agent-dashboard-requests` — Open Requests and Recent Requests from the Agent's Contracts, ordered by `createdAt`, with the empty and unavailable states and one clock per render; stub fixtures with relative dates; `frontend/lib/demo/agent.ts` deleted. Depends on `agent-dashboard-invoice-figures`, because the page's imports of `currentMonthLabel`, `myAgentInvoices` and `runningLocalSupportFees` from that file go in slice 3. (stories: 7, 12, 13, 14, 15, 18, 22, 23, 24)

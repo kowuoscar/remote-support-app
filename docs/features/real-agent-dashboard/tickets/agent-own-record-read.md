@@ -1,7 +1,7 @@
 ---
 id: agent-own-record-read
 title: Let an Agent read their own record and standing amounts
-status: in-progress
+status: done
 depends_on: []
 labels: [backend]
 stories: [21]

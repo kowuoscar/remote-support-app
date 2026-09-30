@@ -1,7 +1,7 @@
 ---
 id: agent-dashboard-identity-and-standing-amounts
 title: Show the signed-in Agent their own name, country and standing amounts on the dashboard
-status: ready-for-agent
+status: in-progress
 depends_on: [agent-own-record-read]
 labels: [frontend]
 stories: [1, 2, 9, 10, 11, 16, 17, 19]

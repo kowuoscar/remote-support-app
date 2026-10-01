@@ -1,7 +1,7 @@
 ---
 id: reset-an-agents-password-api
 title: Let a Manager reset an Agent's password through the API
-status: ready-for-agent
+status: in-progress
 depends_on: [new-logins-generate-password-api]
 labels: [backend]
 stories: [1, 3, 8, 15, 16, 18, 20, 21, 22, 23, 24, 25]

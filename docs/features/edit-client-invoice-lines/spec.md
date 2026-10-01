@@ -29,6 +29,14 @@ agent can edit each line as even if postpaid is defined monthly, depending on
 client usage it can go up and the agent needs to edit it." The computation
 only **pre-fills** the lines; the Agent enters what was actually billed.
 
+The Agent fronts those carrier bills, so the Agent's own pay has to follow
+the billed figure too. The human settled that the same day
+(`docs/inbox/question-edit-lines-agent-pay.md` `## Answer`): "If an edit
+occur before approval it should update the agent own monthly pay otherwise
+its a carry-over." Today the Agent Invoice's Local Support Fees read the
+Fleet and Fees directly and never a Client Invoice (ADR 0002), so an edit
+would never reach the Agent's pay. This feature amends that.
+
 There is a second reason to build this now. `send-a-client-invoice-back`
 returns a sent invoice to draft, and the human said "if an invoice is sent
 back, nothing refreshes but its just editables". That works only if a sent
@@ -45,14 +53,17 @@ Advances `docs/roadmap/invoice-correction-and-history.md`. It is now the
 - **Bill the Client for the month** (`exists`, stays `exists`). The draft
   still drafts itself from the base amount and the month's Fees. The Agent can
   now adjust any line before sending. The numbers still freeze at send.
+- **Get the Agent paid for the month** (`exists`, stays `exists`, changed).
+  Local Support Fees now follow the amounts billed on each Contract's Client
+  Invoice, so an edit made before that Client Invoice is approved reaches the
+  Agent's pay for the month.
 - **Send an invoice back for correction** (`wanted`, stays `wanted`). Nothing
   of the send-back is built here. This feature makes "a sent-back draft keeps
   the numbers it was sent with, and the Agent edits them" possible without a
-  second data model.
+  second data model, and an edit made there reaches the Agent's pay by the
+  same rule.
 - **Work through what is waiting** (`exists`, stays `exists`). The Review
   Queue's totals come from the stored lines, so they show the edited total.
-- **Get the Agent paid for the month** (`exists`, untouched, if open question
-  1 is answered as recommended).
 
 ## Goals / Non-goals
 
@@ -63,15 +74,20 @@ Advances `docs/roadmap/invoice-correction-and-history.md`. It is now the
 - Lines start pre-filled from the computation. On a draft that has never been
   sent, lines the Agent has not touched keep following the Fleet and Fees, and
   a new Postpaid SIM or a new Fee appears as a new pre-filled line. A line the
-  Agent edited keeps the Agent's amount.
+  Agent edited keeps the Agent's amount until the Agent resets it.
 - An edited line shows that it was edited and what the computation gave. The
   Agent can reset it.
 - Sending freezes every line, edited or not, as the invoice's own stored
-  lines. From then on every read serves those lines.
+  lines. From then on every read serves those lines, and nothing recalculates.
 - Every Client Invoice already sent or approved before this change reads
   exactly as it does today.
-- The Manager sees which lines were edited, and by how much, before
-  approving. The Tester and the PDF see only the billed amounts.
+- The Agent and the Manager see which lines were edited, and by how much. The
+  Tester and the PDF see only the billed amounts.
+- The Agent's Local Support Fees follow each Client Invoice's billed amounts
+  until that Client Invoice is approved. Approval makes them final for that
+  month's pay.
+- For a month in which nobody edits a line, Local Support Fees read what they
+  read today.
 
 **Non-goals.** Each of these is something a reasonable agent would otherwise
 build.
@@ -79,23 +95,30 @@ build.
 - **No send-back.** No `SENT → DRAFT` edge, no reason, no by-id Agent routes.
   That is `send-a-client-invoice-back`, which is being revised to build on
   this. This feature only makes its data model natural.
+- **No carry-over.** A correction after a Client Invoice is approved, or after
+  the Agent Invoice is approved, does not reach a later month's pay here. That
+  is `invoice-adjustment`'s. This feature only guarantees that an approved
+  invoice's figures do not move.
 - **No editing a Fee.** The Fee keeps its amount, description, month and
-  Request. The Fee list, the Request's view and the Agent Invoice keep showing
-  the Fee as logged. Only the invoice's own copy of the line changes.
+  Request. The Fee list and the Request's view keep showing the Fee as logged.
+  Only the invoice's own copy of the line changes.
 - **No editing a line's description, Fee type or SIM.** Only the amount.
 - **No adding a free-form line, and no deleting a line.** A new charge is
   logged as a Fee, so it still traces to a Request. A line that should bill
   nothing is set to zero.
 - **No negative amount, no credit, no discount line.** Correcting an amount
   after sending or approval is the Manager's `invoice-adjustment`.
-- **No Manager edit.** The Manager reviews and approves. The Agent Invoice
-  override (ADR 0003) is unrelated and unchanged.
-- **No editing a sent or approved invoice.** ADR 0001's freeze holds from
-  `sent` onward.
-- **No change to the Agent Invoice** and its Local Support Fees (ADR 0002),
-  if open question 1 is answered as recommended.
-- **No reason or note on an edit**, if open question 4 is answered as
-  recommended.
+- **No Manager edit of a Client Invoice line.** The Manager reviews and
+  approves. The Manager's Agent Invoice override (ADR 0003) is unchanged and
+  still covers only Salary and the new-advance line.
+- **No editing a sent or approved Client Invoice.** ADR 0001's freeze holds
+  from `sent` onward.
+- **No new line, column or breakdown on the Agent Invoice.** Local Support
+  Fees stays one figure; only how it is computed changes.
+- **No gate between the two invoices.** The Agent may still send the Agent
+  Invoice before the Client Invoices, and the Manager may approve them in any
+  order.
+- **No reason or note on an edit** (the human's answer).
 - **No history of a line's edits** beyond the audit log. A line keeps its
   current amount and its computed amount.
 - **No change to the Tester's page layout or the PDF layout.** Both show the
@@ -114,12 +137,12 @@ build.
 6. As an Agent, I want to reset an edited line to its computed amount, so that I can undo a mistake in one step.
 7. As an Agent, I want to be able to set a line to zero, and to be refused a negative, blank or over-precise amount with an inline message that keeps what I typed, so that I fix the input rather than start again.
 8. As an Agent working on a draft not yet sent, I want a Postpaid SIM added or a Fee logged after my edits to appear as a new pre-filled line, and the lines I have not touched to keep following the Fleet and Fees, so that nothing is left off.
-9. As an Agent, I want a line I edited to keep my amount when the Fleet or the Fees change afterwards, so that my correction is never silently overwritten.
-10. As an Agent, I want sending to freeze exactly the lines and amounts I see, edited or not, so that the Manager reviews what I prepared.
+9. As an Agent, I want a line I edited to keep my amount when the Fleet or the Fees change afterwards, until I reset it, so that my correction is never silently overwritten.
+10. As an Agent, I want sending to freeze exactly the lines and amounts I see, edited or not, and nothing to recalculate afterwards, so that the Manager reviews what I prepared.
 11. As an Agent, I want no edit controls on a sent or approved invoice, and an edit from a stale page refused with a message telling me to refresh, so that a figure under review never moves.
 12. As an Agent, I want to edit a line without having to write a reason, so that correcting a figure from the carrier's bill stays quick; the attached Carrier Invoice File is the evidence.
 13. As an Agent, I want my edits to leave the Fee itself unchanged, in the Fee list and on its Request, so that the record of what I logged stays true.
-14. As an Agent, I want my Agent Invoice's Local Support Fees to be unaffected by my edits, and the draft to tell me so, so that I am not surprised that my own pay follows the Fleet and Fees, not the Client Invoice.
+14. As an Agent whose Agent Invoice for the month is still a draft, I want its Local Support Fees to follow the amounts I bill on each Client Invoice, edits included, and the Client Invoice draft to tell me so, so that I am reimbursed what the carrier really charged.
 15. As the company, I want only the Contract's own Agent able to edit its Client Invoice's lines, with a Manager, a Tester or another Agent refused, and another Tenant's invoice treated as not existing, so that the invoice stays the Agent's to prepare and the Tenant boundary holds.
 16. As a Company Manager, I want a sent invoice's detail page to show each line's billed amount and, for an edited line, that it was edited and the computed amount, so that I can judge the edit before approving.
 17. As a Company Manager, I want a sent invoice's base amount broken down per Postpaid SIM, so that I can see which SIM's bill went up.
@@ -131,6 +154,13 @@ build.
 23. As everyone already using the product, I want an invoice whose lines nobody edited to behave exactly as today, in the draft, the send, the totals, the Review Queue and the PDF, so that this change carries no release risk.
 24. As an Agent or a Manager working by keyboard or on a phone, I want editing, resetting and reading edited lines usable without a mouse and at the mobile breakpoint, so that the work is possible wherever I am.
 25. As an Agent, I want a sent invoice to keep its own lines, so that if it ever comes back to me as a draft I edit the numbers I sent, not a fresh computation.
+26. As an Agent, I want sending my Agent Invoice to freeze Local Support Fees from the amounts billed on my Client Invoices at that moment, edits included, so that what I send is what I was really charged.
+27. As an Agent whose Agent Invoice is already sent but not yet approved, I want a later edit to one of that month's Client Invoices to move its Local Support Fees by exactly the edit's difference, so that an edit made before approval still reaches my pay (pending open question 1).
+28. As an Agent, I want a Fee logged, or a Postpaid SIM added, after a Client Invoice was sent still to count in my Local Support Fees for that month at its computed amount, so that money I fronted is not left out of my pay (pending open question 2).
+29. As the company, I want an approved Client Invoice's billed amounts to be final for that month's Local Support Fees, and an approved or paid Agent Invoice never to move because of a Client Invoice, so that approved pay stays approved; any later correction is a carry-over for `invoice-adjustment`.
+30. As the company, I want every change an edit makes to a sent Agent Invoice recorded as an audit line naming the Agent Invoice, the Client Invoice, and the old and new Local Support Fees, so that a moved pay figure can be traced.
+31. As the company, I want an edit racing a send or an approval of the Agent Invoice to leave its Local Support Fees equal to what the rule gives, never losing or double-counting the edit, so that pay is right whatever the order.
+32. As everyone already using the product, I want Local Support Fees for a month in which nobody edited a line to read as they do today, apart from the one edge named under Constraints, so that the pay change carries no surprise.
 
 ## Solution
 
@@ -196,7 +226,88 @@ writes rows for an invoice whose `linesStored` is false. No membership table
 has to be emptied, and no unique constraint can trip.
 
 The totals: base amount = the sum of the `POSTPAID_SIM` and `BASE_AMOUNT`
-lines; Fees total = the sum of the `FEE` lines; total = both.
+lines; Fees total = the sum of the `FEE` lines; total = both. This total is
+the invoice's **billed total**.
+
+### Local Support Fees: the new rule (amends ADR 0002)
+
+Local Support Fees stay a sum over the Agent's Contracts for the month. What
+changes is each Contract's term:
+
+```
+contractTerm(contract, month):
+  invoice = the Client Invoice for (contract, month), if one exists
+
+  no invoice                          → computation (ContractAmountService, as today)
+  invoice, linesStored = false        → its billed total
+                                         (the computation with the Agent's edits;
+                                          equal to the computation when nothing is edited)
+  invoice, linesStored = true         → its billed total
+                                         + the computed amount of every Fee of that month
+                                           with no FEE line on it
+                                         + unless it has a BASE_AMOUNT line, the computed
+                                           amount of every Postpaid SIM billing that month
+                                           with no POSTPAID_SIM line on it
+```
+
+In words: **every line the Client Invoice bills, at its billed amount, plus
+anything of that month the Client Invoice does not bill, at its computed
+amount.** The second part is what open question 2 asks. It keeps what ADR
+0002 protects: a Fee the Agent fronted after the Client Invoice went out
+still reaches their pay that month. If the human answers no, the second and
+third terms go, and the rule is "the billed total when one exists".
+
+The status of the Client Invoice decides nothing extra. An approved invoice
+cannot be edited, so its billed amounts are final, which is "approval makes
+them final" by construction. A later correction is `invoice-adjustment`'s
+carry-over.
+
+The rule lives in one place: a new `ContractAmountService` operation, "a
+Contract's payable amount for a month", which reuses the line resolution
+`ClientInvoiceService` uses for reads, so the Client Invoice and the pay can
+never resolve a line two ways. `AgentInvoiceService.computeLocalSupportFees`
+calls it instead of `totalForMonth`. `totalForMonth` stays: it is still the
+computation the Client Invoice pre-fills from.
+
+### Local Support Fees across the Agent Invoice's lifecycle
+
+| Agent Invoice | When a Client Invoice line of that month is edited |
+|---|---|
+| `DRAFT` | Nothing is written. The draft computes live, so it reads the new figure on its next read. |
+| `SENT` | Its frozen Local Support Fees move by exactly the edit's difference (new billed amount − old billed amount), in the edit's transaction, with an audit line. Pending open question 1. |
+| `APPROVED`, `PAID` | Nothing moves. The difference is a carry-over for `invoice-adjustment`. |
+
+- **Sending the Agent Invoice** (ADR 0003's snapshot) freezes Local Support
+  Fees from the new rule at that moment. Salary and the Rollout Advance lines
+  are unchanged.
+- **The difference, not a recomputation.** Moving a sent Agent Invoice by the
+  edit's difference changes only what the edit changed. A Fee logged after the
+  Agent Invoice was sent does not slip in, which keeps ADR 0003's freeze for
+  everything but the edit.
+- **Which Agent Invoice.** The one of the Contract's Agent for the Client
+  Invoice's billing month, if it exists. None yet: nothing to do; it computes
+  live when created.
+- **The Manager's override** never touches Local Support Fees, so the two
+  never write the same column.
+- **A sent-back Client Invoice** (`send-a-client-invoice-back`) edited later
+  follows the same table, because the edit goes through the same
+  `editLine`.
+
+**Locks, so no edit is lost or counted twice.** `AgentInvoiceRepository`
+gains a locking finder. Send, approve, mark-paid and override of an Agent
+Invoice re-read it under that lock. `editLine` takes the Client Invoice's row
+lock first, writes the line, then takes the Agent Invoice's lock, always,
+even when the Agent Invoice is `DRAFT`, and holds both to commit. So:
+
+- edit before an Agent Invoice send: the send waits, then computes from the
+  committed edit;
+- send before the edit: the edit sees `SENT` and applies the difference;
+- edit against an approve: the edit either applies the difference before the
+  approval, or sees `APPROVED` and moves nothing; the approve's write cannot
+  overwrite the moved figure with a stale one.
+
+The lock order is always Client Invoice, then Agent Invoice, and no Agent
+Invoice operation takes a Client Invoice lock, so the two cannot deadlock.
 
 ### Migration (hard to undo; stated precisely)
 
@@ -214,6 +325,9 @@ One Flyway migration, the next free version at merge (`V56` on `main` today;
 4. Existing `DRAFT` invoices get no rows. They keep computing live, exactly as
    now, because nobody has edited them yet.
 
+No Agent Invoice row is touched. A sent, approved or paid Agent Invoice keeps
+its snapshot.
+
 Nothing is deleted or rewritten. `snapshot_base_amount` and
 `client_invoice_fee_snapshots` keep their data, and new code stops writing and
 reading them. Because Fees never change, each backfilled invoice reads the same
@@ -222,30 +336,45 @@ difference is that its base amount has no per-SIM breakdown, which it never
 had once sent.
 
 What makes it hard to undo: after the first edit, the stored lines are the
-only record of what an invoice billed. Going back to the old model would lose
-every edited amount. That is the feature itself, which the human asked for.
+only record of what an invoice billed, and Agent Invoices sent afterwards
+freeze pay from them. Going back to the old model would lose every edited
+amount. That is the feature itself, which the human asked for and approved.
 Recorded in a new ADR, below.
 
 ### ADR
 
-**A new ADR, "A Client Invoice holds its own lines, editable while draft"**
-(the next number at merge, `0004` on `main` today; the send-back ADR takes
-the number after). It records:
+**A new ADR, "A Client Invoice holds its own lines, editable while draft, and
+the Agent's pay follows them until approval"** (the next number at merge,
+`0004` on `main` today; the send-back ADR takes the number after). It records:
 
 - the lines model and `linesStored`, and that the computation only pre-fills;
 - that ADR 0001's reason still holds: from `sent` onward no figure moves. The
   freeze now stores lines with amounts, not Fee membership, because an
   invoice's amount can now differ from its Fee's;
-- that an edited line keeps the Agent's amount, while untouched lines of a
-  never-sent draft follow the computation;
-- that the Agent Invoice still reads the computation (ADR 0002), so the two can
-  differ by an edit, by design.
+- that an edited line keeps the Agent's amount until reset, while untouched
+  lines of a never-sent draft follow the computation;
+- the Local Support Fees rule above, its lifecycle table, and the human's
+  words it follows ("If an edit occur before approval it should update the
+  agent own monthly pay otherwise its a carry-over");
+- why ADR 0002's reason survives: anything the Client Invoice does not bill
+  still counts at its computed amount (as answered to open question 2), so a
+  fronted Fee is never dropped;
+- the alternatives: keeping ADR 0002 as it was (rejected by the human);
+  "billed total only" (drops Fees logged after send, the case ADR 0002 was
+  written for); recomputing a sent Agent Invoice instead of moving it by the
+  difference (would let later Fees in, breaking ADR 0003's freeze); blocking
+  the Agent Invoice's send until the Client Invoices are approved (couples the
+  two documents' timing; not asked for).
 
 ADR 0001 gets a dated note: "Amended by ADR 0004: a draft's lines are
 pre-filled by the computation and editable by the Agent; the snapshot at send
-stores lines, not Fee membership." ADR 0002 gets a dated note: "Client Invoice
-lines are editable (ADR 0004). Local Support Fees still read the Fleet and
-Fees, so an edit to a Client Invoice does not change the Agent's pay."
+stores lines, not Fee membership." ADR 0002 gets a dated note: "Amended by
+ADR 0004: Local Support Fees now take each Contract's billed Client Invoice
+amounts, plus anything that invoice does not bill at its computed amount; a
+sent Agent Invoice moves by the difference of a later edit until it is
+approved." ADR 0003 gets a dated note: "Amended by ADR 0004: a sent Agent
+Invoice's Local Support Fees move by the difference of a Client Invoice edit
+until the Agent Invoice is approved; nothing else of the freeze changes."
 
 ### Prefactoring: one send, in the service, in one transaction
 
@@ -257,6 +386,10 @@ re-reads the invoice under a row lock (a locking finder on
 `ClientInvoiceRepository`), so a concurrent edit waits for it and then sees
 `SENT`. This was the first ticket of `send-a-client-invoice-back`; it moves
 here, and that spec drops it.
+
+The Agent Invoice's send, approve, mark-paid and override become
+`@Transactional` and re-read under the new Agent Invoice lock, in the pay
+ticket.
 
 ### Backend: reading lines
 
@@ -310,7 +443,12 @@ current-month route (the only way an Agent reaches an invoice today). Body:
 5. sets `editedAt`/`editedBy` (cleared on a reset);
 6. writes `AuditLog.clientInvoiceLineEdited(invoiceId, kind, sourceId,
    oldAmount, newAmount, actor, tenant)`, following
-   `agentInvoiceOverridden`'s shape.
+   `agentInvoiceOverridden`'s shape;
+7. hands the difference to the Agent Invoice (added by the pay ticket):
+   `AgentInvoiceService` locks the Agent's invoice for that month and, if it
+   is `SENT`, adds the difference to its Local Support Fees and writes
+   `AuditLog.agentInvoiceLocalSupportFeesFollowed(agentInvoiceId,
+   clientInvoiceId, oldAmount, newAmount, actor, tenant)`.
 
 Access goes through `ClientInvoiceAccessGuard`, the check the current-month
 send already uses. An unknown Contract or another Tenant's is `404`, as today.
@@ -331,19 +469,21 @@ send already uses. An unknown Contract or another Tenant's is `404`, as today.
   shows "This invoice was sent. Refresh to see it." Anything else shows a
   generic retry message.
 - One hint line on the draft, beneath the totals: "You can adjust any line to
-  what was actually billed. Your Agent Invoice is still computed from your
-  Fleet and Fees."
+  what was actually billed. Your Agent Invoice for this month follows these
+  amounts, unless it is already approved."
 - Sent and approved invoices show no Edit or Reset. They show the "Edited ·
   computed" line on edited lines, as the Manager sees them.
 - **BFF:** one pass-through proxy for the new route, in the shape every other
   proxy has, using `backendFetch`. `lib/api/types.ts` gains the new fields.
+- The Agent Invoice page is unchanged: it shows the Local Support Fees figure
+  the backend gives it.
 
 ### Frontend: Manager
 
 `ClientInvoiceDetailView` shows the per-SIM base lines when the invoice has
 them, and the "Edited · computed {amount}" line under each edited line. The
-Review Queue and the Pending approvals card need no change: they render the
-totals the backend gives them.
+Review Queue, the Pending approvals card and the Agent Invoice detail page
+need no change: they render the totals the backend gives them.
 
 ### Tester
 
@@ -353,11 +493,13 @@ a Tester no edit markers.
 
 ### Untouched, and why that is correct
 
-- **Agent Invoice.** `ContractAmountService.totalForMonth` reads `sim_cards`
-  and `fees`, never a Client Invoice (ADR 0002). An edit moves nothing there.
 - **Fees.** No Fee row is written. `FeeResponse` and the Fee list are as they
   were.
 - **Get-or-create.** Creating a draft writes no lines.
+- **Salary and the Rollout Advance lines** of the Agent Invoice, and the
+  Manager's override of them.
+- **The Agent Invoice's columns.** Local Support Fees keeps its one snapshot
+  column; no migration touches `agent_invoices`.
 
 ## Design direction
 
@@ -377,25 +519,36 @@ not needed, and `DESIGN.md` does not change.
 
 Visual goldens:
 
-- The Agent's Client Invoices draft gains Edit row actions. If a golden of
-  that page is captured, it moves in the frontend Agent ticket and is
-  re-approved there, with the reason in the commit.
+- The Agent's Client Invoices draft gains Edit row actions and the new hint.
+  If a golden of that page is captured, it moves in the frontend Agent ticket
+  and is re-approved there, with the reason in the commit.
 - No other golden may move. One that does is a finding.
 
 ## Constraints
 
 - **One additive migration.** It creates a table and a column and backfills
   `SENT`/`APPROVED` invoices from data that already exists. It deletes and
-  rewrites nothing. Forward-only (Backend rule 9).
-- Every `SENT` or `APPROVED` invoice from before the migration serves the same
-  lines, amounts, totals, PDF and queue row as before (story 20).
-- From `sent` onward no line's amount changes. An edit is refused unless the
-  invoice is `DRAFT`, checked under the same row lock the send takes.
+  rewrites nothing, and touches no Agent Invoice. Forward-only (Backend
+  rule 9).
+- Every `SENT` or `APPROVED` Client Invoice from before the migration serves
+  the same lines, amounts, totals, PDF and queue row as before (story 20).
+- Every Agent Invoice sent, approved or paid before the release keeps its
+  snapshot.
+- From `sent` onward no Client Invoice line's amount changes. An edit is
+  refused unless the invoice is `DRAFT`, checked under the same row lock the
+  send takes.
+- An approved or paid Agent Invoice's Local Support Fees never move.
+- **The one edge where unedited pay can read differently from today**
+  (story 32): an Agent Invoice still a draft, for a month whose Client Invoice
+  was already sent, where the Fleet changed after that send. Today it counts
+  the live Fleet; now it counts what the Client Invoice billed (a SIM removed
+  after the send still counts; a legacy invoice's frozen base amount is used).
+  This is the human's rule applied, and is accepted. Fees cannot move, so
+  they never cause it.
 - A line's amount is `>= 0`, at most two decimal places, in the invoice's
   currency. The database checks `amount >= 0` too.
 - No Fee row is ever written by this feature.
 - `computedAmount` and `edited` never reach a Tester, a log line or the PDF.
-- The Agent Invoice's computation is not touched (pending open question 1).
 - Backend tests run under `IntegrationTest`: singleton Testcontainers
   Postgres, each method rolled back. No repository mocks (Backend rule 5).
 - e2e and visual runs use the isolated stack (`docs/agents/implementer-notes.md`).
@@ -435,39 +588,72 @@ internals.
    - a Manager, a Tester and another Agent → `403`; another Tenant → `404`;
    - a Tester's read gives null `computedAmount`/`edited`;
    - the Review Queue row's total equals the edited total;
-   - the Agent Invoice's Local Support Fees read the same before and after
-     an edit;
    - **the send-back shape (story 25):** a fixture sets a sent invoice back to
      `DRAFT`, as send-back will. Its read serves the lines as sent, a Fee
      logged after the send does not appear, an edit succeeds, and a second
      send succeeds with no constraint violation.
-3. **The race at the same seam, not with mocks.** Two threads edit and send
-   the same invoice. Whichever order wins, the final `SENT` invoice's lines
-   equal what its send stored, and the edit either landed before the send or
-   got `409`. This test commits real transactions, so it cleans up its own
-   rows instead of using `IntegrationTest`'s rollback.
-4. **The prefactor and the read switch are proven by existing suites passing
-   unedited:** `ClientInvoiceApiTest`, `ClientInvoiceByIdApiTest`,
+3. **Local Support Fees at the same seam (existing).** Prior art:
+   `AgentInvoiceApiTest` (the Agent's draft and send) and
+   `AgentInvoiceByIdApiTest` (Manager override, approve, mark paid). A new
+   `LocalSupportFeesFollowClientInvoiceApiTest` covers, each through the
+   Agent Invoice's own read:
+   - no edits anywhere → Local Support Fees equal to today's computation, for
+     a Contract with no Client Invoice, a never-sent draft, and a sent one;
+   - an edit on a never-sent draft → a draft Agent Invoice reads the edited
+     figure; a reset → back to the computation;
+   - Agent Invoice sent after the edit → its snapshot includes the edit;
+   - Agent Invoice sent, then an edit (a sent-back fixture for the Client
+     Invoice, or a never-sent draft) → Local Support Fees move by exactly the
+     difference; a Fee logged after the Agent Invoice's send does not slip in;
+     one audit line;
+   - Agent Invoice approved, then an edit → Local Support Fees unchanged;
+     paid → unchanged;
+   - a Fee logged after the Client Invoice's send → counted at its computed
+     amount (open question 2);
+   - a Client Invoice approved → Local Support Fees equal to its billed total
+     plus anything not billed;
+   - a legacy invoice with a `BASE_AMOUNT` line → its base amount, with no
+     per-SIM additions;
+   - the Manager's override on a sent Agent Invoice still changes only Salary
+     and new advance, and an edit afterwards leaves those as overridden.
+4. **The races at the same seam, not with mocks.** Two committing tests,
+   each cleaning up its own rows instead of using `IntegrationTest`'s
+   rollback:
+   - edit versus Client Invoice send: whichever wins, the final `SENT`
+     invoice's lines equal what its send stored, and the edit either landed
+     before the send or got `409`;
+   - edit versus Agent Invoice send, and edit versus Agent Invoice approve:
+     the final Local Support Fees equal the rule's value for the final
+     states, with the edit counted exactly once or, after approval, not at
+     all.
+5. **The prefactors and the read switch are proven by existing suites
+   passing unedited:** `ClientInvoiceApiTest`, `ClientInvoiceByIdApiTest`,
+   `AgentInvoiceApiTest`, `AgentInvoiceByIdApiTest`,
    `client-invoice-generation.spec.ts`,
    `client-invoice-submission-and-visibility.spec.ts`,
+   `agent-invoice-submission-and-approval.spec.ts`,
    `manager-invoice-review-queue.spec.ts`. One exception is allowed and must
    be named in the ticket: an assertion that a sent invoice's
-   `basePostpaidSims` is null, which this feature deliberately changes.
-5. **Frontend component tests (Vitest + Testing Library; existing).** Prior
+   `basePostpaidSims` is null, which this feature deliberately changes. An
+   Agent Invoice assertion that fails because a Fleet changed after a Client
+   Invoice's send is the Constraints edge; it is changed only with the edge
+   named in the commit.
+6. **Frontend component tests (Vitest + Testing Library; existing).** Prior
    art: `agent-invoice-override-control.test.tsx`,
    `client-invoices-view.test.tsx`, `client-invoice-detail-view.test.tsx`.
    They cover the edit control (open, Save, Cancel, `400` inline with the
    input kept, `409` copy, generic failure), the edited marker and Reset, no
    Edit on a sent invoice, the hint line, and the Manager's per-SIM lines and
    markers.
-6. **One e2e spec, `edit-client-invoice-lines.spec.ts` (existing seam).**
+7. **One e2e spec, `edit-client-invoice-lines.spec.ts` (existing seam).**
    Prior art: `client-invoice-generation.spec.ts`, which asserts $25.00 base,
    $45.00 Fee, $70.00 total. On a Contract it creates itself: the Agent edits
-   the SIM line to $31.40 and the Fee line to $40.00, sees $71.40, resets the
-   Fee line, sends, and the Manager sees the edited SIM line with "computed
-   $25.00" and a total of $76.40.
-7. **No unit tests** of the line-resolution rule beyond the HTTP seam, which
-   proves each branch (Backend rule 6).
+   the SIM line to $31.40 and the Fee line to $40.00, sees $71.40, opens the
+   Agent Invoice and sees Local Support Fees $1.40 higher than before the
+   edits, resets the Fee line, sends, and the Manager sees the edited SIM line
+   with "computed $25.00" and a total of $76.40.
+8. **No unit tests** of the line-resolution or pay rule beyond the HTTP seam,
+   which proves each branch (Backend rule 6).
 
 ## Decisions taken
 
@@ -478,6 +664,27 @@ internals.
 - **A sent invoice returned to draft refreshes nothing.** That is
   `send-a-client-invoice-back`'s to build; this feature's `linesStored`
   makes it the default.
+- **The base amount is one editable line per Postpaid SIM**, not one line for
+  the whole base amount. The draft already lists each SIM, the carrier bills
+  per SIM, and the Manager can see which SIM went up
+  (`question-edit-lines-base-per-sim`).
+- **Before the first send, new SIMs and Fees appear as new pre-filled lines,
+  untouched lines keep following the Fleet and Fees, and an edited line keeps
+  the Agent's amount until Reset. Nothing recalculates after the first send**
+  (`question-edit-lines-before-first-send`).
+- **No reason is required for an edit.** The Manager sees each edit with its
+  computed amount and has the Carrier Invoice File
+  (`question-edit-lines-reason`).
+- **The Agent and the Manager see "Edited · computed $X"; the Tester and the
+  PDF see only the billed amount** (`question-edit-lines-who-sees`).
+- **The one-way migration is approved**: every invoice stores its own lines,
+  old invoices are copied into lines that read exactly as today, and nothing
+  is deleted (`question-edit-lines-migration`).
+- **The Agent's pay follows edits made before approval; after approval a
+  correction is a carry-over.** Not the recommendation: "If an edit occur
+  before approval it should update the agent own monthly pay otherwise its a
+  carry-over" (`question-edit-lines-agent-pay`). This amends ADR 0002. The
+  carry-over itself is `invoice-adjustment`'s.
 
 ### Taken alone
 
@@ -492,8 +699,7 @@ internals.
   base amount of a past month" rules: a stored line is never recomputed,
   whatever the month.
 - **The invoice stores amounts, not Fee membership.** An edited amount cannot
-  live on the Fee, which stays immutable and is read by the Agent Invoice and
-  the Fee list.
+  live on the Fee, which stays immutable and is read by the Fee list.
 - **"Edited" is derived (`amount ≠ computedAmount`), not a stored flag.** An
   Agent who types the computed amount back has not changed the invoice, and
   no flag can disagree with the amounts.
@@ -523,100 +729,100 @@ internals.
   and zero is how a line bills nothing without a delete.
 - **The response changes additively.** `feeLines` gets its own response type,
   so `FeeResponse` and the Fee list are untouched.
-- **The audit line follows `agentInvoiceOverridden`**: old and new amount, no
+- **The audit lines follow `agentInvoiceOverridden`**: old and new amount, no
   free text.
 - **The edit UI copies `AgentInvoiceOverrideControl`** inline, with no dialog,
   so `DialogShell`'s debt (tech-debt.md:16) stays out of this feature.
-- **The ADR is new, with dated notes on 0001 and 0002**, the shape ADR 0003's
-  2026-09-17 note set. The new ADR takes the next number. The send-back ADR
-  takes the one after.
-- **Testing: the existing migration, HTTP, component and e2e seams, plus one
-  committing race test.** Prior art is named under `## Testing decisions`.
+- **Local Support Fees are computed per Contract from the Client Invoice's
+  lines, through the same line resolution the Client Invoice reads with.**
+  One resolver means the bill and the pay cannot disagree about a line. It
+  is a new `ContractAmountService` operation, so ADR 0002's single home for
+  "a Contract's amount for a month" stays single.
+- **A Contract with no Client Invoice, or an unedited never-sent draft, uses
+  the computation.** That is the same number, and it needs no Client Invoice
+  to exist, which ADR 0002 rejected requiring.
+- **Approval needs no special case in the pay rule.** An approved Client
+  Invoice cannot be edited, so "final at approval" holds by construction.
+- **A sent Agent Invoice moves by the edit's difference, not by a
+  recomputation** (pending open question 1). A recomputation would also pull
+  in Fees logged since its send, which ADR 0003's freeze keeps out.
+- **The difference is applied inside the edit's transaction, under a lock on
+  the Agent Invoice that its send, approve, mark-paid and override also
+  take, in the order Client Invoice then Agent Invoice.** Without it, an
+  approve that read the invoice before the edit would save a stale figure
+  over the moved one.
+- **The Agent Invoice keeps one Local Support Fees column and gains no
+  migration.** The audit line records each move; a breakdown per Contract is
+  not asked for.
+- **One ADR, 0004, covers the lines and the pay rule**, with dated notes on
+  0001, 0002 and 0003, the shape ADR 0003's 2026-09-17 note set. The two
+  decisions were asked for together and share one rule. The send-back ADR
+  takes the number after.
+- **The pay change is its own backend ticket**, after the edit ticket, so the
+  edit's behaviour is proven before pay depends on it, and each ticket stays
+  within three modules.
+- **The hint line says the Agent Invoice follows the edits "unless it is
+  already approved"**, rather than reading the Agent Invoice's status into
+  the Client Invoice response. It is true in every state and needs no new
+  field.
+- **Testing: the existing migration, HTTP, component and e2e seams, plus
+  committing race tests.** Prior art is named under `## Testing decisions`.
 
 ## Open questions
 
-1. **Does the Agent's own pay follow the edited Client Invoice?** Example: SIM
-   A's plan is $25. The carrier's real bill was $31.40 because of extra data,
-   so the Agent edits the Client Invoice line to $31.40. Today the Agent's own
-   invoice (Local Support Fees) is computed from the Fleet and Fees, so it
-   still reimburses $25. **Recommendation: no, not in this feature.** The
-   Agent Invoice keeps reading the Fleet and Fees, and the draft says so.
-   Reason: the Agent Invoice is often sent before the Client Invoice is
-   finished, and its numbers freeze then. Making it follow Client Invoice
-   edits ties the Agent's pay to a separate document's timing, the problem ADR
-   0002 was written to avoid. It also lets an Agent raise their own pay by
-   editing the Client's invoice. If you want the Agent reimbursed the edited
-   amount, say so, and it becomes its own feature that amends ADR 0002.
+1. **If the Agent has already sent their own monthly invoice, does a later
+   Client Invoice edit still change it?** Example: on the 28th the Agent sends
+   their Agent Invoice, with Local Support Fees of $70. On the 30th they edit
+   a SIM on a Client Invoice (not yet approved) from $25 to $31.40.
+   **Recommendation: yes, the sent Agent Invoice goes up by $6.40 to $76.40,
+   as long as the Manager has not approved the Agent Invoice yet; once the
+   Manager has approved it, the $6.40 is a carry-over to a later month.**
+   Reason: it follows your rule (an edit before approval updates the Agent's
+   pay) without making the Agent wait to send their invoice, and the Manager
+   reviews the Agent Invoice with the current figure. The alternative is to
+   carry the $6.40 over as soon as the Agent Invoice is sent, which is
+   simpler but makes the Agent wait a month for money owed this month.
    (Case 1.)
-2. **Is the base amount one editable line, or one line per Postpaid SIM?**
-   Example: a Contract has three Postpaid SIMs at $25, $25 and $15. The base
-   amount is $65. With one line, the Agent changes $65 to $72.30. With one
-   line per SIM, the Agent changes the second SIM from $25 to $32.30, and the
-   base amount becomes $72.30. **Recommendation: one line per Postpaid SIM.**
-   Reason: the draft already lists each SIM with its fee, the carrier bills
-   per SIM, and the Manager can then see which SIM went up. The Tester and the
-   PDF still show the base amount as one total. (Case 1.)
-3. **Before the first send, does an edited line stop following the Fleet and
-   Fees, and do new Fees appear as new lines?** Example: the Agent edits SIM
-   A from $25 to $31.40. Later that month a Topup Fee of $10 is logged and a
-   new Postpaid SIM D at $15 is added. **Recommendation:** the $10 Fee and SIM
-   D appear as new pre-filled lines; SIM A stays at $31.40; every line the
-   Agent did not touch keeps following the Fleet and Fees until the first
-   send, and Reset puts SIM A back to following them. Reason: nothing logged
-   that month is left off the invoice, and nothing the Agent typed is
-   overwritten. After the first send nothing is recomputed, as you said for
-   send-back. (Case 1.)
-4. **Must the Agent give a reason when editing a line?** Example: the Agent
-   changes SIM A from $25 to $31.40. Should they have to type "extra data
-   usage, see carrier bill"? **Recommendation: no reason.** Reason: the
-   Manager sees each edit with its computed amount ("Edited · computed
-   $25.00") and has the attached Carrier Invoice File, and `send-a-client-
-   invoice-back` lets them return it with a question. A required reason on
-   every line slows the Agent's routine monthly work. (Case 1.)
-5. **Who sees that a line was edited?** Example: SIM A billed $31.40 instead
-   of the computed $25. **Recommendation:** the Agent and the Manager see
-   "Edited · computed $25.00" under the line; the Tester and the PDF show only
-   $31.40, with no mark. Reason: the Manager needs the difference to approve
-   with confidence, while the Client receives a statement of what is billed,
-   and "computed" is an internal figure the Client was never promised.
+2. **Does a Fee logged after the Client Invoice was sent still count in the
+   Agent's pay for that month?** Example: the Agent sends the Client Invoice
+   on the 25th. On the 27th they log a $10 Topup Fee for that month. The
+   Client Invoice does not include it (nothing changes after send). Today the
+   Agent's pay counts the $10. **Recommendation: yes, keep counting it at its
+   logged amount.** Reason: the Agent paid that $10 out of pocket, and pay
+   for any month nobody edited stays exactly as today. If no, the Agent's pay
+   is only what the Client Invoices bill, and the $10 waits for a correction.
    (Case 1.)
-6. **Approve the one-way data change?** Every invoice will store its own lines.
-   Each invoice already sent or approved is copied into lines from what it
-   shows today, so it reads exactly as now; for example, last month's approved
-   invoice of $25 base plus a $45 Fee becomes a $25 base line and a $45 Fee
-   line, total $70, as before. The old structures are kept, not deleted. Once Agents start editing, the stored lines are the only
-   record of what was billed, so going back to the old model would lose those
-   edits. **Recommendation: approve.** It is what makes editing, and a
-   send-back that refreshes nothing, possible, and nothing existing is
-   deleted or changed. (Case 2.)
 
 ## Acceptance walkthrough
 
-1. [agent] Create a Contract with two Postpaid SIMs (A at $25.00, B at $15.00) and log one $45.00 Fee this month. As its Agent, read the current-month Client Invoice and show one line per SIM and one Fee line, every `edited` false, base $40.00 and total $85.00, the same figures the computation gives today. (stories: 1, 23)
+1. [agent] Create a Contract with two Postpaid SIMs (A at $25.00, B at $15.00) and log one $45.00 Fee this month. As its Agent, read the current-month Client Invoice and show one line per SIM and one Fee line, every `edited` false, base $40.00 and total $85.00, the same figures the computation gives today. Read the Agent's Agent Invoice draft and record its Local Support Fees. (stories: 1, 23, 32)
 2. [agent] `PUT …/client-invoice/lines` SIM A to `31.40` and the Fee line to `40.00`. Show `200`, both lines `edited: true` with `computedAmount` 25.00 and 45.00, base $46.40, Fees $40.00, total $86.40. (stories: 2, 3, 4, 5)
-3. [agent] Read the Fee from the Fee list and its Request, and show $45.00 unchanged. Read the Agent's current Agent Invoice before step 2 and after, and show Local Support Fees identical. (stories: 13, 14)
+3. [agent] Read the Fee from the Fee list and its Request, and show $45.00 unchanged. Read the Agent Invoice draft again and show Local Support Fees $1.40 higher than in step 1. (stories: 13, 14)
 4. [agent] Send `-1`, a blank amount and `1.234` and show `400` each; send `0` for SIM B and show `200` with base $31.40. Send another month's Fee id and a retired SIM's id and show `404`. (stories: 7)
 5. [agent] Add Postpaid SIM C at $10.00 and log a $10.00 Topup Fee. Read the draft and show both as new pre-filled lines, SIM A still $31.40, and the Fee line still $40.00. Reset the Fee line by saving `45.00` and show it `edited: false`. (stories: 6, 8, 9)
 6. [agent] Call the edit route with a Manager's, a Tester's and another Agent's token and show `403`; with `OtherTenantFixture`'s Contract and show `404`. (stories: 15)
-7. [agent] Send the invoice. As the Manager, read it by id and show the same lines and amounts the Agent saw, per SIM, with `edited`/`computedAmount`. Show the Review Queue row's total equal to it. Log one more Fee and show the invoice unchanged. Edit a line and show `409`. (stories: 10, 11, 16, 17, 18)
-8. [agent] As a Tester of the Client, read the invoice and download its PDF. Show the billed amounts and totals, `computedAmount` and `edited` null, and no "computed" text in the PDF. (stories: 19)
-9. [agent] Grep the backend log for step 2 and show one `clientInvoiceLineEdited` audit line per edit, with the Agent as actor, the Tenant, the line and the old and new amounts. (stories: 21)
-10. [agent] Run the edit-versus-send race test and show the sent lines always equal what the send stored, the edit having landed first or got `409`. (stories: 22)
-11. [agent] Run `ClientInvoiceLinesMigrationTest` green. On the demo stack, before migrating, record the JSON and PDF of a past `APPROVED` Client Invoice and the Review Queue rows; migrate, and show every amount, total, Fee line and queue row identical. (stories: 20)
-12. [agent] Run the story-25 case of `ClientInvoiceLineEditApiTest`: a sent invoice set back to `DRAFT` by a fixture serves its lines as sent, omits a Fee logged after the send, accepts an edit, and resends without error. (stories: 25)
-13. [agent] In a browser as the Agent, open Client Invoices. Edit SIM A to 31.40 and show the marker "Edited · computed $25.00", the new totals and a Reset action. Type `-5` and show the inline error with `-5` still in the field. Show the hint that the Agent Invoice is still computed from the Fleet and Fees, and that no reason is asked for. Reset a line and show its marker gone. (stories: 2, 3, 4, 5, 6, 7, 12, 14)
-14. [agent] Send the invoice and show no Edit or Reset left, with the markers still shown. In a second tab still on the draft, try an edit and show the refresh message. (stories: 10, 11)
-15. [agent] In a browser as the Manager, open the invoice from the Review Queue and show the per-SIM lines with the edited marker, and the same total in the queue and on the Dashboard's Pending approvals card. (stories: 16, 17, 18)
-16. [agent] In a browser as the Tester, open the invoice and the PDF and show the billed amounts with no marker. (stories: 19)
-17. [agent] Edit, reset and save by keyboard alone with a visible focus ring at each stop; repeat at the mobile breakpoint and show the row actions and the inline field usable within the viewport. Do the Manager's detail page the same way. (stories: 24)
-18. [agent] Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green, with the suites named in `## Testing decisions` item 4 unedited apart from the one named assertion, and no golden moved except the Agent's draft page if captured. (stories: 20, 23)
-19. [human] Take a real carrier bill for a month where a Postpaid SIM's usage went over its plan. As the Agent, set that SIM's line to the billed figure and send. As the Manager, review it. Confirm the "Edited · computed" line tells you enough to approve without a written reason, and that the Tester's statement looks right to send a Client. (stories: 2, 5, 12, 16, 19)
-20. [human] Read the new ADR and the notes on ADR 0001 and ADR 0002. Confirm they say what you settled: the computation only pre-fills, every line is the Agent's to edit while draft, nothing moves once sent, a sent invoice keeps its own lines, and the Agent's own pay is (or is not, per your answer) separate. (stories: 10, 14, 20, 25)
+7. [agent] Send the Agent Invoice and show its frozen Local Support Fees include SIM A at $31.40 and SIM B at $0. Then edit SIM A on the still-draft Client Invoice to `35.00` and show the sent Agent Invoice's Local Support Fees up by exactly $3.60, with one `agentInvoiceLocalSupportFeesFollowed` audit line. Log another Fee and show the sent Agent Invoice unchanged. (stories: 26, 27, 30)
+8. [agent] Send the Client Invoice. As the Manager, read it by id and show the same lines and amounts the Agent saw, per SIM, with `edited`/`computedAmount`. Show the Review Queue row's total equal to it. Log one more Fee and show the Client Invoice unchanged. Edit a line and show `409`. (stories: 10, 11, 16, 17, 18)
+9. [agent] On a second Contract whose Client Invoice is already sent, log a $10.00 Fee for the month and show it counted in a draft Agent Invoice's Local Support Fees at $10.00. (stories: 28)
+10. [agent] Approve the Agent Invoice as the Manager. On a third Contract's never-sent Client Invoice, edit a line and show the approved Agent Invoice's Local Support Fees unchanged, and no follow audit line. Approve a Client Invoice and show an edit to it is `409`. (stories: 29)
+11. [agent] As a Tester of the Client, read the invoice and download its PDF. Show the billed amounts and totals, `computedAmount` and `edited` null, and no "computed" text in the PDF. (stories: 19)
+12. [agent] Grep the backend log for steps 2 and 7 and show one `clientInvoiceLineEdited` audit line per edit, with the Agent as actor, the Tenant, the line and the old and new amounts, and the one follow line. (stories: 21, 30)
+13. [agent] Run the race tests and show the sent lines always equal what the send stored, the edit having landed first or got `409`; and that the Agent Invoice's Local Support Fees count the edit exactly once against a send, and not at all after an approve. (stories: 22, 31)
+14. [agent] Run `ClientInvoiceLinesMigrationTest` green. On the demo stack, before migrating, record the JSON and PDF of a past `APPROVED` Client Invoice, the Review Queue rows, and every sent and approved Agent Invoice; migrate, and show every amount, total, Fee line, queue row and Agent Invoice identical. (stories: 20)
+15. [agent] Run the story-25 case of `ClientInvoiceLineEditApiTest`: a sent invoice set back to `DRAFT` by a fixture serves its lines as sent, omits a Fee logged after the send, accepts an edit, and resends without error. (stories: 25)
+16. [agent] In a browser as the Agent, open Client Invoices. Edit SIM A to 31.40 and show the marker "Edited · computed $25.00", the new totals and a Reset action. Type `-5` and show the inline error with `-5` still in the field. Show the hint that the Agent Invoice follows these amounts unless already approved, and that no reason is asked for. Open the Agent Invoice and show the Local Support Fees moved. Reset a line and show its marker gone. (stories: 2, 3, 4, 5, 6, 7, 12, 14)
+17. [agent] Send the Client Invoice and show no Edit or Reset left, with the markers still shown. In a second tab still on the draft, try an edit and show the refresh message. (stories: 10, 11)
+18. [agent] In a browser as the Manager, open the invoice from the Review Queue and show the per-SIM lines with the edited marker, and the same total in the queue and on the Dashboard's Pending approvals card. (stories: 16, 17, 18)
+19. [agent] In a browser as the Tester, open the invoice and the PDF and show the billed amounts with no marker. (stories: 19)
+20. [agent] Edit, reset and save by keyboard alone with a visible focus ring at each stop; repeat at the mobile breakpoint and show the row actions and the inline field usable within the viewport. Do the Manager's detail page the same way. (stories: 24)
+21. [agent] Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green, with the suites named in `## Testing decisions` item 5 unedited apart from the named exceptions, and no golden moved except the Agent's draft page if captured. (stories: 20, 23, 32)
+22. [human] Take a real carrier bill for a month where a Postpaid SIM's usage went over its plan. As the Agent, set that SIM's line to the billed figure, check the Agent Invoice's Local Support Fees went up by the same amount, and send both. As the Manager, review them. Confirm the "Edited · computed" line tells you enough to approve without a written reason, that the Agent Invoice figure is what you expect to reimburse, and that the Tester's statement looks right to send a Client. (stories: 2, 5, 12, 14, 16, 19, 26)
+23. [human] Read the new ADR and the notes on ADR 0001, 0002 and 0003. Confirm they say what you settled: the computation only pre-fills, every line is the Agent's to edit while draft, nothing moves once sent, a sent invoice keeps its own lines, and the Agent's pay follows edits until approval, after which a correction is a carry-over. (stories: 10, 14, 20, 25, 27, 29)
 
 ## Execution order
 
-Five tickets, each touching at most three `ARCHITECTURE.md` modules. They run
-in order: each depends on the one before (ticket 5 on tickets 3 and 4).
+Six tickets, each touching at most three `ARCHITECTURE.md` modules. They run
+in order: each depends on the one before (ticket 6 on tickets 3 and 5).
 
 1. `store-client-invoice-lines`. Labels: `enabler`, `backend`. Depends on
    nothing. Modules: `domain`, `repository`. (stories: —)
@@ -633,25 +839,41 @@ in order: each depends on the one before (ticket 5 on tickets 3 and 4).
      unchanged.
    - `findQueueRows` sums the lines. `DemoDataLoader` seeds lines for its past
      invoices.
-   - The new ADR, the note on ADR 0001, and the tech-debt entry for the unused
-     snapshot structures.
+   - The new ADR (lines part), the note on ADR 0001, and the tech-debt entry
+     for the unused snapshot structures.
    - Existing suites pass unedited; the story-25 fixture test.
 3. `agent-edits-a-client-invoice-line`. Labels: `backend`. Depends on
    `serve-client-invoices-from-stored-lines`. Modules: `dto`, `web`,
-   `logging`. (stories: 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 17, 19, 21, 22)
-   - The edit request DTO, the `PUT …/lines` route, `editLine`, the audit
-     method.
+   `logging`. (stories: 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 15, 17, 19, 21, 22)
+   - The edit request DTO, the `PUT …/lines` route, `editLine` (steps 1–6),
+     the audit method.
    - The additive response fields, per-SIM lines on every status, and their
      omission for Testers.
-   - The note on ADR 0002.
-   - `ClientInvoiceLineEditApiTest` and the race test.
-4. `agent-edits-lines-on-the-client-invoice-page`. Labels: `frontend`.
-   Depends on `agent-edits-a-client-invoice-line`. Modules:
-   `components/agent`, `app/api`, `lib/api`. (stories: 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 14, 24)
+   - `ClientInvoiceLineEditApiTest` and the edit-versus-send race test.
+4. `local-support-fees-follow-billed-client-invoice-lines`. Labels:
+   `backend`. Depends on `agent-edits-a-client-invoice-line`. Modules: `web`,
+   `repository`, `logging`. (stories: 14, 26, 27, 28, 29, 30, 31, 32)
+   - The `ContractAmountService` payable-amount operation and
+     `computeLocalSupportFees` calling it, in the draft read and the send
+     snapshot.
+   - The Agent Invoice locking finder; send, approve, mark-paid and override
+     made transactional under it.
+   - `editLine` step 7: the difference handed to a `SENT` Agent Invoice, and
+     the `agentInvoiceLocalSupportFeesFollowed` audit method.
+   - The new ADR's pay part, and the notes on ADR 0002 and 0003.
+   - `LocalSupportFeesFollowClientInvoiceApiTest` and the Agent Invoice race
+     tests; `AgentInvoiceApiTest` and `AgentInvoiceByIdApiTest` pass
+     unedited.
+   - Built as the answers to open questions 1 and 2 say.
+5. `agent-edits-lines-on-the-client-invoice-page`. Labels: `frontend`.
+   Depends on `local-support-fees-follow-billed-client-invoice-lines`.
+   Modules: `components/agent`, `app/api`, `lib/api`.
+   (stories: 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 14, 24)
    - `EditClientInvoiceLineControl`, the marker, Reset, the hint, the BFF
      proxy and the types.
-   - Component tests and `edit-client-invoice-lines.spec.ts`.
-5. `manager-sees-edited-client-invoice-lines`. Labels: `frontend`. Depends on
+   - Component tests and `edit-client-invoice-lines.spec.ts`, including its
+     Agent Invoice step.
+6. `manager-sees-edited-client-invoice-lines`. Labels: `frontend`. Depends on
    `agent-edits-a-client-invoice-line` and
    `agent-edits-lines-on-the-client-invoice-page`. Modules:
    `components/manager`.
@@ -660,4 +882,4 @@ in order: each depends on the one before (ticket 5 on tickets 3 and 4).
      page; component tests.
    - The Manager's closing steps of `edit-client-invoice-lines.spec.ts` (the
      edited SIM line with "computed $25.00", total $76.40). They extend the
-     spec ticket 4 creates, which is why this ticket depends on ticket 4 too.
+     spec ticket 5 creates, which is why this ticket depends on ticket 5 too.

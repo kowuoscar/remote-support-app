@@ -500,15 +500,17 @@ Logins are in the root `README.md`.
 
 ## Execution order
 
-Five tickets. The two enablers and the backend read are independent. The two
-dashboard slices run in a line, because both edit the same page and the stub,
-and both recapture the `client-*` goldens. The demo-footer enabler goes before
+Six tickets. The two enablers and the backend read are independent. The three
+dashboard slices run in a line, because all edit the same page and the stub,
+and all recapture the `client-*` goldens. The demo-footer enabler goes before
 them so that the goldens are recaptured once against a footer-less shell, and
 the type-scale enabler goes before them so that their new UI is written with
-the tokens from the start.
+the tokens from the start. The spec's first cut had two dashboard slices; the
+first was split so that each ticket fits one context.
 
 1. `surface-demo-note-opt-in` (enabler): `SurfacePage` gains `demoData`, which only the Manager dashboard sets; every non-Manager golden is recaptured, deleted first. Modules: app-shell, Manager dashboard page, visual suite. No dependency. (stories: 23)
-2. `type-scale-tokens` (enabler): `frontend/app/globals.css`'s `@theme` gains `--text-label-sm` (12px) and `--text-label` (13px), with no line-height; no existing use is migrated and no golden moves. Modules: theme. No dependency. (stories: none; enables Frontend rule 8 for tickets 4 and 5)
-3. `tester-own-client-reads`: `GET /api/me/client` and `GET /api/me/client/latest-client-invoices`, with the repository query, the service method, the summary DTO and their integration tests. Modules: backend `web`, `repository`, `dto`. No dependency. (stories: 9, 11, 20, 21)
-4. `client-dashboard-identity-and-stats`: the `(dashboard)` route group and its `error.tsx`, the real header and chip, the not-linked state, Active Fleet and Open Requests (Pending Approval, Submitted or In Progress) with their unavailable states, `ClientDashboardStats` off `useSimulatedLoad` with its component tests, its small type on the new tokens, and the stub's Tester sessions for identity, Contracts, Fleet and Requests; `client-*` goldens recaptured. Modules: Client dashboard page, `components/client`, visual suite. Depends on `surface-demo-note-opt-in`, `type-scale-tokens` and `tester-own-client-reads`. (stories: 1, 2, 3, 4, 5, 6, 7, 8, 15, 16, 17, 18, 19)
-5. `client-dashboard-latest-invoices`: the Latest Client Invoice card from the new read, with its empty and unavailable states and the "Open Invoices" link; the stub's latest-invoices fixture; `frontend/lib/demo/client.ts` deleted; the `client-dashboard.spec.ts` e2e spec; `client-*` goldens recaptured. Modules: Client dashboard page, visual suite, e2e suite. Depends on `type-scale-tokens` and `client-dashboard-identity-and-stats`, because the page's remaining imports from `@/lib/demo/client` go in this slice. (stories: 9, 10, 12, 13, 14, 22, 24, 25)
+2. `type-scale-tokens` (enabler): `frontend/app/globals.css`'s `@theme` gains `--text-label-sm` (12px) and `--text-label` (13px), with no line-height; no existing use is migrated and no golden moves. Modules: theme. No dependency. (stories: none; enables Frontend rule 8 for tickets 4, 5 and 6)
+3. `tester-own-client-reads`: `GET /api/me/client` and `GET /api/me/client/latest-client-invoices`, with the repository query, the service method, the summary DTO and their integration tests. Modules: backend `web`, `repository`, `dto`. No dependency. (stories: 3, 9, 11, 18, 20, 21)
+4. `client-dashboard-identity`: the `(dashboard)` route group and its `error.tsx`, the real header and chip, the not-linked and failing-identity states, and the stub's Tester sessions for identity; `client-*` goldens recaptured. Modules: Client dashboard page, visual suite. Depends on `surface-demo-note-opt-in`, `type-scale-tokens` and `tester-own-client-reads`. (stories: 1, 2, 4, 16, 17, 24)
+5. `client-dashboard-fleet-and-requests`: Active Fleet and Open Requests (Pending Approval, Submitted or In Progress) from the Contracts, with their unavailable states, `ClientDashboardStats` off `useSimulatedLoad` with its component tests, and the stub's Contract, Fleet and Request fixtures and degraded session; `client-*` goldens recaptured. Modules: Client dashboard page, `components/client`, visual suite. Depends on `client-dashboard-identity`. (stories: 5, 6, 7, 8, 15, 18, 19, 24)
+6. `client-dashboard-latest-invoices`: the Latest Client Invoice card from the new read, with its empty and unavailable states and the "Open Invoices" link; the stub's latest-invoices fixture; `frontend/lib/demo/client.ts` deleted; the `client-dashboard.spec.ts` e2e spec; `client-*` goldens recaptured. Modules: Client dashboard page, visual suite, e2e suite. Depends on `client-dashboard-fleet-and-requests`, because the page's remaining imports from `@/lib/demo/client` go in this slice. (stories: 3, 9, 10, 12, 13, 14, 15, 22, 24, 25)

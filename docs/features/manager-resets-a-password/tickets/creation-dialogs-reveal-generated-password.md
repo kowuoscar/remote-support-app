@@ -1,7 +1,7 @@
 ---
 id: creation-dialogs-reveal-generated-password
 title: Show the generated password once after creating an Agent, a Login or a Tester
-status: ready-for-agent
+status: in-progress
 depends_on: [new-logins-generate-password-api, one-time-password-reveal, dialog-shell-mounts-when-open]
 labels: [frontend]
 stories: [9, 10, 11, 12, 14, 28]

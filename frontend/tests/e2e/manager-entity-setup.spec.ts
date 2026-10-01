@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { logout, readRevealedPasswordAndClose } from "./helpers";
 
 /**
  * Manager entity setup (manager-entity-setup ticket), driven against a real backend + Postgres
@@ -52,11 +53,11 @@ test.describe("manager entity setup", () => {
     await page.getByLabel("Agent name").fill(agentName);
     await page.getByLabel("Country").selectOption("FRANCE");
     await page.getByLabel("Standing monthly salary").fill("2400");
-    await page.getByLabel("Email").fill(`camille.duforet+${RUN_ID}@agents.example`);
+    const agentEmail = `camille.duforet+${RUN_ID}@agents.example`;
+    await page.getByLabel("Email").fill(agentEmail);
     await expect(page.getByRole("dialog").getByText("EUR")).toBeVisible();
     await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
-    await expect(page.getByRole("dialog").getByLabel("Generated password")).toBeVisible();
-    await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
+    const agentPassword = await readRevealedPasswordAndClose(page);
     await expect(page.getByRole("row", { name: new RegExp(agentName) })).toBeVisible();
     await expect(page.getByRole("row", { name: new RegExp(agentName) })).toContainText("EUR");
 
@@ -70,6 +71,11 @@ test.describe("manager entity setup", () => {
     await expect(contractRow).toBeVisible();
     await expect(contractRow).toContainText(agentName);
     await expect(contractRow).toContainText("EUR");
+
+    // The shown password is the one that works: the new Agent signs in with it.
+    await logout(page);
+    await login(page, agentEmail, agentPassword);
+    await expect(page).toHaveURL(/\/agent$/);
   });
 
   test("manager adds a tester under a client, flagged as primary contact", async ({ page }) => {
@@ -89,11 +95,15 @@ test.describe("manager entity setup", () => {
     await page.getByLabel("Email").fill(testerEmail);
     await page.getByLabel("Primary contact for this client").check();
     await page.getByRole("dialog").getByRole("button", { name: "Add tester" }).click();
-    await expect(page.getByRole("dialog").getByLabel("Generated password")).toBeVisible();
-    await page.getByRole("dialog").getByRole("button", { name: "Done" }).click();
+    const testerPassword = await readRevealedPasswordAndClose(page);
 
     await expect(page.getByRole("cell", { name: testerEmail })).toBeVisible();
     await expect(page.getByText("Primary contact", { exact: true })).toBeVisible();
+
+    // The shown password is the one that works: the new Tester signs in with it.
+    await logout(page);
+    await login(page, testerEmail, testerPassword);
+    await expect(page).toHaveURL(/\/client$/);
   });
 
   test("the Add agent creation response is never cacheable", async ({ page }) => {

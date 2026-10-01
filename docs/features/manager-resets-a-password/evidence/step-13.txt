@@ -1,0 +1,13 @@
+$ grep -rn "passwordEncoder.encode" backend/src/main
+backend/src/main/java/com/remotesupport/backend/security/PasswordWrite.java:35:    user.setPasswordHash(passwordEncoder.encode(rawPassword));
+
+$ SecureRandom in backend/src/main
+backend/src/main/java/com/remotesupport/backend/security/PasswordGenerator.java
+
+$ password generation in frontend (random/crypto) excluding node_modules/tests
+(none)
+
+$ git diff main...HEAD --stat for forbidden paths
+(none touched)
+
+     140

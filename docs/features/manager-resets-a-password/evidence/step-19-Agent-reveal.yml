@@ -1,0 +1,8 @@
+- dialog:
+  - heading "Password reset" [level=2]
+  - paragraph: ui.agent.1790895352481@example.com can now sign in with this new password. Their old one no longer works.
+  - text: Generated password
+  - textbox "Generated password": <REDACTED>
+  - button "Copy password"
+  - paragraph: This password won't be shown again. Give it to them yourself — they can change it afterwards from their own menu.
+  - button "Done"

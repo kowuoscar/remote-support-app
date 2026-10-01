@@ -1,0 +1,2 @@
+POST /api/agents/{id}/login/password (no body) -> 200; Cache-Control: no-store; keys ['password']; format ok True; differs from creation pw: True
+sign-in new -> 200 token present; sign-in creation pw -> 401

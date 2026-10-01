@@ -1,0 +1,63 @@
+Step 10: guard Manager-target test
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.066 s -- in com.remotesupport.backend.security.AgentPasswordResetGuardTest
+
+  @Autowired private LoginAdministrationGuard guard;
+  @Autowired private UserRepository userRepository;
+
+  @Test
+  void aManagerRoleTargetIsRefused() {
+    User manager = userRepository.findByUsername(MANAGER_USERNAME).orElseThrow();
+
+    assertThatThrownBy(() -> guard.requireCanAdminister(manager, principalOf(manager)))
+        .isInstanceOf(AccessDeniedException.class);
+  }
+
+  @Test
+  void aTargetInAnotherTenantIsRefused() {
+    User manager = userRepository.findByUsername(MANAGER_USERNAME).orElseThrow();
+    User agent = userRepository.findByUsername(AGENT_USERNAME).orElseThrow();
+--- controller signatures
+  private final PasswordResetService passwordResetService;
+
+  public PasswordResetController(PasswordResetService passwordResetService) {
+    this.passwordResetService = passwordResetService;
+  }
+
+  @PostMapping("/api/agents/{agentId}/login/password")
+  public ResponseEntity<PasswordResetResponse> resetAgentPassword(
+      @PathVariable UUID agentId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    String password = passwordResetService.resetAgentPassword(agentId, principal);
+    return ResponseEntity.ok()
+        .cacheControl(CacheControl.noStore())
+        .body(new PasswordResetResponse(password));
+  }
+
+  @PostMapping("/api/clients/{clientId}/testers/{testerId}/password")
+  public ResponseEntity<PasswordResetResponse> resetTesterPassword(
+      @PathVariable UUID clientId,
+      @PathVariable UUID testerId,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    String password = passwordResetService.resetTesterPassword(clientId, testerId, principal);
+    return ResponseEntity.ok()
+        .cacheControl(CacheControl.noStore())
+        .body(new PasswordResetResponse(password));
+  }
+
+  @ExceptionHandler(AgentHasNoLoginException.class)
+  public ResponseEntity<Map<String, String>> agentHasNoLogin(AgentHasNoLoginException e) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(Map.of("code", "AGENT_HAS_NO_LOGIN", "message", e.getMessage()));
+  }
+}
+--- UI offering a reset: all reset-password sources in frontend
+frontend/components/manager/testers-view.test.tsx
+frontend/components/manager/agent-sign-in-email.tsx
+frontend/components/manager/reset-password-dialog.test.tsx
+frontend/components/manager/reset-password-dialog.tsx
+frontend/components/manager/testers-view.tsx
+frontend/components/manager/agent-sign-in-email.test.tsx
+
+--- Manager login never offered a reset: usernames in GET /api/agents (reset lives on the Agent page) and the client testers list
+manager@example.com among agent loginUsernames: False
+reset routes take path ids only: /api/agents/{agentId}/login/password and /api/clients/{clientId}/testers/{testerId}/password (no request body parameter in PasswordResetController); Agent id / Tester id are looked up in agents/testers tables, so a Manager's User id can't be named; and the guard refuses a Manager-role target (test above).
+no accessibility snapshot lists the Manager login

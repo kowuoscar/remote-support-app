@@ -1,0 +1,6 @@
+Agent: confirm step titled "Reset password for UI Agent 1790895352481", body names ui.agent.1790895352481@example.com and says current password stops working. Cancel pressed -> dialog closed; current password sign-in status via API: 200
+Agent reveal: readOnly=true focused=true fully-selected=true; warning "This password won't be shown again" visible
+Copy password -> status region reads "Copied"; clipboard equals revealed value exactly: true
+Done -> focus back on trigger: true; status region: "Password reset for ui.agent.1790895352481@example.com."; elements/HTML containing password: inputs/text=0, in page HTML=false
+Reopened -> confirm step shown, no Generated password field (old password not shown)
+RESULT: passed

@@ -1,0 +1,3 @@
+Agent WITH login: Reset password button visible beside ui.agent.1790895352481@example.com; Create login buttons: 0
+Agent WITHOUT login (Loginless Three): Create login visible, Reset password count 0
+RESULT: passed

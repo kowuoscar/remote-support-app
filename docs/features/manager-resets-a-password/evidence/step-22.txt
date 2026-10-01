@@ -1,0 +1,8 @@
+Add agent: password inputs=0, controls labelled password=0; hint visible: "A password is generated when you create the login — you'll see it once."
+Add agent reveal named ui.new.agent.1790895352481@example.com; Done pressed; sign-in with revealed value -> 200
+Create login: password controls=0; hint visible
+Create login reveal open (names ui.loginless.1790895352481@example.com): page behind still shows "No login" count=1, sign-in email paragraph count=0
+After Done: page shows sign-in email ui.loginless.1790895352481@example.com only (No login count 0, Create login count 0); sign-in with revealed value -> 200
+Add tester: password controls=0; hint visible
+Add tester reveal named ui.t3.1790895352481@example.com; Done; sign-in -> 200
+RESULT: passed

@@ -1,0 +1,35 @@
+- main:
+  - navigation "Breadcrumb":
+    - link "Agents":
+      - /url: /manager/agents
+    - text: Loginless Three
+  - paragraph: Country
+  - paragraph: United States
+  - paragraph: Currency
+  - paragraph: USD
+  - paragraph: Contracts
+  - paragraph: "0"
+  - paragraph: Sign-in email
+  - paragraph: No login
+  - button "Create login"
+  - status
+  - heading "Standing amounts" [level=2]
+  - heading "Standing monthly salary" [level=3]
+  - paragraph: Auto-populates the Salary line on every future Agent Invoice.
+  - text: Currently in effect $0.00 New amount (USD)
+  - spinbutton "New amount (USD) Save": "0"
+  - button "Save"
+  - paragraph: Takes effect from November 2026 — never changes the invoice already in progress.
+  - heading "Standing Rollout Advance" [level=3]
+  - paragraph: Cash-flow support — repaid the following month and re-advanced each cycle.
+  - text: Currently in effect $0.00 New amount (USD)
+  - spinbutton "New amount (USD) Save": "0"
+  - button "Save"
+  - paragraph: Takes effect from November 2026 — never changes the invoice already in progress.
+  - region "Agent Invoice":
+    - heading "Agent Invoice" [level=2]
+    - paragraph: October 2026
+    - text: Draft
+    - paragraph: Total $0.00
+    - link "Open invoice":
+      - /url: /manager/invoices/agent/bd580e8c-c83a-470d-855a-d634d13cc653

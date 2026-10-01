@@ -1,0 +1,28 @@
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.724 s -- in com.remotesupport.backend.demo.DemoDataLoaderApiTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.397 s -- in com.remotesupport.backend.web.AuthLoginTest
+  void theBackendStillRespondsWithTheDemoProfileActive() throws Exception {
+    mockMvc.perform(get("/api/health")).andExpect(status().isOk());
+  }
+
+  @Test
+  void theDocumentedDemoLoginsSignInWithTheirDocumentedPasswords() throws Exception {
+    assertSignsIn(DemoDataLoader.PRIYA_USERNAME, DemoDataLoader.PRIYA_PASSWORD);
+    assertSignsIn(DemoDataLoader.DANA_USERNAME, DemoDataLoader.TESTER_PASSWORD);
+    assertSignsIn(DemoDataLoader.NOAH_USERNAME, DemoDataLoader.HARBOR_TESTER_PASSWORD);
+  }
+
+  private void assertSignsIn(String username, String password) throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {"username":"%s","password":"%s"}
+                    """
+142:  public static final String PRIYA_PASSWORD = "PriyaDemo123!";
+251:    Agent priyaAgent = createPriya(manager);
+257:    counts.agents = 3; // Jordan (existing) + Priya + Marcus
+348:  private Agent createPriya(AuthenticatedPrincipal manager) {
+353:                    "Priya Shah", Country.UNITED_KINGDOM, new BigDecimal("4500.00"), PRIYA_USERNAME),
+595:  // Current-month Requests — Contract UK1 (Solstice / Priya)

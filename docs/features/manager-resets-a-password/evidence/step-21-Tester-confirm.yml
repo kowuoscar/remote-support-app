@@ -1,0 +1,5 @@
+- dialog "Reset password for ui.t1.1790895352481@example.com":
+  - heading "Reset password for ui.t1.1790895352481@example.com" [level=2]
+  - paragraph: A new password will be generated for ui.t1.1790895352481@example.com. Their current password stops working as soon as you confirm.
+  - button "Cancel"
+  - button "Reset password"

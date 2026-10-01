@@ -1,0 +1,5 @@
+POST /api/agents (no password) -> 201
+Cache-Control: no-store
+body keys: ['id', 'name', 'country', 'currency', 'salaryAmount', 'contractCount', 'loginUsername', 'password']
+password matches format regex: True (value redacted; throwaway DB)
+sign-in as new agent with returned password -> 200, token present, role=AGENT

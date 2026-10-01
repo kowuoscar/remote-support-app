@@ -1,0 +1,23 @@
+mvn verify: [INFO] Tests run: 568, Failures: 0, Errors: 0, Skipped: 0; [INFO] BUILD SUCCESS
+mvn exit 0
+lint: lint exit 0
+tsc: tsc exit 0
+ Test Files  44 passed (44)
+      Tests  246 passed (246)
+vitest exit 0
+e2e isolated:   74 passed (2.8m)  e2e exit 0
+visual: [WebServer] Dashboard: Review Queue load failed with status 401 [WebServer] Dashboard: Pending Requests load failed with status 401   57 passed (14.8s)  visual exit 0
+
+Golden changes on this branch vs main (git diff --name-status main...HEAD):
+A	frontend/tests/visual/__screenshots__/reset-password-dialog-confirm-desktop-dark.png
+A	frontend/tests/visual/__screenshots__/reset-password-dialog-confirm-desktop-light.png
+A	frontend/tests/visual/__screenshots__/reset-password-dialog-confirm-mobile-dark.png
+A	frontend/tests/visual/__screenshots__/reset-password-dialog-confirm-mobile-light.png
+A	frontend/tests/visual/__screenshots__/reset-password-dialog-reveal-desktop-dark.png
+A	frontend/tests/visual/__screenshots__/reset-password-dialog-reveal-desktop-light.png
+A	frontend/tests/visual/__screenshots__/reset-password-dialog-reveal-mobile-dark.png
+A	frontend/tests/visual/__screenshots__/reset-password-dialog-reveal-mobile-light.png
+A	frontend/tests/visual/__screenshots__/reset-tester-password-dialog-confirm-desktop-dark.png
+A	frontend/tests/visual/__screenshots__/reset-tester-password-dialog-confirm-desktop-light.png
+A	frontend/tests/visual/__screenshots__/reset-tester-password-dialog-confirm-mobile-dark.png
+A	frontend/tests/visual/__screenshots__/reset-tester-password-dialog-confirm-mobile-light.png

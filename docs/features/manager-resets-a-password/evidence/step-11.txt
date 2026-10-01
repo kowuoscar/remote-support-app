@@ -1,0 +1,10 @@
+standing amounts endpoint probe: 200
+Agent before reset: {'id': 'eb9d358a-386a-4c3a-85fa-0b8707aa6c19', 'name': 'Acc Agent', 'country': 'UNITED_STATES', 'currency': 'USD', 'salaryAmount': 100.0, 'contractCount': 0, 'loginUsername': 'acc.agent.1790895157@example.com'}
+Agent after reset:  {'id': 'eb9d358a-386a-4c3a-85fa-0b8707aa6c19', 'name': 'Acc Agent', 'country': 'UNITED_STATES', 'currency': 'USD', 'salaryAmount': 100.0, 'contractCount': 0, 'loginUsername': 'acc.agent.1790895157@example.com'}
+identical: True
+standing amounts before: {'salaryAmount': 100.0, 'rolloutAdvanceAmount': 0}
+after: {'salaryAmount': 100.0, 'rolloutAdvanceAmount': 0}
+identical: True
+Tester before: {'id': '7433bc37-f56e-41a7-9713-2d14a9596437', 'clientId': '9957a1d8-49ae-4c63-95ac-e6f4b8717242', 'username': 'acc.tester.1790895157@example.com', 'isPrimaryContact': True}
+Tester after:  {'id': '7433bc37-f56e-41a7-9713-2d14a9596437', 'clientId': '9957a1d8-49ae-4c63-95ac-e6f4b8717242', 'username': 'acc.tester.1790895157@example.com', 'isPrimaryContact': True}
+identical: True

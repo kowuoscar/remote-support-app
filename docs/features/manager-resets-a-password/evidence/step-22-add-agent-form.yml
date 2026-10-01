@@ -1,0 +1,25 @@
+- dialog:
+  - heading "Add an agent" [level=2]
+  - paragraph: Currency follows the agent’s country automatically.
+  - text: Agent name
+  - textbox "Agent name":
+    - /placeholder: Camille Duforet
+  - text: Country
+  - combobox "Country":
+    - option "France" [selected]
+    - option "Spain"
+    - option "United Kingdom"
+    - option "Mexico"
+    - option "Philippines"
+    - option "United States"
+  - text: Standing monthly salary
+  - spinbutton "Standing monthly salary"
+  - text: Currency EUR
+  - group "Sign-in":
+    - text: Sign-in
+    - paragraph: A password is generated when you create the login — you'll see it once.
+    - text: Email
+    - textbox "Email":
+      - /placeholder: camille.duforet@agents.example
+  - button "Cancel"
+  - button "Add agent"

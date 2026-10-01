@@ -1,0 +1,8 @@
+- dialog "Create a login for Loginless Three":
+  - heading "Create a login for Loginless Three" [level=2]
+  - paragraph: A password is generated when you create the login — you'll see it once.
+  - text: Email
+  - textbox "Email":
+    - /placeholder: camille.duforet@agents.example
+  - button "Cancel"
+  - button "Create login"

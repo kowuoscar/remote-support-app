@@ -1,0 +1,25 @@
+- main:
+  - navigation "Breadcrumb":
+    - link "Clients":
+      - /url: /manager/clients
+    - text: UI Client 1790895352481
+  - heading "Testers" [level=2]
+  - button "Add tester"
+  - table:
+    - rowgroup:
+      - row "Email Role Actions":
+        - columnheader "Email"
+        - columnheader "Role"
+        - columnheader "Actions"
+    - rowgroup:
+      - row "ui.t1.1790895352481@example.com Primary contact Actions":
+        - cell "ui.t1.1790895352481@example.com"
+        - cell "Primary contact"
+        - cell "Actions":
+          - button "Reset password for ui.t1.1790895352481@example.com": Reset password
+      - row "ui.t2.1790895352481@example.com Tester Actions":
+        - cell "ui.t2.1790895352481@example.com"
+        - cell "Tester"
+        - cell "Actions":
+          - button "Reset password for ui.t2.1790895352481@example.com": Reset password
+  - status

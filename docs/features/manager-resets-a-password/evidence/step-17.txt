@@ -1,0 +1,8 @@
+NOTE: the first block (and its RESULT line) is from an earlier run of the same script whose assertion on the total dialog count was over-strict (1 vs 2: the page has the Add tester dialog plus the one shared reset dialog); the last block is the final run. Fixture emails differ per run.
+Tester rows: 2; Reset buttons with accessible names: Reset password for ui.t1.1790895322258@example.com,Reset password for ui.t2.1790895322258@example.com
+<dialog> elements in DOM: 2 (open: 0); <form> inside any dialog while closed: 0
+RESULT: FAILED expect(received).toBe(expected) // Object.is equality |  | Expected: 1 | Received: 2
+Tester rows: 2; Reset buttons with accessible names: Reset password for ui.t1.1790895352481@example.com,Reset password for ui.t2.1790895352481@example.com
+<dialog> elements in DOM: 2 (open: 0); <form> inside any dialog while closed: 0
+dialog elements: 2 = the existing Add tester dialog + ONE shared reset dialog (not one per row); dialogs without a form (the reset dialog, closed): 2
+RESULT: passed

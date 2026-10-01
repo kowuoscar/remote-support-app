@@ -1,0 +1,204 @@
+{
+ "feature": "manager-resets-a-password",
+ "played_at": "2026-10-02",
+ "played_on": "feature/manager-resets-a-password",
+ "environment": "Throwaway docker run postgres:16-alpine on a free port; backend via mvn spring-boot:run (JDK 21, non-demo profile) on a free port; frontend via npm run build and next start with BACKEND_URL; Playwright for browser steps; step 15 ran the isolated e2e and visual suites on their own stacks. All stopped afterwards; the developer's compose stack untouched. Generated passwords redacted in all evidence.",
+ "steps": [
+  {
+   "step": 1,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-1.txt",
+   "note": "201, no-store, password matches format, signs in. Password redacted."
+  },
+  {
+   "step": 2,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-2.txt",
+   "note": "All 3 routes: a typed Passw0rd!23 is 401 at sign-in; the returned password is 200. Login-less Agent created by SQL fixture (the product cannot create one)."
+  },
+  {
+   "step": 3,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-3.txt",
+   "note": "No password key in either list."
+  },
+  {
+   "step": 4,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-4.txt",
+   "note": "200, no-store, new password differs, creation password 401."
+  },
+  {
+   "step": 5,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-5.txt",
+   "note": "Same for a Tester."
+  },
+  {
+   "step": 6,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-6.txt",
+   "note": "PasswordGeneratorTest, PasswordWriteGeneratedTest (3), PasswordWriteTest pass."
+  },
+  {
+   "step": 7,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-7.txt",
+   "note": "409 AGENT_HAS_NO_LOGIN; 404 unknown Agent; 404 unknown Tester."
+  },
+  {
+   "step": 8,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-8.txt",
+   "note": "Played via the OtherTenantFixture integration tests (404, and the original password still works), not a live stack."
+  },
+  {
+   "step": 9,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-9.txt",
+   "note": "Seeded Agent and Tester tokens get 403 on both routes (the seeded Tester is tester@example.com)."
+  },
+  {
+   "step": 10,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-10.txt",
+   "note": "Guard's Manager-target test passes; routes take path ids only; no Manager login on any reset surface."
+  },
+  {
+   "step": 11,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-11.txt",
+   "note": "Agent list entry, standing amounts and Tester list entry identical before and after a reset."
+  },
+  {
+   "step": 12,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-12.txt",
+   "note": "4 resets give 4 PASSWORD_CHANGED lines with the right ids; no password or hash in the log; refusals wrote nothing."
+  },
+  {
+   "step": 13,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-13.txt",
+   "note": "encode only in PasswordWrite; SecureRandom only in PasswordGenerator; no migration, SecurityConfig, lib/nav.tsx or LoginRequest change."
+  },
+  {
+   "step": 14,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-14.txt",
+   "note": "DemoDataLoaderApiTest 3/3 (Priya, Dana, Noah sign in); AuthLoginTest 4/4."
+  },
+  {
+   "step": 15,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-15.txt",
+   "note": "verify green (mvn 568, vitest 246, e2e 74) and visual 57; 12 new reset-dialog goldens, no existing golden recaptured. The spec's expected Agent-page and Client-page recaptures did not occur because those surfaces have no goldens (spec wording to correct)."
+  },
+  {
+   "step": 16,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-16.txt",
+   "note": "Reset password beside the email with a Login; only Create login without."
+  },
+  {
+   "step": 17,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-17.txt",
+   "note": "Named buttons on every Tester row; one shared reset dialog with no form while closed. The page also has the existing Add tester dialog, so it has 2 dialog elements; the step's literal 'only one dialog element' is spec wording to correct."
+  },
+  {
+   "step": 18,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-18.txt",
+   "note": "Played with step 19 in one flow; Cancel leaves the old password working."
+  },
+  {
+   "step": 19,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-19.txt",
+   "note": "Read-only, focused and selected field; warning shown; Copy announces Copied; focus returns; status has no password; password absent from the DOM; reopen shows confirm."
+  },
+  {
+   "step": 20,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-20.txt",
+   "note": "UI sign-in with the revealed password reaches /agent; after a self-service change, the revealed one is 401."
+  },
+  {
+   "step": 21,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-21.txt",
+   "note": "Same for a Tester from the Client page; reaches /client."
+  },
+  {
+   "step": 22,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-22.txt",
+   "note": "Creation dialogs have no password field and show the hint; the reveal names the email and signs in; Create login swaps to the email only after Done."
+  },
+  {
+   "step": 23,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-23.txt",
+   "note": "Escape closed the reveal without copying; a reset then signs in."
+  },
+  {
+   "step": 24,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-24.txt",
+   "note": "reset-password-dialog.test.tsx 10/10 including the 409 stale-page and 404 no-longer-exists cases."
+  },
+  {
+   "step": 25,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-25.txt",
+   "note": "Keyboard-only at 1280x800 and 390x844: visible 2px focus outline, focus returns after Done and Escape, controls in the viewport."
+  },
+  {
+   "step": 26,
+   "actor": "human",
+   "status": "pending",
+   "evidence": "",
+   "note": ""
+  },
+  {
+   "step": 27,
+   "actor": "human",
+   "status": "pending",
+   "evidence": "",
+   "note": ""
+  },
+  {
+   "step": 28,
+   "actor": "human",
+   "status": "pending",
+   "evidence": "",
+   "note": ""
+  }
+ ]
+}

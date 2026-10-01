@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Manager-only password resets (manager-resets-a-password spec, "Reset endpoints"). The Manager
- * addresses the Agent, never a {@code User} id; no body. {@code SecurityConfig}'s Manager-only
- * {@code /api/agents/**} matcher already covers the route. Has its own {@code @ExceptionHandler}
+ * addresses the Agent or Tester, never a {@code User} id; no body. {@code SecurityConfig}'s
+ * Manager-only {@code /api/agents/**} and {@code /api/clients/**} matchers already cover the routes. Has its own {@code @ExceptionHandler}
  * for the coded 409, as {@link ChangePasswordController} does.
  */
 @RestController
@@ -32,6 +32,17 @@ public class PasswordResetController {
   public ResponseEntity<PasswordResetResponse> resetAgentPassword(
       @PathVariable UUID agentId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     String password = passwordResetService.resetAgentPassword(agentId, principal);
+    return ResponseEntity.ok()
+        .cacheControl(CacheControl.noStore())
+        .body(new PasswordResetResponse(password));
+  }
+
+  @PostMapping("/api/clients/{clientId}/testers/{testerId}/password")
+  public ResponseEntity<PasswordResetResponse> resetTesterPassword(
+      @PathVariable UUID clientId,
+      @PathVariable UUID testerId,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    String password = passwordResetService.resetTesterPassword(clientId, testerId, principal);
     return ResponseEntity.ok()
         .cacheControl(CacheControl.noStore())
         .body(new PasswordResetResponse(password));

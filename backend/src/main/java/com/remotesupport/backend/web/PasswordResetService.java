@@ -1,9 +1,13 @@
 package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.Agent;
+import com.remotesupport.backend.domain.Client;
+import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.AgentRepository;
+import com.remotesupport.backend.repository.ClientRepository;
+import com.remotesupport.backend.repository.TesterRepository;
 import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import com.remotesupport.backend.security.LoginAdministrationGuard;
@@ -22,16 +26,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class PasswordResetService {
 
   private final AgentRepository agentRepository;
+  private final ClientRepository clientRepository;
+  private final TesterRepository testerRepository;
   private final UserRepository userRepository;
   private final LoginAdministrationGuard guard;
   private final PasswordWrite passwordWrite;
 
   public PasswordResetService(
       AgentRepository agentRepository,
+      ClientRepository clientRepository,
+      TesterRepository testerRepository,
       UserRepository userRepository,
       LoginAdministrationGuard guard,
       PasswordWrite passwordWrite) {
     this.agentRepository = agentRepository;
+    this.clientRepository = clientRepository;
+    this.testerRepository = testerRepository;
     this.userRepository = userRepository;
     this.guard = guard;
     this.passwordWrite = passwordWrite;
@@ -53,6 +63,23 @@ public class PasswordResetService {
             .orElseThrow(
                 () -> new AgentHasNoLoginException("Agent " + agent.getId() + " has no login"));
     return reset(login, caller);
+  }
+
+  /**
+   * 404 ({@link NotFoundException}) for an unknown Client or Tester, or a Client in another Tenant,
+   * 403 when the guard refuses. A Tester always has a Login, so there is no 409.
+   */
+  @Transactional
+  public String resetTesterPassword(UUID clientId, UUID testerId, AuthenticatedPrincipal caller) {
+    Client client =
+        clientRepository
+            .findByIdAndTenantId(clientId, caller.tenantId())
+            .orElseThrow(() -> new NotFoundException("No client with id " + clientId));
+    Tester tester =
+        testerRepository
+            .findByIdAndClientId(testerId, client.getId())
+            .orElseThrow(() -> new NotFoundException("No tester with id " + testerId));
+    return reset(tester.getUser(), caller);
   }
 
   private String reset(User login, AuthenticatedPrincipal caller) {

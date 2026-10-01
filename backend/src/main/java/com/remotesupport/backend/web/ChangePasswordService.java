@@ -4,6 +4,7 @@ import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
+import com.remotesupport.backend.security.PasswordWrite;
 import com.remotesupport.backend.web.ChangePasswordRefusedException.Reason;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,10 +24,13 @@ public class ChangePasswordService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final PasswordWrite passwordWrite;
 
-  public ChangePasswordService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+  public ChangePasswordService(
+      UserRepository userRepository, PasswordEncoder passwordEncoder, PasswordWrite passwordWrite) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+    this.passwordWrite = passwordWrite;
   }
 
   /**
@@ -60,7 +64,7 @@ public class ChangePasswordService {
           Reason.PASSWORD_UNCHANGED, "The new password must be different from the current one");
     }
 
-    user.setPasswordHash(passwordEncoder.encode(newPassword));
+    passwordWrite.setPassword(user, newPassword);
     userRepository.save(user);
 
     AuditLog.passwordChanged(user.getId(), principal.userId(), principal.tenantId());

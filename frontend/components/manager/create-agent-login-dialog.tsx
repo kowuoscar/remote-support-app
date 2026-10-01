@@ -99,7 +99,7 @@ export function CreateAgentLoginDialog({
         onClosed={handleClosed}
       >
         {created ? (
-          <GeneratedPasswordReveal email={created.email} password={created.password} mode="creation" onClose={close} />
+          <GeneratedPasswordReveal email={created.email} password={created.password} mode="creation" titleId={titleId} onClose={close} />
         ) : (
           <form className="flex flex-col gap-4 p-6" onSubmit={handleSubmit}>
             <div>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreateAgentLoginDialog } from "@/components/manager/create-agent-login-dialog";
 import { ResetPasswordDialog, type ResetPasswordDialogHandle } from "@/components/manager/reset-password-dialog";
+import { useAnnouncement } from "@/components/manager/use-announcement";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -28,7 +29,7 @@ export function AgentSignInEmail({
   const emailRef = useRef<HTMLParagraphElement>(null);
   const resetRef = useRef<ResetPasswordDialogHandle>(null);
   const [createdUsername, setCreatedUsername] = useState<string | null>(null);
-  const [resetEmail, setResetEmail] = useState<string | null>(null);
+  const [announcement, announce] = useAnnouncement();
   const email = loginUsername ?? createdUsername;
 
   useEffect(() => {
@@ -62,7 +63,7 @@ export function AgentSignInEmail({
           >
             Reset password
           </Button>
-          <ResetPasswordDialog ref={resetRef} onReset={setResetEmail} />
+          <ResetPasswordDialog ref={resetRef} onReset={(resetEmail) => announce(`Password reset for ${resetEmail}.`)} />
         </div>
       ) : (
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1.5">
@@ -71,11 +72,8 @@ export function AgentSignInEmail({
         </div>
       )}
       <output className="sr-only">
-        {resetEmail
-          ? `Password reset for ${resetEmail}.`
-          : createdUsername
-            ? `Login created. ${agentName} can now sign in with ${createdUsername}.`
-            : ""}
+        {announcement ??
+          (createdUsername ? `Login created. ${agentName} can now sign in with ${createdUsername}.` : "")}
       </output>
     </div>
   );

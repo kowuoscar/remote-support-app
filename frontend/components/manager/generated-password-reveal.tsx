@@ -17,11 +17,14 @@ export function GeneratedPasswordReveal({
   email,
   password,
   mode,
+  titleId,
   onClose,
 }: Readonly<{
   email: string;
   password: string;
   mode: "creation" | "reset";
+  /** The owning dialog's `aria-labelledby` target, so the dialog keeps its name on this step. */
+  titleId: string;
   onClose: () => void;
 }>) {
   const fieldRef = useRef<HTMLInputElement>(null);
@@ -47,10 +50,11 @@ export function GeneratedPasswordReveal({
   return (
     <div className="flex flex-col gap-4 p-6">
       <div>
-        <h2 id={id} className="text-base font-semibold text-ink">
+        <h2 id={titleId} className="text-base font-semibold text-ink">
           {mode === "reset" ? "Password reset" : "Login created"}
         </h2>
-        <p className="text-[13px] text-ink-mute">
+        {/* 13px: the type scale has no token between text-xs and text-sm; matches the dialog body copy. */}
+        <p className="mt-1 break-words text-[13px] text-ink-mute">
           {mode === "reset"
             ? `${email} can now sign in with this new password. Their old one no longer works.`
             : `${email} can now sign in with this password.`}
@@ -58,6 +62,7 @@ export function GeneratedPasswordReveal({
       </div>
 
       <div className="flex flex-col gap-1.5">
+        {/* 13px: same as every Manager dialog field label (no token between text-xs and text-sm). */}
         <label htmlFor={`${id}-field`} className="text-[13px] font-medium text-ink">
           Generated password
         </label>
@@ -69,17 +74,19 @@ export function GeneratedPasswordReveal({
             value={password}
             autoComplete="off"
             spellCheck={false}
-            className="tnum bg-canvas-soft font-mono tracking-widest"
+            className="tnum bg-canvas-soft tracking-widest"
           />
           <Button type="button" variant="secondary" size="sm" onClick={copy} className="shrink-0">
             Copy password
           </Button>
         </div>
-        <p role="status" className="text-[12px] text-ink-mute empty:hidden">
+        {/* 12px: helper-text size used across the app, no token for it. Empty it is sr-only, never display:none, so the live region stays in the accessibility tree. */}
+        <p role="status" className="text-[12px] text-ink-mute empty:sr-only">
           {status}
         </p>
       </div>
 
+      {/* 13px: dialog body copy, as above. */}
       <p className="text-[13px] text-ink-secondary">
         This password won&apos;t be shown again. Give it to them yourself — they can change it afterwards from their
         own menu.

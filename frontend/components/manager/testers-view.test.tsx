@@ -62,4 +62,32 @@ describe("ManagerTestersView reset password", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("cleo@client.example no longer exists.");
   });
+
+  it("announces a second reset of the same Tester afresh: the region empties before the message returns", async () => {
+    stubFetch(200, { password: "k7Qm-x2Vd-9Rtw" });
+    renderView();
+    const trigger = screen.getByRole("button", { name: "Reset password for ben@client.example" });
+    const texts: string[] = [];
+    const observer = new MutationObserver(() => texts.push(screen.getByRole("status").textContent ?? ""));
+    observer.observe(screen.getByRole("status"), { childList: true, characterData: true, subtree: true });
+
+    for (let round = 0; round < 2; round++) {
+      await userEvent.click(trigger);
+      const dialog = screen.getByRole("dialog");
+      await userEvent.click(within(dialog).getByRole("button", { name: "Reset password" }));
+      await userEvent.click(await within(dialog).findByRole("button", { name: "Done" }));
+      await waitFor(() => expect(texts.filter((t) => t !== "")).toHaveLength(round + 1));
+    }
+    observer.disconnect();
+
+    const message = "Password reset for ben@client.example.";
+    expect(texts.filter((t) => t === message)).toHaveLength(2);
+    expect(texts.indexOf("", texts.indexOf(message))).toBeGreaterThan(-1);
+  });
+
+  it("right-aligns the actions column", () => {
+    renderView();
+    expect(screen.getByRole("columnheader", { name: "Actions" })).toHaveClass("text-right");
+    expect(screen.getAllByRole("cell", { name: "Actions" })[0]).toHaveClass("text-right");
+  });
 });

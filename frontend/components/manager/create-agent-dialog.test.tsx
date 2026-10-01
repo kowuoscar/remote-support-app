@@ -69,4 +69,15 @@ describe("CreateAgentDialog", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't create the agent. Try again.");
   });
+
+  it("is named by its heading on the form step and on the reveal step", async () => {
+    stubFetch(201, { id: "a-1", loginUsername: "camille@agents.example", password: PASSWORD });
+    const dialog = await openDialog();
+    expect(screen.getByRole("dialog", { name: "Add an agent" })).toBe(dialog);
+
+    await submit(dialog);
+
+    await within(dialog).findByLabelText("Generated password");
+    expect(screen.getByRole("dialog", { name: "Login created" })).toBe(dialog);
+  });
 });

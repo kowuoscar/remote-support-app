@@ -36,6 +36,7 @@ function errorFor(code: string | null, status: number): SubmitError {
  */
 export function CreateAgentDialog() {
   const shellRef = useRef<DialogShellHandle>(null);
+  const titleId = useId();
   const signInHintId = useId();
   const router = useRouter();
   const [name, setName] = useState("");
@@ -111,13 +112,13 @@ export function CreateAgentDialog() {
         <IconPlus className="h-4 w-4" />
         Add agent
       </Button>
-      <DialogShell ref={shellRef} submitting={submitting} onClosed={() => setCreated(null)}>
+      <DialogShell ref={shellRef} submitting={submitting} titleId={titleId} onClosed={() => setCreated(null)}>
         {created ? (
-          <GeneratedPasswordReveal email={created.email} password={created.password} mode="creation" onClose={close} />
+          <GeneratedPasswordReveal email={created.email} password={created.password} mode="creation" titleId={titleId} onClose={close} />
         ) : (
           <form className="flex flex-col gap-4 p-6" onSubmit={handleSubmit}>
             <div>
-              <h2 className="text-base font-semibold text-ink">Add an agent</h2>
+              <h2 id={titleId} className="text-base font-semibold text-ink">Add an agent</h2>
               <p className="text-[13px] text-ink-mute">Currency follows the agent&rsquo;s country automatically.</p>
             </div>
 

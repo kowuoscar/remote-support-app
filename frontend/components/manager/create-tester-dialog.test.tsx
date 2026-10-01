@@ -88,4 +88,15 @@ describe("CreateTesterDialog", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't create the tester. Try again.");
   });
+
+  it("is named by its heading on the form step and on the reveal step", async () => {
+    stubFetch(201, { id: "tester-1", username: "tom.reyes@client.example", password: "k7Qm-x2Vd-9Rtw" });
+    const dialog = await openDialog();
+    expect(screen.getByRole("dialog", { name: "Add a tester" })).toBe(dialog);
+
+    await submit(dialog);
+
+    await within(dialog).findByLabelText("Generated password");
+    expect(screen.getByRole("dialog", { name: "Login created" })).toBe(dialog);
+  });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
@@ -8,6 +8,7 @@ import { IconClients } from "@/components/icons";
 import { CreateTesterDialog } from "@/components/manager/create-tester-dialog";
 import { Button } from "@/components/ui/button";
 import { ResetPasswordDialog, type ResetPasswordDialogHandle } from "@/components/manager/reset-password-dialog";
+import { useAnnouncement } from "@/components/manager/use-announcement";
 import type { TesterListItem } from "@/lib/api/types";
 
 /**
@@ -22,7 +23,7 @@ export function ManagerTestersView({
   testers: TesterListItem[];
 }) {
   const resetRef = useRef<ResetPasswordDialogHandle>(null);
-  const [resetEmail, setResetEmail] = useState<string | null>(null);
+  const [announcement, announce] = useAnnouncement();
 
   return (
     <div className="flex flex-col gap-4">
@@ -44,7 +45,7 @@ export function ManagerTestersView({
               <Tr>
                 <Th>Email</Th>
                 <Th>Role</Th>
-                <Th>
+                <Th className="text-right">
                   <span className="sr-only">Actions</span>
                 </Th>
               </Tr>
@@ -61,7 +62,7 @@ export function ManagerTestersView({
                     )}
                   </Td>
                   {/* Named "Actions" so the cell never repeats the email its button carries: the email cell stays the one cell that answers to the email. */}
-                  <Td aria-label="Actions">
+                  <Td aria-label="Actions" className="text-right">
                     <Button
                       variant="row"
                       size="sm"
@@ -84,8 +85,8 @@ export function ManagerTestersView({
           </Table>
         </TableScroll>
       )}
-      <ResetPasswordDialog ref={resetRef} onReset={setResetEmail} />
-      <output className="sr-only">{resetEmail ? `Password reset for ${resetEmail}.` : ""}</output>
+      <ResetPasswordDialog ref={resetRef} onReset={(email) => announce(`Password reset for ${email}.`)} />
+      <output className="sr-only">{announcement}</output>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { IconPlus } from "@/components/icons";
@@ -23,6 +23,7 @@ import { readErrorCode, usernameTakenError, type SubmitError } from "@/lib/api/e
  */
 export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>) {
   const shellRef = useRef<DialogShellHandle>(null);
+  const titleId = useId();
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [created, setCreated] = useState<{
@@ -89,14 +90,15 @@ export function CreateTesterDialog({ clientId }: Readonly<{ clientId: string }>)
         ref={shellRef}
         submitting={submitting}
         widthClassName="w-[min(420px,90vw)]"
+        titleId={titleId}
         onClosed={() => setCreated(null)}
       >
         {created ? (
-          <GeneratedPasswordReveal email={created.email} password={created.password} mode="creation" onClose={close} />
+          <GeneratedPasswordReveal email={created.email} password={created.password} mode="creation" titleId={titleId} onClose={close} />
         ) : (
           <form className="flex flex-col gap-4 p-6" onSubmit={handleSubmit}>
             <div>
-              <h2 className="text-base font-semibold text-ink">Add a tester</h2>
+              <h2 id={titleId} className="text-base font-semibold text-ink">Add a tester</h2>
               <p className="text-[13px] text-ink-mute">{GENERATED_PASSWORD_HINT}</p>
             </div>
 

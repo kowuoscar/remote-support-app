@@ -154,4 +154,15 @@ describe("ResetPasswordDialog", () => {
     );
     expect(within(dialog).getByRole("button", { name: "Reset password" })).toBeEnabled();
   });
+
+  it("is named by its heading on the confirm step and on the reveal step", async () => {
+    stubFetch(200, { password: PASSWORD });
+    const { dialog } = await openDialog();
+    expect(screen.getByRole("dialog", { name: "Reset password for Camille Duforet" })).toBe(dialog);
+
+    await confirm(dialog);
+
+    await within(dialog).findByLabelText("Generated password");
+    expect(screen.getByRole("dialog", { name: "Password reset" })).toBe(dialog);
+  });
 });

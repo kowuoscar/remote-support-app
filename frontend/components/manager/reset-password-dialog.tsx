@@ -90,19 +90,21 @@ export const ResetPasswordDialog = forwardRef<ResetPasswordDialogHandle, ResetPa
       <DialogShell
         ref={shellRef}
         submitting={submitting}
+        // Arbitrary: 420px caps the dialog on desktop, 90vw keeps a margin on a phone; no width token does both.
         widthClassName="w-[min(420px,90vw)]"
         titleId={titleId}
         onClosed={handleClosed}
       >
         {target && password ? (
-          <GeneratedPasswordReveal email={target.email} password={password} mode="reset" onClose={close} />
+          <GeneratedPasswordReveal email={target.email} password={password} mode="reset" titleId={titleId} onClose={close} />
         ) : target ? (
           <div className="flex flex-col gap-4 p-6">
             <div>
-              <h2 id={titleId} className="text-base font-semibold text-ink">
+              <h2 id={titleId} className="break-words text-base font-semibold text-ink">
                 Reset password for {target.name}
               </h2>
-              <p className="mt-1 text-[13px] text-ink-mute">
+              {/* 13px: the dialog body size; the type scale has no token between text-xs and text-sm. */}
+              <p className="mt-1 break-words text-[13px] text-ink-mute">
                 A new password will be generated for {target.email}. Their current password stops working as soon as
                 you confirm.
               </p>

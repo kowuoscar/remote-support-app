@@ -9,7 +9,7 @@ function stubClipboard(writeText: (text: string) => Promise<void>) {
 }
 
 function renderReveal(mode: "creation" | "reset" = "creation", onClose = vi.fn()) {
-  render(<GeneratedPasswordReveal email="camille@agents.example" password={PASSWORD} mode={mode} onClose={onClose} />);
+  render(<GeneratedPasswordReveal email="camille@agents.example" password={PASSWORD} mode={mode} titleId="reveal-title" onClose={onClose} />);
   return { onClose };
 }
 
@@ -63,14 +63,19 @@ describe("GeneratedPasswordReveal", () => {
 
   it("words the creation and reset variants", () => {
     const { unmount } = render(
-      <GeneratedPasswordReveal email="a@b.example" password={PASSWORD} mode="creation" onClose={vi.fn()} />,
+      <GeneratedPasswordReveal email="a@b.example" password={PASSWORD} mode="creation" titleId="reveal-title" onClose={vi.fn()} />,
     );
     expect(screen.getByText("a@b.example can now sign in with this password.")).toBeInTheDocument();
     unmount();
-    render(<GeneratedPasswordReveal email="a@b.example" password={PASSWORD} mode="reset" onClose={vi.fn()} />);
+    render(<GeneratedPasswordReveal email="a@b.example" password={PASSWORD} mode="reset" titleId="reveal-title" onClose={vi.fn()} />);
     expect(
       screen.getByText("a@b.example can now sign in with this new password. Their old one no longer works."),
     ).toBeInTheDocument();
+  });
+
+  it("puts the owning dialog's title id on its heading, so the dialog keeps a name", () => {
+    renderReveal("reset");
+    expect(screen.getByRole("heading", { name: "Password reset" })).toHaveAttribute("id", "reveal-title");
   });
 
   it("leaves localStorage and sessionStorage empty", () => {

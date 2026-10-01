@@ -1,7 +1,7 @@
 ---
 id: reset-a-testers-password-api
 title: Let a Manager reset a Tester's password through the API
-status: in-progress
+status: done
 depends_on: [reset-an-agents-password-api]
 labels: [backend]
 stories: [2, 15, 17, 18, 20, 21, 24]

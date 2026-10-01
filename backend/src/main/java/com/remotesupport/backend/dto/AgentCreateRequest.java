@@ -19,7 +19,7 @@ public record AgentCreateRequest(
     @NotNull Country country,
     @NotNull @DecimalMin(value = "0.0", inclusive = true) BigDecimal salaryAmount,
     @NotBlank String username,
-    @NotBlank @Size(min = PasswordPolicy.MIN_LENGTH, message = PasswordPolicy.TOO_SHORT_MESSAGE)
+    @Size(min = PasswordPolicy.MIN_LENGTH, message = PasswordPolicy.TOO_SHORT_MESSAGE)
         String password) {
 
   /** Never echo the password — e.g. in a validation-failure log line that prints the request. */

@@ -1,6 +1,7 @@
 package com.remotesupport.backend.web;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -127,14 +128,16 @@ class AgentApiTest extends IntegrationTest {
   }
 
   @Test
-  void creatingAnAgentWithoutAPasswordIsRejectedAndCreatesNoAgent() throws Exception {
+  void creatingAnAgentWithoutAPasswordCreatesItAndTheReturnedPasswordSignsIn() throws Exception {
     String token = managerToken();
     Map<String, Object> body = agentBody("No Password Agent", "nopassword@agents.example");
     body.remove("password");
 
-    postJson("/api/agents", token, body).andExpect(status().isBadRequest());
+    MvcResult created = postJson("/api/agents", token, body).andExpect(status().isCreated()).andReturn();
+    String password =
+        objectMapper.readTree(created.getResponse().getContentAsString()).get("password").asText();
 
-    assertNoAgentNamed(token, "No Password Agent");
+    assertThat(loginAs("nopassword@agents.example", password)).isNotBlank();
   }
 
   @Test

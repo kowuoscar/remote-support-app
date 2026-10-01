@@ -10,6 +10,6 @@ import jakarta.validation.constraints.Size;
  */
 public record TesterCreateRequest(
     @NotBlank String username,
-    @NotBlank @Size(min = PasswordPolicy.MIN_LENGTH, message = PasswordPolicy.TOO_SHORT_MESSAGE)
+    @Size(min = PasswordPolicy.MIN_LENGTH, message = PasswordPolicy.TOO_SHORT_MESSAGE)
         String password,
     boolean isPrimaryContact) {}

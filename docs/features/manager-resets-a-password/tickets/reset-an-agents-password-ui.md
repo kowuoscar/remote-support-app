@@ -1,7 +1,7 @@
 ---
 id: reset-an-agents-password-ui
 title: Reset an Agent's password from the Agent's page
-status: in-progress
+status: done
 depends_on: [reset-an-agents-password-api, creation-dialogs-reveal-generated-password]
 labels: [frontend]
 stories: [4, 6, 7, 10, 11, 12, 13, 14, 19, 25, 26]

@@ -1,7 +1,7 @@
 ---
 id: reset-a-testers-password-ui
 title: Reset a Tester's password from the Client's page
-status: ready-for-agent
+status: in-progress
 depends_on: [reset-a-testers-password-api, reset-an-agents-password-ui]
 labels: [frontend]
 stories: [2, 5, 13, 17, 19, 25, 26, 27]

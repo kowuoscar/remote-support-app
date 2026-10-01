@@ -1,7 +1,7 @@
 ---
 id: approve-real-client-dashboard
 type: approval
-status: open
+status: answered
 blocks: [real-client-dashboard]
 created: 2026-10-01
 ---
@@ -53,3 +53,5 @@ answer.
 `manager-resets-a-password` is being ticketed and built.
 
 ## Answer
+
+Approved (ok), human, 2026-10-01.

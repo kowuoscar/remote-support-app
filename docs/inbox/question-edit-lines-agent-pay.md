@@ -1,7 +1,7 @@
 ---
 id: question-edit-lines-agent-pay
 type: question
-status: open
+status: answered
 blocks: [edit-client-invoice-lines]
 created: 2026-10-01
 ---
@@ -39,3 +39,12 @@ builds on it and waits too.
 `manager-resets-a-password` is being built.
 
 ## Answer
+
+Not as recommended (human, 2026-10-01): "If an edit occur before approval it
+should update the agent own monthly pay otherwise its a carry-over."
+
+So the Agent's Local Support Fees follow the Client Invoice's **edited
+(billed) amounts** while it is not yet approved. Once it is approved, a
+later correction does not change that month's pay; it carries over to the
+next month (through `invoice-adjustment`). This amends ADR 0002, under which
+pay bypasses the Client Invoice.

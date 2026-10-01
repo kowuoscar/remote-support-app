@@ -1,7 +1,7 @@
 ---
 id: question-edit-lines-reason
 type: question
-status: open
+status: answered
 blocks: [edit-client-invoice-lines]
 created: 2026-10-01
 ---
@@ -33,3 +33,5 @@ builds on it and waits too.
 `manager-resets-a-password` is being built.
 
 ## Answer
+
+Ok (human, 2026-10-01): no reason required.

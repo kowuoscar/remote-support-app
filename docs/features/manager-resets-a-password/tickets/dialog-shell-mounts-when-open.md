@@ -1,7 +1,7 @@
 ---
 id: dialog-shell-mounts-when-open
 title: Mount DialogShell children only while the dialog is open
-status: in-progress
+status: done
 depends_on: []
 labels: [enabler, frontend]
 stories: [14]

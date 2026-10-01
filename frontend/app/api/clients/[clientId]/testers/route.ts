@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { backendFetch } from "@/lib/api/backend";
+import { forwardSecretJson } from "@/lib/api/forward-secret-json";
 
 /** BFF proxy for Tester creation under a Client — see app/api/clients/route.ts for the pattern. */
 export async function POST(
@@ -12,10 +13,5 @@ export async function POST(
     method: "POST",
     body,
   });
-  const responseBody = await backendResponse.text();
-  return new NextResponse(responseBody, {
-    status: backendResponse.status,
-    // The 201 body carries a generated password: never cacheable.
-    headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
-  });
+  return forwardSecretJson(backendResponse);
 }

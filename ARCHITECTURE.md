@@ -31,6 +31,7 @@ error, not a nitpick.
 - `api` · the BFF route handlers; the only place the browser's data reaches the backend.
 - `fonts` · font assets served by the app.
 - `frontend/app/api/agents/[agentId]/login/password/route.ts` · BFF pass-through for the Manager's password reset of an Agent, forwarding `Cache-Control: no-store`.
+- `frontend/app/api/clients/[clientId]/testers/[testerId]/password/route.ts` · BFF pass-through for the Manager's password reset of a Tester, forwarding `Cache-Control: no-store`.
 
 ### Frontend — `frontend/components`
 

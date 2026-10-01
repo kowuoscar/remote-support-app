@@ -1,7 +1,7 @@
 ---
 feature: real-agent-dashboard
 epic: real-dashboards
-status: delivered
+status: accepted
 date: 2026-09-30
 ---
 

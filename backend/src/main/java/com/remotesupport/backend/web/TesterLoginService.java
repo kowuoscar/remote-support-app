@@ -6,11 +6,11 @@ import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.repository.TesterRepository;
 import com.remotesupport.backend.repository.UserRepository;
+import com.remotesupport.backend.security.PasswordWrite;
 import com.remotesupport.backend.web.TesterConflictException.Reason;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,15 +40,15 @@ public class TesterLoginService {
 
   private final UserRepository userRepository;
   private final TesterRepository testerRepository;
-  private final PasswordEncoder passwordEncoder;
+  private final PasswordWrite passwordWrite;
 
   public TesterLoginService(
       UserRepository userRepository,
       TesterRepository testerRepository,
-      PasswordEncoder passwordEncoder) {
+      PasswordWrite passwordWrite) {
     this.userRepository = userRepository;
     this.testerRepository = testerRepository;
-    this.passwordEncoder = passwordEncoder;
+    this.passwordWrite = passwordWrite;
   }
 
   /**
@@ -70,7 +70,7 @@ public class TesterLoginService {
     user.setId(UUID.randomUUID());
     user.setTenant(client.getTenant());
     user.setUsername(username);
-    user.setPasswordHash(passwordEncoder.encode(password));
+    passwordWrite.setPassword(user, password);
     user.setRole(Role.TESTER);
     user.setCreatedAt(Instant.now());
     try {

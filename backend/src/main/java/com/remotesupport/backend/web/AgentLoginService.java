@@ -5,11 +5,11 @@ import com.remotesupport.backend.domain.Role;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.UserRepository;
+import com.remotesupport.backend.security.PasswordWrite;
 import com.remotesupport.backend.web.AgentLoginConflictException.Reason;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,11 +31,11 @@ public class AgentLoginService {
   private static final String ONE_LOGIN_PER_AGENT_INDEX = "uq_users_one_login_per_agent";
 
   private final UserRepository userRepository;
-  private final PasswordEncoder passwordEncoder;
+  private final PasswordWrite passwordWrite;
 
-  public AgentLoginService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+  public AgentLoginService(UserRepository userRepository, PasswordWrite passwordWrite) {
     this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
+    this.passwordWrite = passwordWrite;
   }
 
   /**
@@ -65,7 +65,7 @@ public class AgentLoginService {
     user.setId(UUID.randomUUID());
     user.setTenant(agent.getTenant());
     user.setUsername(username);
-    user.setPasswordHash(passwordEncoder.encode(password));
+    passwordWrite.setPassword(user, password);
     user.setRole(Role.AGENT);
     user.setAgent(agent);
     user.setCreatedAt(Instant.now());

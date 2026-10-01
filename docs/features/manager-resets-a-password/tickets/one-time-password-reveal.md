@@ -36,7 +36,7 @@ Modules touched: `frontend/components` → `manager`.
 
 ## Tests
 
-Seam: Vitest + Testing Library, colocated `reveal.test.tsx`-style file (the spec's
+Seam: Vitest + Testing Library, colocated `generated-password-reveal.test.tsx` (the component being `generated-password-reveal.tsx`) (the spec's
 frontend component-test shape), clipboard stubbed at `navigator.clipboard`.
 
 - value shown read-only, focused and selected on mount;

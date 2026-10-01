@@ -933,12 +933,13 @@ and each has a `[human]` walkthrough step.
 
 ## Execution order
 
-The order is final only once `## Open questions` is approved as `None`. Five
-slices. Tickets 1 and 2 are enablers, independent of each other. Ticket 3
-switches creation to generated passwords end to end; it must land whole,
-because a backend that stops honouring the typed password with a frontend that
-still asks for one breaks every creation. Tickets 4 and 5 are complete
-vertical paths, each demoable alone.
+The order is final only once `## Open questions` is approved as `None`. Eleven
+slices. The switch to generated passwords at creation is cut as expand–contract,
+because a backend that stops honouring the typed password while a frontend still
+sends one breaks every creation: the backend first learns to generate while still
+honouring a typed password (5), the frontend then stops sending one (6), and the
+backend finally removes it (7). The two reset routes need only the generating
+creation (5), so they run in parallel with 6 and 7. Tickets 1 to 4 are enablers.
 
 1. `one-password-write` — the password write component with its raw-value
    operation. `AgentLoginService`, `TesterLoginService` and
@@ -948,29 +949,45 @@ vertical paths, each demoable alone.
 2. `dialog-shell-mounts-when-open` — `DialogShell` renders its children only
    while open, with its component tests, and every existing dialog test green
    unedited. Labels: `enabler`, `frontend`. Depends on nothing. (stories: 14)
-3. `generated-password-at-creation` — the password generator and the password
-   write's generating operation with their unit tests; the three creation DTOs
-   lose `password`; the creation records return it with `no-store`;
-   `AgentLoginService`/`TesterLoginService` generate; `DemoDataLoader` restores
-   its documented passwords, with the `demo`-profile test; `PasswordPolicy`'s
-   Javadoc; every backend test listed in `## Testing decisions` moved to the
-   returned password, and `PasswordMinimumLengthApiTest`'s creation rows removed
-   with its Javadoc fix. Frontend: the one-time reveal component, the three
-   creation dialogs switched to it, `LoginCredentialFields` down to email, the
-   BFF `no-store` forwarding, their component tests, `helpers.ts` and every e2e
-   spec listed, and the one `DESIGN.md` entry. Labels: `backend`, `frontend`.
-   Depends on `one-password-write` and `dialog-shell-mounts-when-open`.
-   (stories: 9, 10, 11, 12, 14, 28, 29, 30)
-4. `reset-an-agents-password` — the guard class, the reset service, the new
-   controller with the Agent route and its coded refusal, the audit line, the
-   Agent-route integration tests including `OtherTenantFixture`'s new Agent,
-   the BFF proxy, the reset dialog on the shared reveal, the **Reset password**
-   action in `AgentSignInEmail`, component tests, the Agent half of the e2e
-   spec, and the Agent page's goldens. Depends on
-   `generated-password-at-creation`. (stories: 1, 3, 4, 6, 7, 8, 10, 11, 12,
-   13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25, 26)
-5. `reset-a-testers-password` — the Tester route on the same controller and
-   service, its integration tests including `OtherTenantFixture`'s new Tester,
-   the BFF proxy, the Testers table's action column reusing the dialog, the
-   Tester half of the e2e spec, and the Client page's goldens. Depends on
-   `reset-an-agents-password`. (stories: 2, 5, 13, 17, 20, 24, 25, 26, 27)
+3. `one-time-password-reveal` — the shared reveal component with its component
+   tests and the one `DESIGN.md` entry. Labels: `enabler`, `frontend`. Depends
+   on nothing. (stories: none)
+4. `generated-password-generator` — the password generator and the password
+   write's generating operation with their unit tests. Labels: `enabler`,
+   `backend`. Depends on `one-password-write`. (stories: none)
+5. `new-logins-generate-password-api` — the three creation routes generate and
+   return a password when none is sent, with `no-store`, the creation records
+   and their tests; a typed password is still honoured. Labels: `backend`.
+   Depends on `generated-password-generator`. (stories: 9, 14, 28)
+6. `creation-dialogs-reveal-generated-password` — the three creation dialogs drop
+   the password field and show the reveal, `LoginCredentialFields` down to email,
+   BFF `no-store` forwarding, `helpers.ts` and every e2e spec listed. Labels:
+   `frontend`. Depends on `new-logins-generate-password-api`,
+   `one-time-password-reveal` and `dialog-shell-mounts-when-open`.
+   (stories: 9, 10, 11, 12, 14, 28)
+7. `creation-takes-no-typed-password` — `password` leaves the three request DTOs,
+   the services always generate, `DemoDataLoader` restores its documented
+   passwords with the `demo`-profile test, `PasswordPolicy`'s Javadoc, every
+   backend test moved to the returned password, `PasswordMinimumLengthApiTest`'s
+   creation rows removed. Labels: `backend`. Depends on
+   `creation-dialogs-reveal-generated-password`. (stories: 9, 14, 28, 29, 30)
+8. `reset-an-agents-password-api` — the guard class, the reset service, the new
+   controller with the Agent route and its coded refusal, the audit line, and the
+   Agent-route integration tests including `OtherTenantFixture`'s new Agent.
+   Labels: `backend`. Depends on `new-logins-generate-password-api`.
+   (stories: 1, 3, 8, 15, 16, 18, 20, 21, 22, 23, 24, 25)
+9. `reset-a-testers-password-api` — the Tester route on the same controller and
+   service, with its integration tests including `OtherTenantFixture`'s new
+   Tester. Labels: `backend`. Depends on `reset-an-agents-password-api`.
+   (stories: 2, 15, 17, 18, 20, 21, 24)
+10. `reset-an-agents-password-ui` — the BFF proxy, the reset dialog on the shared
+    reveal, the **Reset password** action in `AgentSignInEmail`, component tests,
+    the Agent half of the e2e spec, and the Agent page's goldens. Labels:
+    `frontend`. Depends on `reset-an-agents-password-api` and
+    `creation-dialogs-reveal-generated-password`.
+    (stories: 4, 6, 7, 10, 11, 12, 13, 14, 19, 25, 26)
+11. `reset-a-testers-password-ui` — the BFF proxy, the Testers table's action
+    column reusing the dialog, the Tester half of the e2e spec, and the Client
+    page's goldens. Labels: `frontend`. Depends on
+    `reset-a-testers-password-api` and `reset-an-agents-password-ui`.
+    (stories: 2, 5, 13, 17, 19, 25, 26, 27)

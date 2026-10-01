@@ -40,9 +40,6 @@ Seam: HTTP API (`IntegrationTest` + MockMvc), per the spec's `## Testing decisio
 is built on the Testcontainers database.
 
 - one test per route sending a typed password: sign-in with it is `401`, with the returned one a token;
-- "a body with no password creates the Login and the returned password signs in" replaces
-  `AgentApiTest.creatingAnAgentWithoutAPasswordIsRejectedAndCreatesNoAgent` and the password half of
-  `AgentLoginApiTest.aMissingUsernameOrPasswordIsRejected`;
 - `AgentApiTest` and `AgentLoginApiTest` audit tests assert the **returned** password is absent;
   `TesterApiTest`'s audit test gains the same assertion;
 - `DemoDataLoaderApiTest` signs in as `DemoDataLoader.PRIYA_USERNAME`, `DANA_USERNAME`, `NOAH_USERNAME`
@@ -65,9 +62,12 @@ and `ana.lima@agents.example` sign-in), `AgentLoginApiTest` (`loginBody`, `sofia
 `TesterApiTest`, `TesterUsernameConflictApiTest`, `CrossTenantUsernameAgentCreationApiTest`,
 `AgentCreationAtomicityTest`, `TopupFeeFromOptionApiTest` (`priya.raman@aurora.example`),
 `PasswordMinimumLengthApiTest` (`freshAgentLogin`, creation rows removed, stale Javadoc counts fixed),
+`GeneratedPasswordCreationApiTest` (from the expand ticket: its typed-password-honoured and "shorter than 8 is 400" cases become false
+once `password` leaves the DTOs, and are removed or inverted to the ignored-body cases), `AgentOwnRecordApiTest` (calls
+`new AgentCreateRequest(..., PASSWORD)` at `:52` and signs in with `PASSWORD`; moves to the returned password),
 `ChangeOwnPasswordApiTest` (`freshAgentLogin`, `freshTesterLogin`), and `DemoDataLoaderApiTest` (gains
 the sign-in cases; every pre-existing method keeps passing unmodified). `OtherTenantFixture` is not
-edited. Guards that stay unedited: `AuthLoginTest`, `AuthLoginObservabilityTest`.
+edited, and `AgentPasswordResetApiTest` and `TesterPasswordResetApiTest` stay unedited. Guards that stay unedited: `AuthLoginTest`, `AuthLoginObservabilityTest`.
 
 ## Observability
 

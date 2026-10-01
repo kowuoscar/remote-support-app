@@ -46,8 +46,9 @@ Seam: Vitest + Testing Library with the BFF stubbed at `fetch`, then the isolate
 - New `create-agent-dialog.test.tsx` and `create-agent-login-dialog.test.tsx`: no password field;
   `201` shows the reveal with the stubbed password; `CreateAgentLoginDialog` calls `onCreated` only
   on close; USERNAME_TAKEN and generic failures still render.
-- BFF route handlers: `no-store` forwarded on `POST` for `/api/agents`,
-  `/api/agents/[agentId]/login`, `/api/clients/[clientId]/testers`.
+- e2e named cases asserting the POST response's `cache-control` header contains `no-store` for each of the three creation
+  proxies (`/api/agents`, `/api/agents/[agentId]/login`, `/api/clients/[clientId]/testers`), captured with `page.waitForResponse`
+  while creating through the UI.
 - e2e `helpers.ts`: `addTester(page, clientId, email)` loses `password`, reads the **Generated
   password** field, clicks Done and returns it; `createContractWithTester` returns it with the two
   ids; `addTesterAndSubmitRequestAsAgent` uses it; `createUnrelatedContract` stops filling a password.

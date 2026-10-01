@@ -53,7 +53,9 @@ Seam: HTTP API (`IntegrationTest` + MockMvc), one new class
 - per route: typed-password body → typed value signs in, no `password` in the response;
 - list endpoints carry no `password`;
 - log capture: audit line present, returned password absent (all three routes);
-- a body with a typed password shorter than 8 characters is still `400`.
+- a body with a typed password shorter than 8 characters is still `400`;
+- rewritten in place of the missing-password rejections: a body with no password creates the Login and the returned password
+  signs in (in `AgentApiTest` and `AgentLoginApiTest`, below).
 
 ## Regression
 
@@ -61,9 +63,14 @@ At risk: the creation contract the frontend and every test helper use today. Gua
 `AgentApiTest`, `AgentLoginApiTest`, `TesterApiTest`, `TesterUsernameConflictApiTest`,
 `CrossTenantUsernameAgentCreationApiTest`, `AgentCreationAtomicityTest`,
 `PasswordMinimumLengthApiTest` and `DemoDataLoaderApiTest`, plus `IntegrationTest`'s
-`createAgent` / `createTesterAndLogin` helpers, which still send a typed password. All stay
-**unedited and green**: that is the proof the transitional path works. No existing test is
-expected to change.
+`createAgent` / `createTesterAndLogin` helpers, which still send a typed password. Apart from the
+two below, all stay **unedited and green**: that is the proof the transitional path works.
+
+Existing tests this ticket modifies, and why: dropping `@NotBlank` turns a missing password into a
+`201`, so `AgentApiTest.creatingAnAgentWithoutAPasswordIsRejectedAndCreatesNoAgent` (`AgentApiTest.java:130-137`)
+and the `noPassword` half of `AgentLoginApiTest.aMissingUsernameOrPasswordIsRejected`
+(`AgentLoginApiTest.java:162-164`) become "a body with no password creates the Login and the returned password
+signs in". Every other method in both classes keeps passing unmodified.
 
 ## Observability
 

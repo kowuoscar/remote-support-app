@@ -1,7 +1,7 @@
 ---
 id: creation-takes-no-typed-password
 title: Remove the typed password from the three creation routes
-status: in-progress
+status: done
 depends_on: [creation-dialogs-reveal-generated-password]
 labels: [backend]
 stories: [9, 14, 28, 29, 30]

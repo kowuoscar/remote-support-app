@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, type ReactNode } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from "react";
 
 export type DialogShellHandle = { open: () => void; close: () => void };
 
@@ -8,6 +8,9 @@ export type DialogShellHandle = { open: () => void; close: () => void };
  * The native `<dialog>` shell every Manager create/login dialog shares: open and close via a
  * ref handle, Escape blocked while `submitting`, and a click outside the form (on the dialog's
  * own padding — its backdrop) closes it the same way.
+ *
+ * Children are mounted only while the dialog is open, so a closed dialog leaves nothing (a
+ * form, a shown password) in the page's DOM.
  *
  * The backdrop-click listener is attached imperatively with `addEventListener`, next to the
  * `showModal`/`close` calls it belongs with, instead of as a JSX `onClick` — `<dialog>` has no
@@ -25,17 +28,28 @@ export const DialogShell = forwardRef<
   }
 >(function DialogShell({ submitting, widthClassName = "w-[min(440px,90vw)]", titleId, children }, ref) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [mounted, setMounted] = useState(false);
 
   useImperativeHandle(ref, () => ({
-    open: () => dialogRef.current?.showModal(),
-    close: () => dialogRef.current?.close(),
+    open: () => setMounted(true),
+    close: () => {
+      dialogRef.current?.close();
+      setMounted(false);
+    },
   }));
+
+  // showModal() runs after the children mount, so the native focus step finds them.
+  useEffect(() => {
+    if (mounted && dialogRef.current && !dialogRef.current.open) dialogRef.current.showModal();
+  }, [mounted]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
     function handleBackdropClick(event: MouseEvent) {
-      if (event.target === dialogRef.current && !submitting) dialogRef.current?.close();
+      if (event.target !== dialogRef.current || submitting) return;
+      dialogRef.current?.close();
+      setMounted(false);
     }
     dialog.addEventListener("click", handleBackdropClick);
     return () => dialog.removeEventListener("click", handleBackdropClick);
@@ -48,9 +62,10 @@ export const DialogShell = forwardRef<
       onCancel={(event) => {
         if (submitting) event.preventDefault();
       }}
+      onClose={() => setMounted(false)}
       className={`m-auto ${widthClassName} rounded-xl border border-hairline bg-canvas-overlay p-0 shadow-elevated-strong backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]`}
     >
-      {children}
+      {mounted ? children : null}
     </dialog>
   );
 });

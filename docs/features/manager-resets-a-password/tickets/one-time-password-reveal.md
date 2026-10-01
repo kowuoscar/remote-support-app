@@ -1,7 +1,7 @@
 ---
 id: one-time-password-reveal
 title: Add the shared one-time reveal of a generated password
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [enabler, frontend]
 stories: []

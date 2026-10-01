@@ -1,7 +1,7 @@
 ---
 feature: real-client-dashboard
 epic: real-dashboards
-status: draft
+status: approved
 date: 2026-10-01
 ---
 

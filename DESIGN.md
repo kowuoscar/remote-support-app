@@ -209,6 +209,9 @@ Two radius steps carry the whole system: `8px` (`rounded-lg`, Tailwind) for ever
 - **Style:** 8px radius, `hairline-strong` border, `canvas` background, 36px height, left-icon inset (e.g. `SearchInput`'s 16px leading search glyph).
 - **Focus:** border shifts to `primary` on `:focus-visible` (no separate glow layer beyond the global 2px `focus-ring` outline used on non-input controls).
 
+### One-time password reveal
+The success step of every dialog that generates a password (`GeneratedPasswordReveal`): a heading and a line naming the email; a read-only **Generated password** field on `canvas-soft` (the read-only surface), `.tnum` with wide tracking, focused and selected on mount; a secondary `sm` **Copy password** button beside it with a polite status line; a plain warning that the password won't be shown again; and **Done** as the step's only pill. No token changes.
+
 ### Navigation
 - **Style:** 240px fixed rail, `canvas-soft` background, 1px hairline right border. Items are 8px-radius rows (`px-3 py-2`), `text-sm font-medium`; inactive items are `ink-secondary` with a custom SVG icon in `ink-mute`; the active item takes the soft-indigo tone (`primary-soft-bg`/`primary-soft-text`) on both icon and label — indigo signaling current selection, never a full-saturation fill.
 - **Mobile:** below `md`, the rail becomes a fixed off-canvas drawer sliding in from the left over a blurred dark backdrop, opened via a top-bar toggle and closed on backdrop click, Escape, or item selection.

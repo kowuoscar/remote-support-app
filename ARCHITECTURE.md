@@ -30,6 +30,7 @@ error, not a nitpick.
 - `login` · the login route.
 - `api` · the BFF route handlers; the only place the browser's data reaches the backend.
 - `fonts` · font assets served by the app.
+- `frontend/app/api/agents/[agentId]/login/password/route.ts` · BFF pass-through for the Manager's password reset of an Agent, forwarding `Cache-Control: no-store`.
 
 ### Frontend — `frontend/components`
 
@@ -40,6 +41,7 @@ error, not a nitpick.
 - `agent` · components specific to the Agent Console.
 - `manager` · components specific to the Manager Console.
 - `client` · components specific to the Client Portal.
+- `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
 - `fleet` · smartphones, SIM cards, installation and serial editing.
 - `carriers` · the carrier catalog and its pickers.
 - `requests` · the request and provisioning workflow.

@@ -479,6 +479,14 @@ internals.
   unavailable-card criterion. The orchestrator named it in `## Regression`
   instead of spending the ticket's one retry on identical work.
 
+- **One extra fix pass for F19 and F20, authorised by the human (2026-10-01).**
+  The single fix pass turned a mobile-truncation smell (F17) into dropping the
+  Agent's name from the header, contradicting story 1. The gate refused F19
+  and F20. Asked in session, the human chose to keep the spec: restore
+  `<name> · <country>`, let it wrap on mobile instead of truncating, and
+  restore the e2e name assertion. That authorises one more fix pass limited
+  to these two findings, then a re-review.
+
 ## Open questions
 
 None

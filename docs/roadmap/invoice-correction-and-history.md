@@ -37,14 +37,17 @@ and Agent.
 - **Look back at finished invoices** → `exists`.
 
 The proof that closes this epic: on `main`, a Manager sends a Client Invoice
-back with a reason; the Agent sees the reason, sees the invoice live again as
-a draft, corrects a Fee, resends it with a fresh snapshot, and the Manager
-approves it. The same for an Agent Invoice. Then the Manager finds both in
-the history view, filtered by month.
+back with a reason; the Agent sees the reason and the invoice as a draft
+again, adds what was missing (a file, a late Fee of that month), resends it
+with a fresh snapshot, and the Manager approves it. The same for an Agent
+Invoice. A Manager who finds an error after approval records an adjustment,
+a credit or a charge, that lands on the next month's invoice. Then the Manager
+finds the finished invoices in the history view, filtered by month.
 
 ## Features
 
 - [ ] `send-a-client-invoice-back` — a Manager returns a sent Client Invoice to the Agent with a reason; it leaves the Review Queue, its numbers go live again, and a resend freezes a fresh snapshot.
+- [ ] `invoice-adjustment` — a Manager records a correction, a credit or a charge with a reason, that lands on the next month's invoice, so an error found after sending or approval is settled forward, never by reopening a past month.
 - [ ] `send-an-agent-invoice-back` — the same for an Agent Invoice, whose snapshot is four scalar columns rather than a membership table.
 - [ ] `invoice-history` — a Manager browses final invoices of both types, filtered by month, Contract and Agent.
 
@@ -103,6 +106,24 @@ an Agent Invoice sits in the Review Queue while `SENT` **and** while
 `APPROVED` (it leaves only at `PAID`), so whether a Manager may send back an
 already-approved Agent Invoice — not merely a sent one — is a real question
 with no answer in the epic.
+
+**Answered by the human on 2026-09-30: corrections carry forward.** The
+send-back spec found that a sent-back invoice of last month cannot have a Fee
+corrected: Fees have no edit or delete, and a new Fee always lands in the
+month it is logged (`FeeController.java:136`). The human said this is how the
+business works: when an invoice is wrong after sending or approval, **the
+Manager** corrects it on the **following month's** invoice. So:
+
+- A past month is never reopened to edit or void a Fee. There is no
+  `correct-a-fee`.
+- Send-back stays, for errors caught before approval: the Agent adds what was
+  missing and resends.
+- A past month's base amount stays as sent when sent back; only its Fee lines
+  go live. A current-month invoice goes fully live. Today's Fleet is not that
+  month's Fleet, because SIM membership carries no dates.
+- `invoice-adjustment` is new. It needs a correction that can be negative:
+  today a Fee must be greater than zero (`FeeCreateRequest.java:52`). Whether it
+  covers Agent Invoices too is for its spec.
 
 ## Later
 

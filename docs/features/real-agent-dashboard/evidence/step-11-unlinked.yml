@@ -1,0 +1,37 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - complementary [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - generic [ref=f2e5]: "N"
+        - generic [ref=f2e6]:
+          - paragraph [ref=f2e7]: Northwind Field Services
+          - paragraph [ref=f2e8]: Agent Console
+      - navigation [ref=f2e9]:
+        - link "Dashboard" [ref=f2e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f2e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f2e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f2e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f2e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f2e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f2e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f2e43]:
+      - banner [ref=f2e44]:
+        - generic [ref=f2e46]:
+          - heading "Dashboard" [level=1] [ref=f2e47]
+          - paragraph [ref=f2e48]: Your Agent console
+        - generic [ref=f2e49]:
+          - button "Agent" [ref=f2e51]
+          - button "Switch to dark theme" [ref=f2e53]
+      - main [ref=f2e57]:
+        - generic [ref=f2e66]:
+          - paragraph [ref=f2e67]: Your login isn't linked to an Agent record yet
+          - paragraph [ref=f2e68]: Ask your Manager to link your login to your Agent record before you can see your dashboard.
+      - paragraph [ref=f2e69]: Demo data — names, amounts and statuses on this screen are synthetic and do not represent real Clients, Agents or invoices.
+  - alert [ref=f2e70]

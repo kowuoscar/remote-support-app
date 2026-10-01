@@ -1,0 +1,4 @@
+Fresh non-demo isolated DB (backend 58082, plain Postgres, Flyway baseline only).
+Review Queue as Manager: [] before Jordan's first dashboard visit, [] after.
+Jordan's invoice after visit: one DRAFT, billingMonth 2026-09-01, id c4e76d9d-...; My Invoice page shows September 2026 / Draft (step-9-my-invoice.yml).
+See step-9.txt.

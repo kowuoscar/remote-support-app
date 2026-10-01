@@ -1,7 +1,7 @@
 ---
 id: package-by-feature
 title: Package the backend by feature, not by layer
-status: proposed
+status: planned
 journeys: []
 ---
 

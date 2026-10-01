@@ -1,0 +1,37 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - complementary [ref=f3e3]:
+      - generic [ref=f3e4]:
+        - generic [ref=f3e5]: "N"
+        - generic [ref=f3e6]:
+          - paragraph [ref=f3e7]: Northwind Field Services
+          - paragraph [ref=f3e8]: Agent Console
+      - navigation [ref=f3e9]:
+        - link "Dashboard" [ref=f3e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f3e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f3e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f3e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f3e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f3e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f3e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f3e43]:
+      - banner [ref=f3e44]:
+        - generic [ref=f3e46]:
+          - heading "Dashboard" [level=1] [ref=f3e47]
+          - paragraph [ref=f3e48]: Your Agent console
+        - generic [ref=f3e49]:
+          - button "Agent" [ref=f3e51]
+          - button "Switch to dark theme" [ref=f3e53]
+      - main [ref=f3e57]:
+        - generic [ref=f3e66]:
+          - paragraph [ref=f3e67]: Couldn't load your dashboard — reload the page to try again
+          - paragraph [ref=f3e68]: Your name and standing amounts come from your Agent record, which could not be read.
+      - paragraph [ref=f3e69]: Demo data — names, amounts and statuses on this screen are synthetic and do not represent real Clients, Agents or invoices.
+  - alert [ref=f3e70]

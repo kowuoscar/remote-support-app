@@ -1,0 +1,113 @@
+{
+ "feature": "real-agent-dashboard",
+ "played_at": "2026-09-30",
+ "played_on": "feature/real-agent-dashboard",
+ "environment": "Two throwaway postgres:16-alpine containers (docker run --rm): one backend with the demo profile and one with no profile, each with its own `next start` production build on free ports. Steps 10 and 11 used the visual stub (tests/visual/stub-backend.mjs) with a third frontend. Browser driven with playwright-cli. Maven ran with JDK 21. All servers and containers were stopped afterwards, and the developer's docker-compose stack was not touched.",
+ "steps": [
+  {
+   "step": 1,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-1-agent-dashboard.yml",
+   "note": "Header 'Jordan Ellis · United States' and chip 'Jordan Ellis · Agent' present. Camille, Duforet, France and EUR: 0 occurrences in the page text (step-1-absence.txt, step-1-agent-dashboard.png)."
+  },
+  {
+   "step": 2,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-2-me-agent.txt",
+   "note": "The API returns Jordan Ellis, UNITED_STATES, USD, salary 2700.00, advance 0. The card reads $2,700.00 with '+ $0 Rollout Advance' (step-2-card.txt). The only difference from the spec's literal '$2,700' is the '.00'."
+  },
+  {
+   "step": 3,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-3-invoice.txt",
+   "note": "Invoice localSupportFees 135.99, billingMonth 2026-09-01, SENT. The dashboard shows 'Local Support Fees — September 2026' $135.99 'As sent on your invoice' and 'Awaiting approval' (step-3-cards.txt)."
+  },
+  {
+   "step": 4,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-4-priya-dashboard.yml",
+   "note": "Priya Shah · United Kingdom, £20.00 'Running total, all your Contracts', Draft, £4,500.00 '+ £750 Rollout Advance', UK Contracts only."
+  },
+  {
+   "step": 5,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-5-requests-summary.txt",
+   "note": "13 Requests on 2 Contracts; SUBMITTED + IN_PROGRESS = 2 matches the card, and PENDING_APPROVAL is not counted."
+  },
+  {
+   "step": 6,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-6-recent-requests.yml",
+   "note": "The five newest by createdAt, each with type, Contract label, Tester username, 'raised today' and a badge. 'Open queue' lands on /agent/requests."
+  },
+  {
+   "step": 7,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-7-after.yml",
+   "note": "Open Requests went from 2 to 3 after a Tester's Topup (submitted through the API as a Tester of Jordan's Contract). It heads Recent Requests as 'raised today', with no skeleton."
+  },
+  {
+   "step": 8,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-8-access.txt",
+   "note": "/api/me/agent: 404 for a Manager, 404 for a Tester, 401 with no token. Jordan gets 403 on Priya's standing amounts. A Manager's salary change (effective 2026-10-01) leaves the dashboard at $2,700.00."
+  },
+  {
+   "step": 9,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-9.txt",
+   "note": "On a fresh DB, the Review Queue is [] before and after the first dashboard visit. The Draft the dashboard created is the one My Invoice opens."
+  },
+  {
+   "step": 10,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-10-degraded.yml",
+   "note": "Degraded session: the invoice and Requests cards read '—' with 'Couldn't load…', the header and standing amounts still render, and no 0 appears. With the stub stopped, only 'Couldn't load your dashboard' shows."
+  },
+  {
+   "step": 11,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-11-unlinked.yml",
+   "note": "Unlinked: only the not-linked message. Jordan with no Contract: 'No Requests yet', Open Requests 0."
+  },
+  {
+   "step": 12,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-12-verify.txt",
+   "note": "lib/demo/agent.ts is gone and types.ts kept. Goldens deleted and recaptured byte-identical, unmasked; the visual suite passed 45 of 45. verify exit 0: Maven 542 tests, vitest 206, e2e 64."
+  },
+  {
+   "step": 13,
+   "actor": "human",
+   "status": "pending",
+   "evidence": "",
+   "note": "Confirm that ordering by when a Request was raised, with 'raised <age>', is what 'recent' should mean."
+  },
+  {
+   "step": 14,
+   "actor": "human",
+   "status": "pending",
+   "evidence": "",
+   "note": "Read the new copy: 'As sent on your invoice', 'No Requests yet' and the 'Couldn't load…' lines."
+  },
+  {
+   "step": 15,
+   "actor": "human",
+   "status": "pending",
+   "evidence": "",
+   "note": "Sign in as Jordan on the demo profile and confirm every figure is findable in the data and nothing belongs to anyone else."
+  }
+ ]
+}

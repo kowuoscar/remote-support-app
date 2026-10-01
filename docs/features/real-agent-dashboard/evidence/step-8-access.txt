@@ -1,0 +1,24 @@
+== GET /api/me/agent as Manager
+{"timestamp":"2026-09-30T20:41:56.446+00:00","status":404,"error":"Not Found","path":"/api/me/agent"}
+HTTP 404
+== as Tester (Dana)
+{"timestamp":"2026-09-30T20:41:56.461+00:00","status":404,"error":"Not Found","path":"/api/me/agent"}
+HTTP 404
+== no token
+
+HTTP 401
+== Jordan GET /api/agents/<Priya>/standing-amounts
+{"timestamp":"2026-09-30T20:41:56.478+00:00","status":403,"error":"Forbidden","path":"/api/agents/947f6ec6-e883-4020-ac41-c5255faa2c64/standing-amounts"}
+HTTP 403
+== Jordan own standing-amounts (manager view)
+{"salaryAmount":2700.00,"rolloutAdvanceAmount":0}
+HTTP 200
+== Manager POST standing salary 3000 for Jordan
+{"id":"5e250329-ee6b-4fc8-ae57-d3c08b4bd04f","agentId":"55555555-5555-5555-5555-555555555555","amountType":"SALARY","amount":3000,"effectiveMonth":"2026-10-01"}
+HTTP 201
+== Jordan GET /api/me/agent after
+{"agentId":"55555555-5555-5555-5555-555555555555","name":"Jordan Ellis","country":"UNITED_STATES","currency":"USD","salaryAmount":2700.00,"rolloutAdvanceAmount":0}
+HTTP 200
+              - generic [ref=f3e75]: Standing salary + advance
+              - generic [ref=f3e76]: $2,700.00
+              - generic [ref=f3e77]: + $0 Rollout Advance

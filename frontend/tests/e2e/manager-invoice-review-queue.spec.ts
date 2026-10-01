@@ -1,12 +1,10 @@
-import { execFileSync } from "node:child_process";
-import path from "node:path";
 import { test, expect, type Page } from "@playwright/test";
-import { Client } from "pg";
 import {
   SEEDED_USERS,
   createClientAndContractWithSeededAgent,
   login,
   logout,
+  rollSeededAgentInvoiceIntoThePast,
   selectContractInSwitcher,
 } from "./helpers";
 
@@ -53,59 +51,6 @@ async function approveOtherWaitingClientInvoices(page: Page, keepSubject: string
     await page.getByRole("button", { name: "Approve" }).click();
     await expect(page.getByText("Approved", { exact: true })).toBeVisible();
   }
-}
-
-const SEEDED_AGENT_ID = "55555555-5555-5555-5555-555555555555";
-
-/**
- * Stands in for a month rollover on the seeded Agent's Agent Invoice, the same way the API tests
- * move an invoice into a past billing month: Jordan Ellis is the only Agent with a login, so his
- * one current-month invoice is shared with agent-invoice-submission-and-approval.spec.ts, which
- * leaves it paid. Moving whatever current-month invoice he has to a month before all his others
- * frees the current month, so this test always starts from a draft it can send. Runs against the
- * e2e Postgres that scripts/run-backend-for-e2e.sh starts (honours COMPOSE_PROJECT_NAME) — or,
- * when E2E_DATABASE_URL is set, against that database directly, so a run on an isolated stack
- * never reaches for docker-compose's own Postgres.
- */
-async function rollSeededAgentInvoiceIntoThePast() {
-  const sql = `
-    update agent_invoices
-    set billing_month = (
-      select (min(billing_month) - interval '1 month')::date from agent_invoices where agent_id = '${SEEDED_AGENT_ID}'
-    )
-    where agent_id = '${SEEDED_AGENT_ID}'
-      and billing_month = date_trunc('month', now() at time zone 'utc')::date`;
-  if (process.env.E2E_DATABASE_URL) {
-    const client = new Client({ connectionString: process.env.E2E_DATABASE_URL });
-    await client.connect();
-    try {
-      await client.query(sql);
-    } finally {
-      await client.end();
-    }
-    return;
-  }
-  execFileSync(
-    "docker",
-    [
-      "compose",
-      "-f",
-      path.resolve(__dirname, "../../../docker-compose.yml"),
-      "exec",
-      "-T",
-      "postgres",
-      "psql",
-      "-v",
-      "ON_ERROR_STOP=1",
-      "-U",
-      "remote_support",
-      "-d",
-      "remote_support",
-      "-c",
-      sql,
-    ],
-    { stdio: "pipe" },
-  );
 }
 
 function currentBillingMonthLabel(): string {

@@ -1,0 +1,7 @@
+Absence check on rendered page text (document.body.innerText) of /agent as Jordan:
+Camille: 0 occurrences
+Duforet: 0 occurrences
+France: 0 occurrences
+EUR: 0 occurrences
+Also in snapshot: 0
+Header: Jordan Ellis · United States present: 1; chip: 1

@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { SESSION_COOKIE_NAME } from "@/lib/auth/session";
+import { gotoWithSession } from "./helpers";
 
 interface Surface {
   slug:
@@ -21,7 +22,7 @@ interface Surface {
 
 const surfaces: Surface[] = [
   { slug: "manager", path: "/manager" },
-  { slug: "agent", path: "/agent" },
+  { slug: "agent", path: "/agent", session: "visual-agent-session" },
   { slug: "client", path: "/client" },
   { slug: "agent-carriers", path: "/agent/carriers", session: "visual-agent-session", ready: "carriers" },
   {
@@ -129,3 +130,35 @@ for (const surface of surfaces) {
     }
   }
 }
+
+// real-agent-dashboard: states no golden captures. The stub answers GET /api/me/agent with a 404
+// for the unlinked token and a 500 for the failing-identity token (tests/visual/stub-backend.mjs).
+test.describe("the Agent dashboard's identity states", () => {
+  test("unlinked-agent-shows-not-linked-message", async ({ page }) => {
+    await gotoWithSession(page, "/agent", "visual-agent-unlinked-session");
+
+    await expect(page.getByText("Your login isn't linked to an Agent record yet")).toBeVisible();
+    await expect(page.getByTestId("dashboard-ready")).toHaveCount(0);
+  });
+
+  test("failing-identity-shows-page-level-message", async ({ page }) => {
+    await gotoWithSession(page, "/agent", "visual-agent-failing-identity-session");
+
+    await expect(page.getByText(/Couldn.t load your dashboard/)).toBeVisible();
+    await expect(page.getByText("Couldn't load your dashboard — reload the page to try again")).toHaveCount(1);
+    await expect(page.getByTestId("dashboard-ready")).toHaveCount(0);
+  });
+
+  test("degraded-invoice-shows-both-invoice-cards-unavailable", async ({ page }) => {
+    await gotoWithSession(page, "/agent", "visual-agent-degraded-session");
+
+    await expect(page.getByTestId("dashboard-ready")).toBeVisible();
+    for (const testId of ["local-support-fees-stat", "invoice-status-stat"]) {
+      const card = page.getByTestId(testId);
+      await expect(card).toContainText("—");
+      await expect(card).toContainText("Couldn't load your invoice");
+    }
+    // The header and the standing amounts do not depend on the invoice.
+    await expect(page.getByText("+ $500 Rollout Advance")).toBeVisible();
+  });
+});

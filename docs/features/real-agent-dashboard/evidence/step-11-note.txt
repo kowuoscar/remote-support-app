@@ -1,0 +1,2 @@
+Part 1 (stub, unlinked session): step-11-unlinked.yml shows only "Your login isn't linked to an Agent record yet"; no stat cards (no Open Requests / Local Support Fees cards in snapshot).
+Part 2 (fresh non-demo DB, Jordan has no Contract): step-11-fresh-jordan-dashboard.yml shows "No Requests yet" and Open Requests "0".

@@ -1,0 +1,6 @@
+API localSupportFees=135.99 billingMonth=2026-09-01 status=SENT (step-3-invoice.txt)
+              - generic [ref=f1e61]: Local Support Fees — September 2026
+              - generic [ref=f1e62]: $135.99
+              - generic [ref=f1e63]: As sent on your invoice
+              - generic [ref=f1e70]: Awaiting approval
+              - generic [ref=f1e73]: September 2026

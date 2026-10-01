@@ -1,7 +1,7 @@
 ---
 id: proposal-amend-frontend-rule-8
 type: proposal
-status: open
+status: answered
 blocks: []
 created: 2026-10-01
 ---
@@ -40,3 +40,5 @@ Nothing.
 Reviewers keep reading the rule as written.
 
 ## Answer
+
+Accepted (ok), human, 2026-10-01: point the rule at globals.css @theme and add the two type-scale tokens as a small enabler task.

@@ -1,7 +1,7 @@
 ---
 id: question-tester-open-requests-pending-approval
 type: question
-status: open
+status: answered
 blocks: [real-client-dashboard]
 created: 2026-10-01
 ---
@@ -36,3 +36,5 @@ Nothing else can move without you: every next feature waits on a spec
 approval or on this.
 
 ## Answer
+
+Yes (human, 2026-10-01): count Pending Approval, Submitted and In Progress, with the meta "Pending Approval, Submitted or In Progress".

@@ -1,7 +1,7 @@
 ---
 id: question-remove-merged-remote-branch
 type: question
-status: open
+status: answered
 blocks: []
 created: 2026-10-01
 ---
@@ -30,3 +30,5 @@ Nothing.
 The loop carries on.
 
 ## Answer
+
+Keep it (human, 2026-10-01): leave merged feature branches on GitHub. Close the item.

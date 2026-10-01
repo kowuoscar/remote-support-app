@@ -1,7 +1,7 @@
 ---
 id: proposal-amend-frontend-rule-6
 type: proposal
-status: open
+status: answered
 blocks: []
 created: 2026-10-01
 ---
@@ -34,3 +34,5 @@ Nothing.
 Reviewers keep reading the rule as written.
 
 ## Answer
+
+Accepted (ok), human, 2026-10-01: amend the rule as recommended.

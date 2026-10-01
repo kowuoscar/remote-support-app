@@ -1,7 +1,7 @@
 ---
 id: approve-send-a-client-invoice-back
 type: approval
-status: open
+status: answered
 blocks: [send-a-client-invoice-back]
 created: 2026-09-30
 ---
@@ -58,3 +58,29 @@ you answer.
 `real-agent-dashboard` is being ticketed and built.
 
 ## Answer
+
+Not approved as written; revise (human, 2026-10-01). The human's words:
+
+1. "Client invoice is base amount plus the fees, consider everything editable.
+   Yes the invoice is filled up with base amount but agent can edit each line
+   as even if postpaid is defined monthly, depending on client usage it can go
+   up and the agent needs to edit it. So if a invoice is sent back, nothing
+   refreshes but its just editables."
+2. "Only the manager and agent see the reason(s)." (as specified)
+3. Approved (the Agent opens their own invoices by id; only a sent-back or
+   current-month draft can be sent).
+4. Approved (a resent invoice queues from the resend).
+5. Ok (inline form).
+
+Follow-up answered in session: the Agent can edit the lines (the base amount
+and each Fee) **on any draft**, before the first send and after a send-back.
+Lines start pre-filled from the computation, and the Agent adjusts them.
+
+What this changes:
+- A Client Invoice's lines are **editable by the Agent while it is a draft**.
+  Today they are computed live (ADR 0001) and nobody can edit them.
+- A send-back **does not refresh anything**. The invoice becomes a draft
+  again, keeping the numbers it was sent with, and the Agent edits them. The
+  previous "Fee lines go live / base stays as sent" rule is replaced.
+- It is likely a feature of its own (editable invoice lines) that send-back
+  builds on. The spec revision decides the cut.

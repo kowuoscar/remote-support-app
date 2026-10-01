@@ -1,7 +1,7 @@
 ---
 id: approve-manager-resets-a-password-v2
 type: approval
-status: open
+status: answered
 blocks: [manager-resets-a-password]
 created: 2026-09-30
 ---
@@ -53,3 +53,5 @@ answer.
 `real-agent-dashboard` is being built.
 
 ## Answer
+
+Approved (ok), human, 2026-10-01.

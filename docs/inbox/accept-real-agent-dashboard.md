@@ -1,7 +1,7 @@
 ---
 id: accept-real-agent-dashboard
 type: acceptance
-status: open
+status: answered
 blocks: []
 created: 2026-10-01
 ---
@@ -45,3 +45,5 @@ Nothing.
 `real-client-dashboard` is next.
 
 ## Answer
+
+Accepted (ok), human, 2026-10-01. "Recent = most recently raised" confirmed.

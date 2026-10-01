@@ -2,7 +2,9 @@ package com.remotesupport.backend.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,8 +28,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 /**
- * A Login created without a typed password gets a generated one, returned once; a typed one is
- * still honoured (transitional, until creation-takes-no-typed-password).
+ * Every Login creation route generates the password and returns it once; a body that still sends a
+ * {@code password} is ignored like any unknown property.
  */
 class GeneratedPasswordCreationApiTest extends IntegrationTest {
 
@@ -95,51 +97,57 @@ class GeneratedPasswordCreationApiTest extends IntegrationTest {
   }
 
   @Test
-  void aTypedPasswordIsStillHonouredAndNotEchoedOnAgentCreation() throws Exception {
+  void aTypedPasswordIsIgnoredOnAgentCreation() throws Exception {
     String token = managerToken();
-    agentCreation(token, "typed.agent@agents.example", TYPED)
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.password").doesNotExist());
-    assertThat(loginAs("typed.agent@agents.example", TYPED)).isNotBlank();
+    MvcResult created =
+        agentCreation(token, "typed.agent@agents.example", TYPED)
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.password").value(matchesPattern(FORMAT)))
+            .andReturn();
+    assertSignInRefusedWithTypedButNotReturned("typed.agent@agents.example", created);
   }
 
   @Test
-  void aTypedPasswordIsStillHonouredAndNotEchoedOnGiveLogin() throws Exception {
+  void aTypedPasswordIsIgnoredOnGiveLogin() throws Exception {
     String token = managerToken();
     UUID agentId = insertLoginLessAgent("Typed Login");
-    postJson(
-            "/api/agents/" + agentId + "/login",
-            token,
-            loginBody("typed.login@agents.example", TYPED))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.password").doesNotExist());
-    assertThat(loginAs("typed.login@agents.example", TYPED)).isNotBlank();
+    MvcResult created =
+        postJson(
+                "/api/agents/" + agentId + "/login",
+                token,
+                loginBody("typed.login@agents.example", TYPED))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.password").value(matchesPattern(FORMAT)))
+            .andReturn();
+    assertSignInRefusedWithTypedButNotReturned("typed.login@agents.example", created);
   }
 
   @Test
-  void aTypedPasswordIsStillHonouredAndNotEchoedOnTesterCreation() throws Exception {
+  void aTypedPasswordIsIgnoredOnTesterCreation() throws Exception {
     String token = managerToken();
     UUID clientId = createClient(token, "Typed Client");
-    testerCreation(token, clientId, "typed.tester@client.example", TYPED)
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.password").doesNotExist());
-    assertThat(loginAs("typed.tester@client.example", TYPED)).isNotBlank();
+    MvcResult created =
+        testerCreation(token, clientId, "typed.tester@client.example", TYPED)
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.password").value(matchesPattern(FORMAT)))
+            .andReturn();
+    assertSignInRefusedWithTypedButNotReturned("typed.tester@client.example", created);
   }
 
   @Test
-  void aTypedPasswordShorterThanTheMinimumIsStillRejectedOnEveryRoute() throws Exception {
+  void aShortOrBlankTypedPasswordIsIgnoredNotRejectedOnEveryRoute() throws Exception {
     String token = managerToken();
     UUID agentId = insertLoginLessAgent("Short Login");
     UUID clientId = createClient(token, "Short Client");
 
-    agentCreation(token, "short.agent@agents.example", "short").andExpect(status().isBadRequest());
+    agentCreation(token, "short.agent@agents.example", "short").andExpect(status().isCreated());
     postJson(
             "/api/agents/" + agentId + "/login",
             token,
-            loginBody("short.login@agents.example", "short"))
-        .andExpect(status().isBadRequest());
+            loginBody("short.login@agents.example", ""))
+        .andExpect(status().isCreated());
     testerCreation(token, clientId, "short.tester@client.example", "short")
-        .andExpect(status().isBadRequest());
+        .andExpect(status().isCreated());
   }
 
   @Test
@@ -214,6 +222,19 @@ class GeneratedPasswordCreationApiTest extends IntegrationTest {
             new TesterCreatedResponse(UUID.randomUUID(), UUID.randomUUID(), "u", false, secret)
                 .toString())
         .doesNotContain(secret);
+  }
+
+  private void assertSignInRefusedWithTypedButNotReturned(String username, MvcResult created)
+      throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(
+                        Map.of("username", username, "password", TYPED))))
+        .andExpect(status().isUnauthorized());
+    assertThat(loginAs(username, passwordOf(created))).isNotBlank();
   }
 
   private String passwordOf(MvcResult result) throws Exception {

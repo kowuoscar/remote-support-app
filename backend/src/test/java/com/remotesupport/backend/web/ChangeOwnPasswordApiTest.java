@@ -15,6 +15,7 @@ import com.remotesupport.backend.domain.Role;
 import com.remotesupport.backend.dto.AgentCreateRequest;
 import com.remotesupport.backend.dto.ChangePasswordRequest;
 import com.remotesupport.backend.dto.PasswordPolicy;
+import com.remotesupport.backend.dto.TesterCreateRequest;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import java.math.BigDecimal;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.web.servlet.MvcResult;
 
 /**
  * {@code POST /api/me/password} (change-own-password-endpoint ticket): the first write endpoint
@@ -253,18 +255,19 @@ class ChangeOwnPasswordApiTest extends IntegrationTest {
 
   private RoleLogin freshAgentLogin() throws Exception {
     String username = "fresh-agent-" + UUID.randomUUID() + "@agents.example";
-    String password = "Passw0rd!23";
     String managerToken = managerToken();
-    postJson(
-            "/api/agents",
-            managerToken,
-            new AgentCreateRequest(
-                "Fresh Agent " + UUID.randomUUID(),
-                Country.UNITED_STATES,
-                new BigDecimal("2000.00"),
-                username,
-                password))
-        .andExpect(status().isCreated());
+    MvcResult created =
+        postJson(
+                "/api/agents",
+                managerToken,
+                new AgentCreateRequest(
+                    "Fresh Agent " + UUID.randomUUID(),
+                    Country.UNITED_STATES,
+                    new BigDecimal("2000.00"),
+                    username))
+            .andExpect(status().isCreated())
+            .andReturn();
+    String password = returnedPassword(created);
     String token = loginAs(username, password);
     return new RoleLogin(username, password, token);
   }
@@ -273,9 +276,22 @@ class ChangeOwnPasswordApiTest extends IntegrationTest {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Fresh Tester Client " + UUID.randomUUID());
     String username = "fresh-tester-" + UUID.randomUUID() + "@example.com";
-    String password = "Passw0rd!23";
-    String token = createTesterAndLogin(managerToken, clientId, username, password);
-    return new RoleLogin(username, password, token);
+    MvcResult created =
+        postJson(
+                "/api/clients/" + clientId + "/testers",
+                managerToken,
+                new TesterCreateRequest(username, false))
+            .andExpect(status().isCreated())
+            .andReturn();
+    String password = returnedPassword(created);
+    return new RoleLogin(username, password, loginAs(username, password));
+  }
+
+  private String returnedPassword(MvcResult created) throws Exception {
+    return objectMapper
+        .readTree(created.getResponse().getContentAsString())
+        .get("password")
+        .asText();
   }
 
   private UUID userIdOf(String username) {

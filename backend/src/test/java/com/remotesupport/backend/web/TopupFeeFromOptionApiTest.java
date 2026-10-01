@@ -43,6 +43,7 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
   private String agentToken;
   private UUID contractId;
   private UUID testerId;
+  private String testerPassword;
   // reboot-and-topup-details ticket: a Topup Request/Fee now names the SIM Card it tops up — on
   // the seeded AT&T Carrier, matching SEEDED_ATT_REFILL_25's own Carrier.
   private UUID simCardOnAtt;
@@ -53,14 +54,16 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
     agentToken = agentToken();
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
     contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    testerId =
-        idOf(
-            postJson(
-                    "/api/clients/" + clientId + "/testers",
-                    managerToken,
-                    Map.of("username", "priya.raman@aurora.example", "password", "Passw0rd!23"))
-                .andExpect(status().isCreated())
-                .andReturn());
+    MvcResult testerCreated =
+        postJson(
+                "/api/clients/" + clientId + "/testers",
+                managerToken,
+                Map.of("username", "priya.raman@aurora.example"))
+            .andExpect(status().isCreated())
+            .andReturn();
+    testerId = idOf(testerCreated);
+    testerPassword =
+        objectMapper.readTree(testerCreated.getResponse().getContentAsString()).get("password").asText();
     simCardOnAtt = createSimCard(managerToken, contractId, SEEDED_ATT);
   }
 
@@ -84,7 +87,7 @@ class TopupFeeFromOptionApiTest extends IntegrationTest {
   void aTopupFeeAgainstAnExistingTopupRequestCanNameAnOption() throws Exception {
     // reboot-and-topup-details ticket: submitting a Topup Request now requires its target SIM
     // Card and, since this SIM Card's Carrier (AT&T) has an active Option, that Option too.
-    String testerToken = loginAs("priya.raman@aurora.example", "Passw0rd!23");
+    String testerToken = loginAs("priya.raman@aurora.example", testerPassword);
     UUID requestId =
         idOf(
             postJson(

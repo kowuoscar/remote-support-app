@@ -28,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 class AgentCreationAtomicityTest extends IntegrationTest {
 
-  private static final String PASSWORD = "Passw0rd!23";
   private static final String NAME_PREFIX = "Atomicity " + UUID.randomUUID() + " ";
 
   @Autowired private JdbcTemplate jdbcTemplate;
@@ -107,7 +106,6 @@ class AgentCreationAtomicityTest extends IntegrationTest {
     body.put("country", "FRANCE");
     body.put("salaryAmount", 2000);
     body.put("username", username);
-    body.put("password", PASSWORD);
     return body;
   }
 }

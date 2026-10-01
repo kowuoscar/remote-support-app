@@ -159,7 +159,7 @@ public abstract class IntegrationTest {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Linked Tester Fixture " + UUID.randomUUID());
     return createTesterAndLogin(
-        managerToken, clientId, "linked-tester-" + UUID.randomUUID() + "@example.com", "Passw0rd!23");
+        managerToken, clientId, "linked-tester-" + UUID.randomUUID() + "@example.com");
   }
 
   /** Creates a Client as the Manager and returns its id — shared fixture-building across tests. */
@@ -194,8 +194,7 @@ public abstract class IntegrationTest {
                                 name,
                                 country,
                                 new BigDecimal("2000.00"),
-                                "agent-" + UUID.randomUUID() + "@agents.example",
-                                "Passw0rd!23"))))
+                                "agent-" + UUID.randomUUID() + "@agents.example"))))
             .andExpect(status().isCreated())
             .andReturn();
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
@@ -474,16 +473,20 @@ public abstract class IntegrationTest {
    * returns its bearer token — for tests that need a Tester scoped to a specific Client rather
    * than the unlinked seeded {@code tester@example.com} login.
    */
-  protected String createTesterAndLogin(
-      String managerToken, UUID clientId, String username, String password) throws Exception {
-    mockMvc
-        .perform(
-            post("/api/clients/" + clientId + "/testers")
-                .header("Authorization", "Bearer " + managerToken)
-                .contentType(APPLICATION_JSON)
-                .content(
-                    objectMapper.writeValueAsString(new TesterCreateRequest(username, password, false))))
-        .andExpect(status().isCreated());
+  protected String createTesterAndLogin(String managerToken, UUID clientId, String username)
+      throws Exception {
+    MvcResult created =
+        mockMvc
+            .perform(
+                post("/api/clients/" + clientId + "/testers")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        objectMapper.writeValueAsString(new TesterCreateRequest(username, false))))
+            .andExpect(status().isCreated())
+            .andReturn();
+    String password =
+        objectMapper.readTree(created.getResponse().getContentAsString()).get("password").asText();
     return loginAs(username, password);
   }
 

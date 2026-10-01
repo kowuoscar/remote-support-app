@@ -38,7 +38,7 @@ class StockFulfilmentApiTest extends IntegrationTest {
     managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Meridian Outfitters");
     contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    testerToken = createTesterAndLogin(managerToken, clientId, "noor.abadi@meridian.example", "Passw0rd!23");
+    testerToken = createTesterAndLogin(managerToken, clientId, "noor.abadi@meridian.example");
     agentToken = agentToken();
     testerId = findTesterId(managerToken, contractId, "noor.abadi@meridian.example");
   }
@@ -315,7 +315,7 @@ class StockFulfilmentApiTest extends IntegrationTest {
     JsonNode contract = contractJson(onContractId);
     UUID clientId = UUID.fromString(contract.get("clientId").asText());
     return createTesterAndLogin(
-        managerToken, clientId, "fixture+" + UUID.randomUUID() + "@example.com", "Passw0rd!23");
+        managerToken, clientId, "fixture+" + UUID.randomUUID() + "@example.com");
   }
 
   private String agentTokenFor(UUID onContractId) {

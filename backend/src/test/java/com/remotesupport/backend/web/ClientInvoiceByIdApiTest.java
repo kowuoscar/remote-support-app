@@ -137,7 +137,7 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
     String agentToken = agentToken();
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    String testerToken = createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
+    String testerToken = createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example");
 
     addPostpaidSim(managerToken, contractId, "+1-555-0190", "25.00");
     logTopupFee(agentToken, contractId, submitTopup(testerToken, contractId), "45.00");
@@ -368,7 +368,7 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
     String agentToken = agentToken();
     UUID clientId = createClient(managerToken, "Meridian Logistics");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    String testerToken = createTesterAndLogin(managerToken, clientId, "ops@meridian.example", "Passw0rd!23");
+    String testerToken = createTesterAndLogin(managerToken, clientId, "ops@meridian.example");
     UUID fileId = attachFile(agentToken, contractId, "carrier.pdf", "x");
     UUID invoiceId = send(agentToken, contractId);
 

@@ -39,7 +39,7 @@ class StockApiTest extends IntegrationTest {
     managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Stockholm Fixtures Ltd");
     contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    testerToken = createTesterAndLogin(managerToken, clientId, "ines.moreau@stockholm.example", "Passw0rd!23");
+    testerToken = createTesterAndLogin(managerToken, clientId, "ines.moreau@stockholm.example");
     agentToken = agentToken();
   }
 

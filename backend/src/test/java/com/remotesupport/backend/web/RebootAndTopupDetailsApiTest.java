@@ -52,7 +52,7 @@ class RebootAndTopupDetailsApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example");
     String agentToken = agentToken();
     UUID testerId = findTesterId(agentToken, contractId, "priya.raman@aurora.example");
     return new Fixture(managerToken, testerToken, agentToken, contractId, testerId);
@@ -397,7 +397,7 @@ class RebootAndTopupDetailsApiTest extends IntegrationTest {
     Fixture fixture = aContractWithATester();
     String managerToken = fixture.managerToken();
     UUID otherClient = createClient(managerToken, "Solene Cosmetics");
-    String otherTesterToken = createTesterAndLogin(managerToken, otherClient, "elise.fabron@solene.example", "Passw0rd!23");
+    String otherTesterToken = createTesterAndLogin(managerToken, otherClient, "elise.fabron@solene.example");
 
     mockMvc
         .perform(

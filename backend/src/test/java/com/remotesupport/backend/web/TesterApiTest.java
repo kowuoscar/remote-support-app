@@ -15,6 +15,7 @@ import java.util.UUID;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
+import org.springframework.test.web.servlet.MvcResult;
 
 /**
  * Tester creation and listing, nested under a Client (manager-entity-setup ticket): a Tester is
@@ -35,7 +36,7 @@ class TesterApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new TesterCreateRequest("tom.reyes@meridian.example", "Passw0rd!23", true))))
+                        new TesterCreateRequest("tom.reyes@meridian.example", true))))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.username").value("tom.reyes@meridian.example"))
         .andExpect(jsonPath("$.isPrimaryContact").value(true));
@@ -58,7 +59,7 @@ class TesterApiTest extends IntegrationTest {
             .contentType(APPLICATION_JSON)
             .content(
                 objectMapper.writeValueAsString(
-                    new TesterCreateRequest("helena.voss@kessler.example", "Passw0rd!23", true))));
+                    new TesterCreateRequest("helena.voss@kessler.example", true))));
 
     mockMvc
         .perform(
@@ -67,7 +68,7 @@ class TesterApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new TesterCreateRequest("second@kessler.example", "Passw0rd!23", true))))
+                        new TesterCreateRequest("second@kessler.example", true))))
         .andExpect(status().isConflict());
   }
 
@@ -82,7 +83,7 @@ class TesterApiTest extends IntegrationTest {
                 .contentType(APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(
-                        new TesterCreateRequest("ghost@example.com", "Passw0rd!23", false))))
+                        new TesterCreateRequest("ghost@example.com", false))))
         .andExpect(status().isNotFound());
   }
 
@@ -99,7 +100,7 @@ class TesterApiTest extends IntegrationTest {
                   .contentType(APPLICATION_JSON)
                   .content(
                       objectMapper.writeValueAsString(
-                          new TesterCreateRequest("rejected@example.com", "Passw0rd!23", false))))
+                          new TesterCreateRequest("rejected@example.com", false))))
           .andExpect(status().isForbidden());
 
       mockMvc
@@ -121,18 +122,25 @@ class TesterApiTest extends IntegrationTest {
       String token = managerToken();
       UUID clientId = createClient(token, "Bright Path Clinics");
 
-      mockMvc.perform(
-          post("/api/clients/" + clientId + "/testers")
-              .header("Authorization", "Bearer " + token)
-              .contentType(APPLICATION_JSON)
-              .content(
-                  objectMapper.writeValueAsString(
-                      new TesterCreateRequest("audited@brightpath.example", "Passw0rd!23", false))));
+      MvcResult created =
+          mockMvc
+              .perform(
+                  post("/api/clients/" + clientId + "/testers")
+                      .header("Authorization", "Bearer " + token)
+                      .contentType(APPLICATION_JSON)
+                      .content(
+                          objectMapper.writeValueAsString(
+                              new TesterCreateRequest("audited@brightpath.example", false))))
+              .andExpect(status().isCreated())
+              .andReturn();
+      String password =
+          objectMapper.readTree(created.getResponse().getContentAsString()).get("password").asText();
 
       String logged =
           appender.list.stream().map(ILoggingEvent::getFormattedMessage).reduce("", String::concat);
       Assertions.assertThat(logged).contains("action=CREATE");
       Assertions.assertThat(logged).contains("entity=Tester");
+      Assertions.assertThat(logged).doesNotContain(password);
     } finally {
       auditLogger.detachAppender(appender);
     }

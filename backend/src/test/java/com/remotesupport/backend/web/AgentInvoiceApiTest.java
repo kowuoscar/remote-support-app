@@ -179,7 +179,7 @@ class AgentInvoiceApiTest extends IntegrationTest {
     UUID client1 = createClient(managerToken, "Aurora Retail Group");
     UUID contract1 = createContract(managerToken, client1, SEEDED_AGENT_ID);
     addSimCard(managerToken, contract1, "+1-555-0100", "POSTPAID", "25.00");
-    String tester1 = createTesterAndLogin(managerToken, client1, "priya.raman@aurora.example", "Passw0rd!23");
+    String tester1 = createTesterAndLogin(managerToken, client1, "priya.raman@aurora.example");
     UUID topup1 = submitRequest(tester1, contract1, "TOPUP");
     logFee(agentToken, contract1, topup1, "TOPUP", "10.00");
     mockMvc.perform(get("/api/contracts/" + contract1 + "/client-invoice").header("Authorization", "Bearer " + agentToken));
@@ -189,7 +189,7 @@ class AgentInvoiceApiTest extends IntegrationTest {
     UUID client2 = createClient(managerToken, "Meridian Logistics");
     UUID contract2 = createContract(managerToken, client2, SEEDED_AGENT_ID);
     addSimCard(managerToken, contract2, "+1-555-0200", "POSTPAID", "40.00");
-    String tester2 = createTesterAndLogin(managerToken, client2, "charlotte.finch@meridian.example", "Passw0rd!23");
+    String tester2 = createTesterAndLogin(managerToken, client2, "charlotte.finch@meridian.example");
     UUID other2 = submitRequest(tester2, contract2, "OTHER");
     logFee(agentToken, contract2, other2, "OTHER", "60.00");
     mockMvc.perform(get("/api/contracts/" + contract2 + "/client-invoice").header("Authorization", "Bearer " + agentToken));
@@ -237,7 +237,7 @@ class AgentInvoiceApiTest extends IntegrationTest {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Bellrock Systems");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    String testerToken = createTesterAndLogin(managerToken, clientId, "wren.oduya@bellrock.example", "Passw0rd!23");
+    String testerToken = createTesterAndLogin(managerToken, clientId, "wren.oduya@bellrock.example");
     String agentToken = agentToken();
 
     UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0400", "POSTPAID", "35.00");
@@ -255,7 +255,7 @@ class AgentInvoiceApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Bellrock Systems Past");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "eshe.mwangi@bellrockpast.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "eshe.mwangi@bellrockpast.example");
     String agentToken = agentToken();
 
     UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0401", "POSTPAID", "35.00");
@@ -273,7 +273,7 @@ class AgentInvoiceApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Bellrock Systems Frozen");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "tao.lin@bellrockfrozen.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "tao.lin@bellrockfrozen.example");
     String agentToken = agentToken();
 
     UUID simCardId = addSimCard(managerToken, contractId, "+1-555-0402", "POSTPAID", "35.00");
@@ -538,7 +538,7 @@ class AgentInvoiceApiTest extends IntegrationTest {
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     addSimCard(managerToken, contractId, "+1-555-0400", "POSTPAID", "20.00");
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example");
     UUID topup = submitRequest(testerToken, contractId, "TOPUP");
     logFee(agentToken, contractId, topup, "TOPUP", "30.00");
 

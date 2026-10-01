@@ -102,7 +102,7 @@ public class AgentController {
 
     AgentLoginService.Created login =
         agentLoginService.create(
-            agent, Username.trim(request.username()), request.password(), principal.userId());
+            agent, Username.trim(request.username()), principal.userId());
 
     AuditLog.created("Agent", agent.getId(), principal.userId(), principal.tenantId());
 
@@ -128,7 +128,7 @@ public class AgentController {
     agentLoginService.requireLoginCreatable(agent, username);
 
     AgentLoginService.Created login =
-        agentLoginService.create(agent, username, request.password(), principal.userId());
+        agentLoginService.create(agent, username, principal.userId());
 
     return created(
         AgentResponse.of(
@@ -136,7 +136,7 @@ public class AgentController {
         login);
   }
 
-  /** {@code no-store}: the body may carry a generated password, shown once. */
+  /** {@code no-store}: the body carries a generated password, shown once. */
   private static ResponseEntity<AgentCreatedResponse> created(
       AgentResponse agent, AgentLoginService.Created login) {
     return ResponseEntity.status(HttpStatus.CREATED)

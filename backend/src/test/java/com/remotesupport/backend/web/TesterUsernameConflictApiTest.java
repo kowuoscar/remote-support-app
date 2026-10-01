@@ -31,8 +31,6 @@ import org.springframework.context.annotation.Import;
 @Import(OtherTenantFixture.class)
 class TesterUsernameConflictApiTest extends IntegrationTest {
 
-  private static final String PASSWORD = "Passw0rd!23";
-
   @Autowired private OtherTenantFixture otherTenantFixture;
   @Autowired private UserRepository userRepository;
   @Autowired private TesterRepository testerRepository;
@@ -51,7 +49,7 @@ class TesterUsernameConflictApiTest extends IntegrationTest {
     postJson(
             "/api/clients/" + clientId + "/testers",
             token,
-            new TesterCreateRequest(otherTenantLogin.username(), PASSWORD, false))
+            new TesterCreateRequest(otherTenantLogin.username(), false))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"))
         .andExpect(
@@ -71,7 +69,7 @@ class TesterUsernameConflictApiTest extends IntegrationTest {
     postJson(
             "/api/clients/" + clientId + "/testers",
             token,
-            new TesterCreateRequest(username, PASSWORD, false))
+            new TesterCreateRequest(username, false))
         .andExpect(status().isCreated());
     long usersAfterFirst = countUsers();
     long testersAfterFirst = countTesters();
@@ -79,7 +77,7 @@ class TesterUsernameConflictApiTest extends IntegrationTest {
     postJson(
             "/api/clients/" + clientId + "/testers",
             token,
-            new TesterCreateRequest(username, PASSWORD, false))
+            new TesterCreateRequest(username, false))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
 
@@ -96,7 +94,7 @@ class TesterUsernameConflictApiTest extends IntegrationTest {
             "/api/clients/" + clientId + "/testers",
             token,
             new TesterCreateRequest(
-                "first-primary-" + UUID.randomUUID() + "@example.com", PASSWORD, true))
+                "first-primary-" + UUID.randomUUID() + "@example.com", true))
         .andExpect(status().isCreated());
     long usersAfterFirst = countUsers();
     long testersAfterFirst = countTesters();
@@ -105,7 +103,7 @@ class TesterUsernameConflictApiTest extends IntegrationTest {
             "/api/clients/" + clientId + "/testers",
             token,
             new TesterCreateRequest(
-                "second-primary-" + UUID.randomUUID() + "@example.com", PASSWORD, true))
+                "second-primary-" + UUID.randomUUID() + "@example.com", true))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("PRIMARY_CONTACT_EXISTS"));
 
@@ -122,14 +120,14 @@ class TesterUsernameConflictApiTest extends IntegrationTest {
     postJson(
             "/api/clients/" + clientId + "/testers",
             token,
-            new TesterCreateRequest("  " + clean + "  ", PASSWORD, false))
+            new TesterCreateRequest("  " + clean + "  ", false))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.username").value(clean));
 
     postJson(
             "/api/clients/" + clientId + "/testers",
             token,
-            new TesterCreateRequest(clean.toUpperCase(), PASSWORD, false))
+            new TesterCreateRequest(clean.toUpperCase(), false))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
   }
@@ -152,14 +150,14 @@ class TesterUsernameConflictApiTest extends IntegrationTest {
     postJson(
             "/api/clients/" + clientId + "/testers",
             token,
-            new TesterCreateRequest(clean, PASSWORD, false))
+            new TesterCreateRequest(clean, false))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.username").value(clean));
 
     postJson(
             "/api/clients/" + clientId + "/testers",
             token,
-            new TesterCreateRequest("\t" + clean + "\t", PASSWORD, false))
+            new TesterCreateRequest("\t" + clean + "\t", false))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.username").value("\t" + clean + "\t"));
   }

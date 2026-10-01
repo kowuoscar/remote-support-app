@@ -40,7 +40,7 @@ class ReturnRequestsApiTest extends IntegrationTest {
     managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Bramblewood Traders");
     contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    testerToken = createTesterAndLogin(managerToken, clientId, "noor.haddad@bramblewood.example", "Passw0rd!23");
+    testerToken = createTesterAndLogin(managerToken, clientId, "noor.haddad@bramblewood.example");
     agentToken = agentToken();
     returnTesterId = returnContractTesterId();
   }

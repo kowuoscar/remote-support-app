@@ -2,6 +2,7 @@ package com.remotesupport.backend.demo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.remotesupport.backend.domain.AgentInvoice;
@@ -32,6 +33,7 @@ import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -138,5 +140,25 @@ class DemoDataLoaderApiTest {
   @Test
   void theBackendStillRespondsWithTheDemoProfileActive() throws Exception {
     mockMvc.perform(get("/api/health")).andExpect(status().isOk());
+  }
+
+  @Test
+  void theDocumentedDemoLoginsSignInWithTheirDocumentedPasswords() throws Exception {
+    assertSignsIn(DemoDataLoader.PRIYA_USERNAME, DemoDataLoader.PRIYA_PASSWORD);
+    assertSignsIn(DemoDataLoader.DANA_USERNAME, DemoDataLoader.TESTER_PASSWORD);
+    assertSignsIn(DemoDataLoader.NOAH_USERNAME, DemoDataLoader.HARBOR_TESTER_PASSWORD);
+  }
+
+  private void assertSignsIn(String username, String password) throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    """
+                    {"username":"%s","password":"%s"}
+                    """
+                        .formatted(username, password)))
+        .andExpect(status().isOk());
   }
 }

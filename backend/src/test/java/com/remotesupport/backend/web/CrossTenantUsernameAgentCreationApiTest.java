@@ -48,7 +48,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 class CrossTenantUsernameAgentCreationApiTest extends IntegrationTest {
 
-  private static final String PASSWORD = "Passw0rd!23";
   private static final String NAME_PREFIX = "Cross Tenant " + UUID.randomUUID() + " ";
 
   @Autowired private OtherTenantFixture otherTenantFixture;
@@ -123,7 +122,6 @@ class CrossTenantUsernameAgentCreationApiTest extends IntegrationTest {
     body.put("country", "FRANCE");
     body.put("salaryAmount", 2000);
     body.put("username", username);
-    body.put("password", PASSWORD);
     return body;
   }
 }

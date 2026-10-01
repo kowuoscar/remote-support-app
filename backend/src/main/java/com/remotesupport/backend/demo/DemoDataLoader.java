@@ -53,6 +53,7 @@ import com.remotesupport.backend.repository.TenantRepository;
 import com.remotesupport.backend.repository.TesterRepository;
 import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
+import com.remotesupport.backend.security.PasswordWrite;
 import com.remotesupport.backend.web.AgentController;
 import com.remotesupport.backend.web.AgentInvoiceController;
 import com.remotesupport.backend.web.AgentInvoiceService;
@@ -144,6 +145,7 @@ public class DemoDataLoader implements ApplicationRunner {
   public static final String NOAH_USERNAME = "noah.kim@harborline.example";
   public static final String HARBOR_TESTER_PASSWORD = "HarborDemo123!";
 
+  private final PasswordWrite passwordWrite;
   private final TenantRepository tenantRepository;
   private final ClientRepository clientRepository;
   private final AgentRepository agentRepository;
@@ -200,7 +202,9 @@ public class DemoDataLoader implements ApplicationRunner {
       AgentInvoiceController agentInvoiceController,
       AgentInvoiceService agentInvoiceService,
       StandingAmountService standingAmountService,
-      ContractAmountService contractAmountService) {
+      ContractAmountService contractAmountService,
+      PasswordWrite passwordWrite) {
+    this.passwordWrite = passwordWrite;
     this.tenantRepository = tenantRepository;
     this.clientRepository = clientRepository;
     this.agentRepository = agentRepository;
@@ -245,6 +249,7 @@ public class DemoDataLoader implements ApplicationRunner {
 
     // --- Agents ---
     Agent priyaAgent = createPriya(manager);
+    setDemoPassword(PRIYA_USERNAME, PRIYA_PASSWORD);
     AuthenticatedPrincipal priya =
         principal(
             userRepository.findByAgentId(priyaAgent.getId()).orElseThrow().getId(), PRIYA_USERNAME, "AGENT");
@@ -345,7 +350,7 @@ public class DemoDataLoader implements ApplicationRunner {
         agentController
             .create(
                 new AgentCreateRequest(
-                    "Priya Shah", Country.UNITED_KINGDOM, new BigDecimal("4500.00"), PRIYA_USERNAME, PRIYA_PASSWORD),
+                    "Priya Shah", Country.UNITED_KINGDOM, new BigDecimal("4500.00"), PRIYA_USERNAME),
                 manager)
             .getBody();
     return agentRepository.findById(response.id()).orElseThrow();
@@ -432,13 +437,25 @@ public class DemoDataLoader implements ApplicationRunner {
     return client.getId();
   }
 
+  /** Creates through the controller, which generates a password, then sets the documented one. */
   private UUID createTester(
       UUID clientId, String username, String password, boolean primaryContact, AuthenticatedPrincipal manager) {
     var response =
         testerController
-            .create(clientId, new TesterCreateRequest(username, password, primaryContact), manager)
+            .create(clientId, new TesterCreateRequest(username, primaryContact), manager)
             .getBody();
+    setDemoPassword(username, password);
     return response.id();
+  }
+
+  /**
+   * The creation routes always generate, so a demo login gets its documented password through the
+   * password write's raw-value operation right after it is created.
+   */
+  private void setDemoPassword(String username, String password) {
+    User user = userRepository.findByUsername(username).orElseThrow();
+    passwordWrite.setPassword(user, password);
+    userRepository.save(user);
   }
 
   private AuthenticatedPrincipal testerPrincipal(UUID testerId) {

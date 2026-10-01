@@ -216,6 +216,33 @@ public class OtherTenantFixture {
   }
 
   /**
+   * A brand-new Tenant with an Agent that has a working {@code AGENT}-role login, written directly
+   * with a known password (a reset never reveals the original, so a test can only prove "still
+   * signs in with its original password" if the fixture knows it).
+   */
+  public OtherTenantAgentLogin agentLoginInAnotherTenant(String username, String password) {
+    Instant now = Instant.now();
+    Tenant tenant = newTenant(now);
+    Agent agent = newAgent(tenant, now);
+
+    User user = new User();
+    user.setId(UUID.randomUUID());
+    user.setTenant(tenant);
+    user.setUsername(username);
+    user.setPasswordHash(passwordEncoder.encode(password));
+    user.setRole(Role.AGENT);
+    user.setAgent(agent);
+    user.setCreatedAt(now);
+    userRepository.saveAndFlush(user);
+
+    return new OtherTenantAgentLogin(tenant.getId(), agent.getId(), username, password);
+  }
+
+  /** An Agent and its login in another Tenant, as built by {@link #agentLoginInAnotherTenant}. */
+  public record OtherTenantAgentLogin(
+      UUID tenantId, UUID agentId, String username, String password) {}
+
+  /**
    * A second Tenant's login and its data, as built by {@link #managerLoginInAnotherTenant}: the
    * Tenant to compare a sign-in against, the credentials that sign in to it, and the Client that
    * proves it reads only its own data. {@code password} is the plaintext, never recoverable from

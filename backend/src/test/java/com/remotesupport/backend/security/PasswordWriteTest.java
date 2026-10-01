@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 class PasswordWriteTest {
 
   private final PasswordEncoder encoder = new BCryptPasswordEncoder();
-  private final PasswordWrite passwordWrite = new PasswordWrite(encoder);
+  private final PasswordWrite passwordWrite = new PasswordWrite(encoder, new PasswordGenerator());
 
   @Test
   void setPasswordLeavesAHashThatMatchesTheRawValueAndNoOther() {

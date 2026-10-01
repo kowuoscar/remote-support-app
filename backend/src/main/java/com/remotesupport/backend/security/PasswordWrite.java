@@ -1,7 +1,6 @@
 package com.remotesupport.backend.security;
 
 import com.remotesupport.backend.domain.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -21,11 +20,6 @@ public class PasswordWrite {
   private final PasswordEncoder passwordEncoder;
   private final PasswordGenerator passwordGenerator;
 
-  public PasswordWrite(PasswordEncoder passwordEncoder) {
-    this(passwordEncoder, new PasswordGenerator());
-  }
-
-  @Autowired
   public PasswordWrite(PasswordEncoder passwordEncoder, PasswordGenerator passwordGenerator) {
     this.passwordEncoder = passwordEncoder;
     this.passwordGenerator = passwordGenerator;

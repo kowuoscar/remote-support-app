@@ -33,7 +33,7 @@ class PasswordWriteGeneratedTest {
 
   private User userWithPassword(String raw) {
     User user = new User();
-    new PasswordWrite(encoder).setPassword(user, raw);
+    new PasswordWrite(encoder, new PasswordGenerator()).setPassword(user, raw);
     return user;
   }
 

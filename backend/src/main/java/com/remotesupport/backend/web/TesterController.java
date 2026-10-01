@@ -1,10 +1,10 @@
 package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.Client;
-import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.domain.Username;
 import com.remotesupport.backend.dto.TesterCreateRequest;
+import com.remotesupport.backend.dto.TesterCreatedResponse;
 import com.remotesupport.backend.dto.TesterResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.ClientRepository;
@@ -14,6 +14,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -54,7 +55,7 @@ public class TesterController {
   }
 
   @PostMapping
-  public ResponseEntity<TesterResponse> create(
+  public ResponseEntity<TesterCreatedResponse> create(
       @PathVariable UUID clientId,
       @Valid @RequestBody TesterCreateRequest request,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
@@ -70,16 +71,21 @@ public class TesterController {
           "Client " + clientId + " already has a primary contact");
     }
 
-    Tester tester =
+    TesterLoginService.Created created =
         testerLoginService.create(
             client,
             Username.trim(request.username()),
             request.password(),
             request.isPrimaryContact());
 
-    AuditLog.created("Tester", tester.getId(), principal.userId(), principal.tenantId());
+    AuditLog.created("Tester", created.tester().getId(), principal.userId(), principal.tenantId());
 
-    return ResponseEntity.status(HttpStatus.CREATED).body(TesterResponse.of(tester));
+    // no-store: the body may carry a generated password, shown once.
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .cacheControl(CacheControl.noStore())
+        .body(
+            TesterCreatedResponse.of(
+                TesterResponse.of(created.tester()), created.generatedPassword()));
   }
 
   @GetMapping

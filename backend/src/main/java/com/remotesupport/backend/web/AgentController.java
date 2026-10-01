@@ -2,9 +2,9 @@ package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.Agent;
 import com.remotesupport.backend.domain.StandingAmountType;
-import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.domain.Username;
 import com.remotesupport.backend.dto.AgentCreateRequest;
+import com.remotesupport.backend.dto.AgentCreatedResponse;
 import com.remotesupport.backend.dto.AgentLoginCreateRequest;
 import com.remotesupport.backend.dto.AgentResponse;
 import com.remotesupport.backend.logging.AuditLog;
@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -74,7 +75,7 @@ public class AgentController {
    */
   @PostMapping
   @Transactional
-  public ResponseEntity<AgentResponse> create(
+  public ResponseEntity<AgentCreatedResponse> create(
       @Valid @RequestBody AgentCreateRequest request,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Agent agent = new Agent();
@@ -99,14 +100,13 @@ public class AgentController {
         LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1),
         principal.userId());
 
-    User login =
+    AgentLoginService.Created login =
         agentLoginService.create(
             agent, Username.trim(request.username()), request.password(), principal.userId());
 
     AuditLog.created("Agent", agent.getId(), principal.userId(), principal.tenantId());
 
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(AgentResponse.of(agent, 0, login.getUsername()));
+    return created(AgentResponse.of(agent, 0, login.user().getUsername()), login);
   }
 
   /**
@@ -116,7 +116,7 @@ public class AgentController {
    */
   @PostMapping("/{agentId}/login")
   @Transactional
-  public ResponseEntity<AgentResponse> createLogin(
+  public ResponseEntity<AgentCreatedResponse> createLogin(
       @PathVariable UUID agentId,
       @Valid @RequestBody AgentLoginCreateRequest request,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
@@ -127,12 +127,21 @@ public class AgentController {
     String username = Username.trim(request.username());
     agentLoginService.requireLoginCreatable(agent, username);
 
-    User login = agentLoginService.create(agent, username, request.password(), principal.userId());
+    AgentLoginService.Created login =
+        agentLoginService.create(agent, username, request.password(), principal.userId());
 
+    return created(
+        AgentResponse.of(
+            agent, contractRepository.countByAgentId(agent.getId()), login.user().getUsername()),
+        login);
+  }
+
+  /** {@code no-store}: the body may carry a generated password, shown once. */
+  private static ResponseEntity<AgentCreatedResponse> created(
+      AgentResponse agent, AgentLoginService.Created login) {
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(
-            AgentResponse.of(
-                agent, contractRepository.countByAgentId(agent.getId()), login.getUsername()));
+        .cacheControl(CacheControl.noStore())
+        .body(AgentCreatedResponse.of(agent, login.generatedPassword()));
   }
 
   @GetMapping

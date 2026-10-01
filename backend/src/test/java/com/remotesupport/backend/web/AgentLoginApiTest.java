@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 /**
@@ -159,11 +160,21 @@ class AgentLoginApiTest extends IntegrationTest {
     Map<String, Object> blankPassword = loginBody("unused@agents.example", " ");
     postLogin(token, agentId, blankPassword).andExpect(status().isBadRequest());
 
-    Map<String, Object> noPassword = loginBody("unused@agents.example", PASSWORD);
-    noPassword.remove("password");
-    postLogin(token, agentId, noPassword).andExpect(status().isBadRequest());
-
     assertLoginUsername(token, agentId, null);
+  }
+
+  @Test
+  void aBodyWithNoPasswordCreatesTheLoginAndTheReturnedPasswordSignsIn() throws Exception {
+    String token = managerToken();
+    UUID agentId = insertLoginLessAgent(managerTenantId(), "Generated Login");
+
+    Map<String, Object> noPassword = loginBody("generated@agents.example", PASSWORD);
+    noPassword.remove("password");
+    MvcResult created = postLogin(token, agentId, noPassword).andExpect(status().isCreated()).andReturn();
+    String password =
+        objectMapper.readTree(created.getResponse().getContentAsString()).get("password").asText();
+
+    Assertions.assertThat(loginAs("generated@agents.example", password)).isNotBlank();
   }
 
   @Test

@@ -1,7 +1,7 @@
 ---
 id: new-logins-generate-password-api
 title: Generate and return a password when a Login is created without one
-status: ready-for-agent
+status: in-progress
 depends_on: [generated-password-generator]
 labels: [backend]
 stories: [9, 14, 28]

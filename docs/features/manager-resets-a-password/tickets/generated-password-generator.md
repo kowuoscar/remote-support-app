@@ -1,7 +1,7 @@
 ---
 id: generated-password-generator
 title: Generate a password and assign it through the password write
-status: in-progress
+status: done
 depends_on: [one-password-write]
 labels: [enabler, backend]
 stories: []

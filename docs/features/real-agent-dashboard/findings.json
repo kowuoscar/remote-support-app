@@ -205,7 +205,7 @@
    "in_changed_lines": true,
    "where": "frontend/app/agent/page.tsx:179",
    "citation": "",
-   "note": "On mobile, the TopBar subtitle truncates the country ('Jordan Ellis · Unite…'), which is the only information the subtitle adds. [re-review by reviewer-spec: OPEN — the fix dropped the name from the header, contradicting story 1; see F19.]",
+   "note": "On mobile, the TopBar subtitle truncates the country ('Jordan Ellis · Unite…'), which is the only information the subtitle adds. [re-review by reviewer-spec: OPEN — the fix dropped the name from the header, contradicting story 1; see F19.] [Superseded by F19's fix (7186194): the name is restored and the subtitle wraps on mobile instead of truncating, which cures the original smell.]",
    "fixed_in": "3095d5c"
   },
   {
@@ -222,26 +222,28 @@
   {
    "id": "F19",
    "type": "spec-wrong",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-spec",
    "after_review": true,
    "in_changed_lines": true,
    "where": "frontend/app/agent/(dashboard)/page.tsx:151",
    "citation": "User story 1: \"As an Agent, I want my dashboard's header to show my own name and country, so that I know at a glance the page is about me.\" Solution table: \"Header name and country … `<name> · <country label>`\".",
    "note": "Introduced by the fix pass (F17, 3095d5c): the subtitle became countryLabel(agent.country) alone. The name only in the viewer chip does not meet story 1, which the spec keeps separate from story 2. Fix: restore `<name> · <country>` and cure the mobile truncation another way (e.g. let it wrap), or amend the spec first.",
-   "fixed_in": "7186194"
+   "fixed_in": "7186194",
+   "confirmed_by": "reviewer-spec (fresh instance, re-review)"
   },
   {
    "id": "F20",
    "type": "spec-partial",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-spec",
    "after_review": true,
    "in_changed_lines": true,
    "where": "frontend/tests/e2e/agent-dashboard.spec.ts:141",
    "citation": "Testing decisions 3: \"sign in as the Agent and show the dashboard naming Jordan Ellis\"",
    "note": "Introduced by the fix pass: the assertion went from 'Jordan Ellis · United States' to banner text 'United States'. No e2e or visual spec now asserts the Agent's name. Resolves with F19.",
-   "fixed_in": "7186194"
+   "fixed_in": "7186194",
+   "confirmed_by": "reviewer-spec (fresh instance, re-review)"
   }
  ]
 }

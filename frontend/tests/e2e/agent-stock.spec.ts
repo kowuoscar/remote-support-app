@@ -38,10 +38,10 @@ test.describe("agent stock", () => {
     await addSmartphone(page, contractId, model, serial);
 
     const testerEmail = `remy.faure+${RUN_ID}@cascade.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Return", { returnedUnitLabels: [`${model} — ${serial}`] });
 
     // A Return naming a company-owned unit is Pending Approval (return-client-owned-smartphones AC).
@@ -101,11 +101,11 @@ test.describe("agent stock", () => {
     await addSmartphone(page, contractId, model, serial);
 
     const testerEmail = `dara.iwu+${RUN_ID}@beacon.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     // Return the company-owned Smartphone, kept in Stock (same flow as the test above).
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Return", { returnedUnitLabels: [`${model} — ${serial}`] });
 
     await logout(page);
@@ -123,7 +123,7 @@ test.describe("agent stock", () => {
     // Now submit a fresh Provision Smartphone Request on the same Contract, and fulfil it from
     // the Stock unit the Return above just created.
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Provision Smartphone", { requestedModel: "Galaxy S24" });
 
     await logout(page);

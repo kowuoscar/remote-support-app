@@ -61,10 +61,10 @@ test.describe("cancelled sim billed through its month", () => {
     await addSimCard(page, contractId, number, "Verizon", "POSTPAID", "Unlimited Welcome");
 
     const testerEmail = `ines.duarte+${RUN_ID}@havenwood.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Return", { returnedUnitLabels: [number] });
 
     // A SIM Card is always company-owned, so this Return waits at Pending Approval (spec.md

@@ -10,7 +10,6 @@ async function openDialog() {
   await userEvent.click(screen.getByRole("button", { name: "Add tester" }));
   const dialog = screen.getByRole("dialog");
   await userEvent.type(within(dialog).getByLabelText("Email"), "tom.reyes@client.example");
-  await userEvent.type(within(dialog).getByLabelText("Temporary password"), "Passw0rd!23");
   return dialog;
 }
 
@@ -49,14 +48,36 @@ describe("CreateTesterDialog", () => {
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
-  it("closes and refreshes on success", async () => {
-    stubFetch(201, { id: "tester-1" });
+  it("has no password field and shows the generated-password hint", async () => {
+    const dialog = await openDialog();
+
+    expect(within(dialog).queryByLabelText(/password/i)).not.toBeInTheDocument();
+    expect(
+      within(dialog).getByText("A password is generated when you create the login — you'll see it once."),
+    ).toBeInTheDocument();
+  });
+
+  it("sends no password, shows the reveal and refreshes on success", async () => {
+    const fetchMock = stubFetch(201, {
+      id: "tester-1",
+      username: "tom.reyes@client.example",
+      password: "k7Qm-x2Vd-9Rtw",
+    });
     const dialog = await openDialog();
 
     await submit(dialog);
 
     await waitFor(() => expect(mockRouter.refresh).toHaveBeenCalledOnce());
+    expect(JSON.parse((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body as string)).toEqual({
+      username: "tom.reyes@client.example",
+      isPrimaryContact: false,
+    });
+    expect(within(dialog).getByLabelText("Generated password")).toHaveValue("k7Qm-x2Vd-9Rtw");
+    expect(within(dialog).getByText(/tom\.reyes@client\.example can now sign in/)).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+
+    await userEvent.click(within(dialog).getByRole("button", { name: "Done" }));
+    expect(screen.queryByDisplayValue("k7Qm-x2Vd-9Rtw")).not.toBeInTheDocument();
   });
 
   it("shows a generic message on a non-409 failure", async () => {

@@ -24,17 +24,34 @@ export const DialogShell = forwardRef<
     submitting: boolean;
     widthClassName?: string;
     titleId?: string;
+    /** Called once each time the dialog closes, however it closed (handle, Escape, backdrop). */
+    onClosed?: () => void;
     children: ReactNode;
   }
->(function DialogShell({ submitting, widthClassName = "w-[min(440px,90vw)]", titleId, children }, ref) {
+>(function DialogShell({ submitting, widthClassName = "w-[min(440px,90vw)]", titleId, onClosed, children }, ref) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [mounted, setMounted] = useState(false);
+  const isOpenRef = useRef(false);
+  const onClosedRef = useRef(onClosed);
+  useEffect(() => {
+    onClosedRef.current = onClosed;
+  });
+
+  function dismiss() {
+    setMounted(false);
+    if (!isOpenRef.current) return;
+    isOpenRef.current = false;
+    onClosedRef.current?.();
+  }
 
   useImperativeHandle(ref, () => ({
-    open: () => setMounted(true),
+    open: () => {
+      isOpenRef.current = true;
+      setMounted(true);
+    },
     close: () => {
       dialogRef.current?.close();
-      setMounted(false);
+      dismiss();
     },
   }));
 
@@ -49,7 +66,7 @@ export const DialogShell = forwardRef<
     function handleBackdropClick(event: MouseEvent) {
       if (event.target !== dialogRef.current || submitting) return;
       dialogRef.current?.close();
-      setMounted(false);
+      dismiss();
     }
     dialog.addEventListener("click", handleBackdropClick);
     return () => dialog.removeEventListener("click", handleBackdropClick);
@@ -62,7 +79,7 @@ export const DialogShell = forwardRef<
       onCancel={(event) => {
         if (submitting) event.preventDefault();
       }}
-      onClose={() => setMounted(false)}
+      onClose={dismiss}
       className={`m-auto ${widthClassName} rounded-xl border border-hairline bg-canvas-overlay p-0 shadow-elevated-strong backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]`}
     >
       {mounted ? children : null}

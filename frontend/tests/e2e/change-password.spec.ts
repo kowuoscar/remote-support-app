@@ -19,40 +19,38 @@ import {
  * journey names: `addTester` is the Manager-facing UI path that creates one.
  */
 /**
- * Signs in as the Manager, creates a Client+Contract and a Tester under it with `password`, logs
- * out, then signs back in as that Tester and lands on `/client` — the six-line fixture both tests
- * below shared verbatim (review finding F8). Returns the Tester's email for the caller's own
- * assertions.
+ * Signs in as the Manager, creates a Client+Contract and a Tester under it, logs out, then signs
+ * back in as that Tester with the password the creation dialog revealed and lands on `/client` —
+ * the six-line fixture both tests below shared verbatim (review finding F8). Returns the Tester's
+ * email and that generated password for the caller's own assertions.
  */
-async function signedInTesterWithPassword(
+async function signedInTester(
   page: Page,
-  options: { runId: string; emailPrefix: string; clientLabel: string; password: string },
-): Promise<string> {
-  const { runId, emailPrefix, clientLabel, password } = options;
+  options: { runId: string; emailPrefix: string; clientLabel: string },
+): Promise<{ testerEmail: string; password: string }> {
+  const { runId, emailPrefix, clientLabel } = options;
   const testerEmail = `${emailPrefix}+${runId}@client.example`;
 
   await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
   const { clientId } = await createClientAndContractWithSeededAgent(page, `${clientLabel} ${runId}`);
-  await addTester(page, clientId, testerEmail, password);
+  const password = await addTester(page, clientId, testerEmail);
   await logout(page);
 
   await login(page, testerEmail, password);
   await expect(page).toHaveURL(/\/client$/);
 
-  return testerEmail;
+  return { testerEmail, password };
 }
 
 test.describe("change password", () => {
   test("a Tester changes their own password, then must sign in with the new one", async ({ page }) => {
     const runId = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
-    const oldPassword = "OldPassw0rd!1";
     const newPassword = "NewPassw0rd!2";
 
-    const testerEmail = await signedInTesterWithPassword(page, {
+    const { testerEmail, password: oldPassword } = await signedInTester(page, {
       runId,
       emailPrefix: "password.change",
       clientLabel: "Password Change",
-      password: oldPassword,
     });
 
     await page.getByTestId("viewer-menu-trigger").click();
@@ -86,13 +84,11 @@ test.describe("change password", () => {
 
   test("a wrong current password is refused inline, keeps the form and the session", async ({ page }) => {
     const runId = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
-    const password = "OriginalPassw0rd!";
 
-    await signedInTesterWithPassword(page, {
+    await signedInTester(page, {
       runId,
       emailPrefix: "password.wrong",
       clientLabel: "Wrong Password",
-      password,
     });
 
     await page.getByTestId("viewer-menu-trigger").click();

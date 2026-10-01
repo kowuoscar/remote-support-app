@@ -80,25 +80,47 @@ export async function createClientAndContractWithSeededAgent(
   return { clientId, contractId };
 }
 
-/** Adds a Tester under an existing Client (from its manager detail page) and returns their email. */
-export async function addTester(page: Page, clientId: string, email: string, password: string) {
+/**
+ * Reads the one-time **Generated password** off the open creation dialog's reveal, then closes it
+ * with Done. The only way an e2e flow learns a Manager-created login's password.
+ */
+export async function readRevealedPasswordAndClose(page: Page): Promise<string> {
+  const dialog = page.getByRole("dialog");
+  const field = dialog.getByLabel("Generated password");
+  await expect(field).toBeVisible();
+  const password = await field.inputValue();
+  expect(password).not.toBe("");
+  await dialog.getByRole("button", { name: "Done" }).click();
+  await expect(dialog).toBeHidden();
+  return password;
+}
+
+/**
+ * Adds a Tester under an existing Client (from its manager detail page), reads the generated
+ * password from the reveal and returns it.
+ */
+export async function addTester(page: Page, clientId: string, email: string): Promise<string> {
   await page.goto(`/manager/clients/${clientId}`);
   await page.getByRole("button", { name: "Add tester" }).first().click();
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Temporary password").fill(password);
   await page.getByRole("dialog").getByRole("button", { name: "Add tester" }).click();
+  const password = await readRevealedPasswordAndClose(page);
   await expect(page.getByRole("cell", { name: email })).toBeVisible();
+  return password;
 }
 
-/** Creates a fresh Client with one Tester, and a Contract linking it to the seeded Agent. Returns both ids. */
+/**
+ * Creates a fresh Client with one Tester, and a Contract linking it to the seeded Agent. Returns
+ * both ids and the Tester's generated password.
+ */
 export async function createContractWithTester(
   page: Page,
   clientName: string,
   testerEmail: string,
-): Promise<{ clientId: string; contractId: string }> {
+): Promise<{ clientId: string; contractId: string; testerPassword: string }> {
   const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
-  await addTester(page, clientId, testerEmail, "Passw0rd!23");
-  return { clientId, contractId };
+  const testerPassword = await addTester(page, clientId, testerEmail);
+  return { clientId, contractId, testerPassword };
 }
 
 /**
@@ -277,8 +299,8 @@ export async function createUnrelatedContract(
   await page.getByLabel("Country").selectOption("PHILIPPINES");
   await page.getByLabel("Standing monthly salary").fill("1500");
   await page.getByLabel("Email").fill(`priya.nair+${suffix}@agents.example`);
-  await page.getByLabel("Temporary password").fill("Passw0rd!23");
   await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
+  await readRevealedPasswordAndClose(page);
   await expect(page.getByRole("row", { name: new RegExp(otherAgentName) })).toBeVisible();
 
   await page.goto("/manager/contracts");
@@ -348,10 +370,10 @@ export async function addTesterAndSubmitRequestAsAgent(
   requestTypeLabel: string,
   fleet?: SubmitRequestFleetOptions,
 ) {
-  await addTester(page, clientId, testerEmail, "Passw0rd!23");
+  const testerPassword = await addTester(page, clientId, testerEmail);
 
   await logout(page);
-  await login(page, testerEmail, "Passw0rd!23");
+  await login(page, testerEmail, testerPassword);
   await submitRequestAsTester(page, requestTypeLabel, fleet);
 
   await logout(page);

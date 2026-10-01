@@ -31,7 +31,7 @@ test.describe("client invoice submission and visibility", () => {
     const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
     await addPostpaidSimCard(page, contractId, `+1-555-${RUN_ID.slice(-4)}`, "30.00");
     const testerEmail = `charlotte.finch+${RUN_ID}@kesslervance.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     // The Contract page summarises its current-month invoice; "Open invoice" works even for a
     // draft, landing on a read-only detail page.
@@ -69,7 +69,7 @@ test.describe("client invoice submission and visibility", () => {
     await logout(page);
 
     // Tester sees the now-sent invoice read-only and downloads a PDF of it.
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await page.goto("/client/invoices");
     await selectContractInSwitcher(page, clientName);
     await expect(page.getByText("Awaiting approval")).toBeVisible();

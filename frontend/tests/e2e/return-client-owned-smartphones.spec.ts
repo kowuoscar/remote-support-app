@@ -39,10 +39,10 @@ test.describe("return client-owned smartphones", () => {
     await installSimCard(page, contractId, number, `Pixel 8 — ${serial}`);
 
     const testerEmail = `imane.diallo+${RUN_ID}@harborlight.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Return", { returnedUnitLabels: [`Pixel 8 — ${serial}`] });
 
     await expect(page.getByRole("row", { name: /Return/ })).toContainText("Submitted");

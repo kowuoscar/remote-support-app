@@ -27,10 +27,15 @@ const GENERIC_FAILURE =
  * A Manager resets an Agent's or a Tester's password (manager-resets-a-password spec): Confirm,
  * then the shared one-time reveal. One instance per view, opened for whichever target was chosen
  * through its handle, so a page of thirty Testers holds one closed dialog, not thirty. On close
- * focus returns to whatever opened it, and an always-mounted polite status says whose password
- * was reset — never the password.
+ * focus returns to whatever opened it, and `onReset` hands the email back so the page's own
+ * always-mounted polite status can say "Password reset for {email}." — never the password.
  */
-export const ResetPasswordDialog = forwardRef<ResetPasswordDialogHandle>(function ResetPasswordDialog(_props, ref) {
+type ResetPasswordDialogProps = { onReset: (email: string) => void };
+
+export const ResetPasswordDialog = forwardRef<ResetPasswordDialogHandle, ResetPasswordDialogProps>(function ResetPasswordDialog(
+  { onReset },
+  ref,
+) {
   const shellRef = useRef<DialogShellHandle>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
@@ -38,7 +43,6 @@ export const ResetPasswordDialog = forwardRef<ResetPasswordDialogHandle>(functio
   const [password, setPassword] = useState<string | null>(null);
   const [error, setError] = useState<SubmitError | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [announcement, setAnnouncement] = useState("");
 
   useImperativeHandle(ref, () => ({
     open: (next) => {
@@ -47,7 +51,6 @@ export const ResetPasswordDialog = forwardRef<ResetPasswordDialogHandle>(functio
       setPassword(null);
       setError(null);
       setSubmitting(false);
-      setAnnouncement("");
       shellRef.current?.open();
     },
   }));
@@ -57,7 +60,7 @@ export const ResetPasswordDialog = forwardRef<ResetPasswordDialogHandle>(functio
   }
 
   function handleClosed() {
-    if (password && target) setAnnouncement(`Password reset for ${target.email}.`);
+    if (password && target) onReset(target.email);
     setPassword(null);
     triggerRef.current?.focus();
   }
@@ -118,7 +121,6 @@ export const ResetPasswordDialog = forwardRef<ResetPasswordDialogHandle>(functio
           </div>
         ) : null}
       </DialogShell>
-      <output className="sr-only">{announcement}</output>
     </>
   );
 });

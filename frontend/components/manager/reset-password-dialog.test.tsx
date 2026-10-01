@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { stubFetch, stubPendingFetch } from "@/tests/component/fetch";
 import { ResetPasswordDialog, type ResetPasswordDialogHandle } from "./reset-password-dialog";
 
@@ -14,23 +14,23 @@ const target = {
   listLink: { href: "/manager/agents", label: "Back to the Agents list" },
 };
 
-function Host() {
+function Host({ onReset }: Readonly<{ onReset: (email: string) => void }>) {
   const ref = useRef<ResetPasswordDialogHandle>(null);
   return (
     <>
       <button type="button" onClick={() => ref.current?.open(target)}>
         Open reset
       </button>
-      <ResetPasswordDialog ref={ref} />
+      <ResetPasswordDialog ref={ref} onReset={onReset} />
     </>
   );
 }
 
-async function openDialog() {
-  render(<Host />);
+async function openDialog(onReset = vi.fn()) {
+  render(<Host onReset={onReset} />);
   const trigger = screen.getByRole("button", { name: "Open reset" });
   await userEvent.click(trigger);
-  return { trigger, dialog: screen.getByRole("dialog") };
+  return { trigger, dialog: screen.getByRole("dialog"), onReset };
 }
 
 async function confirm(dialog: HTMLElement) {
@@ -49,13 +49,14 @@ describe("ResetPasswordDialog", () => {
     ).toBeInTheDocument();
   });
 
-  it("sends nothing when cancelled", async () => {
+  it("sends nothing and reports no reset when cancelled", async () => {
     const fetchMock = stubFetch(200, { password: PASSWORD });
-    const { dialog } = await openDialog();
+    const { dialog, onReset } = await openDialog();
 
     await userEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
 
     expect(fetchMock).not.toHaveBeenCalled();
+    expect(onReset).not.toHaveBeenCalled();
     expect(screen.queryByRole("button", { name: "Reset password" })).not.toBeInTheDocument();
   });
 
@@ -87,16 +88,16 @@ describe("ResetPasswordDialog", () => {
     await within(dialog).findByLabelText("Generated password");
   });
 
-  it("closes on Done: focus returns to the trigger, the status names the email, the password is gone", async () => {
+  it("closes on Done: focus returns to the trigger, onReset names the email, the password is gone", async () => {
     stubFetch(200, { password: PASSWORD });
-    const { trigger, dialog } = await openDialog();
+    const { trigger, dialog, onReset } = await openDialog();
     await confirm(dialog);
     await within(dialog).findByLabelText("Generated password");
 
     await userEvent.click(within(dialog).getByRole("button", { name: "Done" }));
 
     await waitFor(() => expect(trigger).toHaveFocus());
-    expect(await screen.findByText("Password reset for camille@agents.example.")).toBeInTheDocument();
+    expect(onReset).toHaveBeenCalledExactlyOnceWith("camille@agents.example");
     expect(document.body.innerHTML).not.toContain(PASSWORD);
     expect(screen.queryByDisplayValue(PASSWORD)).not.toBeInTheDocument();
   });

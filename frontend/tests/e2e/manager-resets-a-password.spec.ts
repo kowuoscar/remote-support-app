@@ -127,8 +127,8 @@ test.describe("manager resets an Agent's password", () => {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
 
-    // Cancel is first in tab order, then the confirming pill.
-    await page.keyboard.press("Tab");
+    // The dialog opens on Cancel (its first control); one Tab reaches the confirming pill.
+    await expect(dialog.getByRole("button", { name: "Cancel" })).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(dialog.getByRole("button", { name: "Reset password" })).toBeFocused();
     await page.keyboard.press("Enter");

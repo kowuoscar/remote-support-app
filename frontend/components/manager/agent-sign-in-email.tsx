@@ -28,6 +28,7 @@ export function AgentSignInEmail({
   const emailRef = useRef<HTMLParagraphElement>(null);
   const resetRef = useRef<ResetPasswordDialogHandle>(null);
   const [createdUsername, setCreatedUsername] = useState<string | null>(null);
+  const [resetEmail, setResetEmail] = useState<string | null>(null);
   const email = loginUsername ?? createdUsername;
 
   useEffect(() => {
@@ -61,7 +62,7 @@ export function AgentSignInEmail({
           >
             Reset password
           </Button>
-          <ResetPasswordDialog ref={resetRef} />
+          <ResetPasswordDialog ref={resetRef} onReset={setResetEmail} />
         </div>
       ) : (
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1.5">
@@ -70,7 +71,11 @@ export function AgentSignInEmail({
         </div>
       )}
       <output className="sr-only">
-        {createdUsername ? `Login created. ${agentName} can now sign in with ${createdUsername}.` : ""}
+        {resetEmail
+          ? `Password reset for ${resetEmail}.`
+          : createdUsername
+            ? `Login created. ${agentName} can now sign in with ${createdUsername}.`
+            : ""}
       </output>
     </div>
   );

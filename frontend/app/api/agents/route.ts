@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
   const responseBody = await backendResponse.text();
   return new NextResponse(responseBody, {
     status: backendResponse.status,
-    headers: { "Content-Type": "application/json" },
+    // The 201 body carries a generated password: never cacheable.
+    headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
 }

@@ -58,20 +58,15 @@ public class AgentLoginService {
    * Writes the login and flushes, so a conflict surfaces here, inside the caller's transaction:
    * V16's one-login-per-Agent index and the {@code users} unique constraint are what reject it,
    * mapped to an {@link AgentLoginConflictException} (409) naming which one. The exception rolls
-   * back everything the caller wrote before this call. A {@code null} {@code password} is
-   * generated and handed back in {@link Created}; a typed one is used as is (transitional).
+   * back everything the caller wrote before this call. The password is generated and
+   * handed back in {@link Created}.
    */
-  public Created create(Agent agent, String username, String password, UUID actorUserId) {
+  public Created create(Agent agent, String username, UUID actorUserId) {
     User user = new User();
     user.setId(UUID.randomUUID());
     user.setTenant(agent.getTenant());
     user.setUsername(username);
-    String generated = null;
-    if (password == null) {
-      generated = passwordWrite.setGeneratedPassword(user);
-    } else {
-      passwordWrite.setPassword(user, password);
-    }
+    String generated = passwordWrite.setGeneratedPassword(user);
     user.setRole(Role.AGENT);
     user.setAgent(agent);
     user.setCreatedAt(Instant.now());
@@ -85,7 +80,7 @@ public class AgentLoginService {
     return new Created(user, generated);
   }
 
-  /** The new login, and its password when it was generated ({@code null} when typed). */
+  /** The new login, and its generated password. */
   public record Created(User user, String generatedPassword) {
 
     @Override

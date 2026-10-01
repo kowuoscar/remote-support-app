@@ -58,12 +58,11 @@ public class TesterLoginService {
    * (globally-unique-usernames spec.md "One rule, five creation paths") — or, for a race the
    * pre-check cannot see, when the flush itself is rejected by either username constraint. The
    * primary-contact conflict is still the caller's to raise: it depends only on the {@link
-   * Client}, before any write this method makes. A {@code null} {@code password} is generated and
-   * handed back in {@link Created}; a typed one is used as is (transitional).
+   * Client}, before any write this method makes. The password is generated and handed
+   * back in {@link Created}.
    */
   @Transactional
-  public Created create(
-      Client client, String username, String password, boolean primaryContact) {
+  public Created create(Client client, String username, boolean primaryContact) {
     if (userRepository.existsByUsernameNormalized(username)) {
       throw usernameTaken();
     }
@@ -72,12 +71,7 @@ public class TesterLoginService {
     user.setId(UUID.randomUUID());
     user.setTenant(client.getTenant());
     user.setUsername(username);
-    String generated = null;
-    if (password == null) {
-      generated = passwordWrite.setGeneratedPassword(user);
-    } else {
-      passwordWrite.setPassword(user, password);
-    }
+    String generated = passwordWrite.setGeneratedPassword(user);
     user.setRole(Role.TESTER);
     user.setCreatedAt(Instant.now());
     try {
@@ -98,7 +92,7 @@ public class TesterLoginService {
     return new Created(tester, generated);
   }
 
-  /** The new Tester, and its password when it was generated ({@code null} when typed). */
+  /** The new Tester, and its generated password. */
   public record Created(Tester tester, String generatedPassword) {
 
     @Override

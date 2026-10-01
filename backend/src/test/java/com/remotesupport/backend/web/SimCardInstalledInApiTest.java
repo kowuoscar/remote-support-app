@@ -60,7 +60,7 @@ class SimCardInstalledInApiTest extends IntegrationTest {
     UUID simCardId = createSimCard(managerToken, contractId, "+1-555-0111");
 
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "clara.vance@kesslervance.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "clara.vance@kesslervance.example");
     mockMvc
         .perform(
             patch("/api/contracts/" + contractId + "/sim-cards/" + simCardId + "/installed-in")

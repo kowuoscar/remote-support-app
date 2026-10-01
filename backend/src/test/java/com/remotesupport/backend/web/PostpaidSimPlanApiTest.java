@@ -55,7 +55,7 @@ class PostpaidSimPlanApiTest extends IntegrationTest {
     managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
     contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    testerToken = createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
+    testerToken = createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example");
     agentToken = agentToken();
     testerId = findTesterId();
     carrierId = createCarrier(managerToken, Country.UNITED_STATES, "Mint Mobile");

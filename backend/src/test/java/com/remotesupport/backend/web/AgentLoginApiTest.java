@@ -39,8 +39,6 @@ import org.springframework.test.web.servlet.ResultActions;
 @Import(OtherTenantFixture.class)
 class AgentLoginApiTest extends IntegrationTest {
 
-  private static final String PASSWORD = "Passw0rd!23";
-
   @Autowired private JdbcTemplate jdbcTemplate;
   @Autowired private OtherTenantFixture otherTenantFixture;
 
@@ -49,15 +47,17 @@ class AgentLoginApiTest extends IntegrationTest {
     String token = managerToken();
     UUID agentId = insertLoginLessAgent(managerTenantId(), "Sofia Marin");
 
-    postLogin(token, agentId, loginBody("sofia.marin@agents.example", PASSWORD))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.id").value(agentId.toString()))
-        .andExpect(jsonPath("$.name").value("Sofia Marin"))
-        .andExpect(jsonPath("$.loginUsername").value("sofia.marin@agents.example"));
+    MvcResult created =
+        postLogin(token, agentId, loginBody("sofia.marin@agents.example"))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").value(agentId.toString()))
+            .andExpect(jsonPath("$.name").value("Sofia Marin"))
+            .andExpect(jsonPath("$.loginUsername").value("sofia.marin@agents.example"))
+            .andReturn();
 
     assertLoginUsername(token, agentId, "sofia.marin@agents.example");
 
-    String agentToken = loginAs("sofia.marin@agents.example", PASSWORD);
+    String agentToken = loginAs("sofia.marin@agents.example", passwordOf(created));
     mockMvc
         .perform(get("/api/me").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
@@ -77,10 +77,10 @@ class AgentLoginApiTest extends IntegrationTest {
   void creatingASecondLoginForAnAgentIsRejected() throws Exception {
     String token = managerToken();
     UUID agentId = insertLoginLessAgent(managerTenantId(), "Twice Given");
-    postLogin(token, agentId, loginBody("first.login@agents.example", PASSWORD))
+    postLogin(token, agentId, loginBody("first.login@agents.example"))
         .andExpect(status().isCreated());
 
-    postLogin(token, agentId, loginBody("second.login@agents.example", PASSWORD))
+    postLogin(token, agentId, loginBody("second.login@agents.example"))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("AGENT_ALREADY_HAS_LOGIN"));
 
@@ -89,14 +89,14 @@ class AgentLoginApiTest extends IntegrationTest {
 
   @Test
   void creatingALoginForTheSeededAgentWhichAlreadyHasOneIsRejected() throws Exception {
-    postLogin(managerToken(), SEEDED_AGENT_ID, loginBody("another@agents.example", PASSWORD))
+    postLogin(managerToken(), SEEDED_AGENT_ID, loginBody("another@agents.example"))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("AGENT_ALREADY_HAS_LOGIN"));
   }
 
   @Test
   void anAgentWithALoginIsRejectedAsSuchEvenWhenTheUsernameIsAlsoTaken() throws Exception {
-    postLogin(managerToken(), SEEDED_AGENT_ID, loginBody(MANAGER_USERNAME, PASSWORD))
+    postLogin(managerToken(), SEEDED_AGENT_ID, loginBody(MANAGER_USERNAME))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("AGENT_ALREADY_HAS_LOGIN"));
   }
@@ -106,7 +106,7 @@ class AgentLoginApiTest extends IntegrationTest {
     String token = managerToken();
     UUID agentId = insertLoginLessAgent(managerTenantId(), "Name Clash");
 
-    postLogin(token, agentId, loginBody(MANAGER_USERNAME, PASSWORD))
+    postLogin(token, agentId, loginBody(MANAGER_USERNAME))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
 
@@ -131,7 +131,7 @@ class AgentLoginApiTest extends IntegrationTest {
     String token = managerToken();
     UUID agentId = insertLoginLessAgent(managerTenantId(), "Cross Tenant Name Clash");
 
-    postLogin(token, agentId, loginBody(transformation.apply(otherTenantLogin.username()), PASSWORD))
+    postLogin(token, agentId, loginBody(transformation.apply(otherTenantLogin.username())))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("USERNAME_TAKEN"));
 
@@ -149,16 +149,13 @@ class AgentLoginApiTest extends IntegrationTest {
   }
 
   @Test
-  void aMissingUsernameOrPasswordIsRejected() throws Exception {
+  void aMissingUsernameIsRejected() throws Exception {
     String token = managerToken();
     UUID agentId = insertLoginLessAgent(managerTenantId(), "Incomplete Login");
 
-    Map<String, Object> noUsername = loginBody("unused@agents.example", PASSWORD);
+    Map<String, Object> noUsername = loginBody("unused@agents.example");
     noUsername.remove("username");
     postLogin(token, agentId, noUsername).andExpect(status().isBadRequest());
-
-    Map<String, Object> blankPassword = loginBody("unused@agents.example", " ");
-    postLogin(token, agentId, blankPassword).andExpect(status().isBadRequest());
 
     assertLoginUsername(token, agentId, null);
   }
@@ -168,18 +165,17 @@ class AgentLoginApiTest extends IntegrationTest {
     String token = managerToken();
     UUID agentId = insertLoginLessAgent(managerTenantId(), "Generated Login");
 
-    Map<String, Object> noPassword = loginBody("generated@agents.example", PASSWORD);
-    noPassword.remove("password");
-    MvcResult created = postLogin(token, agentId, noPassword).andExpect(status().isCreated()).andReturn();
-    String password =
-        objectMapper.readTree(created.getResponse().getContentAsString()).get("password").asText();
+    MvcResult created =
+        postLogin(token, agentId, loginBody("generated@agents.example"))
+            .andExpect(status().isCreated())
+            .andReturn();
 
-    Assertions.assertThat(loginAs("generated@agents.example", password)).isNotBlank();
+    Assertions.assertThat(loginAs("generated@agents.example", passwordOf(created))).isNotBlank();
   }
 
   @Test
   void anUnknownAgentIsNotFound() throws Exception {
-    postLogin(managerToken(), UUID.randomUUID(), loginBody("ghost@agents.example", PASSWORD))
+    postLogin(managerToken(), UUID.randomUUID(), loginBody("ghost@agents.example"))
         .andExpect(status().isNotFound());
   }
 
@@ -190,7 +186,7 @@ class AgentLoginApiTest extends IntegrationTest {
         "INSERT INTO tenants (id, name) VALUES (?, ?)", otherTenantId, "Other Tenant");
     UUID foreignAgentId = insertLoginLessAgent(otherTenantId, "Foreign Agent");
 
-    postLogin(managerToken(), foreignAgentId, loginBody("foreign@agents.example", PASSWORD))
+    postLogin(managerToken(), foreignAgentId, loginBody("foreign@agents.example"))
         .andExpect(status().isNotFound());
   }
 
@@ -199,7 +195,7 @@ class AgentLoginApiTest extends IntegrationTest {
     UUID agentId = insertLoginLessAgent(managerTenantId(), "Not Yours To Give");
 
     for (String token : new String[] {agentToken(), testerToken()}) {
-      postLogin(token, agentId, loginBody("forbidden@agents.example", PASSWORD))
+      postLogin(token, agentId, loginBody("forbidden@agents.example"))
           .andExpect(status().isForbidden());
     }
   }
@@ -214,14 +210,16 @@ class AgentLoginApiTest extends IntegrationTest {
     try {
       String token = managerToken();
       UUID agentId = insertLoginLessAgent(managerTenantId(), "Audited Agent");
-      postLogin(token, agentId, loginBody("audited@agents.example", PASSWORD))
-          .andExpect(status().isCreated());
+      MvcResult created =
+          postLogin(token, agentId, loginBody("audited@agents.example"))
+              .andExpect(status().isCreated())
+              .andReturn();
 
       String logged =
           appender.list.stream().map(ILoggingEvent::getFormattedMessage).reduce("", String::concat);
       Assertions.assertThat(logged).contains("action=AGENT_LOGIN_CREATED");
       Assertions.assertThat(logged).contains("agentId=" + agentId);
-      Assertions.assertThat(logged).doesNotContain(PASSWORD);
+      Assertions.assertThat(logged).doesNotContain(passwordOf(created));
     } finally {
       auditLogger.detachAppender(appender);
     }
@@ -243,11 +241,17 @@ class AgentLoginApiTest extends IntegrationTest {
     return agentId;
   }
 
-  private Map<String, Object> loginBody(String username, String password) {
+  private Map<String, Object> loginBody(String username) {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("username", username);
-    body.put("password", password);
     return body;
+  }
+
+  private String passwordOf(MvcResult created) throws Exception {
+    return objectMapper
+        .readTree(created.getResponse().getContentAsString())
+        .get("password")
+        .asText();
   }
 
   private ResultActions postLogin(String token, UUID agentId, Map<String, Object> body)

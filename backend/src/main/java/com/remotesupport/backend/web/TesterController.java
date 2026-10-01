@@ -75,12 +75,11 @@ public class TesterController {
         testerLoginService.create(
             client,
             Username.trim(request.username()),
-            request.password(),
             request.isPrimaryContact());
 
     AuditLog.created("Tester", created.tester().getId(), principal.userId(), principal.tenantId());
 
-    // no-store: the body may carry a generated password, shown once.
+    // no-store: the body carries a generated password, shown once.
     return ResponseEntity.status(HttpStatus.CREATED)
         .cacheControl(CacheControl.noStore())
         .body(

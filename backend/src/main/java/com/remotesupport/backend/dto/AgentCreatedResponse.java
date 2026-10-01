@@ -1,14 +1,12 @@
 package com.remotesupport.backend.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
  * The {@code 201} body of the two Agent Login creation routes: {@link AgentResponse}'s fields
- * flattened, plus {@code password} when the product generated one (omitted when the caller typed
- * it). The password is shown once; this record is never used by a list endpoint, and {@code
- * toString} redacts it.
+ * flattened, plus the generated {@code password}. The password is shown once; this record is never
+ * used by a list endpoint, and {@code toString} redacts it.
  */
 public record AgentCreatedResponse(
     UUID id,
@@ -18,7 +16,7 @@ public record AgentCreatedResponse(
     BigDecimal salaryAmount,
     long contractCount,
     String loginUsername,
-    @JsonInclude(JsonInclude.Include.NON_NULL) String password) {
+    String password) {
 
   public static AgentCreatedResponse of(AgentResponse agent, String generatedPassword) {
     return new AgentCreatedResponse(
@@ -35,6 +33,6 @@ public record AgentCreatedResponse(
   @Override
   public String toString() {
     return "AgentCreatedResponse[id=%s, name=%s, loginUsername=%s, password=%s]"
-        .formatted(id, name, loginUsername, password == null ? null : "[redacted]");
+        .formatted(id, name, loginUsername, "[redacted]");
   }
 }

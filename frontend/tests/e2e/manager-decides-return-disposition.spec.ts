@@ -41,10 +41,10 @@ test.describe("manager decides return disposition", () => {
     await addSimCard(page, contractId, number);
 
     const testerEmail = `dara.novak+${RUN_ID}@solstice.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Return", { returnedUnitLabels: [`iPhone 15 — ${serial}`, number] });
 
     // A Return naming a company-owned unit is Pending Approval, not Submitted (ticket AC).

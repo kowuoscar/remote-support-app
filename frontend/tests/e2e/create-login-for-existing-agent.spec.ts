@@ -68,15 +68,21 @@ test.describe("create login for existing agent", () => {
   test("manager creates a login for a login-less agent, who can then sign in", async ({ page }) => {
     const agentId = await insertLoginLessAgent(`Noor Haddad ${RUN_ID}`);
     const agentEmail = `noor.haddad+${RUN_ID}@agents.example`;
-    const agentPassword = "Passw0rd!23";
 
     await login(page, MANAGER.username, MANAGER.password);
     await expect(page).toHaveURL(/\/manager$/);
 
     const dialog = await openCreateLoginDialog(page, agentId);
     await dialog.getByLabel("Email").fill(agentEmail);
-    await dialog.getByLabel("Temporary password").fill(agentPassword);
+    await expect(dialog.getByLabel("Temporary password")).toHaveCount(0);
     await dialog.getByRole("button", { name: "Create login" }).click();
+
+    // The reveal replaces the form, and the page behind it keeps its trigger until Done.
+    await expect(dialog.getByText(`${agentEmail} can now sign in`)).toBeVisible();
+    const agentPassword = await dialog.getByLabel("Generated password").inputValue();
+    await expect(page.getByText("No login")).toBeVisible();
+    await dialog.getByRole("button", { name: "Done" }).click();
+    await expect(page.getByText(agentPassword)).toHaveCount(0);
 
     // Exact: the status announcement below contains the email too.
     await expect(page.getByText(agentEmail, { exact: true })).toBeVisible();
@@ -103,7 +109,6 @@ test.describe("create login for existing agent", () => {
 
     const dialog = await openCreateLoginDialog(page, agentId);
     await dialog.getByLabel("Email").fill(MANAGER.username);
-    await dialog.getByLabel("Temporary password").fill("Passw0rd!23");
     await dialog.getByRole("button", { name: "Create login" }).click();
 
     await expect(dialog.getByRole("alert")).toContainText("That email is already in use");
@@ -129,7 +134,7 @@ test.describe("create login for existing agent", () => {
         const response = await fetch(`/api/agents/${id}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password: "Passw0rd!23" }),
+          body: JSON.stringify({ username }),
         });
         return response.status;
       },
@@ -138,29 +143,26 @@ test.describe("create login for existing agent", () => {
     expect(elsewhereStatus).toBe(201);
 
     await dialog.getByLabel("Email").fill(`stale.second+${RUN_ID}@agents.example`);
-    await dialog.getByLabel("Temporary password").fill("Passw0rd!23");
     await dialog.getByRole("button", { name: "Create login" }).click();
 
     await expect(dialog.getByRole("alert")).toContainText("This agent already has a login. Refresh the page");
     await expect(dialog.getByRole("alert")).not.toContainText("email is already in use");
   });
 
-  test("a temporary password of only spaces is refused before anything is sent", async ({ page }) => {
-    const agentId = await insertLoginLessAgent(`Blank Password ${RUN_ID}`);
+  test("the Create login response is never cacheable", async ({ page }) => {
+    const agentId = await insertLoginLessAgent(`No Store Login ${RUN_ID}`);
 
     await login(page, MANAGER.username, MANAGER.password);
     await expect(page).toHaveURL(/\/manager$/);
 
     const dialog = await openCreateLoginDialog(page, agentId);
-    await dialog.getByLabel("Email").fill(`blank.password+${RUN_ID}@agents.example`);
-    await dialog.getByLabel("Temporary password").fill("   ");
-    await dialog.getByRole("button", { name: "Create login" }).click();
+    await dialog.getByLabel("Email").fill(`no.store.login+${RUN_ID}@agents.example`);
+    const [response] = await Promise.all([
+      page.waitForResponse((r) => /\/api\/agents\/.+\/login$/.test(r.url()) && r.request().method() === "POST"),
+      dialog.getByRole("button", { name: "Create login" }).click(),
+    ]);
 
-    await expect(dialog.getByRole("alert")).toContainText("can't be only spaces");
-    await expect(dialog.getByLabel("Temporary password")).toHaveAttribute("aria-invalid", "true");
-    await expect(dialog.getByLabel("Temporary password")).toBeFocused();
-
-    await page.goto(`/manager/agents/${agentId}`);
-    await expect(page.getByText("No login")).toBeVisible();
+    expect(response.status()).toBe(201);
+    expect(response.headers()["cache-control"]).toContain("no-store");
   });
 });

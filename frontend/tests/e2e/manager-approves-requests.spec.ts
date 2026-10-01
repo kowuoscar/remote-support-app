@@ -33,7 +33,7 @@ test.describe("manager approves requests", () => {
     const clientName = `Aurora Retail Group ${RUN_ID}`;
     const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
     const testerEmail = `priya.raman+${RUN_ID}@aurora.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     // The Manager's dashboard shows the pending count, linking to the page. The dashboard
     // demonstrates the Operate-mode skeleton-loading convention, so wait for the real stats.
@@ -44,7 +44,7 @@ test.describe("manager approves requests", () => {
     const before = Number((await pendingRequestsCount.textContent())!.trim());
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Provision SIM", { carrierLabel: "Verizon", flavorLabel: "Prepaid" });
 
     // The Tester sees it's Pending Approval, not yet Submitted.
@@ -107,10 +107,10 @@ test.describe("manager approves requests", () => {
     const clientName = `Meridian Logistics ${RUN_ID}`;
     const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
     const testerEmail = `owen.reyes+${RUN_ID}@meridian.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Provision Smartphone", { requestedModel: "iPhone 15 Pro" });
 
     await logout(page);
@@ -127,7 +127,7 @@ test.describe("manager approves requests", () => {
     await expect(page.getByRole("row", { name: new RegExp(clientName) })).not.toBeVisible();
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await page.goto("/client/requests");
     const testerRow = page.getByRole("row", { name: /Provision Smartphone/ });
     await expect(testerRow).toContainText("Rejected");

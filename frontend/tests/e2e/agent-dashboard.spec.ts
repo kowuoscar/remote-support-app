@@ -138,7 +138,7 @@ test.describe("agent dashboard requests", () => {
 
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent");
-    await expect(page.getByRole("banner").getByText("United States")).toBeVisible();
+    await expect(page.getByRole("banner").getByText("Jordan Ellis · United States")).toBeVisible();
     await expect(page.getByTestId("open-requests-stat")).toContainText(String(openBefore + 1));
 
     const firstRow = page.getByTestId("recent-requests").getByRole("listitem").first();

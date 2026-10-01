@@ -10,20 +10,23 @@ export function TopBar({
   subtitle,
   actions,
   viewerLabel,
+  wrapSubtitle = false,
 }: {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
   viewerLabel: string;
+  /** Lets a long subtitle wrap (and the bar grow) instead of truncating; other pages keep the fixed bar. */
+  wrapSubtitle?: boolean;
 }) {
   return (
-    <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between gap-4 border-b border-hairline bg-canvas px-4 sm:px-6">
+    <header className={`sticky top-0 z-10 flex shrink-0 items-center justify-between gap-4 border-b border-hairline bg-canvas px-4 sm:px-6 ${wrapSubtitle ? "min-h-14 py-1.5" : "h-14"}`}>
       <div className="flex min-w-0 items-center gap-1">
         <MobileNavToggle />
         <div className="min-w-0">
           <h1 className="truncate text-[15px] font-semibold text-ink">{title}</h1>
           {subtitle ? (
-            <p className="truncate text-[12px] text-ink-mute">{subtitle}</p>
+            <p className={`text-[12px] text-ink-mute${wrapSubtitle ? "" : " truncate"}`}>{subtitle}</p>
           ) : null}
         </div>
       </div>

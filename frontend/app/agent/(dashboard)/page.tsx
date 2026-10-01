@@ -148,7 +148,8 @@ export default async function AgentDashboardPage() {
   return (
     <SurfacePage
       title="Dashboard"
-      subtitle={countryLabel(agent.country)}
+      subtitle={`${agent.name} · ${countryLabel(agent.country)}`}
+      wrapSubtitle
       viewerLabel={`${agent.name} · Agent`}
     >
       <AgentDashboardStats

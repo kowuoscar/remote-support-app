@@ -39,7 +39,7 @@ for (const breakpoint of breakpoints) {
       await page.setViewportSize(breakpoint.viewport);
       await openResetDialog(page);
       await page.getByRole("dialog").getByRole("button", { name: "Reset password" }).click();
-      await expect(page.getByRole("dialog").getByLabel("Generated password")).toHaveValue("k7Qm-x2Vd-9Rtw");
+      await expect(page.getByRole("dialog").getByLabel("Generated password")).toHaveValue("k7mq-x3vh-p9te");
 
       await expect(page).toHaveScreenshot(`reset-password-dialog-reveal-${breakpoint.name}-${theme}.png`);
     });

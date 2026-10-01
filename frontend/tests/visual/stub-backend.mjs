@@ -154,7 +154,7 @@ const AGENTS = [
 ];
 
 // The password the stubbed reset route reveals (the golden of the reveal step).
-const RESET_PASSWORD = "k7Qm-x2Vd-9Rtw";
+const RESET_PASSWORD = "k7mq-x3vh-p9te";
 
 // reset-a-testers-password-ui: one Client with two Testers (the primary contact and one more), so
 // the Testers table renders its trailing Reset password action on more than one row.

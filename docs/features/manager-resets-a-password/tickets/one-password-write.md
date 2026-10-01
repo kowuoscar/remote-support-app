@@ -1,7 +1,7 @@
 ---
 id: one-password-write
 title: Route every password write through one component
-status: in-progress
+status: done
 depends_on: []
 labels: [enabler, backend]
 stories: [30]

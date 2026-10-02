@@ -13,6 +13,7 @@ separated by ` · `.
 
 ## frontend
 
+- `frontend/app/api` · smell: Hand-written pass-through · about ten Route Handlers build their own `NextResponse` from `backendResponse.text()` instead of a shared forwarder in `lib/api` (Frontend 13, amended 2026-10-02) · manager-resets-a-password · 2026-10-02
 - `frontend/components/manager/create-agent-dialog.tsx` · smell: Duplicated Code · the `{ email; password } | null` state, the form-or-reveal swap and the reset on close are repeated across `create-agent-dialog`, `create-agent-login-dialog` and `create-tester-dialog` (F12) · manager-resets-a-password · 2026-10-02
 - `frontend/components/manager/testers-view.tsx` · smell: ARIA overriding content · the actions `<Td aria-label="Actions">` replaces the cell's computed name for screen readers; kept because without it the cell's name contains the email and Playwright's `getByRole('cell', {name})` substring match turns ambiguous in the e2e helpers (F14) · manager-resets-a-password · 2026-10-02
 - `frontend/components/ui/button.tsx` · smell: Focus lost on loading · `loading` disables the focused button, so the browser drops focus while a dialog submits and it is not restored on error; shared by every dialog (F16) · manager-resets-a-password · 2026-10-02

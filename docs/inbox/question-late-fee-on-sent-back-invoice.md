@@ -1,7 +1,7 @@
 ---
 id: question-late-fee-on-sent-back-invoice
 type: question
-status: open
+status: answered
 blocks: [send-a-client-invoice-back, edit-client-invoice-lines]
 created: 2026-10-02
 ---
@@ -43,3 +43,5 @@ It changes one rule in the editing spec.
 `real-client-dashboard` is being built.
 
 ## Answer
+
+Yes (human, 2026-10-02): a Fee of that month logged after the first send appears on the sent-back invoice as a new pre-filled line; every line already sent stays exactly as sent.

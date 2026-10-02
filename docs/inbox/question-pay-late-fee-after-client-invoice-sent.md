@@ -1,7 +1,7 @@
 ---
 id: question-pay-late-fee-after-client-invoice-sent
 type: question
-status: open
+status: answered
 blocks: [edit-client-invoice-lines]
 created: 2026-10-01
 ---
@@ -37,3 +37,5 @@ builds on it and waits too.
 ticketed.
 
 ## Answer
+
+Yes (human, 2026-10-02): a Fee logged after the Client Invoice was sent counts in that month's pay at its logged amount.

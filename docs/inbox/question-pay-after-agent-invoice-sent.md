@@ -1,7 +1,7 @@
 ---
 id: question-pay-after-agent-invoice-sent
 type: question
-status: open
+status: answered
 blocks: [edit-client-invoice-lines]
 created: 2026-10-01
 ---
@@ -39,3 +39,5 @@ builds on it and waits too.
 ticketed.
 
 ## Answer
+
+Yes (human, 2026-10-02): a sent but not yet approved Agent Invoice moves by the edit's difference; once approved, the difference carries over.

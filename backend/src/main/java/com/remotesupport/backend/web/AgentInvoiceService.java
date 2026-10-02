@@ -10,6 +10,7 @@ import com.remotesupport.backend.dto.AgentInvoiceOverrideRequest;
 import com.remotesupport.backend.dto.AgentInvoiceResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.AgentInvoiceRepository;
+import com.remotesupport.backend.repository.AgentRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import java.math.BigDecimal;
@@ -33,16 +34,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class AgentInvoiceService {
 
   private final AgentInvoiceRepository agentInvoiceRepository;
+  private final AgentRepository agentRepository;
   private final ContractRepository contractRepository;
   private final ContractAmountService contractAmountService;
   private final StandingAmountService standingAmountService;
 
   public AgentInvoiceService(
       AgentInvoiceRepository agentInvoiceRepository,
+      AgentRepository agentRepository,
       ContractRepository contractRepository,
       ContractAmountService contractAmountService,
       StandingAmountService standingAmountService) {
     this.agentInvoiceRepository = agentInvoiceRepository;
+    this.agentRepository = agentRepository;
     this.contractRepository = contractRepository;
     this.contractAmountService = contractAmountService;
     this.standingAmountService = standingAmountService;
@@ -54,6 +58,8 @@ public class AgentInvoiceService {
    */
   @Transactional
   public AgentInvoiceResponse send(AgentInvoice found, AuthenticatedPrincipal principal) {
+    // The Agent's row first, like an edit that found no Agent Invoice: see followClientInvoiceEdit.
+    agentRepository.findByIdForUpdate(found.getAgent().getId());
     AgentInvoice invoice = lock(found);
     AgentInvoiceStatus oldStatus = invoice.getStatus();
     if (!oldStatus.canTransitionTo(AgentInvoiceStatus.SENT)) {
@@ -220,7 +226,8 @@ public class AgentInvoiceService {
   /**
    * A Client Invoice line of this Agent's month was edited (edit-client-invoice-lines spec, "Backend:
    * editing a line", step 7; ADR 0004): locks the Contract's Agent's Agent Invoice for the Client
-   * Invoice's billing month, always, whatever its status, and holds the lock to the caller's commit.
+   * Invoice's billing month, always, whatever its status, and holds the lock to the caller's commit;
+   * the Agent's row is locked first, so a first-ever send that creates the invoice cannot slip past.
    * Only a {@code SENT} one moves, by exactly {@code newBilled - oldBilled}, with an audit line: a
    * {@code DRAFT} computes live, an {@code APPROVED} or {@code PAID} one is final (the difference is
    * a carry-over), and no Agent Invoice yet computes live when created. The caller already holds the
@@ -230,6 +237,10 @@ public class AgentInvoiceService {
   public void followClientInvoiceEdit(
       ClientInvoice clientInvoice, BigDecimal oldBilled, BigDecimal newBilled, AuthenticatedPrincipal principal) {
     UUID agentId = clientInvoice.getContract().getAgent().getId();
+    // With no Agent Invoice yet there is no row to lock, and a first-ever send could freeze the
+    // fees without this edit. Both take the Agent's row first (send does too), so one waits for
+    // the other; lock order stays Client Invoice, Agent, Agent Invoice.
+    agentRepository.findByIdForUpdate(agentId);
     agentInvoiceRepository
         .findByAgentIdAndBillingMonthForUpdate(agentId, clientInvoice.getBillingMonth())
         .filter(invoice -> invoice.getStatus() == AgentInvoiceStatus.SENT)

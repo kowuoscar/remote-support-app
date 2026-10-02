@@ -20,6 +20,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * A Client Invoice line edit racing the Agent Invoice's send, and its approve
@@ -45,6 +48,7 @@ class LocalSupportFeesRaceTest extends IntegrationTest {
   private static final int ROUNDS = 5;
 
   @Autowired private JdbcTemplate jdbcTemplate;
+  @Autowired private PlatformTransactionManager transactionManager;
 
   private final List<UUID> clientIds = new ArrayList<>();
   private final List<UUID> contractIds = new ArrayList<>();
@@ -200,6 +204,77 @@ class LocalSupportFeesRaceTest extends IntegrationTest {
           .as("the edit counted exactly once, whichever won (follow lines: %d)", outcome.followLines())
           .isEqualByComparingTo("31.40");
       deleteRound();
+    }
+  }
+
+  /** No Agent Invoice exists when the edit starts: the send creates it, and the edit still counts once. */
+  @Test
+  void editVersusFirstEverAgentInvoiceSendCountsEditOnce() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+
+    for (int round = 0; round < ROUNDS * 4; round++) {
+      UUID contractId = newRound(managerToken, agentToken, round);
+
+      Outcome outcome = race(() -> edit(contractId, agentToken), () -> sendAgentInvoice(agentToken));
+
+      assertThat(outcome.first()).isEqualTo(200);
+      assertThat(outcome.second()).isEqualTo(200);
+      JsonNode invoice = agentInvoice(agentToken);
+      assertThat(invoice.get("status").asText()).isEqualTo("SENT");
+      assertThat(invoice.get("localSupportFees").decimalValue())
+          .as("the edit counted exactly once, whichever won (follow lines: %d)", outcome.followLines())
+          .isEqualByComparingTo("31.40");
+      deleteRound();
+    }
+  }
+
+  /**
+   * The window the racing test above rarely hits, held open: with no Agent Invoice yet, an edit
+   * has nothing to lock but the Agent's row, and so does the first-ever send. Whoever holds that
+   * row makes the other wait, whichever is first, so the send can never freeze without an edit
+   * that is in flight (story 31).
+   */
+  @Test
+  void editAndFirstEverAgentInvoiceSendSerialiseOnTheAgentRow() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newRound(managerToken, agentToken, 0);
+    TransactionTemplate tx = new TransactionTemplate(transactionManager);
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    try {
+      CountDownLatch locked = new CountDownLatch(1);
+      CountDownLatch release = new CountDownLatch(1);
+      Future<?> holder =
+          pool.submit(
+              () ->
+                  tx.executeWithoutResult(
+                      status -> {
+                        jdbcTemplate.queryForList("SELECT id FROM agents WHERE id = ? FOR UPDATE", SEEDED_AGENT_ID);
+                        locked.countDown();
+                        try {
+                          release.await();
+                        } catch (InterruptedException e) {
+                          Thread.currentThread().interrupt();
+                        }
+                      }));
+      assertThat(locked.await(5, TimeUnit.SECONDS)).isTrue();
+
+      // The edit alone first: with no Agent Invoice it must still wait on the Agent's row.
+      Future<Integer> edit = pool.submit(() -> edit(contractId, agentToken));
+      Thread.sleep(700);
+      assertThat(edit.isDone()).as("the edit waits for the Agent's row").isFalse();
+      Future<Integer> send = pool.submit(() -> sendAgentInvoice(agentToken));
+      Thread.sleep(700);
+      assertThat(send.isDone()).as("the send waits for the Agent's row").isFalse();
+
+      release.countDown();
+      holder.get();
+      assertThat(send.get(10, TimeUnit.SECONDS)).isEqualTo(200);
+      assertThat(edit.get(10, TimeUnit.SECONDS)).isEqualTo(200);
+      assertThat(agentInvoice(agentToken).get("localSupportFees").decimalValue()).isEqualByComparingTo("31.40");
+    } finally {
+      pool.shutdownNow();
     }
   }
 

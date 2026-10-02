@@ -13,7 +13,7 @@ import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
 import com.remotesupport.backend.dto.ClientInvoiceBaseSimLineResponse;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
 import com.remotesupport.backend.dto.ClientInvoiceSummaryResponse;
-import com.remotesupport.backend.dto.FeeResponse;
+import com.remotesupport.backend.dto.ClientInvoiceFeeLineResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
 import com.remotesupport.backend.repository.ClientInvoiceLineRepository;
@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -83,6 +84,7 @@ public class ClientInvoiceService {
    * Approves a sent Client Invoice ({@code SENT -> APPROVED}); any other status is a clean {@link
    * ConflictException} (409), never a silent no-op. Logs the status-transition audit event.
    */
+  @Transactional
   public ClientInvoiceResponse approve(ClientInvoice invoice, AuthenticatedPrincipal principal) {
     ClientInvoiceStatus oldStatus = invoice.getStatus();
     if (!oldStatus.canTransitionTo(ClientInvoiceStatus.APPROVED)) {
@@ -101,19 +103,20 @@ public class ClientInvoiceService {
         principal.userId(),
         principal.tenantId());
 
-    return toResponse(invoice);
+    return toResponse(invoice, true);
   }
 
   /**
    * A fresh PDF of a {@code SENT}/{@code APPROVED} invoice; a draft is still being assembled, so
    * there is nothing final to render yet (409).
    */
+  @Transactional(readOnly = true)
   public ResponseEntity<byte[]> pdf(ClientInvoice invoice) {
     if (invoice.getStatus() == ClientInvoiceStatus.DRAFT) {
       throw new ConflictException("Cannot generate a PDF for a Client Invoice still in draft");
     }
 
-    byte[] pdfBytes = pdfRenderer.render(invoice.getContract(), toResponse(invoice));
+    byte[] pdfBytes = pdfRenderer.render(invoice.getContract(), toResponse(invoice, false));
 
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_PDF)
@@ -152,23 +155,38 @@ public class ClientInvoiceService {
   /**
    * The invoice's response, served from {@link #lines its lines}: the base amount is the sum of the
    * per-SIM and base-amount lines, the Fee lines are the Fee lines, the total is both. The per-SIM
-   * breakdown is served only for a draft whose base amount is per SIM; a sent or approved invoice
-   * has none, as does one holding a {@code BASE_AMOUNT} line.
+   * breakdown is served whenever the base amount is per SIM, whatever the status; an invoice
+   * holding a {@code BASE_AMOUNT} line (sent before per-line storage) has none. {@code
+   * includeEdits} false (a Tester caller) leaves {@code computedAmount} and {@code edited} null
+   * everywhere; the billed amounts are the same.
    */
-  public ClientInvoiceResponse toResponse(ClientInvoice invoice) {
+  @Transactional(readOnly = true)
+  public ClientInvoiceResponse toResponse(ClientInvoice invoice, boolean includeEdits) {
     List<ResolvedLine> lines = lines(invoice);
     boolean perSim = lines.stream().noneMatch(l -> l.kind() == ClientInvoiceLineKind.BASE_AMOUNT);
     List<ClientInvoiceBaseSimLineResponse> basePostpaidSims =
-        invoice.getStatus() == ClientInvoiceStatus.DRAFT && perSim
+        perSim
             ? lines.stream()
                 .filter(l -> l.kind() == ClientInvoiceLineKind.POSTPAID_SIM)
-                .map(l -> ClientInvoiceBaseSimLineResponse.of(l.simCard()))
+                .map(
+                    l ->
+                        ClientInvoiceBaseSimLineResponse.of(
+                            l.simCard(),
+                            l.amount(),
+                            includeEdits ? l.computedAmount() : null,
+                            includeEdits ? l.edited() : null))
                 .toList()
             : null;
-    List<FeeResponse> feeLines =
+    List<ClientInvoiceFeeLineResponse> feeLines =
         lines.stream()
             .filter(l -> l.kind() == ClientInvoiceLineKind.FEE)
-            .map(l -> FeeResponse.of(l.fee()))
+            .map(
+                l ->
+                    ClientInvoiceFeeLineResponse.of(
+                        l.fee(),
+                        l.amount(),
+                        includeEdits ? l.computedAmount() : null,
+                        includeEdits ? l.edited() : null))
             .toList();
 
     return new ClientInvoiceResponse(
@@ -184,6 +202,66 @@ public class ClientInvoiceService {
         files(invoice),
         invoice.getSentAt(),
         invoice.getApprovedAt());
+  }
+
+  /**
+   * The Agent's edit of one line of a draft invoice (edit-client-invoice-lines spec, "Backend:
+   * editing a line", steps 1 to 6), as one transaction. The invoice is re-read under the row lock
+   * the send takes, so an edit never lands on a sent invoice: it waits for the send and then gets
+   * 409. The line is found among {@link #lines the invoice's current lines} (404 if none). On a
+   * never-sent draft the edit upserts the override row, or deletes it when the amount equals the
+   * computed amount (the line follows the computation again); on a draft with stored lines it
+   * updates the row, inserts one for a pre-filled late-Fee line, and never deletes a row.
+   */
+  @Transactional
+  public ClientInvoiceResponse editLine(
+      ClientInvoice found,
+      ClientInvoiceLineKind kind,
+      UUID sourceId,
+      BigDecimal amount,
+      AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
+    if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
+      throw new ConflictException("Cannot edit a line of a Client Invoice that is " + invoice.getStatus());
+    }
+    UUID wantedSource = kind == ClientInvoiceLineKind.BASE_AMOUNT ? null : sourceId;
+    ResolvedLine line =
+        lines(invoice).stream()
+            .filter(l -> l.kind() == kind && Objects.equals(sourceOf(l), wantedSource))
+            .findFirst()
+            .orElseThrow(() -> new NotFoundException("No such line on this Client Invoice"));
+
+    boolean reset = amount.compareTo(line.computedAmount()) == 0;
+    ClientInvoiceLine row = line.stored();
+    if (!invoice.isLinesStored() && reset) {
+      if (row != null) {
+        clientInvoiceLineRepository.delete(row);
+      }
+    } else {
+      if (row == null) {
+        row = newRow(invoice, line);
+      }
+      row.setAmount(amount);
+      if (!invoice.isLinesStored()) {
+        row.setComputedAmount(line.computedAmount());
+      }
+      row.setEditedAt(reset ? null : Instant.now());
+      row.setEditedBy(reset ? null : principal.userId());
+      clientInvoiceLineRepository.save(row);
+    }
+
+    AuditLog.clientInvoiceLineEdited(
+        invoice.getId(), kind.name(), sourceOf(line), line.amount(), amount, principal.userId(), principal.tenantId());
+
+    return toResponse(invoice, true);
+  }
+
+  private static UUID sourceOf(ResolvedLine line) {
+    return switch (line.kind()) {
+      case POSTPAID_SIM -> line.simCard().getId();
+      case FEE -> line.fee().getId();
+      case BASE_AMOUNT -> null;
+    };
   }
 
   /**
@@ -222,7 +300,7 @@ public class ClientInvoiceService {
         principal.userId(),
         principal.tenantId());
 
-    return toResponse(invoice);
+    return toResponse(invoice, true);
   }
 
   private static ClientInvoiceLine newRow(ClientInvoice invoice, ResolvedLine line) {
@@ -249,7 +327,13 @@ public class ClientInvoiceService {
       Fee fee,
       BigDecimal amount,
       BigDecimal computedAmount,
-      ClientInvoiceLine stored) {}
+      ClientInvoiceLine stored) {
+
+    /** A line is edited when what it bills differs from what the computation said. */
+    public boolean edited() {
+      return amount.compareTo(computedAmount) != 0;
+    }
+  }
 
   /**
    * An invoice's lines: the one resolution the read and the send share (edit-client-invoice-lines
@@ -270,8 +354,22 @@ public class ClientInvoiceService {
       for (SimCard sim : contractAmountService.billablePostpaidSims(contractId, invoice.getBillingMonth())) {
         lines.add(
             computedLine(
-                ClientInvoiceLineKind.POSTPAID_SIM, sim, null, sim.getMonthlyFeeAmount(), simRows.get(sim.getId())));
+                ClientInvoiceLineKind.POSTPAID_SIM, sim, null, sim.getMonthlyFeeAmount(), simRows.remove(sim.getId())));
       }
+      // An override row whose SIM no longer bills this month is kept, with a computed amount of
+      // zero, so the Agent's figure is not silently dropped and it still reads as edited.
+      simRows.values().stream()
+          .sorted(Comparator.comparing(ClientInvoiceLine::getCreatedAt))
+          .forEach(
+              row ->
+                  lines.add(
+                      new ResolvedLine(
+                          ClientInvoiceLineKind.POSTPAID_SIM,
+                          row.getSimCard(),
+                          null,
+                          row.getAmount(),
+                          BigDecimal.ZERO,
+                          row)));
       Map<UUID, ClientInvoiceLine> feeRows = rowsBy(rows, ClientInvoiceLineKind.FEE, l -> l.getFee().getId());
       for (Fee fee : feesOfMonth(invoice)) {
         lines.add(computedLine(ClientInvoiceLineKind.FEE, null, fee, fee.getAmount(), feeRows.get(fee.getId())));
@@ -337,6 +435,7 @@ public class ClientInvoiceService {
    * invoice's lines (ADR 0001), as in {@link
    * #toResponse}.
    */
+  @Transactional(readOnly = true)
   public List<ClientInvoiceSummaryResponse> latestSentOrApproved(Client client, UUID tenantId) {
     return contractRepository
         .findByTenantIdAndClientIdOrderByCreatedAtAsc(tenantId, client.getId())

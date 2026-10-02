@@ -242,7 +242,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
   }
 
   @Test
-  void basePostpaidSimsIsAbsentOnceTheInvoiceIsSentSinceThereIsNoFrozenPerUnitBreakdown() throws Exception {
+  void basePostpaidSimsIsServedOnceTheInvoiceIsSentFromItsStoredPerSimLines() throws Exception {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Solaris Freight Sent Line");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
@@ -255,7 +255,11 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("SENT"))
-        .andExpect(jsonPath("$.basePostpaidSims").doesNotExist());
+        .andExpect(jsonPath("$.basePostpaidSims.length()").value(1))
+        .andExpect(jsonPath("$.basePostpaidSims[0].number").value("+1-555-0208"))
+        .andExpect(jsonPath("$.basePostpaidSims[0].amount").value(10.00))
+        .andExpect(jsonPath("$.basePostpaidSims[0].computedAmount").value(10.00))
+        .andExpect(jsonPath("$.basePostpaidSims[0].edited").value(false));
   }
 
   @Test

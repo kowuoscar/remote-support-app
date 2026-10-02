@@ -5,6 +5,7 @@ import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
+import com.remotesupport.backend.dto.ClientInvoiceLineEditRequest;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
@@ -17,7 +18,9 @@ import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,9 +28,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -90,7 +98,7 @@ public class ClientInvoiceController {
       @PathVariable UUID contractId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
     ClientInvoice invoice = resolveInvoiceForView(contract, principal);
-    return clientInvoiceService.toResponse(invoice);
+    return clientInvoiceService.toResponse(invoice, !"TESTER".equals(principal.role()));
   }
 
   /**
@@ -111,6 +119,36 @@ public class ClientInvoiceController {
     ClientInvoice invoice = getOrCreateDraftForCurrentMonth(contract, principal);
 
     return clientInvoiceService.send(invoice, principal);
+  }
+
+  /**
+   * The Agent's edit of one line of this Contract's current-month draft (edit-client-invoice-lines
+   * spec, "Backend: editing a line"); saving a line's computed amount is the reset. Only the
+   * Contract's own Agent may ({@link ClientInvoiceAccessGuard#requireCanSend}, the check the send
+   * uses). The rules, and the {@code 409}/{@code 404}, are {@link ClientInvoiceService#editLine}'s.
+   */
+  @PutMapping("/lines")
+  public ClientInvoiceResponse editLine(
+      @PathVariable UUID contractId,
+      @Valid @RequestBody ClientInvoiceLineEditRequest request,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    Contract contract = findContract(contractId, principal);
+    clientInvoiceAccessGuard.requireCanSend(contract, principal);
+
+    ClientInvoice invoice = getOrCreateDraftForCurrentMonth(contract, principal);
+
+    return clientInvoiceService.editLine(invoice, request.kind(), request.sourceId(), request.amount(), principal);
+  }
+
+  /** A refused edit body is a {@code 400} whose {@code message} names the first thing wrong. */
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<Map<String, String>> editRequestInvalid(MethodArgumentNotValidException e) {
+    String message =
+        e.getBindingResult().getFieldErrors().stream()
+            .map(FieldError::getDefaultMessage)
+            .findFirst()
+            .orElse("The request is invalid");
+    return ResponseEntity.badRequest().body(Map.of("message", message));
   }
 
   /**

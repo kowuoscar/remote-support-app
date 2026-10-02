@@ -32,7 +32,7 @@ public record ClientInvoiceResponse(
     String currency,
     BigDecimal baseAmount,
     @JsonInclude(JsonInclude.Include.NON_NULL) List<ClientInvoiceBaseSimLineResponse> basePostpaidSims,
-    List<FeeResponse> feeLines,
+    List<ClientInvoiceFeeLineResponse> feeLines,
     BigDecimal totalAmount,
     List<CarrierInvoiceFileResponse> files,
     Instant sentAt,

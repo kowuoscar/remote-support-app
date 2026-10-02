@@ -7,17 +7,17 @@ import { Money } from "@/components/ui/money";
 import { IconArrowRight } from "@/components/icons";
 import { clientInvoiceStatusLabel, clientInvoiceStatusTone } from "@/lib/status";
 import { monthLabelSortKey } from "@/lib/format";
-import {
-  clientContracts,
-  clientInvoices,
-  clientRequests,
-  clientSimCards,
-  clientSmartphones,
-} from "@/lib/demo/client";
-import { backendFetch } from "@/lib/api/backend";
+import { clientContracts, clientInvoices } from "@/lib/demo/client";
+import { backendFetch, backendFetchJsonOrNull } from "@/lib/api/backend";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconAlertTriangle } from "@/components/icons";
-import type { ClientOwnRecord } from "@/lib/api/types";
+import type {
+  ClientOwnRecord,
+  ContractListItem,
+  RequestListItem,
+  SimCardListItem,
+  SmartphoneListItem,
+} from "@/lib/api/types";
 
 export const metadata = { title: "Dashboard" };
 
@@ -46,6 +46,42 @@ async function loadUsername(): Promise<string> {
   return ((await response.json()) as { username: string }).username;
 }
 
+/**
+ * How many of one Contract's rows at `path` satisfy `isCounted`, or `null` when the read failed.
+ * The failure is logged with the endpoint and status by `backendFetchJsonOrNull`.
+ */
+async function countContractRows<T>(
+  contractId: string,
+  resource: "smartphones" | "sim-cards" | "requests",
+  isCounted: (row: T) => boolean,
+): Promise<number | null> {
+  const path = `/api/contracts/${contractId}/${resource}`;
+  const rows = await backendFetchJsonOrNull<T[]>(path, `GET ${path}`);
+  return rows === null ? null : rows.filter(isCounted).length;
+}
+
+/**
+ * Sums per-Contract counts, or returns `null` when the Contract list or any one count failed.
+ * All-or-nothing on purpose: a figure that silently dropped a failed Contract would look like real
+ * data, which is why this page does not use `backendFetchList`.
+ */
+async function sumAcrossContracts(
+  contracts: ContractListItem[] | null,
+  countFor: (contract: ContractListItem) => Promise<(number | null)[]>,
+): Promise<number | null> {
+  if (contracts === null) return null;
+  const counts = (await Promise.all(contracts.map(countFor))).flat();
+  if (counts.includes(null)) return null;
+  return counts.reduce<number>((sum, count) => sum + (count ?? 0), 0);
+}
+
+const ACTIVE_SMARTPHONE_STATUSES: readonly SmartphoneListItem["status"][] = ["ACTIVE", "IN_REPAIR"];
+const OPEN_REQUEST_STATUSES: readonly RequestListItem["status"][] = [
+  "PENDING_APPROVAL",
+  "SUBMITTED",
+  "IN_PROGRESS",
+];
+
 export default async function ClientDashboardPage() {
   const [client, username] = await Promise.all([loadClient(), loadUsername()]);
   if (client === null) {
@@ -64,12 +100,22 @@ export default async function ClientDashboardPage() {
     );
   }
 
-  const activeFleetCount =
-    clientSmartphones.filter((p) => p.status !== "Retired").length +
-    clientSimCards.filter((s) => s.status === "Active").length;
-  const openRequests = clientRequests.filter(
-    (r) => r.status === "Submitted" || r.status === "In Progress",
-  );
+  const contracts = await backendFetchJsonOrNull<ContractListItem[]>("/api/contracts", "GET /api/contracts");
+  const [activeFleetCount, openRequestsCount] = await Promise.all([
+    sumAcrossContracts(contracts, (contract) =>
+      Promise.all([
+        countContractRows<SmartphoneListItem>(contract.id, "smartphones", (p) =>
+          ACTIVE_SMARTPHONE_STATUSES.includes(p.status),
+        ),
+        countContractRows<SimCardListItem>(contract.id, "sim-cards", (s) => s.status === "ACTIVE"),
+      ]),
+    ),
+    sumAcrossContracts(contracts, async (contract) => [
+      await countContractRows<RequestListItem>(contract.id, "requests", (r) =>
+        OPEN_REQUEST_STATUSES.includes(r.status),
+      ),
+    ]),
+  ]);
 
   // A Client Invoice is visible to Testers only once the Agent has sent it —
   // drafts never appear here, matching the Invoices list.
@@ -88,10 +134,7 @@ export default async function ClientDashboardPage() {
       viewerLabel={`${username} · Tester`}
       demoData
     >
-      <ClientDashboardStats
-        activeFleetCount={activeFleetCount}
-        openRequestsCount={openRequests.length}
-      />
+      <ClientDashboardStats activeFleetCount={activeFleetCount} openRequestsCount={openRequestsCount} />
 
       <Card className="p-0">
         <div className="flex items-center justify-between border-b border-hairline px-5 py-4">

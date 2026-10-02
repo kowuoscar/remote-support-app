@@ -2,18 +2,14 @@ package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.CarrierInvoiceFile;
 import com.remotesupport.backend.domain.ClientInvoice;
-import com.remotesupport.backend.domain.ClientInvoiceFeeSnapshot;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Contract;
-import com.remotesupport.backend.domain.Fee;
 import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
-import com.remotesupport.backend.repository.ClientInvoiceFeeSnapshotRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
-import com.remotesupport.backend.repository.FeeRepository;
 import com.remotesupport.backend.security.ClientInvoiceAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import java.io.IOException;
@@ -56,16 +52,12 @@ import org.springframework.web.multipart.MultipartFile;
  * (contract_id, billing_month)} constraint (V11 migration), not by application-level locking —
  * see {@link #createDraft}.
  *
- * <p><b>Live while DRAFT, frozen from SENT onward.</b> While {@code DRAFT}, the base amount and
- * Fee lines are computed fresh via {@link ContractAmountService} on every
- * {@code GET} (client-invoice-generation ticket, unchanged by this one — the Regression this
- * ticket must not break). {@link #send} snapshots both the moment the Agent sends: {@code
- * ClientInvoice#snapshotBaseAmount} and the Fee-line membership into {@link
- * ClientInvoiceFeeSnapshot} rows. Every {@code GET} from {@code SENT} onward serves that snapshot
- * — see {@link ClientInvoiceService#toResponse} — so a Fee logged against the same Contract/month
- * afterwards can never silently change a total the Manager already approved or the Client was
- * already shown. See
- * {@link ClientInvoice}'s Javadoc and CONTEXT.md's "Client Invoice" entry for the full reasoning.
+ * <p><b>Lines stored at send.</b> A draft never sent is computed on every {@code GET} (the Fleet
+ * and Fees); {@link #send} hands the invoice to {@link ClientInvoiceService#send}, which stores its
+ * lines in one transaction, and every {@code GET} from {@code SENT} onward serves them (see {@link
+ * ClientInvoiceService#toResponse}), so a Fee logged afterwards can never silently change a total
+ * the Manager already approved or the Client was already shown. See ADR 0001, ADR 0004 and
+ * CONTEXT.md's "Client Invoice" entry.
  */
 @RestController
 @RequestMapping("/api/contracts/{contractId}/client-invoice")
@@ -73,10 +65,7 @@ public class ClientInvoiceController {
 
   private final ContractRepository contractRepository;
   private final ClientInvoiceRepository clientInvoiceRepository;
-  private final FeeRepository feeRepository;
-  private final ContractAmountService contractAmountService;
   private final CarrierInvoiceFileRepository carrierInvoiceFileRepository;
-  private final ClientInvoiceFeeSnapshotRepository clientInvoiceFeeSnapshotRepository;
   private final ClientInvoiceAccessGuard clientInvoiceAccessGuard;
   private final CarrierInvoiceFileStorage fileStorage;
   private final ClientInvoiceService clientInvoiceService;
@@ -84,19 +73,13 @@ public class ClientInvoiceController {
   public ClientInvoiceController(
       ContractRepository contractRepository,
       ClientInvoiceRepository clientInvoiceRepository,
-      FeeRepository feeRepository,
-      ContractAmountService contractAmountService,
       CarrierInvoiceFileRepository carrierInvoiceFileRepository,
-      ClientInvoiceFeeSnapshotRepository clientInvoiceFeeSnapshotRepository,
       ClientInvoiceAccessGuard clientInvoiceAccessGuard,
       CarrierInvoiceFileStorage fileStorage,
       ClientInvoiceService clientInvoiceService) {
     this.contractRepository = contractRepository;
     this.clientInvoiceRepository = clientInvoiceRepository;
-    this.feeRepository = feeRepository;
-    this.contractAmountService = contractAmountService;
     this.carrierInvoiceFileRepository = carrierInvoiceFileRepository;
-    this.clientInvoiceFeeSnapshotRepository = clientInvoiceFeeSnapshotRepository;
     this.clientInvoiceAccessGuard = clientInvoiceAccessGuard;
     this.fileStorage = fileStorage;
     this.clientInvoiceService = clientInvoiceService;
@@ -113,8 +96,8 @@ public class ClientInvoiceController {
   /**
    * Sends this Contract's current-month draft Client Invoice (ticket AC: "Agent can send a draft
    * Client Invoice, moving it to status sent; a sent invoice is no longer editable by the
-   * Agent"), snapshotting its base amount and Fee lines in the same transaction as the status
-   * change so the two can never disagree.
+   * Agent"). The send itself is {@link ClientInvoiceService#send}: one transaction storing the
+   * invoice's lines and changing its status.
    */
   @PostMapping("/send")
   public ClientInvoiceResponse send(
@@ -127,25 +110,7 @@ public class ClientInvoiceController {
     // draft" step to remember.
     ClientInvoice invoice = getOrCreateDraftForCurrentMonth(contract, principal);
 
-    ClientInvoiceStatus oldStatus = invoice.getStatus();
-    if (!oldStatus.canTransitionTo(ClientInvoiceStatus.SENT)) {
-      throw new ConflictException("Cannot send a Client Invoice from status " + oldStatus);
-    }
-
-    snapshot(contract, invoice);
-    invoice.setStatus(ClientInvoiceStatus.SENT);
-    invoice.setSentAt(Instant.now());
-    clientInvoiceRepository.save(invoice);
-
-    AuditLog.statusChanged(
-        "ClientInvoice",
-        invoice.getId(),
-        oldStatus.name(),
-        ClientInvoiceStatus.SENT.name(),
-        principal.userId(),
-        principal.tenantId());
-
-    return clientInvoiceService.toResponse(invoice);
+    return clientInvoiceService.send(invoice, principal);
   }
 
   /**
@@ -246,27 +211,6 @@ public class ClientInvoiceController {
     // placeholder DRAFT below is inert — kept only so both roles share the one guard method.
     clientInvoiceAccessGuard.requireCanView(contract, ClientInvoiceStatus.DRAFT, principal);
     return getOrCreateDraftForCurrentMonth(contract, principal);
-  }
-
-  /**
-   * Freezes this send's base amount and Fee-line membership (see {@link ClientInvoice}'s and
-   * {@link ClientInvoiceFeeSnapshot}'s Javadoc for why). Called once, from {@link #send}, inside
-   * the same request/transaction as the status change.
-   */
-  private void snapshot(Contract contract, ClientInvoice invoice) {
-    invoice.setSnapshotBaseAmount(contractAmountService.baseAmount(contract.getId(), invoice.getBillingMonth()));
-
-    List<Fee> fees =
-        feeRepository.findByContractIdAndBillingMonthOrderByCreatedAtAsc(contract.getId(), invoice.getBillingMonth());
-    for (Fee fee : fees) {
-      ClientInvoiceFeeSnapshot line = new ClientInvoiceFeeSnapshot();
-      line.setId(UUID.randomUUID());
-      line.setTenant(contract.getTenant());
-      line.setClientInvoice(invoice);
-      line.setFee(fee);
-      line.setCreatedAt(Instant.now());
-      clientInvoiceFeeSnapshotRepository.save(line);
-    }
   }
 
   private Optional<ClientInvoice> findCurrentMonthInvoice(Contract contract) {

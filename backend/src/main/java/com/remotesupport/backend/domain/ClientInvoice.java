@@ -27,9 +27,9 @@ import lombok.Setter;
  * base amount and Fee lines are still computed live from {@link SimCard}/{@link Fee} on every
  * read (client-invoice-generation ticket) — the Agent is still assembling it, so there is nothing
  * to freeze yet. The moment an Agent sends it ({@code DRAFT -> SENT}), {@code
- * ClientInvoiceController#send} snapshots both: {@code snapshotBaseAmount} here, and the Fee-line
- * membership into {@link ClientInvoiceFeeSnapshot} rows. From then on ({@code SENT} and {@code
- * APPROVED}) every read serves the snapshot, never a fresh computation.
+ * ClientInvoiceService#send} stores every line it shows as {@link ClientInvoiceLine} rows and sets
+ * {@code linesStored} (ADR 0004). From then on ({@code SENT} and {@code APPROVED}) every read
+ * serves those rows, never a fresh computation.
  *
  * <p>This is a deliberate correctness/audit decision, not an oversight of the live-computation
  * design the previous ticket chose: a live-computed {@code SENT}/{@code APPROVED} invoice would
@@ -81,9 +81,8 @@ public class ClientInvoice {
   private Instant approvedAt;
 
   /**
-   * The base amount frozen at send time; {@code null} while still {@code DRAFT} (computed live
-   * instead — see the class Javadoc). Paired with {@link ClientInvoiceFeeSnapshot} for the frozen
-   * Fee lines; together they are the whole snapshot.
+   * Legacy: the base amount the old send froze. No longer written or read (ADR 0004 replaced it
+   * with {@link ClientInvoiceLine} rows); kept with its data, with {@link ClientInvoiceFeeSnapshot}.
    */
   @Column(name = "snapshot_base_amount")
   private BigDecimal snapshotBaseAmount;

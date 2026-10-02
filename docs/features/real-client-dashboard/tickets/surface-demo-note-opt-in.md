@@ -1,7 +1,7 @@
 ---
 id: surface-demo-note-opt-in
 title: Show the "Demo data" footer only on the Manager dashboard
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [enabler, frontend]
 stories: [23]

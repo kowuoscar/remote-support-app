@@ -1,7 +1,7 @@
 ---
 id: tester-own-client-reads
 title: Give a Tester reads of their own Client and its latest sent or approved Client Invoice per Contract
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [backend]
 stories: [3, 9, 11, 18, 20, 21]

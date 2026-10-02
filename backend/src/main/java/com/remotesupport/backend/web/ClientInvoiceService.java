@@ -154,8 +154,6 @@ public class ClientInvoiceService {
         frozen ? invoice.getSnapshotBaseAmount() : contractAmountService.baseAmount(contractId, invoice.getBillingMonth());
     List<ClientInvoiceBaseSimLineResponse> basePostpaidSims = frozen ? null : liveBasePostpaidSimLines(invoice);
     List<FeeResponse> feeLines = frozen ? snapshottedFeeLines(invoice) : liveFeeLines(invoice);
-    BigDecimal feesTotal =
-        feeLines.stream().map(FeeResponse::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
 
     return new ClientInvoiceResponse(
         invoice.getId(),
@@ -166,7 +164,7 @@ public class ClientInvoiceService {
         baseAmount,
         basePostpaidSims,
         feeLines,
-        baseAmount.add(feesTotal),
+        total(baseAmount, feeLines),
         files(invoice),
         invoice.getSentAt(),
         invoice.getApprovedAt());
@@ -205,9 +203,12 @@ public class ClientInvoiceService {
   }
 
   private BigDecimal frozenTotal(ClientInvoice invoice) {
-    return snapshottedFeeLines(invoice).stream()
-        .map(FeeResponse::amount)
-        .reduce(invoice.getSnapshotBaseAmount(), BigDecimal::add);
+    return total(invoice.getSnapshotBaseAmount(), snapshottedFeeLines(invoice));
+  }
+
+  /** The invoice total (ADR 0001): the base amount plus every Fee line's amount. */
+  private static BigDecimal total(BigDecimal baseAmount, List<FeeResponse> feeLines) {
+    return feeLines.stream().map(FeeResponse::amount).reduce(baseAmount, BigDecimal::add);
   }
 
   /**

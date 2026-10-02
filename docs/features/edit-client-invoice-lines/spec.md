@@ -858,6 +858,9 @@ internals.
 - **Testing: the existing migration, HTTP, component and e2e seams, plus
   committing race tests.** Prior art is named under `## Testing decisions`.
 
+- **The read paths are transactional (after review, `agent-edits-a-client-invoice-line`).** `toResponse`, `pdf` and `latestSentOrApproved` are `@Transactional(readOnly = true)` and `approve` is `@Transactional`. Reason: `open-in-view` is off and stored lines hold lazy SIM and Fee references; outside a transaction they would fail in production, invisibly to `IntegrationTest`. Recorded as debt.
+- **An override row for a SIM that no longer bills stays on a never-sent draft as an edited line with computed amount 0 (after review, `agent-edits-a-client-invoice-line`).** It follows this spec's taken-alone decision that such a line is kept; the previous ticket's read had dropped it. It can be edited or reset away.
+
 - **The ticket cut's last critic failure was fixed by the orchestrator, not escalated (after review).** The second critique failed R3 on `serve-client-invoices-from-stored-lines` only: a criterion checked an `edited` field that `agent-edits-a-client-invoice-line` introduces. The critic's own rewording was applied verbatim (late Fee asserted in `feeLines` at its logged amount; "same Fee lines, base amount and totals"), plus its advisory that an edited SIM row shows its billed amount. Reason: a wording slip with the fix given, not an unclear spec, so escalation case 4 would ask the human nothing they could answer.
 
 ## Open questions

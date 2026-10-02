@@ -1,7 +1,7 @@
 ---
 id: agent-edits-a-client-invoice-line
 title: Let the Agent edit a draft Client Invoice line's amount, with edited markers and reset
-status: in-progress
+status: done
 depends_on: [serve-client-invoices-from-stored-lines]
 labels: [backend]
 stories: [2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 15, 17, 19, 21, 22]

@@ -601,3 +601,14 @@ export interface AgentInvoiceQueueItem extends ReviewQueueItemBase {
 }
 
 export type ReviewQueueItem = ClientInvoiceQueueItem | AgentInvoiceQueueItem;
+
+/** Mirrors ClientInvoiceSummaryResponse.java: a Tester's dashboard row, SENT or APPROVED only. */
+export interface ClientInvoiceSummary {
+  contractId: string;
+  invoiceId: string;
+  /** First-of-month ISO date. */
+  billingMonth: string;
+  status: ClientInvoiceStatusValue;
+  currency: string;
+  totalAmount: number;
+}

@@ -409,6 +409,31 @@ createServer((request, response) => {
   }
   // real-agent-dashboard: the caller's own Agent — Jordan Ellis, with a salary and a non-zero
   // Rollout Advance so the dashboard's "+ <amount> Rollout Advance" meta is exercised.
+  // real-client-dashboard: the latest sent or approved Client Invoice of each of the Tester's
+  // Contracts — a SENT one for the first, an APPROVED one for the second. The degraded token's read
+  // answers 500.
+  if (url.pathname === "/api/me/client/latest-client-invoices" && request.method === "GET") {
+    if (caller.role !== "TESTER" || caller.unlinked) return send(response, 404);
+    if (caller.degraded) return send(response, 500);
+    return send(response, 200, [
+      {
+        contractId: TESTER_CONTRACTS[0].id,
+        invoiceId: "99999999-0000-0000-0000-0000000000c1",
+        billingMonth: "2026-08-01",
+        status: "SENT",
+        currency: "USD",
+        totalAmount: 1284.5,
+      },
+      {
+        contractId: TESTER_CONTRACTS[1].id,
+        invoiceId: "99999999-0000-0000-0000-0000000000c2",
+        billingMonth: "2026-08-01",
+        status: "APPROVED",
+        currency: "GBP",
+        totalAmount: 912,
+      },
+    ]);
+  }
   if (url.pathname === "/api/me/agent" && request.method === "GET") {
     if (caller.role !== "AGENT" || caller.unlinked) return send(response, 404);
     if (caller.failingIdentity) return send(response, 500);

@@ -4,68 +4,74 @@
     {
       "id": "F1",
       "type": "spec-partial",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/AgentInvoiceService.java:288",
       "citation": "31. As the company, I want an edit racing a send or an approval of the Agent Invoice to leave its Local Support Fees equal to what the rule gives, never losing or double-counting the edit, so that pay is right whatever the order.",
-      "note": "followClientInvoiceEdit locks only an Agent Invoice that already exists. If none exists when the edit looks, and one is get-or-created and sent before the edit commits, its send freezes Local Support Fees without the edit and the edit then moves nothing. Close within the spec's lock order (Client Invoice then Agent Invoice): the edit get-or-creates the Agent Invoice under the lock, or the edit and the Agent Invoice send both lock the Agent row. Add a race test for the no-Agent-Invoice-yet case."
+      "note": "followClientInvoiceEdit locks only an Agent Invoice that already exists. If none exists when the edit looks, and one is get-or-created and sent before the edit commits, its send freezes Local Support Fees without the edit and the edit then moves nothing. Close within the spec's lock order (Client Invoice then Agent Invoice): the edit get-or-creates the Agent Invoice under the lock, or the edit and the Agent Invoice send both lock the Agent row. Add a race test for the no-Agent-Invoice-yet case.",
+      "fixed_in": "ba63286"
     },
     {
       "id": "F2",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/client-invoice-detail-view.tsx:118",
       "citation": "docs/agents/coding-standards.md (Frontend 8): \"an arbitrary value (`w-[123px]`) needs a comment saying why it isn't a token. The two small type sizes are tokens, not arbitrary values, once the `type-scale-tokens` enabler lands; until then `text-[12px]`/`text-[13px]` in unchanged lines are known debt.\"",
-      "note": "Lines 118, 125, 130, 158 (new or changed) use text-[13px] / text-[12px] with no comment though text-label / text-label-sm exist (globals.css:149-150). Use the tokens."
+      "note": "Lines 118, 125, 130, 158 (new or changed) use text-[13px] / text-[12px] with no comment though text-label / text-label-sm exist (globals.css:149-150). Use the tokens.",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F3",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:187",
       "citation": "DESIGN.md Layout: \"Tables scroll horizontally on narrow viewports (`min-w-[720px]` inside an `overflow-x-auto` wrapper) rather than reflowing to cards.\" / Vercel: \"Avoid unwanted scrollbars\"",
-      "note": "At 375px the Agent Client Invoices page scrolls sideways (scrollWidth 743 vs 375): each line's sr-only <output> is position:absolute with no positioned ancestor and escapes the TableScroll clip. Fix: `relative` on the control's root div, or one page-level live region."
+      "note": "At 375px the Agent Client Invoices page scrolls sideways (scrollWidth 743 vs 375): each line's sr-only <output> is position:absolute with no positioned ancestor and escapes the TableScroll clip. Fix: `relative` on the control's root div, or one page-level live region.",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F4",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:145",
       "citation": "Vercel Forms: \"Errors inline next to fields; focus first error on submit\"; WCAG 2.4.3 Focus Order",
-      "note": "`disabled={pending}` blurs the input on Save; after a 400/409 focus is on BODY. Keep it enabled (readOnly/aria-busy while pending) or refocus on error; add aria-describedby from the input to the error."
+      "note": "`disabled={pending}` blurs the input on Save; after a 400/409 focus is on BODY. Keep it enabled (readOnly/aria-busy while pending) or refocus on error; add aria-describedby from the input to the error.",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F5",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:172",
       "citation": "WCAG 2.4.3 Focus Order; spec story 24: \"editing, resetting and reading edited lines usable without a mouse\"",
-      "note": "Reset drops focus to BODY (button disables then unmounts after refresh). Send focus to the line's Edit button after a reset."
+      "note": "Reset drops focus to BODY (button disables then unmounts after refresh). Send focus to the line's Edit button after a reset.",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F6",
       "type": "acceptance-failed",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "acceptance-runner",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:172",
       "citation": "spec.md Acceptance walkthrough 20: \"Edit, reset and save by keyboard alone with a visible focus ring at each stop; repeat at the mobile breakpoint and show the row actions and the inline field usable within the viewport. Do the Manager's detail page the same way.\"",
-      "note": "Focus drops to BODY after Reset (and once after a refused Save); at 375px the page scrolls sideways (scrollWidth 743). The Manager's detail page keyboard/mobile pass was not played. Same causes as the design-guideline findings on this control."
+      "note": "Focus drops to BODY after Reset (and once after a refused Save); at 375px the page scrolls sideways (scrollWidth 743). The Manager's detail page keyboard/mobile pass was not played. Same causes as the design-guideline findings on this control.",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F7",
@@ -81,13 +87,14 @@
     {
       "id": "F8",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "CONTEXT.md:108",
       "citation": "",
-      "note": "The 'Client Invoice' glossary entry still describes the old snapshot model (send snapshots snapshot_base_amount and ClientInvoiceFeeSnapshot; reads serve that snapshot); the glossary now contradicts itself."
+      "note": "The 'Client Invoice' glossary entry still describes the old snapshot model (send snapshots snapshot_base_amount and ClientInvoiceFeeSnapshot; reads serve that snapshot); the glossary now contradicts itself.",
+      "fixed_in": "0513602"
     },
     {
       "id": "F9",
@@ -103,24 +110,26 @@
     {
       "id": "F10",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:9",
       "citation": "",
-      "note": "Cross-surface coupling: Agent imports useAnnouncement from components/manager; Manager view imports EditedLineNote from components/agent. Move both to components/ui."
+      "note": "Cross-surface coupling: Agent imports useAnnouncement from components/manager; Manager view imports EditedLineNote from components/agent. Move both to components/ui.",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F11",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/client-invoices-view.tsx:32",
       "citation": "",
-      "note": "LineAmount's read-only branch and the Manager's BilledAmount are the same shape; share one. LineAmount re-spells the kind literal instead of EditableClientInvoiceLineKind."
+      "note": "LineAmount's read-only branch and the Manager's BilledAmount are the same shape; share one. LineAmount re-spells the kind literal instead of EditableClientInvoiceLineKind.",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F12",
@@ -147,46 +156,50 @@
     {
       "id": "F14",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:134",
       "citation": "",
-      "note": "Escape in the open field does nothing; make Escape call close()."
+      "note": "Escape in the open field does nothing; make Escape call close().",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F15",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:147",
       "citation": "",
-      "note": "`w-28` loses to Input's `w-full` (cn has no tailwind-merge); field measures 192px not 112px. Wrap the input in a w-28 container."
+      "note": "`w-28` loses to Input's `w-full` (cn has no tailwind-merge); field measures 192px not 112px. Wrap the input in a w-28 container.",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F16",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/client-invoices-view.tsx:259",
       "citation": "",
-      "note": "Two Topup Fees both read \"Topup Fee\": identical sr labels and descriptions; include the description or date."
+      "note": "Two Topup Fees both read \"Topup Fee\": identical sr labels and descriptions; include the description or date.",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F17",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": false,
       "where": "frontend/components/agent/client-invoices-view.tsx:244",
       "citation": "",
-      "note": "Fee table column still says \"Amount\" while the SIM table says \"Billed\" for the same billed-and-editable figure."
+      "note": "Fee table column still says \"Amount\" while the SIM table says \"Billed\" for the same billed-and-editable figure.",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F18",
@@ -202,13 +215,14 @@
     {
       "id": "F19",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:138",
       "citation": "",
-      "note": "Input has no `name`; add name=\"amount\"."
+      "note": "Input has no `name`; add name=\"amount\".",
+      "fixed_in": "d1c4ab1"
     },
     {
       "id": "F20",

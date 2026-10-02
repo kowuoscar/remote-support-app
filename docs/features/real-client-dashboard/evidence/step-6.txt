@@ -1,0 +1,10 @@
+client_invoices rows before Dana's visits: 9
+US row total before fee (API): 135.99
+Jordan logs Fee:
+{"id":"83657e09-7406-49ad-b270-4c94b97d62e1","contractId":"b65b621c-09ca-4288-84bf-d7dd07c65a30","requestId":"6898f149-8e16-4a5d-af74-c30e2aedd4c4","requestType":"OTHER","feeType":"OTHER","amount":25.00,"currency":"USD","description":"Acceptance fee","billingMonth":"2026-10-01","createdAt":"2026-10-02T07:49:41.951785Z"} HTTP 201
+                  - paragraph [ref=f8e64]: Solstice Retail Group — United States
+                  - generic [ref=f8e69]: $135.99
+                  - paragraph [ref=f8e72]: Solstice Retail Group — United Kingdom
+US row total after fee+reload (API): 135.99
+client_invoices rows after: 9
+fees on contract (count,sum): 5|128.00

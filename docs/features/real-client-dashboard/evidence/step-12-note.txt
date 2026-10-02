@@ -1,0 +1,3 @@
+Golden diff main...HEAD (step-12-goldens-diff.txt): 28 modified PNGs (agent-*, client-*, manager-carriers/requests/stock), 0 added, 0 deleted; manager-desktop-* / manager-mobile-* (the /manager dashboard goldens) are not in the diff.
+"Each deleted first" is a capture-time procedure and cannot be observed from the final tree; the visual suite (71 passed) shows the committed goldens match the current render.
+Full visual suite: 71 passed. verify (docs/agents/sdlc.json): exit 0 (mvn 584 tests, vitest 259, e2e isolated 78 passed).

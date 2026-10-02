@@ -1,0 +1,11 @@
+/manager -> url   'Demo data' occurrences: 1
+/client -> url   'Demo data' occurrences: 0
+/client/fleet -> url   'Demo data' occurrences: 0
+/agent -> url   'Demo data' occurrences: 0
+/manager/carriers -> url   'Demo data' occurrences: 0
+### Result
+"/client/invoices"
+### Ran Playwright code
+```js
+await page.evaluate('() => location.pathname');
+```

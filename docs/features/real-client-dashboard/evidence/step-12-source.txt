@@ -1,0 +1,45 @@
+== files
+contracts.ts
+manager.ts
+types.ts
+client.ts deleted
+types.ts present
+== @/lib/demo imports in client dashboard + ClientDashboardStats
+(dashboard)
+fleet
+invoices
+layout.tsx
+requests
+(grep exit above: none means no matches)
+frontend/app/client/(dashboard)/page.tsx
+frontend/components/client/dashboard-stats.tsx
+frontend/components/client/dashboard-stats.test.tsx
+== @theme
+3:144:@theme inline {
+7:148-     text-label-sm / text-label render exactly as text-[12px] / text-[13px]. */
+8:149-  --text-label-sm: 12px;
+9:150-  --text-label: 13px;
+== text-[12px]/[13px] in dashboard + stats
+(eval):5: no matches found: frontend/components/client/ClientDashboardStats*
+== lib/demo in client dashboard page, its dir and ClientDashboardStats
+exit=1 (1 = no matches)
+== other importers of lib/demo/types (still used):
+frontend/lib/status.ts
+== text-[12px]/[13px]
+exit=1 (1 = no matches)
+== text-label usage:
+== @theme blocks in globals.css
+144:@theme inline {
+  --scrollbar-thumb-hover: #454f6b;
+  --scrollbar-track: transparent;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* Label sizes (DESIGN.md Label role). No paired line-height on purpose:
+     text-label-sm / text-label render exactly as text-[12px] / text-[13px]. */
+  --text-label-sm: 12px;
+  --text-label: 13px;
+
+  --color-canvas: var(--canvas);

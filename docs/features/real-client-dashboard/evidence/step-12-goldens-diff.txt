@@ -1,0 +1,57 @@
+ .../agent-carriers-desktop-dark.png                | Bin 113977 -> 107602 bytes
+ .../agent-carriers-desktop-light.png               | Bin 111552 -> 105455 bytes
+ .../__screenshots__/agent-carriers-mobile-dark.png | Bin 101073 -> 94153 bytes
+ .../agent-carriers-mobile-light.png                | Bin 97876 -> 91027 bytes
+ .../visual/__screenshots__/agent-desktop-dark.png  | Bin 128879 -> 122526 bytes
+ .../visual/__screenshots__/agent-desktop-light.png | Bin 126800 -> 120741 bytes
+ .../visual/__screenshots__/agent-mobile-dark.png   | Bin 102735 -> 95856 bytes
+ .../visual/__screenshots__/agent-mobile-light.png  | Bin 100483 -> 93671 bytes
+ .../__screenshots__/agent-stock-desktop-dark.png   | Bin 70408 -> 63663 bytes
+ .../__screenshots__/agent-stock-desktop-light.png  | Bin 69295 -> 62862 bytes
+ .../__screenshots__/agent-stock-mobile-dark.png    | Bin 34003 -> 27398 bytes
+ .../__screenshots__/agent-stock-mobile-light.png   | Bin 33519 -> 26954 bytes
+ .../visual/__screenshots__/client-desktop-dark.png | Bin 68473 -> 67275 bytes
+ .../__screenshots__/client-desktop-light.png       | Bin 67706 -> 66738 bytes
+ .../visual/__screenshots__/client-mobile-dark.png  | Bin 48895 -> 46506 bytes
+ .../visual/__screenshots__/client-mobile-light.png | Bin 48251 -> 45741 bytes
+ .../manager-carriers-desktop-dark.png              | Bin 132206 -> 125662 bytes
+ .../manager-carriers-desktop-light.png             | Bin 130145 -> 123672 bytes
+ .../manager-carriers-mobile-dark.png               | Bin 118188 -> 111363 bytes
+ .../manager-carriers-mobile-light.png              | Bin 114922 -> 108184 bytes
+ .../manager-requests-desktop-dark.png              | Bin 78825 -> 72074 bytes
+ .../manager-requests-desktop-light.png             | Bin 77659 -> 71208 bytes
+ .../manager-requests-mobile-dark.png               | Bin 33395 -> 26766 bytes
+ .../manager-requests-mobile-light.png              | Bin 32865 -> 26314 bytes
+ .../__screenshots__/manager-stock-desktop-dark.png | Bin 76538 -> 70049 bytes
+ .../manager-stock-desktop-light.png                | Bin 75485 -> 69227 bytes
+ .../__screenshots__/manager-stock-mobile-dark.png  | Bin 38696 -> 32083 bytes
+ .../__screenshots__/manager-stock-mobile-light.png | Bin 38066 -> 31515 bytes
+ 28 files changed, 0 insertions(+), 0 deletions(-)
+M	frontend/tests/visual/__screenshots__/agent-carriers-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/agent-carriers-desktop-light.png
+M	frontend/tests/visual/__screenshots__/agent-carriers-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/agent-carriers-mobile-light.png
+M	frontend/tests/visual/__screenshots__/agent-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/agent-desktop-light.png
+M	frontend/tests/visual/__screenshots__/agent-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/agent-mobile-light.png
+M	frontend/tests/visual/__screenshots__/agent-stock-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/agent-stock-desktop-light.png
+M	frontend/tests/visual/__screenshots__/agent-stock-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/agent-stock-mobile-light.png
+M	frontend/tests/visual/__screenshots__/client-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/client-desktop-light.png
+M	frontend/tests/visual/__screenshots__/client-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/client-mobile-light.png
+M	frontend/tests/visual/__screenshots__/manager-carriers-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/manager-carriers-desktop-light.png
+M	frontend/tests/visual/__screenshots__/manager-carriers-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/manager-carriers-mobile-light.png
+M	frontend/tests/visual/__screenshots__/manager-requests-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/manager-requests-desktop-light.png
+M	frontend/tests/visual/__screenshots__/manager-requests-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/manager-requests-mobile-light.png
+M	frontend/tests/visual/__screenshots__/manager-stock-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/manager-stock-desktop-light.png
+M	frontend/tests/visual/__screenshots__/manager-stock-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/manager-stock-mobile-light.png

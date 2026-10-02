@@ -1,0 +1,36 @@
+Jordan (agent@example.com) POST .../client-invoice/send on UK Contract: HTTP 403 (UK Contract belongs to Priya Shah). Sending as Priya instead.
+{"id":"566f2b26-fbdd-48a5-9b3c-c044f9846e65","contractId":"b326d4da-6b0c-49a8-ac0f-a4ffd84a0f03","billingMonth":"2026-10-01","status":"SENT","currency":"GBP","baseAmount":20.00,"feeLines":[],"totalAmount":20.00,"files":[],"sentAt":"2026-10-02T07:50:06.771133Z","approvedAt":null} HTTP 200
+[
+    {
+        "contractId": "b65b621c-09ca-4288-84bf-d7dd07c65a30",
+        "invoiceId": "bc2712db-e75c-4913-9d48-4c522f001bc9",
+        "billingMonth": "2026-10-01",
+        "status": "SENT",
+        "currency": "USD",
+        "totalAmount": 135.99
+    },
+    {
+        "contractId": "b326d4da-6b0c-49a8-ac0f-a4ffd84a0f03",
+        "invoiceId": "566f2b26-fbdd-48a5-9b3c-c044f9846e65",
+        "billingMonth": "2026-10-01",
+        "status": "SENT",
+        "currency": "GBP",
+        "totalAmount": 20.0
+    }
+]
+                  - paragraph [ref=f9e64]: Solstice Retail Group — United States
+                  - paragraph [ref=f9e65]: October 2026
+                  - generic [ref=f9e67]: Awaiting approval
+                  - generic [ref=f9e69]: $135.99
+                  - paragraph [ref=f9e72]: Solstice Retail Group — United Kingdom
+                  - paragraph [ref=f9e73]: October 2026
+                  - generic [ref=f9e75]: Awaiting approval
+                  - generic [ref=f9e77]: £20.00
+### Result
+{
+  "skeletons": 0
+}
+### Ran Playwright code
+```js
+await page.evaluate('() => ({skeletons: document.querySelectorAll(\'[class*=skeleton],[class*=animate-pulse],[aria-busy=true]\').length})');
+```

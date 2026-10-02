@@ -1,0 +1,25 @@
+  ✓  63 tests/visual/surfaces.spec.ts:152:7 › the Agent dashboard's identity states › degraded-invoice-shows-both-invoice-cards-unavailable (274ms)
+  ✓  64 tests/visual/surfaces.spec.ts:170:7 › the Client dashboard's identity states › tester-header-and-chip-name-their-own-client-and-login (265ms)
+[WebServer] Client dashboard: GET /api/me/client failed with status 500
+[WebServer] ⨯ Error: Client dashboard: GET /api/me/client failed with status 500
+[WebServer]     at r (.next/server/chunks/ssr/[root-of-the-server]__1d1dkv0._.js:1:3360)
+[WebServer]     at async x (.next/server/chunks/ssr/[root-of-the-server]__1d1dkv0._.js:1:4115) {
+[WebServer]   digest: '1728315877'
+[WebServer] }
+  ✓  66 tests/visual/surfaces.spec.ts:187:7 › the Client dashboard's identity states › unlinked-tester-shows-not-linked-message (187ms)
+  ✓  65 tests/visual/surfaces.spec.ts:180:7 › the Client dashboard's identity states › tester-header-keeps-the-full-client-name-at-390px (189ms)
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓  67 tests/visual/surfaces.spec.ts:197:7 › the Client dashboard's identity states › failing-identity-shows-the-single-dashboard-error (240ms)
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓  68 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — desktop — light (1.1s)
+  ✓  69 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — mobile — light (1.1s)
+  ✓  70 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — desktop — dark (1.1s)
+  ✓  71 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — mobile — dark (1.1s)
+
+  71 passed (15.0s)

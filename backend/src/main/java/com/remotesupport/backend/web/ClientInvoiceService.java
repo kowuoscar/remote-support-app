@@ -60,6 +60,7 @@ public class ClientInvoiceService {
   private final ClientInvoiceLineRepository clientInvoiceLineRepository;
   private final CarrierInvoiceFileStorage fileStorage;
   private final ClientInvoicePdfRenderer pdfRenderer;
+  private final AgentInvoiceService agentInvoiceService;
 
   public ClientInvoiceService(
       ClientInvoiceRepository clientInvoiceRepository,
@@ -69,7 +70,8 @@ public class ClientInvoiceService {
       CarrierInvoiceFileRepository carrierInvoiceFileRepository,
       ClientInvoiceLineRepository clientInvoiceLineRepository,
       CarrierInvoiceFileStorage fileStorage,
-      ClientInvoicePdfRenderer pdfRenderer) {
+      ClientInvoicePdfRenderer pdfRenderer,
+      AgentInvoiceService agentInvoiceService) {
     this.clientInvoiceRepository = clientInvoiceRepository;
     this.contractRepository = contractRepository;
     this.feeRepository = feeRepository;
@@ -78,6 +80,7 @@ public class ClientInvoiceService {
     this.clientInvoiceLineRepository = clientInvoiceLineRepository;
     this.fileStorage = fileStorage;
     this.pdfRenderer = pdfRenderer;
+    this.agentInvoiceService = agentInvoiceService;
   }
 
   /**
@@ -206,7 +209,7 @@ public class ClientInvoiceService {
 
   /**
    * The Agent's edit of one line of a draft invoice (edit-client-invoice-lines spec, "Backend:
-   * editing a line", steps 1 to 6), as one transaction. The invoice is re-read under the row lock
+   * editing a line", steps 1 to 7), as one transaction. The invoice is re-read under the row lock
    * the send takes, so an edit never lands on a sent invoice: it waits for the send and then gets
    * 409. The line is found among {@link #lines the invoice's current lines} (404 if none). On a
    * never-sent draft the edit upserts the override row, or deletes it when the amount equals the
@@ -252,6 +255,8 @@ public class ClientInvoiceService {
 
     AuditLog.clientInvoiceLineEdited(
         invoice.getId(), kind.name(), sourceOf(line), line.amount(), amount, principal.userId(), principal.tenantId());
+
+    agentInvoiceService.followClientInvoiceEdit(invoice, line.amount(), amount, principal);
 
     return toResponse(invoice, true);
   }

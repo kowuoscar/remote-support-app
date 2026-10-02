@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import type { ClientInvoiceDetail } from "@/lib/api/types";
@@ -102,5 +102,70 @@ describe("ClientInvoiceDetailView", () => {
     render(<ClientInvoiceDetailView invoice={invoice({ status: "DRAFT", sentAt: null })} />);
 
     expect(screen.queryByRole("link", { name: "Download PDF" })).not.toBeInTheDocument();
+  });
+  describe("edited lines", () => {
+    const editedSim = {
+      simCardId: "sim-1",
+      number: "+1-555-0100",
+      monthlyFeeAmount: 25,
+      cancellationEffectiveDate: null,
+      amount: 31.4,
+      computedAmount: 25,
+      edited: true,
+    };
+    const plainSim = {
+      simCardId: "sim-2",
+      number: "+1-555-0101",
+      monthlyFeeAmount: 20,
+      cancellationEffectiveDate: null,
+      amount: 20,
+      computedAmount: 20,
+      edited: false,
+    };
+
+    it("shows-per-sim-base-lines", () => {
+      render(
+        <ClientInvoiceDetailView
+          invoice={invoice({ baseAmount: 51.4, totalAmount: 96.4, basePostpaidSims: [editedSim, plainSim] })}
+        />,
+      );
+
+      const list = screen.getByRole("list", { name: "Postpaid SIM Cards" });
+      const rows = within(list).getAllByRole("listitem");
+      expect(rows).toHaveLength(2);
+      expect(rows[0]).toHaveTextContent("+1-555-0100");
+      expect(within(rows[0]).getByText("$31.40")).toBeInTheDocument();
+      expect(within(rows[1]).getByText("$20.00")).toBeInTheDocument();
+    });
+
+    it("edited-line-shows-computed-amount-marker", () => {
+      render(
+        <ClientInvoiceDetailView
+          invoice={invoice({
+            basePostpaidSims: [editedSim],
+            feeLines: [
+              { ...invoice().feeLines[0], amount: 40, computedAmount: 45, edited: true },
+            ],
+          })}
+        />,
+      );
+
+      const simRow = screen.getByText("+1-555-0100").closest("li")!;
+      expect(within(simRow).getByText(/Edited · computed/)).toHaveTextContent("Edited · computed $25.00");
+      expect(screen.getByText("Prepaid top-up", { exact: false }).closest("li")).toHaveTextContent(
+        "Edited · computed $45.00",
+      );
+    });
+
+    it("unedited-line-and-legacy-base-amount-show-no-marker", () => {
+      const { unmount } = render(<ClientInvoiceDetailView invoice={invoice({ basePostpaidSims: [plainSim] })} />);
+      expect(screen.queryByText(/Edited · computed/)).not.toBeInTheDocument();
+      expect(screen.getByRole("list", { name: "Postpaid SIM Cards" })).toBeInTheDocument();
+
+      unmount();
+      render(<ClientInvoiceDetailView invoice={invoice()} />);
+      expect(screen.queryByRole("list", { name: "Postpaid SIM Cards" })).not.toBeInTheDocument();
+      expect(screen.queryByText(/Edited · computed/)).not.toBeInTheDocument();
+    });
   });
 });

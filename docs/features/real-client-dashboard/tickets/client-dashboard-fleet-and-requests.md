@@ -1,7 +1,7 @@
 ---
 id: client-dashboard-fleet-and-requests
 title: Show the Tester's active Fleet and open Request counts from their Client's Contracts
-status: in-progress
+status: done
 depends_on: [client-dashboard-identity]
 labels: [frontend]
 stories: [5, 6, 7, 8, 15, 18, 19, 24]

@@ -255,13 +255,13 @@
     {
       "id": "F23",
       "type": "rule-violated",
-      "state": "open",
+      "state": "dismissed",
       "raised_by": "reviewer-standards",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/tests/visual/__screenshots__/client-mobile-light.png",
       "citation": "docs/agents/frontend.md: \"A golden changes only with `DESIGN.md`\" / \"Visual goldens pass, or were updated in the same commit as `DESIGN.md`.\"",
-      "note": "9e53b08 recaptures client-mobile-light/dark with no DESIGN.md change. The same file's principle allows a golden that moves with a change conforming to DESIGN.md; the rule's two phrasings disagree."
+      "note": "9e53b08 recaptures client-mobile-light/dark with no DESIGN.md change. The same file's principle allows a golden that moves with a change conforming to DESIGN.md; the rule's two phrasings disagree. | human (2026-10-02): the golden moved with a change that follows DESIGN.md; docs/agents/frontend.md reworded so its two phrasings agree."
     },
     {
       "id": "F24",

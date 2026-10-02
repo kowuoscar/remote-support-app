@@ -63,9 +63,8 @@ Goals:
 - A Manager deactivates and reactivates the Login of a Tester at one of their
   Clients, from that Tester's row on the Client's page.
 - A deactivated Login is refused at sign-in, even with the right password.
-- A deactivated Login loses access to everything it already had open. *When*
-  that happens depends on open question 1. This draft is written for the
-  recommended answer: at once.
+- A deactivated Login loses access to everything it already had open. It
+  happens at once (the human's answer, 2026-10-02).
 - A deactivated Login cannot change its own password. The `ChangePasswordService`
   gap described in the epic is closed and covered by a test.
 - Deactivation never deletes anything. The `User` row, its username, its
@@ -130,9 +129,9 @@ Non-goals. Each is something a reasonable agent would otherwise build:
 8. As a person whose Login was reactivated, I want to sign in with the same email and password as before, so that coming back needs nothing else from the Manager.
 9. As a Manager, I want to reset the password of a deactivated Login, so that I can give a returning person a fresh password before or after reactivating them.
 10. As the company, I want a deactivated Login refused at sign-in even when the password is right, so that a departed person cannot get back in.
-11. As a person whose Login was deactivated, I want the sign-in page to tell me that my Login is switched off and to ask my Manager, rather than say my password is wrong, so that I don't keep retrying or ask for a reset that would not help. (Shape depends on open question 2.)
+11. As a person whose Login was deactivated, I want the sign-in page to tell me that my Login is switched off and to ask my Manager, rather than say my password is wrong, so that I don't keep retrying or ask for a reset that would not help.
 12. As the company, I want a stranger who types a deactivated person's email with a wrong password to get the same answer as for any wrong password, so that the sign-in page reveals nothing about a Login without its password.
-13. As the company, I want a deactivated Login to lose access to the product at once, even in a browser where it is already signed in, so that a person who leaves on bad terms cannot keep working for up to an hour. (Depends on open question 1.)
+13. As the company, I want a deactivated Login to lose access to the product at once, even in a browser where it is already signed in, so that a person who leaves on bad terms cannot keep working for up to an hour.
 14. As a person whose Login was deactivated while I was signed in, I want to land on the sign-in page at my next page load rather than see broken, empty pages, so that what happened is clear.
 15. As the company, I want a deactivated Login unable to change its own password, so that switching a Login off cannot be undone from inside it.
 16. As a Manager, I want deactivation to leave the Agent's record, Contracts, standing amounts, invoices and requests exactly as they were, and readable to me, so that the history of what the person did is not lost.
@@ -196,10 +195,9 @@ throws `DisabledException`). This gives two cases:
 
 The BFF session route maps `LOGIN_DEACTIVATED` to its own message: "This login
 has been deactivated. Ask your Manager if you need access again." Any other
-non-OK response keeps "Incorrect email or password." (This is open question 2.
-If the human chooses one message for both, the code and the mapping are
-dropped. The provider ordering stays, because it is what stops the sign-in
-page from revealing anything.)
+non-OK response keeps "Incorrect email or password." (The human's answer,
+2026-10-02. The provider ordering is what stops the sign-in page from
+revealing anything to someone without the password.)
 
 **2. Every request with a token.** `JwtAuthenticationFilter`, after a token
 parses, asks a new **Login-state check** whether that `userId` is still an
@@ -208,20 +206,16 @@ Login is deactivated, or the row is gone, the filter leaves the security
 context unauthenticated, so the existing rules answer `401`. This is the
 per-request account-state check the epic set aside for this feature. It lives
 in the filter, not in `CallerIdentityResolver`, because only some endpoints
-call the resolver, while the filter covers every authenticated route. (This is
-open question 1. If the human chooses "at token expiry", this door and the
-frontend guard below are dropped. The deactivate dialog's copy then changes
-to "…and any session they already have ends within the hour".)
+call the resolver, while the filter covers every authenticated route. (The human's
+answer, 2026-10-02, to what was open question 1: at once.)
 
 **3. Self-service password change.** `ChangePasswordService` refuses a
 deactivated caller before it verifies anything. It throws the same
 `BadCredentialsException` path its controller already maps to `401`. It does
 not switch to `AuthenticationManager`. Its `matches` check stays, as the
 sibling specs left it. What changes is that it now checks the same flag sign-in
-checks, so the two can no longer drift apart quietly. Under the recommended
-answer to question 1, door 2 already stops a deactivated caller before this
-point. Door 3 is defence in depth, and it is what holds if the human chooses
-the expiry answer.
+checks, so the two can no longer drift apart quietly. Door 2 already stops a deactivated caller before this
+point; door 3 is defence in depth.
 
 A password reset is **not** refused for a deactivated Login (story 9). It
 changes the password and nothing else. The Login stays deactivated until it is
@@ -289,9 +283,8 @@ the wrong role, `redirect("/login")`. Each backend-driven Agent and Tester page
 calls its guard, the way Manager pages do. Like `requireManager`, the guards
 are scoped per page so that the visual suite's backend-less pages keep
 rendering. A client-side action that gets a `401` mid-dialog shows that
-dialog's existing generic error, and the next page load lands on sign-in. If
-question 1 is answered "at token expiry", this still helps, because an expired
-token today produces the same empty pages. It stays either way.
+dialog's existing generic error, and the next page load lands on sign-in. It also
+helps when a token simply expires, which today produces the same empty pages.
 
 **Agent's page.** `AgentSignInEmail`:
 
@@ -468,6 +461,14 @@ read `deactivated_at` from the database to prove a refusal.
 
 ### Following the human's answers
 
+- **Deactivation takes effect at once** (human, 2026-10-02,
+  `deactivate-a-login-when-it-takes-effect`). A signed-in person's next request
+  is refused and lands on the sign-in page; no hour of access remains.
+- **The sign-in page says so, only with the right password** (human,
+  2026-10-02, `deactivate-a-login-sign-in-message`): "This login has been
+  deactivated. Ask your Manager if you need access again." A wrong password
+  keeps "Incorrect email or password.", so a stranger learns nothing.
+
 - **Only a Manager administers Agent and Tester Logins, in their own Tenant. A
   Manager's own Login is the admin/SuperAdmin's job, in
   `tenant-administration`** (human, 2026-10-01/02).
@@ -487,10 +488,10 @@ read `deactivated_at` from the database to prove a refusal.
   someone without its password.
 - **The per-request refusal lives in `JwtAuthenticationFilter`, through a small
   Login-state check, not in `CallerIdentityResolver`.** Only the filter covers
-  every route. The resolver serves only some endpoints. This assumes
-  question 1's recommended answer.
+  every route. The resolver serves only some endpoints. It follows the human's
+  answer that deactivation takes effect at once.
 - **No cache on the per-request check.** A primary-key read is cheap at this
-  product's scale, and a cache would bring back the delay that question 1
+  product's scale, and a cache would bring back the delay that acting at once
   removes.
 - **`ChangePasswordService` gains a deactivated-caller refusal and keeps
   `matches`.** That closes the epic's divergence with the smallest change and
@@ -552,28 +553,7 @@ read `deactivated_at` from the database to prove a refusal.
 
 ## Open questions
 
-1. **When someone's login is switched off while they are using the app, should
-   they be thrown out at once, or only when their current session ends (within
-   the hour)?** For example: Ana, an Agent, leaves at 10:00 with the app still
-   open on her phone, and you switch her login off at 10:05. *At once*: her
-   next tap at 10:06 lands on the sign-in page, and she can do nothing more.
-   *At session end*: she keeps full use of the Agent console (her Fleet, her
-   requests, submitting her invoice) until as late as 11:05. She just cannot
-   sign in again after that. **Recommendation: at once.** Switching a login
-   off exists for people leaving, sometimes on bad terms, and an hour of
-   access afterwards is the risk this feature exists to remove. The cost is a
-   quick check on every request, which this product's traffic does not
-   notice. (Case 1: a *what*, and the epic deliberately left it to this spec.)
-
-2. **When a switched-off person signs in with their correct password, what
-   should the sign-in page say?** For example: Ana tries to sign in the next
-   week. *Say so*: "This login has been deactivated. Ask your Manager if you
-   need access again." *Say nothing*: "Incorrect email or password.", the
-   same as a typo. **Recommendation: say so, but only when the password is
-   correct.** Anyone typing a wrong password still gets "Incorrect email or
-   password.", so a stranger learns nothing. Ana, though, does not keep
-   retrying or ask you for a password reset that would not let her in.
-   (Case 1: a *what*, the wording a departed person sees.)
+None.
 
 ## Acceptance walkthrough
 
@@ -603,11 +583,7 @@ read `deactivated_at` from the database to prove a refusal.
 
 ## Execution order
 
-The order is final only once `## Open questions` is answered. It is written
-for the recommended answers. If question 1 is answered "at session end",
-ticket 2 drops door 2 and ticket 5 drops the console guards. If question 2 is
-answered "say nothing", ticket 2 drops the code and ticket 5 drops the
-message. Seven slices.
+Seven slices.
 
 1. `administered-login-lookup` — extract the Tenant-scoped target resolution and the guard call from `PasswordResetService` into one component. The reset suites pass unedited. Labels: `enabler`, `backend`. Depends on nothing. (stories: none)
 2. `deactivated-login-refused` — V58, `User.deactivatedAt`, `isEnabled()` wiring with the post-password check, `LOGIN_DEACTIVATED` at sign-in, the per-request Login-state check in the filter, and `ChangePasswordService`'s refusal with its narrow test. Tests deactivate through the `User` entity in-transaction. Labels: `backend`. Depends on nothing. (stories: 10, 11, 12, 13, 15, 26, 27)

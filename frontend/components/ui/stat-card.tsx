@@ -2,6 +2,16 @@ import type { HTMLAttributes, ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/cn";
 
+/** An unreadable figure: a muted dash (not the card's reserved indigo) that a screen reader hears as "Unavailable". */
+export const UNAVAILABLE_FIGURE = (
+  <>
+    <span aria-hidden="true" className="text-ink-mute">
+      —
+    </span>
+    <span className="sr-only">Unavailable</span>
+  </>
+);
+
 /**
  * Dashboard stat cards — the deliberate, brief-earned exception to the
  * usual hero-metric-template ban. Tabular figures, indigo accent reserved

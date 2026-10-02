@@ -8,7 +8,7 @@ export function EmptyState({
 }: {
   icon?: ReactNode;
   title: string;
-  description: string;
+  description?: string;
   action?: ReactNode;
 }) {
   return (
@@ -20,7 +20,7 @@ export function EmptyState({
       ) : null}
       <div className="max-w-sm space-y-1">
         <p className="text-sm font-medium text-ink">{title}</p>
-        <p className="text-[13px] leading-relaxed text-ink-mute">{description}</p>
+        {description ? <p className="text-[13px] leading-relaxed text-ink-mute">{description}</p> : null}
       </div>
       {action}
     </div>

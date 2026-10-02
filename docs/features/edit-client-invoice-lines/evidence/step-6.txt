@@ -1,0 +1,12 @@
+create second Agent 201 {'id': '8928e518-a388-41ca-b61f-5fb501005cd4', 'name': 'Agent Bee', 'country': 'UNITED_STATES', 'currency': 'USD', 'salaryAmount': 2000.0, 'contractCount': 0, 'loginUsername': 'bee@example.com'}
+Manager -> 403
+PASS: Manager -> 403
+Tester -> 403
+PASS: Tester -> 403
+another Agent -> 403
+PASS: another Agent -> 403
+fixture (SQL, same shape as OtherTenantFixture): second tenant, Contract fbd11efc-fdb8-4074-a31d-5491584ce036
+other tenant's Contract as Agent -> 404
+PASS: other tenant Contract (Agent) -> 404
+other tenant's Contract as Manager -> 404
+PASS: other tenant Contract (Manager) -> 404

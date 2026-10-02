@@ -1,0 +1,10 @@
+### Result
+"{\"status\":200,\"type\":\"application/pdf\",\"len\":956,\"hasComputed\":false,\"hasTotal\":false,\"hasAmount\":false}"
+### Ran Playwright code
+```js
+await page.evaluate('async () => { const r = await fetch(\'/api/contracts/89463f7c-a2c4-485e-9fec-3c377f2ccd4a/client-invoice/pdf\'); const b = new Uint8Array(await r.arrayBuffer()); let s=\'\'; for (const x of b) s+=String.fromCharCode(x); return JSON.stringify({status:r.status, type:r.headers.get(\'content-type\'), len:b.length, hasComputed:/omputed/.test(s), hasTotal: s.includes(\'91.40\'), hasAmount: s.includes(\'46.40\')||s.includes(\'45.00\')}); }');
+```
+
+--- PDF text decoded from the same bytes the browser fetched (via API, Tester token): 200 956
+Client Invoice Client: Browser Client Billing month: October 2026 Status: SENT Currency: USD Base amount: 46.40 USD Fee lines   TOPUP: 45.00 USD Total: 91.40 USD
+contains 'omputed': False | contains 46.40/45.00/91.40: True

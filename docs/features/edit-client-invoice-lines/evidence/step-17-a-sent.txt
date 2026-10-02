@@ -1,0 +1,99 @@
+### Open tabs
+- 0: (current) [Client Invoices · Remote Support Platform](http://127.0.0.1:53000/agent/client-invoices)
+- 1: [Client Invoices · Remote Support Platform](http://127.0.0.1:53000/agent/client-invoices)
+### Page
+- Page URL: http://127.0.0.1:53000/agent/client-invoices
+- Page Title: Client Invoices · Remote Support Platform
+### Snapshot
+```yaml
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - complementary [ref=f3e3]:
+      - generic [ref=f3e4]:
+        - generic [ref=f3e5]: "N"
+        - generic [ref=f3e6]:
+          - paragraph [ref=f3e7]: Northwind Field Services
+          - paragraph [ref=f3e8]: Agent Console
+      - navigation [ref=f3e9]:
+        - link "Dashboard" [ref=f3e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f3e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f3e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f3e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f3e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f3e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f3e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f3e43]:
+      - banner [ref=f3e44]:
+        - generic [ref=f3e46]:
+          - heading "Client Invoices" [level=1] [ref=f3e47]
+          - paragraph [ref=f3e48]: One per Contract per month
+        - generic [ref=f3e49]:
+          - button "cee@example.com · Agent" [ref=f3e51]
+          - button "Switch to dark theme" [ref=f3e53]
+      - main [ref=f3e57]:
+        - generic [ref=f3e59]:
+          - generic [ref=f3e60]: Browser Client — United States
+          - generic [ref=f3e65]:
+            - generic [ref=f3e66]:
+              - generic [ref=f3e67]:
+                - generic [ref=f3e68]:
+                  - paragraph [ref=f3e69]: October 2026
+                  - generic [ref=f3e70]: Awaiting approval
+                - paragraph [ref=f3e72]: Sent to the Manager and Client — numbers are locked to what was sent
+                - paragraph [ref=f3e169]: Sent Oct 2, 2026
+              - link "Download PDF" [ref=f3e170] [cursor=pointer]:
+                - /url: /api/contracts/89463f7c-a2c4-485e-9fec-3c377f2ccd4a/client-invoice/pdf
+            - generic [ref=f3e83]:
+              - generic [ref=f3e84]:
+                - term [ref=f3e85]: Base amount
+                - definition [ref=f3e86]: $46.40
+              - generic [ref=f3e87]:
+                - term [ref=f3e88]: Fees this month
+                - definition [ref=f3e89]: $45.00
+              - generic [ref=f3e90]:
+                - term [ref=f3e91]: Total
+                - definition [ref=f3e92]: $91.40
+            - generic [ref=f3e94]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f3e95]
+              - table [ref=f3e97]:
+                - rowgroup [ref=f3e98]:
+                  - row [ref=f3e99]:
+                    - columnheader "Number" [ref=f3e100]
+                    - columnheader "Billed" [ref=f3e101]
+                - rowgroup [ref=f3e102]:
+                  - row [ref=f3e174]:
+                    - cell "+1-555-2001" [ref=f3e104]
+                    - cell "$31.40 Edited · computed $25.00" [ref=f3e175]:
+                      - generic [ref=f3e176]:
+                        - generic [ref=f3e177]: $31.40
+                        - paragraph [ref=f3e178]: Edited · computed $25.00
+                  - row [ref=f3e179]:
+                    - cell "+1-555-2002" [ref=f3e114]
+                    - cell "$15.00" [ref=f3e180]
+            - generic [ref=f3e121]:
+              - heading "Fee lines" [level=3] [ref=f3e122]
+              - table [ref=f3e124]:
+                - rowgroup [ref=f3e125]:
+                  - row [ref=f3e126]:
+                    - columnheader "Type" [ref=f3e127]
+                    - columnheader "Description" [ref=f3e128]
+                    - columnheader "Logged" [ref=f3e129]
+                    - columnheader "Amount" [ref=f3e130]
+                - rowgroup [ref=f3e131]:
+                  - row [ref=f3e183]:
+                    - cell "Topup" [ref=f3e133]
+                    - cell "—" [ref=f3e134]
+                    - cell "Oct 2" [ref=f3e135]
+                    - cell "$45.00" [ref=f3e184]
+            - generic [ref=f3e142]:
+              - heading "Carrier invoice files" [level=3] [ref=f3e143]
+              - paragraph [ref=f3e146]: No carrier invoice files attached yet.
+  - alert [ref=f3e147]
+```

@@ -1,0 +1,43 @@
+--- approve Agent Invoice
+{
+ "id": "3967fb46-fb78-40db-a343-3d66f11e2f78",
+ "agentId": "55555555-5555-5555-5555-555555555555",
+ "billingMonth": "2026-10-01",
+ "status": "APPROVED",
+ "currency": "USD",
+ "localSupportFees": 100.0,
+ "salary": 2500.0,
+ "rolloutAdvanceRepayment": 0.0,
+ "rolloutAdvanceNewAdvance": 0.0,
+ "totalAmount": 2600.0,
+ "sentAt": "2026-10-02T11:56:19.254262Z",
+ "approvedAt": "2026-10-02T11:56:20.149322Z",
+ "paidAt": null
+}
+PASS: approved
+edit third Contract SIM 12 -> 14 -> 200
+PASS: edit 200
+--- approved Agent Invoice after edit
+{
+ "id": "3967fb46-fb78-40db-a343-3d66f11e2f78",
+ "agentId": "55555555-5555-5555-5555-555555555555",
+ "billingMonth": "2026-10-01",
+ "status": "APPROVED",
+ "currency": "USD",
+ "localSupportFees": 100.0,
+ "salary": 2500.0,
+ "rolloutAdvanceRepayment": 0.0,
+ "rolloutAdvanceNewAdvance": 0.0,
+ "totalAmount": 2600.0,
+ "sentAt": "2026-10-02T11:56:19.254262Z",
+ "approvedAt": "2026-10-02T11:56:20.149322Z",
+ "paidAt": null
+}
+PASS: approved Agent Invoice LSF unchanged
+audit lines since the edit:
+2026-10-02T13:56:20.192+02:00 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=bf58d8a2-8a16-475b-819e-758fa1dec6ea kind=POSTPAID_SIM sourceId=30bf6b75-75f7-4f8d-b2e5-aaf60bf9329c oldAmount=12.00 newAmount=14.00 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+PASS: one edit line, no follow line
+approve first Client Invoice -> 200 APPROVED
+PASS: approve ok
+edit approved Client Invoice -> 409
+PASS: edit on approved -> 409

@@ -1,0 +1,11 @@
+# Step 20, mobile 375x800, keyboard only
+"{\"scrollW\":743,\"innerW\":375}"
+Tab 1: "{\"el\":\"BUTTON\",\"label\":\"Edit\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+Enter on Edit: field focused: "{\"el\":\"INPUT\",\"label\":\"45.00\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+typed 31.40: "{\"el\":\"INPUT\",\"label\":\"31.40\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+Tab: "{\"el\":\"BUTTON\",\"label\":\"Cancel\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+Tab: "{\"el\":\"BUTTON\",\"label\":\"Save\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+after Save: "{\"el\":\"BUTTON\",\"label\":\"Edit\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+Tab to Reset: "{\"el\":\"BUTTON\",\"label\":\"Reset\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+after Reset: "{\"el\":\"BODY\",\"label\":\"NNorthwind Field ServicesAgent ConsoleDa\",\"outline\":\"none 3px rgb(11, 18, 32)\",\"boxShadow\":\"none\",\"inViewport\":false}"
+"{\"scrollW\":743,\"innerW\":375}"

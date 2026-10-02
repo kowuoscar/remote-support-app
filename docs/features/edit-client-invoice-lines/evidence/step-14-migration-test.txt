@@ -1,0 +1,524 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.remotesupport:backend >----------------------
+[INFO] Building backend 0.1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] Parameter 'encoding' is unknown for plugin 'maven-checkstyle-plugin:3.5.0:check (checkstyle-check)'
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ backend ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 48 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ backend ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ backend ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ backend ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.remotesupport.backend.migration.ClientInvoiceLinesMigrationTest
+13:56:59.201 INFO  [:] org.testcontainers.images.PullPolicy - Image pull policy will be performed by: DefaultPullPolicy()
+13:56:59.203 INFO  [:] o.t.utility.ImageNameSubstitutor - Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+13:56:59.207 INFO  [:] org.testcontainers.DockerClientFactory - Testcontainers version: 1.21.4
+13:56:59.303 INFO  [:] o.t.d.DockerClientProviderStrategy - Loaded org.testcontainers.dockerclient.UnixSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+13:56:59.419 INFO  [:] o.t.d.DockerClientProviderStrategy - Found Docker environment with local Unix socket (unix:///var/run/docker.sock)
+13:56:59.419 INFO  [:] org.testcontainers.DockerClientFactory - Docker host IP address is localhost
+13:56:59.432 INFO  [:] org.testcontainers.DockerClientFactory - Connected to docker: 
+  Server Version: 29.7.2
+  API Version: 1.55
+  Operating System: Docker Desktop
+  Total Memory: 7934 MB
+  Labels: 
+    com.docker.desktop.address=unix:///Users/oscar/Library/Containers/com.docker.docker/Data/docker-cli.sock
+13:56:59.474 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Creating container for image: testcontainers/ryuk:0.12.0
+13:56:59.709 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Container testcontainers/ryuk:0.12.0 is starting: 724c05df8a1fcaf7bbc48a8d6648c9f1e2d4c422f810fc750aa3a2a64cecc6f7
+13:56:59.852 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Container testcontainers/ryuk:0.12.0 started in PT0.378764S
+13:56:59.855 INFO  [:] o.t.utility.RyukResourceReaper - Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+13:56:59.855 INFO  [:] org.testcontainers.DockerClientFactory - Checking the system...
+13:56:59.856 INFO  [:] org.testcontainers.DockerClientFactory - ✔︎ Docker server version should be at least 1.6.0
+13:56:59.856 INFO  [:] tc.postgres:16-alpine - Creating container for image: postgres:16-alpine
+13:56:59.891 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine is starting: cdd24abc33fb8ea4233c8159da2e718a8a7509ee04ece42a67bbdb1c05ff3cc2
+13:57:00.810 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine started in PT0.953564S
+13:57:00.811 INFO  [:] tc.postgres:16-alpine - Container is started (JDBC URL: jdbc:postgresql://localhost:59399/test?loggerLevel=OFF)
+13:57:01.078 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_f8d3e44963674e1bafe07cbd5fcdd62e (PostgreSQL 16.15)
+13:57:01.111 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+13:57:01.113 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.022s)
+13:57:01.123 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+13:57:01.151 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+13:57:01.155 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+13:57:01.171 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+13:57:01.178 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+13:57:01.187 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+13:57:01.204 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+13:57:01.212 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+13:57:01.224 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+13:57:01.234 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+13:57:01.244 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+13:57:01.256 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+13:57:01.264 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+13:57:01.272 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+13:57:01.280 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+13:57:01.290 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+13:57:01.302 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+13:57:01.307 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+13:57:01.314 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+13:57:01.322 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+13:57:01.328 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+13:57:01.335 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+13:57:01.341 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+13:57:01.351 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+13:57:01.357 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+13:57:01.364 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+13:57:01.369 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+13:57:01.375 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+13:57:01.381 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+13:57:01.387 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+13:57:01.392 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+13:57:01.398 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+13:57:01.404 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+13:57:01.410 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+13:57:01.414 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+13:57:01.419 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+13:57:01.424 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+13:57:01.430 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+13:57:01.435 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+13:57:01.441 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+13:57:01.451 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+13:57:01.458 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+13:57:01.463 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+13:57:01.471 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+13:57:01.475 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+13:57:01.479 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+13:57:01.484 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+13:57:01.490 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+13:57:01.497 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+13:57:01.505 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+13:57:01.510 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+13:57:01.515 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 47 migrations to schema "public", now at version v55 (execution time 00:00.151s)
+13:57:01.584 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_f8d3e44963674e1bafe07cbd5fcdd62e (PostgreSQL 16.15)
+13:57:01.598 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.010s)
+13:57:01.606 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": 55
+13:57:01.608 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "56 - create client invoice lines"
+13:57:01.623 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 1 migration to schema "public", now at version v56 (execution time 00:00.011s)
+13:57:01.700 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_a319802796354166925632fabaac50a0 (PostgreSQL 16.15)
+13:57:01.709 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+13:57:01.710 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.006s)
+13:57:01.714 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+13:57:01.726 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+13:57:01.728 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+13:57:01.738 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+13:57:01.744 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+13:57:01.749 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+13:57:01.764 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+13:57:01.770 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+13:57:01.780 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+13:57:01.796 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+13:57:01.807 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+13:57:01.816 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+13:57:01.822 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+13:57:01.829 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+13:57:01.835 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+13:57:01.844 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+13:57:01.854 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+13:57:01.859 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+13:57:01.864 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+13:57:01.871 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+13:57:01.876 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+13:57:01.883 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+13:57:01.888 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+13:57:01.896 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+13:57:01.901 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+13:57:01.906 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+13:57:01.911 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+13:57:01.916 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+13:57:01.922 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+13:57:01.927 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+13:57:01.932 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+13:57:01.944 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+13:57:01.951 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+13:57:01.956 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+13:57:01.960 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+13:57:01.965 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+13:57:01.969 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+13:57:01.974 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+13:57:01.980 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+13:57:01.985 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+13:57:01.990 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+13:57:01.996 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+13:57:02.001 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+13:57:02.009 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+13:57:02.013 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+13:57:02.017 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+13:57:02.021 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+13:57:02.026 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+13:57:02.033 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+13:57:02.041 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+13:57:02.045 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+13:57:02.050 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 47 migrations to schema "public", now at version v55 (execution time 00:00.144s)
+13:57:02.075 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_a319802796354166925632fabaac50a0 (PostgreSQL 16.15)
+13:57:02.085 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.007s)
+13:57:02.092 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": 55
+13:57:02.094 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "56 - create client invoice lines"
+13:57:02.109 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 1 migration to schema "public", now at version v56 (execution time 00:00.011s)
+13:57:02.153 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_bf5c9963c7c649b7b05cec4a7840d529 (PostgreSQL 16.15)
+13:57:02.161 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+13:57:02.162 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.005s)
+13:57:02.166 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+13:57:02.176 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+13:57:02.177 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+13:57:02.187 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+13:57:02.192 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+13:57:02.197 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+13:57:02.209 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+13:57:02.216 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+13:57:02.225 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+13:57:02.232 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+13:57:02.240 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+13:57:02.249 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+13:57:02.256 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+13:57:02.263 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+13:57:02.271 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+13:57:02.280 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+13:57:02.290 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+13:57:02.295 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+13:57:02.300 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+13:57:02.308 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+13:57:02.315 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+13:57:02.322 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+13:57:02.326 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+13:57:02.337 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+13:57:02.347 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+13:57:02.355 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+13:57:02.362 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+13:57:02.370 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+13:57:02.376 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+13:57:02.383 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+13:57:02.387 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+13:57:02.396 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+13:57:02.405 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+13:57:02.411 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+13:57:02.415 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+13:57:02.421 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+13:57:02.425 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+13:57:02.430 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+13:57:02.435 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+13:57:02.440 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+13:57:02.444 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+13:57:02.450 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+13:57:02.457 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+13:57:02.466 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+13:57:02.471 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+13:57:02.475 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+13:57:02.480 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+13:57:02.486 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+13:57:02.493 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+13:57:02.501 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+13:57:02.505 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+13:57:02.509 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 47 migrations to schema "public", now at version v55 (execution time 00:00.152s)
+13:57:02.532 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_bf5c9963c7c649b7b05cec4a7840d529 (PostgreSQL 16.15)
+13:57:02.541 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.006s)
+13:57:02.550 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": 55
+13:57:02.551 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "56 - create client invoice lines"
+13:57:02.565 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 1 migration to schema "public", now at version v56 (execution time 00:00.011s)
+13:57:02.605 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_ce7d8819fc764b948702fe4e637b9109 (PostgreSQL 16.15)
+13:57:02.612 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+13:57:02.613 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.004s)
+13:57:02.617 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+13:57:02.627 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+13:57:02.629 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+13:57:02.642 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+13:57:02.647 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+13:57:02.651 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+13:57:02.665 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+13:57:02.673 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+13:57:02.686 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+13:57:02.699 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+13:57:02.712 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+13:57:02.725 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+13:57:02.730 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+13:57:02.738 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+13:57:02.744 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+13:57:02.752 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+13:57:02.763 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+13:57:02.768 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+13:57:02.775 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+13:57:02.782 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+13:57:02.787 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+13:57:02.793 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+13:57:02.797 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+13:57:02.805 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+13:57:02.810 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+13:57:02.814 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+13:57:02.818 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+13:57:02.823 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+13:57:02.829 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+13:57:02.833 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+13:57:02.837 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+13:57:02.843 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+13:57:02.849 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+13:57:02.853 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+13:57:02.857 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+13:57:02.862 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+13:57:02.866 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+13:57:02.871 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+13:57:02.876 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+13:57:02.880 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+13:57:02.884 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+13:57:02.890 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+13:57:02.895 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+13:57:02.902 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+13:57:02.906 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+13:57:02.909 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+13:57:02.913 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+13:57:02.918 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+13:57:02.924 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+13:57:02.932 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+13:57:02.936 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+13:57:02.939 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 47 migrations to schema "public", now at version v55 (execution time 00:00.147s)
+13:57:02.963 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_ce7d8819fc764b948702fe4e637b9109 (PostgreSQL 16.15)
+13:57:02.972 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.006s)
+13:57:02.979 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": 55
+13:57:02.980 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "56 - create client invoice lines"
+13:57:02.994 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 1 migration to schema "public", now at version v56 (execution time 00:00.011s)
+13:57:03.036 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_0c78c5040ac345c580f312520623a201 (PostgreSQL 16.15)
+13:57:03.043 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+13:57:03.044 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.004s)
+13:57:03.047 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+13:57:03.058 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+13:57:03.059 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+13:57:03.069 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+13:57:03.074 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+13:57:03.078 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+13:57:03.091 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+13:57:03.097 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+13:57:03.106 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+13:57:03.113 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+13:57:03.120 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+13:57:03.128 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+13:57:03.133 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+13:57:03.139 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+13:57:03.145 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+13:57:03.152 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+13:57:03.163 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+13:57:03.170 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+13:57:03.175 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+13:57:03.184 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+13:57:03.190 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+13:57:03.196 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+13:57:03.201 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+13:57:03.209 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+13:57:03.214 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+13:57:03.219 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+13:57:03.224 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+13:57:03.229 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+13:57:03.234 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+13:57:03.239 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+13:57:03.243 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+13:57:03.249 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+13:57:03.255 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+13:57:03.260 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+13:57:03.264 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+13:57:03.269 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+13:57:03.273 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+13:57:03.278 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+13:57:03.283 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+13:57:03.288 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+13:57:03.292 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+13:57:03.298 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+13:57:03.303 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+13:57:03.310 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+13:57:03.314 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+13:57:03.317 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+13:57:03.321 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+13:57:03.326 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+13:57:03.332 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+13:57:03.339 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+13:57:03.342 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+13:57:03.347 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 47 migrations to schema "public", now at version v55 (execution time 00:00.132s)
+13:57:03.370 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_0c78c5040ac345c580f312520623a201 (PostgreSQL 16.15)
+13:57:03.378 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.005s)
+13:57:03.385 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": 55
+13:57:03.387 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "56 - create client invoice lines"
+13:57:03.403 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 1 migration to schema "public", now at version v56 (execution time 00:00.012s)
+13:57:03.453 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_cf70450be2bf4246ab94622033170db4 (PostgreSQL 16.15)
+13:57:03.461 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+13:57:03.462 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.005s)
+13:57:03.467 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+13:57:03.478 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+13:57:03.480 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+13:57:03.491 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+13:57:03.496 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+13:57:03.501 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+13:57:03.513 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+13:57:03.519 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+13:57:03.528 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+13:57:03.535 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+13:57:03.542 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+13:57:03.550 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+13:57:03.556 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+13:57:03.562 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+13:57:03.568 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+13:57:03.575 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+13:57:03.584 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+13:57:03.589 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+13:57:03.595 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+13:57:03.602 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+13:57:03.607 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+13:57:03.613 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+13:57:03.617 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+13:57:03.625 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+13:57:03.630 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+13:57:03.635 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+13:57:03.639 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+13:57:03.644 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+13:57:03.649 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+13:57:03.654 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+13:57:03.658 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+13:57:03.663 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+13:57:03.668 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+13:57:03.673 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+13:57:03.677 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+13:57:03.681 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+13:57:03.686 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+13:57:03.693 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+13:57:03.697 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+13:57:03.703 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+13:57:03.709 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+13:57:03.715 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+13:57:03.720 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+13:57:03.727 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+13:57:03.730 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+13:57:03.734 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+13:57:03.737 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+13:57:03.742 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+13:57:03.751 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+13:57:03.759 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+13:57:03.763 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+13:57:03.767 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 47 migrations to schema "public", now at version v55 (execution time 00:00.132s)
+13:57:03.790 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59399/v56_cf70450be2bf4246ab94622033170db4 (PostgreSQL 16.15)
+13:57:03.799 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.005s)
+13:57:03.808 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": 55
+13:57:03.810 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "56 - create client invoice lines"
+13:57:03.827 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 1 migration to schema "public", now at version v56 (execution time 00:00.014s)
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.817 s -- in com.remotesupport.backend.migration.ClientInvoiceLinesMigrationTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ backend ---
+[INFO] 
+[INFO] --- spring-boot:3.3.4:repackage (repackage) @ backend ---
+[INFO] Replacing main artifact /Users/oscar/myspace/projects/remote-support-app/backend/target/backend-0.1.0-SNAPSHOT.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[INFO] The original artifact has been renamed to /Users/oscar/myspace/projects/remote-support-app/backend/target/backend-0.1.0-SNAPSHOT.jar.original
+[INFO] 
+[INFO] --- checkstyle:3.5.0:check (checkstyle-check) @ backend ---
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  6.381 s
+[INFO] Finished at: 2026-10-02T13:57:04+02:00
+[INFO] ------------------------------------------------------------------------

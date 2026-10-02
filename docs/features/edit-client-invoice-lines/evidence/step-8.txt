@@ -1,0 +1,245 @@
+--- Agent's draft before send
+{
+ "status": "DRAFT",
+ "base": 45.0,
+ "total": 106.0,
+ "sims": [
+  [
+   "+1-555-1001",
+   35.0,
+   25.0,
+   true
+  ],
+  [
+   "+1-555-1002",
+   0.0,
+   15.0,
+   true
+  ],
+  [
+   "+1-555-1004",
+   10.0,
+   10.0,
+   false
+  ]
+ ],
+ "fees": [
+  [
+   45.0,
+   45.0,
+   false
+  ],
+  [
+   10.0,
+   10.0,
+   false
+  ],
+  [
+   6.0,
+   6.0,
+   false
+  ]
+ ]
+}
+--- sent invoice (Agent)
+{
+ "id": "d60882dc-d6a3-451d-bc3d-197b67943662",
+ "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+ "billingMonth": "2026-10-01",
+ "status": "SENT",
+ "currency": "USD",
+ "baseAmount": 45.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "6d9b8c48-2a92-4d1b-83be-96f30ade08e2",
+   "number": "+1-555-1001",
+   "monthlyFeeAmount": 25.0,
+   "cancellationEffectiveDate": null,
+   "amount": 35.0,
+   "computedAmount": 25.0,
+   "edited": true
+  },
+  {
+   "simCardId": "4ff04dd7-f5ea-4ff2-a564-c77a3a0f8430",
+   "number": "+1-555-1002",
+   "monthlyFeeAmount": 15.0,
+   "cancellationEffectiveDate": null,
+   "amount": 0.0,
+   "computedAmount": 15.0,
+   "edited": true
+  },
+  {
+   "simCardId": "7436581d-ea21-4c56-b6d2-5120e80a600c",
+   "number": "+1-555-1004",
+   "monthlyFeeAmount": 10.0,
+   "cancellationEffectiveDate": null,
+   "amount": 10.0,
+   "computedAmount": 10.0,
+   "edited": false
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "f1b0920c-1cc1-4625-9947-0bffc332d1de",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "3e668140-03b2-43c1-be52-9cc49e8d8f2c",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 45.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:17.790810Z",
+   "computedAmount": 45.0,
+   "edited": false
+  },
+  {
+   "id": "8550077d-8c98-4a2e-957b-f2b0373a9dd0",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "424a064a-03cb-4e33-bc81-b31171fb447c",
+   "requestType": "TOPUP",
+   "feeType": "TOPUP",
+   "amount": 10.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:18.770293Z",
+   "computedAmount": 10.0,
+   "edited": false
+  },
+  {
+   "id": "7b3adc18-a942-4368-91ef-9cebe1a036ea",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "60257182-400a-4335-a3a1-12160186e4ff",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 6.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:19.332057Z",
+   "computedAmount": 6.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 106.0,
+ "files": [],
+ "sentAt": "2026-10-02T11:56:19.457981Z",
+ "approvedAt": null
+}
+--- Manager by id
+{
+ "id": "d60882dc-d6a3-451d-bc3d-197b67943662",
+ "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+ "billingMonth": "2026-10-01",
+ "status": "SENT",
+ "currency": "USD",
+ "baseAmount": 45.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "6d9b8c48-2a92-4d1b-83be-96f30ade08e2",
+   "number": "+1-555-1001",
+   "monthlyFeeAmount": 25.0,
+   "cancellationEffectiveDate": null,
+   "amount": 35.0,
+   "computedAmount": 25.0,
+   "edited": true
+  },
+  {
+   "simCardId": "4ff04dd7-f5ea-4ff2-a564-c77a3a0f8430",
+   "number": "+1-555-1002",
+   "monthlyFeeAmount": 15.0,
+   "cancellationEffectiveDate": null,
+   "amount": 0.0,
+   "computedAmount": 15.0,
+   "edited": true
+  },
+  {
+   "simCardId": "7436581d-ea21-4c56-b6d2-5120e80a600c",
+   "number": "+1-555-1004",
+   "monthlyFeeAmount": 10.0,
+   "cancellationEffectiveDate": null,
+   "amount": 10.0,
+   "computedAmount": 10.0,
+   "edited": false
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "f1b0920c-1cc1-4625-9947-0bffc332d1de",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "3e668140-03b2-43c1-be52-9cc49e8d8f2c",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 45.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:17.790810Z",
+   "computedAmount": 45.0,
+   "edited": false
+  },
+  {
+   "id": "8550077d-8c98-4a2e-957b-f2b0373a9dd0",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "424a064a-03cb-4e33-bc81-b31171fb447c",
+   "requestType": "TOPUP",
+   "feeType": "TOPUP",
+   "amount": 10.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:18.770293Z",
+   "computedAmount": 10.0,
+   "edited": false
+  },
+  {
+   "id": "7b3adc18-a942-4368-91ef-9cebe1a036ea",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "60257182-400a-4335-a3a1-12160186e4ff",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 6.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:19.332057Z",
+   "computedAmount": 6.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 106.0,
+ "files": [],
+ "sentAt": "2026-10-02T11:56:19.457981Z",
+ "approvedAt": null
+}
+PASS: Manager sees same lines/amounts as Agent (per SIM, edited/computedAmount)
+PASS: sent lines equal draft the Agent saw
+PASS: SIM A edited with computed 25.00
+--- Review Queue
+[
+ {
+  "kind": "AGENT_INVOICE",
+  "id": "3967fb46-fb78-40db-a343-3d66f11e2f78",
+  "status": "SENT",
+  "billingMonth": "2026-10-01",
+  "contractId": null,
+  "clientName": null,
+  "agentId": "55555555-5555-5555-5555-555555555555",
+  "agentName": "Jordan Ellis",
+  "currency": "USD",
+  "totalAmount": 2600.0,
+  "waitingSince": "2026-10-02T11:56:19.254262Z"
+ },
+ {
+  "kind": "CLIENT_INVOICE",
+  "id": "d60882dc-d6a3-451d-bc3d-197b67943662",
+  "status": "SENT",
+  "billingMonth": "2026-10-01",
+  "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+  "clientName": "Acceptance Client One",
+  "agentId": null,
+  "agentName": "Jordan Ellis",
+  "currency": "USD",
+  "totalAmount": 106.0,
+  "waitingSince": "2026-10-02T11:56:19.457981Z"
+ }
+]
+PASS: Review Queue row total equals invoice total
+PASS: another Fee: Client Invoice unchanged
+edit a line after send -> 409 {'timestamp': '2026-10-02T11:56:19.836+00:00', 'status': 409, 'error': 'Conflict', 'path': '/api/contracts/815852d5-703a-4d45-ab55-491c2c455e92/client-invoice/lines'}
+PASS: edit after send -> 409

@@ -1,0 +1,26 @@
+SAME agent-invoice/25c79ba1-2043-47d2-8e75-d50d2cca7ea1
+SAME agent-invoice/5afa25f6-609d-4400-8e84-9e15c1981602
+SAME agent-invoice/6fd1cd65-08a2-4cb4-90e0-1e40a00c4ba7
+SAME agent-invoice/70534574-8061-46b6-b308-bc5c05931de6
+SAME agent-invoice/98d5f574-c820-4f14-a156-27b30b3d6b7e
+SAME agent-invoice/c9aaeec5-0996-43c5-b9d3-6b8c78adc0cd
+SAME client-invoice-pdf/4cfeda81-bc5c-493b-86f3-1814affa8670 pdf content streams identical=True (file bytes 1013/1013, status 200/200)
+SAME client-invoice-pdf/4f170944-756d-4745-857a-44a8f8c7c82b pdf content streams identical=True (file bytes 148/148, status 409/409)
+SAME client-invoice-pdf/6736d1f7-1c14-4fe0-ba45-22eccbcb4222 pdf content streams identical=True (file bytes 1009/1009, status 200/200)
+SAME client-invoice-pdf/7ee70f47-6db7-4fb2-b188-0d8f1603681f pdf content streams identical=True (file bytes 148/148, status 409/409)
+SAME client-invoice-pdf/975ca5b9-c4d5-4626-96d9-08e06662ef9b pdf content streams identical=True (file bytes 976/976, status 200/200)
+SAME client-invoice-pdf/9d9585a7-8c2c-4520-a87e-8e69dfbe530a pdf content streams identical=True (file bytes 1011/1011, status 200/200)
+SAME client-invoice-pdf/ca4a9dcf-e61a-4eb6-9087-527d5183b7f5 pdf content streams identical=True (file bytes 1010/1010, status 200/200)
+SAME client-invoice-pdf/ee4e3fb0-58f8-4a7f-9e3b-39784a67cc8a pdf content streams identical=True (file bytes 1015/1015, status 200/200)
+SAME client-invoice-pdf/f4b596cf-71ae-480f-9b78-1fe497ddbf1e pdf content streams identical=True (file bytes 1013/1013, status 200/200)
+SAME client-invoice/4cfeda81-bc5c-493b-86f3-1814affa8670 status=APPROVED base=20.0/20.0 total=38.0/38.0 feeLines=1/1 (new fields: computedAmount/edited, per-SIM lines=0)
+SAME client-invoice/4f170944-756d-4745-857a-44a8f8c7c82b status=DRAFT base=20.0/20.0 total=20.0/20.0 feeLines=0/0 (new fields: computedAmount/edited, per-SIM lines=1)
+SAME client-invoice/6736d1f7-1c14-4fe0-ba45-22eccbcb4222 status=APPROVED base=20.0/20.0 total=35.0/35.0 feeLines=1/1 (new fields: computedAmount/edited, per-SIM lines=0)
+SAME client-invoice/7ee70f47-6db7-4fb2-b188-0d8f1603681f status=DRAFT base=0/0 total=0/0 feeLines=0/0 (new fields: computedAmount/edited, per-SIM lines=0)
+SAME client-invoice/975ca5b9-c4d5-4626-96d9-08e06662ef9b status=SENT base=65.99/65.99 total=135.99/135.99 feeLines=2/2 (new fields: computedAmount/edited, per-SIM lines=0)
+SAME client-invoice/9d9585a7-8c2c-4520-a87e-8e69dfbe530a status=APPROVED base=0.0/0.0 total=15.0/15.0 feeLines=1/1 (new fields: computedAmount/edited, per-SIM lines=0)
+SAME client-invoice/ca4a9dcf-e61a-4eb6-9087-527d5183b7f5 status=APPROVED base=65.99/65.99 total=80.99/80.99 feeLines=1/1 (new fields: computedAmount/edited, per-SIM lines=0)
+SAME client-invoice/ee4e3fb0-58f8-4a7f-9e3b-39784a67cc8a status=APPROVED base=0.0/0.0 total=18.0/18.0 feeLines=1/1 (new fields: computedAmount/edited, per-SIM lines=0)
+SAME client-invoice/f4b596cf-71ae-480f-9b78-1fe497ddbf1e status=APPROVED base=65.99/65.99 total=83.99/83.99 feeLines=1/1 (new fields: computedAmount/edited, per-SIM lines=0)
+SAME review-queue
+TOTAL differences (excluding the additive fields): 0

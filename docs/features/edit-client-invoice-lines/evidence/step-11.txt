@@ -1,0 +1,146 @@
+--- Tester read
+{
+ "id": "d60882dc-d6a3-451d-bc3d-197b67943662",
+ "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+ "billingMonth": "2026-10-01",
+ "status": "APPROVED",
+ "currency": "USD",
+ "baseAmount": 45.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "6d9b8c48-2a92-4d1b-83be-96f30ade08e2",
+   "number": "+1-555-1001",
+   "monthlyFeeAmount": 25.0,
+   "cancellationEffectiveDate": null,
+   "amount": 35.0,
+   "computedAmount": null,
+   "edited": null
+  },
+  {
+   "simCardId": "4ff04dd7-f5ea-4ff2-a564-c77a3a0f8430",
+   "number": "+1-555-1002",
+   "monthlyFeeAmount": 15.0,
+   "cancellationEffectiveDate": null,
+   "amount": 0.0,
+   "computedAmount": null,
+   "edited": null
+  },
+  {
+   "simCardId": "7436581d-ea21-4c56-b6d2-5120e80a600c",
+   "number": "+1-555-1004",
+   "monthlyFeeAmount": 10.0,
+   "cancellationEffectiveDate": null,
+   "amount": 10.0,
+   "computedAmount": null,
+   "edited": null
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "f1b0920c-1cc1-4625-9947-0bffc332d1de",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "3e668140-03b2-43c1-be52-9cc49e8d8f2c",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 45.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:17.790810Z",
+   "computedAmount": null,
+   "edited": null
+  },
+  {
+   "id": "8550077d-8c98-4a2e-957b-f2b0373a9dd0",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "424a064a-03cb-4e33-bc81-b31171fb447c",
+   "requestType": "TOPUP",
+   "feeType": "TOPUP",
+   "amount": 10.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:18.770293Z",
+   "computedAmount": null,
+   "edited": null
+  },
+  {
+   "id": "7b3adc18-a942-4368-91ef-9cebe1a036ea",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "60257182-400a-4335-a3a1-12160186e4ff",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 6.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:19.332057Z",
+   "computedAmount": null,
+   "edited": null
+  }
+ ],
+ "totalAmount": 106.0,
+ "files": [],
+ "sentAt": "2026-10-02T11:56:19.457981Z",
+ "approvedAt": "2026-10-02T11:56:20.201559Z"
+}
+PASS: computedAmount and edited null on every line
+PASS: billed amounts as the Agent sent
+PDF status 200 bytes 976
+PDF extracted text (naive, from content streams): Client Invoice Client: Acceptance Client One Billing month: October 2026 Status: APPROVED Currency: USD Base amount: 45.00 USD Fee lines   OTHER: 45.00 USD   TOPUP: 10.00 USD   OTHER: 6.00 USD Total: 106.00 USD
+raw stream text sample: BT
+/F1 16 Tf
+56 785.88977 Td
+(Client Invoice) Tj
+ET
+BT
+/F1 11 Tf
+56 758.88977 Td
+(Client: Acceptance Client One) Tj
+ET
+BT
+/F2 11 Tf
+56 740.88977 Td
+(Billing month: October 2026) Tj
+ET
+BT
+/F2 11 Tf
+56 722.88977 Td
+(Status: APPROVED) Tj
+ET
+BT
+/F2 11 Tf
+56 704.88977 Td
+(Currency: USD) Tj
+ET
+BT
+/F1 11 Tf
+56 677.88977 Td
+(Base amount: 45.00 USD) Tj
+ET
+BT
+/F1 11 Tf
+56 650.88977 Td
+(Fee lines) Tj
+ET
+BT
+/F2 10 Tf
+56 632.88977 Td
+(  OTHER: 45.00 USD) Tj
+ET
+BT
+/F2 10 Tf
+56 614.88977 Td
+(  TOPUP: 10.00 USD) Tj
+ET
+BT
+/F2 10 Tf
+56 596.88977 Td
+(  OTHER: 6.00 USD) Tj
+ET
+BT
+/F1 12 Tf
+56 569.88977 Td
+(Total: 106.00 USD) Tj
+ET
+2 0 3 42 4 146 5 163 6 188 7 274 <</Type /Pages /Kids [3 0 R ] /Count 1 >> <</Type /Page /MediaBox [0.0 0.0 595.27563 841.8898 ] /Parent 2 0 R /Resources 4 0 R /Contents 8 0 R >> <</
+PASS: PDF fetched
+PASS: no 'computed' text in PDF
+PASS: PDF shows total

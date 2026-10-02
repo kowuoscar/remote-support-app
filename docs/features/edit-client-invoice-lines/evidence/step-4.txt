@@ -1,0 +1,61 @@
+amount -1 -> 400 {'message': 'amount must not be negative'}
+PASS: -1 -> 400
+amount blank -> 400 {'message': 'amount is required'}
+PASS: blank -> 400
+amount 1.234 -> 400 {'message': 'amount must have at most two decimals'}
+PASS: 1.234 -> 400
+SIM B 0 -> 200
+--- response
+{
+ "id": "d60882dc-d6a3-451d-bc3d-197b67943662",
+ "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "baseAmount": 31.4,
+ "basePostpaidSims": [
+  {
+   "simCardId": "6d9b8c48-2a92-4d1b-83be-96f30ade08e2",
+   "number": "+1-555-1001",
+   "monthlyFeeAmount": 25.0,
+   "cancellationEffectiveDate": null,
+   "amount": 31.4,
+   "computedAmount": 25.0,
+   "edited": true
+  },
+  {
+   "simCardId": "4ff04dd7-f5ea-4ff2-a564-c77a3a0f8430",
+   "number": "+1-555-1002",
+   "monthlyFeeAmount": 15.0,
+   "cancellationEffectiveDate": null,
+   "amount": 0,
+   "computedAmount": 15.0,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "f1b0920c-1cc1-4625-9947-0bffc332d1de",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "3e668140-03b2-43c1-be52-9cc49e8d8f2c",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 40.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:17.790810Z",
+   "computedAmount": 45.0,
+   "edited": true
+  }
+ ],
+ "totalAmount": 71.4,
+ "files": [],
+ "sentAt": null,
+ "approvedAt": null
+}
+PASS: SIM B 0 -> 200, base 31.40
+fixtures (SQL): Fee 486be1b5-6442-4a5c-959b-e6bb4b32a3c0 moved to previous month; SIM 507c46a6-9d65-4929-93d4-c82d5a48b043 RETIRED, cancelled last month
+another month's Fee -> 404
+PASS: other month Fee -> 404
+retired SIM -> 404
+PASS: retired SIM -> 404

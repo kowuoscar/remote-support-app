@@ -1,0 +1,36 @@
+send Client Invoice (second Contract, Agent Bee) 200
+--- Bee's Agent Invoice draft before the Fee
+{
+ "id": "cf60c3dd-2af6-449a-a804-9da22f32ca6b",
+ "agentId": "8928e518-a388-41ca-b61f-5fb501005cd4",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "localSupportFees": 0,
+ "salary": 2000.0,
+ "rolloutAdvanceRepayment": 0,
+ "rolloutAdvanceNewAdvance": 0,
+ "totalAmount": 2000.0,
+ "sentAt": null,
+ "approvedAt": null,
+ "paidAt": null
+}
+log 10.00 Fee 201
+--- Bee's Agent Invoice draft after
+{
+ "id": "cf60c3dd-2af6-449a-a804-9da22f32ca6b",
+ "agentId": "8928e518-a388-41ca-b61f-5fb501005cd4",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "localSupportFees": 10.0,
+ "salary": 2000.0,
+ "rolloutAdvanceRepayment": 0,
+ "rolloutAdvanceNewAdvance": 0,
+ "totalAmount": 2010.0,
+ "sentAt": null,
+ "approvedAt": null,
+ "paidAt": null
+}
+PASS: Fee counted in draft Agent Invoice LSF at 10.00
+second Contract's sent invoice: {'status': 'SENT', 'base': 0, 'total': 0, 'sims': [], 'fees': []}

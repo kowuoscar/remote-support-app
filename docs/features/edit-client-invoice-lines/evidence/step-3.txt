@@ -1,0 +1,48 @@
+--- Fee list
+[
+ {
+  "id": "f1b0920c-1cc1-4625-9947-0bffc332d1de",
+  "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+  "requestId": "3e668140-03b2-43c1-be52-9cc49e8d8f2c",
+  "requestType": "OTHER",
+  "feeType": "OTHER",
+  "amount": 45.0,
+  "currency": "USD",
+  "billingMonth": "2026-10-01",
+  "createdAt": "2026-10-02T11:56:17.790810Z"
+ }
+]
+PASS: Fee list amount 45.00
+--- Requests list (the Fee's Request)
+[
+ {
+  "id": "3e668140-03b2-43c1-be52-9cc49e8d8f2c",
+  "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+  "type": "OTHER",
+  "status": "SUBMITTED",
+  "raisedByTesterId": "3632672b-88f9-4087-b636-83d5d482d91e",
+  "raisedByUsername": "t-dc43d096-3e91-4c69-8867-09cb026a3361@example.com",
+  "agentAuthored": false,
+  "loggedByUsername": "t-dc43d096-3e91-4c69-8867-09cb026a3361@example.com",
+  "description": "Screen replacement",
+  "createdAt": "2026-10-02T11:56:17.678425Z"
+ }
+]
+GET fee by id 404 {'timestamp': '2026-10-02T11:56:18.286+00:00', 'status': 404, 'error': 'Not Found', 'path': '/api/contracts/815852d5-703a-4d45-ab55-491c2c455e92/fees/f1b0920c-1cc1-4625-9947-0bffc332d1de'}
+--- Agent Invoice draft again
+{
+ "id": "3967fb46-fb78-40db-a343-3d66f11e2f78",
+ "agentId": "55555555-5555-5555-5555-555555555555",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "localSupportFees": 86.4,
+ "salary": 2500.0,
+ "rolloutAdvanceRepayment": 0,
+ "rolloutAdvanceNewAdvance": 0,
+ "totalAmount": 2586.4,
+ "sentAt": null,
+ "approvedAt": null,
+ "paidAt": null
+}
+PASS: LSF 86.4 = step1 85.0 + 1.40

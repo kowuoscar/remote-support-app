@@ -1,0 +1,406 @@
+{
+ "_summary": {
+  "agent_invoice_statuses": [
+   "DRAFT:1",
+   "PAID:4",
+   "SENT:1"
+  ],
+  "client_invoice_statuses": [
+   "APPROVED:6",
+   "DRAFT:2",
+   "SENT:1"
+  ]
+ },
+ "agent-invoice/25c79ba1-2043-47d2-8e75-d50d2cca7ea1": {
+  "agentId": "55555555-5555-5555-5555-555555555555",
+  "approvedAt": "2026-08-31T00:00:00Z",
+  "billingMonth": "2026-08-01",
+  "currency": "USD",
+  "id": "25c79ba1-2043-47d2-8e75-d50d2cca7ea1",
+  "localSupportFees": 95.99,
+  "paidAt": "2026-09-03T00:00:00Z",
+  "rolloutAdvanceNewAdvance": 0.0,
+  "rolloutAdvanceRepayment": 0.0,
+  "salary": 2500.0,
+  "sentAt": "2026-08-29T00:00:00Z",
+  "status": "PAID",
+  "totalAmount": 2595.99
+ },
+ "agent-invoice/5afa25f6-609d-4400-8e84-9e15c1981602": {
+  "agentId": "55555555-5555-5555-5555-555555555555",
+  "approvedAt": null,
+  "billingMonth": "2026-10-01",
+  "currency": "USD",
+  "id": "5afa25f6-609d-4400-8e84-9e15c1981602",
+  "localSupportFees": 135.99,
+  "paidAt": null,
+  "rolloutAdvanceNewAdvance": 0.0,
+  "rolloutAdvanceRepayment": 0.0,
+  "salary": 2700.0,
+  "sentAt": "2026-10-02T11:58:04.802827Z",
+  "status": "SENT",
+  "totalAmount": 2835.99
+ },
+ "agent-invoice/6fd1cd65-08a2-4cb4-90e0-1e40a00c4ba7": {
+  "agentId": "dddc0645-1ba0-4cee-b5d3-5973b0113d41",
+  "approvedAt": "2026-10-01T00:00:00Z",
+  "billingMonth": "2026-09-01",
+  "currency": "GBP",
+  "id": "6fd1cd65-08a2-4cb4-90e0-1e40a00c4ba7",
+  "localSupportFees": 38.0,
+  "paidAt": "2026-10-04T00:00:00Z",
+  "rolloutAdvanceNewAdvance": 500.0,
+  "rolloutAdvanceRepayment": -500.0,
+  "salary": 4200.0,
+  "sentAt": "2026-09-29T00:00:00Z",
+  "status": "PAID",
+  "totalAmount": 4238.0
+ },
+ "agent-invoice/70534574-8061-46b6-b308-bc5c05931de6": {
+  "agentId": "dddc0645-1ba0-4cee-b5d3-5973b0113d41",
+  "approvedAt": null,
+  "billingMonth": "2026-10-01",
+  "currency": "GBP",
+  "id": "70534574-8061-46b6-b308-bc5c05931de6",
+  "localSupportFees": 20.0,
+  "paidAt": null,
+  "rolloutAdvanceNewAdvance": 750.0,
+  "rolloutAdvanceRepayment": -500.0,
+  "salary": 4500.0,
+  "sentAt": null,
+  "status": "DRAFT",
+  "totalAmount": 4770.0
+ },
+ "agent-invoice/98d5f574-c820-4f14-a156-27b30b3d6b7e": {
+  "agentId": "55555555-5555-5555-5555-555555555555",
+  "approvedAt": "2026-10-01T00:00:00Z",
+  "billingMonth": "2026-09-01",
+  "currency": "USD",
+  "id": "98d5f574-c820-4f14-a156-27b30b3d6b7e",
+  "localSupportFees": 101.99,
+  "paidAt": "2026-10-04T00:00:00Z",
+  "rolloutAdvanceNewAdvance": 0.0,
+  "rolloutAdvanceRepayment": 0.0,
+  "salary": 2500.0,
+  "sentAt": "2026-09-29T00:00:00Z",
+  "status": "PAID",
+  "totalAmount": 2601.99
+ },
+ "agent-invoice/c9aaeec5-0996-43c5-b9d3-6b8c78adc0cd": {
+  "agentId": "dddc0645-1ba0-4cee-b5d3-5973b0113d41",
+  "approvedAt": "2026-08-31T00:00:00Z",
+  "billingMonth": "2026-08-01",
+  "currency": "GBP",
+  "id": "c9aaeec5-0996-43c5-b9d3-6b8c78adc0cd",
+  "localSupportFees": 35.0,
+  "paidAt": "2026-09-03T00:00:00Z",
+  "rolloutAdvanceNewAdvance": 500.0,
+  "rolloutAdvanceRepayment": 0.0,
+  "salary": 4200.0,
+  "sentAt": "2026-08-29T00:00:00Z",
+  "status": "PAID",
+  "totalAmount": 4735.0
+ },
+ "client-invoice-pdf/4cfeda81-bc5c-493b-86f3-1814affa8670": {
+  "bytes": 1013,
+  "sha256": "04f4feb62d870935c0ee7553cc150c530b362a56e22fc3e376aafa580dd2f87d",
+  "status": 200
+ },
+ "client-invoice-pdf/4f170944-756d-4745-857a-44a8f8c7c82b": {
+  "bytes": 148,
+  "sha256": "3f4aac3b14e8b4d87a1da15531f3a710833bd5d7166fb0a8220a41d790dc806d",
+  "status": 409
+ },
+ "client-invoice-pdf/6736d1f7-1c14-4fe0-ba45-22eccbcb4222": {
+  "bytes": 1009,
+  "sha256": "06d551fdcd0c80e1c20fccc7e5244e8ccc733ea53159e90c9c9b303717ab87bb",
+  "status": 200
+ },
+ "client-invoice-pdf/7ee70f47-6db7-4fb2-b188-0d8f1603681f": {
+  "bytes": 148,
+  "sha256": "6be84a6108b1e3ce03d96c8f7afc3236cdde4ec8100612417c3f27c7acd166af",
+  "status": 409
+ },
+ "client-invoice-pdf/975ca5b9-c4d5-4626-96d9-08e06662ef9b": {
+  "bytes": 976,
+  "sha256": "463bfd28fa41fc30bcd460ae221448f54bb0ed00cf00d211ecb9d3b7dfb6a73a",
+  "status": 200
+ },
+ "client-invoice-pdf/9d9585a7-8c2c-4520-a87e-8e69dfbe530a": {
+  "bytes": 1011,
+  "sha256": "777bc789932abd23f85030cadc144dfd4f028c99c627dbbe4a7e9cfa4cde8a6b",
+  "status": 200
+ },
+ "client-invoice-pdf/ca4a9dcf-e61a-4eb6-9087-527d5183b7f5": {
+  "bytes": 1010,
+  "sha256": "68d0272cb25213a52fb373ba7a5080b37c039f1a21fe4583af7315b1a39745b4",
+  "status": 200
+ },
+ "client-invoice-pdf/ee4e3fb0-58f8-4a7f-9e3b-39784a67cc8a": {
+  "bytes": 1015,
+  "sha256": "460ebc90b6ffadbddf885c6a16ca4ec48b0e74d71ce4127799b953c54c308d66",
+  "status": 200
+ },
+ "client-invoice-pdf/f4b596cf-71ae-480f-9b78-1fe497ddbf1e": {
+  "bytes": 1013,
+  "sha256": "754e67ca365bf870508e310264c46bdef47392df6b832747072abc29a7215397",
+  "status": 200
+ },
+ "client-invoice/4cfeda81-bc5c-493b-86f3-1814affa8670": {
+  "approvedAt": "2026-10-01T00:00:00Z",
+  "baseAmount": 20.0,
+  "billingMonth": "2026-09-01",
+  "contractId": "f6bf9b8c-f634-4e9c-a009-5dc5876bb738",
+  "currency": "GBP",
+  "feeLines": [
+   {
+    "amount": 18.0,
+    "billingMonth": "2026-09-01",
+    "contractId": "f6bf9b8c-f634-4e9c-a009-5dc5876bb738",
+    "createdAt": "2026-09-04T00:00:00Z",
+    "currency": "GBP",
+    "description": "On-site device check",
+    "feeType": "OTHER",
+    "id": "0f92f0d3-d2a6-498d-b432-6bf80f3ecd76",
+    "requestId": "902c6f8a-5647-49c1-a3ed-c4f889234e69",
+    "requestType": "OTHER"
+   }
+  ],
+  "files": [],
+  "id": "4cfeda81-bc5c-493b-86f3-1814affa8670",
+  "sentAt": "2026-09-29T00:00:00Z",
+  "status": "APPROVED",
+  "totalAmount": 38.0
+ },
+ "client-invoice/4f170944-756d-4745-857a-44a8f8c7c82b": {
+  "approvedAt": null,
+  "baseAmount": 20.0,
+  "basePostpaidSims": [
+   {
+    "cancellationEffectiveDate": "2026-10-02",
+    "monthlyFeeAmount": 20.0,
+    "number": "+44-7700-900101",
+    "simCardId": "7c484edd-6704-4dc1-9aaa-024f73577509"
+   }
+  ],
+  "billingMonth": "2026-10-01",
+  "contractId": "f6bf9b8c-f634-4e9c-a009-5dc5876bb738",
+  "currency": "GBP",
+  "feeLines": [],
+  "files": [],
+  "id": "4f170944-756d-4745-857a-44a8f8c7c82b",
+  "sentAt": null,
+  "status": "DRAFT",
+  "totalAmount": 20.0
+ },
+ "client-invoice/6736d1f7-1c14-4fe0-ba45-22eccbcb4222": {
+  "approvedAt": "2026-08-31T00:00:00Z",
+  "baseAmount": 20.0,
+  "billingMonth": "2026-08-01",
+  "contractId": "f6bf9b8c-f634-4e9c-a009-5dc5876bb738",
+  "currency": "GBP",
+  "feeLines": [
+   {
+    "amount": 15.0,
+    "billingMonth": "2026-08-01",
+    "contractId": "f6bf9b8c-f634-4e9c-a009-5dc5876bb738",
+    "createdAt": "2026-08-04T00:00:00Z",
+    "currency": "GBP",
+    "description": "On-site device check",
+    "feeType": "OTHER",
+    "id": "c369f7e1-8ae0-43c4-9d6c-293ac32b4aa5",
+    "requestId": "f83dc7bf-99db-4796-9af0-884ea8061c59",
+    "requestType": "OTHER"
+   }
+  ],
+  "files": [],
+  "id": "6736d1f7-1c14-4fe0-ba45-22eccbcb4222",
+  "sentAt": "2026-08-29T00:00:00Z",
+  "status": "APPROVED",
+  "totalAmount": 35.0
+ },
+ "client-invoice/7ee70f47-6db7-4fb2-b188-0d8f1603681f": {
+  "approvedAt": null,
+  "baseAmount": 0,
+  "basePostpaidSims": [],
+  "billingMonth": "2026-10-01",
+  "contractId": "247de231-cc84-41bb-a700-645ef1513a0b",
+  "currency": "USD",
+  "feeLines": [],
+  "files": [],
+  "id": "7ee70f47-6db7-4fb2-b188-0d8f1603681f",
+  "sentAt": null,
+  "status": "DRAFT",
+  "totalAmount": 0
+ },
+ "client-invoice/975ca5b9-c4d5-4626-96d9-08e06662ef9b": {
+  "approvedAt": null,
+  "baseAmount": 65.99,
+  "billingMonth": "2026-10-01",
+  "contractId": "662bb08f-6d14-4c1a-8d77-785553268aa9",
+  "currency": "USD",
+  "feeLines": [
+   {
+    "amount": 25.0,
+    "billingMonth": "2026-10-01",
+    "contractId": "662bb08f-6d14-4c1a-8d77-785553268aa9",
+    "createdAt": "2026-10-02T11:58:03.876977Z",
+    "currency": "USD",
+    "feeType": "TOPUP",
+    "id": "c5aab0c6-c586-432b-ae59-6a5157cded2d",
+    "requestId": "1170c01f-60ed-4a25-ba2a-665a2eb2b9ae",
+    "requestType": "TOPUP",
+    "topupOptionId": "d0000000-0000-0000-0000-000000000001",
+    "topupOptionName": "Prepaid Refill 25"
+   },
+   {
+    "amount": 45.0,
+    "billingMonth": "2026-10-01",
+    "contractId": "662bb08f-6d14-4c1a-8d77-785553268aa9",
+    "createdAt": "2026-10-02T11:58:04.015283Z",
+    "currency": "USD",
+    "feeType": "OTHER",
+    "id": "62f4b7f4-a26c-4a29-80f8-e857dca51dbe",
+    "requestId": "df10568f-2a32-439f-8b60-1dc85d5c2ede",
+    "requestType": "OTHER"
+   }
+  ],
+  "files": [],
+  "id": "975ca5b9-c4d5-4626-96d9-08e06662ef9b",
+  "sentAt": "2026-10-02T11:58:04.768963Z",
+  "status": "SENT",
+  "totalAmount": 135.99
+ },
+ "client-invoice/9d9585a7-8c2c-4520-a87e-8e69dfbe530a": {
+  "approvedAt": "2026-08-31T00:00:00Z",
+  "baseAmount": 0.0,
+  "billingMonth": "2026-08-01",
+  "contractId": "247de231-cc84-41bb-a700-645ef1513a0b",
+  "currency": "USD",
+  "feeLines": [
+   {
+    "amount": 15.0,
+    "billingMonth": "2026-08-01",
+    "contractId": "247de231-cc84-41bb-a700-645ef1513a0b",
+    "createdAt": "2026-08-04T00:00:00Z",
+    "currency": "USD",
+    "description": "On-site device check",
+    "feeType": "OTHER",
+    "id": "e40c6ab8-fad1-487a-bbd0-4889340bc947",
+    "requestId": "33ab39f1-dc0f-463b-bdc2-d36288f9d391",
+    "requestType": "OTHER"
+   }
+  ],
+  "files": [],
+  "id": "9d9585a7-8c2c-4520-a87e-8e69dfbe530a",
+  "sentAt": "2026-08-29T00:00:00Z",
+  "status": "APPROVED",
+  "totalAmount": 15.0
+ },
+ "client-invoice/ca4a9dcf-e61a-4eb6-9087-527d5183b7f5": {
+  "approvedAt": "2026-08-31T00:00:00Z",
+  "baseAmount": 65.99,
+  "billingMonth": "2026-08-01",
+  "contractId": "662bb08f-6d14-4c1a-8d77-785553268aa9",
+  "currency": "USD",
+  "feeLines": [
+   {
+    "amount": 15.0,
+    "billingMonth": "2026-08-01",
+    "contractId": "662bb08f-6d14-4c1a-8d77-785553268aa9",
+    "createdAt": "2026-08-04T00:00:00Z",
+    "currency": "USD",
+    "description": "On-site device check",
+    "feeType": "OTHER",
+    "id": "d1687980-9f08-4431-8b56-92769e89004b",
+    "requestId": "c408988b-ce39-4d6c-8419-8df51c7f8d2c",
+    "requestType": "OTHER"
+   }
+  ],
+  "files": [],
+  "id": "ca4a9dcf-e61a-4eb6-9087-527d5183b7f5",
+  "sentAt": "2026-08-29T00:00:00Z",
+  "status": "APPROVED",
+  "totalAmount": 80.99
+ },
+ "client-invoice/ee4e3fb0-58f8-4a7f-9e3b-39784a67cc8a": {
+  "approvedAt": "2026-10-01T00:00:00Z",
+  "baseAmount": 0.0,
+  "billingMonth": "2026-09-01",
+  "contractId": "247de231-cc84-41bb-a700-645ef1513a0b",
+  "currency": "USD",
+  "feeLines": [
+   {
+    "amount": 18.0,
+    "billingMonth": "2026-09-01",
+    "contractId": "247de231-cc84-41bb-a700-645ef1513a0b",
+    "createdAt": "2026-09-04T00:00:00Z",
+    "currency": "USD",
+    "description": "On-site device check",
+    "feeType": "OTHER",
+    "id": "d511b926-e5ce-4472-8f46-5a6a61ea3611",
+    "requestId": "9fa48ba9-7030-43c3-b6be-ea0810d4b70a",
+    "requestType": "OTHER"
+   }
+  ],
+  "files": [],
+  "id": "ee4e3fb0-58f8-4a7f-9e3b-39784a67cc8a",
+  "sentAt": "2026-09-29T00:00:00Z",
+  "status": "APPROVED",
+  "totalAmount": 18.0
+ },
+ "client-invoice/f4b596cf-71ae-480f-9b78-1fe497ddbf1e": {
+  "approvedAt": "2026-10-01T00:00:00Z",
+  "baseAmount": 65.99,
+  "billingMonth": "2026-09-01",
+  "contractId": "662bb08f-6d14-4c1a-8d77-785553268aa9",
+  "currency": "USD",
+  "feeLines": [
+   {
+    "amount": 18.0,
+    "billingMonth": "2026-09-01",
+    "contractId": "662bb08f-6d14-4c1a-8d77-785553268aa9",
+    "createdAt": "2026-09-04T00:00:00Z",
+    "currency": "USD",
+    "description": "On-site device check",
+    "feeType": "OTHER",
+    "id": "65d72fd7-d529-4095-9bde-16783c72e3b8",
+    "requestId": "323e1b41-bd7e-4e34-93c6-4870b1169504",
+    "requestType": "OTHER"
+   }
+  ],
+  "files": [],
+  "id": "f4b596cf-71ae-480f-9b78-1fe497ddbf1e",
+  "sentAt": "2026-09-29T00:00:00Z",
+  "status": "APPROVED",
+  "totalAmount": 83.99
+ },
+ "review-queue": [
+  {
+   "agentId": null,
+   "agentName": "Jordan Ellis",
+   "billingMonth": "2026-10-01",
+   "clientName": "Solstice Retail Group",
+   "contractId": "662bb08f-6d14-4c1a-8d77-785553268aa9",
+   "currency": "USD",
+   "id": "975ca5b9-c4d5-4626-96d9-08e06662ef9b",
+   "kind": "CLIENT_INVOICE",
+   "status": "SENT",
+   "totalAmount": 135.99,
+   "waitingSince": "2026-10-02T11:58:04.768963Z"
+  },
+  {
+   "agentId": "55555555-5555-5555-5555-555555555555",
+   "agentName": "Jordan Ellis",
+   "billingMonth": "2026-10-01",
+   "clientName": null,
+   "contractId": null,
+   "currency": "USD",
+   "id": "5afa25f6-609d-4400-8e84-9e15c1981602",
+   "kind": "AGENT_INVOICE",
+   "status": "SENT",
+   "totalAmount": 2835.99,
+   "waitingSince": "2026-10-02T11:58:04.802827Z"
+  }
+ ]
+}

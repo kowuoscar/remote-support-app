@@ -1,7 +1,7 @@
 ---
 id: client-dashboard-identity
 title: Name the signed-in Tester and their own Client on the Client dashboard
-status: ready-for-agent
+status: in-progress
 depends_on: [surface-demo-note-opt-in, type-scale-tokens, tester-own-client-reads]
 labels: [frontend]
 stories: [1, 2, 4, 16, 17, 24]

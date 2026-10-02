@@ -36,7 +36,9 @@ included, varies month to month. `edit-client-invoice-lines`
 (`docs/features/edit-client-invoice-lines/spec.md`) builds that editing and
 lands first. It gives every sent invoice its own stored lines, so a sent-back
 invoice is a draft again carrying exactly the lines it was sent with, and
-**nothing is recomputed**. The Agent edits what is wrong and resends.
+**nothing is recomputed**. A Fee of that month logged after the first send
+appears beside them as a new pre-filled line. The Agent edits what is wrong
+and resends.
 
 There is a second gap. An Agent reaches a Client Invoice only as "this
 Contract's invoice for the current month". A Manager usually reviews last
@@ -52,9 +54,8 @@ features in order, after `edit-client-invoice-lines`.
   feature delivers the Client Invoice half of the epic's closing proof: a
   Manager sends a Client Invoice back with a reason; the Agent sees the reason
   and the invoice as a draft again, corrects it (edits lines, attaches a
-  file), resends it with a fresh snapshot, and the Manager approves it. The
-  proof's "adds a late Fee of that month" depends on open question 1. The
-  journey reaches `exists` only when `send-an-agent-invoice-back` and
+  file, sees a late Fee of that month as a new line), resends it with a fresh
+  snapshot, and the Manager approves it. The journey reaches `exists` only when `send-an-agent-invoice-back` and
   `invoice-adjustment` land too, so `docs/journeys.md` is not edited here.
 - **Get the Agent paid for the month** (`exists`, stays `exists`). A
   send-back and a resend move nothing on the Agent Invoice. An edit the Agent
@@ -74,7 +75,9 @@ features in order, after `edit-client-invoice-lines`.
   Agent from its detail page. The Manager must give a reason.
 - The invoice goes back to `draft`. It leaves the Review Queue and the
   Dashboard's Pending approvals card. Its lines are exactly the stored lines
-  it was sent with. Nothing is recomputed, whatever its billing month.
+  it was sent with, plus a new pre-filled line for each Fee of its month
+  logged since that has no line. No line is recomputed, whatever its billing
+  month.
 - The Agent sees every Client Invoice sent back to them, from any billing
   month, together with the reason and when it was sent back. The Agent opens
   such an invoice by its own identity, edits its lines with the editor
@@ -96,12 +99,16 @@ build.
   state in which that editor applies, exposes `editLine` on a by-id route, and
   hosts the editor on the Agent's by-id page.
 - **No recomputing and no clearing on send-back.** A send-back writes no line
-  row, never clears `linesStored`, never refreshes a line from the Fleet or a
-  Fee, for the current month or a past one, and offers no "recompute" or
-  "reset to computed" action beyond the per-line Reset the editor already has.
+  row, never clears `linesStored`, never refreshes a stored line from the
+  Fleet or a Fee, for the current month or a past one, and offers no
+  "recompute" or "reset to computed" action beyond the per-line Reset the
+  editor already has. The late-Fee lines are `edit-client-invoice-lines`'
+  resolution of a stored-lines draft, not built here.
+- **No line for a Postpaid SIM added after the send.** Only late Fees join a
+  sent-back invoice; its base amount stays as sent.
 - **No change to the Local Support Fees rule.** How an edit reaches the
-  Agent's pay, including the two timing questions still open on it, is
-  `edit-client-invoice-lines`'. A send-back and a resend themselves move no pay.
+  Agent's pay is `edit-client-invoice-lines`'. A send-back and a resend
+  themselves move no pay.
 - **No Agent Invoice send-back.** `send-an-agent-invoice-back` is its own
   feature. Whether an *approved* Agent Invoice may be sent back is still
   undecided. ADR 0003 is not edited here. The pieces this feature builds so
@@ -154,7 +161,7 @@ build.
 15. As an Agent, I want to open a sent-back invoice of a past billing month on its own page, so that I can work on it even though it is not this month's.
 16. As an Agent, I want a sent-back invoice to come back with exactly the lines it was sent with, each Postpaid SIM line (or an older invoice's single base amount line) and each Fee line, whatever its billing month, so that I start from what the Manager reviewed.
 17. As an Agent, I want to edit every line of a sent-back invoice on its page, so that I correct what the Manager pointed out.
-18. As the company, I want a sent-back invoice to show only the lines it was sent with, with no line added for a Fee logged or a Postpaid SIM added after the send, so that nothing on it refreshes (pending open question 1).
+18. As an Agent, I want a Fee of the invoice's month logged after its first send to appear on the sent-back invoice as a new pre-filled line I can edit and resend, while every line it was sent with stays exactly as sent and no line is added for a Postpaid SIM added after the send, so that a late Fee is billed for its own month without any figure the Manager reviewed moving.
 19. As an Agent, I want to attach more Carrier Invoice Files to a sent-back invoice, so that a missing carrier bill can be supplied.
 20. As an Agent, I want to resend a sent-back invoice, freezing what I now see, so that the Manager reviews the corrected invoice.
 21. As an Agent, I want the send confirmation to tell me the truth, which is that only a Manager can send an invoice back, instead of "this can't be undone", so that I am not misled.
@@ -187,9 +194,13 @@ model: an invoice holds its own lines"):
   billed `amount`; a line is edited when the two differ;
 - a `linesStored` flag on the Client Invoice, **set at the first send and
   never cleared**. With it set, the invoice's lines are its stored rows
-  exactly, and nothing is computed;
-- a send that stores every line and sets `linesStored`, and that writes rows
-  only for an invoice whose `linesStored` is false;
+  exactly, never recomputed; and while such an invoice is a `DRAFT`, one
+  pre-filled line is added, unstored, for each Fee of its Contract and
+  billing month that has no `FEE` row (amount = computed amount = the Fee's
+  amount). No line is added for a Postpaid SIM;
+- a send that inserts a row for every shown line that has none and sets
+  `linesStored`, and never rewrites a stored row of an invoice already sent,
+  so a resend writes rows only for late-Fee lines;
 - the send moved into `ClientInvoiceService` as one transaction under a row
   lock on the Client Invoice (its ticket 2), and `editLine(invoice, kind,
   sourceId, amount, principal)` taking an already-found invoice, under the
@@ -198,18 +209,20 @@ model: an invoice holds its own lines"):
 
 So a send-back changes the status and nothing else about the numbers. Because
 `linesStored` stays true, the draft serves the stored rows it was sent with,
-`editLine` updates them in place, and the resend writes no row. Nothing is
-cleared, so `client_invoice_lines`' unique constraints can never trip, and
-nothing is recomputed, for any month. `edit-client-invoice-lines` already
-proves this shape with a fixture (its story 25, testing item 2); this feature
-replaces the fixture with the real transition.
+plus any late-Fee line; `editLine` updates a stored row in place or inserts
+one for a late-Fee line; and the resend inserts rows only for late-Fee lines
+still unstored. Nothing is cleared, so `client_invoice_lines`' unique
+constraints can never trip, and no stored line is recomputed, for any month.
+`edit-client-invoice-lines` already proves this shape with a fixture (its
+story 25, testing item 2); this feature replaces the fixture with the real
+transition.
 
 ### The lifecycle, amended
 
 ```
 DRAFT ──send (Agent)──▶ SENT ──approve (Manager)──▶ APPROVED
   ▲                       │
-  └──send back (Manager)──┘   reason required; lines and linesStored untouched
+  └──send back (Manager)──┘   reason required; stored lines and linesStored untouched
 ```
 
 `ClientInvoiceStatus.canTransitionTo` gains `SENT → DRAFT`. `APPROVED` stays
@@ -224,17 +237,21 @@ The reads need no rule of their own. A sent-back invoice is a draft with
 rule: its stored lines exactly, with `edited` and `computedAmount` for the
 Agent and the Manager. A line's `computedAmount` stays the one stored at the
 first send, so an edit on a sent-back invoice shows against that figure. A
-Fee logged or a Postpaid SIM added after the send does not appear on the
-invoice (story 18, open question 1).
+Fee of the invoice's month logged after the first send, including one logged
+while the invoice is sent back, appears as a new pre-filled line, `edited`
+false; the resend stores it. A Postpaid SIM added after the send adds no line
+(story 18, the human's answer of 2026-10-02).
 
 ### What a send-back does to the Agent's pay
 
 The Local Support Fees rule is `edit-client-invoice-lines`' and is not
 changed. Applied to a send-back:
 
-- **The send-back and the resend move nothing.** Neither writes a line, and a
-  Contract's term in the rule is the invoice's billed total plus anything it
-  does not bill, which is the same before and after either.
+- **The send-back and the resend move nothing.** A Contract's term in the rule
+  is the invoice's billed total plus anything it does not bill at its
+  computed amount. A late Fee counts at its logged amount whether it is
+  unbilled (while `SENT`) or a pre-filled line (sent back) or stored at that
+  amount (resent), so the term is the same before and after either.
 - **An edit on a sent-back line goes through the same `editLine`**, so it
   follows that spec's lifecycle table for the Agent's Agent Invoice of the
   invoice's billing month:
@@ -242,7 +259,7 @@ changed. Applied to a send-back:
   | Agent Invoice | Effect of the edit |
   |---|---|
   | none yet, or `DRAFT` | Nothing written; the draft reads the new figure live. |
-  | `SENT` | Its Local Support Fees move by exactly the edit's difference, with an audit line. This is the behaviour `edit-client-invoice-lines` recommends in its open question 1 (`docs/inbox/question-pay-after-agent-invoice-sent.md`); if the human answers otherwise, this row follows that answer, with no change here. |
+  | `SENT` | Its Local Support Fees move by exactly the edit's difference, with an audit line (the human's answer of 2026-10-02, `question-pay-after-agent-invoice-sent`). This includes an edit to a late-Fee line, measured from its pre-filled amount. |
   | `APPROVED`, `PAID` | Nothing moves; the difference is a carry-over for `invoice-adjustment`. |
 
 - The Client Invoice returning to draft does not reopen "before approval" for
@@ -250,12 +267,10 @@ changed. Applied to a send-back:
   status, not the Client Invoice's. A send-back of a past month's invoice will
   usually meet an approved or paid Agent Invoice, so its edits are
   carry-overs.
-- A Fee logged after the send counts in the Agent's pay at its computed
-  amount, or not, as `edit-client-invoice-lines`' open question 2
-  (`docs/inbox/question-pay-late-fee-after-client-invoice-sent.md`) is
-  answered. Nothing here depends on that answer beyond what that spec builds.
-
-No question is raised here on either point; both are already in the inbox.
+- A Fee logged after the send counts in the Agent's pay for that month at its
+  logged amount (the human's answer of 2026-10-02,
+  `question-pay-late-fee-after-client-invoice-sent`), as
+  `edit-client-invoice-lines` builds it.
 
 ### ADR
 
@@ -271,7 +286,10 @@ numbers:
 - nothing is recomputed and nothing is cleared. The invoice returns to draft
   carrying its stored lines and `linesStored`, and the Agent edits them as on
   any draft (ADR 0004);
-- no line is added after the first send (as answered to open question 1);
+- a Fee of that month logged after the first send appears on the sent-back
+  invoice as a new pre-filled line, stored at the resend, and every line it
+  was sent with stays exactly as sent; no line is added for a Postpaid SIM
+  (the human's answer of 2026-10-02; the resolution itself is ADR 0004's);
 - a send-back and a resend move no pay; an edit on a sent-back invoice reaches
   the Agent's pay by ADR 0004's rule;
 - `approved` stays terminal: an amount found wrong after approval is corrected
@@ -282,7 +300,8 @@ It names the Client Invoice as implemented now and leaves the Agent Invoice to
 note on ADR 0003. ADR 0001 gets a second dated note, in the shape ADR 0003's
 2026-09-17 note set: "Amended by ADR 0005: `sent → draft` by a Manager's
 send-back; the stored lines it was sent with become the draft's editable
-lines, nothing recomputed; `approved` stays terminal."
+lines, nothing recomputed, and a late Fee of that month joins as a new line;
+`approved` stays terminal."
 
 ### Backend: send back
 
@@ -314,8 +333,10 @@ does the following:
    reason's text is never logged, following `requestRejected`'s rule.
 
 The resend is the ordinary send of `edit-client-invoice-lines`. With
-`linesStored` already true it writes no line, so it can never store a second
-line for a SIM or a Fee; it sets `status = SENT` and a new `sentAt`.
+`linesStored` already true it leaves every stored row as it is and inserts a
+row only for each late-Fee line still unstored, which by definition has no
+row, so it can never store a second line for a SIM or a Fee; it sets
+`status = SENT` and a new `sentAt`.
 
 ### Backend: the Agent reaches an invoice by its id
 
@@ -496,10 +517,11 @@ Visual goldens:
 - `APPROVED` stays terminal. The only backward edge is `SENT → DRAFT`, taken
   only by a Manager.
 - A send-back writes no row of `client_invoice_lines` and never clears
-  `linesStored`. Nothing on a sent-back invoice is recomputed, by a read, by
-  its month ending, or by the resend.
-- A resend writes no line row and never fails on `client_invoice_lines`'
-  unique constraints.
+  `linesStored`. No line a sent-back invoice was sent with is recomputed, by
+  a read, by its month ending, or by the resend. Only late Fees of its month
+  add lines.
+- A resend rewrites no stored row, inserts rows only for unstored late-Fee
+  lines, and never fails on `client_invoice_lines`' unique constraints.
 - A send-back and a resend change no Agent Invoice. An edit on a sent-back
   invoice changes one only through `editLine`'s rule.
 - A send-back and an approval of the same invoice are serialized by the
@@ -535,9 +557,13 @@ or component internals.
      line the Agent edited before sending → `DRAFT`, reason and time
      returned, and the same lines, amounts and `computedAmount`s; a Postpaid
      SIM added after the send-back adds no line and moves no amount;
-   - a Fee logged after the first send does not appear on the sent-back
-     invoice, every line stays as sent, and the resend succeeds with the
-     frozen lines equal to the lines before it, with no server error;
+   - a Fee of the month logged after the first send, and another logged
+     while the invoice is sent back, each appear on the sent-back invoice as
+     a new pre-filled line (`edited` false, the Fee's amount), every line it
+     was sent with stays exactly as sent; the Agent edits one late-Fee line
+     by id; the resend succeeds with no server error, the frozen lines equal
+     to the lines shown before it, both late Fees included; a Fee logged after
+     the resend does not appear;
    - send-back of a sent **past-month** invoice, written directly by a
      fixture in the way `DemoDataLoader.writePastClientInvoice` does after
      `edit-client-invoice-lines` (stored lines, `linesStored` true): the lines
@@ -546,7 +572,8 @@ or component internals.
      The past-month fixture is also the month-rollover state, so no clock
      needs faking;
    - send-back of a **backfilled** invoice (one `BASE_AMOUNT` line): it comes
-     back with that single line, which the Agent edits by id and resends;
+     back with that single line and its Fee lines, plus any late Fee, and the
+     Agent edits the base line by id and resends;
    - the Review Queue excludes the invoice after a send-back and includes it
      after the resend, ordered by the new `sentAt`, with the resent total;
    - send-back of a draft or an approved invoice → `409`, with a blank or
@@ -568,10 +595,11 @@ or component internals.
    - approving after a send-back gives `409`;
    - **pay, through the Agent Invoice's own read:** a send-back and a resend
      leave a draft, a sent and an approved Agent Invoice's Local Support Fees
-     unchanged; an edit by id on the sent-back invoice moves a `SENT` Agent
-     Invoice by exactly the difference (as `edit-client-invoice-lines`
-     builds open question 1's answer) and leaves an `APPROVED` one
-     unchanged. The full pay rule stays proven by
+     unchanged, including when a late Fee appears on the sent-back invoice;
+     an edit by id on the sent-back invoice, of a sent line or of a late-Fee
+     line, moves a `SENT` Agent Invoice by exactly the difference (the
+     human's answer of 2026-10-02) and leaves an `APPROVED` one unchanged.
+     The full pay rule stays proven by
      `LocalSupportFeesFollowClientInvoiceApiTest`.
 2. **The race is proven at the same seam, not with mocks.** Two threads send
    back and approve the same invoice. Exactly one wins, the other gets `409`,
@@ -610,10 +638,12 @@ or component internals.
    2. the Manager opens the invoice from the Review Queue and sends it back
       with a reason;
    3. the queue no longer lists it;
-   4. the Agent sees it under "Sent back to you" with the reason, opens it by
-      id, sees the amounts as sent, edits a Postpaid SIM line and resends;
-   5. the Manager sees it back in the queue, with the edited line marked
-      "Edited · computed …" and the earlier reason, and approves it.
+   4. the Agent logs a Fee of the month, sees the invoice under "Sent back to
+      you" with the reason, opens it by id, sees the amounts as sent plus the
+      new Fee as a line, edits a Postpaid SIM line and resends;
+   5. the Manager sees it back in the queue, with the late Fee's line, the
+      edited line marked "Edited · computed …" and the earlier reason, and
+      approves it.
 
    A past month is not played in e2e, because e2e state does not roll back
    and the send path writes only the current month. The API seam covers the
@@ -640,10 +670,12 @@ or component internals.
   `PUT …/lines` is added here.
 - **The Agent's pay follows the billed amounts until approval, then carries
   over** (the human's answer, 2026-10-01, `question-edit-lines-agent-pay`),
-  with the sent-Agent-Invoice and late-Fee timing still open in
-  `question-pay-after-agent-invoice-sent` and
-  `question-pay-late-fee-after-client-invoice-sent`. This spec follows that
-  spec's recommendation and raises neither again.
+  with its two timing points answered on 2026-10-02 (below). This spec uses
+  that rule unchanged.
+- **A stored-lines draft resolves its stored rows plus a pre-filled line per
+  late Fee of its month, and the send stores those lines.** That spec builds
+  the resolution, the send and `editLine`'s insert for a late-Fee line; this
+  one only makes an invoice reach that state.
 - **ADR numbering.** That spec records ADR 0004 and migration `V56`; this one
   takes ADR 0005 and the migration after.
 
@@ -662,17 +694,30 @@ or component internals.
   their own invoices by id, and only a sent-back or current-month draft can
   be sent; a resent invoice queues from the resend; the Manager uses an
   inline form** (2026-10-01, approved unchanged).
+- **When a Client Invoice is sent back, a Fee of that month logged after the
+  first send appears on it as a new pre-filled line, and every line it was
+  sent with stays exactly as sent** (2026-10-02, as recommended,
+  `question-late-fee-on-sent-back-invoice`). The rule is built in
+  `edit-client-invoice-lines`' model; story 18, its tests and walkthrough
+  step 3 here follow it.
+- **A sent but not yet approved Agent Invoice moves by an edit's difference;
+  once approved, the difference carries over** (2026-10-02, as recommended,
+  `question-pay-after-agent-invoice-sent`). An edit on a sent-back invoice
+  follows it.
+- **A Fee logged after the Client Invoice was sent counts in that month's pay
+  at its logged amount** (2026-10-02, as recommended,
+  `question-pay-late-fee-after-client-invoice-sent`). So a late Fee
+  appearing on a sent-back invoice moves no pay.
 
 ### Taken alone
 
-- **A sent-back invoice gains no line for a Fee or SIM added after the send.**
-  This is `edit-client-invoice-lines`' `linesStored` rule applied unchanged,
-  and its story-25 test asserts it. It supersedes this spec's earlier "a late
-  Fee joins as a new pre-filled line". Because it conflicts with the epic's
-  proof, it is put to the human as open question 1.
-- **The send-back does not touch the pay rule, and the timing questions are
-  not duplicated.** The rule reads the Agent Invoice's status, so a Client
-  Invoice returning to draft reopens nothing on an approved Agent Invoice.
+- **A sent-back invoice gains no line for a Postpaid SIM added after the
+  send.** The answer names Fees only, and SIM membership has no dates, so the
+  base amount the Manager reviewed stays as sent. The SIM still counts in pay
+  by the rule.
+- **The send-back does not touch the pay rule.** The rule reads the Agent
+  Invoice's status, so a Client Invoice returning to draft reopens nothing on
+  an approved Agent Invoice.
 - **The same "open to its Agent" predicate gates attach, line edits and send
   by id.** The human approved it for send; letting the Agent edit or attach
   to a draft they can never send would be work with no outcome. A past-month
@@ -737,48 +782,30 @@ or component internals.
 
 ## Open questions
 
-1. **When a Manager sends an invoice back, can the Agent add a Fee of that
-   month that was logged after the invoice was first sent?** Example: the
-   Agent sends this month's Client Invoice on the 25th; on the 27th a $10
-   Topup Fee for this month is logged; the Manager sends the invoice back
-   saying "the topup is missing". Your epic's closing proof says the Agent
-   "adds what was missing (a file, a late Fee of that month)", but the
-   drafted `edit-client-invoice-lines` model freezes the list of lines at the
-   first send, so the $10 could never go on this invoice and would wait for
-   next month's `invoice-adjustment`. **Recommendation: yes, the late Fee
-   appears on the sent-back invoice as a new pre-filled line, and every line
-   it was sent with stays exactly as sent.** Reason: it is what the epic
-   promised, the Client is billed for the month the Fee belongs to, no figure
-   the Manager reviewed moves, and the Agent's pay is the same either way
-   (the pay rule already counts an unbilled Fee at its amount). If yes, one
-   rule in `edit-client-invoice-lines` changes (a sent-back draft also shows
-   a pre-filled line for any Fee of its month with no line, and the resend
-   stores it), and this spec's story 18, its tests and walkthrough step 3
-   are reversed; this spec is drafted for "no", consistent with that spec as
-   it stands. (Case 1.)
+None
 
 ## Acceptance walkthrough
 
 1. [agent] As the Contract's Agent, edit one Postpaid SIM line of the current month's Client Invoice through the API, send it, then log one more Fee on the Contract (used in step 3). As the Manager, `POST /api/client-invoices/{id}/send-back` with a reason, and show `200` with `status: DRAFT`, `sentBackAt`, `sentBackReason`, no `sentAt`, and every line, amount and `computedAmount` exactly as sent. (stories: 1, 2, 4, 16)
 2. [agent] Show `GET /api/review-queue` no longer lists the invoice. Then send back a draft and an approved invoice and show `409`. Send an empty reason and a 1001-character reason and show `400`. (stories: 5, 7, 2)
-3. [agent] Add a Postpaid SIM to the Contract and show the sent-back draft gains no line and no amount moves. Show the Fee logged in step 1 does not appear on it. As the Agent, edit one Fee line with `PUT /api/client-invoices/{id}/lines`, then resend by id and show `200`, `SENT`, the edited amount, and the frozen lines equal to those before the resend, with no server error. Show the queue lists the invoice again with `waitingSince` equal to the new `sentAt`. (stories: 9, 17, 18, 20, 28, 36)
+3. [agent] Add a Postpaid SIM to the Contract and show the sent-back draft gains no line for it. Show the Fee logged in step 1 appears as a new line with `edited: false` and its logged amount, and every line the invoice was sent with is unchanged in amount and `computedAmount`. As the Agent, edit one sent Fee line and the late Fee's line with `PUT /api/client-invoices/{id}/lines`, then resend by id and show `200`, `SENT`, the edited amounts, and the frozen lines equal to those shown before the resend, the late Fee's line included, with no server error. Log another Fee and show the resent invoice unchanged. Show the queue lists the invoice again with `waitingSince` equal to the new `sentAt`. (stories: 9, 17, 18, 20, 28, 36)
 4. [agent] As the Manager, read the resent invoice by id and show `sentBackAt` and `sentBackReason` are still there, and the edited line marked with its `computedAmount`. Approve it and show `APPROVED`. Then send back another sent invoice twice in a row, resending in between, and show both send-backs succeed. (stories: 10, 11, 12)
 5. [agent] Run the race test and show exactly one of send-back and approve wins, the other is `409`, and the invoice is consistent in either final state with its lines as sent. (stories: 29, 8)
 6. [agent] Call send-back with the Agent's and a Tester's token and show `403`. Call the by-id read, files, a line edit and send with another Agent's token and show `403`. Call every by-id route on `OtherTenantFixture`'s invoice and show `404`. As the Agent, send, attach to and edit a past-month draft that was never sent and show `409` `PAST_MONTH_DRAFT_NOT_SENDABLE` with the invoice unchanged. (stories: 24, 25, 31, 32)
 7. [agent] As a Tester of the Contract's Client, read the current-month invoice while it is sent back and show `403`. Read it after the resend and show `200` with the resent numbers, `sentBackReason` null and no edit markers, and download the PDF and show it carries the resent numbers and no reason. (stories: 26, 27)
 8. [agent] Grep the backend log for step 1 and show one `action=STATUS_CHANGE` audit line for `ClientInvoice` from `SENT` to `DRAFT`, with the Manager as actor and the Tenant id, and no reason text anywhere in the log. (stories: 30)
 9. [agent] On the demo stack, pick a past-month `SENT` Client Invoice, note its lines, and add a Postpaid SIM to its Contract. Send the invoice back as the Manager. As its Agent, `GET /api/client-invoices/sent-back` and show it listed with its reason. Read it by id and show the lines equal to the noted ones. Edit a line by id, attach a file by id, resend, and show `SENT` with that file and the edited amount. Run the past-month and backfilled cases of `ClientInvoiceSendBackApiTest`, which are also the month-rollover state, and show them green. (stories: 6, 13, 14, 15, 16, 17, 19, 20, 36)
-10. [agent] For the Contract's Agent and the invoice's month, read the Agent Invoice's Local Support Fees before the send-back, after it, and after the resend, and show all three equal. Then, with that Agent Invoice `SENT`, send the Client Invoice back again, edit a line by id up by $5.00, and show the Agent Invoice's Local Support Fees up by exactly $5.00 (as `question-pay-after-agent-invoice-sent` is answered; if the answer is no, show them unchanged) with one `agentInvoiceLocalSupportFeesFollowed` audit line; approve the Agent Invoice, edit another line, and show it unchanged. (stories: 33)
+10. [agent] For the Contract's Agent and the invoice's month, with a Fee of the month logged after the first send, read the Agent Invoice's Local Support Fees before the send-back, after it (the late Fee now on the invoice as a line), and after the resend, and show all three equal. Then, with that Agent Invoice `SENT`, send the Client Invoice back again, edit a line by id up by $5.00, and show the Agent Invoice's Local Support Fees up by exactly $5.00 with one `agentInvoiceLocalSupportFeesFollowed` audit line; approve the Agent Invoice, edit another line, and show it unchanged. (stories: 33)
 11. [agent] In a browser as the Manager, open a sent Client Invoice from the Review Queue. Show **Send back** beside **Approve**, which stays the only pill. Expand Send back, show the hint saying the Agent can change any line, submit empty, and show it is refused inline with the form still open. Enter a reason and confirm, then show the page re-render in place as a draft with the reason, the numbers as sent and no actions. Go back to the queue and the Dashboard and show the invoice is on neither. (stories: 1, 2, 3, 4, 5, 7)
 12. [agent] In a second tab, approve a sent invoice. In the first tab, still showing it as sent, try to send it back and show the "refresh" message. (stories: 8)
-13. [agent] Sign in as the Agent and open Client Invoices. Show "Sent back to you" listing the invoice with its Contract, month, date and reason, and the current month's card showing the reason and a **Sent back** badge. Open the row and show the by-id page with the notice ending "Correct what is needed, then send it again.", the line editor holding the lines as sent, Attach file and Send. (stories: 13, 14, 15, 16, 23)
+13. [agent] Sign in as the Agent and open Client Invoices. Show "Sent back to you" listing the invoice with its Contract, month, date and reason, and the current month's card showing the reason and a **Sent back** badge. Open the row and show the by-id page with the notice ending "Correct what is needed, then send it again.", the line editor holding the lines as sent plus any Fee of the month logged since as a new line, Attach file and Send. (stories: 13, 14, 15, 16, 18, 23)
 14. [agent] On that page, change a Postpaid SIM line and a Fee line in the editor, and attach a file. Click Send and show the confirmation says only the Manager can send it back. Confirm, and show the invoice as sent with the new amounts and gone from "Sent back to you". (stories: 17, 19, 20, 21, 22)
 15. [agent] As the Manager, show the invoice back in the Review Queue with its new total. Open it and show the edited lines with "Edited · computed …" and "Previously sent back on …: {reason}". Approve it. (stories: 9, 10, 11)
 16. [agent] As the Agent, open by id a past-month draft that was never sent (from the demo data or a fixture) and show it read-only, with no editor, Attach file or Send. (stories: 25)
 17. [agent] As an Agent with nothing sent back, show the Client Invoices page has no "Sent back to you" section. Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green, with the suites named in `## Testing decisions` item 3 unedited apart from the named send-copy exception, and no golden moved. (stories: 34)
 18. [agent] Do the Manager's send-back and the Agent's open-edit-and-resend by keyboard alone, showing a visible focus ring at each stop. Repeat at the mobile breakpoint and show the reason form, the sent-back table and the by-id page usable within the viewport. (stories: 35)
 19. [human] Send back a real invoice with the reason you would really write, then read it as the Agent would. Confirm the wording tells the Agent what happened and what to do, and that nothing tells the Tester. (stories: 2, 14, 26)
-20. [human] Read ADR 0005 and ADR 0001's new note, and confirm they say what you settled: a send-back recomputes and clears nothing; the invoice returns to draft with the lines it was sent with, which the Agent edits; a send-back moves no pay; `approved` stays final; the freeze still protects every number while it is under review; and a wrong amount found after approval is corrected on the next month's invoice. (stories: 4, 11, 16, 33, 36)
+20. [human] Read ADR 0005 and ADR 0001's new note, and confirm they say what you settled: a send-back recomputes and clears nothing; the invoice returns to draft with the lines it was sent with, which the Agent edits, plus a new line for each Fee of its month logged since; a send-back moves no pay; `approved` stays final; the freeze still protects every number while it is under review; and a wrong amount found after approval is corrected on the next month's invoice. (stories: 4, 11, 16, 18, 33, 36)
 21. [human] Send back a real last-month invoice whose Postpaid SIM line does not match what the carrier billed, then as the Agent correct that line, attach the carrier's file and resend. Confirm this is how you want errors caught before approval handled, that the numbers you saw as Manager never moved until the Agent changed them, and that what happened to the Agent's pay for that month is what you expect. (stories: 6, 15, 16, 17, 19, 20, 33, 36)
 
 ## Execution order
@@ -814,8 +841,7 @@ There are two slices, both complete vertical paths, each demoable on its own.
      the "Sent back to you" section, the by-id Agent page with its "Correct
      what is needed" notice and read-only state for a past-month draft never
      sent, the badge, the copy change and the BFF proxies.
-   - Tests: the Agent and pay cases of `ClientInvoiceSendBackApiTest`,
-     component tests, and the e2e spec.
-   - If open question 1 is answered yes, the late-Fee line is built in
-     `edit-client-invoice-lines` first, and this ticket's story-18 test is
-     reversed.
+   - Tests: the Agent, late-Fee and pay cases of
+     `ClientInvoiceSendBackApiTest`, component tests, and the e2e spec. The
+     late-Fee line itself is built by `edit-client-invoice-lines`; this
+     ticket proves it through the real send-back.

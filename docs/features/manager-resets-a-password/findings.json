@@ -336,14 +336,15 @@
   {
    "id": "F29",
    "type": "spec-partial",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-spec",
    "after_review": true,
    "in_changed_lines": true,
    "where": "frontend/tests/visual/__screenshots__/reset-tester-password-dialog-confirm-{desktop,mobile}-{light,dark}.png",
    "citation": "spec.md Design direction: \"New goldens: the reset dialog's confirm step on each of the two pages ... per theme and breakpoint\" with \"... with the action right-aligned.\"",
    "note": "Caused by the F6 fix: these four goldens, the only ones showing the Testers table, were not recaptured and still show the action left-aligned. maxDiffPixelRatio (docs/tech-debt.md) can let them pass while stale. Recapture them.",
-   "fixed_in": "6a4a14e"
+   "fixed_in": "6a4a14e",
+   "confirmed_by": "reviewer-spec (re-review)"
   },
   {
    "id": "F30",

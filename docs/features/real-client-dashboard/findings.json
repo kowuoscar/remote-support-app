@@ -244,13 +244,14 @@
     {
       "id": "F22",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/client/latest-invoices-card.tsx:61",
       "citation": "docs/agents/coding-standards.md Frontend 8: \"an arbitrary value (`w-[123px]`) needs a comment saying why it isn't a token.\"",
-      "note": "The F3 fix (9e53b08) adds `min-w-[10rem]` with no comment; Tailwind v4 already has `min-w-40` (10rem)."
+      "note": "The F3 fix (9e53b08) adds `min-w-[10rem]` with no comment; Tailwind v4 already has `min-w-40` (10rem).",
+      "fixed_in": "ad58194"
     },
     {
       "id": "F23",

@@ -4,26 +4,28 @@
     {
       "id": "F1",
       "type": "spec-partial",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/tests/e2e/client-dashboard.spec.ts:46",
       "citation": "spec.md Testing decisions 3: \"Then show the dashboard with the Client's name, the Tester's username, the right Active Fleet, Open Requests counting the Request whether it is at Pending Approval, Submitted or In Progress\"",
       "note": "The real-backend e2e never asserts the viewer chip's username and checks Open Requests only for a freshly submitted Request's status, not across Pending Approval, Submitted and In Progress.",
-      "fixed_in": "67eae34"
+      "fixed_in": "67eae34",
+      "confirmed_by": "reviewer-spec (fresh, re-review)"
     },
     {
       "id": "F2",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "ARCHITECTURE.md:35",
       "citation": "ARCHITECTURE.md: \"This file points; it never describes. A route, a schema, a function signature is read in the code, never copied here — a copy goes stale, a pointer does not.\"",
       "note": "The new frontend/app/client/(dashboard) line copies routes ('reading /api/me/client and /api/me') and is already stale. Keep only the pointer.",
-      "fixed_in": "7347269"
+      "fixed_in": "7347269",
+      "confirmed_by": "reviewer-standards (fresh, re-review)"
     },
     {
       "id": "F3",
@@ -238,6 +240,39 @@
       "where": "frontend/lib/format.ts:87",
       "citation": "",
       "note": "Billing month uses a hard-coded en-US locale (pre-existing helper)."
+    },
+    {
+      "id": "F22",
+      "type": "rule-violated",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/client/latest-invoices-card.tsx:61",
+      "citation": "docs/agents/coding-standards.md Frontend 8: \"an arbitrary value (`w-[123px]`) needs a comment saying why it isn't a token.\"",
+      "note": "The F3 fix (9e53b08) adds `min-w-[10rem]` with no comment; Tailwind v4 already has `min-w-40` (10rem)."
+    },
+    {
+      "id": "F23",
+      "type": "rule-violated",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/tests/visual/__screenshots__/client-mobile-light.png",
+      "citation": "docs/agents/frontend.md: \"A golden changes only with `DESIGN.md`\" / \"Visual goldens pass, or were updated in the same commit as `DESIGN.md`.\"",
+      "note": "9e53b08 recaptures client-mobile-light/dark with no DESIGN.md change. The same file's principle allows a golden that moves with a change conforming to DESIGN.md; the rule's two phrasings disagree."
+    },
+    {
+      "id": "F24",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/app/client/(dashboard)/page.tsx:24",
+      "citation": "",
+      "note": "Flag argument: readIdentity<T>(path, nullOn404) widens /api/me to T | null, then `me!.username` asserts it away."
     }
   ]
 }

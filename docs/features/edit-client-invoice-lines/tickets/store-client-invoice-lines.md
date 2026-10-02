@@ -1,7 +1,7 @@
 ---
 id: store-client-invoice-lines
 title: Store a Client Invoice's own lines and backfill every sent and approved invoice
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [enabler, backend]
 stories: []

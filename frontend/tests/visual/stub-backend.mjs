@@ -22,7 +22,20 @@ const ROLES = {
   // real-agent-dashboard: a linked Agent whose invoice route answers 500, and whose second
   // Contract's Requests route does too, so the unavailable card states are playable.
   "visual-agent-degraded-session": { username: "degraded@example.com", role: "AGENT", degraded: true },
+  // real-client-dashboard: a Tester linked to "Solstice Retail Group", one linked to no Client
+  // (GET /api/me/client is 404), and one whose identity read fails outright (500). The last two are
+  // not captured as goldens; they are asserted in surfaces.spec.ts.
+  "visual-tester-session": { username: "dana.whitfield@solsticeretail.example", role: "TESTER" },
+  "visual-tester-unlinked-session": { username: "unlinked.tester@example.com", role: "TESTER", unlinked: true },
+  "visual-tester-failing-identity-session": {
+    username: "failing.tester@example.com",
+    role: "TESTER",
+    failingIdentity: true,
+  },
 };
+
+// real-client-dashboard: the Client the linked Tester belongs to.
+const TESTER_CLIENT = { clientId: "55555555-0000-0000-0000-0000000000a1", name: "Solstice Retail Group" };
 
 const CURRENCY = {
   FRANCE: "EUR",
@@ -281,6 +294,12 @@ createServer((request, response) => {
 
   if (url.pathname === "/api/me") {
     return send(response, 200, { username: caller.username, role: caller.role });
+  }
+  // real-client-dashboard: the caller's own Client; any non-Tester, or an unlinked Tester, is a 404.
+  if (url.pathname === "/api/me/client" && request.method === "GET") {
+    if (caller.role !== "TESTER" || caller.unlinked) return send(response, 404);
+    if (caller.failingIdentity) return send(response, 500);
+    return send(response, 200, TESTER_CLIENT);
   }
   // real-agent-dashboard: the caller's own Agent — Jordan Ellis, with a salary and a non-zero
   // Rollout Advance so the dashboard's "+ <amount> Rollout Advance" meta is exercised.

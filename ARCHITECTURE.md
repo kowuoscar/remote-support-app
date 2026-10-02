@@ -32,6 +32,7 @@ error, not a nitpick.
 - `fonts` · font assets served by the app.
 - `frontend/app/api/agents/[agentId]/login/password/route.ts` · BFF pass-through for the Manager's password reset of an Agent, forwarding `Cache-Control: no-store`.
 - `frontend/app/api/clients/[clientId]/testers/[testerId]/password/route.ts` · BFF pass-through for the Manager's password reset of a Tester, forwarding `Cache-Control: no-store`.
+- `frontend/app/client/(dashboard)` · the /client dashboard page (async Server Component reading /api/me/client and /api/me) and its error.tsx.
 
 ### Frontend — `frontend/components`
 

@@ -1,13 +1,10 @@
 import { contracts } from "./contracts";
 import type { ClientInvoiceRecord, RequestRecord, SimCard, Smartphone } from "./types";
 
-export const currentClient = {
-  name: "Aurora Retail Group",
-  primaryContact: "Nadia Okafor",
-  currentTester: "Nadia Okafor",
-};
+// The demo figures below belong to this Client until the next tickets read real data.
+const DEMO_CLIENT_NAME = "Aurora Retail Group";
 
-export const clientContracts = contracts.filter((c) => c.clientName === currentClient.name);
+export const clientContracts = contracts.filter((c) => c.clientName === DEMO_CLIENT_NAME);
 // -> Aurora Retail Group — France, Aurora Retail Group — United Kingdom
 
 export const clientRequests: RequestRecord[] = [

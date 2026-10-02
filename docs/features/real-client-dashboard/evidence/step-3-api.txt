@@ -1,0 +1,11 @@
+Contract UNITED_STATES USD
+  smartphones: Counter({'ACTIVE': 3, 'IN_REPAIR': 1})
+  sim cards: Counter({'ACTIVE': 5})
+  requests: Counter({'COMPLETED': 6, 'CANCELLED': 1, 'IN_PROGRESS': 1})
+Contract UNITED_KINGDOM GBP
+  smartphones: Counter({'RETIRED': 3, 'ACTIVE': 2})
+  sim cards: Counter({'ACTIVE': 2, 'RETIRED': 1})
+  requests: Counter({'COMPLETED': 4, 'REJECTED': 1, 'PENDING_APPROVAL': 1, 'IN_PROGRESS': 1})
+Smartphones ACTIVE+IN_REPAIR = 6 SIM ACTIVE = 7 => Active Fleet 13
+Retired smartphones (not counted): 3 Retired SIMs: 1 all statuses sp {'ACTIVE': 5, 'IN_REPAIR': 1, 'RETIRED': 3} sim {'ACTIVE': 7, 'RETIRED': 1}
+Open Requests = 3 (PENDING_APPROVAL 1 SUBMITTED 0 IN_PROGRESS 2 ) others not counted: {'COMPLETED': 10, 'CANCELLED': 1, 'REJECTED': 1}

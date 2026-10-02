@@ -64,6 +64,12 @@ export interface TesterListItem {
   isPrimaryContact: boolean;
 }
 
+// GET /api/me/client — the Client the calling Tester belongs to.
+export interface ClientOwnRecord {
+  clientId: string;
+  name: string;
+}
+
 // Mirrors backend/.../dto/AgentOwnRecordResponse.java — GET /api/me/agent, the caller's own Agent.
 export interface AgentOwnRecord {
   agentId: string;
@@ -595,3 +601,14 @@ export interface AgentInvoiceQueueItem extends ReviewQueueItemBase {
 }
 
 export type ReviewQueueItem = ClientInvoiceQueueItem | AgentInvoiceQueueItem;
+
+/** Mirrors ClientInvoiceSummaryResponse.java: a Tester's dashboard row, SENT or APPROVED only. */
+export interface ClientInvoiceSummary {
+  contractId: string;
+  invoiceId: string;
+  /** First-of-month ISO date. */
+  billingMonth: string;
+  status: ClientInvoiceStatusValue;
+  currency: string;
+  totalAmount: number;
+}

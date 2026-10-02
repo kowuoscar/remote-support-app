@@ -1,0 +1,12 @@
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.365 s -- in com.remotesupport.backend.migration.RepairToOtherMigrationTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.647 s -- in com.remotesupport.backend.migration.SmartphoneOwnerMigrationTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.644 s -- in com.remotesupport.backend.migration.SimCardInstalledInSmartphoneMigrationTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.426 s -- in com.remotesupport.backend.migration.SimCardCarrierMigrationTest
+09:57:24.300 ERROR [:] o.f.core.internal.command.DbMigrate - Migration of schema "public" to version "55 - add global username index" failed! Changes successfully rolled back.
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.789 s -- in com.remotesupport.backend.migration.GlobalUsernameIndexMigrationTest
+[INFO] Tests run: 584, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+ Test Files  45 passed (45)
+      Tests  259 passed (259)
+  78 passed (3.0m)
+VERIFY_EXIT=0

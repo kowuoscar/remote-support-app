@@ -1,0 +1,26 @@
+[
+    {
+        "contractId": "b65b621c-09ca-4288-84bf-d7dd07c65a30",
+        "invoiceId": "bc2712db-e75c-4913-9d48-4c522f001bc9",
+        "billingMonth": "2026-10-01",
+        "status": "SENT",
+        "currency": "USD",
+        "totalAmount": 135.99
+    },
+    {
+        "contractId": "b326d4da-6b0c-49a8-ac0f-a4ffd84a0f03",
+        "invoiceId": "0ade52c5-a7da-4c00-9e11-6b4b9643a519",
+        "billingMonth": "2026-09-01",
+        "status": "APPROVED",
+        "currency": "GBP",
+        "totalAmount": 38.0
+    }
+]
+== client-invoice for UNITED_STATES
+{'id': 'bc2712db-e75c-4913-9d48-4c522f001bc9', 'billingMonth': '2026-10-01', 'status': 'SENT', 'currency': 'USD', 'totalAmount': 135.99, 'total': None}
+== client-invoice for UNITED_KINGDOM
+{'id': None, 'billingMonth': None, 'status': 403, 'currency': None, 'totalAmount': None, 'total': None}
+UK Contract current-month invoice as Priya (Agent):
+{'billingMonth': '2026-10-01', 'status': 'DRAFT', 'currency': 'GBP', 'totalAmount': 20.0}
+Dana's dashboard UK row (step-1 snapshot): September 2026 / Approved / £38.00
+As Dana on the same URL: HTTP 403 (current-month Draft is not visible to Testers)

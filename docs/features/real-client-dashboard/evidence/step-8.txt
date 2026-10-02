@@ -1,0 +1,20 @@
+          - paragraph [ref=f3e33]: Harbor Line Logistics
+          - button "noah.kim@harborline.example · Tester" [ref=f3e36]
+              - generic [ref=f3e46]: Active Fleet
+              - generic [ref=f3e47]: "4"
+              - generic [ref=f3e50]: Open Requests
+              - generic [ref=f3e51]: "2"
+                  - paragraph [ref=f3e64]: Harbor Line Logistics — United States
+                  - generic [ref=f3e69]: $18.00
+--- Noah API
+{"clientId":"b85415c4-b82e-4533-b09a-dfdcc5f8e5e3","name":"Harbor Line Logistics"}
+Harbor Line Logistics UNITED_STATES USD
+[{"contractId":"945c24e1-0630-49e9-94a1-563153b3d6f1","invoiceId":"68619c7d-c15e-44db-9d90-1784daf07427","billingMonth":"2026-09-01","status":"APPROVED","currency":"USD","totalAmount":18.00}]
+Solstice mentions in snapshot: 0
+Contract UNITED_STATES USD
+  smartphones: Counter({'ACTIVE': 2})
+  sim cards: Counter({'ACTIVE': 2})
+  requests: Counter({'COMPLETED': 3, 'SUBMITTED': 1, 'PENDING_APPROVAL': 1})
+Smartphones ACTIVE+IN_REPAIR = 2 SIM ACTIVE = 2 => Active Fleet 4
+Retired smartphones (not counted): 0 Retired SIMs: 0 all statuses sp {'ACTIVE': 2} sim {'ACTIVE': 2}
+Open Requests = 2 (PENDING_APPROVAL 1 SUBMITTED 1 IN_PROGRESS 0 ) others not counted: {'COMPLETED': 3}

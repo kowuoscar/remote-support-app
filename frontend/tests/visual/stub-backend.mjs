@@ -22,7 +22,29 @@ const ROLES = {
   // real-agent-dashboard: a linked Agent whose invoice route answers 500, and whose second
   // Contract's Requests route does too, so the unavailable card states are playable.
   "visual-agent-degraded-session": { username: "degraded@example.com", role: "AGENT", degraded: true },
+  // real-client-dashboard: a Tester linked to "Solstice Retail Group", one linked to no Client
+  // (GET /api/me/client is 404), and one whose identity read fails outright (500). The last two are
+  // not captured as goldens; they are asserted in surfaces.spec.ts.
+  "visual-tester-session": { username: "dana.whitfield@solsticeretail.example", role: "TESTER" },
+  "visual-tester-unlinked-session": { username: "unlinked.tester@example.com", role: "TESTER", unlinked: true },
+  "visual-tester-failing-identity-session": {
+    username: "failing.tester@example.com",
+    role: "TESTER",
+    failingIdentity: true,
+  },
+  // real-client-dashboard: a linked Tester whose second Contract's SIM Cards and Requests routes
+  // answer 500 (Active Fleet and Open Requests both unavailable), and one whose Contract list
+  // answers 500 (every Contract-derived region unavailable). Asserted in client-dashboard-regions.spec.ts.
+  "visual-tester-degraded-session": { username: "degraded.tester@example.com", role: "TESTER", degraded: true },
+  "visual-tester-contracts-failing-session": {
+    username: "contracts.failing.tester@example.com",
+    role: "TESTER",
+    contractsFailing: true,
+  },
 };
+
+// real-client-dashboard: the Client the linked Tester belongs to.
+const TESTER_CLIENT = { clientId: "55555555-0000-0000-0000-0000000000a1", name: "Solstice Retail Group" };
 
 const CURRENCY = {
   FRANCE: "EUR",
@@ -266,6 +288,103 @@ function agentRequests(contractIndex) {
   );
 }
 
+// real-client-dashboard: the linked Tester's two Contracts, one United States (USD) and one United
+// Kingdom (GBP), each with mixed-status Fleet and Requests so the dashboard's filters show in its
+// figures. Active Fleet = Smartphones ACTIVE/IN_REPAIR (2 + 1) + SIM Cards ACTIVE (2 + 1) = 6, with
+// a Retired unit per Contract left out; Open Requests = Pending Approval, Submitted and In Progress
+// (1 + 1 + 1) = 3, with Completed, Rejected and Cancelled left out.
+const TESTER_CONTRACTS = [
+  {
+    id: "22222222-0000-0000-0000-0000000000b1",
+    clientId: TESTER_CLIENT.clientId,
+    clientName: TESTER_CLIENT.name,
+    agentId: AGENTS[0].id,
+    agentName: AGENTS[0].name,
+    country: "UNITED_STATES",
+    currency: "USD",
+  },
+  {
+    id: "22222222-0000-0000-0000-0000000000b2",
+    clientId: TESTER_CLIENT.clientId,
+    clientName: TESTER_CLIENT.name,
+    agentId: AGENTS[1].id,
+    agentName: AGENTS[1].name,
+    country: "UNITED_KINGDOM",
+    currency: "GBP",
+  },
+];
+
+// [contract index, model, status]
+const TESTER_SMARTPHONES = [
+  [0, "iPhone 15", "ACTIVE"],
+  [0, "Pixel 8", "IN_REPAIR"],
+  [0, "Galaxy S21", "RETIRED"],
+  [1, "iPhone 14", "ACTIVE"],
+  [1, "Galaxy S20", "RETIRED"],
+];
+
+// [contract index, number, status]
+const TESTER_SIM_CARDS = [
+  [0, "+1-555-0201", "ACTIVE"],
+  [0, "+1-555-0202", "ACTIVE"],
+  [0, "+1-555-0203", "RETIRED"],
+  [1, "+44-7700-900201", "ACTIVE"],
+  [1, "+44-7700-900202", "RETIRED"],
+];
+
+// [contract index, type, status, age in ms]
+const TESTER_REQUESTS = [
+  [0, "TOPUP", "SUBMITTED", 2 * HOUR_MS],
+  [0, "PROVISION_SMARTPHONE", "PENDING_APPROVAL", DAY_MS + 2 * HOUR_MS],
+  [0, "REBOOT", "COMPLETED", 3 * DAY_MS + 2 * HOUR_MS],
+  [1, "OTHER", "IN_PROGRESS", 2 * DAY_MS + 2 * HOUR_MS],
+  [1, "SIM_SWAP", "REJECTED", 5 * DAY_MS + 2 * HOUR_MS],
+  [1, "REBOOT", "CANCELLED", 9 * DAY_MS + 2 * HOUR_MS],
+];
+
+function testerRows(rows, contractIndex, build) {
+  return rows.flatMap((row, position) => (row[0] === contractIndex ? [build(row, position)] : []));
+}
+
+function testerSmartphones(contractIndex) {
+  return testerRows(TESTER_SMARTPHONES, contractIndex, ([, model, status], position) => ({
+    id: `77777777-0000-0000-0000-00000000000${position + 1}`,
+    contractId: TESTER_CONTRACTS[contractIndex].id,
+    model,
+    serial: `SER${position + 1}`,
+    owner: "CLIENT",
+    status,
+  }));
+}
+
+function testerSimCards(contractIndex) {
+  return testerRows(TESTER_SIM_CARDS, contractIndex, ([, number, status], position) => ({
+    id: `88888888-0000-0000-0000-00000000000${position + 1}`,
+    contractId: TESTER_CONTRACTS[contractIndex].id,
+    number,
+    flavor: "PREPAID",
+    monthlyFeeAmount: null,
+    status,
+  }));
+}
+
+function testerRequests(contractIndex) {
+  const now = Date.now();
+  return testerRows(TESTER_REQUESTS, contractIndex, ([, type, status, age], position) => ({
+    id: `99999999-0000-0000-0000-00000000000${position + 1}`,
+    contractId: TESTER_CONTRACTS[contractIndex].id,
+    type,
+    status,
+    raisedByTesterId: "33333333-0000-0000-0000-0000000000c1",
+    raisedByUsername: "dana.whitfield@solsticeretail.example",
+    agentAuthored: false,
+    loggedByUsername: "dana.whitfield@solsticeretail.example",
+    cancellationReason: null,
+    description: type === "OTHER" ? "Counter display unit" : null,
+    createdAt: new Date(now - age).toISOString(),
+  }));
+}
+
 function send(response, status, body) {
   response.writeHead(status, { "Content-Type": "application/json" });
   response.end(body === undefined ? "" : JSON.stringify(body));
@@ -282,8 +401,39 @@ createServer((request, response) => {
   if (url.pathname === "/api/me") {
     return send(response, 200, { username: caller.username, role: caller.role });
   }
+  // real-client-dashboard: the caller's own Client; any non-Tester, or an unlinked Tester, is a 404.
+  if (url.pathname === "/api/me/client" && request.method === "GET") {
+    if (caller.role !== "TESTER" || caller.unlinked) return send(response, 404);
+    if (caller.failingIdentity) return send(response, 500);
+    return send(response, 200, TESTER_CLIENT);
+  }
   // real-agent-dashboard: the caller's own Agent — Jordan Ellis, with a salary and a non-zero
   // Rollout Advance so the dashboard's "+ <amount> Rollout Advance" meta is exercised.
+  // real-client-dashboard: the latest sent or approved Client Invoice of each of the Tester's
+  // Contracts — a SENT one for the first, an APPROVED one for the second. The degraded token's read
+  // answers 500.
+  if (url.pathname === "/api/me/client/latest-client-invoices" && request.method === "GET") {
+    if (caller.role !== "TESTER" || caller.unlinked) return send(response, 404);
+    if (caller.degraded) return send(response, 500);
+    return send(response, 200, [
+      {
+        contractId: TESTER_CONTRACTS[0].id,
+        invoiceId: "99999999-0000-0000-0000-0000000000c1",
+        billingMonth: "2026-08-01",
+        status: "SENT",
+        currency: "USD",
+        totalAmount: 1284.5,
+      },
+      {
+        contractId: TESTER_CONTRACTS[1].id,
+        invoiceId: "99999999-0000-0000-0000-0000000000c2",
+        billingMonth: "2026-08-01",
+        status: "APPROVED",
+        currency: "GBP",
+        totalAmount: 912,
+      },
+    ]);
+  }
   if (url.pathname === "/api/me/agent" && request.method === "GET") {
     if (caller.role !== "AGENT" || caller.unlinked) return send(response, 404);
     if (caller.failingIdentity) return send(response, 500);
@@ -353,7 +503,22 @@ createServer((request, response) => {
     return known ? send(response, 200, { password: RESET_PASSWORD }) : send(response, 404);
   }
   if (url.pathname === "/api/contracts" && request.method === "GET") {
+    if (caller.role === "TESTER") {
+      return caller.contractsFailing ? send(response, 500) : send(response, 200, TESTER_CONTRACTS);
+    }
     return caller.role === "AGENT" ? send(response, 200, AGENT_CONTRACTS) : send(response, 403);
+  }
+  // real-client-dashboard: a Tester's own Contracts' Fleet and Requests. The degraded token's second
+  // Contract answers 500 on SIM Cards and Requests (Smartphones still answer).
+  const testerContractMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/(smartphones|sim-cards|requests)$/);
+  if (testerContractMatch && request.method === "GET" && caller.role === "TESTER") {
+    const contractIndex = TESTER_CONTRACTS.findIndex((contract) => contract.id === testerContractMatch[1]);
+    if (contractIndex === -1) return send(response, 403);
+    const resource = testerContractMatch[2];
+    if (caller.degraded && contractIndex === 1 && resource !== "smartphones") return send(response, 500);
+    if (resource === "smartphones") return send(response, 200, testerSmartphones(contractIndex));
+    if (resource === "sim-cards") return send(response, 200, testerSimCards(contractIndex));
+    return send(response, 200, testerRequests(contractIndex));
   }
   const requestsMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/requests$/);
   if (requestsMatch && request.method === "GET") {

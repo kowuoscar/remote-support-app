@@ -4,15 +4,19 @@ import com.remotesupport.backend.domain.CarrierInvoiceFile;
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.domain.ClientInvoiceFeeSnapshot;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
+import com.remotesupport.backend.domain.Client;
+import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Fee;
 import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
 import com.remotesupport.backend.dto.ClientInvoiceBaseSimLineResponse;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
+import com.remotesupport.backend.dto.ClientInvoiceSummaryResponse;
 import com.remotesupport.backend.dto.FeeResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
 import com.remotesupport.backend.repository.ClientInvoiceFeeSnapshotRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
+import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.FeeRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import java.io.IOException;
@@ -20,7 +24,9 @@ import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -39,6 +45,7 @@ import org.springframework.stereotype.Component;
 public class ClientInvoiceService {
 
   private final ClientInvoiceRepository clientInvoiceRepository;
+  private final ContractRepository contractRepository;
   private final FeeRepository feeRepository;
   private final ContractAmountService contractAmountService;
   private final CarrierInvoiceFileRepository carrierInvoiceFileRepository;
@@ -48,6 +55,7 @@ public class ClientInvoiceService {
 
   public ClientInvoiceService(
       ClientInvoiceRepository clientInvoiceRepository,
+      ContractRepository contractRepository,
       FeeRepository feeRepository,
       ContractAmountService contractAmountService,
       CarrierInvoiceFileRepository carrierInvoiceFileRepository,
@@ -55,6 +63,7 @@ public class ClientInvoiceService {
       CarrierInvoiceFileStorage fileStorage,
       ClientInvoicePdfRenderer pdfRenderer) {
     this.clientInvoiceRepository = clientInvoiceRepository;
+    this.contractRepository = contractRepository;
     this.feeRepository = feeRepository;
     this.contractAmountService = contractAmountService;
     this.carrierInvoiceFileRepository = carrierInvoiceFileRepository;
@@ -145,8 +154,6 @@ public class ClientInvoiceService {
         frozen ? invoice.getSnapshotBaseAmount() : contractAmountService.baseAmount(contractId, invoice.getBillingMonth());
     List<ClientInvoiceBaseSimLineResponse> basePostpaidSims = frozen ? null : liveBasePostpaidSimLines(invoice);
     List<FeeResponse> feeLines = frozen ? snapshottedFeeLines(invoice) : liveFeeLines(invoice);
-    BigDecimal feesTotal =
-        feeLines.stream().map(FeeResponse::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
 
     return new ClientInvoiceResponse(
         invoice.getId(),
@@ -157,10 +164,51 @@ public class ClientInvoiceService {
         baseAmount,
         basePostpaidSims,
         feeLines,
-        baseAmount.add(feesTotal),
+        total(baseAmount, feeLines),
         files(invoice),
         invoice.getSentAt(),
         invoice.getApprovedAt());
+  }
+
+  /**
+   * For each Contract of {@code client} (within {@code tenantId}) that has a {@code SENT} or
+   * {@code APPROVED} invoice, a summary of the one with the latest billing month. Read-only: a
+   * draft is never created, and a Contract with only a draft is absent. The total is the frozen
+   * one (ADR 0001): the snapshot base amount plus the snapshotted Fee lines, as in {@link
+   * #toResponse}.
+   */
+  public List<ClientInvoiceSummaryResponse> latestSentOrApproved(Client client, UUID tenantId) {
+    return contractRepository
+        .findByTenantIdAndClientIdOrderByCreatedAtAsc(tenantId, client.getId())
+        .stream()
+        .map(this::latestSentOrApproved)
+        .flatMap(Optional::stream)
+        .toList();
+  }
+
+  private Optional<ClientInvoiceSummaryResponse> latestSentOrApproved(Contract contract) {
+    return clientInvoiceRepository
+        .findFirstByContractIdAndStatusInOrderByBillingMonthDesc(
+            contract.getId(),
+            EnumSet.of(ClientInvoiceStatus.SENT, ClientInvoiceStatus.APPROVED))
+        .map(
+            invoice ->
+                new ClientInvoiceSummaryResponse(
+                    contract.getId(),
+                    invoice.getId(),
+                    invoice.getBillingMonth(),
+                    invoice.getStatus().name(),
+                    invoice.getCurrency().name(),
+                    frozenTotal(invoice)));
+  }
+
+  private BigDecimal frozenTotal(ClientInvoice invoice) {
+    return total(invoice.getSnapshotBaseAmount(), snapshottedFeeLines(invoice));
+  }
+
+  /** The invoice total (ADR 0001): the base amount plus every Fee line's amount. */
+  private static BigDecimal total(BigDecimal baseAmount, List<FeeResponse> feeLines) {
+    return feeLines.stream().map(FeeResponse::amount).reduce(baseAmount, BigDecimal::add);
   }
 
   /**

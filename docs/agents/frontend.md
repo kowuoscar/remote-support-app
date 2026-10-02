@@ -24,8 +24,10 @@ edit.
 > **Every visual change either conforms to `DESIGN.md`, or changes
 > `DESIGN.md` in the same commit.**
 
-A screenshot golden updated on its own is drift. Updated alongside
-`DESIGN.md` it is a decided evolution. The difference is visible in a diff,
+A screenshot golden updated on its own, with no code change behind it, is
+drift. Updated in the same commit as a code change that conforms to
+`DESIGN.md`, it records that change. Updated alongside `DESIGN.md`, it is a
+decided evolution. The difference is visible in a diff,
 so it can be reviewed. This is what keeps the design alive without letting
 it wander.
 
@@ -55,7 +57,7 @@ Do not conflate them — they happen at different moments.
 | Role | When | How |
 |---|---|---|
 | **Validation** | Inside the `tdd` loop | Acceptance criteria checked in a real browser, at the seam agreed in the spec. `playwright-cli snapshot` gives the accessibility tree; assert against it, not against pixels |
-| **Visual regression** | In the Definition of Done | Committed goldens, `toHaveScreenshot()`, one per surface × theme × breakpoint. A golden changes only with `DESIGN.md` |
+| **Visual regression** | In the Definition of Done | Committed goldens, `toHaveScreenshot()`, one per surface × theme × breakpoint. A golden changes only with a code change that conforms to `DESIGN.md`, or with `DESIGN.md` itself |
 | **Design review** | At the gates | `playwright-cli show --annotate` — the user draws on the live page and types notes; you get the annotated screenshot, the snapshot of the marked region, and their comments. Use it whenever feedback is "I don't like it" and you need it localised |
 
 Impeccable verifies in **bounded passes, not a loop**: build fully, inspect
@@ -79,8 +81,8 @@ ticket exists. Committing the chosen world is then an agent's ticket.
 On top of the global DoD in `docs/agents/issue-tracker.md`, a ticket
 labelled `frontend`:
 
-- Visual goldens pass, or were updated **in the same commit as
-  `DESIGN.md`**.
+- Visual goldens pass, or were updated **in the same commit as the code
+  change that moved them** (conforming to `DESIGN.md`) **or as `DESIGN.md`**.
 - `craft-floor.md` checks are green on the built result — contrast, depth,
   spacing, type, motion, states, browser surfaces, copy, coverage.
 - `web-design-guidelines` reports no finding on the changed files.

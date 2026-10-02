@@ -1,0 +1,17 @@
+### Result
+{
+  "w": 390,
+  "header": "Dashboard\n\nSolstice Retail Group\n\ndana.whitfield@solsticeretail.example · Tester",
+  "scrollW": 390,
+  "p": [
+    {
+      "t": "Solstice Retail Group",
+      "cw": 85,
+      "sw": 85
+    }
+  ]
+}
+### Ran Playwright code
+```js
+await page.evaluate('() => ({w: innerWidth, header: document.querySelector(\'header\').innerText, scrollW: document.documentElement.scrollWidth, p: [...document.querySelectorAll(\'header p\')].map(e=>({t:e.innerText,cw:e.clientWidth,sw:e.scrollWidth}))})');
+```

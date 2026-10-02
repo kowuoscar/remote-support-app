@@ -1,0 +1,106 @@
+{
+ "feature": "real-client-dashboard",
+ "played_at": "2026-10-02",
+ "played_on": "feature/real-client-dashboard",
+ "environment": "Throwaway postgres:16-alpine (demo and plain), backend with JDK 21 with and without the demo profile, next start frontends, one pointed at the visual stub; playwright-cli; all stopped afterwards; the developer's compose stack untouched; no passwords in evidence.",
+ "steps": [
+  {
+   "step": 1,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-1-dana-dashboard.yml",
+   "note": "Header 'Solstice Retail Group', chip 'dana.whitfield@solsticeretail.example · Tester'; Aurora, Nadia, EUR absent."
+  },
+  {
+   "step": 2,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-2-mobile.yml",
+   "note": "390px: the header wraps, not truncated."
+  },
+  {
+   "step": 3,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-3-api.txt",
+   "note": "Active Fleet 13 = 6 phones (Active/In repair) + 7 Active SIMs; Retired not counted."
+  },
+  {
+   "step": 4,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-4-api.txt",
+   "note": "Open Requests 3 = 1 Pending Approval + 0 Submitted + 2 In Progress; meta confirmed."
+  },
+  {
+   "step": 5,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-5-api.txt",
+   "note": "US October SENT $135.99; UK September APPROVED £38.00; UK current Draft hidden from Dana (403)."
+  },
+  {
+   "step": 6,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-6.txt",
+   "note": "A Fee by Jordan returned 201; total unchanged; client_invoices row count 9 before and after."
+  },
+  {
+   "step": 7,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-7.txt",
+   "note": "The spec says Jordan, but the UK Contract is Priya's (Jordan gets 403); sent as Priya. The UK row then read October, Awaiting approval, £20.00; no skeletons. Spec wording to correct."
+  },
+  {
+   "step": 8,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-8.txt",
+   "note": "Noah sees only Harbor Line Logistics, one Contract, no Solstice."
+  },
+  {
+   "step": 9,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-9-api.txt",
+   "note": "404 for Manager, Agent and an unlinked Tester on both reads; 401 without a token; the UI shows the not-linked message."
+  },
+  {
+   "step": 10,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-10-no-contract.yml",
+   "note": "A Client with no Contract: 0/0 and 'No Contracts yet'; then a Contract shows 'No invoices yet'."
+  },
+  {
+   "step": 11,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-11-degraded.yml",
+   "note": "Degraded and failing-identity stub sessions show the unavailable states, never 0."
+  },
+  {
+   "step": 12,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-12-source.txt",
+   "note": "demo/client.ts deleted; tokens in @theme; Demo footer only on /manager; Open Invoices goes to /client/invoices; visual 71; verify exit 0 (mvn 584, vitest 259, e2e 78). 'Deleted first' is not observable from the final tree; the golden diff is 28 modified PNGs, none on /manager."
+  },
+  {
+   "step": 13,
+   "actor": "human",
+   "status": "pending",
+   "evidence": "",
+   "note": "copy read-through"
+  },
+  {
+   "step": 14,
+   "actor": "human",
+   "status": "pending",
+   "evidence": "",
+   "note": "Dana's figures against the Fleet, Requests and Invoices pages"
+  }
+ ]
+}

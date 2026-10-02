@@ -1,0 +1,47 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - generic [ref=f1e5]: "N"
+        - generic [ref=f1e6]:
+          - paragraph [ref=f1e7]: Northwind Field Services
+          - paragraph [ref=f1e8]: Client Portal
+      - navigation [ref=f1e9]:
+        - link "Dashboard" [ref=f1e10] [cursor=pointer]:
+          - /url: /client
+        - link "Fleet" [ref=f1e16] [cursor=pointer]:
+          - /url: /client/fleet
+        - link "Requests" [ref=f1e19] [cursor=pointer]:
+          - /url: /client/requests
+        - link "Invoices" [ref=f1e23] [cursor=pointer]:
+          - /url: /client/invoices
+    - generic [ref=f1e28]:
+      - banner [ref=f1e29]:
+        - generic [ref=f1e31]:
+          - heading "Dashboard" [level=1] [ref=f1e32]
+          - paragraph [ref=f1e33]: Fresh Co Acceptance
+        - generic [ref=f1e34]:
+          - button "fresh.tester@freshco.example · Tester" [ref=f1e36]
+          - button "Switch to dark theme" [ref=f1e38]
+      - main [ref=f1e42]:
+        - generic [ref=f1e43]:
+          - generic [ref=f1e44]:
+            - generic [ref=f1e45]:
+              - generic [ref=f1e46]: Active Fleet
+              - generic [ref=f1e47]: "0"
+              - generic [ref=f1e48]: Smartphones + SIM Cards, all Contracts
+            - generic [ref=f1e49]:
+              - generic [ref=f1e50]: Open Requests
+              - generic [ref=f1e51]: "0"
+              - generic [ref=f1e52]: Pending Approval, Submitted or In Progress
+          - generic [ref=f1e53]:
+            - generic [ref=f1e54]:
+              - generic [ref=f1e55]:
+                - heading "Latest Client Invoice" [level=2] [ref=f1e56]
+                - paragraph [ref=f1e57]: Most recent month per Contract
+              - link "Open Invoices" [ref=f1e58] [cursor=pointer]:
+                - /url: /client/invoices
+            - generic [ref=f1e63]:
+              - paragraph [ref=f1e64]: No Contracts yet
+              - paragraph [ref=f1e65]: Your Contracts and their invoices will show up here once the Manager sets them up.
+  - alert [ref=f1e66]

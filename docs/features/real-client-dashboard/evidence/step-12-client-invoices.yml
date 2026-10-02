@@ -1,0 +1,71 @@
+- generic [active] [ref=f6e1]:
+  - generic [ref=f6e2]:
+    - complementary [ref=f6e3]:
+      - generic [ref=f6e4]:
+        - generic [ref=f6e5]: "N"
+        - generic [ref=f6e6]:
+          - paragraph [ref=f6e7]: Northwind Field Services
+          - paragraph [ref=f6e8]: Client Portal
+      - navigation [ref=f6e9]:
+        - link "Dashboard" [ref=f6e10] [cursor=pointer]:
+          - /url: /client
+        - link "Fleet" [ref=f6e16] [cursor=pointer]:
+          - /url: /client/fleet
+        - link "Requests" [ref=f6e19] [cursor=pointer]:
+          - /url: /client/requests
+        - link "Invoices" [ref=f6e23] [cursor=pointer]:
+          - /url: /client/invoices
+    - generic [ref=f6e28]:
+      - banner [ref=f6e79]:
+        - generic [ref=f6e81]:
+          - heading "Invoices" [level=1] [ref=f6e82]
+          - paragraph [ref=f6e83]: Sent by your Agent, one per Contract per month
+        - generic [ref=f6e84]:
+          - button "dana.whitfield@solsticeretail.example · Tester" [ref=f6e86]
+          - button "Switch to dark theme" [ref=f6e88]
+      - main [ref=f6e92]:
+        - generic [ref=f6e94]:
+          - button "Solstice Retail Group — United States" [ref=f6e96]
+          - generic [ref=f6e105]:
+            - generic [ref=f6e106]:
+              - generic [ref=f6e107]:
+                - generic [ref=f6e108]:
+                  - paragraph [ref=f6e109]: October 2026
+                  - generic [ref=f6e110]: Awaiting approval
+                - paragraph [ref=f6e112]: Sent Oct 2, 2026
+              - link "Download PDF" [ref=f6e113] [cursor=pointer]:
+                - /url: /api/contracts/b65b621c-09ca-4288-84bf-d7dd07c65a30/client-invoice/pdf
+            - generic [ref=f6e117]:
+              - generic [ref=f6e118]:
+                - term [ref=f6e119]: Base amount
+                - definition [ref=f6e120]: $65.99
+              - generic [ref=f6e121]:
+                - term [ref=f6e122]: Fees this month
+                - definition [ref=f6e123]: $70.00
+              - generic [ref=f6e124]:
+                - term [ref=f6e125]: Total
+                - definition [ref=f6e126]: $135.99
+            - generic [ref=f6e127]:
+              - heading "Fee lines" [level=3] [ref=f6e128]
+              - table [ref=f6e130]:
+                - rowgroup [ref=f6e131]:
+                  - row [ref=f6e132]:
+                    - columnheader "Type" [ref=f6e133]
+                    - columnheader "Description" [ref=f6e134]
+                    - columnheader "Logged" [ref=f6e135]
+                    - columnheader "Amount" [ref=f6e136]
+                - rowgroup [ref=f6e137]:
+                  - row [ref=f6e138]:
+                    - cell "Topup" [ref=f6e139]
+                    - cell "—" [ref=f6e140]
+                    - cell "Oct 2" [ref=f6e141]
+                    - cell "$25.00" [ref=f6e142]
+                  - row [ref=f6e143]:
+                    - cell "Other" [ref=f6e144]
+                    - cell "—" [ref=f6e145]
+                    - cell "Oct 2" [ref=f6e146]
+                    - cell "$45.00" [ref=f6e147]
+            - generic [ref=f6e148]:
+              - heading "Carrier invoice files" [level=3] [ref=f6e149]
+              - paragraph [ref=f6e152]: No carrier invoice files attached.
+  - alert [ref=f6e78]: Invoices · Remote Support Platform

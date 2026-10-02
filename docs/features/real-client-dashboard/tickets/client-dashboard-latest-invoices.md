@@ -1,7 +1,7 @@
 ---
 id: client-dashboard-latest-invoices
 title: Show the Tester's latest sent or approved Client Invoice per Contract and delete the demo data
-status: ready-for-agent
+status: done
 depends_on: [client-dashboard-fleet-and-requests]
 labels: [frontend]
 stories: [3, 9, 10, 12, 13, 14, 15, 22, 24, 25]

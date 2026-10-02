@@ -1,0 +1,8 @@
+Manager GET /api/me/client -> 404
+Jordan GET /api/me/client -> 404
+tester@example.com GET /api/me/client -> 404
+no token GET /api/me/client -> 401
+Manager GET /api/me/client/latest-client-invoices -> 404
+Jordan GET /api/me/client/latest-client-invoices -> 404
+tester@example.com GET /api/me/client/latest-client-invoices -> 404
+no token GET /api/me/client/latest-client-invoices -> 401

@@ -1,7 +1,7 @@
 ---
 feature: manager-resets-a-password
 epic: login-lifecycle
-status: approved
+status: accepted
 date: 2026-09-30
 ---
 

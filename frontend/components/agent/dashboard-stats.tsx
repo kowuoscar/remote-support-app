@@ -1,18 +1,8 @@
-import { StatCard } from "@/components/ui/stat-card";
+import { StatCard, UNAVAILABLE_FIGURE } from "@/components/ui/stat-card";
 import { Money } from "@/components/ui/money";
 import { Badge } from "@/components/ui/badge";
 import { agentInvoiceStatusLabelByValue, agentInvoiceStatusToneByValue } from "@/lib/status";
 import type { AgentInvoiceStatusValue } from "@/lib/api/types";
-
-/** An unreadable figure: a muted dash (not the card's reserved indigo) that a screen reader hears as "Unavailable". */
-const UNAVAILABLE = (
-  <>
-    <span aria-hidden="true" className="text-ink-mute">
-      —
-    </span>
-    <span className="sr-only">Unavailable</span>
-  </>
-);
 
 // Label slot two lines tall from sm up, so a wrapped label ("Local Support Fees — September 2026")
 // does not push its value below the other cards' values.
@@ -56,7 +46,7 @@ export function AgentDashboardStats({
         label={currentMonthLabel ? `Local Support Fees — ${currentMonthLabel}` : "Local Support Fees"}
         value={
           runningLocalSupportFees === null ? (
-            UNAVAILABLE
+            UNAVAILABLE_FIGURE
           ) : (
             <Money amount={runningLocalSupportFees} currency={currency} emphasize />
           )
@@ -68,7 +58,7 @@ export function AgentDashboardStats({
         className={CARD_CLASS}
         data-testid="open-requests-stat"
         label="Open Requests"
-        value={openRequestsCount ?? UNAVAILABLE}
+        value={openRequestsCount ?? UNAVAILABLE_FIGURE}
         primary
         meta={openRequestsCount === null ? "Couldn't load your Requests" : "Submitted or In Progress"}
       />
@@ -78,7 +68,7 @@ export function AgentDashboardStats({
         label="My Invoice status"
         value={
           latestInvoiceStatus === null ? (
-            UNAVAILABLE
+            UNAVAILABLE_FIGURE
           ) : (
             <Badge tone={agentInvoiceStatusToneByValue[latestInvoiceStatus]}>
               {agentInvoiceStatusLabelByValue[latestInvoiceStatus]}

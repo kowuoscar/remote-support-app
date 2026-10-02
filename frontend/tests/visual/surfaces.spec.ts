@@ -23,7 +23,7 @@ interface Surface {
 const surfaces: Surface[] = [
   { slug: "manager", path: "/manager" },
   { slug: "agent", path: "/agent", session: "visual-agent-session" },
-  { slug: "client", path: "/client" },
+  { slug: "client", path: "/client", session: "visual-tester-session" },
   { slug: "agent-carriers", path: "/agent/carriers", session: "visual-agent-session", ready: "carriers" },
   {
     slug: "manager-carriers",
@@ -160,5 +160,45 @@ test.describe("the Agent dashboard's identity states", () => {
     }
     // The header and the standing amounts do not depend on the invoice.
     await expect(page.getByText("+ $500 Rollout Advance")).toBeVisible();
+  });
+});
+
+// real-client-dashboard: states no golden captures. The stub answers GET /api/me/client with the
+// Client for the linked Tester, a 404 for the unlinked token and a 500 for the failing-identity
+// token (tests/visual/stub-backend.mjs).
+test.describe("the Client dashboard's identity states", () => {
+  test("tester-header-and-chip-name-their-own-client-and-login", async ({ page }) => {
+    await gotoWithSession(page, "/client", "visual-tester-session");
+
+    const header = page.locator("header").first();
+    await expect(header).toContainText("Solstice Retail Group");
+    await expect(header).toContainText("dana.whitfield@solsticeretail.example · Tester");
+    await expect(header).not.toContainText("Aurora Retail Group");
+    await expect(header).not.toContainText("Nadia Okafor");
+  });
+
+  test("tester-header-keeps-the-full-client-name-at-390px", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await gotoWithSession(page, "/client", "visual-tester-session");
+
+    await expect(page.locator("header").first()).toContainText("Solstice Retail Group");
+  });
+
+  test("unlinked-tester-shows-not-linked-message", async ({ page }) => {
+    await gotoWithSession(page, "/client", "visual-tester-unlinked-session");
+
+    await expect(page.getByText("Your login isn't linked to a Client yet")).toBeVisible();
+    await expect(
+      page.getByText("Ask your Manager to link your login to your Client before you can see your dashboard."),
+    ).toBeVisible();
+    await expect(page.getByTestId("dashboard-ready")).toHaveCount(0);
+  });
+
+  test("failing-identity-shows-the-single-dashboard-error", async ({ page }) => {
+    await gotoWithSession(page, "/client", "visual-tester-failing-identity-session");
+
+    await expect(page.getByText("Couldn't load your dashboard — reload the page to try again")).toHaveCount(1);
+    await expect(page.locator("header").first()).not.toContainText("Solstice Retail Group");
+    await expect(page.getByTestId("dashboard-ready")).toHaveCount(0);
   });
 });

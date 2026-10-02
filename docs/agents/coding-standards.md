@@ -49,8 +49,9 @@ the `check` goal), Flyway, Testcontainers.
    mocking the database (`@MockBean` on a repository) is banned in
    integration tests — it does not catch the SQL bugs that matter.
 6. Unit tests (JUnit 5 + Mockito) target one class with its collaborators
-   mocked; a test that needs a Spring context is an integration test, named
-   and located accordingly, not a unit test.
+   mocked; a test that needs a Spring context is an integration test: it
+   extends `IntegrationTest`, keeps the `*Test` name and sits beside the unit
+   tests of its package. (Convention written down by the human, 2026-10-02.)
 7. Exceptions crossing the service→controller boundary are domain
    exceptions carrying `@ResponseStatus`, translated to a response body by a
    per-controller `@ExceptionHandler` when the body needs a machine-readable
@@ -106,8 +107,10 @@ not something a ticket does on the side.
 3. Data fetching happens in Server Components or Route Handlers, never
    inside a Client Component's `useEffect` — that reintroduces the
    waterfall the App Router exists to remove.
-4. Mutations go through Server Actions; call `revalidatePath`/
-   `revalidateTag` inside the action, not from the client after it resolves.
+4. Mutations go from the browser through a frontend API route (Route
+   Handler under `app/api`) to the backend; the page refreshes its data
+   after a mutation resolves (`router.refresh()`). (Amended by the human,
+   2026-10-02, to the pattern the app uses; no Server Actions.)
 5. Cross a Server/Client boundary only with serializable props — no
    functions, class instances or `Date`s passed to a Client Component; pass
    ISO strings and format them client-side.
@@ -136,8 +139,10 @@ not something a ticket does on the side.
 12. Client-side global state (Zustand/Context) holds only UI state that must
     survive navigation; server state stays in the cache Next.js already
     manages — do not duplicate it into a store.
-13. Route Handlers return typed JSON via one shared response helper, never
-    an ad hoc shape per route.
+13. Route Handlers reuse a shared forwarder from `lib/api` where one fits
+    (`forwardBinary`, `forwardSecretJson`), never an ad hoc shape per route;
+    the older hand-written pass-throughs are known debt. (Amended by the
+    human, 2026-10-02.)
 14. `params`/`searchParams` are typed and parsed once at the top of the
     route or page; do not re-parse them further down the tree.
 15. A third-party or long-running call inside a Server Component carries an

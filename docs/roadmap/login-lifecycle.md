@@ -31,7 +31,7 @@ history remain intact and readable.
 ## Features
 
 - [x] `self-service-password-change` — a signed-in user of any role changes their own password, proving their current one, and signs in again with the new one.
-- [ ] `manager-resets-a-password` — a Manager sets a new password for an Agent or a Tester in their own Tenant who cannot sign in, and hands it over out of band.
+- [x] `manager-resets-a-password` — a Manager sets a new password for an Agent or a Tester in their own Tenant who cannot sign in, and hands it over out of band.
 - [ ] `deactivate-a-login` — a login can be switched off and back on; a deactivated one is refused at sign-in while its user row, and everything hanging off it, stays intact.
 
 ## Reworked

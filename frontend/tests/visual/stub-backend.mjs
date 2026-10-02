@@ -153,6 +153,22 @@ const AGENTS = [
   },
 ];
 
+// The password the stubbed reset route reveals (the golden of the reveal step).
+const RESET_PASSWORD = "k7mq-x3vh-p9te";
+
+// reset-a-testers-password-ui: one Client with two Testers (the primary contact and one more), so
+// the Testers table renders its trailing Reset password action on more than one row.
+const CLIENT = {
+  id: "55555555-0000-0000-0000-000000000001",
+  name: "Aurora Retail Group",
+  primaryContactUsername: "priya.raman@aurora.example",
+  contractCount: 1,
+};
+const CLIENT_TESTERS = [
+  { id: "33333333-0000-0000-0000-000000000001", clientId: CLIENT.id, username: "priya.raman@aurora.example", isPrimaryContact: true },
+  { id: "33333333-0000-0000-0000-000000000003", clientId: CLIENT.id, username: "nadia.okafor@aurora.example", isPrimaryContact: false },
+];
+
 const STOCK_UNITS = [
   {
     id: "b0000000-0000-0000-0000-000000000001",
@@ -302,6 +318,39 @@ createServer((request, response) => {
       approvedAt: null,
       paidAt: null,
     });
+  }
+  // reset-an-agents-password-ui ticket: the Manager's Agent page reads the Agent's standing amounts
+  // and the reset route answers with a fixed password, so the reveal's golden never drifts. An
+  // Agent without a Login answers the real route's 409 AGENT_HAS_NO_LOGIN.
+  const standingMatch = url.pathname.match(/^\/api\/agents\/([^/]+)\/standing-amounts$/);
+  if (standingMatch && request.method === "GET") {
+    const agent = AGENTS.find((candidate) => candidate.id === standingMatch[1]);
+    if (caller.role !== "MANAGER") return send(response, 403);
+    return agent ? send(response, 200, { salaryAmount: agent.salaryAmount, rolloutAdvanceAmount: 500 }) : send(response, 404);
+  }
+  const resetMatch = url.pathname.match(/^\/api\/agents\/([^/]+)\/login\/password$/);
+  if (resetMatch && request.method === "POST") {
+    const agent = AGENTS.find((candidate) => candidate.id === resetMatch[1]);
+    if (caller.role !== "MANAGER") return send(response, 403);
+    if (!agent) return send(response, 404);
+    if (!agent.loginUsername) return send(response, 409, { code: "AGENT_HAS_NO_LOGIN" });
+    return send(response, 200, { password: RESET_PASSWORD });
+  }
+  // reset-a-testers-password-ui ticket: the Manager's Client page reads the Client list and its
+  // Testers; the Tester reset route answers with the same fixed password as the Agent's.
+  if (url.pathname === "/api/clients" && request.method === "GET") {
+    return caller.role === "MANAGER" ? send(response, 200, [CLIENT]) : send(response, 403);
+  }
+  const testersMatch = url.pathname.match(/^\/api\/clients\/([^/]+)\/testers$/);
+  if (testersMatch && request.method === "GET") {
+    if (caller.role !== "MANAGER") return send(response, 403);
+    return testersMatch[1] === CLIENT.id ? send(response, 200, CLIENT_TESTERS) : send(response, 404);
+  }
+  const testerResetMatch = url.pathname.match(/^\/api\/clients\/([^/]+)\/testers\/([^/]+)\/password$/);
+  if (testerResetMatch && request.method === "POST") {
+    if (caller.role !== "MANAGER") return send(response, 403);
+    const known = testerResetMatch[1] === CLIENT.id && CLIENT_TESTERS.some((tester) => tester.id === testerResetMatch[2]);
+    return known ? send(response, 200, { password: RESET_PASSWORD }) : send(response, 404);
   }
   if (url.pathname === "/api/contracts" && request.method === "GET") {
     return caller.role === "AGENT" ? send(response, 200, AGENT_CONTRACTS) : send(response, 403);

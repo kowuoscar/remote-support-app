@@ -34,10 +34,10 @@ test.describe("agent request fulfillment", () => {
     const serial = `SN-${RUN_ID}`;
     await addSmartphone(page, contractId, "Pixel 9", serial);
     const testerEmail = `priya.raman+${RUN_ID}@aurora.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     // Reboot, not Topup: this test is about the plain status-progression mechanics, and
     // fee-logging-and-provisioning ticket makes completing a fee-eligible type (Topup included)
     // prompt for a Fee amount first — covered by its own suite (fee-logging-and-provisioning.spec.ts).
@@ -66,10 +66,10 @@ test.describe("agent request fulfillment", () => {
     const serial = `SN-${RUN_ID}`;
     await addSmartphone(page, contractId, "Pixel 9", serial);
     const testerEmail = `owen.reyes+${RUN_ID}@meridian.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Reboot", { smartphoneOptionLabel: `Pixel 9 — ${serial}` });
 
     await logout(page);
@@ -88,7 +88,7 @@ test.describe("agent request fulfillment", () => {
     // The Tester's own list reflects the Agent's cancellation too (regression: still visible,
     // status still up to date).
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await page.goto("/client/requests");
     await expect(page.getByRole("row", { name: /Reboot/ })).toContainText("Cancelled");
   });
@@ -100,7 +100,7 @@ test.describe("agent request fulfillment", () => {
     const clientName = `Bright Path Clinics ${RUN_ID}`;
     const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
     const testerEmail = `marco.diaz+${RUN_ID}@brightpath.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -127,7 +127,7 @@ test.describe("agent request fulfillment", () => {
     // The Tester's own list shows this Agent-authored, already-Completed Request too
     // (regression: tester-visible list still shows Agent-authored Requests).
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await page.goto("/client/requests");
     await expect(page.getByRole("row", { name: /Other/ })).toContainText("Completed");
   });
@@ -141,10 +141,10 @@ test.describe("agent request fulfillment", () => {
     const simNumber = `+1-555-${RUN_ID}`;
     await addSimCard(page, contractId, simNumber);
     const testerEmail = `helena.voss+${RUN_ID}@kessler.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "SIM Swap", {
       smartphoneOptionLabel: `Pixel 9 — ${serial}`,
       simCardOptionLabel: `${simNumber} — Verizon`,
@@ -184,12 +184,12 @@ test.describe("agent request fulfillment", () => {
     );
 
     const otherTesterEmail = `elise.fabron+${RUN_ID}@solene.example`;
-    await addTester(page, otherClientId, otherTesterEmail, "Passw0rd!23");
+    const otherTesterPassword = await addTester(page, otherClientId, otherTesterEmail);
     const otherSerial = `SN-${RUN_ID}`;
     await addSmartphone(page, otherContractId, "Pixel 9", otherSerial);
 
     await logout(page);
-    await login(page, otherTesterEmail, "Passw0rd!23");
+    await login(page, otherTesterEmail, otherTesterPassword);
     await submitRequestAsTester(page, "Reboot", { smartphoneOptionLabel: `Pixel 9 — ${otherSerial}` });
     const otherRequestId = await page.evaluate(async (contractId) => {
       const response = await fetch(`/api/contracts/${contractId}/requests`);

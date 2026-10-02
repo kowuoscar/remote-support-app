@@ -1,0 +1,8 @@
+--- Route 1 POST /api/agents with body carrying typed "Passw0rd!23"
+create -> 201; Cache-Control no-store; returned pw format ok True
+typed Passw0rd!23 sign-in -> 401; returned sign-in -> 200
+login-less agents available: 2
+--- Route 2 POST /api/agents/{id}/login with typed password -> 201; Cache-Control no-store; keys ['id', 'name', 'country', 'currency', 'salaryAmount', 'contractCount', 'loginUsername', 'password']; format ok True
+typed sign-in -> 401; returned sign-in -> 200
+--- Route 3 POST /api/clients/{id}/testers with typed password -> 201; Cache-Control no-store; keys ['id', 'clientId', 'username', 'isPrimaryContact', 'password']; format ok True
+typed sign-in -> 401; returned sign-in -> 200

@@ -5,11 +5,11 @@ import com.remotesupport.backend.domain.Role;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.UserRepository;
+import com.remotesupport.backend.security.PasswordWrite;
 import com.remotesupport.backend.web.AgentLoginConflictException.Reason;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,11 +31,11 @@ public class AgentLoginService {
   private static final String ONE_LOGIN_PER_AGENT_INDEX = "uq_users_one_login_per_agent";
 
   private final UserRepository userRepository;
-  private final PasswordEncoder passwordEncoder;
+  private final PasswordWrite passwordWrite;
 
-  public AgentLoginService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+  public AgentLoginService(UserRepository userRepository, PasswordWrite passwordWrite) {
     this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
+    this.passwordWrite = passwordWrite;
   }
 
   /**
@@ -58,14 +58,15 @@ public class AgentLoginService {
    * Writes the login and flushes, so a conflict surfaces here, inside the caller's transaction:
    * V16's one-login-per-Agent index and the {@code users} unique constraint are what reject it,
    * mapped to an {@link AgentLoginConflictException} (409) naming which one. The exception rolls
-   * back everything the caller wrote before this call.
+   * back everything the caller wrote before this call. The password is generated and
+   * handed back in {@link Created}.
    */
-  public User create(Agent agent, String username, String password, UUID actorUserId) {
+  public Created create(Agent agent, String username, UUID actorUserId) {
     User user = new User();
     user.setId(UUID.randomUUID());
     user.setTenant(agent.getTenant());
     user.setUsername(username);
-    user.setPasswordHash(passwordEncoder.encode(password));
+    String generated = passwordWrite.setGeneratedPassword(user);
     user.setRole(Role.AGENT);
     user.setAgent(agent);
     user.setCreatedAt(Instant.now());
@@ -76,7 +77,16 @@ public class AgentLoginService {
     }
 
     AuditLog.agentLoginCreated(agent.getId(), user.getId(), actorUserId, agent.getTenant().getId());
-    return user;
+    return new Created(user, generated);
+  }
+
+  /** The new login, and its generated password. */
+  public record Created(User user, String generatedPassword) {
+
+    @Override
+    public String toString() {
+      return "Created[user=%s, generatedPassword=[redacted]]".formatted(user.getId());
+    }
   }
 
   private static RuntimeException toConflict(

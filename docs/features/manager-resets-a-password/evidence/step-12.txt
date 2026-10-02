@@ -1,0 +1,37 @@
+## PASSWORD_CHANGED lines (backend log of this throwaway stack)
+2026-10-02T00:52:38.820+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=7215a64b-9215-41f9-99aa-05825e42da85 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-1111111111
+2026-10-02T00:52:39.292+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=406a6ba1-b24f-4853-b652-22116dce8f99 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-1111111111
+2026-10-02T00:52:39.933+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=7215a64b-9215-41f9-99aa-05825e42da85 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-1111111111
+2026-10-02T00:52:40.117+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=406a6ba1-b24f-4853-b652-22116dce8f99 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-1111111111
+## audit lines total / other audit lines
+15
+   5 audit action=AGENT_LOGIN_CREATED
+   6 audit action=CREATE
+   4 audit action=PASSWORD_CHANGED
+## manager user id / tenant (from /me)
+{'timestamp': '2026-10-01T22:52:37.490+00:00', 'status': 404, 'error': 'Not Found', 'path': '/api/auth/me'}
+## any password-format token in log?
+65
+## any bcrypt hash $2a/$2b/$2y in log?
+0
+## typed Passw0rd!23 in log?
+0
+## exact check of saved returned passwords (agent reset npw, tester reset tnp, loginless lpw)
+npw in log: False
+tnp in log: False
+lpw in log: False
+## 409/404/403 lines in log, with audit lines for same window
+2026-10-02T00:52:39.497+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/agents/e9004b61-9571-48c4-9106-405f876255
+2026-10-02T00:52:39.509+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/agents/044493ee-c840-4f0f-9c2f-4b7aa8b580
+2026-10-02T00:52:39.517+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/clients/9957a1d8-49ae-4c63-95ac-e6f4b8717
+2026-10-02T00:52:39.619+02:00 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.b.logging.RequestLoggingFilter - POST /api/agents/eb9d358a-386a-4c3a-85fa-0b8707aa6c
+2026-10-02T00:52:39.621+02:00 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.b.logging.RequestLoggingFilter - POST /api/clients/9957a1d8-49ae-4c63-95ac-e6f4b8717
+2026-10-02T00:52:47.355+02:00 INFO  [11111111-1111-1111-1111-111111111111:44444444-4444-4444-4444-444444444444] c.r.b.logging.RequestLoggingFilter - POST /api/agents/eb9d358a-386a-4c3a-85fa-0b8707aa6c
+2026-10-02T00:52:47.357+02:00 INFO  [11111111-1111-1111-1111-111111111111:44444444-4444-4444-4444-444444444444] c.r.b.logging.RequestLoggingFilter - POST /api/clients/9957a1d8-49ae-4c63-95ac-e6f4b8717
+
+## Corrections / mapping
+/me probe above was a wrong URL (404), irrelevant. Manager user id = 22222222-2222-2222-2222-222222222222, tenant 11111111-1111-1111-1111-111111111111.
+The 65 raw regex hits above are UUID fragments; after removing UUIDs and dates:
+password-format tokens in log after removing UUIDs/dates: 0 []
+entityId 7215a64b-... = acc.agent.1790895157 user (agent reset, steps 4 and 11); 406a6ba1-... = acc.tester.1790895157 user (tester reset, steps 5 and 11). 4 resets -> 4 PASSWORD_CHANGED lines; actorUserId = Manager.
+Refused attempts (409 step 7, 404x2 step 7, 403x4 step 9, the 401s) wrote no PASSWORD_CHANGED line (count stays 4 after them; the 4th line at 00:52:40 precedes nothing from step 7/9, which ran at 00:52:39.5-47: sequence is reset(38.8),reset(39.3) [steps 4,5], refusals [39.5-39.6], resets (39.9, 40.1) [step 11]).

@@ -1,0 +1,35 @@
+NOTE: the first block (and its RESULT line) is from an earlier run of the same script whose assertion on the total dialog count was over-strict (1 vs 2: the page has the Add tester dialog plus the one shared reset dialog); the last block is the final run. Fixture emails differ per run.
+[desktop 1280x800] row action reached by Tab: {"tag":"BUTTON","label":"Reset password for ui.t2.1790895322258@example.com","outline":"solid 2px rgb(71, 48, 224)","boxShadow":"none","focusVisible":true}
+[desktop 1280x800] row action bounding box {"x":1009.796875,"y":279.640625,"width":123.71875,"height":28} viewport {"width":1280,"height":800}
+[desktop 1280x800] dialog confirm focus: {"tag":"BUTTON","label":"Reset password","outline":"solid 2px rgb(255, 255, 255)","boxShadow":"none","focusVisible":true}
+[desktop 1280x800] Copy password focus: {"tag":"BUTTON","label":"Copy password","outline":"solid 2px rgb(11, 18, 32)","boxShadow":"none","focusVisible":true}
+[desktop 1280x800] Copied announced; boxes: dialog {"x":430,"y":187.5,"width":420,"height":345} field {"x":455,"y":317,"width":238.5625,"height":36} copy {"x":701.5625,"y":321,"width":123.4375,"height":28}; all inside viewport: true
+[desktop 1280x800] Done focus: {"tag":"BUTTON","label":"Done","outline":"solid 2px rgb(255, 255, 255)","boxShadow":"none","focusVisible":true}
+[desktop 1280x800] after Done focus on trigger: true; ring: {"tag":"BUTTON","label":"Reset password for ui.t2.1790895322258@example.com","outline":"solid 2px rgb(71, 48, 224)","boxShadow":"none","focusVisible":true}
+[desktop 1280x800] reopen then Escape -> focus back on trigger: true
+[mobile 390x844] row action reached by Tab: {"tag":"BUTTON","label":"Reset password for ui.t2.1790895322258@example.com","outline":"solid 2px rgb(71, 48, 224)","boxShadow":"none","focusVisible":true}
+[mobile 390x844] row action bounding box {"x":199.03125,"y":275.640625,"width":123.71875,"height":28} viewport {"width":390,"height":844}
+[mobile 390x844] dialog confirm focus: {"tag":"BUTTON","label":"Reset password","outline":"solid 2px rgb(255, 255, 255)","boxShadow":"none","focusVisible":true}
+[mobile 390x844] Copy password focus: {"tag":"BUTTON","label":"Copy password","outline":"solid 2px rgb(11, 18, 32)","boxShadow":"none","focusVisible":true}
+[mobile 390x844] Copied announced; boxes: dialog {"x":19.5,"y":239.75,"width":351,"height":364.5} field {"x":44.5,"y":388.75,"width":169.5625,"height":36} copy {"x":222.0625,"y":392.75,"width":123.4375,"height":28}; all inside viewport: true
+[mobile 390x844] Done focus: {"tag":"BUTTON","label":"Done","outline":"solid 2px rgb(255, 255, 255)","boxShadow":"none","focusVisible":true}
+[mobile 390x844] after Done focus on trigger: true; ring: {"tag":"BUTTON","label":"Reset password for ui.t2.1790895322258@example.com","outline":"solid 2px rgb(71, 48, 224)","boxShadow":"none","focusVisible":true}
+[mobile 390x844] reopen then Escape -> focus back on trigger: true
+RESULT: passed
+[desktop 1280x800] row action reached by Tab: {"tag":"BUTTON","label":"Reset password for ui.t2.1790895352481@example.com","outline":"solid 2px rgb(71, 48, 224)","boxShadow":"none","focusVisible":true}
+[desktop 1280x800] row action bounding box {"x":1008.6875,"y":279.640625,"width":123.71875,"height":28} viewport {"width":1280,"height":800}
+[desktop 1280x800] dialog confirm focus: {"tag":"BUTTON","label":"Reset password","outline":"solid 2px rgb(255, 255, 255)","boxShadow":"none","focusVisible":true}
+[desktop 1280x800] Copy password focus: {"tag":"BUTTON","label":"Copy password","outline":"solid 2px rgb(11, 18, 32)","boxShadow":"none","focusVisible":true}
+[desktop 1280x800] Copied announced; boxes: dialog {"x":430,"y":187.5,"width":420,"height":345} field {"x":455,"y":317,"width":238.5625,"height":36} copy {"x":701.5625,"y":321,"width":123.4375,"height":28}; all inside viewport: true
+[desktop 1280x800] Done focus: {"tag":"BUTTON","label":"Done","outline":"solid 2px rgb(255, 255, 255)","boxShadow":"none","focusVisible":true}
+[desktop 1280x800] after Done focus on trigger: true; ring: {"tag":"BUTTON","label":"Reset password for ui.t2.1790895352481@example.com","outline":"solid 2px rgb(71, 48, 224)","boxShadow":"none","focusVisible":true}
+[desktop 1280x800] reopen then Escape -> focus back on trigger: true
+[mobile 390x844] row action reached by Tab: {"tag":"BUTTON","label":"Reset password for ui.t2.1790895352481@example.com","outline":"solid 2px rgb(71, 48, 224)","boxShadow":"none","focusVisible":true}
+[mobile 390x844] row action bounding box {"x":198.234375,"y":275.640625,"width":123.71875,"height":28} viewport {"width":390,"height":844}
+[mobile 390x844] dialog confirm focus: {"tag":"BUTTON","label":"Reset password","outline":"solid 2px rgb(255, 255, 255)","boxShadow":"none","focusVisible":true}
+[mobile 390x844] Copy password focus: {"tag":"BUTTON","label":"Copy password","outline":"solid 2px rgb(11, 18, 32)","boxShadow":"none","focusVisible":true}
+[mobile 390x844] Copied announced; boxes: dialog {"x":19.5,"y":239.75,"width":351,"height":364.5} field {"x":44.5,"y":388.75,"width":169.5625,"height":36} copy {"x":222.0625,"y":392.75,"width":123.4375,"height":28}; all inside viewport: true
+[mobile 390x844] Done focus: {"tag":"BUTTON","label":"Done","outline":"solid 2px rgb(255, 255, 255)","boxShadow":"none","focusVisible":true}
+[mobile 390x844] after Done focus on trigger: true; ring: {"tag":"BUTTON","label":"Reset password for ui.t2.1790895352481@example.com","outline":"solid 2px rgb(71, 48, 224)","boxShadow":"none","focusVisible":true}
+[mobile 390x844] reopen then Escape -> focus back on trigger: true
+RESULT: passed

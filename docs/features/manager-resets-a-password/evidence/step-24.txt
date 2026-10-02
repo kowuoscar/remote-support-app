@@ -1,0 +1,19 @@
+
+ RUN  v4.1.11 /Users/oscar/myspace/projects/remote-support-app/frontend
+
+ ✓ components/manager/reset-password-dialog.test.tsx > ResetPasswordDialog > asks for confirmation, naming the person and saying the current password stops working 86ms
+ ✓ components/manager/reset-password-dialog.test.tsx > ResetPasswordDialog > sends nothing and reports no reset when cancelled 22ms
+ ✓ components/manager/reset-password-dialog.test.tsx > ResetPasswordDialog > posts to the target's endpoint and shows the reveal with the new password 24ms
+ ✓ components/manager/reset-password-dialog.test.tsx > ResetPasswordDialog > disables Cancel while the reset is in flight 26ms
+ ✓ components/manager/reset-password-dialog.test.tsx > ResetPasswordDialog > closes on Done: focus returns to the trigger, onReset names the email, the password is gone 32ms
+ ✓ components/manager/reset-password-dialog.test.tsx > ResetPasswordDialog > shows the confirm step again when reopened after a reset 39ms
+ ✓ components/manager/reset-password-dialog.test.tsx > ResetPasswordDialog > says the page is stale on 409 AGENT_HAS_NO_LOGIN 22ms
+ ✓ components/manager/reset-password-dialog.test.tsx > ResetPasswordDialog > says the person no longer exists, with a link back to the list, on 404 25ms
+ ✓ components/manager/reset-password-dialog.test.tsx > ResetPasswordDialog > shows the generic message that the old password may have stopped working on a 500 20ms
+ ✓ components/manager/reset-password-dialog.test.tsx > ResetPasswordDialog > shows the generic message that the old password may have stopped working on a lost connection 22ms
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  00:56:19
+   Duration  1.18s (transform 58ms, setup 161ms, import 91ms, tests 318ms, environment 533ms)
+

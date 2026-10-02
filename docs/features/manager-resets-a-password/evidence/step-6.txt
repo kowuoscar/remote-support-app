@@ -1,0 +1,12 @@
+-------------------------------------------------------------------------------
+Test set: com.remotesupport.backend.security.PasswordGeneratorTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.069 s -- in com.remotesupport.backend.security.PasswordGeneratorTest
+-------------------------------------------------------------------------------
+Test set: com.remotesupport.backend.security.PasswordWriteGeneratedTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.859 s -- in com.remotesupport.backend.security.PasswordWriteGeneratedTest
+-------------------------------------------------------------------------------
+Test set: com.remotesupport.backend.security.PasswordWriteTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.338 s -- in com.remotesupport.backend.security.PasswordWriteTest

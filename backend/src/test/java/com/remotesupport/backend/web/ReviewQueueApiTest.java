@@ -307,7 +307,7 @@ class ReviewQueueApiTest extends IntegrationTest {
     String agentToken = agentToken();
     UUID clientId = createClient(managerToken, "Solene Cosmetics");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    String testerToken = createTesterAndLogin(managerToken, clientId, "ines.moreau@solene.example", "Passw0rd!23");
+    String testerToken = createTesterAndLogin(managerToken, clientId, "ines.moreau@solene.example");
 
     mockMvc
         .perform(

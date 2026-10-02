@@ -4,6 +4,7 @@ import {
   createContractWithTester,
   login,
   logout,
+  readRevealedPasswordAndClose,
   rollSeededAgentInvoiceIntoThePast,
   submitRequestAsTester,
 } from "./helpers";
@@ -129,10 +130,10 @@ test.describe("agent dashboard requests", () => {
     await logout(page);
 
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    await createContractWithTester(page, clientName, testerEmail);
+    const { testerPassword } = await createContractWithTester(page, clientName, testerEmail);
     await logout(page);
 
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Other", { description: "Dashboard request check" });
     await logout(page);
 
@@ -160,12 +161,12 @@ test.describe("agent dashboard requests", () => {
     await page.getByLabel("Country").selectOption("FRANCE");
     await page.getByLabel("Standing monthly salary").fill("2400");
     await page.getByLabel("Email").fill(agentEmail);
-    await page.getByLabel("Temporary password").fill("Passw0rd!23");
     await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
+    const agentPassword = await readRevealedPasswordAndClose(page);
     await expect(page.getByRole("link", { name: agentName })).toBeVisible();
     await logout(page);
 
-    await login(page, agentEmail, "Passw0rd!23");
+    await login(page, agentEmail, agentPassword);
     await page.goto("/agent");
     await expect(page.getByTestId("open-requests-stat")).toContainText("0");
     await expect(page.getByText("No Requests yet")).toBeVisible();

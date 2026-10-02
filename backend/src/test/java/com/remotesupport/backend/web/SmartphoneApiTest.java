@@ -157,7 +157,7 @@ class SmartphoneApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.serial").value("SN-SET-BY-MANAGER"));
 
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "clara.vance@kesslervance.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "clara.vance@kesslervance.example");
     mockMvc
         .perform(
             patch("/api/contracts/" + contractId + "/smartphones/" + smartphoneId + "/serial")
@@ -297,7 +297,7 @@ class SmartphoneApiTest extends IntegrationTest {
     UUID otherContract = createContract(managerToken, otherClient, agentId);
 
     String testerToken =
-        createTesterAndLogin(managerToken, ownClient, "charlotte.finch@harborfinch.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, ownClient, "charlotte.finch@harborfinch.example");
 
     mockMvc
         .perform(

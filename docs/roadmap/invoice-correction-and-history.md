@@ -46,6 +46,7 @@ finds the finished invoices in the history view, filtered by month.
 
 ## Features
 
+- [ ] `edit-client-invoice-lines` — while a Client Invoice is a draft (before its first send, and again after a send-back), its Agent can edit every line, the base amount and each Fee; lines start pre-filled from the computation, because real usage (postpaid included) varies month to month.
 - [ ] `send-a-client-invoice-back` — a Manager returns a sent Client Invoice to the Agent with a reason; it leaves the Review Queue, its numbers go live again, and a resend freezes a fresh snapshot.
 - [ ] `invoice-adjustment` — a Manager records a correction, a credit or a charge with a reason, that lands on the next month's invoice, so an error found after sending or approval is settled forward, never by reopening a past month.
 - [ ] `send-an-agent-invoice-back` — the same for an Agent Invoice, whose snapshot is four scalar columns rather than a membership table.
@@ -124,6 +125,18 @@ Manager** corrects it on the **following month's** invoice. So:
 - `invoice-adjustment` is new. It needs a correction that can be negative:
   today a Fee must be greater than zero (`FeeCreateRequest.java:52`). Whether it
   covers Agent Invoices too is for its spec.
+
+**Answered by the human on 2026-10-01: invoice lines are editable.** A Client
+Invoice is a base amount plus Fees, and **every line is editable by the Agent
+while the invoice is a draft**, before the first send and after a send-back.
+The computation only pre-fills the lines: even a monthly postpaid amount goes
+up with the Client's usage, and the Agent enters what was actually billed. So
+a send-back **refreshes nothing**: the invoice becomes a draft again with the
+numbers it was sent with, and the Agent edits them. This replaces the
+"Fee lines go live, past base amount stays as sent" rule recorded on
+2026-09-30, and amends ADR 0001 further: a draft is no longer purely live
+computation. `edit-client-invoice-lines` comes first, and send-back builds on
+it.
 
 ## Later
 

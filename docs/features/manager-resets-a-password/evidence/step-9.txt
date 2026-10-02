@@ -1,0 +1,11 @@
+Seeded Agent token:
+  agent token POST /api/agents/{agentId}/login/password -> 403
+  agent token POST /api/clients/{clientId}/testers/{testerId}/password -> 403
+(seeded Tester login: see V17; username lookup below)
+Seeded Tester login -> 401
+  tester token POST /api/agents/{agentId}/login/password -> 401
+  tester token POST /api/clients/{clientId}/testers/{testerId}/password -> 401
+Seeded Tester (tester@example.com) login -> 200
+  tester token POST /api/agents/{agentId}/login/password -> 403
+  tester token POST /api/clients/{clientId}/testers/{testerId}/password -> 403
+NOTE: first Tester probe used demo.tester@example.com (login 401: that seed was trimmed); the seeded Tester login is tester@example.com, lines below.

@@ -1,0 +1,1 @@
+manager login 200; me={'timestamp': '2026-10-01T22:52:37.490+00:00', 'status': 404, 'error': 'Not Found', 'path': '/api/auth/me'}

@@ -1,0 +1,4 @@
+Reset agent with no login:
+-> 409 {'message': 'Agent e9004b61-9571-48c4-9106-405f876255da has no login', 'code': 'AGENT_HAS_NO_LOGIN'}
+unknown agent -> 404 {'timestamp': '2026-10-01T22:52:39.510+00:00', 'status': 404, 'error': 'Not Found', 'path': '/api/agents/044493ee-c840-4f0f-9c2f-4b7aa8b5804f/login/password'}
+unknown tester -> 404 {'timestamp': '2026-10-01T22:52:39.517+00:00', 'status': 404, 'error': 'Not Found', 'path': '/api/clients/9957a1d8-49ae-4c63-95ac-e6f4b8717242/testers/a16f0ed5-77b0-48c9-aab6-18c8f80a1b6f/password'}

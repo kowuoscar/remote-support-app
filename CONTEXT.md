@@ -12,8 +12,14 @@ _Avoid_: Organisation, workspace, account (this last one is the Client's word).
 The username and password a person signs in with — a `User` row belonging to exactly one Tenant, optionally linked to an Agent or a Tester (unlinked for a Manager). Its username is unique across the whole deployment, compared case- and trim-insensitively (`globally-unique-usernames`).
 _Avoid_: Account, credentials.
 
+**Password write**:
+The single component (`PasswordWrite`) where a Login's password is written; every creation and change path goes through it. Two operations: set a typed value, or give the Login a freshly generated password and return it in the clear (redrawn up to three draws if it equals the current one). It encodes and sets, and neither validates nor saves.
+
+**Password generator**:
+The security component (`PasswordGenerator`) that draws a candidate generated password. It knows nothing about any Login.
+
 **Agent** (Local Support Agent):
-A person hired remotely in a specific country who supplies smartphones and SIM cards to a Client's Testers and executes support tasks (topups, reboots, SIM swaps) on request. Submits a monthly invoice claiming salary and reimbursable expenses. Signs in with exactly one login (a User with role `AGENT`), which the Manager creates together with the Agent in a single step — email and temporary password, the same way a Tester's login is created — so no newly created Agent is ever unable to sign in. An Agent created before that rule existed may still lack a login; the Manager gives it one from the Agent's page, and it never gets a second. `Agent.salaryAmount` is only ever the value supplied at creation — the *current* standing salary, and its full history, live in `AgentStandingAmount` (see below); `agent-standing-amounts-and-invoice-generation` writes both, in the same request, so the two never disagree at creation time.
+A person hired remotely in a specific country who supplies smartphones and SIM cards to a Client's Testers and executes support tasks (topups, reboots, SIM swaps) on request. Submits a monthly invoice claiming salary and reimbursable expenses. Signs in with exactly one login (a User with role `AGENT`), which the Manager creates together with the Agent in a single step — email, with a generated password shown once, the same way a Tester's login is created — so no newly created Agent is ever unable to sign in. An Agent created before that rule existed may still lack a login; the Manager gives it one from the Agent's page, and it never gets a second. `Agent.salaryAmount` is only ever the value supplied at creation — the *current* standing salary, and its full history, live in `AgentStandingAmount` (see below); `agent-standing-amounts-and-invoice-generation` writes both, in the same request, so the two never disagree at creation time.
 _Avoid_: Rep, field agent, support worker.
 
 **Standing amount** (of an Agent's salary or Rollout Advance):

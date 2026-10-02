@@ -6,6 +6,7 @@ import {
   createUnrelatedContract,
   login,
   logout,
+  readRevealedPasswordAndClose,
   selectContractInSwitcher,
 } from "./helpers";
 
@@ -125,10 +126,10 @@ test.describe("fleet management", () => {
     await expect(page.getByRole("cell", { name: `+34-91-${RUN_ID}` })).toBeVisible();
 
     const testerEmail = `helena.voss+${RUN_ID}@kessler.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await expect(page).toHaveURL(/\/client$/);
 
     await page.goto("/client/fleet");
@@ -189,7 +190,7 @@ test.describe("fleet management", () => {
     await expect(page.getByRole("cell", { name: `+1-555-install-${RUN_ID}` })).toBeVisible();
 
     const testerEmail = `nadia.okafor+${RUN_ID}@solene.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -210,7 +211,7 @@ test.describe("fleet management", () => {
     await expect(smartphoneRow).toContainText(`+1-555-install-${RUN_ID}`);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await page.goto("/client/fleet");
     await selectContractInSwitcher(page, clientName);
 
@@ -248,12 +249,12 @@ test.describe("fleet management", () => {
     const testerEmail = `elise.fabron+${RUN_ID}@solene.example`;
     await page.getByRole("button", { name: "Add tester" }).first().click();
     await page.getByLabel("Email").fill(testerEmail);
-    await page.getByLabel("Temporary password").fill("Passw0rd!23");
     await page.getByRole("dialog").getByRole("button", { name: "Add tester" }).click();
+    const testerPassword = await readRevealedPasswordAndClose(page);
     await expect(page.getByRole("cell", { name: testerEmail })).toBeVisible();
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     const testerStatus = await page.evaluate(async (contractId) => {
       const response = await fetch(`/api/contracts/${contractId}/smartphones`);
       return response.status;

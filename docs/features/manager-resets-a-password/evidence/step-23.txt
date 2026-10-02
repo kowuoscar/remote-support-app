@@ -1,0 +1,6 @@
+Added ui.t4.1790895322258@example.com, closed reveal with Escape without copying -> dialog closed, row present
+Reset from row; sign-in with reset password -> 200
+RESULT: passed
+Added ui.t4.1790895352481@example.com, closed reveal with Escape without copying -> dialog closed, row present
+Reset from row; sign-in with reset password -> 200
+RESULT: passed

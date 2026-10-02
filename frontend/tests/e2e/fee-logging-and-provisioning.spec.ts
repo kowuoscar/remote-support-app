@@ -91,10 +91,10 @@ test.describe("fee logging and provisioning", () => {
     const simNumber = `+1-555-${RUN_ID}`;
     await addSimCard(page, contractId, simNumber);
     const testerEmail = `priya.raman+${RUN_ID}@aurora.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Topup", { simCardOptionLabel: `${simNumber} — Verizon` });
 
     await logout(page);
@@ -125,10 +125,10 @@ test.describe("fee logging and provisioning", () => {
     const simNumber = `+1-555-opt-${RUN_ID}`;
     await addSimCard(page, contractId, simNumber);
     const testerEmail = `helena.voss+${RUN_ID}@kessler.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     // Verizon's seeded "Prepaid Refill 35" Option, $35.00 (V22 migration).
     await submitRequestAsTester(page, "Topup", { simCardOptionLabel: `${simNumber} — Verizon` });
 
@@ -157,7 +157,7 @@ test.describe("fee logging and provisioning", () => {
     const clientName = `Meridian Logistics ${RUN_ID}`;
     const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
     const testerEmail = `owen.reyes+${RUN_ID}@meridian.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    await addTester(page, clientId, testerEmail);
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -221,10 +221,10 @@ test.describe("fee logging and provisioning", () => {
     const clientName = `Solene Cosmetics ${RUN_ID}`;
     const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
     const testerEmail = `ines.moreau+${RUN_ID}@solene.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await page.goto("/client/requests");
     await page.getByRole("button", { name: "Submit Request" }).first().click();
     const submitDialog = page.getByRole("dialog");
@@ -265,10 +265,10 @@ test.describe("fee logging and provisioning", () => {
     const targetSerial = `SN-TARGET-${RUN_ID}`;
     await addSmartphone(page, contractId, "Pixel 8", targetSerial);
     const testerEmail = `noor.hassan+${RUN_ID}@lumenhealth.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await page.goto("/client/requests");
     await page.getByRole("button", { name: "Submit Request" }).first().click();
     const submitDialog = page.getByRole("dialog");
@@ -324,10 +324,10 @@ test.describe("fee logging and provisioning", () => {
     const simNumber = `+1-555-${RUN_ID}`;
     await addSimCard(page, contractId, simNumber);
     const testerEmail = `charlotte.finch+${RUN_ID}@harborfinch.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Reboot", { smartphoneOptionLabel: `Pixel 9 — ${serial}` });
     await submitRequestAsTester(page, "SIM Swap", {
       smartphoneOptionLabel: `Pixel 9 — ${serial}`,
@@ -380,10 +380,10 @@ test.describe("fee logging and provisioning", () => {
     await expect(simRow.getByLabel("Installed in")).not.toHaveValue("");
 
     const testerEmail = `daniela.ruiz+${RUN_ID}@castellane.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await submitRequestAsTester(page, "Replace SIM", { simCardOptionLabel: `${oldNumber} — Verizon` });
 
     const row = await approveAndBeginAgentCompletion(page, clientName, "Replace SIM");

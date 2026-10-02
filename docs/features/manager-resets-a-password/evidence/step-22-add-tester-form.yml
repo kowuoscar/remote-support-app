@@ -1,0 +1,10 @@
+- dialog:
+  - heading "Add a tester" [level=2]
+  - paragraph: A password is generated when you create the login — you'll see it once.
+  - text: Email
+  - textbox "Email":
+    - /placeholder: tom.reyes@client.example
+  - checkbox "Primary contact for this client"
+  - text: Primary contact for this client
+  - button "Cancel"
+  - button "Add tester"

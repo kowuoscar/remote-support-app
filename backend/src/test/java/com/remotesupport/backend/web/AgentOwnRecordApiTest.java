@@ -30,8 +30,6 @@ import org.springframework.test.web.servlet.MvcResult;
  */
 class AgentOwnRecordApiTest extends IntegrationTest {
 
-  private static final String PASSWORD = "Passw0rd!23";
-
   @Autowired private AgentRepository agentRepository;
   @Autowired private AgentStandingAmountRepository agentStandingAmountRepository;
   @Autowired private UserRepository userRepository;
@@ -49,13 +47,15 @@ class AgentOwnRecordApiTest extends IntegrationTest {
         postJson(
                 "/api/agents",
                 managerToken(),
-                new AgentCreateRequest(name, country, new BigDecimal(salary), username, PASSWORD))
+                new AgentCreateRequest(name, country, new BigDecimal(salary), username))
             .andExpect(status().isCreated())
             .andReturn();
     UUID agentId =
         UUID.fromString(
             objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
-    return new AgentLogin(agentId, loginAs(username, PASSWORD));
+    String password =
+        objectMapper.readTree(result.getResponse().getContentAsString()).get("password").asText();
+    return new AgentLogin(agentId, loginAs(username, password));
   }
 
   private void insertStandingAmountRow(

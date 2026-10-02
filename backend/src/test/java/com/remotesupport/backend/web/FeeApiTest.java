@@ -90,7 +90,7 @@ class FeeApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example");
     UUID requestId = submitRequest(testerToken, contractId, type);
 
     mockMvc
@@ -118,7 +118,7 @@ class FeeApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Meridian Logistics");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "owen.reyes@meridian.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "owen.reyes@meridian.example");
     UUID requestId = submitRequest(testerToken, contractId, "PROVISION_SMARTPHONE");
     approveAsManager(managerToken, requestId);
 
@@ -143,7 +143,7 @@ class FeeApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Harbor & Finch Realty");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example");
     UUID requestId = submitRequest(testerToken, contractId, "REPLACE_SMARTPHONE");
     approveAsManager(managerToken, requestId);
 
@@ -167,7 +167,7 @@ class FeeApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Kessler & Vance LLP");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "helena.voss@kessler.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "helena.voss@kessler.example");
     UUID requestId = submitRequest(testerToken, contractId, "REPLACE_SIM");
     approveAsManager(managerToken, requestId);
 
@@ -191,7 +191,7 @@ class FeeApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Bright Path Clinics");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "marco.diaz@brightpath.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "marco.diaz@brightpath.example");
     UUID requestId = submitRequest(testerToken, contractId, "TOPUP");
 
     mockMvc
@@ -216,7 +216,7 @@ class FeeApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Harbor & Finch Realty");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example");
     UUID requestId = submitRequest(testerToken, contractId, "REBOOT");
 
     mockMvc
@@ -238,7 +238,7 @@ class FeeApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Kessler & Vance LLP");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "helena.voss@kessler.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "helena.voss@kessler.example");
     UUID requestId = submitRequest(testerToken, contractId, "SIM_SWAP");
 
     // A like-for-like swap: no provisioning, no Fee — even attempting a PROVISION_SIM Fee against
@@ -263,7 +263,7 @@ class FeeApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Solene Cosmetics");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "elise.fabron@solene.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "elise.fabron@solene.example");
     UUID requestId = submitRequest(testerToken, contractId, "TOPUP");
 
     mockMvc
@@ -286,7 +286,7 @@ class FeeApiTest extends IntegrationTest {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
+    createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example");
 
     String agentToken = agentToken();
     UUID testerId = findTesterId(agentToken, contractId, "priya.raman@aurora.example");
@@ -350,7 +350,7 @@ class FeeApiTest extends IntegrationTest {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Bright Path Clinics");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    createTesterAndLogin(managerToken, clientId, "marco.diaz@brightpath.example", "Passw0rd!23");
+    createTesterAndLogin(managerToken, clientId, "marco.diaz@brightpath.example");
 
     String agentToken = agentToken();
     UUID testerId = findTesterId(agentToken, contractId, "marco.diaz@brightpath.example");
@@ -450,7 +450,7 @@ class FeeApiTest extends IntegrationTest {
                 .asText());
 
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example");
     UUID requestId = submitRequest(testerToken, contractId, "PROVISION_SMARTPHONE");
     approveAsManager(managerToken, requestId);
 
@@ -511,7 +511,7 @@ class FeeApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Solene Cosmetics");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "elise.fabron@solene.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "elise.fabron@solene.example");
     UUID requestId = submitRequest(testerToken, contractId, "PROVISION_SIM");
     approveAsManager(managerToken, requestId);
 
@@ -555,7 +555,7 @@ class FeeApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Aurora Retail Group");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "priya.raman@aurora.example");
     UUID requestId = submitRequest(testerToken, contractId, "PROVISION_SMARTPHONE");
     approveAsManager(managerToken, requestId);
 
@@ -594,7 +594,7 @@ class FeeApiTest extends IntegrationTest {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Meridian Logistics");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    createTesterAndLogin(managerToken, clientId, "owen.reyes@meridian.example", "Passw0rd!23");
+    createTesterAndLogin(managerToken, clientId, "owen.reyes@meridian.example");
 
     String agentToken = agentToken();
     UUID testerId = findTesterId(agentToken, contractId, "owen.reyes@meridian.example");
@@ -667,7 +667,7 @@ class FeeApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Kessler & Vance LLP");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken =
-        createTesterAndLogin(managerToken, clientId, "helena.voss@kessler.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, clientId, "helena.voss@kessler.example");
     UUID requestId = submitRequest(testerToken, contractId, "TOPUP");
 
     mockMvc
@@ -689,7 +689,7 @@ class FeeApiTest extends IntegrationTest {
     UUID otherClient = createClient(managerToken, "Solene Cosmetics");
     UUID otherAgentId = createAgent(managerToken, "Priya Nair", com.remotesupport.backend.domain.Country.PHILIPPINES);
     UUID otherContract = createContract(managerToken, otherClient, otherAgentId);
-    createTesterAndLogin(managerToken, otherClient, "elise.fabron@solene.example", "Passw0rd!23");
+    createTesterAndLogin(managerToken, otherClient, "elise.fabron@solene.example");
 
     mockMvc
         .perform(
@@ -718,7 +718,7 @@ class FeeApiTest extends IntegrationTest {
       UUID clientId = createClient(managerToken, "Harbor & Finch Realty");
       UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
       String testerToken =
-          createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example", "Passw0rd!23");
+          createTesterAndLogin(managerToken, clientId, "charlotte.finch@harborfinch.example");
       UUID requestId = submitRequest(testerToken, contractId, "TOPUP");
 
       mockMvc.perform(
@@ -755,7 +755,7 @@ class FeeApiTest extends IntegrationTest {
       UUID clientId = createClient(managerToken, "Bright Path Clinics");
       UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
       String testerToken =
-          createTesterAndLogin(managerToken, clientId, "marco.diaz@brightpath.example", "Passw0rd!23");
+          createTesterAndLogin(managerToken, clientId, "marco.diaz@brightpath.example");
       UUID requestId = submitRequest(testerToken, contractId, "PROVISION_SMARTPHONE");
       approveAsManager(managerToken, requestId);
 

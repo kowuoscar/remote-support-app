@@ -1,6 +1,7 @@
 package com.remotesupport.backend.web;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,8 +28,6 @@ import org.springframework.test.web.servlet.MvcResult;
  */
 class AgentApiTest extends IntegrationTest {
 
-  private static final String PASSWORD = "Passw0rd!23";
-
   @Test
   void managerCanCreateAnAgentWithCountryDerivingItsCurrency() throws Exception {
     String token = managerToken();
@@ -37,8 +36,7 @@ class AgentApiTest extends IntegrationTest {
             "Camille Duforet",
             Country.FRANCE,
             new BigDecimal("2400.00"),
-            "camille.duforet@agents.example",
-            PASSWORD);
+            "camille.duforet@agents.example");
 
     postJson("/api/agents", token, request)
         .andExpect(status().isCreated())
@@ -66,8 +64,7 @@ class AgentApiTest extends IntegrationTest {
             "Whitespace Padded",
             Country.FRANCE,
             new BigDecimal("2000.00"),
-            "  padded.username@agents.example  ",
-            PASSWORD);
+            "  padded.username@agents.example  ");
 
     postJson("/api/agents", token, request)
         .andExpect(status().isCreated())
@@ -89,14 +86,15 @@ class AgentApiTest extends IntegrationTest {
             "Ana Lima",
             Country.MEXICO,
             new BigDecimal("1800.00"),
-            "ana.lima@agents.example",
-            PASSWORD);
+            "ana.lima@agents.example");
 
     MvcResult created = postJson("/api/agents", token, request).andExpect(status().isCreated()).andReturn();
     String agentId =
         objectMapper.readTree(created.getResponse().getContentAsString()).get("id").asText();
 
-    String agentToken = loginAs("ana.lima@agents.example", PASSWORD);
+    String password =
+        objectMapper.readTree(created.getResponse().getContentAsString()).get("password").asText();
+    String agentToken = loginAs("ana.lima@agents.example", password);
 
     mockMvc
         .perform(get("/api/me").header("Authorization", "Bearer " + agentToken))
@@ -127,14 +125,16 @@ class AgentApiTest extends IntegrationTest {
   }
 
   @Test
-  void creatingAnAgentWithoutAPasswordIsRejectedAndCreatesNoAgent() throws Exception {
+  void creatingAnAgentWithNoPasswordInTheBodyCreatesItAndTheReturnedPasswordSignsIn()
+      throws Exception {
     String token = managerToken();
     Map<String, Object> body = agentBody("No Password Agent", "nopassword@agents.example");
-    body.remove("password");
 
-    postJson("/api/agents", token, body).andExpect(status().isBadRequest());
+    MvcResult created = postJson("/api/agents", token, body).andExpect(status().isCreated()).andReturn();
+    String password =
+        objectMapper.readTree(created.getResponse().getContentAsString()).get("password").asText();
 
-    assertNoAgentNamed(token, "No Password Agent");
+    assertThat(loginAs("nopassword@agents.example", password)).isNotBlank();
   }
 
   @Test
@@ -145,15 +145,13 @@ class AgentApiTest extends IntegrationTest {
             "Luis Bautista",
             Country.MEXICO,
             new BigDecimal("1800.00"),
-            "luis.bautista@agents.example",
-            PASSWORD);
+            "luis.bautista@agents.example");
     AgentCreateRequest filipino =
         new AgentCreateRequest(
             "Priya Nair",
             Country.PHILIPPINES,
             new BigDecimal("1450.00"),
-            "priya.nair@agents.example",
-            PASSWORD);
+            "priya.nair@agents.example");
 
     postJson("/api/agents", token, mexican)
         .andExpect(status().isCreated())
@@ -172,8 +170,7 @@ class AgentApiTest extends IntegrationTest {
             "Negative Salary",
             Country.UNITED_STATES,
             new BigDecimal("-1.00"),
-            "negative.salary@agents.example",
-            PASSWORD);
+            "negative.salary@agents.example");
 
     postJson("/api/agents", token, request).andExpect(status().isBadRequest());
   }
@@ -185,8 +182,7 @@ class AgentApiTest extends IntegrationTest {
             "Rejected",
             Country.UNITED_KINGDOM,
             new BigDecimal("100.00"),
-            "rejected@agents.example",
-            PASSWORD);
+            "rejected@agents.example");
 
     for (String token : new String[] {agentToken(), testerToken()}) {
       postJson("/api/agents", token, request).andExpect(status().isForbidden());
@@ -206,15 +202,20 @@ class AgentApiTest extends IntegrationTest {
 
     try {
       String token = managerToken();
-      postJson("/api/agents", token, agentBody("Owen Whitfield", "owen.whitfield@agents.example"))
-          .andExpect(status().isCreated());
+      MvcResult created =
+          postJson(
+                  "/api/agents", token, agentBody("Owen Whitfield", "owen.whitfield@agents.example"))
+              .andExpect(status().isCreated())
+              .andReturn();
+      String password =
+          objectMapper.readTree(created.getResponse().getContentAsString()).get("password").asText();
 
       String logged =
           appender.list.stream().map(ILoggingEvent::getFormattedMessage).reduce("", String::concat);
       Assertions.assertThat(logged).contains("action=CREATE");
       Assertions.assertThat(logged).contains("entity=Agent");
       Assertions.assertThat(logged).contains("action=AGENT_LOGIN_CREATED");
-      Assertions.assertThat(logged).doesNotContain(PASSWORD);
+      Assertions.assertThat(logged).doesNotContain(password);
     } finally {
       auditLogger.detachAppender(appender);
     }
@@ -226,7 +227,6 @@ class AgentApiTest extends IntegrationTest {
     body.put("country", "FRANCE");
     body.put("salaryAmount", 2000);
     body.put("username", username);
-    body.put("password", PASSWORD);
     return body;
   }
 

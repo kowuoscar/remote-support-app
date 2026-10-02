@@ -1,0 +1,549 @@
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+00:53:24.572 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.demo.DemoDataLoaderApiTest]: DemoDataLoaderApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+00:53:24.602 INFO  [:] org.testcontainers.images.PullPolicy - Image pull policy will be performed by: DefaultPullPolicy()
+00:53:24.603 INFO  [:] o.t.utility.ImageNameSubstitutor - Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+00:53:24.617 INFO  [:] org.testcontainers.DockerClientFactory - Testcontainers version: 1.21.4
+00:53:24.710 INFO  [:] o.t.d.DockerClientProviderStrategy - Loaded org.testcontainers.dockerclient.UnixSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+00:53:24.825 INFO  [:] o.t.d.DockerClientProviderStrategy - Found Docker environment with local Unix socket (unix:///var/run/docker.sock)
+00:53:24.825 INFO  [:] org.testcontainers.DockerClientFactory - Docker host IP address is localhost
+00:53:24.838 INFO  [:] org.testcontainers.DockerClientFactory - Connected to docker: 
+  Server Version: 29.7.2
+  API Version: 1.55
+  Operating System: Docker Desktop
+  Total Memory: 7934 MB
+  Labels: 
+    com.docker.desktop.address=unix:///Users/oscar/Library/Containers/com.docker.docker/Data/docker-cli.sock
+00:53:24.894 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Creating container for image: testcontainers/ryuk:0.12.0
+00:53:25.113 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Container testcontainers/ryuk:0.12.0 is starting: d66c015246fcbf110d2e3e08b44b61ff2040839dbabf16d8bb144552365c798f
+00:53:25.254 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Container testcontainers/ryuk:0.12.0 started in PT0.359991S
+00:53:25.257 INFO  [:] o.t.utility.RyukResourceReaper - Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+00:53:25.257 INFO  [:] org.testcontainers.DockerClientFactory - Checking the system...
+00:53:25.257 INFO  [:] org.testcontainers.DockerClientFactory - ✔︎ Docker server version should be at least 1.6.0
+00:53:25.258 INFO  [:] tc.postgres:16-alpine - Creating container for image: postgres:16-alpine
+00:53:25.295 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine is starting: a6c08396c4499ecf7cbe6f9dbc0fa6318a0957870bb66828a7ba0b18eba7b9f0
+00:53:26.161 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine started in PT0.903093S
+00:53:26.162 INFO  [:] tc.postgres:16-alpine - Container is started (JDBC URL: jdbc:postgresql://localhost:64633/test?loggerLevel=OFF)
+00:53:26.234 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.demo.DemoDataLoaderApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+00:53:26.370 INFO  [:] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+00:53:26.385 INFO  [:] c.r.backend.demo.DemoDataLoaderApiTest - Starting DemoDataLoaderApiTest using Java 21.0.11 with PID 7420 (started by oscar in /Users/oscar/myspace/projects/remote-support-app/backend)
+00:53:26.385 DEBUG [:] c.r.backend.demo.DemoDataLoaderApiTest - Running with Spring Boot v3.3.4, Spring v6.1.13
+00:53:26.385 INFO  [:] c.r.backend.demo.DemoDataLoaderApiTest - The following 1 profile is active: "demo"
+00:53:26.812 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+00:53:26.850 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 34 ms. Found 19 JPA repository interfaces.
+00:53:27.307 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:64633/test (PostgreSQL 16.15)
+00:53:27.334 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+00:53:27.336 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 47 migrations (execution time 00:00.018s)
+00:53:27.345 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+00:53:27.371 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+00:53:27.374 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+00:53:27.389 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+00:53:27.396 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+00:53:27.404 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+00:53:27.419 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+00:53:27.427 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+00:53:27.438 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+00:53:27.447 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+00:53:27.463 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+00:53:27.474 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+00:53:27.482 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+00:53:27.490 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+00:53:27.499 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+00:53:27.511 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+00:53:27.525 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+00:53:27.531 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+00:53:27.539 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+00:53:27.548 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+00:53:27.553 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+00:53:27.560 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+00:53:27.566 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+00:53:27.577 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+00:53:27.583 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+00:53:27.590 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+00:53:27.596 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+00:53:27.602 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+00:53:27.608 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+00:53:27.614 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+00:53:27.619 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+00:53:27.625 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+00:53:27.632 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+00:53:27.637 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+00:53:27.641 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+00:53:27.646 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+00:53:27.650 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+00:53:27.656 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+00:53:27.661 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+00:53:27.666 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+00:53:27.671 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+00:53:27.677 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+00:53:27.682 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+00:53:27.690 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+00:53:27.695 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+00:53:27.699 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+00:53:27.703 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+00:53:27.709 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+00:53:27.716 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+00:53:27.724 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+00:53:27.728 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+00:53:27.734 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 47 migrations to schema "public", now at version v55 (execution time 00:00.149s)
+00:53:27.785 INFO  [:] o.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+00:53:27.807 INFO  [:] org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+00:53:27.819 INFO  [:] o.h.c.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+00:53:27.940 INFO  [:] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+00:53:27.951 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+00:53:27.967 INFO  [:] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@1ebb36df
+00:53:27.968 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+00:53:28.499 INFO  [:] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+00:53:28.535 INFO  [:] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+00:53:28.712 INFO  [:] o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+00:53:29.449 INFO  [:] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name appUserDetailsService
+00:53:29.677 INFO  [:] o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+00:53:29.919 INFO  [:] o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+00:53:29.919 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Initializing Servlet ''
+00:53:29.920 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Completed initialization in 1 ms
+00:53:29.961 INFO  [:] c.r.backend.demo.DemoDataLoaderApiTest - Started DemoDataLoaderApiTest in 3.68 seconds (process running for 5.742)
+00:53:30.032 INFO  [:] c.r.backend.demo.DemoDataLoader - Building the demo story...
+00:53:30.140 INFO  [:] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=408ca50f-df16-4b49-9c4c-46147a30e053 agentId=8e855496-3f28-4bf0-b458-51fe3cb0f9bb actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.140 INFO  [:] AUDIT - audit action=CREATE entity=Agent entityId=8e855496-3f28-4bf0-b458-51fe3cb0f9bb actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.264 INFO  [:] AUDIT - audit action=CARRIER_CREATED entity=Carrier entityId=c6a6c182-8529-462e-aef3-b4c251858f47 country=UNITED_KINGDOM name=EE actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.267 INFO  [:] AUDIT - audit action=CARRIER_CREATED entity=Carrier entityId=ab4ca4b7-8f07-4809-89cc-5fe2c0dbf16e country=UNITED_KINGDOM name=O2 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.270 INFO  [:] AUDIT - audit action=CARRIER_CREATED entity=Carrier entityId=3e5e058f-78c0-437b-9529-8faca6157cbc country=UNITED_KINGDOM name=Vodafone actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.272 INFO  [:] AUDIT - audit action=CARRIER_ARCHIVED entity=Carrier entityId=3e5e058f-78c0-437b-9529-8faca6157cbc country=UNITED_KINGDOM actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.280 INFO  [:] AUDIT - audit action=TOPUP_OPTION_CREATED entity=TopupOption entityId=4d1667f5-cb7e-4c39-8622-404291614552 carrierId=c6a6c182-8529-462e-aef3-b4c251858f47 name=Boost 10 price=10.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.284 INFO  [:] AUDIT - audit action=TOPUP_OPTION_CREATED entity=TopupOption entityId=60718332-3db4-46d9-bdb2-b08550fbad5c carrierId=c6a6c182-8529-462e-aef3-b4c251858f47 name=Boost 20 price=20.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.288 INFO  [:] AUDIT - audit action=TOPUP_OPTION_ARCHIVED entity=TopupOption entityId=60718332-3db4-46d9-bdb2-b08550fbad5c carrierId=c6a6c182-8529-462e-aef3-b4c251858f47 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.294 INFO  [:] AUDIT - audit action=TOPUP_OPTION_CREATED entity=TopupOption entityId=e2527eb2-8fdb-4c54-9cc2-ea6c9bec40cd carrierId=ab4ca4b7-8f07-4809-89cc-5fe2c0dbf16e name=Data Topup price=8.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.299 INFO  [:] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=da742740-84ec-4085-86ed-b35a2195b59a carrierId=c6a6c182-8529-462e-aef3-b4c251858f47 name=Flex 20 price=20.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.305 INFO  [:] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=78b1699f-1e32-410d-8904-d1afc8446739 carrierId=ab4ca4b7-8f07-4809-89cc-5fe2c0dbf16e name=Essential price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.308 INFO  [:] AUDIT - audit action=CREATE entity=Client entityId=15ea438d-9b55-4a69-930c-af8807b4b97f actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.326 INFO  [:] AUDIT - audit action=CREATE entity=Contract entityId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.331 INFO  [:] AUDIT - audit action=CREATE entity=Contract entityId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.335 INFO  [:] AUDIT - audit action=CREATE entity=Contract entityId=ab4c4ada-e6a1-483c-b3a2-abc892d546a8 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.431 INFO  [:] AUDIT - audit action=CREATE entity=Tester entityId=a8ce7301-11ea-47f5-9616-316a33bb21a4 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.595 INFO  [:] AUDIT - audit action=CREATE entity=Tester entityId=c789f5a2-c8dc-44e3-82c7-b531cf6b3ea7 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.759 INFO  [:] AUDIT - audit action=CREATE entity=Tester entityId=0e6f8d05-91a4-4510-822f-5b76b925ba1e actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:30.915 INFO  [:] AUDIT - audit action=CREATE entity=Tester entityId=3e461fe6-47d2-4e66-94bf-8b65679e9d94 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.074 INFO  [:] AUDIT - audit action=CREATE entity=Tester entityId=db504867-a9a3-4095-87e4-7f8016edc272 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.162 INFO  [:] AUDIT - audit action=CREATE entity=Smartphone entityId=25b7c513-78a8-4b8a-8427-f18d994341b1 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe owner=CLIENT actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.166 INFO  [:] AUDIT - audit action=CREATE entity=Smartphone entityId=e1f3be3a-a514-4661-a5ab-1ba17bf2c892 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe owner=COMPANY actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.171 INFO  [:] AUDIT - audit action=CREATE entity=Smartphone entityId=72693814-a462-4607-8259-9653cc2046b2 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe owner=COMPANY actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.175 INFO  [:] AUDIT - audit action=CREATE entity=Smartphone entityId=a1acf953-1b1d-4055-bc65-51ab427fb48a contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe owner=COMPANY actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.184 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Smartphone entityId=72693814-a462-4607-8259-9653cc2046b2 oldStatus=ACTIVE newStatus=IN_REPAIR actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.200 INFO  [:] AUDIT - audit action=CREATE entity=SimCard entityId=3f3392cd-cd63-45fd-a137-5ac8ee982996 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.211 INFO  [:] AUDIT - audit action=CREATE entity=SimCard entityId=7ddb7d94-c888-4e92-aca0-d57d908a5bc1 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=e0000000-0000-0000-0000-000000000001 monthlyFeeAmount=65.99 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.219 INFO  [:] AUDIT - audit action=CREATE entity=SimCard entityId=eeb3dce9-c0e2-42f6-a389-96fd6569cf22 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe carrierId=c0000000-0000-0000-0000-000000000002 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.225 INFO  [:] AUDIT - audit action=CREATE entity=SimCard entityId=8a64509e-6893-4f2d-9191-844f593bd2d2 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe carrierId=c0000000-0000-0000-0000-000000000002 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.232 INFO  [:] AUDIT - audit action=CREATE entity=SimCard entityId=8da461b8-43dd-4322-af62-1e50a9e87f8f contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe carrierId=c0000000-0000-0000-0000-000000000003 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.241 INFO  [:] AUDIT - audit action=SIM_CARD_INSTALLED entity=SimCard entityId=3f3392cd-cd63-45fd-a137-5ac8ee982996 smartphoneId=e1f3be3a-a514-4661-a5ab-1ba17bf2c892 requestId=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.246 INFO  [:] AUDIT - audit action=SIM_CARD_INSTALLED entity=SimCard entityId=7ddb7d94-c888-4e92-aca0-d57d908a5bc1 smartphoneId=e1f3be3a-a514-4661-a5ab-1ba17bf2c892 requestId=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.250 INFO  [:] AUDIT - audit action=SIM_CARD_INSTALLED entity=SimCard entityId=eeb3dce9-c0e2-42f6-a389-96fd6569cf22 smartphoneId=25b7c513-78a8-4b8a-8427-f18d994341b1 requestId=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.254 INFO  [:] AUDIT - audit action=SIM_CARD_INSTALLED entity=SimCard entityId=8a64509e-6893-4f2d-9191-844f593bd2d2 smartphoneId=a1acf953-1b1d-4055-bc65-51ab427fb48a requestId=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.258 INFO  [:] AUDIT - audit action=CREATE entity=Smartphone entityId=00a88d6a-379d-4620-97d1-2ce00fac59cb contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d owner=COMPANY actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.260 INFO  [:] AUDIT - audit action=CREATE entity=Smartphone entityId=fd13663d-e86c-4dd5-93ed-901627cf2685 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d owner=CLIENT actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.263 INFO  [:] AUDIT - audit action=CREATE entity=Smartphone entityId=f1cf73b7-2b7b-414e-90c8-e47cbdaac945 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d owner=COMPANY actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.265 INFO  [:] AUDIT - audit action=CREATE entity=Smartphone entityId=a811ec0c-6c4b-42c0-a970-268b17abcead contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d owner=COMPANY actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.273 INFO  [:] AUDIT - audit action=CREATE entity=SimCard entityId=fbbd5427-583e-4a53-8055-7c66dc0996bb contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d carrierId=c6a6c182-8529-462e-aef3-b4c251858f47 postpaidPlanId=da742740-84ec-4085-86ed-b35a2195b59a monthlyFeeAmount=20.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.279 INFO  [:] AUDIT - audit action=CREATE entity=SimCard entityId=15d8d328-9a74-43ef-b5d5-1f6e7e4201a4 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d carrierId=ab4ca4b7-8f07-4809-89cc-5fe2c0dbf16e postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.285 INFO  [:] AUDIT - audit action=CREATE entity=SimCard entityId=b0291abd-3b4a-4b76-a67b-94a4e8adb459 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d carrierId=c6a6c182-8529-462e-aef3-b4c251858f47 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.293 INFO  [:] AUDIT - audit action=CREATE entity=SimCard entityId=31a20736-1274-4ce9-a778-40425ff028c2 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d carrierId=ab4ca4b7-8f07-4809-89cc-5fe2c0dbf16e postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.301 INFO  [:] AUDIT - audit action=SIM_CARD_INSTALLED entity=SimCard entityId=fbbd5427-583e-4a53-8055-7c66dc0996bb smartphoneId=00a88d6a-379d-4620-97d1-2ce00fac59cb requestId=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.304 INFO  [:] AUDIT - audit action=SIM_CARD_INSTALLED entity=SimCard entityId=b0291abd-3b4a-4b76-a67b-94a4e8adb459 smartphoneId=a811ec0c-6c4b-42c0-a970-268b17abcead requestId=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.307 INFO  [:] AUDIT - audit action=CREATE entity=Smartphone entityId=858a0b48-2ffc-4041-805e-f3f5aa96ceb2 contractId=ab4c4ada-e6a1-483c-b3a2-abc892d546a8 owner=CLIENT actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.309 INFO  [:] AUDIT - audit action=CREATE entity=Smartphone entityId=1c5dedcc-cc59-4b02-9da6-8f0e2aeebd60 contractId=ab4c4ada-e6a1-483c-b3a2-abc892d546a8 owner=COMPANY actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.311 INFO  [:] AUDIT - audit action=CREATE entity=Smartphone entityId=dc8730d6-adcb-44f5-84da-f79d0b919ab7 contractId=ab4c4ada-e6a1-483c-b3a2-abc892d546a8 owner=COMPANY actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.316 INFO  [:] AUDIT - audit action=CREATE entity=SimCard entityId=e124c763-67f7-4844-84b1-bc2209c87ab9 contractId=ab4c4ada-e6a1-483c-b3a2-abc892d546a8 carrierId=c0000000-0000-0000-0000-000000000002 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.319 INFO  [:] AUDIT - audit action=CREATE entity=SimCard entityId=0cdcc1aa-0cc3-4308-9c6c-957ceb4dfb6d contractId=ab4c4ada-e6a1-483c-b3a2-abc892d546a8 carrierId=c0000000-0000-0000-0000-000000000003 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.325 INFO  [:] AUDIT - audit action=SIM_CARD_INSTALLED entity=SimCard entityId=e124c763-67f7-4844-84b1-bc2209c87ab9 smartphoneId=858a0b48-2ffc-4041-805e-f3f5aa96ceb2 requestId=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:31.329 INFO  [:] AUDIT - audit action=SIM_CARD_INSTALLED entity=SimCard entityId=0cdcc1aa-0cc3-4308-9c6c-957ceb4dfb6d smartphoneId=1c5dedcc-cc59-4b02-9da6-8f0e2aeebd60 requestId=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.284 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=d4148962-10c9-44f3-8736-d02a7173cd67 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.284 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=d4148962-10c9-44f3-8736-d02a7173cd67 oldStatus=SENT newStatus=APPROVED actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.284 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=d4148962-10c9-44f3-8736-d02a7173cd67 oldStatus=APPROVED newStatus=PAID actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.294 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=7b43e878-c973-4ddd-947b-6b274192b0a6 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.294 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=7b43e878-c973-4ddd-947b-6b274192b0a6 oldStatus=SENT newStatus=APPROVED actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.294 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=7b43e878-c973-4ddd-947b-6b274192b0a6 oldStatus=APPROVED newStatus=PAID actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.302 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=e65085e2-53d8-419a-a398-5687decd10cb oldStatus=DRAFT newStatus=SENT actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.302 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=e65085e2-53d8-419a-a398-5687decd10cb oldStatus=SENT newStatus=APPROVED actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.302 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=e65085e2-53d8-419a-a398-5687decd10cb oldStatus=APPROVED newStatus=PAID actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.309 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=299a4521-ebc9-4ea3-bb7c-d001bc2a2593 oldStatus=DRAFT newStatus=SENT actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.309 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=299a4521-ebc9-4ea3-bb7c-d001bc2a2593 oldStatus=SENT newStatus=APPROVED actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.309 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=299a4521-ebc9-4ea3-bb7c-d001bc2a2593 oldStatus=APPROVED newStatus=PAID actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.348 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=1a47ca65-4d22-485c-a76a-950585e0301f contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe requestType=REBOOT descriptionGiven=false targetSmartphoneId=e1f3be3a-a514-4661-a5ab-1ba17bf2c892 targetSimCardId=null topupOptionId=null actorUserId=6cd05726-648f-4744-b0e5-c9f687516355 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.360 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=1a47ca65-4d22-485c-a76a-950585e0301f oldStatus=SUBMITTED newStatus=IN_PROGRESS actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.364 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=1a47ca65-4d22-485c-a76a-950585e0301f oldStatus=IN_PROGRESS newStatus=COMPLETED actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.401 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=35a448ec-3561-43be-81c9-4ac6a90bbfed contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe requestType=REBOOT descriptionGiven=false targetSmartphoneId=e1f3be3a-a514-4661-a5ab-1ba17bf2c892 targetSimCardId=null topupOptionId=null actorUserId=6cd05726-648f-4744-b0e5-c9f687516355 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.408 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=35a448ec-3561-43be-81c9-4ac6a90bbfed oldStatus=SUBMITTED newStatus=CANCELLED actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.449 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=c7135d5d-9dd1-4043-b89f-5b9034f84c3c contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe requestType=TOPUP descriptionGiven=false targetSmartphoneId=null targetSimCardId=3f3392cd-cd63-45fd-a137-5ac8ee982996 topupOptionId=d0000000-0000-0000-0000-000000000001 actorUserId=6cd05726-648f-4744-b0e5-c9f687516355 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.455 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=c7135d5d-9dd1-4043-b89f-5b9034f84c3c oldStatus=SUBMITTED newStatus=IN_PROGRESS actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.459 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=c7135d5d-9dd1-4043-b89f-5b9034f84c3c oldStatus=IN_PROGRESS newStatus=COMPLETED actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.505 INFO  [:] AUDIT - audit action=FEE_LOGGED entity=Fee entityId=77d03722-9907-42ec-98e6-7d24874f4c8c contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe requestId=c7135d5d-9dd1-4043-b89f-5b9034f84c3c feeType=TOPUP amount=25.00 topupOptionId=d0000000-0000-0000-0000-000000000001 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.552 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=1bc672ee-8a5c-4380-a702-a83550eb0342 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe requestType=SIM_SWAP descriptionGiven=false targetSmartphoneId=a1acf953-1b1d-4055-bc65-51ab427fb48a targetSimCardId=eeb3dce9-c0e2-42f6-a389-96fd6569cf22 topupOptionId=null actorUserId=6cd05726-648f-4744-b0e5-c9f687516355 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.557 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=1bc672ee-8a5c-4380-a702-a83550eb0342 oldStatus=SUBMITTED newStatus=IN_PROGRESS actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.562 INFO  [:] AUDIT - audit action=SIM_CARD_UNINSTALLED entity=SimCard entityId=eeb3dce9-c0e2-42f6-a389-96fd6569cf22 smartphoneId=25b7c513-78a8-4b8a-8427-f18d994341b1 requestId=1bc672ee-8a5c-4380-a702-a83550eb0342 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.562 INFO  [:] AUDIT - audit action=SIM_CARD_INSTALLED entity=SimCard entityId=eeb3dce9-c0e2-42f6-a389-96fd6569cf22 smartphoneId=a1acf953-1b1d-4055-bc65-51ab427fb48a requestId=1bc672ee-8a5c-4380-a702-a83550eb0342 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.562 INFO  [:] AUDIT - audit action=SIM_CARD_UNINSTALLED entity=SimCard entityId=8a64509e-6893-4f2d-9191-844f593bd2d2 smartphoneId=a1acf953-1b1d-4055-bc65-51ab427fb48a requestId=1bc672ee-8a5c-4380-a702-a83550eb0342 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.562 INFO  [:] AUDIT - audit action=SIM_CARD_INSTALLED entity=SimCard entityId=8a64509e-6893-4f2d-9191-844f593bd2d2 smartphoneId=25b7c513-78a8-4b8a-8427-f18d994341b1 requestId=1bc672ee-8a5c-4380-a702-a83550eb0342 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.562 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=1bc672ee-8a5c-4380-a702-a83550eb0342 oldStatus=IN_PROGRESS newStatus=COMPLETED actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.568 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=70372bf9-3301-45e7-bc2a-6ee09fc08898 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe requestType=OTHER descriptionGiven=true targetSmartphoneId=null targetSimCardId=null topupOptionId=null actorUserId=6cd05726-648f-4744-b0e5-c9f687516355 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.573 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=70372bf9-3301-45e7-bc2a-6ee09fc08898 oldStatus=SUBMITTED newStatus=IN_PROGRESS actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.576 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=70372bf9-3301-45e7-bc2a-6ee09fc08898 oldStatus=IN_PROGRESS newStatus=COMPLETED actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.620 INFO  [:] AUDIT - audit action=FEE_LOGGED entity=Fee entityId=3a81f78b-8f9a-4226-b79b-3cd2b6c8dd82 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe requestId=70372bf9-3301-45e7-bc2a-6ee09fc08898 feeType=OTHER amount=45.00 topupOptionId=null actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.628 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=5e3903d2-6e37-4813-b595-c8ad266291c6 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe requestType=PROVISION_SMARTPHONE descriptionGiven=false targetSmartphoneId=null targetSimCardId=null topupOptionId=null actorUserId=6cd05726-648f-4744-b0e5-c9f687516355 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.632 INFO  [:] AUDIT - audit action=REQUEST_APPROVED entity=Request entityId=5e3903d2-6e37-4813-b595-c8ad266291c6 contractId=19d18744-61a3-4c2a-ada1-b3e0fb88abbe dispositionsChosen= actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.635 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=5e3903d2-6e37-4813-b595-c8ad266291c6 oldStatus=SUBMITTED newStatus=IN_PROGRESS actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.641 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=305b2cc8-d3b6-4f8b-9590-1e9831a28fc5 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d requestType=REPLACE_SMARTPHONE descriptionGiven=false targetSmartphoneId=a811ec0c-6c4b-42c0-a970-268b17abcead targetSimCardId=null topupOptionId=null actorUserId=6cd05726-648f-4744-b0e5-c9f687516355 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.645 INFO  [:] AUDIT - audit action=REQUEST_APPROVED entity=Request entityId=305b2cc8-d3b6-4f8b-9590-1e9831a28fc5 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d dispositionsChosen= actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.648 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=305b2cc8-d3b6-4f8b-9590-1e9831a28fc5 oldStatus=SUBMITTED newStatus=IN_PROGRESS actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.653 INFO  [:] AUDIT - audit action=SIM_CARD_UNINSTALLED entity=SimCard entityId=b0291abd-3b4a-4b76-a67b-94a4e8adb459 smartphoneId=a811ec0c-6c4b-42c0-a970-268b17abcead requestId=305b2cc8-d3b6-4f8b-9590-1e9831a28fc5 actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.653 INFO  [:] AUDIT - audit action=SIM_CARD_INSTALLED entity=SimCard entityId=b0291abd-3b4a-4b76-a67b-94a4e8adb459 smartphoneId=c33a93b5-8757-42fd-9eee-7b724e150529 requestId=305b2cc8-d3b6-4f8b-9590-1e9831a28fc5 actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.653 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Smartphone entityId=a811ec0c-6c4b-42c0-a970-268b17abcead oldStatus=ACTIVE newStatus=RETIRED actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.653 INFO  [:] AUDIT - audit action=FLEET_ITEM_PROVISIONED entity=Smartphone entityId=c33a93b5-8757-42fd-9eee-7b724e150529 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d requestId=305b2cc8-d3b6-4f8b-9590-1e9831a28fc5 owner=COMPANY actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.653 INFO  [:] AUDIT - audit action=UNIT_REPLACED entity=Smartphone requestId=305b2cc8-d3b6-4f8b-9590-1e9831a28fc5 retiredUnitId=a811ec0c-6c4b-42c0-a970-268b17abcead newUnitId=c33a93b5-8757-42fd-9eee-7b724e150529 actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.653 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=305b2cc8-d3b6-4f8b-9590-1e9831a28fc5 oldStatus=IN_PROGRESS newStatus=COMPLETED actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.661 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=39dc1042-8e3e-428b-be53-0f3166ef0744 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d requestType=REPLACE_SIM descriptionGiven=false targetSmartphoneId=null targetSimCardId=15d8d328-9a74-43ef-b5d5-1f6e7e4201a4 topupOptionId=null actorUserId=6cd05726-648f-4744-b0e5-c9f687516355 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.664 INFO  [:] AUDIT - audit action=REQUEST_REJECTED entity=Request entityId=39dc1042-8e3e-428b-be53-0f3166ef0744 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d reasonGiven=true actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.670 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=413237e1-d197-45c1-803e-3705dbf5cced contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d requestType=PROVISION_SMARTPHONE descriptionGiven=false targetSmartphoneId=null targetSimCardId=null topupOptionId=null actorUserId=6cd05726-648f-4744-b0e5-c9f687516355 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.677 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=740ea2c3-c26e-4baf-b7e8-1bbce5ea56a9 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d requestType=PROVISION_SIM descriptionGiven=false targetSmartphoneId=null targetSimCardId=null topupOptionId=null actorUserId=6cd05726-648f-4744-b0e5-c9f687516355 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.681 INFO  [:] AUDIT - audit action=REQUEST_APPROVED entity=Request entityId=740ea2c3-c26e-4baf-b7e8-1bbce5ea56a9 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d dispositionsChosen= actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.684 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=740ea2c3-c26e-4baf-b7e8-1bbce5ea56a9 oldStatus=SUBMITTED newStatus=IN_PROGRESS actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.952 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=593cbbd1-0445-418a-ba23-7f0369ebcab9 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d requestType=RETURN descriptionGiven=false targetSmartphoneId=null targetSimCardId=null topupOptionId=null actorUserId=6cd05726-648f-4744-b0e5-c9f687516355 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.966 INFO  [:] AUDIT - audit action=REQUEST_APPROVED entity=Request entityId=593cbbd1-0445-418a-ba23-7f0369ebcab9 contractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d dispositionsChosen=ccfbe8c7-b77b-4da0-a328-f3ca5a66501f=POSTED_TO_COMPANY,facc0df9-3094-4b45-9b2d-824636fe0637=CANCELLED,bde914df-f4ff-4418-a2a3-90d31bd16bdd=KEPT_IN_STOCK actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.970 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=593cbbd1-0445-418a-ba23-7f0369ebcab9 oldStatus=SUBMITTED newStatus=IN_PROGRESS actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.974 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Smartphone entityId=fd13663d-e86c-4dd5-93ed-901627cf2685 oldStatus=ACTIVE newStatus=RETIRED actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.975 INFO  [:] AUDIT - audit action=UNIT_RETURNED entity=Smartphone entityId=fd13663d-e86c-4dd5-93ed-901627cf2685 requestId=593cbbd1-0445-418a-ba23-7f0369ebcab9 disposition=POSTED_TO_CLIENT actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.975 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Smartphone entityId=f1cf73b7-2b7b-414e-90c8-e47cbdaac945 oldStatus=ACTIVE newStatus=RETIRED actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.976 INFO  [:] AUDIT - audit action=UNIT_RETURNED entity=Smartphone entityId=f1cf73b7-2b7b-414e-90c8-e47cbdaac945 requestId=593cbbd1-0445-418a-ba23-7f0369ebcab9 disposition=POSTED_TO_COMPANY actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.976 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=SimCard entityId=fbbd5427-583e-4a53-8055-7c66dc0996bb oldStatus=ACTIVE newStatus=RETIRED actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.976 INFO  [:] AUDIT - audit action=SIM_CARD_UNINSTALLED entity=SimCard entityId=fbbd5427-583e-4a53-8055-7c66dc0996bb smartphoneId=00a88d6a-379d-4620-97d1-2ce00fac59cb requestId=593cbbd1-0445-418a-ba23-7f0369ebcab9 actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.976 INFO  [:] AUDIT - audit action=UNIT_RETURNED entity=SimCard entityId=fbbd5427-583e-4a53-8055-7c66dc0996bb requestId=593cbbd1-0445-418a-ba23-7f0369ebcab9 disposition=CANCELLED actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.976 INFO  [:] AUDIT - audit action=SIM_CARD_CANCELLED entity=SimCard entityId=fbbd5427-583e-4a53-8055-7c66dc0996bb effectiveDate=2026-10-01 requestId=593cbbd1-0445-418a-ba23-7f0369ebcab9 actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.976 INFO  [:] AUDIT - audit action=UNIT_MOVED_TO_STOCK entity=SimCard entityId=31a20736-1274-4ce9-a778-40425ff028c2 fromContractId=3d7dbd7b-d868-4475-a2db-1e9b35b3704d agentId=8e855496-3f28-4bf0-b458-51fe3cb0f9bb requestId=593cbbd1-0445-418a-ba23-7f0369ebcab9 actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.976 INFO  [:] AUDIT - audit action=UNIT_RETURNED entity=SimCard entityId=31a20736-1274-4ce9-a778-40425ff028c2 requestId=593cbbd1-0445-418a-ba23-7f0369ebcab9 disposition=KEPT_IN_STOCK actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.976 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=593cbbd1-0445-418a-ba23-7f0369ebcab9 oldStatus=IN_PROGRESS newStatus=COMPLETED actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:32.986 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=649a11b1-1ac0-4465-977b-f39dfa5dc4f7 contractId=ab4c4ada-e6a1-483c-b3a2-abc892d546a8 requestType=TOPUP descriptionGiven=false targetSmartphoneId=null targetSimCardId=e124c763-67f7-4844-84b1-bc2209c87ab9 topupOptionId=d0000000-0000-0000-0000-000000000003 actorUserId=eadb77d5-bc1b-48b7-8c8e-bd6e70c3f1fb tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.119 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=d3e99ffa-9ae8-4a92-9e01-ffaca9e69d2b contractId=ab4c4ada-e6a1-483c-b3a2-abc892d546a8 requestType=RETURN descriptionGiven=false targetSmartphoneId=null targetSimCardId=null topupOptionId=null actorUserId=eadb77d5-bc1b-48b7-8c8e-bd6e70c3f1fb tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.187 INFO  [:] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=ce1db7ab-bbfb-4043-a8d9-53e456108407 contractId=ab4c4ada-e6a1-483c-b3a2-abc892d546a8 requestType=RETURN descriptionGiven=false targetSmartphoneId=null targetSimCardId=null topupOptionId=null actorUserId=eadb77d5-bc1b-48b7-8c8e-bd6e70c3f1fb tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.193 INFO  [:] AUDIT - audit action=REQUEST_APPROVED entity=Request entityId=ce1db7ab-bbfb-4043-a8d9-53e456108407 contractId=ab4c4ada-e6a1-483c-b3a2-abc892d546a8 dispositionsChosen=3e658ac0-815e-493b-9422-2f974b210271=KEPT_IN_STOCK actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.204 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=ce1db7ab-bbfb-4043-a8d9-53e456108407 oldStatus=SUBMITTED newStatus=IN_PROGRESS actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.214 INFO  [:] AUDIT - audit action=UNIT_MOVED_TO_STOCK entity=Smartphone entityId=dc8730d6-adcb-44f5-84da-f79d0b919ab7 fromContractId=ab4c4ada-e6a1-483c-b3a2-abc892d546a8 agentId=55555555-5555-5555-5555-555555555555 requestId=ce1db7ab-bbfb-4043-a8d9-53e456108407 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.214 INFO  [:] AUDIT - audit action=UNIT_RETURNED entity=Smartphone entityId=dc8730d6-adcb-44f5-84da-f79d0b919ab7 requestId=ce1db7ab-bbfb-4043-a8d9-53e456108407 disposition=KEPT_IN_STOCK actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.214 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=Request entityId=ce1db7ab-bbfb-4043-a8d9-53e456108407 oldStatus=IN_PROGRESS newStatus=COMPLETED actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.221 INFO  [:] AUDIT - audit action=CREATE entity=ClientInvoice entityId=97791f84-0fb3-4b4e-9de8-c38a943c2c25 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.322 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=97791f84-0fb3-4b4e-9de8-c38a943c2c25 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.338 INFO  [:] AUDIT - audit action=CREATE entity=ClientInvoice entityId=4755c710-025d-4e30-9ba3-371474067856 actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.344 INFO  [:] AUDIT - audit action=CREATE entity=ClientInvoice entityId=b6c1ffbc-3bef-4cc2-a751-8961317dee5e actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.350 INFO  [:] AUDIT - audit action=CREATE entity=AgentInvoice entityId=8a03bb8a-0947-429d-82a1-fe5c8391ca99 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.356 INFO  [:] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=8a03bb8a-0947-429d-82a1-fe5c8391ca99 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.360 INFO  [:] AUDIT - audit action=CREATE entity=AgentInvoice entityId=53f098f1-0a4e-4d0a-8ec0-bc3aa634c446 actorUserId=408ca50f-df16-4b49-9c4c-46147a30e053 tenantId=11111111-1111-1111-1111-111111111111
+00:53:33.364 INFO  [:] c.r.backend.demo.DemoDataLoader - Demo story built: agents=3, carriers=3, clients=2, contracts=3, testers=5, smartphones=11, simCards=11, requests=14, fees=8, clientInvoices(approved=6, thisMonth=3), agentInvoices(paid=4, thisMonth=2)
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (/Users/oscar/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+00:53:33.782 INFO  [:] c.r.backend.demo.DemoDataLoader - Demo story already present (Client 90000000-0000-0000-0000-000000000001 exists) — skipping.
+00:53:34.022 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=408ca50f-df16-4b49-9c4c-46147a30e053 role=AGENT username=priya.shah@example.com
+00:53:34.027 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:34.106 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=6cd05726-648f-4744-b0e5-c9f687516355 role=TESTER username=dana.whitfield@solsticeretail.example
+00:53:34.106 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:34.183 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=eadb77d5-bc1b-48b7-8c8e-bd6e70c3f1fb role=TESTER username=noah.kim@harborline.example
+00:53:34.183 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:34.188 INFO  [:] c.r.backend.logging.RequestLoggingFilter - GET /api/health -> 200
+00:53:34.193 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.security.AgentPasswordResetGuardTest]: AgentPasswordResetGuardTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+00:53:34.195 INFO  [:] tc.postgres:16-alpine - Creating container for image: postgres:16-alpine
+00:53:34.272 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine is starting: e95bff9374c68355b677d197db341cacd055b164f5c8955b0fcd43288890a8f9
+00:53:35.139 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine started in PT0.943536S
+00:53:35.139 INFO  [:] tc.postgres:16-alpine - Container is started (JDBC URL: jdbc:postgresql://localhost:64649/test?loggerLevel=OFF)
+00:53:35.148 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.security.AgentPasswordResetGuardTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+00:53:35.162 INFO  [:] c.r.b.s.AgentPasswordResetGuardTest - Starting AgentPasswordResetGuardTest using Java 21.0.11 with PID 7420 (started by oscar in /Users/oscar/myspace/projects/remote-support-app/backend)
+00:53:35.162 DEBUG [:] c.r.b.s.AgentPasswordResetGuardTest - Running with Spring Boot v3.3.4, Spring v6.1.13
+00:53:35.162 INFO  [:] c.r.b.s.AgentPasswordResetGuardTest - The following 1 profile is active: "test"
+00:53:35.274 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+00:53:35.285 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 10 ms. Found 19 JPA repository interfaces.
+00:53:35.381 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:64649/test (PostgreSQL 16.15)
+00:53:35.390 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+00:53:35.391 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 47 migrations (execution time 00:00.006s)
+00:53:35.395 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+00:53:35.407 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+00:53:35.408 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+00:53:35.418 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+00:53:35.424 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+00:53:35.430 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+00:53:35.443 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+00:53:35.450 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+00:53:35.466 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+00:53:35.474 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+00:53:35.482 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+00:53:35.491 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+00:53:35.497 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+00:53:35.504 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+00:53:35.510 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+00:53:35.517 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+00:53:35.528 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+00:53:35.533 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+00:53:35.538 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+00:53:35.545 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+00:53:35.549 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+00:53:35.555 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+00:53:35.560 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+00:53:35.568 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+00:53:35.573 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+00:53:35.578 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+00:53:35.582 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+00:53:35.588 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+00:53:35.593 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+00:53:35.599 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+00:53:35.603 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+00:53:35.608 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+00:53:35.615 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+00:53:35.621 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+00:53:35.625 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+00:53:35.630 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+00:53:35.634 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+00:53:35.639 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+00:53:35.644 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+00:53:35.649 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+00:53:35.653 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+00:53:35.659 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+00:53:35.665 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+00:53:35.672 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+00:53:35.676 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+00:53:35.680 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+00:53:35.684 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+00:53:35.689 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+00:53:35.695 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+00:53:35.703 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+00:53:35.706 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+00:53:35.711 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 47 migrations to schema "public", now at version v55 (execution time 00:00.139s)
+00:53:35.726 INFO  [:] o.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+00:53:35.727 INFO  [:] o.h.c.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+00:53:35.729 INFO  [:] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+00:53:35.730 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Starting...
+00:53:35.735 INFO  [:] com.zaxxer.hikari.pool.HikariPool - HikariPool-2 - Added connection org.postgresql.jdbc.PgConnection@67d8431d
+00:53:35.735 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-2 - Start completed.
+00:53:35.872 INFO  [:] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+00:53:35.885 INFO  [:] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+00:53:36.008 INFO  [:] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name appUserDetailsService
+00:53:36.132 INFO  [:] o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+00:53:36.215 INFO  [:] o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+00:53:36.215 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Initializing Servlet ''
+00:53:36.215 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Completed initialization in 0 ms
+00:53:36.224 INFO  [:] c.r.b.s.AgentPasswordResetGuardTest - Started AgentPasswordResetGuardTest in 1.074 seconds (process running for 12.005)
+00:53:36.260 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.web.AgentPasswordResetApiTest]: AgentPasswordResetApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+00:53:36.271 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.web.AgentPasswordResetApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+00:53:36.281 INFO  [:] c.r.b.web.AgentPasswordResetApiTest - Starting AgentPasswordResetApiTest using Java 21.0.11 with PID 7420 (started by oscar in /Users/oscar/myspace/projects/remote-support-app/backend)
+00:53:36.281 DEBUG [:] c.r.b.web.AgentPasswordResetApiTest - Running with Spring Boot v3.3.4, Spring v6.1.13
+00:53:36.281 INFO  [:] c.r.b.web.AgentPasswordResetApiTest - The following 1 profile is active: "test"
+00:53:36.373 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+00:53:36.383 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 9 ms. Found 19 JPA repository interfaces.
+00:53:36.446 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:64649/test (PostgreSQL 16.15)
+00:53:36.463 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 47 migrations (execution time 00:00.010s)
+00:53:36.470 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": 55
+00:53:36.470 INFO  [:] o.f.core.internal.command.DbMigrate - Schema "public" is up to date. No migration necessary.
+00:53:36.483 INFO  [:] o.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+00:53:36.484 INFO  [:] o.h.c.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+00:53:36.486 INFO  [:] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+00:53:36.486 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-3 - Starting...
+00:53:36.492 INFO  [:] com.zaxxer.hikari.pool.HikariPool - HikariPool-3 - Added connection org.postgresql.jdbc.PgConnection@2d55df70
+00:53:36.492 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-3 - Start completed.
+00:53:36.587 INFO  [:] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+00:53:36.619 INFO  [:] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+00:53:36.706 INFO  [:] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name appUserDetailsService
+00:53:36.801 INFO  [:] o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+00:53:36.863 INFO  [:] o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+00:53:36.863 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Initializing Servlet ''
+00:53:36.863 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Completed initialization in 0 ms
+00:53:36.873 INFO  [:] c.r.b.web.AgentPasswordResetApiTest - Started AgentPasswordResetApiTest in 0.6 seconds (process running for 12.654)
+00:53:37.032 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:37.034 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:37.139 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=b37b1bf7-9c98-425d-b452-5aad1bca5bbc agentId=da69240d-07c1-472b-add1-f44d99311c6c actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:37.139 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Agent entityId=da69240d-07c1-472b-add1-f44d99311c6c actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:37.142 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents -> 201
+00:53:37.294 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=b37b1bf7-9c98-425d-b452-5aad1bca5bbc actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:37.295 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/da69240d-07c1-472b-add1-f44d99311c6c/login/password -> 200
+00:53:37.376 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:37.377 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:37.461 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=8f0352c4-c937-4b61-8f30-3d20c5c580b8 agentId=cf269000-6cdc-4000-b035-dcbc4509d41d actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:37.461 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Agent entityId=cf269000-6cdc-4000-b035-dcbc4509d41d actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:37.461 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents -> 201
+00:53:37.614 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+00:53:37.614 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:37.617 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/cf269000-6cdc-4000-b035-dcbc4509d41d/login/password -> 403
+00:53:37.697 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=44444444-4444-4444-4444-444444444444 role=TESTER username=tester@example.com
+00:53:37.698 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:37.699 INFO  [11111111-1111-1111-1111-111111111111:44444444-4444-4444-4444-444444444444] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/cf269000-6cdc-4000-b035-dcbc4509d41d/login/password -> 403
+00:53:37.704 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/9f217b2a-95f6-4b5c-9cf0-cb95053bc894/login/password -> 404
+00:53:37.707 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/af7e39d3-fbee-4517-8867-b84cd1337515/login/password -> 404
+00:53:37.864 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:37.864 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:37.868 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/42141f12-3c24-4b10-9ae7-b9c77e32354e/login/password -> 404
+00:53:37.943 INFO  [:] c.r.backend.web.AuthController - login success tenantId=09c515ee-2dce-4572-929e-30e6b80b598c userId=1a5be574-9a7f-4dd9-9c00-d9760e62c1c4 role=AGENT username=other-tenant-agent-6a8fdbb6-48a5-4ba9-9537-f2f26a974e92@example.com
+00:53:37.944 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:38.025 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:38.026 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:38.108 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=a697bcc7-ab66-4bc5-ac78-ec0ffec57bcb agentId=da4b3445-f9ec-4384-811d-2417c9ffbcd2 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:38.108 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Agent entityId=da4b3445-f9ec-4384-811d-2417c9ffbcd2 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:38.108 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents -> 201
+00:53:38.115 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/da4b3445-f9ec-4384-811d-2417c9ffbcd2/standing-amounts -> 200
+00:53:38.125 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents -> 200
+00:53:38.270 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=a697bcc7-ab66-4bc5-ac78-ec0ffec57bcb actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:38.271 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/da4b3445-f9ec-4384-811d-2417c9ffbcd2/login/password -> 200
+00:53:38.279 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents -> 200
+00:53:38.283 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/da4b3445-f9ec-4384-811d-2417c9ffbcd2/standing-amounts -> 200
+00:53:38.361 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:38.361 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:38.367 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/0d0f365b-f091-4dc3-853b-e914421fad80/login/password -> 409
+00:53:38.456 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:38.456 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:38.543 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=0360e223-5ab2-4462-803c-77efc0ea12cc agentId=0849f6ac-f82c-42d7-8257-ba124e18f33a actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:38.543 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Agent entityId=0849f6ac-f82c-42d7-8257-ba124e18f33a actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:38.544 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents -> 201
+00:53:38.692 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=0360e223-5ab2-4462-803c-77efc0ea12cc actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:38.692 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/0849f6ac-f82c-42d7-8257-ba124e18f33a/login/password -> 200
+00:53:38.771 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=0360e223-5ab2-4462-803c-77efc0ea12cc role=AGENT username=reset-67dc03f5-1c84-4542-9832-eb71e1ea3335@agents.example
+00:53:38.771 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:38.845 WARN  [:] c.r.backend.web.AuthController - login failed username=reset-67dc03f5-1c84-4542-9832-eb71e1ea3335@agents.example
+00:53:38.845 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 401
+00:53:38.924 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:38.924 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:39.008 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=23bed37a-5186-480c-b4d2-9e72dffa09da agentId=53591ec7-bb20-4b17-8e89-746d1f7baa67 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:39.008 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Agent entityId=53591ec7-bb20-4b17-8e89-746d1f7baa67 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:39.009 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents -> 201
+00:53:39.083 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+00:53:39.083 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:39.157 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=44444444-4444-4444-4444-444444444444 role=TESTER username=tester@example.com
+00:53:39.158 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:39.159 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/53591ec7-bb20-4b17-8e89-746d1f7baa67/login/password -> 403
+00:53:39.160 INFO  [11111111-1111-1111-1111-111111111111:44444444-4444-4444-4444-444444444444] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/53591ec7-bb20-4b17-8e89-746d1f7baa67/login/password -> 403
+00:53:39.233 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=23bed37a-5186-480c-b4d2-9e72dffa09da role=AGENT username=reset-da605c49-6244-4ace-bfc5-09b91739903e@agents.example
+00:53:39.234 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:39.311 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:39.312 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:39.316 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/e11dce2f-b8ad-4e6d-9e27-9196ba7f275f/login/password -> 404
+00:53:39.319 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.web.AuthLoginTest]: AuthLoginTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+00:53:39.321 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.web.AuthLoginTest
+00:53:39.476 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:39.477 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:39.556 WARN  [:] c.r.backend.web.AuthController - login failed username=manager@example.com
+00:53:39.557 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 401
+00:53:39.635 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+00:53:39.636 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:39.714 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=44444444-4444-4444-4444-444444444444 role=TESTER username=tester@example.com
+00:53:39.714 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:39.718 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.web.TesterPasswordResetApiTest]: TesterPasswordResetApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+00:53:39.719 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.web.TesterPasswordResetApiTest
+00:53:39.797 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:39.798 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:39.803 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=534384e3-6938-4fba-8df2-f6873f7effec actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:39.807 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+00:53:39.895 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=dee1ba0f-b6ff-4898-aef8-9b262cad19b7 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:39.896 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/534384e3-6938-4fba-8df2-f6873f7effec/testers -> 201
+00:53:40.049 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=dbf17ecd-f6dd-41cc-a442-d3d8355973cd actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:40.050 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/534384e3-6938-4fba-8df2-f6873f7effec/testers/dee1ba0f-b6ff-4898-aef8-9b262cad19b7/password -> 200
+00:53:40.216 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:40.216 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:40.220 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/d98cf64f-d5d8-4c96-8e1d-261e1d5977f3/testers/db023c47-ff4d-4cf5-ad7b-17073f9f410f/password -> 404
+00:53:40.294 INFO  [:] c.r.backend.web.AuthController - login success tenantId=34ea69e2-a239-4414-8b46-2a7b01b93cf6 userId=c71bdccf-c61e-4ae4-828d-80ca13199c38 role=TESTER username=other-tenant-tester-00af725b-0591-4c9c-be33-1a94ec2596b8@example.com
+00:53:40.294 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:40.371 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:40.371 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:40.374 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=a1e5ff8a-6a2f-44d2-a358-39b17a4e00fe actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:40.376 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+00:53:40.460 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=479e2e47-f5fe-43b2-9c24-5254ac8b8afa actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:40.461 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/a1e5ff8a-6a2f-44d2-a358-39b17a4e00fe/testers -> 201
+00:53:40.465 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/clients/a1e5ff8a-6a2f-44d2-a358-39b17a4e00fe/testers -> 200
+00:53:40.611 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=1c124f57-583e-45fa-a7ac-e183babef823 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:40.611 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/a1e5ff8a-6a2f-44d2-a358-39b17a4e00fe/testers/479e2e47-f5fe-43b2-9c24-5254ac8b8afa/password -> 200
+00:53:40.616 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/clients/a1e5ff8a-6a2f-44d2-a358-39b17a4e00fe/testers -> 200
+00:53:40.704 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:40.704 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:40.709 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=2c022e4e-3ba4-4507-bfe5-dc01e458b4a1 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:40.712 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+00:53:40.801 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=b836f920-87dd-4d97-ba9f-b58b5d304b0e actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:40.801 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/2c022e4e-3ba4-4507-bfe5-dc01e458b4a1/testers -> 201
+00:53:40.945 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=5d0b8f8f-479f-453a-9fc6-c8ccc4fb8d36 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:40.946 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/2c022e4e-3ba4-4507-bfe5-dc01e458b4a1/testers/b836f920-87dd-4d97-ba9f-b58b5d304b0e/password -> 200
+00:53:41.019 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=5d0b8f8f-479f-453a-9fc6-c8ccc4fb8d36 role=TESTER username=reset-fc48208b-03b3-4d81-bf60-9265d3d6b8c3@testers.example
+00:53:41.020 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:41.095 WARN  [:] c.r.backend.web.AuthController - login failed username=reset-fc48208b-03b3-4d81-bf60-9265d3d6b8c3@testers.example
+00:53:41.095 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 401
+00:53:41.175 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:41.175 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:41.179 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=2cf2e71f-6835-45e8-bb35-2cf4d9971ec1 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:41.181 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+00:53:41.261 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=ce9bdcb3-14dc-4d10-b63f-f0afcc981c40 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:41.262 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/2cf2e71f-6835-45e8-bb35-2cf4d9971ec1/testers -> 201
+00:53:41.334 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+00:53:41.335 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:41.408 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=44444444-4444-4444-4444-444444444444 role=TESTER username=tester@example.com
+00:53:41.408 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:41.409 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/2cf2e71f-6835-45e8-bb35-2cf4d9971ec1/testers/ce9bdcb3-14dc-4d10-b63f-f0afcc981c40/password -> 403
+00:53:41.410 INFO  [11111111-1111-1111-1111-111111111111:44444444-4444-4444-4444-444444444444] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/2cf2e71f-6835-45e8-bb35-2cf4d9971ec1/testers/ce9bdcb3-14dc-4d10-b63f-f0afcc981c40/password -> 403
+00:53:41.484 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=e9fc386d-18f2-4ecb-bd6a-02fef045355f role=TESTER username=reset-c2a51c99-ef4b-491f-9a7f-4b61e97399a3@testers.example
+00:53:41.484 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:41.561 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+00:53:41.561 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+00:53:41.564 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=efb4c069-83b6-4760-96a5-16ff1e229a2f actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:41.568 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+00:53:41.649 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=c62a23e2-e405-426a-b9ff-563f62584d6f actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+00:53:41.650 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/efb4c069-83b6-4760-96a5-16ff1e229a2f/testers -> 201
+00:53:41.655 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/efb4c069-83b6-4760-96a5-16ff1e229a2f/testers/3b2b5126-d8f2-43e2-9abf-a49b37b996d2/password -> 404
+00:53:41.659 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/b48d33a1-7ab5-4b8c-a844-95d8a5f18a77/testers/c62a23e2-e405-426a-b9ff-563f62584d6f/password -> 404

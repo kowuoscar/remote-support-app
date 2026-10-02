@@ -173,7 +173,7 @@ class SimCardApiTest extends IntegrationTest {
     UUID otherContract = createContract(managerToken, otherClient, agentId);
 
     String testerToken =
-        createTesterAndLogin(managerToken, ownClient, "nadia.okafor@aurora.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, ownClient, "nadia.okafor@aurora.example");
 
     mockMvc
         .perform(

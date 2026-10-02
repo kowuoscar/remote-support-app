@@ -15,6 +15,7 @@ import com.remotesupport.backend.domain.Smartphone;
 import com.remotesupport.backend.domain.SmartphoneOwner;
 import com.remotesupport.backend.domain.SmartphoneStatus;
 import com.remotesupport.backend.domain.Tenant;
+import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.TopupOption;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.repository.AgentInvoiceRepository;
@@ -25,6 +26,7 @@ import com.remotesupport.backend.repository.ClientRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.SmartphoneRepository;
 import com.remotesupport.backend.repository.TenantRepository;
+import com.remotesupport.backend.repository.TesterRepository;
 import com.remotesupport.backend.repository.TopupOptionRepository;
 import com.remotesupport.backend.repository.UserRepository;
 import java.math.BigDecimal;
@@ -53,6 +55,7 @@ public class OtherTenantFixture {
   private final TopupOptionRepository topupOptionRepository;
   private final SmartphoneRepository smartphoneRepository;
   private final UserRepository userRepository;
+  private final TesterRepository testerRepository;
   private final PasswordEncoder passwordEncoder;
 
   public OtherTenantFixture(
@@ -66,6 +69,7 @@ public class OtherTenantFixture {
       TopupOptionRepository topupOptionRepository,
       SmartphoneRepository smartphoneRepository,
       UserRepository userRepository,
+      TesterRepository testerRepository,
       PasswordEncoder passwordEncoder) {
     this.tenantRepository = tenantRepository;
     this.clientRepository = clientRepository;
@@ -77,6 +81,7 @@ public class OtherTenantFixture {
     this.topupOptionRepository = topupOptionRepository;
     this.smartphoneRepository = smartphoneRepository;
     this.userRepository = userRepository;
+    this.testerRepository = testerRepository;
     this.passwordEncoder = passwordEncoder;
   }
 
@@ -214,6 +219,68 @@ public class OtherTenantFixture {
 
     return new OtherTenantLogin(tenant.getId(), username, password, client.getId());
   }
+
+  /**
+   * A brand-new Tenant with an Agent that has a working {@code AGENT}-role login, written directly
+   * with a known password (a reset never reveals the original, so a test can only prove "still
+   * signs in with its original password" if the fixture knows it).
+   */
+  public OtherTenantAgentLogin agentLoginInAnotherTenant(String username, String password) {
+    Instant now = Instant.now();
+    Tenant tenant = newTenant(now);
+    Agent agent = newAgent(tenant, now);
+
+    User user = new User();
+    user.setId(UUID.randomUUID());
+    user.setTenant(tenant);
+    user.setUsername(username);
+    user.setPasswordHash(passwordEncoder.encode(password));
+    user.setRole(Role.AGENT);
+    user.setAgent(agent);
+    user.setCreatedAt(now);
+    userRepository.saveAndFlush(user);
+
+    return new OtherTenantAgentLogin(tenant.getId(), agent.getId(), username, password);
+  }
+
+  /**
+   * A brand-new Tenant with a Client and a Tester under it, the Tester's {@code TESTER}-role login
+   * written directly with a known password (see {@link #agentLoginInAnotherTenant}).
+   */
+  public OtherTenantTesterLogin testerLoginInAnotherTenant(String username, String password) {
+    Instant now = Instant.now();
+    Tenant tenant = newTenant(now);
+    Client client = newClient(tenant, "Other Tenant Tester's Client", now);
+
+    User user = new User();
+    user.setId(UUID.randomUUID());
+    user.setTenant(tenant);
+    user.setUsername(username);
+    user.setPasswordHash(passwordEncoder.encode(password));
+    user.setRole(Role.TESTER);
+    user.setCreatedAt(now);
+    userRepository.saveAndFlush(user);
+
+    Tester tester = new Tester();
+    tester.setId(UUID.randomUUID());
+    tester.setTenant(tenant);
+    tester.setClient(client);
+    tester.setUser(user);
+    tester.setPrimaryContact(false);
+    tester.setCreatedAt(now);
+    testerRepository.saveAndFlush(tester);
+
+    return new OtherTenantTesterLogin(
+        tenant.getId(), client.getId(), tester.getId(), username, password);
+  }
+
+  /** A Tester and its login in another Tenant, as built by {@link #testerLoginInAnotherTenant}. */
+  public record OtherTenantTesterLogin(
+      UUID tenantId, UUID clientId, UUID testerId, String username, String password) {}
+
+  /** An Agent and its login in another Tenant, as built by {@link #agentLoginInAnotherTenant}. */
+  public record OtherTenantAgentLogin(
+      UUID tenantId, UUID agentId, String username, String password) {}
 
   /**
    * A second Tenant's login and its data, as built by {@link #managerLoginInAnotherTenant}: the

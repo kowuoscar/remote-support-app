@@ -46,7 +46,7 @@ class SimSwapRequestDetailsApiTest extends IntegrationTest {
     managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Meridian Field Services");
     contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
-    testerToken = createTesterAndLogin(managerToken, clientId, "noor.haddad@meridian.example", "Passw0rd!23");
+    testerToken = createTesterAndLogin(managerToken, clientId, "noor.haddad@meridian.example");
     agentToken = agentToken();
     testerId = findTesterId();
   }

@@ -1,0 +1,3 @@
+Signed in through UI as ui.agent.1790895352481@example.com with the revealed password -> http://127.0.0.1:64381/agent
+Changed password -> http://127.0.0.1:64381/login?passwordChanged=1; revealed password now: 401; own password: 200
+RESULT: passed

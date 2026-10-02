@@ -28,7 +28,6 @@ test.describe("create agent with login", () => {
 
     const agentName = `Inès Carvalho ${RUN_ID}`;
     const agentEmail = `ines.carvalho+${RUN_ID}@agents.example`;
-    const agentPassword = "Passw0rd!23";
 
     await page.goto("/manager/agents");
     await page.getByRole("button", { name: "Add agent" }).first().click();
@@ -36,8 +35,14 @@ test.describe("create agent with login", () => {
     await page.getByLabel("Country").selectOption("FRANCE");
     await page.getByLabel("Standing monthly salary").fill("2400");
     await page.getByLabel("Email").fill(agentEmail);
-    await page.getByLabel("Temporary password").fill(agentPassword);
+    await expect(page.getByRole("dialog").getByLabel("Temporary password")).toHaveCount(0);
     await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
+
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.getByText(`${agentEmail} can now sign in`)).toBeVisible();
+    const agentPassword = await dialog.getByLabel("Generated password").inputValue();
+    await dialog.getByRole("button", { name: "Done" }).click();
+    await expect(page.getByText(agentPassword)).toHaveCount(0);
 
     await page.getByRole("link", { name: agentName }).click();
     await expect(page).toHaveURL(/\/manager\/agents\/.+/);
@@ -62,7 +67,6 @@ test.describe("create agent with login", () => {
     await page.getByLabel("Agent name").fill(agentName);
     await page.getByLabel("Standing monthly salary").fill("1000");
     await page.getByLabel("Email").fill(MANAGER.username);
-    await page.getByLabel("Temporary password").fill("Passw0rd!23");
     await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
 
     await expect(page.getByRole("dialog").getByRole("alert")).toContainText(
@@ -74,28 +78,4 @@ test.describe("create agent with login", () => {
     await expect(page.getByRole("link", { name: agentName })).toHaveCount(0);
   });
 
-  test("a temporary password of only spaces is refused on the password field and creates no agent", async ({
-    page,
-  }) => {
-    await login(page, MANAGER.username, MANAGER.password);
-    await expect(page).toHaveURL(/\/manager$/);
-
-    const agentName = `Blank Password ${RUN_ID}`;
-
-    await page.goto("/manager/agents");
-    await page.getByRole("button", { name: "Add agent" }).first().click();
-    const dialog = page.getByRole("dialog");
-    await dialog.getByLabel("Agent name").fill(agentName);
-    await dialog.getByLabel("Standing monthly salary").fill("1000");
-    await dialog.getByLabel("Email").fill(`blank.password+${RUN_ID}@agents.example`);
-    await dialog.getByLabel("Temporary password").fill("   ");
-    await dialog.getByRole("button", { name: "Add agent" }).click();
-
-    await expect(dialog.getByRole("alert")).toContainText("can't be only spaces");
-    await expect(dialog.getByLabel("Temporary password")).toHaveAttribute("aria-invalid", "true");
-    await expect(dialog.getByLabel("Standing monthly salary")).not.toHaveAttribute("aria-invalid", "true");
-
-    await page.goto("/manager/agents");
-    await expect(page.getByRole("link", { name: agentName })).toHaveCount(0);
-  });
 });

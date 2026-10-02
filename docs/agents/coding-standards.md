@@ -111,14 +111,21 @@ not something a ticket does on the side.
 5. Cross a Server/Client boundary only with serializable props — no
    functions, class instances or `Date`s passed to a Client Component; pass
    ISO strings and format them client-side.
-6. An error that should show UI uses `error.tsx` at the nearest route
-   segment; an error that should crash to a boundary above is thrown, never
-   swallowed and logged.
+6. An error that takes out a whole route segment and should show UI uses
+   `error.tsx` at the nearest route segment; an error that should crash to a
+   boundary above is thrown, never swallowed and logged. A region of a page
+   (a card, a list) that fails alone may log the failure and render its own
+   "Couldn't load…" state while the rest of the page works — that is the
+   intended pattern, not a swallowed error. (Amended by the human, 2026-10-01.)
 7. Environment variables consumed in the browser are prefixed
    `NEXT_PUBLIC_` and nowhere else; a secret read in a Client Component is a
    bug, not a config oversight.
-8. Compose Tailwind classes from the tokens in `tailwind.config`; an
-   arbitrary value (`w-[123px]`) needs a comment saying why it isn't a token.
+8. Compose Tailwind classes from the tokens in `frontend/app/globals.css`
+   (`@theme`, Tailwind v4); an arbitrary value (`w-[123px]`) needs a comment
+   saying why it isn't a token. The two small type sizes are tokens, not
+   arbitrary values, once the `type-scale-tokens` enabler lands; until then
+   `text-[12px]`/`text-[13px]` in unchanged lines are known debt.
+   (Amended by the human, 2026-10-01.)
 9. Unit and component tests (Vitest + Testing Library) sit next to the file
    as `*.test.tsx`; end-to-end journeys (Playwright) sit under `e2e/`, one
    file per journey.

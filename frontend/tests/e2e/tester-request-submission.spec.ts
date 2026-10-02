@@ -59,12 +59,12 @@ test.describe("tester request submission", () => {
     const fleet = await addFleetForRebootAndTopup(page, contractId, RUN_ID);
 
     const firstTesterEmail = `priya.raman+${RUN_ID}@aurora.example`;
-    await addTester(page, clientId, firstTesterEmail, "Passw0rd!23");
+    const firstTesterPassword = await addTester(page, clientId, firstTesterEmail);
     const secondTesterEmail = `owen.reyes+${RUN_ID}@aurora.example`;
-    await addTester(page, clientId, secondTesterEmail, "Passw0rd!23");
+    const secondTesterPassword = await addTester(page, clientId, secondTesterEmail);
 
     await logout(page);
-    await login(page, firstTesterEmail, "Passw0rd!23");
+    await login(page, firstTesterEmail, firstTesterPassword);
     await expect(page).toHaveURL(/\/client$/);
 
     await submitEveryRequestType(page, fleet);
@@ -76,7 +76,7 @@ test.describe("tester request submission", () => {
     // A different Tester at the same Client sees every Request raised by anyone at that Client,
     // not just their own.
     await logout(page);
-    await login(page, secondTesterEmail, "Passw0rd!23");
+    await login(page, secondTesterEmail, secondTesterPassword);
     await page.goto("/client/requests");
     for (const typeLabel of REQUEST_TYPE_LABELS) {
       await expect(page.getByRole("row", { name: new RegExp(typeLabel) })).toBeVisible();
@@ -127,10 +127,10 @@ test.describe("tester request submission", () => {
     await expect(page).toHaveURL(/\/manager\/clients\/.+/);
     const testerClientId = page.url().split("/").pop()!;
     const testerEmail = `elise.fabron+${RUN_ID}@solene.example`;
-    await addTester(page, testerClientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, testerClientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     const testerGetStatus = await page.evaluate(async (contractId) => {
       const response = await fetch(`/api/contracts/${contractId}/requests`);
       return response.status;

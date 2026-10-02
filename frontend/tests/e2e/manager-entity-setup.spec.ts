@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { logout, readRevealedPasswordAndClose } from "./helpers";
 
 /**
  * Manager entity setup (manager-entity-setup ticket), driven against a real backend + Postgres
@@ -52,10 +53,11 @@ test.describe("manager entity setup", () => {
     await page.getByLabel("Agent name").fill(agentName);
     await page.getByLabel("Country").selectOption("FRANCE");
     await page.getByLabel("Standing monthly salary").fill("2400");
-    await page.getByLabel("Email").fill(`camille.duforet+${RUN_ID}@agents.example`);
-    await page.getByLabel("Temporary password").fill("Passw0rd!23");
+    const agentEmail = `camille.duforet+${RUN_ID}@agents.example`;
+    await page.getByLabel("Email").fill(agentEmail);
     await expect(page.getByRole("dialog").getByText("EUR")).toBeVisible();
     await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
+    const agentPassword = await readRevealedPasswordAndClose(page);
     await expect(page.getByRole("row", { name: new RegExp(agentName) })).toBeVisible();
     await expect(page.getByRole("row", { name: new RegExp(agentName) })).toContainText("EUR");
 
@@ -69,6 +71,11 @@ test.describe("manager entity setup", () => {
     await expect(contractRow).toBeVisible();
     await expect(contractRow).toContainText(agentName);
     await expect(contractRow).toContainText("EUR");
+
+    // The shown password is the one that works: the new Agent signs in with it.
+    await logout(page);
+    await login(page, agentEmail, agentPassword);
+    await expect(page).toHaveURL(/\/agent$/);
   });
 
   test("manager adds a tester under a client, flagged as primary contact", async ({ page }) => {
@@ -86,12 +93,58 @@ test.describe("manager entity setup", () => {
     const testerEmail = `helena.voss+${RUN_ID}@kessler.example`;
     await page.getByRole("button", { name: "Add tester" }).first().click();
     await page.getByLabel("Email").fill(testerEmail);
-    await page.getByLabel("Temporary password").fill("Passw0rd!23");
     await page.getByLabel("Primary contact for this client").check();
     await page.getByRole("dialog").getByRole("button", { name: "Add tester" }).click();
+    const testerPassword = await readRevealedPasswordAndClose(page);
 
     await expect(page.getByRole("cell", { name: testerEmail })).toBeVisible();
     await expect(page.getByText("Primary contact", { exact: true })).toBeVisible();
+
+    // The shown password is the one that works: the new Tester signs in with it.
+    await logout(page);
+    await login(page, testerEmail, testerPassword);
+    await expect(page).toHaveURL(/\/client$/);
+  });
+
+  test("the Add agent creation response is never cacheable", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await expect(page).toHaveURL(/\/manager$/);
+
+    await page.goto("/manager/agents");
+    await page.getByRole("button", { name: "Add agent" }).first().click();
+    await page.getByLabel("Agent name").fill(`No Store Agent ${RUN_ID}`);
+    await page.getByLabel("Country").selectOption("FRANCE");
+    await page.getByLabel("Standing monthly salary").fill("2400");
+    await page.getByLabel("Email").fill(`no.store.agent+${RUN_ID}@agents.example`);
+    const [response] = await Promise.all([
+      page.waitForResponse((r) => r.url().endsWith("/api/agents") && r.request().method() === "POST"),
+      page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click(),
+    ]);
+
+    expect(response.status()).toBe(201);
+    expect(response.headers()["cache-control"]).toContain("no-store");
+  });
+
+  test("the Add tester creation response is never cacheable", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await expect(page).toHaveURL(/\/manager$/);
+
+    await page.goto("/manager/clients");
+    await page.getByRole("button", { name: "Add client" }).first().click();
+    await page.getByLabel("Client name").fill(`No Store Client ${RUN_ID}`);
+    await page.getByRole("dialog").getByRole("button", { name: "Add client" }).click();
+    await page.getByRole("link", { name: `No Store Client ${RUN_ID}` }).click();
+    await expect(page).toHaveURL(/\/manager\/clients\/.+/);
+
+    await page.getByRole("button", { name: "Add tester" }).first().click();
+    await page.getByLabel("Email").fill(`no.store.tester+${RUN_ID}@client.example`);
+    const [response] = await Promise.all([
+      page.waitForResponse((r) => /\/api\/clients\/.+\/testers$/.test(r.url()) && r.request().method() === "POST"),
+      page.getByRole("dialog").getByRole("button", { name: "Add tester" }).click(),
+    ]);
+
+    expect(response.status()).toBe(201);
+    expect(response.headers()["cache-control"]).toContain("no-store");
   });
 
   test("an agent session is rejected from a manager-only page and API route", async ({ page }) => {
@@ -131,7 +184,6 @@ test.describe("manager entity setup", () => {
           country: "FRANCE",
           salaryAmount: 100,
           username: "should.not.be.created@agents.example",
-          password: "Passw0rd!23",
         }),
       });
       return response.status;

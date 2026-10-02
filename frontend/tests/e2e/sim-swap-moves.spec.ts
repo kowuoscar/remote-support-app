@@ -43,10 +43,10 @@ test.describe("sim swap moves", () => {
     await installSimCard(page, contractId, numberB, `iPhone 15 — ${serialB}`);
 
     const testerEmail = `elise.fabron+${RUN_ID}@solene.example`;
-    await addTester(page, clientId, testerEmail, "Passw0rd!23");
+    const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
-    await login(page, testerEmail, "Passw0rd!23");
+    await login(page, testerEmail, testerPassword);
     await page.goto("/client/requests");
     await page.getByRole("button", { name: "Submit Request" }).first().click();
     const dialog = page.getByRole("dialog");

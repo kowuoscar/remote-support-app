@@ -1,0 +1,25 @@
+Step 8: cross-tenant (OtherTenantFixture) tests, mvn exit 0
+Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.945 s -- in com.remotesupport.backend.web.TesterPasswordResetApiTest
+Tests run: 8, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.059 s -- in com.remotesupport.backend.web.AgentPasswordResetApiTest
+backend/src/test/java/com/remotesupport/backend/web/AgentPasswordResetApiTest.java:85:  void anAgentInAnotherTenantIsNotFoundAndKeepsItsOriginalPassword() throws Exception {
+backend/src/test/java/com/remotesupport/backend/web/AgentPasswordResetApiTest.java-86-    OtherTenantAgentLogin other =
+backend/src/test/java/com/remotesupport/backend/web/AgentPasswordResetApiTest.java-87-        otherTenantFixture.agentLoginInAnotherTenant(
+backend/src/test/java/com/remotesupport/backend/web/AgentPasswordResetApiTest.java-88-            "other-tenant-agent-" + UUID.randomUUID() + "@example.com", "Original#Passw0rd1");
+backend/src/test/java/com/remotesupport/backend/web/AgentPasswordResetApiTest.java-89-
+backend/src/test/java/com/remotesupport/backend/web/AgentPasswordResetApiTest.java-90-    reset(managerToken(), other.agentId()).andExpect(status().isNotFound());
+backend/src/test/java/com/remotesupport/backend/web/AgentPasswordResetApiTest.java-91-
+backend/src/test/java/com/remotesupport/backend/web/AgentPasswordResetApiTest.java-92-    assertThat(loginAs(other.username(), other.password())).isNotBlank();
+backend/src/test/java/com/remotesupport/backend/web/AgentPasswordResetApiTest.java-93-  }
+backend/src/test/java/com/remotesupport/backend/web/AgentPasswordResetApiTest.java-94-
+backend/src/test/java/com/remotesupport/backend/web/AgentPasswordResetApiTest.java-95-  @Test
+backend/src/test/java/com/remotesupport/backend/web/TesterPasswordResetApiTest.java:76:  void aTesterInAnotherTenantIsNotFoundAndKeepsItsOriginalPassword() throws Exception {
+backend/src/test/java/com/remotesupport/backend/web/TesterPasswordResetApiTest.java-77-    OtherTenantTesterLogin other =
+backend/src/test/java/com/remotesupport/backend/web/TesterPasswordResetApiTest.java-78-        otherTenantFixture.testerLoginInAnotherTenant(
+backend/src/test/java/com/remotesupport/backend/web/TesterPasswordResetApiTest.java-79-            "other-tenant-tester-" + UUID.randomUUID() + "@example.com", "Original#Passw0rd1");
+backend/src/test/java/com/remotesupport/backend/web/TesterPasswordResetApiTest.java-80-
+backend/src/test/java/com/remotesupport/backend/web/TesterPasswordResetApiTest.java-81-    reset(managerToken(), other.clientId(), other.testerId()).andExpect(status().isNotFound());
+backend/src/test/java/com/remotesupport/backend/web/TesterPasswordResetApiTest.java-82-
+backend/src/test/java/com/remotesupport/backend/web/TesterPasswordResetApiTest.java-83-    assertThat(loginAs(other.username(), other.password())).isNotBlank();
+backend/src/test/java/com/remotesupport/backend/web/TesterPasswordResetApiTest.java-84-  }
+backend/src/test/java/com/remotesupport/backend/web/TesterPasswordResetApiTest.java-85-
+backend/src/test/java/com/remotesupport/backend/web/TesterPasswordResetApiTest.java-86-  @Test

@@ -1,0 +1,2 @@
+POST tester reset -> 200; Cache-Control: no-store; keys ['password']; format ok True; differs True
+sign-in new -> 200; old -> 401

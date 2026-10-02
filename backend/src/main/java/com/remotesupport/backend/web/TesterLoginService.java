@@ -6,11 +6,11 @@ import com.remotesupport.backend.domain.Tester;
 import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.repository.TesterRepository;
 import com.remotesupport.backend.repository.UserRepository;
+import com.remotesupport.backend.security.PasswordWrite;
 import com.remotesupport.backend.web.TesterConflictException.Reason;
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,15 +40,15 @@ public class TesterLoginService {
 
   private final UserRepository userRepository;
   private final TesterRepository testerRepository;
-  private final PasswordEncoder passwordEncoder;
+  private final PasswordWrite passwordWrite;
 
   public TesterLoginService(
       UserRepository userRepository,
       TesterRepository testerRepository,
-      PasswordEncoder passwordEncoder) {
+      PasswordWrite passwordWrite) {
     this.userRepository = userRepository;
     this.testerRepository = testerRepository;
-    this.passwordEncoder = passwordEncoder;
+    this.passwordWrite = passwordWrite;
   }
 
   /**
@@ -58,10 +58,11 @@ public class TesterLoginService {
    * (globally-unique-usernames spec.md "One rule, five creation paths") — or, for a race the
    * pre-check cannot see, when the flush itself is rejected by either username constraint. The
    * primary-contact conflict is still the caller's to raise: it depends only on the {@link
-   * Client}, before any write this method makes.
+   * Client}, before any write this method makes. The password is generated and handed
+   * back in {@link Created}.
    */
   @Transactional
-  public Tester create(Client client, String username, String password, boolean primaryContact) {
+  public Created create(Client client, String username, boolean primaryContact) {
     if (userRepository.existsByUsernameNormalized(username)) {
       throw usernameTaken();
     }
@@ -70,7 +71,7 @@ public class TesterLoginService {
     user.setId(UUID.randomUUID());
     user.setTenant(client.getTenant());
     user.setUsername(username);
-    user.setPasswordHash(passwordEncoder.encode(password));
+    String generated = passwordWrite.setGeneratedPassword(user);
     user.setRole(Role.TESTER);
     user.setCreatedAt(Instant.now());
     try {
@@ -88,7 +89,16 @@ public class TesterLoginService {
     tester.setCreatedAt(Instant.now());
     testerRepository.save(tester);
 
-    return tester;
+    return new Created(tester, generated);
+  }
+
+  /** The new Tester, and its generated password. */
+  public record Created(Tester tester, String generatedPassword) {
+
+    @Override
+    public String toString() {
+      return "Created[tester=%s, generatedPassword=[redacted]]".formatted(tester.getId());
+    }
   }
 
   private static RuntimeException toConflict(DataIntegrityViolationException e) {

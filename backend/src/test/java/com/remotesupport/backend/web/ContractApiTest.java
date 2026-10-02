@@ -166,7 +166,7 @@ class ContractApiTest extends IntegrationTest {
     createContract(managerToken, otherClient, agentId);
 
     String testerToken =
-        createTesterAndLogin(managerToken, ownClient, "helena.voss@kessler.example", "Passw0rd!23");
+        createTesterAndLogin(managerToken, ownClient, "helena.voss@kessler.example");
 
     mockMvc
         .perform(get("/api/contracts").header("Authorization", "Bearer " + testerToken))
@@ -204,7 +204,7 @@ class ContractApiTest extends IntegrationTest {
     UUID agentId = createAgent(managerToken, "Dana Whitcombe", Country.UNITED_STATES);
     UUID contractId = createContract(managerToken, clientId, agentId);
     String testerUsername = "noor.malik@kestrel.example";
-    String testerToken = createTesterAndLogin(managerToken, clientId, testerUsername, "Passw0rd!23");
+    String testerToken = createTesterAndLogin(managerToken, clientId, testerUsername);
     UUID smartphoneId = createSmartphone(managerToken, contractId, "Pixel 8");
     createSimCard(managerToken, contractId, SEEDED_US_CARRIER_ID);
 

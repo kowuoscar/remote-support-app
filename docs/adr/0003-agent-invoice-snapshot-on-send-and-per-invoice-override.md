@@ -87,3 +87,7 @@ still only while `SENT`, and still never touches `AgentStandingAmount`. Only its
 is now `POST /api/agent-invoices/{invoiceId}/override`, addressed by the invoice's own id so it
 reaches an invoice of any billing month, not just the current one (manager-invoice-review-queue
 spec).
+
+## Note (2026-10-02)
+
+Amended by ADR 0004: a sent Agent Invoice's Local Support Fees move by the difference of a Client Invoice edit until the Agent Invoice is approved; nothing else of the freeze changes.

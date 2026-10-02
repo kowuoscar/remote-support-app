@@ -823,15 +823,17 @@ public class DemoDataLoader implements ApplicationRunner {
     Instant approvedAt = sentAt.plusSeconds(2 * 24 * 3600);
     Instant paidAt = sentAt.plusSeconds(5 * 24 * 3600);
 
-    AgentInvoice invoice = new AgentInvoice();
-    invoice.setId(UUID.randomUUID());
-    invoice.setTenant(agent.getTenant());
-    invoice.setAgent(agent);
-    invoice.setBillingMonth(month);
-    invoice.setStatus(AgentInvoiceStatus.DRAFT);
-    invoice.setCurrency(agent.getCurrency());
-    invoice.setCreatedAt(sentAt);
-    agentInvoiceRepository.save(invoice);
+    AgentInvoice draft = new AgentInvoice();
+    draft.setId(UUID.randomUUID());
+    draft.setTenant(agent.getTenant());
+    draft.setAgent(agent);
+    draft.setBillingMonth(month);
+    draft.setStatus(AgentInvoiceStatus.DRAFT);
+    draft.setCurrency(agent.getCurrency());
+    draft.setCreatedAt(sentAt);
+    // The services re-read the invoice under a lock, so what they transition is the managed copy
+    // that save returns, not the instance built here.
+    AgentInvoice invoice = agentInvoiceRepository.save(draft);
 
     agentInvoiceService.send(invoice, principal);
     agentInvoiceService.approve(invoice, principal);

@@ -291,6 +291,30 @@ public final class AuditLog {
   }
 
   /**
+   * A sent Agent Invoice's Local Support Fees moving by a Client Invoice line edit's difference
+   * (edit-client-invoice-lines spec, ADR 0004): the Agent Invoice, the Client Invoice whose edit
+   * moved it, and its Local Support Fees before and after. No free text, as {@link
+   * #agentInvoiceOverridden}.
+   */
+  public static void agentInvoiceLocalSupportFeesFollowed(
+      UUID agentInvoiceId,
+      UUID clientInvoiceId,
+      BigDecimal oldAmount,
+      BigDecimal newAmount,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action=AGENT_INVOICE_LOCAL_SUPPORT_FEES_FOLLOWED entity=AgentInvoice entityId={} "
+            + "clientInvoiceId={} oldAmount={} newAmount={} actorUserId={} tenantId={}",
+        agentInvoiceId,
+        clientInvoiceId,
+        oldAmount,
+        newAmount,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
    * Carrier catalog changes (agent-maintains-carriers ticket Observability: "Carrier created,
    * renamed and archived: Carrier id, Country, actor, tenant, and the old and new name on a
    * rename"), so a surprising catalog entry can be traced back to its author.

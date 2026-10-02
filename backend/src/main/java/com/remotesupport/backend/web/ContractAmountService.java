@@ -4,27 +4,28 @@ import com.remotesupport.backend.domain.Fee;
 import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.domain.SimCardFlavor;
 import com.remotesupport.backend.domain.SimCardStatus;
+import com.remotesupport.backend.domain.ClientInvoice;
+import com.remotesupport.backend.domain.ClientInvoiceLineKind;
+import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.FeeRepository;
 import com.remotesupport.backend.repository.SimCardRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * A Contract's base amount and Fee total for a calendar month — the same math {@code
- * ClientInvoiceController} has computed live since client-invoice-generation, extracted so
- * agent-standing-amounts-and-invoice-generation's Local Support Fees line (the sum, across every
- * one of an Agent's Contracts, of each Contract's base amount + Fee total for the month) can reuse
- * it rather than re-deriving the same math a second time. Deliberately independent of {@link
- * com.remotesupport.backend.domain.ClientInvoice} entirely — it reads straight from {@link
- * SimCardRepository}/{@link FeeRepository}, never from a Client Invoice row or its frozen snapshot
- * — see {@code AgentInvoiceController}'s Javadoc for why: an Agent Invoice's Local Support Fees
- * line must reflect what the Agent has actually fronted regardless of whether/how far that
- * Contract's own Client Invoice has progressed through its own {@code sent}/{@code approved}
- * review, so a Fee logged after the Client Invoice was already sent (and therefore excluded from
- * that frozen snapshot) still counts here.
+ * A Contract's amounts for a calendar month. The computation ({@link #totalForMonth}: the base
+ * amount of the Postpaid SIMs that bill that month plus the month's Fees) is what a Client Invoice
+ * pre-fills from. {@link #payableAmountForMonth} is what the Contract adds to the Agent's Local
+ * Support Fees (ADR 0004, amending ADR 0002): the Client Invoice's billed lines plus anything of
+ * the month it does not bill, so a Fee the Agent fronted after the invoice was sent still reaches
+ * their pay.
  */
 @Service
 public class ContractAmountService {
@@ -32,9 +33,23 @@ public class ContractAmountService {
   private final SimCardRepository simCardRepository;
   private final FeeRepository feeRepository;
 
-  public ContractAmountService(SimCardRepository simCardRepository, FeeRepository feeRepository) {
+  private final ClientInvoiceRepository clientInvoiceRepository;
+  private final ClientInvoiceService clientInvoiceService;
+
+  /**
+   * {@code clientInvoiceService} is {@code @Lazy}: it resolves an invoice's lines with this
+   * service's computation, and this service resolves a Contract's pay through those same lines, so
+   * the bill and the pay can never read a line two ways.
+   */
+  public ContractAmountService(
+      SimCardRepository simCardRepository,
+      FeeRepository feeRepository,
+      ClientInvoiceRepository clientInvoiceRepository,
+      @Lazy ClientInvoiceService clientInvoiceService) {
     this.simCardRepository = simCardRepository;
     this.feeRepository = feeRepository;
+    this.clientInvoiceRepository = clientInvoiceRepository;
+    this.clientInvoiceService = clientInvoiceService;
   }
 
   /**
@@ -95,5 +110,55 @@ public class ContractAmountService {
   /** Base amount + Fee total for {@code billingMonth} — a Contract's full reimbursable total. */
   public BigDecimal totalForMonth(UUID contractId, LocalDate billingMonth) {
     return baseAmount(contractId, billingMonth).add(feesTotal(contractId, billingMonth));
+  }
+
+  /**
+   * What this Contract adds to the Agent's Local Support Fees for {@code billingMonth} (ADR 0004,
+   * amending ADR 0002): every line its Client Invoice bills, at its billed amount, plus anything of
+   * that month the invoice does not bill, at its computed amount. No Client Invoice: {@link
+   * #totalForMonth}. An invoice whose lines are not stored yet bills exactly the computation with
+   * the Agent's edits, so it is its billed total. One with stored lines may lack a Fee logged, or a
+   * Postpaid SIM added, since it was sent: those count at their computed amount, except that an
+   * invoice with a {@code BASE_AMOUNT} line (sent before per-SIM lines) billed its whole base
+   * amount, so no SIM is added to it.
+   */
+  @Transactional(readOnly = true)
+  public BigDecimal payableAmountForMonth(UUID contractId, LocalDate billingMonth) {
+    ClientInvoice invoice =
+        clientInvoiceRepository.findByContractIdAndBillingMonth(contractId, billingMonth).orElse(null);
+    if (invoice == null) {
+      return totalForMonth(contractId, billingMonth);
+    }
+    List<ClientInvoiceService.ResolvedLine> lines = clientInvoiceService.lines(invoice);
+    BigDecimal payable =
+        lines.stream().map(ClientInvoiceService.ResolvedLine::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
+    if (!invoice.isLinesStored()) {
+      return payable;
+    }
+
+    Set<UUID> billedFees =
+        lines.stream()
+            .filter(l -> l.kind() == ClientInvoiceLineKind.FEE)
+            .map(l -> l.fee().getId())
+            .collect(Collectors.toSet());
+    for (Fee fee : feesForMonth(contractId, billingMonth)) {
+      if (!billedFees.contains(fee.getId())) {
+        payable = payable.add(fee.getAmount());
+      }
+    }
+    boolean legacyBase = lines.stream().anyMatch(l -> l.kind() == ClientInvoiceLineKind.BASE_AMOUNT);
+    if (!legacyBase) {
+      Set<UUID> billedSims =
+          lines.stream()
+              .filter(l -> l.kind() == ClientInvoiceLineKind.POSTPAID_SIM)
+              .map(l -> l.simCard().getId())
+              .collect(Collectors.toSet());
+      for (SimCard sim : billablePostpaidSims(contractId, billingMonth)) {
+        if (!billedSims.contains(sim.getId())) {
+          payable = payable.add(sim.getMonthlyFeeAmount());
+        }
+      }
+    }
+    return payable;
   }
 }

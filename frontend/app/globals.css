@@ -144,6 +144,11 @@
 @theme inline {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
+  /* Label sizes (DESIGN.md Label role). No paired line-height on purpose:
+     text-label-sm / text-label render exactly as text-[12px] / text-[13px]. */
+  --text-label-sm: 12px;
+  --text-label: 13px;
+
   --color-canvas: var(--canvas);
   --color-canvas-soft: var(--canvas-soft);
   --color-canvas-raised: var(--canvas-raised);

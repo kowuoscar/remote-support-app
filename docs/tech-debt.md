@@ -13,6 +13,7 @@ separated by ` · `.
 
 ## frontend
 
+- `frontend/tests/e2e/edit-client-invoice-lines.spec.ts` · smell: Duplicated helper · `approveOtherWaitingClientInvoices` is copied here and in `frontend/tests/e2e/manager-invoice-review-queue.spec.ts`; move it to `frontend/tests/e2e/helpers.ts` · edit-client-invoice-lines · 2026-10-02
 - `frontend/components/agent/client-invoices-view.tsx` · smell: Optional field kept for old fixtures · the SIM line's `amount`, `computedAmount` and `edited` are optional in `frontend/lib/api/types.ts` only because existing fixtures omit them, and the view falls back to `monthlyFeeAmount`; make them required and drop the fallback once fixtures are updated · edit-client-invoice-lines · 2026-10-02
 - `frontend/app/api` · smell: Hand-written pass-through · about ten Route Handlers build their own `NextResponse` from `backendResponse.text()` instead of a shared forwarder in `frontend/lib/api` (Frontend 13, amended 2026-10-02) · manager-resets-a-password · 2026-10-02
 - `frontend/components/manager/create-agent-dialog.tsx` · smell: Duplicated Code · the `{ email; password } | null` state, the form-or-reveal swap and the reset on close are repeated across `create-agent-dialog`, `create-agent-login-dialog` and `create-tester-dialog` (F12) · manager-resets-a-password · 2026-10-02

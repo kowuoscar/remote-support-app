@@ -58,6 +58,7 @@ export default async function ManagerDashboardPage() {
       title="Dashboard"
       subtitle="Tenant-wide overview"
       viewerLabel="Priya Ashford · Manager"
+      demoData
     >
       <ManagerDashboardStats
         pendingApprovalsCount={reviewQueue?.length ?? null}

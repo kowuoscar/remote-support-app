@@ -1,7 +1,7 @@
 ---
 id: deactivate-a-login-when-it-takes-effect
 type: question
-status: open
+status: answered
 blocks: [deactivate-a-login]
 created: 2026-10-02
 ---
@@ -30,3 +30,4 @@ Open questions 1). The client dashboard and the invoice work continue meanwhile.
 
 ## Answer
 
+At once (2026-10-02): the recommendation.

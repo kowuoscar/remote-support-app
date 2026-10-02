@@ -1,7 +1,7 @@
 ---
 id: real-client-dashboard-two-findings-after-fix
 type: question
-status: open
+status: answered
 blocks: [real-client-dashboard]
 created: 2026-10-02
 ---
@@ -33,3 +33,4 @@ with a change that follows `DESIGN.md`, but never on its own.
 
 ## Answer
 
+Ok (2026-10-02). One extra fix pass for F22 only (`min-w-40`). Dismiss F23, and reword the `docs/agents/frontend.md` rule: a golden may move with a change that follows `DESIGN.md`, never on its own.

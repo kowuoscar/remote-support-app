@@ -1,7 +1,7 @@
 ---
 id: approve-edit-client-invoice-lines
 type: approval
-status: open
+status: answered
 blocks: [edit-client-invoice-lines]
 created: 2026-10-02
 ---
@@ -55,3 +55,5 @@ builds on it.
 `real-client-dashboard` is being built.
 
 ## Answer
+
+Approved (2026-10-02), including both choices taken alone.

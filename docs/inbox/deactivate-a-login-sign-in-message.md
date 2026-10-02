@@ -1,7 +1,7 @@
 ---
 id: deactivate-a-login-sign-in-message
 type: question
-status: open
+status: answered
 blocks: [deactivate-a-login]
 created: 2026-10-02
 ---
@@ -29,3 +29,4 @@ Open questions 2).
 
 ## Answer
 
+Say so, only when the password is correct (2026-10-02): the recommendation.

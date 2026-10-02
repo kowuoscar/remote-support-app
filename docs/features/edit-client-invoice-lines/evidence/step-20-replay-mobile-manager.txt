@@ -1,0 +1,19 @@
+# step 20 replay mobile-manager
+resting: {"el":"BODY","label":"NNorthwind Field ServicesManager Console","outline":"none 3px rgb(11, 18, 32)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}
+Tab 1: {"el":"BUTTON","label":"Close navigation","outline":"solid 2px rgb(83, 58, 253)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}
+Tab 2: {"el":"A","label":"Dashboard","outline":"solid 2px rgb(69, 80, 106)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}
+Tab 3: {"el":"A","label":"Requests","outline":"solid 2px rgb(69, 80, 106)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}
+Tab 4: {"el":"A","label":"Clients","outline":"solid 2px rgb(69, 80, 106)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}
+Tab 5: {"el":"A","label":"Agents","outline":"solid 2px rgb(69, 80, 106)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}
+Tab 6: {"el":"A","label":"Contracts","outline":"solid 2px rgb(69, 80, 106)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}
+Tab 7: {"el":"A","label":"Stock","outline":"solid 2px rgb(69, 80, 106)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}
+Tab 8: {"el":"A","label":"Carriers","outline":"solid 2px rgb(69, 80, 106)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}
+Tab 9: {"el":"A","label":"Invoices","outline":"solid 2px rgb(71, 48, 224)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}
+Tab 10: {"el":"BUTTON","label":"Open navigation","outline":"solid 2px rgb(83, 58, 253)","boxShadow":"none","inViewport":true,"scrollW":375,"innerW":375}
+Tab 11: {"el":"BUTTON","label":"Manager","outline":"solid 2px rgb(92, 107, 142)","boxShadow":"none","inViewport":true,"scrollW":375,"innerW":375}
+Tab 12: {"el":"BUTTON","label":"Switch to dark theme","outline":"solid 2px rgb(92, 107, 142)","boxShadow":"none","inViewport":true,"scrollW":375,"innerW":375}
+Tab 13: {"el":"A","label":"Invoices","outline":"solid 2px rgb(83, 58, 253)","boxShadow":"none","inViewport":true,"scrollW":375,"innerW":375}
+Tab 14: {"el":"A","label":"Download PDF","outline":"solid 2px rgb(83, 58, 253)","boxShadow":"none","inViewport":true,"scrollW":375,"innerW":375}
+Tab 15: {"el":"BUTTON","label":"Approve","outline":"solid 2px rgb(255, 255, 255)","boxShadow":"none","inViewport":true,"scrollW":375,"innerW":375}
+Tab 16: {"el":"BODY","label":"NNorthwind Field ServicesManager Console","outline":"none 3px rgb(11, 18, 32)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}
+final scroll: {"el":"BODY","label":"NNorthwind Field ServicesManager Console","outline":"none 3px rgb(11, 18, 32)","boxShadow":"none","inViewport":false,"scrollW":375,"innerW":375}

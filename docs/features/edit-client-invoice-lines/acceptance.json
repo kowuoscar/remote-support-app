@@ -140,16 +140,16 @@
     {
       "step": 20,
       "actor": "agent",
-      "status": "failed",
-      "evidence": "evidence/step-20-desktop-keyboard.txt",
-      "note": "Desktop keyboard ok. Focus to BODY after Reset; 375px page scrolls sideways; Manager page pass not played (F6)."
+      "status": "passed",
+      "evidence": "evidence/step-20-replay-desktop-agent.txt",
+      "note": "Replayed after the fix (d1c4ab1): keyboard edit/save/reset on the Agent page at 1280 and 375 with a 2px ring at every stop; focus returns to Edit after Save and Reset; no sideways page scroll. Manager detail played at both widths: Download PDF and Approve reachable, no sideways scroll. Minor: closed mobile drawer links remain off-screen tab stops; Approve ring white on the filled button."
     },
     {
       "step": 21,
       "actor": "agent",
-      "status": "not-played",
-      "evidence": "",
-      "note": "Turn limit: full suites not run by the runner. The merger's full verify at 1395f45 passed (e2e 79); to be replayed at re-review."
+      "status": "passed",
+      "evidence": "evidence/step-21-backend.txt",
+      "note": "mvn verify 634 tests green; lint, build, tsc clean; vitest 276/276; isolated e2e 79/79; visual 71/71; no golden moved."
     },
     {
       "step": 22,

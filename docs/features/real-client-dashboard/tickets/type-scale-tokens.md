@@ -1,7 +1,7 @@
 ---
 id: type-scale-tokens
 title: Add the 12px and 13px label sizes as type-scale tokens in the theme
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [enabler, frontend]
 stories: []

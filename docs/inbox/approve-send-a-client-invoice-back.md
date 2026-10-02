@@ -1,7 +1,7 @@
 ---
 id: approve-send-a-client-invoice-back
 type: approval
-status: open
+status: answered
 blocks: [send-a-client-invoice-back]
 created: 2026-10-02
 ---
@@ -41,3 +41,5 @@ Approve. It has two tickets and a small additive database change (ADR 0005).
 `real-client-dashboard` is being built.
 
 ## Answer
+
+Approved (2026-10-02), after clarifying that an edit on a sent-back invoice does reach the Agent Invoice (draft: live; sent: by the difference; approved or paid: carry-over), while the send-back and resend themselves move nothing.

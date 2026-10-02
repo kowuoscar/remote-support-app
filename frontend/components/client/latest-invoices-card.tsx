@@ -58,7 +58,7 @@ export function LatestInvoicesCard({
             const latest = latestByContract.get(contract.id);
             return (
               <li key={contract.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3.5">
-                <div className="min-w-[10rem] flex-1">
+                <div className="min-w-40 flex-1">
                   <p className="text-sm font-medium text-ink">
                     {contract.clientName} — {countryLabel(contract.country)}
                   </p>

@@ -1,7 +1,7 @@
 ---
 id: serve-client-invoices-from-stored-lines
 title: Freeze a Client Invoice's lines at send and serve every read from them
-status: in-progress
+status: done
 depends_on: [store-client-invoice-lines]
 labels: [enabler, backend]
 stories: [1, 10, 20, 23, 25]

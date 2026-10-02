@@ -87,4 +87,11 @@ public class ClientInvoice {
    */
   @Column(name = "snapshot_base_amount")
   private BigDecimal snapshotBaseAmount;
+
+  /**
+   * Whether this invoice's lines are stored as {@link ClientInvoiceLine} rows rather than computed
+   * (edit-client-invoice-lines spec, "The model"). {@code false} for a draft never sent.
+   */
+  @Column(name = "lines_stored", nullable = false)
+  private boolean linesStored;
 }

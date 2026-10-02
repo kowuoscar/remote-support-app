@@ -31,6 +31,18 @@ separated by ` · `.
 - `docs/agents/sdlc.json` · smell: Untested by the gate · `verify` runs lint, build, typecheck, unit tests and the isolated e2e suite, but **not** `npm run test:visual` — so no golden is checked by the merge gate, and visual correctness rests entirely on whoever happens to look. This is the orchestrator's own composition at init, not an implementer's doing · self-service-password-change · 2026-09-22
 
 - `frontend/playwright.e2e.isolated.config.ts` · smell: Incomplete teardown · `gracefulShutdown: SIGTERM` is set on the backend `webServer` entry but not on the frontend one, so Playwright's default SIGKILL can orphan a `next start` grandchild under `sh -c "npm run build && npm run start"`; one such process was found reparented to PID 1 and killed by exact PID during this feature's merge · second-tenant-test-seam · 2026-09-21
+- `frontend/app/client/(dashboard)/page.tsx` · smell: No timeout on backend reads · 4 + 3×N reads go through `backendFetch` with no timeout; a slow backend holds the page (Frontend 15 judgement) · real-client-dashboard · 2026-10-02
+- `frontend/lib/status.ts` · smell: Dead code · `clientInvoiceStatusTone` and `clientInvoiceStatusLabel` lost their only consumer; the `@/lib/demo/types` import now feeds only dead code · real-client-dashboard · 2026-10-02
+- `frontend/components/client/latest-invoices-card.tsx` · smell: Contrast below AA · the dark-mode "Open Invoices" link is 3.66:1, and its target is ~18px tall on mobile (same as the Agent "Open queue" entry) · real-client-dashboard · 2026-10-02
+- `frontend/app/globals.css` · smell: Misleading name · the `text-label` tokens carry only a size and are also used for caption-like text · real-client-dashboard · 2026-10-02
+- `frontend/app/client/(dashboard)/error.tsx` · smell: No retry · `reset()` is unused; the spec's copy tells the person to reload · real-client-dashboard · 2026-10-02
+- `frontend/app/client/(dashboard)/page.tsx` · smell: One icon for different states · the not-linked state uses the same warning triangle as the two failure states; full-page states also double-frame (a dashed `EmptyState` inside a hairline Card), as on the Agent dashboard · real-client-dashboard · 2026-10-02
+- `frontend/tests/visual/client-dashboard-regions.spec.ts` · smell: Untested visually · degraded, empty, not-linked and error states have text assertions only, no goldens · real-client-dashboard · 2026-10-02
+- `frontend/components/client/dashboard-stats.tsx` · smell: Straight apostrophes · user-facing copy uses ' rather than ’ (tests assert the straight form) · real-client-dashboard · 2026-10-02
+- `frontend/app/client/(dashboard)/page.tsx` · smell: Flag argument · `readIdentity<T>(path, nullOn404)` widens `/api/me` to `T | null`, then `me!.username` asserts it away · real-client-dashboard · 2026-10-02
+- `frontend/components/ui/stat-card.tsx` · smell: Weak semantics · label, value and meta are sibling spans, not `dl`/`dt`/`dd`; two indigo stat numbers per screen read against DESIGN.md's "the primary stat number" (pre-existing) · real-client-dashboard · 2026-10-02
+- `frontend/components/app-shell/surface-page.tsx` · smell: No skip link · no skip-to-content link app-wide (pre-existing) · real-client-dashboard · 2026-10-02
+- `frontend/lib/format.ts` · smell: Hard-coded locale · the billing month is formatted with `en-US` (pre-existing) · real-client-dashboard · 2026-10-02
 
 ## backend
 

@@ -36,7 +36,7 @@ database.
 ## Features
 
 - [x] `real-agent-dashboard` — an Agent's home page shows their own name, standing salary and Rollout Advance, this month's Local Support Fees, their open and recent Requests and their own invoice's status, all from the database; `frontend/lib/demo/agent.ts` is deleted.
-- [ ] `real-client-dashboard` — a Tester's home page shows their Client's name, the signed-in Tester, the Client's active Fleet, open Requests and the latest sent or approved Client Invoice per Contract; `frontend/lib/demo/client.ts` is deleted.
+- [x] `real-client-dashboard` — a Tester's home page shows their Client's name, the signed-in Tester, the Client's active Fleet, open Requests and the latest sent or approved Client Invoice per Contract; `frontend/lib/demo/client.ts` is deleted.
 - [ ] `real-manager-dashboard` — the Manager's home page shows the signed-in Manager, real Client, Agent and Contract counts, and real billed-this-month and payout-this-month totals from a new Tenant-wide aggregate; the rest of `frontend/lib/demo` is deleted.
 
 ## Reworked

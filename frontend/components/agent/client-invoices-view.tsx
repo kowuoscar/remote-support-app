@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { IconAlertTriangle, IconDownload, IconInvoices, IconPaperclip } from "@/components/icons";
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
+import { EditClientInvoiceLineControl, EditedLineNote } from "@/components/agent/edit-client-invoice-line-control";
 import { SendClientInvoiceControl } from "@/components/agent/send-client-invoice-control";
 import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from "@/lib/status";
 import { formatDate, formatDateShort, formatLocalDate } from "@/lib/format";
@@ -22,6 +23,54 @@ function billingMonthLabel(billingMonth: string): string {
     year: "numeric",
     timeZone: "UTC",
   });
+}
+
+/**
+ * One line's amount: with Edit/Reset on a draft, otherwise the billed amount alone, plus the
+ * "Edited · computed" note when the line was edited (a sent invoice keeps showing it).
+ */
+function LineAmount({
+  editable,
+  contractId,
+  kind,
+  sourceId,
+  label,
+  amount,
+  computedAmount,
+  edited,
+  currency,
+}: {
+  editable: boolean;
+  contractId: string;
+  kind: "POSTPAID_SIM" | "FEE";
+  sourceId: string;
+  label: string;
+  amount: number;
+  computedAmount: number | null | undefined;
+  edited: boolean | null | undefined;
+  currency: string;
+}) {
+  const isEdited = Boolean(edited) && computedAmount != null;
+  if (editable) {
+    return (
+      <EditClientInvoiceLineControl
+        contractId={contractId}
+        kind={kind}
+        sourceId={sourceId}
+        label={label}
+        amount={amount}
+        computedAmount={computedAmount ?? amount}
+        edited={isEdited}
+        currency={currency}
+      />
+    );
+  }
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <Money amount={amount} currency={currency} />
+      {isEdited ? <EditedLineNote computedAmount={computedAmount} currency={currency} /> : null}
+    </div>
+  );
 }
 
 /**
@@ -41,6 +90,7 @@ export function AgentClientInvoicesView({
 }) {
   const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
   const invoice = invoicesByContract[contractId];
+  const editable = invoice?.status === "DRAFT";
 
   if (contracts.length === 0) {
     return (
@@ -125,6 +175,13 @@ export function AgentClientInvoicesView({
             </div>
           </dl>
 
+          {editable ? (
+            <p className="-mt-2 text-label text-ink-mute">
+              You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these
+              amounts, unless it is already approved.
+            </p>
+          ) : null}
+
           {invoice.basePostpaidSims && invoice.basePostpaidSims.length > 0 ? (
             <div>
               <h3 className="mb-2 text-[13px] font-medium text-ink-secondary">Postpaid SIM Cards</h3>
@@ -133,7 +190,7 @@ export function AgentClientInvoicesView({
                   <Thead>
                     <Tr>
                       <Th>Number</Th>
-                      <Th className="text-right">Monthly fee</Th>
+                      <Th className="text-right">Billed</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -149,7 +206,18 @@ export function AgentClientInvoicesView({
                           ) : null}
                         </Td>
                         <Td className="text-right">
-                          <Money amount={sim.monthlyFeeAmount} currency={invoice.currency} />
+                          {/* An edited line bills its own amount, not the SIM's monthly fee. Older fixtures omit `amount`. */}
+                          <LineAmount
+                            editable={editable}
+                            contractId={contractId}
+                            kind="POSTPAID_SIM"
+                            sourceId={sim.simCardId}
+                            label={`SIM ${sim.number}`}
+                            amount={sim.amount ?? sim.monthlyFeeAmount}
+                            computedAmount={sim.computedAmount}
+                            edited={sim.edited}
+                            currency={invoice.currency}
+                          />
                         </Td>
                       </Tr>
                     ))}
@@ -183,7 +251,17 @@ export function AgentClientInvoicesView({
                         <Td className="text-ink-secondary">{fee.description ?? "—"}</Td>
                         <Td className="whitespace-nowrap text-ink-mute">{formatDateShort(fee.createdAt)}</Td>
                         <Td className="text-right">
-                          <Money amount={fee.amount} currency={fee.currency} />
+                          <LineAmount
+                            editable={editable}
+                            contractId={contractId}
+                            kind="FEE"
+                            sourceId={fee.id}
+                            label={`${FEE_TYPE_LABEL[fee.feeType]} Fee`}
+                            amount={fee.amount}
+                            computedAmount={fee.computedAmount}
+                            edited={fee.edited}
+                            currency={fee.currency}
+                          />
                         </Td>
                       </Tr>
                     ))}

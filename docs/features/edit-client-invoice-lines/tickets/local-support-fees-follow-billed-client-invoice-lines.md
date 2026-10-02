@@ -1,7 +1,7 @@
 ---
 id: local-support-fees-follow-billed-client-invoice-lines
 title: Make the Agent's Local Support Fees follow billed Client Invoice lines until approval
-status: in-progress
+status: done
 depends_on: [agent-edits-a-client-invoice-line]
 labels: [backend]
 stories: [14, 26, 27, 28, 29, 30, 31, 32]

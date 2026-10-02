@@ -1,7 +1,7 @@
 ---
 id: manager-sees-edited-client-invoice-lines
 title: Show the Manager per-SIM lines and edited markers on a sent Client Invoice
-status: ready-for-agent
+status: in-progress
 depends_on: [agent-edits-lines-on-the-client-invoice-page]
 labels: [frontend]
 stories: [16, 17, 18, 24]

@@ -1,7 +1,7 @@
 ---
 id: agent-edits-lines-on-the-client-invoice-page
 title: Let the Agent edit and reset invoice lines on the Client Invoices page
-status: in-progress
+status: done
 depends_on: [local-support-fees-follow-billed-client-invoice-lines]
 labels: [frontend]
 stories: [2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 14, 24]

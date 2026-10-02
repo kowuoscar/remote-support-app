@@ -18,7 +18,6 @@ export default function ClientDashboardError() {
           <EmptyState
             icon={<IconAlertTriangle className="h-5 w-5" />}
             title="Couldn't load your dashboard — reload the page to try again"
-            description="Your Client and login could not be read."
           />
         </div>
       </Card>

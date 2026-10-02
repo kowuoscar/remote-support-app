@@ -17,28 +17,19 @@ import type {
 export const metadata = { title: "Dashboard" };
 
 /**
- * Reads the caller's own Client. A 404 means the login is not linked to a Client, which the page
- * renders as a message; any other failure is logged with its endpoint and status, then thrown to
- * this segment's `error.tsx`, because every figure on the page is scoped by this read.
+ * Reads one of the caller's own identity records. With `nullOn404`, a 404 means the login is not
+ * linked and returns `null`; any other failure is logged with its endpoint and status, then thrown
+ * to this segment's `error.tsx`, because every figure on the page is scoped by these reads.
  */
-async function loadClient(): Promise<ClientOwnRecord | null> {
-  const response = await backendFetch("/api/me/client");
-  if (response.status === 404) return null;
+async function readIdentity<T>(path: string, nullOn404: boolean): Promise<T | null> {
+  const response = await backendFetch(path);
+  if (nullOn404 && response.status === 404) return null;
   if (!response.ok) {
-    console.error(`Client dashboard: GET /api/me/client failed with status ${response.status}`);
-    throw new Error(`Client dashboard: GET /api/me/client failed with status ${response.status}`);
+    const message = `Client dashboard: GET ${path} failed with status ${response.status}`;
+    console.error(message);
+    throw new Error(message);
   }
-  return (await response.json()) as ClientOwnRecord;
-}
-
-/** Reads the caller's login name for the viewer chip; a failure is logged, then thrown. */
-async function loadUsername(): Promise<string> {
-  const response = await backendFetch("/api/me");
-  if (!response.ok) {
-    console.error(`Client dashboard: GET /api/me failed with status ${response.status}`);
-    throw new Error(`Client dashboard: GET /api/me failed with status ${response.status}`);
-  }
-  return ((await response.json()) as { username: string }).username;
+  return (await response.json()) as T;
 }
 
 /**
@@ -78,7 +69,11 @@ const OPEN_REQUEST_STATUSES: readonly RequestListItem["status"][] = [
 ];
 
 export default async function ClientDashboardPage() {
-  const [client, username] = await Promise.all([loadClient(), loadUsername()]);
+  const [client, me] = await Promise.all([
+    readIdentity<ClientOwnRecord>("/api/me/client", true),
+    readIdentity<{ username: string }>("/api/me", false),
+  ]);
+  const username = me!.username;
   if (client === null) {
     return (
       <SurfacePage title="Dashboard" subtitle="Your Client dashboard" viewerLabel={`${username} · Tester`}>

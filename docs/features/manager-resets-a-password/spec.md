@@ -890,6 +890,12 @@ from the database, check which repository method ran, or check a
   Seeded credentials underpin the token helpers and most e2e specs, and e2e
   state does not roll back.
 
+- **One extra fix pass for F29, authorised by the human (2026-10-02).** The F6
+  fix right-aligned the Testers table's action but left the four
+  `reset-tester-password-dialog-confirm-*` goldens showing it left-aligned.
+  The human authorised one more pass, limited to recapturing those four
+  goldens, followed by a re-review.
+
 ## Open questions
 
 None.

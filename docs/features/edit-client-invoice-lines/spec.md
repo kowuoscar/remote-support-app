@@ -858,6 +858,8 @@ internals.
 - **Testing: the existing migration, HTTP, component and e2e seams, plus
   committing race tests.** Prior art is named under `## Testing decisions`.
 
+- **The ticket cut's last critic failure was fixed by the orchestrator, not escalated (after review).** The second critique failed R3 on `serve-client-invoices-from-stored-lines` only: a criterion checked an `edited` field that `agent-edits-a-client-invoice-line` introduces. The critic's own rewording was applied verbatim (late Fee asserted in `feeLines` at its logged amount; "same Fee lines, base amount and totals"), plus its advisory that an edited SIM row shows its billed amount. Reason: a wording slip with the fix given, not an unclear spec, so escalation case 4 would ask the human nothing they could answer.
+
 ## Open questions
 
 None
@@ -891,7 +893,7 @@ None
 ## Execution order
 
 Six tickets, each touching at most three `ARCHITECTURE.md` modules. They run
-in order: each depends on the one before (ticket 6 on tickets 3 and 5).
+in order: each depends on the one before (ticket 6 on ticket 5, which already implies ticket 3).
 
 1. `store-client-invoice-lines`. Labels: `enabler`, `backend`. Depends on
    nothing. Modules: `domain`, `repository`. (stories: —)
@@ -900,7 +902,7 @@ in order: each depends on the one before (ticket 6 on tickets 3 and 5).
    - `ClientInvoiceLinesMigrationTest`. No behaviour changes yet.
 2. `serve-client-invoices-from-stored-lines`. Labels: `enabler`, `backend`.
    Depends on `store-client-invoice-lines`. Modules: `web`, `repository`,
-   `demo`. (stories: 10, 20, 23, 25)
+   `demo`. (stories: 1, 10, 20, 23, 25)
    - The send moves into `ClientInvoiceService`, one transaction, under the
      row lock, inserting a row for every shown line that has none and setting
      `linesStored`; it stops writing `snapshotBaseAmount` and Fee snapshot

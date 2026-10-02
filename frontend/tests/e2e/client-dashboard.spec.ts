@@ -4,6 +4,7 @@ import {
   addPostpaidSimCard,
   addSmartphone,
   addTester,
+  approveFromPendingRequests,
   createContractWithTester,
   login,
   logout,
@@ -24,6 +25,11 @@ const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 const invoiceRow = (page: Page, clientName: string) =>
   page.getByTestId("latest-invoices-card").getByRole("listitem").filter({ hasText: clientName });
 
+async function expectOpenRequests(page: Page, count: string) {
+  await page.goto("/client");
+  await expect(page.getByTestId("open-requests-stat")).toContainText(count);
+}
+
 test.describe.serial("a Tester's dashboard follows the Contract's invoice", () => {
   test.setTimeout(180_000);
 
@@ -40,12 +46,39 @@ test.describe.serial("a Tester's dashboard follows the Contract's invoice", () =
     await logout(page);
 
     await login(page, testerEmail, testerPassword);
-    await submitRequestAsTester(page, "Other", { description: "Screen flickers" });
-    await page.goto("/client");
+    // A Provision Smartphone Request starts at Pending Approval; the Manager approves it (Submitted)
+    // and the Agent starts it (In Progress). The one Request is open at each of the three.
+    await submitRequestAsTester(page, "Provision Smartphone", { requestedModel: "Pixel 9" });
+    await expectOpenRequests(page, "1");
+    await logout(page);
+
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await approveFromPendingRequests(page, clientName, "Provision Smartphone");
+    await logout(page);
+
+    await login(page, testerEmail, testerPassword);
+    await expectOpenRequests(page, "1");
+    await logout(page);
+
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    const startedStatus = await page.evaluate(async (contractId) => {
+      const requests = (await (await fetch(`/api/contracts/${contractId}/requests`)).json()) as { id: string }[];
+      const response = await fetch(`/api/contracts/${contractId}/requests/${requests[0].id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "IN_PROGRESS" }),
+      });
+      return response.status;
+    }, contractId);
+    expect(startedStatus).toBe(200);
+    await logout(page);
+
+    await login(page, testerEmail, testerPassword);
+    await expectOpenRequests(page, "1");
 
     await expect(page.locator("header").first()).toContainText(clientName);
+    await expect(page.getByTestId("viewer-menu-trigger")).toContainText(testerEmail);
     await expect(page.getByTestId("active-fleet-stat")).toContainText("2");
-    await expect(page.getByTestId("open-requests-stat")).toContainText("1");
     const row = invoiceRow(page, clientName);
     await expect(row).toContainText("United States");
     await expect(row).toContainText("No invoices yet");

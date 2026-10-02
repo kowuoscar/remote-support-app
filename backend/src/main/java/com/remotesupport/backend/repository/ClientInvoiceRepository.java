@@ -3,6 +3,7 @@ package com.remotesupport.backend.repository;
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,6 +16,10 @@ public interface ClientInvoiceRepository extends JpaRepository<ClientInvoice, UU
   Optional<ClientInvoice> findByContractIdAndBillingMonth(UUID contractId, LocalDate billingMonth);
 
   Optional<ClientInvoice> findByIdAndTenantId(UUID id, UUID tenantId);
+
+  /** The latest-month invoice of a Contract whose status is one of {@code statuses}, if any. */
+  Optional<ClientInvoice> findFirstByContractIdAndStatusInOrderByBillingMonthDesc(
+      UUID contractId, Collection<ClientInvoiceStatus> statuses);
 
   /**
    * Every Client Invoice in {@code status} for a tenant, any Contract and billing month, with its

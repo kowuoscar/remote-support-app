@@ -112,4 +112,48 @@ describe("EditClientInvoiceLineControl", () => {
     expect(screen.queryByText(/Edited · computed/)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Reset" })).not.toBeInTheDocument();
   });
+
+  it("a refused Save keeps focus in the field, which points at the error", async () => {
+    stubFetch(400, { message: "amount must not be negative" });
+    renderControl();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    const alert = await screen.findByRole("alert");
+    await waitFor(() => expect(amountField()).toHaveFocus());
+    expect(amountField()).toHaveAttribute("aria-describedby", alert.id);
+    expect(amountField()).toHaveAttribute("name", "amount");
+  });
+
+  it("Escape closes the field and focus returns to Edit", async () => {
+    const fetchMock = stubFetch(200, {});
+    renderControl();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.keyboard("{Escape}");
+
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit" })).toHaveFocus();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("Reset hands focus to the line's Edit button", async () => {
+    stubFetch(200, {});
+    renderControl({ amount: 31.4, computedAmount: 25, edited: true });
+
+    await userEvent.click(screen.getByRole("button", { name: "Reset" }));
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "Edit" })).toHaveFocus());
+  });
+
+  it("a refused Reset gives focus back to Reset", async () => {
+    stubFetch(500);
+    renderControl({ amount: 31.4, computedAmount: 25, edited: true });
+
+    await userEvent.click(screen.getByRole("button", { name: "Reset" }));
+
+    await screen.findByRole("alert");
+    await waitFor(() => expect(screen.getByRole("button", { name: "Reset" })).toHaveFocus());
+  });
 });

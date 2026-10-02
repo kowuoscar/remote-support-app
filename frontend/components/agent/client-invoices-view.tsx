@@ -4,16 +4,17 @@ import { useState } from "react";
 import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { BilledAmount } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { IconAlertTriangle, IconDownload, IconInvoices, IconPaperclip } from "@/components/icons";
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
-import { EditClientInvoiceLineControl, EditedLineNote } from "@/components/agent/edit-client-invoice-line-control";
+import { EditClientInvoiceLineControl } from "@/components/agent/edit-client-invoice-line-control";
 import { SendClientInvoiceControl } from "@/components/agent/send-client-invoice-control";
 import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from "@/lib/status";
 import { formatDate, formatDateShort, formatLocalDate } from "@/lib/format";
-import { FEE_TYPE_LABEL, type ClientInvoiceDetail } from "@/lib/api/types";
+import { FEE_TYPE_LABEL, type ClientInvoiceDetail, type EditableClientInvoiceLineKind } from "@/lib/api/types";
 
 function billingMonthLabel(billingMonth: string): string {
   // billingMonth is always a first-of-month ISO date (e.g. "2026-09-01") — parsed as UTC so it
@@ -42,7 +43,7 @@ function LineAmount({
 }: {
   editable: boolean;
   contractId: string;
-  kind: "POSTPAID_SIM" | "FEE";
+  kind: EditableClientInvoiceLineKind;
   sourceId: string;
   label: string;
   amount: number;
@@ -65,12 +66,7 @@ function LineAmount({
       />
     );
   }
-  return (
-    <div className="flex flex-col items-end gap-1">
-      <Money amount={amount} currency={currency} />
-      {isEdited ? <EditedLineNote computedAmount={computedAmount} currency={currency} /> : null}
-    </div>
-  );
+  return <BilledAmount amount={amount} computedAmount={computedAmount} edited={isEdited} currency={currency} />;
 }
 
 /**
@@ -241,7 +237,7 @@ export function AgentClientInvoicesView({
                       <Th>Type</Th>
                       <Th>Description</Th>
                       <Th>Logged</Th>
-                      <Th className="text-right">Amount</Th>
+                      <Th className="text-right">Billed</Th>
                     </Tr>
                   </Thead>
                   <Tbody>
@@ -256,7 +252,7 @@ export function AgentClientInvoicesView({
                             contractId={contractId}
                             kind="FEE"
                             sourceId={fee.id}
-                            label={`${FEE_TYPE_LABEL[fee.feeType]} Fee`}
+                            label={`${FEE_TYPE_LABEL[fee.feeType]} Fee, ${formatDateShort(fee.createdAt)}${fee.description ? ` — ${fee.description}` : ""}`}
                             amount={fee.amount}
                             computedAmount={fee.computedAmount}
                             edited={fee.edited}

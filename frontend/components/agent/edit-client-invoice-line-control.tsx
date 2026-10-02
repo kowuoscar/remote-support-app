@@ -1,26 +1,18 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EditedLineNote } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
 import { IconAlertTriangle } from "@/components/icons";
-import { useAnnouncement } from "@/components/manager/use-announcement";
+import { useAnnouncement } from "@/components/ui/use-announcement";
 import type { EditableClientInvoiceLineKind } from "@/lib/api/types";
 
 const SENT_MESSAGE = "This invoice was sent. Refresh to see it.";
 const RETRY_MESSAGE = "Couldn't save. Try again.";
 const INVALID_AMOUNT_MESSAGE = "Enter an amount of zero or more, with at most two decimals.";
-
-/** The quiet review line under an edited line's billed amount; shown on a sent invoice too. */
-export function EditedLineNote({ computedAmount, currency }: { computedAmount: number; currency: string }) {
-  return (
-    <p className="text-label-sm text-ink-mute">
-      Edited · computed <Money amount={computedAmount} currency={currency} className="text-ink-mute" />
-    </p>
-  );
-}
 
 async function failureMessage(response: Response): Promise<string> {
   if (response.status === 409) return SENT_MESSAGE;
@@ -63,21 +55,26 @@ export function EditClientInvoiceLineControl({
   const router = useRouter();
   const inputId = useId();
   const labelId = useId();
+  const errorId = useId();
   const editButton = useRef<HTMLButtonElement>(null);
-  const restoreFocus = useRef(false);
+  const resetButton = useRef<HTMLButtonElement>(null);
+  const field = useRef<HTMLInputElement>(null);
+  // Where keyboard focus goes once the next render has settled; a control that disables itself
+  // or unmounts while saving would otherwise drop focus to the page.
+  const nextFocus = useRef<"edit" | "reset" | "field" | null>(null);
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [announcement, announce] = useAnnouncement();
 
-  // Closing the field unmounts it; hand keyboard focus back to the line's Edit action.
   useEffect(() => {
-    if (!editing && restoreFocus.current) {
-      restoreFocus.current = false;
-      editButton.current?.focus();
-    }
-  }, [editing]);
+    const target = nextFocus.current;
+    if (!target || pending) return;
+    nextFocus.current = null;
+    const element = { edit: editButton, reset: resetButton, field }[target].current;
+    element?.focus();
+  });
 
   function open() {
     setValue(amount.toFixed(2));
@@ -86,13 +83,14 @@ export function EditClientInvoiceLineControl({
   }
 
   function close() {
-    restoreFocus.current = true;
+    nextFocus.current = "edit";
     setEditing(false);
     setError(null);
   }
 
-  async function save(newAmount: string, announced: string): Promise<boolean> {
+  async function save(newAmount: string, announced: string, onRefused: "field" | "reset"): Promise<boolean> {
     setPending(true);
+    nextFocus.current = onRefused;
     setError(null);
     try {
       const response = await fetch(`/api/contracts/${contractId}/client-invoice/lines`, {
@@ -106,6 +104,7 @@ export function EditClientInvoiceLineControl({
         return false;
       }
       setPending(false);
+      nextFocus.current = "edit";
       announce(announced);
       router.refresh();
       return true;
@@ -118,34 +117,46 @@ export function EditClientInvoiceLineControl({
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (await save(value, `${label} saved.`)) close();
+    if (pending) return;
+    if (await save(value, `${label} saved.`, "field")) close();
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Escape" && !pending) close();
   }
 
   const errorNote = error ? (
-    <p role="alert" className="flex items-start gap-1.5 text-label-sm text-danger">
+    <p id={errorId} role="alert" className="flex items-start gap-1.5 text-label-sm text-danger">
       <IconAlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" />
       {error}
     </p>
   ) : null;
 
   return (
-    <div className="flex flex-col items-end gap-1.5">
+    <div className="relative flex flex-col items-end gap-1.5">
       {editing ? (
         <form onSubmit={handleSubmit} className="flex flex-col items-end gap-2">
           <label htmlFor={inputId} className="sr-only">
             Billed amount for {label} ({currency})
           </label>
-          <Input
-            id={inputId}
-            autoFocus
-            autoComplete="off"
-            inputMode="decimal"
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            disabled={pending}
-            invalid={Boolean(error)}
-            className="tnum w-28 text-right"
-          />
+          <div className="w-28">
+            <Input
+              ref={field}
+              id={inputId}
+              name="amount"
+              autoFocus
+              autoComplete="off"
+              inputMode="decimal"
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              onKeyDown={handleKeyDown}
+              readOnly={pending}
+              aria-busy={pending || undefined}
+              aria-describedby={error ? errorId : undefined}
+              invalid={Boolean(error)}
+              className="tnum text-right"
+            />
+          </div>
           <div className="flex items-center gap-1.5">
             <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={close}>
               Cancel
@@ -170,12 +181,13 @@ export function EditClientInvoiceLineControl({
             </Button>
             {edited ? (
               <Button
+                ref={resetButton}
                 type="button"
                 variant="ghost"
                 size="sm"
                 loading={pending}
                 aria-describedby={labelId}
-                onClick={() => void save(computedAmount.toFixed(2), `${label} reset to its computed amount.`)}
+                onClick={() => void save(computedAmount.toFixed(2), `${label} reset to its computed amount.`, "reset")}
               >
                 Reset
               </Button>

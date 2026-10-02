@@ -3,33 +3,13 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { BilledAmount } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
 import { IconDownload, IconPaperclip } from "@/components/icons";
-import { EditedLineNote } from "@/components/agent/edit-client-invoice-line-control";
 import { ApproveClientInvoiceControl } from "@/components/manager/approve-client-invoice-control";
 import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from "@/lib/status";
 import { formatBillingMonth, formatDate, formatLocalDate } from "@/lib/format";
 import { FEE_TYPE_LABEL, type ClientInvoiceDetail } from "@/lib/api/types";
-
-/** A line's billed amount, with the quiet "Edited · computed" note beneath it when it was edited. */
-function BilledAmount({
-  amount,
-  computedAmount,
-  edited,
-  currency,
-}: {
-  amount: number;
-  computedAmount: number | null | undefined;
-  edited: boolean | null | undefined;
-  currency: string;
-}) {
-  return (
-    <div className="flex shrink-0 flex-col items-end gap-1">
-      <Money amount={amount} currency={currency} />
-      {edited && computedAmount != null ? <EditedLineNote computedAmount={computedAmount} currency={currency} /> : null}
-    </div>
-  );
-}
 
 function statusNote(invoice: ClientInvoiceDetail): string {
   switch (invoice.status) {
@@ -115,19 +95,19 @@ export function ClientInvoiceDetailView({ invoice: initial }: { invoice: ClientI
 
       {invoice.basePostpaidSims && invoice.basePostpaidSims.length > 0 ? (
         <div>
-          <h3 id="postpaid-sim-lines" className="mb-2 text-[13px] font-medium text-ink-secondary">
+          <h3 id="postpaid-sim-lines" className="mb-2 text-label font-medium text-ink-secondary">
             Postpaid SIM Cards
           </h3>
           <ul aria-labelledby="postpaid-sim-lines" className="flex flex-col gap-1.5">
             {invoice.basePostpaidSims.map((sim) => (
               <li
                 key={sim.simCardId}
-                className="flex items-start justify-between gap-3 rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-[13px]"
+                className="flex items-start justify-between gap-3 rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-label"
               >
                 <span className="min-w-0 break-words text-ink">
                   <span className="tnum font-medium">{sim.number}</span>
                   {sim.cancellationEffectiveDate ? (
-                    <span className="block text-[12px] text-ink-mute">
+                    <span className="block text-label-sm text-ink-mute">
                       Cancelled {formatLocalDate(sim.cancellationEffectiveDate)} — still billed through this month
                     </span>
                   ) : null}
@@ -155,7 +135,7 @@ export function ClientInvoiceDetailView({ invoice: initial }: { invoice: ClientI
             {invoice.feeLines.map((fee) => (
               <li
                 key={fee.id}
-                className="flex items-start justify-between gap-3 rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-[13px]"
+                className="flex items-start justify-between gap-3 rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-label"
               >
                 <span className="min-w-0 text-ink">
                   {FEE_TYPE_LABEL[fee.feeType]}

@@ -41,7 +41,7 @@ public class ClientInvoiceByIdController {
   @GetMapping
   public ClientInvoiceResponse get(
       @PathVariable UUID invoiceId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
-    return clientInvoiceService.toResponse(find(invoiceId, principal));
+    return clientInvoiceService.toResponse(find(invoiceId, principal), true);
   }
 
   @PostMapping("/approve")

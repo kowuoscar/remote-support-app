@@ -2,11 +2,13 @@ package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.CarrierInvoiceFile;
 import com.remotesupport.backend.domain.ClientInvoice;
-import com.remotesupport.backend.domain.ClientInvoiceFeeSnapshot;
+import com.remotesupport.backend.domain.ClientInvoiceLine;
+import com.remotesupport.backend.domain.ClientInvoiceLineKind;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Client;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Fee;
+import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
 import com.remotesupport.backend.dto.ClientInvoiceBaseSimLineResponse;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
@@ -14,7 +16,7 @@ import com.remotesupport.backend.dto.ClientInvoiceSummaryResponse;
 import com.remotesupport.backend.dto.FeeResponse;
 import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
-import com.remotesupport.backend.repository.ClientInvoiceFeeSnapshotRepository;
+import com.remotesupport.backend.repository.ClientInvoiceLineRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.FeeRepository;
@@ -23,22 +25,27 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * What every Client Invoice route does once it has found its invoice, whether it was addressed as
  * "this Contract's invoice for the current month" ({@link ClientInvoiceController}, which today
  * carries no Manager action) or by its own id ({@link ClientInvoiceByIdController}, the only
- * place a Manager approves): the response shape with its live-while-draft, frozen-from-sent reads
- * (ADR 0001), the approve transition, the PDF and the Carrier Invoice Files. The two controllers
+ * place a Manager approves): the response shape with its lines resolved from the stored rows or the computation
+ * (ADR 0001, ADR 0004), the send and approve transitions, the PDF and the Carrier Invoice Files. The two controllers
  * differ only in how they find the invoice and who may call them.
  */
 @Component
@@ -49,7 +56,7 @@ public class ClientInvoiceService {
   private final FeeRepository feeRepository;
   private final ContractAmountService contractAmountService;
   private final CarrierInvoiceFileRepository carrierInvoiceFileRepository;
-  private final ClientInvoiceFeeSnapshotRepository clientInvoiceFeeSnapshotRepository;
+  private final ClientInvoiceLineRepository clientInvoiceLineRepository;
   private final CarrierInvoiceFileStorage fileStorage;
   private final ClientInvoicePdfRenderer pdfRenderer;
 
@@ -59,7 +66,7 @@ public class ClientInvoiceService {
       FeeRepository feeRepository,
       ContractAmountService contractAmountService,
       CarrierInvoiceFileRepository carrierInvoiceFileRepository,
-      ClientInvoiceFeeSnapshotRepository clientInvoiceFeeSnapshotRepository,
+      ClientInvoiceLineRepository clientInvoiceLineRepository,
       CarrierInvoiceFileStorage fileStorage,
       ClientInvoicePdfRenderer pdfRenderer) {
     this.clientInvoiceRepository = clientInvoiceRepository;
@@ -67,7 +74,7 @@ public class ClientInvoiceService {
     this.feeRepository = feeRepository;
     this.contractAmountService = contractAmountService;
     this.carrierInvoiceFileRepository = carrierInvoiceFileRepository;
-    this.clientInvoiceFeeSnapshotRepository = clientInvoiceFeeSnapshotRepository;
+    this.clientInvoiceLineRepository = clientInvoiceLineRepository;
     this.fileStorage = fileStorage;
     this.pdfRenderer = pdfRenderer;
   }
@@ -143,38 +150,191 @@ public class ClientInvoiceService {
   }
 
   /**
-   * The invoice's response: while {@code DRAFT}, base amount and Fee lines are computed live; from
-   * {@code SENT} onward both come from the snapshot taken at send (ADR 0001).
+   * The invoice's response, served from {@link #lines its lines}: the base amount is the sum of the
+   * per-SIM and base-amount lines, the Fee lines are the Fee lines, the total is both. The per-SIM
+   * breakdown is served only for a draft whose base amount is per SIM; a sent or approved invoice
+   * has none, as does one holding a {@code BASE_AMOUNT} line.
    */
   public ClientInvoiceResponse toResponse(ClientInvoice invoice) {
-    UUID contractId = invoice.getContract().getId();
-    boolean frozen = invoice.getStatus() != ClientInvoiceStatus.DRAFT;
-
-    BigDecimal baseAmount =
-        frozen ? invoice.getSnapshotBaseAmount() : contractAmountService.baseAmount(contractId, invoice.getBillingMonth());
-    List<ClientInvoiceBaseSimLineResponse> basePostpaidSims = frozen ? null : liveBasePostpaidSimLines(invoice);
-    List<FeeResponse> feeLines = frozen ? snapshottedFeeLines(invoice) : liveFeeLines(invoice);
+    List<ResolvedLine> lines = lines(invoice);
+    boolean perSim = lines.stream().noneMatch(l -> l.kind() == ClientInvoiceLineKind.BASE_AMOUNT);
+    List<ClientInvoiceBaseSimLineResponse> basePostpaidSims =
+        invoice.getStatus() == ClientInvoiceStatus.DRAFT && perSim
+            ? lines.stream()
+                .filter(l -> l.kind() == ClientInvoiceLineKind.POSTPAID_SIM)
+                .map(l -> ClientInvoiceBaseSimLineResponse.of(l.simCard()))
+                .toList()
+            : null;
+    List<FeeResponse> feeLines =
+        lines.stream()
+            .filter(l -> l.kind() == ClientInvoiceLineKind.FEE)
+            .map(l -> FeeResponse.of(l.fee()))
+            .toList();
 
     return new ClientInvoiceResponse(
         invoice.getId(),
-        contractId,
+        invoice.getContract().getId(),
         invoice.getBillingMonth(),
         invoice.getStatus().name(),
         invoice.getCurrency().name(),
-        baseAmount,
+        baseAmount(lines),
         basePostpaidSims,
         feeLines,
-        total(baseAmount, feeLines),
+        total(lines),
         files(invoice),
         invoice.getSentAt(),
         invoice.getApprovedAt());
   }
 
   /**
+   * Sends a draft ({@code DRAFT -> SENT}) as one transaction (edit-client-invoice-lines spec,
+   * "Prefactoring"). The invoice is re-read under a row lock, so a concurrent send waits and then
+   * finds it {@code SENT} (409). Stores a row for every line the invoice shows that has none and
+   * sets {@code linesStored}; a draft that already had stored lines keeps every existing row, so
+   * only the pre-filled late-Fee lines are written. From here no figure moves (ADR 0001).
+   */
+  @Transactional
+  public ClientInvoiceResponse send(ClientInvoice found, AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
+    ClientInvoiceStatus oldStatus = invoice.getStatus();
+    if (!oldStatus.canTransitionTo(ClientInvoiceStatus.SENT)) {
+      throw new ConflictException("Cannot send a Client Invoice from status " + oldStatus);
+    }
+
+    boolean neverSent = !invoice.isLinesStored();
+    for (ResolvedLine line : lines(invoice)) {
+      if (line.stored() == null) {
+        clientInvoiceLineRepository.save(newRow(invoice, line));
+      } else if (neverSent) {
+        line.stored().setComputedAmount(line.computedAmount());
+      }
+    }
+    invoice.setLinesStored(true);
+    invoice.setStatus(ClientInvoiceStatus.SENT);
+    invoice.setSentAt(Instant.now());
+    clientInvoiceRepository.save(invoice);
+
+    AuditLog.statusChanged(
+        "ClientInvoice",
+        invoice.getId(),
+        oldStatus.name(),
+        ClientInvoiceStatus.SENT.name(),
+        principal.userId(),
+        principal.tenantId());
+
+    return toResponse(invoice);
+  }
+
+  private static ClientInvoiceLine newRow(ClientInvoice invoice, ResolvedLine line) {
+    ClientInvoiceLine row = new ClientInvoiceLine();
+    row.setId(UUID.randomUUID());
+    row.setTenant(invoice.getTenant());
+    row.setClientInvoice(invoice);
+    row.setKind(line.kind());
+    row.setSimCard(line.simCard());
+    row.setFee(line.fee());
+    row.setAmount(line.amount());
+    row.setComputedAmount(line.computedAmount());
+    row.setCreatedAt(Instant.now());
+    return row;
+  }
+
+  /**
+   * One line an invoice shows. {@code stored} is its row, or {@code null} for a line that is only
+   * computed or pre-filled and has no row yet.
+   */
+  public record ResolvedLine(
+      ClientInvoiceLineKind kind,
+      SimCard simCard,
+      Fee fee,
+      BigDecimal amount,
+      BigDecimal computedAmount,
+      ClientInvoiceLine stored) {}
+
+  /**
+   * An invoice's lines: the one resolution the read and the send share (edit-client-invoice-lines
+   * spec, "The model"). {@code linesStored} false is the computation (a Postpaid SIM line per
+   * billing SIM, a Fee line per Fee of the month) with any stored row for the same SIM or Fee
+   * overriding its amount. {@code linesStored} true is the stored rows exactly; while {@code DRAFT}
+   * (a sent-back invoice) it also pre-fills a line per Fee of the month that has no row, and none
+   * for a Postpaid SIM.
+   */
+  public List<ResolvedLine> lines(ClientInvoice invoice) {
+    List<ClientInvoiceLine> rows = clientInvoiceLineRepository.findByClientInvoiceId(invoice.getId());
+    UUID contractId = invoice.getContract().getId();
+    List<ResolvedLine> lines = new ArrayList<>();
+
+    if (!invoice.isLinesStored()) {
+      Map<UUID, ClientInvoiceLine> simRows =
+          rowsBy(rows, ClientInvoiceLineKind.POSTPAID_SIM, l -> l.getSimCard().getId());
+      for (SimCard sim : contractAmountService.billablePostpaidSims(contractId, invoice.getBillingMonth())) {
+        lines.add(
+            computedLine(
+                ClientInvoiceLineKind.POSTPAID_SIM, sim, null, sim.getMonthlyFeeAmount(), simRows.get(sim.getId())));
+      }
+      Map<UUID, ClientInvoiceLine> feeRows = rowsBy(rows, ClientInvoiceLineKind.FEE, l -> l.getFee().getId());
+      for (Fee fee : feesOfMonth(invoice)) {
+        lines.add(computedLine(ClientInvoiceLineKind.FEE, null, fee, fee.getAmount(), feeRows.get(fee.getId())));
+      }
+      return lines;
+    }
+
+    rows.stream()
+        .filter(l -> l.getKind() != ClientInvoiceLineKind.FEE)
+        .sorted(Comparator.comparing(ClientInvoiceLine::getKind).thenComparing(ClientInvoiceLine::getCreatedAt))
+        .forEach(l -> lines.add(storedLine(l)));
+    rows.stream()
+        .filter(l -> l.getKind() == ClientInvoiceLineKind.FEE)
+        .sorted(Comparator.comparing(l -> l.getFee().getCreatedAt()))
+        .forEach(l -> lines.add(storedLine(l)));
+    if (invoice.getStatus() == ClientInvoiceStatus.DRAFT) {
+      Map<UUID, ClientInvoiceLine> feeRows = rowsBy(rows, ClientInvoiceLineKind.FEE, l -> l.getFee().getId());
+      for (Fee fee : feesOfMonth(invoice)) {
+        if (!feeRows.containsKey(fee.getId())) {
+          lines.add(computedLine(ClientInvoiceLineKind.FEE, null, fee, fee.getAmount(), null));
+        }
+      }
+    }
+    return lines;
+  }
+
+  private List<Fee> feesOfMonth(ClientInvoice invoice) {
+    return feeRepository.findByContractIdAndBillingMonthOrderByCreatedAtAsc(
+        invoice.getContract().getId(), invoice.getBillingMonth());
+  }
+
+  private static Map<UUID, ClientInvoiceLine> rowsBy(
+      List<ClientInvoiceLine> rows, ClientInvoiceLineKind kind, Function<ClientInvoiceLine, UUID> key) {
+    return rows.stream().filter(l -> l.getKind() == kind).collect(Collectors.toMap(key, Function.identity()));
+  }
+
+  private static ResolvedLine computedLine(
+      ClientInvoiceLineKind kind, SimCard sim, Fee fee, BigDecimal computed, ClientInvoiceLine override) {
+    return new ResolvedLine(kind, sim, fee, override != null ? override.getAmount() : computed, computed, override);
+  }
+
+  private static ResolvedLine storedLine(ClientInvoiceLine row) {
+    return new ResolvedLine(
+        row.getKind(), row.getSimCard(), row.getFee(), row.getAmount(), row.getComputedAmount(), row);
+  }
+
+  private static BigDecimal baseAmount(List<ResolvedLine> lines) {
+    return lines.stream()
+        .filter(l -> l.kind() != ClientInvoiceLineKind.FEE)
+        .map(ResolvedLine::amount)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
+
+  /** The invoice total (ADR 0001): the base amount plus every Fee line's amount. */
+  private static BigDecimal total(List<ResolvedLine> lines) {
+    return lines.stream().map(ResolvedLine::amount).reduce(BigDecimal.ZERO, BigDecimal::add);
+  }
+
+  /**
    * For each Contract of {@code client} (within {@code tenantId}) that has a {@code SENT} or
    * {@code APPROVED} invoice, a summary of the one with the latest billing month. Read-only: a
-   * draft is never created, and a Contract with only a draft is absent. The total is the frozen
-   * one (ADR 0001): the snapshot base amount plus the snapshotted Fee lines, as in {@link
+   * draft is never created, and a Contract with only a draft is absent. The total is the sum of the
+   * invoice's lines (ADR 0001), as in {@link
    * #toResponse}.
    */
   public List<ClientInvoiceSummaryResponse> latestSentOrApproved(Client client, UUID tenantId) {
@@ -199,53 +359,6 @@ public class ClientInvoiceService {
                     invoice.getBillingMonth(),
                     invoice.getStatus().name(),
                     invoice.getCurrency().name(),
-                    frozenTotal(invoice)));
-  }
-
-  private BigDecimal frozenTotal(ClientInvoice invoice) {
-    return total(invoice.getSnapshotBaseAmount(), snapshottedFeeLines(invoice));
-  }
-
-  /** The invoice total (ADR 0001): the base amount plus every Fee line's amount. */
-  private static BigDecimal total(BigDecimal baseAmount, List<FeeResponse> feeLines) {
-    return feeLines.stream().map(FeeResponse::amount).reduce(baseAmount, BigDecimal::add);
-  }
-
-  /**
-   * The live breakdown behind {@code baseAmount} — every Postpaid SIM Card this month's base
-   * amount counts, so the draft view can mark a still-billing cancelled one with its date
-   * (cancelled-sim-billed-through-its-month ticket AC). Only ever called while {@code DRAFT} — see
-   * {@link #toResponse}.
-   */
-  private List<ClientInvoiceBaseSimLineResponse> liveBasePostpaidSimLines(ClientInvoice invoice) {
-    return contractAmountService
-        .billablePostpaidSims(invoice.getContract().getId(), invoice.getBillingMonth())
-        .stream()
-        .map(ClientInvoiceBaseSimLineResponse::of)
-        .toList();
-  }
-
-  private List<FeeResponse> liveFeeLines(ClientInvoice invoice) {
-    return feeRepository
-        .findByContractIdAndBillingMonthOrderByCreatedAtAsc(invoice.getContract().getId(), invoice.getBillingMonth())
-        .stream()
-        .map(FeeResponse::of)
-        .toList();
-  }
-
-  /**
-   * The frozen Fee lines for a {@code SENT}/{@code APPROVED} invoice: every {@link Fee} pinned by
-   * a {@link ClientInvoiceFeeSnapshot} row, ordered exactly like the live view (oldest first) so
-   * switching from live to frozen never reorders what the Agent already saw.
-   */
-  private List<FeeResponse> snapshottedFeeLines(ClientInvoice invoice) {
-    List<UUID> feeIds =
-        clientInvoiceFeeSnapshotRepository.findByClientInvoiceId(invoice.getId()).stream()
-            .map(line -> line.getFee().getId())
-            .toList();
-    return feeRepository.findAllById(feeIds).stream()
-        .sorted(Comparator.comparing(Fee::getCreatedAt))
-        .map(FeeResponse::of)
-        .toList();
+                    total(lines(invoice))));
   }
 }

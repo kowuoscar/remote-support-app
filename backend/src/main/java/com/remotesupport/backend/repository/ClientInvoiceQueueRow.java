@@ -9,9 +9,9 @@ import java.util.UUID;
 
 /**
  * One Client Invoice as the Review Queue needs it, read in a single query: its Contract's Client
- * and Agent names, and its frozen total's two parts — the snapshotted base amount and the sum of
- * its snapshotted Fee lines ({@code null} when it pinned none). Only meaningful for an invoice
- * that is at least {@code SENT}, since a draft has no snapshot (ADR 0001).
+ * and Agent names, and its total's two parts — the sum of its stored base-amount lines and the sum of
+ * its stored Fee lines (zero when it has none). Only meaningful for an invoice
+ * that is at least {@code SENT}, since a draft never sent has no stored lines (ADR 0001).
  */
 public record ClientInvoiceQueueRow(
     UUID id,
@@ -21,6 +21,6 @@ public record ClientInvoiceQueueRow(
     String clientName,
     String agentName,
     Currency currency,
-    BigDecimal snapshotBaseAmount,
-    BigDecimal snapshotFeesTotal,
+    BigDecimal baseAmount,
+    BigDecimal feesTotal,
     Instant sentAt) {}

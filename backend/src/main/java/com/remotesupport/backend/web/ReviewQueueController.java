@@ -8,7 +8,6 @@ import com.remotesupport.backend.repository.AgentInvoiceRepository;
 import com.remotesupport.backend.repository.ClientInvoiceQueueRow;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
-import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -61,7 +60,6 @@ public class ReviewQueueController {
   }
 
   private static ReviewQueueItemResponse fromClientInvoice(ClientInvoiceQueueRow row) {
-    BigDecimal feesTotal = row.snapshotFeesTotal() != null ? row.snapshotFeesTotal() : BigDecimal.ZERO;
     return new ReviewQueueItemResponse(
         ReviewQueueItemResponse.CLIENT_INVOICE,
         row.id(),
@@ -72,7 +70,7 @@ public class ReviewQueueController {
         null,
         row.agentName(),
         row.currency().name(),
-        row.snapshotBaseAmount().add(feesTotal),
+        row.baseAmount().add(row.feesTotal()),
         row.sentAt());
   }
 

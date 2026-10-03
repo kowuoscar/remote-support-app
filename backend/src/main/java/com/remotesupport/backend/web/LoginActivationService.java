@@ -41,6 +41,20 @@ public class LoginActivationService {
     return reactivate(lookup.forAgent(agentId, caller), caller);
   }
 
+  /** Failures are the lookup's: 404 for an unknown Client or Tester, 403 from the guard. */
+  @Transactional
+  public LoginActivationResponse deactivateTesterLogin(
+      UUID clientId, UUID testerId, AuthenticatedPrincipal caller) {
+    return deactivate(lookup.forTester(clientId, testerId, caller), caller);
+  }
+
+  /** Failures are the lookup's: 404 for an unknown Client or Tester, 403 from the guard. */
+  @Transactional
+  public LoginActivationResponse reactivateTesterLogin(
+      UUID clientId, UUID testerId, AuthenticatedPrincipal caller) {
+    return reactivate(lookup.forTester(clientId, testerId, caller), caller);
+  }
+
   private LoginActivationResponse deactivate(User login, AuthenticatedPrincipal caller) {
     if (!login.isDeactivated()) {
       login.deactivate(Instant.now());

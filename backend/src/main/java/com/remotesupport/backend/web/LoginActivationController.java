@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Manager-only Login deactivation and reactivation (deactivate-a-login spec, "Endpoints"). The
- * Manager addresses the Agent, never a {@code User} id; no body. {@code SecurityConfig}'s
- * Manager-only {@code /api/agents/**} matcher already covers the routes. Has its own
+ * Manager addresses the Agent, or the Tester under its Client, never a {@code User} id; no body. {@code SecurityConfig}'s
+ * Manager-only {@code /api/agents/**} and {@code /api/clients/**} matchers already cover the routes. Has its own
  * {@code @ExceptionHandler} for the coded 409, as {@link PasswordResetController} does.
  */
 @RestController
@@ -37,6 +37,22 @@ public class LoginActivationController {
   public LoginActivationResponse reactivateAgentLogin(
       @PathVariable UUID agentId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     return loginActivationService.reactivateAgentLogin(agentId, principal);
+  }
+
+  @PostMapping("/api/clients/{clientId}/testers/{testerId}/deactivate")
+  public LoginActivationResponse deactivateTesterLogin(
+      @PathVariable UUID clientId,
+      @PathVariable UUID testerId,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    return loginActivationService.deactivateTesterLogin(clientId, testerId, principal);
+  }
+
+  @PostMapping("/api/clients/{clientId}/testers/{testerId}/reactivate")
+  public LoginActivationResponse reactivateTesterLogin(
+      @PathVariable UUID clientId,
+      @PathVariable UUID testerId,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    return loginActivationService.reactivateTesterLogin(clientId, testerId, principal);
   }
 
   @ExceptionHandler(AgentHasNoLoginException.class)

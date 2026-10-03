@@ -25,8 +25,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   private final JwtService jwtService;
 
-  public JwtAuthenticationFilter(JwtService jwtService) {
+  private final LoginState loginState;
+
+  public JwtAuthenticationFilter(JwtService jwtService, LoginState loginState) {
     this.jwtService = jwtService;
+    this.loginState = loginState;
   }
 
   @Override
@@ -37,6 +40,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       throws ServletException, IOException {
     extractToken(request)
         .flatMap(jwtService::parse)
+        // A token outlives a deactivation: the Login must still exist and be active, read afresh
+        // on every request (deactivate-a-login, door 2).
+        .filter(principal -> loginState.isActive(principal.userId()))
         .ifPresent(
             principal -> {
               var authorities = List.of(new SimpleGrantedAuthority("ROLE_" + principal.role()));

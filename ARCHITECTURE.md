@@ -18,6 +18,9 @@ error, not a nitpick.
 - `dto` · request and response shapes crossing the HTTP boundary.
 - `repository` · Spring Data repositories, the only data access to `domain`.
 - `security` · JWT authentication, the per-resource access guards, and security configuration.
+- `backend/src/main/java/com/remotesupport/backend/security/LoginState.java` · the per-request check that a userId is an existing, active Login, used by `JwtAuthenticationFilter`.
+- `backend/src/main/java/com/remotesupport/backend/security/LoginDeactivatedException.java` · the `DisabledException` subclass carrying userId and tenantId, thrown at sign-in for a deactivated Login.
+- `backend/src/main/resources/db/migration/V58__add_users_deactivated_at.sql` · adds the nullable `users.deactivated_at`.
 - `web` · HTTP controllers, the services holding business rules, and the domain factories they share.
 - `logging` · the audit trail written when an entity is created or changes state.
 - `demo` · the `demo` profile's seed loader, used for development and demonstration.

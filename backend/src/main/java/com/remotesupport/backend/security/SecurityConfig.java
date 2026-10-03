@@ -6,7 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,8 +28,11 @@ public class SecurityConfig {
 
   private final JwtService jwtService;
 
-  public SecurityConfig(JwtService jwtService) {
+  private final LoginState loginState;
+
+  public SecurityConfig(JwtService jwtService, LoginState loginState) {
     this.jwtService = jwtService;
+    this.loginState = loginState;
   }
 
   @Bean
@@ -36,15 +40,33 @@ public class SecurityConfig {
     return new BCryptPasswordEncoder();
   }
 
+  /**
+   * Sign-in provider whose account-status check runs after the password check: a wrong password is
+   * {@code BadCredentialsException} for an active and a deactivated Login alike, and only the
+   * right password on a deactivated Login reaches {@link LoginDeactivatedException}. Spring's
+   * default checks {@code isEnabled()} first, which would tell anyone typing an email that the
+   * Login exists and is switched off.
+   */
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
-      throws Exception {
-    return configuration.getAuthenticationManager();
+  public AuthenticationManager authenticationManager(
+      AppUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+    provider.setUserDetailsService(userDetailsService);
+    provider.setPasswordEncoder(passwordEncoder);
+    provider.setPreAuthenticationChecks(user -> {});
+    provider.setPostAuthenticationChecks(
+        user -> {
+          if (!user.isEnabled()) {
+            AppUserPrincipal principal = (AppUserPrincipal) user;
+            throw new LoginDeactivatedException(principal.userId(), principal.tenantId());
+          }
+        });
+    return new ProviderManager(provider);
   }
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService);
+    JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(jwtService, loginState);
 
     http.csrf(AbstractHttpConfigurer::disable)
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

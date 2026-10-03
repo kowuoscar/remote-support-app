@@ -244,50 +244,54 @@
     {
       "id": "F21",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:188",
       "citation": "Vercel Web Interface Guidelines, focus states / interactions: a pending action must not drop keyboard focus (keep the control focusable and show the busy state, e.g. aria-disabled + aria-busy instead of disabled)",
       "note": "Reset uses loading={pending}, which sets native disabled (frontend/components/ui/button.tsx:42); focus is on BODY for the ~600ms request. Same when Save is pressed by Tab+Enter (line 164). Focus returns afterwards. Same root cause as the existing debt entry on button.tsx (focus lost while a dialog submits).",
-      "fixed_in": "c535422"
+      "fixed_in": "c535422",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F22",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:124",
       "citation": "Vercel Web Interface Guidelines, interactions/forms: Escape dismisses an inline editor regardless of which of its controls has focus",
       "note": "onKeyDown is only on the Input; with focus on Cancel or Save, Escape does nothing. Move the handler onto the <form>.",
-      "fixed_in": "c535422"
+      "fixed_in": "c535422",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F23",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/agent/client-invoices-view.tsx:255",
       "citation": "Vercel Web Interface Guidelines, accessibility: give each control a distinct, concise accessible name/description",
       "note": "Two description-less Fees of the same type logged the same day still get identical labels; a long description is appended in full.",
-      "fixed_in": "c535422"
+      "fixed_in": "c535422",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F24",
       "type": "smell",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:179",
       "citation": "",
       "note": "A refused Reset refocuses Reset but its aria-describedby omits the error id.",
-      "fixed_in": "c535422"
+      "fixed_in": "c535422",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F25",
@@ -321,6 +325,39 @@
       "where": "docs/adr/0004-client-invoice-holds-its-own-lines.md:97",
       "citation": "",
       "note": "The F1 fix adds an Agent row lock (Client Invoice, Agent, Agent Invoice; the Agent Invoice send takes Agent then Agent Invoice). ADR 0004's Locks paragraph, the spec's Locks paragraph and the followClientInvoiceEdit Javadoc (AgentInvoiceService.java ~233) still say Client Invoice then Agent Invoice."
+    },
+    {
+      "id": "F28",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:140",
+      "citation": "",
+      "note": "busyClass dims the whole pending Save/Reset, focus outline included (6.2:1 to ~2.4:1 light, 6.7:1 to ~2.6:1 dark) for the ~600ms request; no AA rule broken. Dim only the content."
+    },
+    {
+      "id": "F29",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:139",
+      "citation": "",
+      "note": "An aria-disabled pending button still gets hover styles (Button variants gate on disabled: only). Add aria-disabled: variants."
+    },
+    {
+      "id": "F30",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:26",
+      "citation": "",
+      "note": "The local Spinner copies Button's loading spinner; give Button a focusable busy mode instead."
     }
   ]
 }

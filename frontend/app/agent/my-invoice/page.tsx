@@ -5,6 +5,7 @@ import { SurfacePage } from "@/components/app-shell/surface-page";
 import { AgentInvoiceView } from "@/components/agent/agent-invoice-view";
 import { backendFetch } from "@/lib/api/backend";
 import type { AgentInvoiceDetail } from "@/lib/api/types";
+import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "My Invoice" };
 
@@ -17,6 +18,7 @@ export const metadata = { title: "My Invoice" };
  * step, mirroring how /agent/client-invoices already works for Client Invoices.
  */
 export default async function AgentMyInvoicePage() {
+  await requireAgent();
   const meResponse = await backendFetch("/api/me");
   const me = meResponse.ok ? ((await meResponse.json()) as { username?: string; agentId?: string }) : {};
 

@@ -2,6 +2,7 @@ import { SurfacePage } from "@/components/app-shell/surface-page";
 import { ClientInvoicesView } from "@/components/client/invoices-view";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
 import { countryLabel, type ClientInvoiceDetail, type ContractListItem } from "@/lib/api/types";
+import { requireTester } from "@/lib/api/guard";
 
 export const metadata = { title: "Invoices" };
 
@@ -15,6 +16,7 @@ export const metadata = { title: "Invoices" };
  * this simply treats as "nothing to show for this Contract yet", never a page-level error.
  */
 export default async function ClientInvoicesPage() {
+  await requireTester();
   const [contracts, meResponse] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),

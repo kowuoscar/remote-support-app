@@ -7,6 +7,7 @@ import {
   type SimCardListItem,
   type SmartphoneListItem,
 } from "@/lib/api/types";
+import { requireTester } from "@/lib/api/guard";
 
 export const metadata = { title: "Fleet" };
 
@@ -16,6 +17,7 @@ export const metadata = { title: "Fleet" };
  * own Client's Contracts (fleet-management ticket).
  */
 export default async function ClientFleetPage() {
+  await requireTester();
   const [contracts, meResponse] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),

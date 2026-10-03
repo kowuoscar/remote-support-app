@@ -11,6 +11,7 @@ import {
   type SmartphoneListItem,
   type StockUnitItem,
 } from "@/lib/api/types";
+import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "Requests" };
 
@@ -24,6 +25,7 @@ export const metadata = { title: "Requests" };
  * the "Log a request" dialog can name whose behalf a proactively-logged Request is raised on.
  */
 export default async function AgentRequestsPage() {
+  await requireAgent();
   // sim-card-carrier ticket: a SIM Card provisioned here names one of the Agent's own Country's
   // active Carriers — every Contract of theirs is in that Country, so one list serves them all.
   // topup-fee-from-option ticket: the log-Fee dialog's Topup Option picker reads the same

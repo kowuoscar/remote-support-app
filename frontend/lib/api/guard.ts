@@ -13,13 +13,31 @@ import { backendFetch } from "@/lib/api/backend";
  * visual-regression suite, which runs with no backend at all.
  */
 export async function requireManager(): Promise<void> {
+  await requireRole("MANAGER");
+}
+
+/**
+ * Guards a backend-driven Agent page (deactivate-a-login: a deactivated, deleted or expired Login
+ * gets 401 from `/api/me` and would otherwise see empty lists). Same shape and per-page scoping as
+ * {@link requireManager}.
+ */
+export async function requireAgent(): Promise<void> {
+  await requireRole("AGENT");
+}
+
+/** Guards a backend-driven Tester page; see {@link requireAgent}. */
+export async function requireTester(): Promise<void> {
+  await requireRole("TESTER");
+}
+
+async function requireRole(role: "MANAGER" | "AGENT" | "TESTER"): Promise<void> {
   const response = await backendFetch("/api/me");
   if (!response.ok) {
     redirect("/login");
   }
 
   const me = (await response.json()) as { role?: string };
-  if (me.role !== "MANAGER") {
+  if (me.role !== role) {
     redirect("/login");
   }
 }

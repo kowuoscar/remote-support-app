@@ -1,0 +1,127 @@
+import { useRef } from "react";
+import { render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { stubFetch } from "@/tests/component/fetch";
+import { mockRouter } from "@/tests/component/next-navigation";
+import { ReactivateLoginDialog, type LoginActivationDialogHandle } from "./reactivate-login-dialog";
+
+const target = {
+  name: "Camille Duforet",
+  email: "camille@agents.example",
+  endpoint: "/api/agents/agent-1/login/reactivate",
+  listLink: { href: "/manager/agents", label: "Back to the Agents list" },
+};
+
+function Host({ onChanged }: Readonly<{ onChanged: (email: string) => void }>) {
+  const ref = useRef<LoginActivationDialogHandle>(null);
+  return (
+    <>
+      <button type="button" onClick={() => ref.current?.open(target)}>
+        Open dialog
+      </button>
+      <ReactivateLoginDialog ref={ref} onChanged={onChanged} />
+    </>
+  );
+}
+
+async function openDialog(onChanged = vi.fn()) {
+  render(<Host onChanged={onChanged} />);
+  const trigger = screen.getByRole("button", { name: "Open dialog" });
+  await userEvent.click(trigger);
+  return { trigger, dialog: screen.getByRole("dialog"), onChanged };
+}
+
+async function confirm(dialog: HTMLElement) {
+  await userEvent.click(within(dialog).getByRole("button", { name: "Reactivate login" }));
+}
+
+describe("ReactivateLoginDialog", () => {
+  beforeEach(() => mockRouter.refresh.mockReset());
+
+  it("asks for confirmation, naming the person and saying the existing password works", async () => {
+    const { dialog } = await openDialog();
+
+    expect(within(dialog).getByRole("heading", { name: "Reactivate login for Camille Duforet" })).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(
+        "camille@agents.example will be able to sign in again with their existing password. If they don't know it, reset it afterwards.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("cancel-sends-nothing", async () => {
+    const fetchMock = stubFetch(200, { deactivatedAt: null });
+    const { dialog, onChanged } = await openDialog();
+
+    await userEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(onChanged).not.toHaveBeenCalled();
+    expect(mockRouter.refresh).not.toHaveBeenCalled();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("200-closes-refreshes-and-announces", async () => {
+    const fetchMock = stubFetch(200, { deactivatedAt: null });
+    const { dialog, onChanged } = await openDialog();
+
+    await confirm(dialog);
+
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("/api/agents/agent-1/login/reactivate");
+    expect(init.method).toBe("POST");
+    expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
+    expect(onChanged).toHaveBeenCalledExactlyOnceWith("camille@agents.example");
+  });
+
+  it("focus-returns-to-trigger", async () => {
+    stubFetch(200, { deactivatedAt: null });
+    const { trigger, dialog } = await openDialog();
+
+    await confirm(dialog);
+
+    await waitFor(() => expect(trigger).toHaveFocus());
+  });
+
+  it("agent-has-no-login-shows-stale-page-message", async () => {
+    stubFetch(409, { code: "AGENT_HAS_NO_LOGIN" });
+    const { dialog, onChanged } = await openDialog();
+
+    await confirm(dialog);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Camille Duforet has no login. This page is out of date — refresh it.",
+    );
+    expect(onChanged).not.toHaveBeenCalled();
+    expect(mockRouter.refresh).not.toHaveBeenCalled();
+  });
+
+  it("404-shows-no-longer-exists-message", async () => {
+    stubFetch(404);
+    const { dialog } = await openDialog();
+
+    await confirm(dialog);
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Camille Duforet no longer exists.");
+    expect(within(alert).getByRole("link", { name: "Back to the Agents list" })).toHaveAttribute(
+      "href",
+      "/manager/agents",
+    );
+  });
+
+  it.each([
+    ["a 500", () => stubFetch(500)],
+    ["a lost connection", () => stubFetch(200).mockRejectedValue(new TypeError("network"))],
+  ])("other-failure-shows-generic-message on %s", async (_name, stub) => {
+    stub();
+    const { dialog } = await openDialog();
+
+    await confirm(dialog);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't change this login. Try again.");
+    expect(within(dialog).getByRole("button", { name: "Reactivate login" })).toBeEnabled();
+  });
+});

@@ -68,7 +68,12 @@ export default async function ManagerAgentDetailPage({
             <p className="text-[12px] font-medium uppercase tracking-wide text-ink-mute">Contracts</p>
             <p className="mt-1 text-sm text-ink">{agent.contractCount}</p>
           </div>
-          <AgentSignInEmail agentId={agent.id} agentName={agent.name} loginUsername={agent.loginUsername} />
+          <AgentSignInEmail
+            agentId={agent.id}
+            agentName={agent.name}
+            loginUsername={agent.loginUsername}
+            loginDeactivatedAt={agent.loginDeactivatedAt}
+          />
         </Card>
 
         {standingAmounts ? (

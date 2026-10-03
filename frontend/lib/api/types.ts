@@ -90,6 +90,8 @@ export interface AgentListItem {
   contractCount: number;
   // The email the Agent signs in with; null for an Agent that has no login yet.
   loginUsername: string | null;
+  // When the Login was deactivated (ISO instant); null when active or when there is no Login.
+  loginDeactivatedAt?: string | null;
 }
 
 // Mirrors backend/.../dto/ContractResponse.java

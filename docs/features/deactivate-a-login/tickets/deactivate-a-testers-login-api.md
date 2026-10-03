@@ -1,7 +1,7 @@
 ---
 id: deactivate-a-testers-login-api
 title: Let a Manager deactivate and reactivate a Tester's Login
-status: ready-for-agent
+status: in-progress
 depends_on: [deactivate-an-agents-login-api]
 labels: [backend]
 stories: [2, 7, 8, 17, 19, 20, 22, 23]

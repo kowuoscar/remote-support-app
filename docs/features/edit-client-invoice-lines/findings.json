@@ -244,46 +244,50 @@
     {
       "id": "F21",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:188",
       "citation": "Vercel Web Interface Guidelines, focus states / interactions: a pending action must not drop keyboard focus (keep the control focusable and show the busy state, e.g. aria-disabled + aria-busy instead of disabled)",
-      "note": "Reset uses loading={pending}, which sets native disabled (frontend/components/ui/button.tsx:42); focus is on BODY for the ~600ms request. Same when Save is pressed by Tab+Enter (line 164). Focus returns afterwards. Same root cause as the existing debt entry on button.tsx (focus lost while a dialog submits)."
+      "note": "Reset uses loading={pending}, which sets native disabled (frontend/components/ui/button.tsx:42); focus is on BODY for the ~600ms request. Same when Save is pressed by Tab+Enter (line 164). Focus returns afterwards. Same root cause as the existing debt entry on button.tsx (focus lost while a dialog submits).",
+      "fixed_in": "c535422"
     },
     {
       "id": "F22",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:124",
       "citation": "Vercel Web Interface Guidelines, interactions/forms: Escape dismisses an inline editor regardless of which of its controls has focus",
-      "note": "onKeyDown is only on the Input; with focus on Cancel or Save, Escape does nothing. Move the handler onto the <form>."
+      "note": "onKeyDown is only on the Input; with focus on Cancel or Save, Escape does nothing. Move the handler onto the <form>.",
+      "fixed_in": "c535422"
     },
     {
       "id": "F23",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/agent/client-invoices-view.tsx:255",
       "citation": "Vercel Web Interface Guidelines, accessibility: give each control a distinct, concise accessible name/description",
-      "note": "Two description-less Fees of the same type logged the same day still get identical labels; a long description is appended in full."
+      "note": "Two description-less Fees of the same type logged the same day still get identical labels; a long description is appended in full.",
+      "fixed_in": "c535422"
     },
     {
       "id": "F24",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:179",
       "citation": "",
-      "note": "A refused Reset refocuses Reset but its aria-describedby omits the error id."
+      "note": "A refused Reset refocuses Reset but its aria-describedby omits the error id.",
+      "fixed_in": "c535422"
     },
     {
       "id": "F25",

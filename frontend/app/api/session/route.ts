@@ -7,6 +7,10 @@ const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8080";
 // app.jwt.expiration-minutes, default 60) so the cookie doesn't outlive the token it carries.
 const SESSION_MAX_AGE_SECONDS = 60 * 60;
 
+const LOGIN_DEACTIVATED_CODE = "LOGIN_DEACTIVATED";
+const LOGIN_DEACTIVATED_MESSAGE =
+  "This login has been deactivated. Ask your Manager if you need access again.";
+
 interface LoginRequestBody {
   username?: unknown;
   password?: unknown;
@@ -48,6 +52,12 @@ export async function POST(request: NextRequest) {
   }
 
   if (!backendResponse.ok) {
+    if (backendResponse.status === 401) {
+      const failure = (await backendResponse.json().catch(() => null)) as { code?: unknown } | null;
+      if (failure?.code === LOGIN_DEACTIVATED_CODE) {
+        return NextResponse.json({ error: LOGIN_DEACTIVATED_MESSAGE }, { status: 401 });
+      }
+    }
     return NextResponse.json({ error: "Incorrect email or password." }, { status: 401 });
   }
 

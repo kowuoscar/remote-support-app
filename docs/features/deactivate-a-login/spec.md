@@ -551,6 +551,9 @@ read `deactivated_at` from the database to prove a refusal.
   underpin the token helpers and most e2e specs, and e2e state does not roll
   back.
 
+- **The test guard's false positive on `LoginDeactivatedException` is named in the ticket, not treated as a retry (after review, `deactivated-login-refused`).** `sdlc-test-guard` matched `.Disabled` in Spring's `DisabledException` import in production code; no test was skipped or edited. The ticket's `## Regression` now names it and the same commit was re-merged. Reason: no code was wrong, so a fresh implementer would have nothing to change.
+- **A deactivated caller's own password change answers 401 through `BadCredentialsException`, as the Solution says; the ticket's line that the controller "already maps" it to 401 was inaccurate (`ChangePasswordController` maps its own refusals to 400). Door 2 refuses such a caller first, so this path is defence in depth.**
+
 ## Open questions
 
 None.

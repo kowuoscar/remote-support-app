@@ -36,6 +36,7 @@ There is no way to deactivate a Login over HTTP yet; tests deactivate through th
 
 - At risk: sign-in for every role, every authenticated request (the filter now reads one row per request), self-service password change, the demo profile.
 - Protected by `AuthLoginTest`, `AuthLoginObservabilityTest`, `ChangeOwnPasswordApiTest`, `ProtectedEndpointTest`, `SecondTenantSignInApiTest` and `DemoDataLoaderApiTest`, which pass unedited. No existing test is expected to change.
+- Test guard: `backend/src/main/java/com/remotesupport/backend/security/LoginDeactivatedException.java` trips the guard's `.Disabled` skip-marker pattern. It is production code importing and extending Spring Security's `DisabledException`, not a skipped test (orchestrator, 2026-10-03, checked on edda8a3).
 
 ## Observability
 

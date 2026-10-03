@@ -15,6 +15,9 @@ _Avoid_: Account, credentials.
 **Password write**:
 The single component (`PasswordWrite`) where a Login's password is written; every creation and change path goes through it. Two operations: set a typed value, or give the Login a freshly generated password and return it in the clear (redrawn up to three draws if it equals the current one). It encodes and sets, and neither validates nor saves.
 
+**Administered-Login lookup**:
+The single component (`AdministeredLoginLookup`) that turns route ids (an Agent id, or a Client id plus Tester id) into the target Login within the caller's Tenant and asks the `LoginAdministrationGuard` once.
+
 **Password generator**:
 The security component (`PasswordGenerator`) that draws a candidate generated password. It knows nothing about any Login.
 

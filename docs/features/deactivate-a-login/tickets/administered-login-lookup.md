@@ -1,7 +1,7 @@
 ---
 id: administered-login-lookup
 title: Extract the administered-Login lookup from the password reset
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [enabler, backend]
 stories: []

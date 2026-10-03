@@ -10,6 +10,7 @@ import {
   type SimCardListItem,
   type SmartphoneListItem,
 } from "@/lib/api/types";
+import { requireTester } from "@/lib/api/guard";
 
 export const metadata = { title: "Requests" };
 
@@ -27,6 +28,7 @@ export const metadata = { title: "Requests" };
  * Agent/Manager-only Country-scoped one `loadActiveCarriers` calls.
  */
 export default async function ClientRequestsPage() {
+  await requireTester();
   const [contracts, meResponse] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),

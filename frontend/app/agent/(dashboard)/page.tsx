@@ -17,6 +17,7 @@ import {
 } from "@/lib/api/types";
 import { formatBillingMonth, formatRelativeAge } from "@/lib/format";
 import { requestStatusToneByValue } from "@/lib/status";
+import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "Dashboard" };
 
@@ -115,6 +116,7 @@ function RecentRequestsBody({ requests, now }: { requests: AgentRequest[] | null
 }
 
 export default async function AgentDashboardPage() {
+  await requireAgent();
   const agent = await loadAgent();
   if (agent === null) {
     return (

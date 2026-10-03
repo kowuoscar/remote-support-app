@@ -47,6 +47,7 @@ error, not a nitpick.
 - `manager` · components specific to the Manager Console.
 - `client` · components specific to the Client Portal.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
+- `frontend/components/manager/login-activation-dialog.tsx` · the shared confirm dialog a Manager uses to deactivate or reactivate a Login.
 - `fleet` · smartphones, SIM cards, installation and serial editing.
 - `carriers` · the carrier catalog and its pickers.
 - `requests` · the request and provisioning workflow.

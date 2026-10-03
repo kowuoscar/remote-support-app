@@ -34,6 +34,11 @@ export function formatDate(iso: string): string {
   });
 }
 
+/** "2 Oct 2026" for an instant, in UTC so the day never depends on the viewer's zone. */
+export function formatDayMonthYear(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
 const monthNames = [
   "January",
   "February",

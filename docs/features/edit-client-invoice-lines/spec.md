@@ -1,7 +1,7 @@
 ---
 feature: edit-client-invoice-lines
 epic: invoice-correction-and-history
-status: approved
+status: delivered
 date: 2026-10-01
 ---
 

@@ -1,0 +1,64 @@
+### Page
+- Page URL: http://127.0.0.1:53000/manager
+- Page Title: Dashboard · Remote Support Platform
+### Snapshot
+```yaml
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - complementary [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - generic [ref=f2e5]: "N"
+        - generic [ref=f2e6]:
+          - paragraph [ref=f2e7]: Northwind Field Services
+          - paragraph [ref=f2e8]: Manager Console
+      - navigation [ref=f2e9]:
+        - link "Dashboard" [ref=f2e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f2e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f2e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f2e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f2e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f2e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f2e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f2e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f2e48]:
+      - banner [ref=f2e49]:
+        - generic [ref=f2e51]:
+          - heading "Dashboard" [level=1] [ref=f2e52]
+          - paragraph [ref=f2e53]: Tenant-wide overview
+        - generic [ref=f2e54]:
+          - button "Priya Ashford · Manager" [ref=f2e56]
+          - button "Switch to dark theme" [ref=f2e58]
+      - main [ref=f2e62]:
+        - generic [ref=f2e93]:
+          - generic [ref=f2e94]:
+            - generic [ref=f2e95]:
+              - heading "Pending approvals" [level=2] [ref=f2e96]
+              - paragraph [ref=f2e97]: Longest waiting first
+            - link "Review all" [ref=f2e98] [cursor=pointer]:
+              - /url: /manager/invoices
+          - list "Pending approvals" [ref=f2e101]:
+            - listitem [ref=f2e102]:
+              - link "Jordan Ellis Agent Invoice · October 2026 · waiting since today $2,600.00" [ref=f2e103] [cursor=pointer]:
+                - /url: /manager/invoices/agent/3967fb46-fb78-40db-a343-3d66f11e2f78
+                - generic [ref=f2e110]:
+                  - generic [ref=f2e111]: Jordan Ellis
+                  - generic [ref=f2e112]: Agent Invoice · October 2026 · waiting since today
+                - generic [ref=f2e113]: $2,600.00
+            - listitem [ref=f2e114]:
+              - link "Browser Client — Agent Cee Client Invoice · October 2026 · waiting since today $91.40" [ref=f2e115] [cursor=pointer]:
+                - /url: /manager/invoices/client/ef495397-ffb3-4a34-bfbd-beac7ac296b4
+                - generic [ref=f2e122]:
+                  - generic [ref=f2e123]: Browser Client — Agent Cee
+                  - generic [ref=f2e124]: Client Invoice · October 2026 · waiting since today
+                - generic [ref=f2e125]: $91.40
+      - paragraph [ref=f2e126]: Demo data — names, amounts and statuses on this screen are synthetic and do not represent real Clients, Agents or invoices.
+  - alert [ref=f2e127]
+```

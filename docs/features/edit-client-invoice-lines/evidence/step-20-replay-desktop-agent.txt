@@ -1,0 +1,11 @@
+# step 20 replay desktop-agent
+resting: {"el":"BODY","label":"NNorthwind Field ServicesAgent ConsoleDa","outline":"none 3px rgb(11, 18, 32)","boxShadow":"none","inViewport":false,"scrollW":1280,"innerW":1280}
+Tab to Edit: {"el":"BUTTON","label":"Edit","outline":"solid 2px rgb(71, 48, 224)","boxShadow":"none","inViewport":true,"scrollW":1280,"innerW":1280}
+Enter on Edit, field focus: {"el":"INPUT","label":"25.00","outline":"solid 2px rgb(11, 18, 32)","boxShadow":"none","inViewport":true,"scrollW":1280,"innerW":1280}
+typed: {"el":"INPUT","label":"31.40","outline":"solid 2px rgb(11, 18, 32)","boxShadow":"none","inViewport":true,"scrollW":1280,"innerW":1280}
+Tab: {"el":"BUTTON","label":"Cancel","outline":"solid 2px rgb(69, 80, 106)","boxShadow":"none","inViewport":true,"scrollW":1280,"innerW":1280}
+Tab: {"el":"BUTTON","label":"Save","outline":"solid 2px rgb(11, 18, 32)","boxShadow":"none","inViewport":true,"scrollW":1280,"innerW":1280}
+after Save: {"el":"BUTTON","label":"Edit","outline":"solid 2px rgb(81, 56, 248)","boxShadow":"none","inViewport":true,"scrollW":1280,"innerW":1280}
+Tab to Reset: {"el":"BUTTON","label":"Reset","outline":"solid 2px rgb(69, 80, 106)","boxShadow":"none","inViewport":true,"scrollW":1280,"innerW":1280}
+after Reset: {"el":"BUTTON","label":"Edit","outline":"solid 2px rgb(83, 58, 253)","boxShadow":"none","inViewport":true,"scrollW":1280,"innerW":1280}
+re-find Edit: {"el":"BUTTON","label":"Edit","outline":"solid 2px rgb(71, 48, 224)","boxShadow":"none","inViewport":true,"scrollW":1280,"innerW":1280}

@@ -67,3 +67,7 @@ maintaining the math twice.
   way Client Invoice does — that snapshot will freeze *this* live computation. Switching Local
   Support Fees to read from Client Invoices afterwards would mean historical Agent Invoices and any
   newly-built one compute the same line two different ways.
+
+## Note (2026-10-02)
+
+Amended by ADR 0004: Local Support Fees now take each Contract's billed Client Invoice amounts, plus anything that invoice does not bill at its computed amount; a sent Agent Invoice moves by the difference of a later edit until it is approved.

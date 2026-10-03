@@ -1,0 +1,61 @@
+### Page
+- Page URL: http://127.0.0.1:53000/agent/my-invoice
+- Page Title: My Invoice · Remote Support Platform
+### Snapshot
+```yaml
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - complementary [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - generic [ref=f2e5]: "N"
+        - generic [ref=f2e6]:
+          - paragraph [ref=f2e7]: Northwind Field Services
+          - paragraph [ref=f2e8]: Agent Console
+      - navigation [ref=f2e9]:
+        - link "Dashboard" [ref=f2e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f2e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f2e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f2e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f2e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f2e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f2e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f2e43]:
+      - banner [ref=f2e44]:
+        - generic [ref=f2e46]:
+          - heading "My Invoice" [level=1] [ref=f2e47]
+          - paragraph [ref=f2e48]: Local Support Fees, salary and Rollout Advance
+        - generic [ref=f2e49]:
+          - button "cee@example.com · Agent" [ref=f2e51]
+          - button "Switch to dark theme" [ref=f2e53]
+      - main [ref=f2e57]:
+        - generic [ref=f2e59]:
+          - generic [ref=f2e60]:
+            - generic [ref=f2e62]:
+              - heading "October 2026" [level=2] [ref=f2e67]
+              - generic [ref=f2e68]: Draft
+            - button "Send Agent Invoice" [ref=f2e71]
+          - generic [ref=f2e74]:
+            - generic [ref=f2e75]:
+              - term [ref=f2e76]: Local Support Fees
+              - definition [ref=f2e77]: $91.40
+            - generic [ref=f2e78]:
+              - term [ref=f2e79]: Salary
+              - definition [ref=f2e80]: $2,000.00
+            - generic [ref=f2e81]:
+              - term [ref=f2e82]: Rollout Advance repayment
+              - definition [ref=f2e83]: $0.00
+            - generic [ref=f2e84]:
+              - term [ref=f2e85]: Rollout Advance new
+              - definition [ref=f2e86]: $0.00
+          - generic [ref=f2e87]:
+            - generic [ref=f2e88]: Total
+            - generic [ref=f2e89]: $2,091.40
+  - alert [ref=f2e90]
+```

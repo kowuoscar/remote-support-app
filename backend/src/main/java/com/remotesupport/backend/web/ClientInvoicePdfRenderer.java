@@ -2,7 +2,7 @@ package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
-import com.remotesupport.backend.dto.FeeResponse;
+import com.remotesupport.backend.dto.ClientInvoiceFeeLineResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -64,7 +64,7 @@ public class ClientInvoicePdfRenderer {
         if (invoice.feeLines().isEmpty()) {
           writer.line(HELVETICA, 10, "  (none this month)");
         } else {
-          for (FeeResponse fee : invoice.feeLines()) {
+          for (ClientInvoiceFeeLineResponse fee : invoice.feeLines()) {
             String description = fee.description() != null && !fee.description().isBlank() ? " — " + fee.description() : "";
             writer.line(
                 HELVETICA,

@@ -1,0 +1,15 @@
+# Step 20, desktop 1280-wide viewport, keyboard only (Tab/Enter/typing), page = Keyboard Client draft (SIM +1-555-3001 $25.00, Topup Fee $45.00)
+Tab 1: "{\"el\":\"BUTTON\",\"label\":\"Keyboard Client — United States\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+Tab 2: "{\"el\":\"BUTTON\",\"label\":\"Attach carrier invoice\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+Tab 3: "{\"el\":\"INPUT\",\"label\":\"Attach carrier invoice file\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+Tab 4: "{\"el\":\"BUTTON\",\"label\":\"Send Client Invoice\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+Tab 5: "{\"el\":\"BUTTON\",\"label\":\"Edit\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+--- Enter on Edit
+field focused: "{\"el\":\"INPUT\",\"label\":\"25.00\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+typed 31.40: "{\"el\":\"INPUT\",\"label\":\"31.40\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+Tab: "{\"el\":\"BUTTON\",\"label\":\"Cancel\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+Tab: "{\"el\":\"BUTTON\",\"label\":\"Save\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+after Save (Enter): "{\"el\":\"BUTTON\",\"label\":\"Edit\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+--- Tab to Reset, Enter
+Tab: "{\"el\":\"BUTTON\",\"label\":\"Reset\",\"outline\":\"solid 2px rgb(83, 58, 253)\",\"boxShadow\":\"none\",\"inViewport\":true}"
+after Reset (Enter): "{\"el\":\"BODY\",\"label\":\"NNorthwind Field ServicesAgent ConsoleDa\",\"outline\":\"none 3px rgb(11, 18, 32)\",\"boxShadow\":\"none\",\"inViewport\":false}"

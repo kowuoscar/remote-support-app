@@ -1,0 +1,70 @@
+fee log 201 {'id': 'f1b0920c-1cc1-4625-9947-0bffc332d1de', 'contractId': '815852d5-703a-4d45-ab55-491c2c455e92', 'requestId': '3e668140-03b2-43c1-be52-9cc49e8d8f2c', 'requestType': 'OTHER', 'feeType': 'OTHER', 'amount': 45.0, 'currency': 'USD', 'billingMonth': '2026-10-01', 'createdAt': '2026-10-02T11:56:17.790810Z'}
+--- GET client-invoice (Agent)
+{
+ "id": "d60882dc-d6a3-451d-bc3d-197b67943662",
+ "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "baseAmount": 40.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "6d9b8c48-2a92-4d1b-83be-96f30ade08e2",
+   "number": "+1-555-1001",
+   "monthlyFeeAmount": 25.0,
+   "cancellationEffectiveDate": null,
+   "amount": 25.0,
+   "computedAmount": 25.0,
+   "edited": false
+  },
+  {
+   "simCardId": "4ff04dd7-f5ea-4ff2-a564-c77a3a0f8430",
+   "number": "+1-555-1002",
+   "monthlyFeeAmount": 15.0,
+   "cancellationEffectiveDate": null,
+   "amount": 15.0,
+   "computedAmount": 15.0,
+   "edited": false
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "f1b0920c-1cc1-4625-9947-0bffc332d1de",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "3e668140-03b2-43c1-be52-9cc49e8d8f2c",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 45.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:17.790810Z",
+   "computedAmount": 45.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 85.0,
+ "files": [],
+ "sentAt": null,
+ "approvedAt": null
+}
+PASS: one line per SIM and one Fee line
+PASS: every edited false
+PASS: base 40.00, total 85.00
+--- Agent Invoice draft
+{
+ "id": "3967fb46-fb78-40db-a343-3d66f11e2f78",
+ "agentId": "55555555-5555-5555-5555-555555555555",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "localSupportFees": 85.0,
+ "salary": 2500.0,
+ "rolloutAdvanceRepayment": 0,
+ "rolloutAdvanceNewAdvance": 0,
+ "totalAmount": 2585.0,
+ "sentAt": null,
+ "approvedAt": null,
+ "paidAt": null
+}
+Local Support Fees recorded: 85.0
+PASS: LSF = 40+45 = 85.00

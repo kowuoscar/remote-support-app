@@ -1,0 +1,88 @@
+### Page
+- Page URL: http://127.0.0.1:53000/manager/invoices/client/ef495397-ffb3-4a34-bfbd-beac7ac296b4
+- Page Title: Client Invoice · Remote Support Platform
+### Snapshot
+```yaml
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - complementary [ref=f3e3]:
+      - generic [ref=f3e4]:
+        - generic [ref=f3e5]: "N"
+        - generic [ref=f3e6]:
+          - paragraph [ref=f3e7]: Northwind Field Services
+          - paragraph [ref=f3e8]: Manager Console
+      - navigation [ref=f3e9]:
+        - link "Dashboard" [ref=f3e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f3e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f3e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f3e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f3e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f3e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f3e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f3e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f3e48]:
+      - banner [ref=f3e111]:
+        - generic [ref=f3e113]:
+          - heading "Browser Client — Agent Cee" [level=1] [ref=f3e114]
+          - paragraph [ref=f3e115]: Client Invoice
+        - generic [ref=f3e116]:
+          - button "Manager" [ref=f3e118]
+          - button "Switch to dark theme" [ref=f3e120]
+      - main [ref=f3e124]:
+        - generic [ref=f3e125]:
+          - navigation "Breadcrumb" [ref=f3e126]:
+            - link "Invoices" [ref=f3e128] [cursor=pointer]:
+              - /url: /manager/invoices
+            - generic [ref=f3e129]: Browser Client — Agent Cee
+          - generic [ref=f3e133]:
+            - generic [ref=f3e134]:
+              - generic [ref=f3e135]:
+                - generic [ref=f3e136]:
+                  - heading "October 2026" [level=2] [ref=f3e137]
+                  - generic [ref=f3e138]: Awaiting approval
+                - paragraph [ref=f3e140]: Base amount and Fee lines are locked to what the Agent sent
+                - paragraph [ref=f3e141]: Sent Oct 2, 2026
+              - generic [ref=f3e142]:
+                - link "Download PDF" [ref=f3e143] [cursor=pointer]:
+                  - /url: /api/client-invoices/ef495397-ffb3-4a34-bfbd-beac7ac296b4/pdf
+                - button "Approve" [ref=f3e148]
+            - generic [ref=f3e152]:
+              - generic [ref=f3e153]:
+                - term [ref=f3e154]: Base amount
+                - definition [ref=f3e155]: $46.40
+              - generic [ref=f3e156]:
+                - term [ref=f3e157]: Fees
+                - definition [ref=f3e158]: $45.00
+              - generic [ref=f3e159]:
+                - term [ref=f3e160]: Total
+                - definition [ref=f3e161]: $91.40
+            - generic [ref=f3e162]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f3e163]
+              - list "Postpaid SIM Cards" [ref=f3e164]:
+                - listitem [ref=f3e165]:
+                  - generic [ref=f3e166]: +1-555-2001
+                  - generic [ref=f3e167]:
+                    - generic [ref=f3e168]: $31.40
+                    - paragraph [ref=f3e169]: Edited · computed $25.00
+                - listitem [ref=f3e170]:
+                  - generic [ref=f3e171]: +1-555-2002
+                  - generic [ref=f3e172]: $15.00
+            - generic [ref=f3e174]:
+              - heading "Fee lines" [level=3] [ref=f3e175]
+              - list [ref=f3e176]:
+                - listitem [ref=f3e177]:
+                  - generic [ref=f3e178]: Topup
+                  - generic [ref=f3e179]: $45.00
+            - generic [ref=f3e181]:
+              - heading "Carrier invoice files" [level=3] [ref=f3e182]
+              - paragraph [ref=f3e185]: No carrier invoice files attached.
+  - alert [ref=f3e110]: Client Invoice · Remote Support Platform
+```

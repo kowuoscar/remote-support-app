@@ -60,3 +60,7 @@ Freeze the numbers at the moment of the `draft -> sent` transition:
 - This is hard to reverse once real `sent` invoices exist in production: switching back to live
   computation would change already-communicated numbers out from under a Manager/Client who saw
   something different.
+
+## Note (2026-10-02)
+
+Amended by ADR 0004: a draft's lines are pre-filled by the computation and editable by the Agent; the snapshot at send stores lines, not Fee membership; a stored line is never recomputed.

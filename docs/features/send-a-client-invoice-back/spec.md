@@ -616,7 +616,17 @@ or component internals.
    `manager-invoice-review-queue.spec.ts`, and the component tests of
    `edit-client-invoice-lines`. The one exception is the Agent's send
    confirmation copy, which this feature changes on purpose; a test asserting
-   the old copy is updated in the same commit, named in it.
+   the old copy is updated in the same commit, named in it. The other
+   exceptions are forced by this spec's own Solution and are each named in
+   their ticket's `## Regression`, changing only what is forced:
+   `ClientInvoiceByIdApiTest.agentsAndTestersAreForbiddenFromEveryByIdRouteEvenForTheirOwnContract`
+   (its own-Agent loop narrows to the PDF and approve routes; its Tester loop
+   stays), `edit-client-invoice-line-control.test.tsx` (the control takes an
+   invoice id and calls the by-id route), and the response-URL predicates
+   in `client-invoice-generation.spec.ts`,
+   `client-invoice-submission-and-visibility.spec.ts` and
+   `client-dashboard.spec.ts` (the send and files calls move to the by-id
+   routes).
 4. **Frontend: component tests (Vitest + Testing Library, existing seam).**
    Prior art: `approve-client-invoice-control.test.tsx`,
    `client-invoice-detail-view.test.tsx`, `client-invoices-view.test.tsx` and
@@ -780,6 +790,10 @@ or component internals.
   `edit-client-invoice-lines.spec.ts`. The race cannot be shown inside a
   rolled-back transaction.
 
+- **Testing decisions item 3 names the forced test edits (after review, ticket cut).** The ticket critic showed that the by-id routes and the by-id line control force edits to four existing tests the item had listed as unedited; the item and walkthrough step 17 now name them as exceptions, each limited to what is forced. Reason: a test seam is a *how*; the spec contradicted its own Solution, and the tests' intent is unchanged.
+
+- **The ticket cut's last critic failure was fixed by the orchestrator, not escalated (after review).** The second critique failed only R5 on `agent-opens-a-client-invoice-on-its-own-page` (unnamed not-found cases; an unagreed `lib/status.ts` unit seam). The critic's own wording was applied. Reason: a wording slip with the fix given, not an unclear spec.
+
 ## Open questions
 
 None
@@ -802,7 +816,7 @@ None
 14. [agent] On that page, change a Postpaid SIM line and a Fee line in the editor, and attach a file. Click Send and show the confirmation says only the Manager can send it back. Confirm, and show the invoice as sent with the new amounts and gone from "Sent back to you". (stories: 17, 19, 20, 21, 22)
 15. [agent] As the Manager, show the invoice back in the Review Queue with its new total. Open it and show the edited lines with "Edited · computed …" and "Previously sent back on …: {reason}". Approve it. (stories: 9, 10, 11)
 16. [agent] As the Agent, open by id a past-month draft that was never sent (from the demo data or a fixture) and show it read-only, with no editor, Attach file or Send. (stories: 25)
-17. [agent] As an Agent with nothing sent back, show the Client Invoices page has no "Sent back to you" section. Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green, with the suites named in `## Testing decisions` item 3 unedited apart from the named send-copy exception, and no golden moved. (stories: 34)
+17. [agent] As an Agent with nothing sent back, show the Client Invoices page has no "Sent back to you" section. Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green, with the suites named in `## Testing decisions` item 3 unedited apart from the exceptions that item names, and no golden moved. (stories: 34)
 18. [agent] Do the Manager's send-back and the Agent's open-edit-and-resend by keyboard alone, showing a visible focus ring at each stop. Repeat at the mobile breakpoint and show the reason form, the sent-back table and the by-id page usable within the viewport. (stories: 35)
 19. [human] Send back a real invoice with the reason you would really write, then read it as the Agent would. Confirm the wording tells the Agent what happened and what to do, and that nothing tells the Tester. (stories: 2, 14, 26)
 20. [human] Read ADR 0005 and ADR 0001's new note, and confirm they say what you settled: a send-back recomputes and clears nothing; the invoice returns to draft with the lines it was sent with, which the Agent edits, plus a new line for each Fee of its month logged since; a send-back moves no pay; `approved` stays final; the freeze still protects every number while it is under review; and a wrong amount found after approval is corrected on the next month's invoice. (stories: 4, 11, 16, 18, 33, 36)
@@ -810,38 +824,28 @@ None
 
 ## Execution order
 
-**Depends on: `edit-client-invoice-lines`, all six tickets merged.** Ticket 1
-uses its stored lines, `linesStored`, its service send and row lock; ticket 2
-uses `editLine`, the pay rule and the Agent card's editor.
+**Depends on: `edit-client-invoice-lines`, all six tickets merged.** The
+first slice uses its stored lines, `linesStored`, its service send and row
+lock; the Agent slices use `editLine`, the pay rule and the Agent card's
+editor. The first cut of two slices was split to fit one context window each;
+the same work, in eight tickets.
 
-There are two slices, both complete vertical paths, each demoable on its own.
-
-1. `manager-sends-a-client-invoice-back`. Labels: `backend`, `frontend`.
-   Depends on the feature `edit-client-invoice-lines`. (stories: 1, 2, 3, 4,
-   5, 6, 7, 8, 10, 11, 12, 16, 26, 29, 30, 31, 32, 34, 35, 36)
-   - Backend: the migration, the `SENT → DRAFT` edge, the send-back endpoint
-     taking the existing row lock (approve made to take it too) and writing
-     no line, the response fields and their omission for Testers, and the
-     audit line.
-   - Records: ADR 0005 and ADR 0001's note.
-   - Frontend: the Manager's inline control with its hint, and the
-     detail-view states.
-   - Tests: the send-back cases of `ClientInvoiceSendBackApiTest` (send-back,
-     lines as sent, queue, `409`/`400`/`403`/`404`, Tester), the race test,
-     and component tests.
-2. `agent-resends-a-sent-back-client-invoice`. Labels: `backend`, `frontend`.
-   Depends on `manager-sends-a-client-invoice-back`. (stories: 9, 13, 14, 15,
-   17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 33, 35)
-   - Backend: file attach moved into `ClientInvoiceService`; the Agent's
-     by-id read, files, attach, `PUT …/lines` and send routes with their
-     matcher changes, gated by the "open to its Agent" predicate (`409`
-     `PAST_MONTH_DRAFT_NOT_SENDABLE` otherwise); and the sent-back list
-     endpoint.
-   - Frontend: the extracted Agent card with its editor and by-id controls,
-     the "Sent back to you" section, the by-id Agent page with its "Correct
-     what is needed" notice and read-only state for a past-month draft never
-     sent, the badge, the copy change and the BFF proxies.
-   - Tests: the Agent, late-Fee and pay cases of
-     `ClientInvoiceSendBackApiTest`, component tests, and the e2e spec. The
-     late-Fee line itself is built by `edit-client-invoice-lines`; this
-     ticket proves it through the real send-back.
+1. `move-carrier-invoice-file-attach-into-the-client-invoice-service`.
+   Labels: `backend`, `enabler`. No blocker.
+2. `manager-sends-a-client-invoice-back`. Labels: `backend`. No blocker beyond
+   the merged feature. The migration, the `SENT → DRAFT` edge, the send-back
+   endpoint under the row lock (approve takes it too), the response fields,
+   the audit line, ADR 0005, the send-back cases of
+   `ClientInvoiceSendBackApiTest` and the race test.
+3. `manager-send-back-control-on-the-client-invoice-page`. Labels:
+   `frontend`. Depends on 2.
+4. `agent-reaches-a-client-invoice-by-its-id`. Labels: `backend`. Depends on
+   1 and 2.
+5. `agent-lists-the-client-invoices-sent-back-to-them`. Labels: `backend`.
+   Depends on 2.
+6. `agent-client-invoice-card-addresses-the-invoice-by-id`. Labels:
+   `frontend`, `enabler`. Depends on 4.
+7. `agent-opens-a-client-invoice-on-its-own-page`. Labels: `frontend`.
+   Depends on 6.
+8. `agent-sees-sent-back-invoices-on-the-client-invoices-page`. Labels:
+   `frontend`. Depends on 5 and 7 (3 through 7); carries the e2e spec.

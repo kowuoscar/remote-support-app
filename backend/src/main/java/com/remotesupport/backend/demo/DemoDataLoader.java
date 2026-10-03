@@ -5,7 +5,9 @@ import com.remotesupport.backend.domain.AgentInvoice;
 import com.remotesupport.backend.domain.AgentInvoiceStatus;
 import com.remotesupport.backend.domain.Client;
 import com.remotesupport.backend.domain.ClientInvoice;
-import com.remotesupport.backend.domain.ClientInvoiceFeeSnapshot;
+import com.remotesupport.backend.domain.ClientInvoiceLine;
+import com.remotesupport.backend.domain.ClientInvoiceLineKind;
+import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.domain.Country;
@@ -43,7 +45,7 @@ import com.remotesupport.backend.dto.SmartphoneStatusUpdateRequest;
 import com.remotesupport.backend.dto.TesterCreateRequest;
 import com.remotesupport.backend.repository.AgentInvoiceRepository;
 import com.remotesupport.backend.repository.AgentRepository;
-import com.remotesupport.backend.repository.ClientInvoiceFeeSnapshotRepository;
+import com.remotesupport.backend.repository.ClientInvoiceLineRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ClientRepository;
 import com.remotesupport.backend.repository.ContractRepository;
@@ -155,7 +157,7 @@ public class DemoDataLoader implements ApplicationRunner {
   private final RequestRepository requestRepository;
   private final FeeRepository feeRepository;
   private final ClientInvoiceRepository clientInvoiceRepository;
-  private final ClientInvoiceFeeSnapshotRepository clientInvoiceFeeSnapshotRepository;
+  private final ClientInvoiceLineRepository clientInvoiceLineRepository;
   private final AgentInvoiceRepository agentInvoiceRepository;
 
   private final ClientController clientController;
@@ -185,7 +187,7 @@ public class DemoDataLoader implements ApplicationRunner {
       RequestRepository requestRepository,
       FeeRepository feeRepository,
       ClientInvoiceRepository clientInvoiceRepository,
-      ClientInvoiceFeeSnapshotRepository clientInvoiceFeeSnapshotRepository,
+      ClientInvoiceLineRepository clientInvoiceLineRepository,
       AgentInvoiceRepository agentInvoiceRepository,
       ClientController clientController,
       ContractController contractController,
@@ -214,7 +216,7 @@ public class DemoDataLoader implements ApplicationRunner {
     this.requestRepository = requestRepository;
     this.feeRepository = feeRepository;
     this.clientInvoiceRepository = clientInvoiceRepository;
-    this.clientInvoiceFeeSnapshotRepository = clientInvoiceFeeSnapshotRepository;
+    this.clientInvoiceLineRepository = clientInvoiceLineRepository;
     this.agentInvoiceRepository = agentInvoiceRepository;
     this.clientController = clientController;
     this.contractController = contractController;
@@ -776,18 +778,38 @@ public class DemoDataLoader implements ApplicationRunner {
     invoice.setCreatedAt(sentAt);
     invoice.setSentAt(sentAt);
     invoice.setApprovedAt(approvedAt);
+    // The legacy snapshot column is no longer read; it stays populated so a demo invoice looks
+    // like one the V56 backfill left behind.
     invoice.setSnapshotBaseAmount(contractAmountService.baseAmount(contract.getId(), month));
+    invoice.setLinesStored(true);
     clientInvoiceRepository.save(invoice);
 
-    for (Fee fee : contractAmountService.feesForMonth(contract.getId(), month)) {
-      ClientInvoiceFeeSnapshot line = new ClientInvoiceFeeSnapshot();
-      line.setId(UUID.randomUUID());
-      line.setTenant(contract.getTenant());
-      line.setClientInvoice(invoice);
-      line.setFee(fee);
-      line.setCreatedAt(sentAt);
-      clientInvoiceFeeSnapshotRepository.save(line);
+    for (SimCard sim : contractAmountService.billablePostpaidSims(contract.getId(), month)) {
+      writePastClientInvoiceLine(invoice, ClientInvoiceLineKind.POSTPAID_SIM, sim, null, sim.getMonthlyFeeAmount(), sentAt);
     }
+    for (Fee fee : contractAmountService.feesForMonth(contract.getId(), month)) {
+      writePastClientInvoiceLine(invoice, ClientInvoiceLineKind.FEE, null, fee, fee.getAmount(), sentAt);
+    }
+  }
+
+  private void writePastClientInvoiceLine(
+      ClientInvoice invoice,
+      ClientInvoiceLineKind kind,
+      SimCard sim,
+      Fee fee,
+      BigDecimal amount,
+      Instant createdAt) {
+    ClientInvoiceLine line = new ClientInvoiceLine();
+    line.setId(UUID.randomUUID());
+    line.setTenant(invoice.getTenant());
+    line.setClientInvoice(invoice);
+    line.setKind(kind);
+    line.setSimCard(sim);
+    line.setFee(fee);
+    line.setAmount(amount);
+    line.setComputedAmount(amount);
+    line.setCreatedAt(createdAt);
+    clientInvoiceLineRepository.save(line);
   }
 
   /**
@@ -801,15 +823,17 @@ public class DemoDataLoader implements ApplicationRunner {
     Instant approvedAt = sentAt.plusSeconds(2 * 24 * 3600);
     Instant paidAt = sentAt.plusSeconds(5 * 24 * 3600);
 
-    AgentInvoice invoice = new AgentInvoice();
-    invoice.setId(UUID.randomUUID());
-    invoice.setTenant(agent.getTenant());
-    invoice.setAgent(agent);
-    invoice.setBillingMonth(month);
-    invoice.setStatus(AgentInvoiceStatus.DRAFT);
-    invoice.setCurrency(agent.getCurrency());
-    invoice.setCreatedAt(sentAt);
-    agentInvoiceRepository.save(invoice);
+    AgentInvoice draft = new AgentInvoice();
+    draft.setId(UUID.randomUUID());
+    draft.setTenant(agent.getTenant());
+    draft.setAgent(agent);
+    draft.setBillingMonth(month);
+    draft.setStatus(AgentInvoiceStatus.DRAFT);
+    draft.setCurrency(agent.getCurrency());
+    draft.setCreatedAt(sentAt);
+    // The services re-read the invoice under a lock, so what they transition is the managed copy
+    // that save returns, not the instance built here.
+    AgentInvoice invoice = agentInvoiceRepository.save(draft);
 
     agentInvoiceService.send(invoice, principal);
     agentInvoiceService.approve(invoice, principal);

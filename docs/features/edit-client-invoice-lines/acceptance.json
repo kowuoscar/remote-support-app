@@ -1,0 +1,169 @@
+{
+  "feature": "edit-client-invoice-lines",
+  "played_at": "2026-10-02",
+  "played_on": "feature/edit-client-invoice-lines",
+  "environment": "Throwaway postgres:16-alpine containers; backend JDK 21 (default profile, and demo profile from the merge-base build then migrated by the branch build for step 14); next start frontend; playwright-cli; all stopped afterwards; the developer's compose stack untouched.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1.txt",
+      "note": "One line per SIM and one Fee line, edited false; base 40.00, total 85.00; Local Support Fees 85.00."
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2.txt",
+      "note": "Both PUTs 200; edited true with computedAmount 25.00 and 45.00; total 86.40."
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3.txt",
+      "note": "Fee still 45.00; Local Support Fees +1.40."
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4.txt",
+      "note": "-1, blank, 1.234 → 400; zero → 200; another month's Fee and a retired SIM → 404."
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": "New SIM and Fee pre-filled; edited lines keep their amounts; saving 45.00 resets the Fee line."
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": "Manager, Tester, another Agent → 403; another Tenant → 404."
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": "Sent Agent Invoice froze at 96.40; edit to 35.00 moved it +3.60 with one follow audit line; a later Fee left it unchanged."
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8.txt",
+      "note": "Manager by-id matches; queue total equals invoice; edit after send 409."
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9.txt",
+      "note": "Played on a second Agent (the seeded Agent's invoice was sent in step 7)."
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-10.txt",
+      "note": "Approved Agent Invoice unchanged, no follow line; edit on approved Client Invoice 409."
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-11.txt",
+      "note": "Tester read has null markers; PDF shows billed amounts, no 'computed'."
+    },
+    {
+      "step": 12,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-12.txt",
+      "note": "One audit line per edit plus the single follow line. Action names are upper snake case (F20)."
+    },
+    {
+      "step": 13,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-13.txt",
+      "note": "Race tests: 3 tests, 0 failures."
+    },
+    {
+      "step": 14,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-14-compare.txt",
+      "note": "Demo snapshot before/after migration: every amount, total, Fee line, queue row and Agent Invoice identical; PDF content streams identical."
+    },
+    {
+      "step": 15,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-15.txt",
+      "note": "ClientInvoiceStoredLinesApiTest (9), ClientInvoiceLineEditApiTest (20), LocalSupportFeesFollowClientInvoiceApiTest (9) green."
+    },
+    {
+      "step": 16,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-16-b-edited.txt",
+      "note": "Marker, totals, Reset, inline -5 error kept, hint, Local Support Fees follow."
+    },
+    {
+      "step": 17,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-17-b-stale-tab.txt",
+      "note": "Sent: no Edit/Reset, marker kept; stale tab shows the 409 copy."
+    },
+    {
+      "step": 18,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-18-c-detail.txt",
+      "note": "Manager detail per-SIM lines and marker; queue and Dashboard card agree."
+    },
+    {
+      "step": 19,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-19-a-tester.txt",
+      "note": "Tester page billed amounts, no marker; PDF 200."
+    },
+    {
+      "step": 20,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-20-replay-desktop-agent.txt",
+      "note": "Replayed after the fix (d1c4ab1): keyboard edit/save/reset on the Agent page at 1280 and 375 with a 2px ring at every stop; focus returns to Edit after Save and Reset; no sideways page scroll. Manager detail played at both widths: Download PDF and Approve reachable, no sideways scroll. Minor: closed mobile drawer links remain off-screen tab stops; Approve ring white on the filled button."
+    },
+    {
+      "step": 21,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-21-backend.txt",
+      "note": "mvn verify 634 tests green; lint, build, tsc clean; vitest 276/276; isolated e2e 79/79; visual 71/71; no golden moved."
+    },
+    {
+      "step": 22,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 23,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    }
+  ]
+}

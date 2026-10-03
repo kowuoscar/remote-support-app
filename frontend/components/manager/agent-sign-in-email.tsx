@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreateAgentLoginDialog } from "@/components/manager/create-agent-login-dialog";
 import { ResetPasswordDialog, type ResetPasswordDialogHandle } from "@/components/manager/reset-password-dialog";
-import { useAnnouncement } from "@/components/manager/use-announcement";
+import { useAnnouncement } from "@/components/ui/use-announcement";
 import { Button } from "@/components/ui/button";
 
 /**

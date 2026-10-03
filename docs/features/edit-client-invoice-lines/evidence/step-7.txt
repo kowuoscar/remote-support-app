@@ -1,0 +1,75 @@
+--- draft before send
+{
+ "id": "3967fb46-fb78-40db-a343-3d66f11e2f78",
+ "agentId": "55555555-5555-5555-5555-555555555555",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "localSupportFees": 96.4,
+ "salary": 2500.0,
+ "rolloutAdvanceRepayment": 0,
+ "rolloutAdvanceNewAdvance": 0,
+ "totalAmount": 2596.4,
+ "sentAt": null,
+ "approvedAt": null,
+ "paidAt": null
+}
+--- send Agent Invoice
+{
+ "id": "3967fb46-fb78-40db-a343-3d66f11e2f78",
+ "agentId": "55555555-5555-5555-5555-555555555555",
+ "billingMonth": "2026-10-01",
+ "status": "SENT",
+ "currency": "USD",
+ "localSupportFees": 96.4,
+ "salary": 2500.0,
+ "rolloutAdvanceRepayment": 0,
+ "rolloutAdvanceNewAdvance": 0,
+ "totalAmount": 2596.4,
+ "sentAt": "2026-10-02T11:56:19.254262Z",
+ "approvedAt": null,
+ "paidAt": null
+}
+Client Invoice draft lines: SIM A 31.4 SIM B 0.0 SIM C 10.0 fees [45.0, 10.0]
+PASS: frozen LSF 96.4 includes SIM A 31.40 + SIM B 0 (= billed total 96.4)
+PASS: edit SIM A 35.00 -> 200
+--- Agent Invoice after edit
+{
+ "id": "3967fb46-fb78-40db-a343-3d66f11e2f78",
+ "agentId": "55555555-5555-5555-5555-555555555555",
+ "billingMonth": "2026-10-01",
+ "status": "SENT",
+ "currency": "USD",
+ "localSupportFees": 100.0,
+ "salary": 2500.0,
+ "rolloutAdvanceRepayment": 0.0,
+ "rolloutAdvanceNewAdvance": 0.0,
+ "totalAmount": 2600.0,
+ "sentAt": "2026-10-02T11:56:19.254262Z",
+ "approvedAt": null,
+ "paidAt": null
+}
+PASS: sent Agent Invoice LSF up by exactly 3.60 (96.4 -> 100.0)
+log another Fee (6.00) 201
+--- Agent Invoice after another Fee
+{
+ "id": "3967fb46-fb78-40db-a343-3d66f11e2f78",
+ "agentId": "55555555-5555-5555-5555-555555555555",
+ "billingMonth": "2026-10-01",
+ "status": "SENT",
+ "currency": "USD",
+ "localSupportFees": 100.0,
+ "salary": 2500.0,
+ "rolloutAdvanceRepayment": 0.0,
+ "rolloutAdvanceNewAdvance": 0.0,
+ "totalAmount": 2600.0,
+ "sentAt": "2026-10-02T11:56:19.254262Z",
+ "approvedAt": null,
+ "paidAt": null
+}
+PASS: sent Agent Invoice unchanged by the Fee
+
+--- audit lines for the step-7 edit (from backend log)
+196:2026-10-02T13:56:19.299+02:00 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=d60882dc-d6a3-451d-bc3d-197b67943662 kind=POSTPAID_SIM sourceId=6d9b8c48-2a92-4d1b-83be-96f30ade08e2 oldAmount=31.40 newAmount=35.00 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+197:2026-10-02T13:56:19.301+02:00 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=AGENT_INVOICE_LOCAL_SUPPORT_FEES_FOLLOWED entity=AgentInvoice entityId=3967fb46-fb78-40db-a343-3d66f11e2f78 clientInvoiceId=d60882dc-d6a3-451d-bc3d-197b67943662 oldAmount=96.40 newAmount=100.00 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+PASS: exactly one AGENT_INVOICE_LOCAL_SUPPORT_FEES_FOLLOWED line (old 96.40 -> new 100.00) for the step-7 edit; Fee logged afterwards produced none

@@ -1,0 +1,89 @@
+--- draft
+{
+ "id": "d60882dc-d6a3-451d-bc3d-197b67943662",
+ "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "baseAmount": 41.4,
+ "basePostpaidSims": [
+  {
+   "simCardId": "6d9b8c48-2a92-4d1b-83be-96f30ade08e2",
+   "number": "+1-555-1001",
+   "monthlyFeeAmount": 25.0,
+   "cancellationEffectiveDate": null,
+   "amount": 31.4,
+   "computedAmount": 25.0,
+   "edited": true
+  },
+  {
+   "simCardId": "4ff04dd7-f5ea-4ff2-a564-c77a3a0f8430",
+   "number": "+1-555-1002",
+   "monthlyFeeAmount": 15.0,
+   "cancellationEffectiveDate": null,
+   "amount": 0.0,
+   "computedAmount": 15.0,
+   "edited": true
+  },
+  {
+   "simCardId": "7436581d-ea21-4c56-b6d2-5120e80a600c",
+   "number": "+1-555-1004",
+   "monthlyFeeAmount": 10.0,
+   "cancellationEffectiveDate": null,
+   "amount": 10.0,
+   "computedAmount": 10.0,
+   "edited": false
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "f1b0920c-1cc1-4625-9947-0bffc332d1de",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "3e668140-03b2-43c1-be52-9cc49e8d8f2c",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 40.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:17.790810Z",
+   "computedAmount": 45.0,
+   "edited": true
+  },
+  {
+   "id": "8550077d-8c98-4a2e-957b-f2b0373a9dd0",
+   "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+   "requestId": "424a064a-03cb-4e33-bc81-b31171fb447c",
+   "requestType": "TOPUP",
+   "feeType": "TOPUP",
+   "amount": 10.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-02T11:56:18.770293Z",
+   "computedAmount": 10.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 91.4,
+ "files": [],
+ "sentAt": null,
+ "approvedAt": null
+}
+PASS: SIM C a new pre-filled line (10.00, edited false)
+PASS: Topup Fee a new pre-filled line (10.00, edited false)
+PASS: SIM A still 31.40
+PASS: Fee line still 40.00
+--- after reset
+{
+ "id": "f1b0920c-1cc1-4625-9947-0bffc332d1de",
+ "contractId": "815852d5-703a-4d45-ab55-491c2c455e92",
+ "requestId": "3e668140-03b2-43c1-be52-9cc49e8d8f2c",
+ "requestType": "OTHER",
+ "feeType": "OTHER",
+ "amount": 45.0,
+ "currency": "USD",
+ "billingMonth": "2026-10-01",
+ "createdAt": "2026-10-02T11:56:17.790810Z",
+ "computedAmount": 45.0,
+ "edited": false
+}
+PASS: reset -> edited false

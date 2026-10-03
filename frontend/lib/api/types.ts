@@ -496,7 +496,24 @@ export interface ClientInvoiceBaseSimLine {
   number: string;
   monthlyFeeAmount: number;
   cancellationEffectiveDate: string | null;
+  // edit-client-invoice-lines: the line's billed amount (what the invoice totals), which the Agent
+  // may have edited away from the SIM's monthlyFeeAmount, the computation's amount for it, and
+  // whether the two differ. computedAmount/edited are null for a Tester. Optional only because
+  // fixtures older than the feature omit them; the backend always sends `amount`.
+  amount?: number;
+  computedAmount?: number | null;
+  edited?: boolean | null;
 }
+
+// Mirrors backend/.../dto/ClientInvoiceFeeLineResponse.java — a Fee as the invoice bills it:
+// `amount` is the billed amount (the Fee's own amount unless the Agent edited the line).
+export interface ClientInvoiceFeeLine extends FeeListItem {
+  computedAmount?: number | null;
+  edited?: boolean | null;
+}
+
+// Mirrors backend/.../domain/ClientInvoiceLineKind.java (the two kinds an Agent can edit here).
+export type EditableClientInvoiceLineKind = "POSTPAID_SIM" | "FEE";
 
 // Mirrors backend/.../dto/ClientInvoiceResponse.java. While `status` is DRAFT,
 // baseAmount/feeLines/totalAmount are computed live by the backend on every fetch
@@ -514,7 +531,7 @@ export interface ClientInvoiceDetail {
   currency: string;
   baseAmount: number;
   basePostpaidSims?: ClientInvoiceBaseSimLine[];
-  feeLines: FeeListItem[];
+  feeLines: ClientInvoiceFeeLine[];
   totalAmount: number;
   files: CarrierInvoiceFileListItem[];
   sentAt: string | null;

@@ -1,0 +1,486 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.remotesupport:backend >----------------------
+[INFO] Building backend 0.1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[WARNING] Parameter 'encoding' is unknown for plugin 'maven-checkstyle-plugin:3.5.0:check (checkstyle-check)'
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ backend ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 48 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ backend ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ backend ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ backend ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.remotesupport.backend.web.ClientInvoiceLineEditRaceTest
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+13:56:40.314 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.web.ClientInvoiceLineEditRaceTest]: ClientInvoiceLineEditRaceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+13:56:40.342 INFO  [:] org.testcontainers.images.PullPolicy - Image pull policy will be performed by: DefaultPullPolicy()
+13:56:40.343 INFO  [:] o.t.utility.ImageNameSubstitutor - Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+13:56:40.357 INFO  [:] org.testcontainers.DockerClientFactory - Testcontainers version: 1.21.4
+13:56:40.453 INFO  [:] o.t.d.DockerClientProviderStrategy - Loaded org.testcontainers.dockerclient.UnixSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+13:56:40.571 INFO  [:] o.t.d.DockerClientProviderStrategy - Found Docker environment with local Unix socket (unix:///var/run/docker.sock)
+13:56:40.571 INFO  [:] org.testcontainers.DockerClientFactory - Docker host IP address is localhost
+13:56:40.583 INFO  [:] org.testcontainers.DockerClientFactory - Connected to docker: 
+  Server Version: 29.7.2
+  API Version: 1.55
+  Operating System: Docker Desktop
+  Total Memory: 7934 MB
+  Labels: 
+    com.docker.desktop.address=unix:///Users/oscar/Library/Containers/com.docker.docker/Data/docker-cli.sock
+13:56:40.653 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Creating container for image: testcontainers/ryuk:0.12.0
+13:56:40.974 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Container testcontainers/ryuk:0.12.0 is starting: a6ffe29e6409d201e758110911492e92bbf927233f8b411a8cd1914bcd11be2c
+13:56:41.130 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Container testcontainers/ryuk:0.12.0 started in PT0.477048S
+13:56:41.133 INFO  [:] o.t.utility.RyukResourceReaper - Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+13:56:41.133 INFO  [:] org.testcontainers.DockerClientFactory - Checking the system...
+13:56:41.133 INFO  [:] org.testcontainers.DockerClientFactory - ✔︎ Docker server version should be at least 1.6.0
+13:56:41.134 INFO  [:] tc.postgres:16-alpine - Creating container for image: postgres:16-alpine
+13:56:41.169 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine is starting: b8a905309bc0d8b365ba41767b078e935a2dc94ea95ab6a0a5ee3dd51ef1481c
+13:56:42.097 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine started in PT0.963087S
+13:56:42.097 INFO  [:] tc.postgres:16-alpine - Container is started (JDBC URL: jdbc:postgresql://localhost:59350/test?loggerLevel=OFF)
+13:56:42.214 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.web.ClientInvoiceLineEditRaceTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+13:56:42.362 INFO  [:] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+13:56:42.385 INFO  [:] c.r.b.web.ClientInvoiceLineEditRaceTest - Starting ClientInvoiceLineEditRaceTest using Java 21.0.11 with PID 56921 (started by oscar in /Users/oscar/myspace/projects/remote-support-app/backend)
+13:56:42.386 DEBUG [:] c.r.b.web.ClientInvoiceLineEditRaceTest - Running with Spring Boot v3.3.4, Spring v6.1.13
+13:56:42.386 INFO  [:] c.r.b.web.ClientInvoiceLineEditRaceTest - The following 1 profile is active: "test"
+13:56:42.774 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+13:56:42.811 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 33 ms. Found 20 JPA repository interfaces.
+13:56:43.304 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:59350/test (PostgreSQL 16.15)
+13:56:43.337 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+13:56:43.339 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 48 migrations (execution time 00:00.020s)
+13:56:43.347 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+13:56:43.396 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+13:56:43.400 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+13:56:43.417 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+13:56:43.429 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+13:56:43.437 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+13:56:43.455 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+13:56:43.464 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+13:56:43.477 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+13:56:43.488 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+13:56:43.500 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+13:56:43.512 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+13:56:43.524 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+13:56:43.537 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+13:56:43.546 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+13:56:43.555 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+13:56:43.567 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+13:56:43.572 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+13:56:43.579 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+13:56:43.587 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+13:56:43.592 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+13:56:43.601 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+13:56:43.607 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+13:56:43.617 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+13:56:43.623 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+13:56:43.630 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+13:56:43.635 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+13:56:43.641 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+13:56:43.646 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+13:56:43.652 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+13:56:43.657 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+13:56:43.662 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+13:56:43.669 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+13:56:43.674 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+13:56:43.678 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+13:56:43.684 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+13:56:43.688 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+13:56:43.693 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+13:56:43.698 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+13:56:43.703 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+13:56:43.707 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+13:56:43.714 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+13:56:43.719 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+13:56:43.727 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+13:56:43.731 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+13:56:43.736 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+13:56:43.740 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+13:56:43.746 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+13:56:43.753 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+13:56:43.762 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+13:56:43.766 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+13:56:43.771 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "56 - create client invoice lines"
+13:56:43.782 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 48 migrations to schema "public", now at version v56 (execution time 00:00.170s)
+13:56:43.830 INFO  [:] o.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+13:56:43.852 INFO  [:] org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+13:56:43.863 INFO  [:] o.h.c.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+13:56:43.983 INFO  [:] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+13:56:43.994 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+13:56:44.009 INFO  [:] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@687d31a9
+13:56:44.010 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+13:56:44.528 INFO  [:] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+13:56:44.555 INFO  [:] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+13:56:44.712 INFO  [:] o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+13:56:45.249 INFO  [:] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name appUserDetailsService
+13:56:45.645 INFO  [:] o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+13:56:45.899 INFO  [:] o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+13:56:45.899 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Initializing Servlet ''
+13:56:45.900 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Completed initialization in 1 ms
+13:56:45.935 INFO  [:] c.r.b.web.ClientInvoiceLineEditRaceTest - Started ClientInvoiceLineEditRaceTest in 3.671 seconds (process running for 5.995)
+WARNING: A Java agent has been loaded dynamically (/Users/oscar/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+13:56:46.602 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+13:56:46.606 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+13:56:46.691 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+13:56:46.692 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+13:56:46.729 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=85520fad-3987-4a48-976d-64b8505b5009 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:46.740 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:46.761 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=8d88a3f8-489e-46c7-8124-3e95cef5d936 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:46.762 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:46.770 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:46.792 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:46.810 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=d43e48cc-fffd-4329-a5d8-d0fae52c678a carrierId=c0000000-0000-0000-0000-000000000001 name=Plan d23c7cfe-cca7-4bac-8284-44fd472b24ea price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:46.813 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:46.847 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=9efaf308-c54d-40a0-8676-7c2e0fc4f6bd contractId=8d88a3f8-489e-46c7-8124-3e95cef5d936 carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=d43e48cc-fffd-4329-a5d8-d0fae52c678a monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:46.850 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/8d88a3f8-489e-46c7-8124-3e95cef5d936/sim-cards -> 201
+13:56:46.869 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=54deca9f-35ca-40ae-96fc-15c2a140e737 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:46.885 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/8d88a3f8-489e-46c7-8124-3e95cef5d936/client-invoice -> 200
+13:56:46.908 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=54deca9f-35ca-40ae-96fc-15c2a140e737 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:46.916 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/8d88a3f8-489e-46c7-8124-3e95cef5d936/client-invoice/send -> 200
+13:56:46.920 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/8d88a3f8-489e-46c7-8124-3e95cef5d936/client-invoice/lines -> 409
+13:56:46.979 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/8d88a3f8-489e-46c7-8124-3e95cef5d936/client-invoice -> 200
+13:56:46.983 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=fe4fa7ff-5e64-4917-88bb-f1b748a2849b actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:46.986 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:46.994 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=f92e4cbb-8ff4-4d74-b26c-4580aa986015 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:46.995 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:46.999 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:47.008 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:47.014 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=d0b88ad3-6f78-4af2-b28b-a2b556d0f842 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan e3bbcea9-a9cb-40dd-ba27-b4bb7dc3c399 price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.015 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:47.034 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=de16978f-da02-453a-9f53-7f09fbc1541a contractId=f92e4cbb-8ff4-4d74-b26c-4580aa986015 carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=d0b88ad3-6f78-4af2-b28b-a2b556d0f842 monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.035 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/f92e4cbb-8ff4-4d74-b26c-4580aa986015/sim-cards -> 201
+13:56:47.043 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=5a37b856-f207-4886-a9ea-7276865be3ac actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.048 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/f92e4cbb-8ff4-4d74-b26c-4580aa986015/client-invoice -> 200
+13:56:47.060 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=5a37b856-f207-4886-a9ea-7276865be3ac oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.064 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/f92e4cbb-8ff4-4d74-b26c-4580aa986015/client-invoice/send -> 200
+13:56:47.065 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/f92e4cbb-8ff4-4d74-b26c-4580aa986015/client-invoice/lines -> 409
+13:56:47.080 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/f92e4cbb-8ff4-4d74-b26c-4580aa986015/client-invoice -> 200
+13:56:47.083 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=6441d8c1-8567-46b3-835d-5cf594097071 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.085 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:47.091 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=ca15abe2-3242-4793-8660-74f9ab06979a actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.091 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:47.095 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:47.102 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:47.107 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=28d7c248-72ac-4173-87b4-f961fc881725 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan c0ce29e4-9a47-4c2e-99b7-108c02c9fa86 price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.107 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:47.119 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=0a18afc5-c3a8-43bf-b1a1-7f1dd79087fd contractId=ca15abe2-3242-4793-8660-74f9ab06979a carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=28d7c248-72ac-4173-87b4-f961fc881725 monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.119 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/ca15abe2-3242-4793-8660-74f9ab06979a/sim-cards -> 201
+13:56:47.128 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=05be7b17-acf5-4f3c-8065-5a0725be74d1 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.132 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/ca15abe2-3242-4793-8660-74f9ab06979a/client-invoice -> 200
+13:56:47.144 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=05be7b17-acf5-4f3c-8065-5a0725be74d1 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.147 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/ca15abe2-3242-4793-8660-74f9ab06979a/client-invoice/send -> 200
+13:56:47.149 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/ca15abe2-3242-4793-8660-74f9ab06979a/client-invoice/lines -> 409
+13:56:47.162 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/ca15abe2-3242-4793-8660-74f9ab06979a/client-invoice -> 200
+13:56:47.166 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=46dcb5e7-2843-4ee4-b394-c0c3ed962399 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.168 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:47.174 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=ce03139b-7fa6-4823-abbc-1ced7fe14d2a actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.174 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:47.178 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:47.185 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:47.191 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=c6714dab-ab2b-4f0b-bb17-b087bdffef81 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan 6c89812e-0250-432e-9b81-7e6ae70cd317 price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.192 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:47.205 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=c21351ab-dd7e-469f-9267-a83f7d2b8a3b contractId=ce03139b-7fa6-4823-abbc-1ced7fe14d2a carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=c6714dab-ab2b-4f0b-bb17-b087bdffef81 monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.206 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/ce03139b-7fa6-4823-abbc-1ced7fe14d2a/sim-cards -> 201
+13:56:47.215 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=65ac83f9-23f3-4dab-bb47-ba7969e8cc86 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.220 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/ce03139b-7fa6-4823-abbc-1ced7fe14d2a/client-invoice -> 200
+13:56:47.231 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=65ac83f9-23f3-4dab-bb47-ba7969e8cc86 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.235 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/ce03139b-7fa6-4823-abbc-1ced7fe14d2a/client-invoice/send -> 200
+13:56:47.236 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/ce03139b-7fa6-4823-abbc-1ced7fe14d2a/client-invoice/lines -> 409
+13:56:47.248 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/ce03139b-7fa6-4823-abbc-1ced7fe14d2a/client-invoice -> 200
+13:56:47.252 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=19fa7cc4-c57e-41e5-8435-f11f12e809b4 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.254 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:47.259 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=6e600ae3-d3f4-4ebf-969f-c05764e44dbc actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.260 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:47.264 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:47.270 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:47.275 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=49173b27-c5e0-4285-a801-3a6f31c15368 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan 5f1a48d2-12f3-42c6-83bd-bb1b629ece76 price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.276 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:47.288 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=be4af9fd-d9cb-4b7d-8f84-618bdcc702b2 contractId=6e600ae3-d3f4-4ebf-969f-c05764e44dbc carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=49173b27-c5e0-4285-a801-3a6f31c15368 monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.289 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/6e600ae3-d3f4-4ebf-969f-c05764e44dbc/sim-cards -> 201
+13:56:47.297 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=2084952d-b4e5-4ea8-ab0d-f0616a1e56fd actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.301 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/6e600ae3-d3f4-4ebf-969f-c05764e44dbc/client-invoice -> 200
+13:56:47.311 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=2084952d-b4e5-4ea8-ab0d-f0616a1e56fd oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.315 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/6e600ae3-d3f4-4ebf-969f-c05764e44dbc/client-invoice/send -> 200
+13:56:47.316 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/6e600ae3-d3f4-4ebf-969f-c05764e44dbc/client-invoice/lines -> 409
+13:56:47.329 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/6e600ae3-d3f4-4ebf-969f-c05764e44dbc/client-invoice -> 200
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.140 s -- in com.remotesupport.backend.web.ClientInvoiceLineEditRaceTest
+[INFO] Running com.remotesupport.backend.web.LocalSupportFeesRaceTest
+13:56:47.349 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.web.LocalSupportFeesRaceTest]: LocalSupportFeesRaceTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+13:56:47.353 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.web.LocalSupportFeesRaceTest
+13:56:47.440 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+13:56:47.441 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+13:56:47.520 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+13:56:47.521 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+13:56:47.528 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=1728091c-3de8-4cd8-abc4-9de28f113d97 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.531 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:47.539 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=480f0850-ac8e-463b-aa74-22526c227c87 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.540 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:47.549 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:47.568 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:47.587 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=dba69207-4b6d-4706-bfec-5a64ea4892bc carrierId=c0000000-0000-0000-0000-000000000001 name=Plan 92dfee7d-f6dd-4ad3-84de-f54d0edb2366 price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.590 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:47.607 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=64802139-65dd-4ee9-ab8a-4777eaf4501d contractId=480f0850-ac8e-463b-aa74-22526c227c87 carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=dba69207-4b6d-4706-bfec-5a64ea4892bc monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.608 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/480f0850-ac8e-463b-aa74-22526c227c87/sim-cards -> 201
+13:56:47.624 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=1f50baf4-3b8d-47a7-b8c2-63906f30c6b0 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.631 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/480f0850-ac8e-463b-aa74-22526c227c87/client-invoice -> 200
+13:56:47.646 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=b1596c21-bc41-4366-a330-05651a129fe5 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.669 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:47.707 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=1f50baf4-3b8d-47a7-b8c2-63906f30c6b0 kind=POSTPAID_SIM sourceId=64802139-65dd-4ee9-ab8a-4777eaf4501d oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.708 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=b1596c21-bc41-4366-a330-05651a129fe5 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.711 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+13:56:47.712 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=AGENT_INVOICE_LOCAL_SUPPORT_FEES_FOLLOWED entity=AgentInvoice entityId=b1596c21-bc41-4366-a330-05651a129fe5 clientInvoiceId=1f50baf4-3b8d-47a7-b8c2-63906f30c6b0 oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.726 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/480f0850-ac8e-463b-aa74-22526c227c87/client-invoice/lines -> 200
+13:56:47.752 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:47.777 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=b8ef2744-a18b-4255-881c-186bb06156f1 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.781 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:47.791 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=213d3998-9c48-46c0-bb14-71f384f963bc actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.792 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:47.796 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:47.804 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:47.809 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=e590277e-df7e-45be-b33d-59aae5409f0a carrierId=c0000000-0000-0000-0000-000000000001 name=Plan 3e26b085-4750-4009-acd9-550fdbde149d price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.809 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:47.819 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=2d7b67c7-2a79-4699-8bc7-8e2659b4d2dc contractId=213d3998-9c48-46c0-bb14-71f384f963bc carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=e590277e-df7e-45be-b33d-59aae5409f0a monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.819 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/213d3998-9c48-46c0-bb14-71f384f963bc/sim-cards -> 201
+13:56:47.829 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=9fb6f668-6055-48bf-b6b7-15ca7eaadd33 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.834 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/213d3998-9c48-46c0-bb14-71f384f963bc/client-invoice -> 200
+13:56:47.841 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=6daa54ba-8f5e-4c34-a3dd-9cf87fa700f5 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.853 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:47.877 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=9fb6f668-6055-48bf-b6b7-15ca7eaadd33 kind=POSTPAID_SIM sourceId=2d7b67c7-2a79-4699-8bc7-8e2659b4d2dc oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.889 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=6daa54ba-8f5e-4c34-a3dd-9cf87fa700f5 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.892 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=AGENT_INVOICE_LOCAL_SUPPORT_FEES_FOLLOWED entity=AgentInvoice entityId=6daa54ba-8f5e-4c34-a3dd-9cf87fa700f5 clientInvoiceId=9fb6f668-6055-48bf-b6b7-15ca7eaadd33 oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.893 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+13:56:47.902 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/213d3998-9c48-46c0-bb14-71f384f963bc/client-invoice/lines -> 200
+13:56:47.909 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:47.916 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=1dee7038-efc1-40cf-bb71-ad7228312cec actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.918 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:47.924 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=709a9eaa-be4b-4d24-a907-acea353be071 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.925 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:47.928 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:47.936 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:47.941 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=0f225d33-5041-4d80-afbd-1479c7fd42e5 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan 203ad3e0-f06b-4c4b-b8b7-2b05cfd1520f price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.942 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:47.950 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=a8e5339c-cad1-44c0-953b-a050bceb83f2 contractId=709a9eaa-be4b-4d24-a907-acea353be071 carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=0f225d33-5041-4d80-afbd-1479c7fd42e5 monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.951 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/709a9eaa-be4b-4d24-a907-acea353be071/sim-cards -> 201
+13:56:47.959 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=619b0f81-a340-4912-a61e-78e322047be3 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.963 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/709a9eaa-be4b-4d24-a907-acea353be071/client-invoice -> 200
+13:56:47.969 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=feb1d5bd-a5ef-4f58-8ed8-52f8421749f7 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.977 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:47.987 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=619b0f81-a340-4912-a61e-78e322047be3 kind=POSTPAID_SIM sourceId=a8e5339c-cad1-44c0-953b-a050bceb83f2 oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.989 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=feb1d5bd-a5ef-4f58-8ed8-52f8421749f7 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.990 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=AGENT_INVOICE_LOCAL_SUPPORT_FEES_FOLLOWED entity=AgentInvoice entityId=feb1d5bd-a5ef-4f58-8ed8-52f8421749f7 clientInvoiceId=619b0f81-a340-4912-a61e-78e322047be3 oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:47.990 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+13:56:47.995 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/709a9eaa-be4b-4d24-a907-acea353be071/client-invoice/lines -> 200
+13:56:47.999 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.007 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=cf5f91fe-0adc-49cf-a657-1ad56a0d4976 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.008 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:48.013 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=e1bd4602-0c18-4462-ab83-588ff1393fc3 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.013 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:48.016 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:48.021 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:48.025 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=b45c2f56-b255-4280-ab12-63322897ec64 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan d30ed94e-99e9-41de-9be3-6c7c489940d9 price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.025 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:48.032 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=d2cfb6f7-fed4-4563-83a1-f40e6dc1a347 contractId=e1bd4602-0c18-4462-ab83-588ff1393fc3 carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=b45c2f56-b255-4280-ab12-63322897ec64 monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.033 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/e1bd4602-0c18-4462-ab83-588ff1393fc3/sim-cards -> 201
+13:56:48.039 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=973a32ae-56d3-469f-94a6-d15661a47034 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.042 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/e1bd4602-0c18-4462-ab83-588ff1393fc3/client-invoice -> 200
+13:56:48.048 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=59852a8d-d43a-4ec5-994f-ce447ea30947 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.054 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.064 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=973a32ae-56d3-469f-94a6-d15661a47034 kind=POSTPAID_SIM sourceId=d2cfb6f7-fed4-4563-83a1-f40e6dc1a347 oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.066 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=59852a8d-d43a-4ec5-994f-ce447ea30947 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.067 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=AGENT_INVOICE_LOCAL_SUPPORT_FEES_FOLLOWED entity=AgentInvoice entityId=59852a8d-d43a-4ec5-994f-ce447ea30947 clientInvoiceId=973a32ae-56d3-469f-94a6-d15661a47034 oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.067 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+13:56:48.071 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/e1bd4602-0c18-4462-ab83-588ff1393fc3/client-invoice/lines -> 200
+13:56:48.076 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.084 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=71b3ae0d-a185-4c2a-9bc2-1c319a5bfb2a actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.085 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:48.089 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=0ba8027c-5abf-44b9-ba10-8131d361d9e8 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.089 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:48.091 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:48.096 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:48.100 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=7a22dbd9-e019-454d-ace1-c35dc2efe865 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan 130a841f-2b58-40b1-a2f6-d4e4e6f1c9c4 price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.101 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:48.107 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=2f636c29-c758-48c3-bbcd-0a321928dc8a contractId=0ba8027c-5abf-44b9-ba10-8131d361d9e8 carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=7a22dbd9-e019-454d-ace1-c35dc2efe865 monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.107 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/0ba8027c-5abf-44b9-ba10-8131d361d9e8/sim-cards -> 201
+13:56:48.113 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=68654096-f505-4893-a983-e6cf7591b4c2 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.117 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/0ba8027c-5abf-44b9-ba10-8131d361d9e8/client-invoice -> 200
+13:56:48.123 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=147257c7-1979-446b-b158-6ce8d5eef9c6 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.130 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.140 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=68654096-f505-4893-a983-e6cf7591b4c2 kind=POSTPAID_SIM sourceId=2f636c29-c758-48c3-bbcd-0a321928dc8a oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.142 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=147257c7-1979-446b-b158-6ce8d5eef9c6 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.143 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=AGENT_INVOICE_LOCAL_SUPPORT_FEES_FOLLOWED entity=AgentInvoice entityId=147257c7-1979-446b-b158-6ce8d5eef9c6 clientInvoiceId=68654096-f505-4893-a983-e6cf7591b4c2 oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.143 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+13:56:48.147 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/0ba8027c-5abf-44b9-ba10-8131d361d9e8/client-invoice/lines -> 200
+13:56:48.151 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.244 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+13:56:48.245 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+13:56:48.321 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+13:56:48.321 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+13:56:48.328 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=bc1c7ce2-d4fc-4b29-bfa8-de0e34ee1572 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.331 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:48.339 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=85c7db79-832a-47ce-85b5-0d4393353dad actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.339 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:48.342 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:48.349 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:48.354 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=309ed6c1-c29f-491f-86b3-35d5cc0dd449 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan 54721d05-034e-4381-b20a-b82c8a185d3c price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.354 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:48.363 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=81a3695f-0590-4684-a6b6-013a2c3fcd30 contractId=85c7db79-832a-47ce-85b5-0d4393353dad carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=309ed6c1-c29f-491f-86b3-35d5cc0dd449 monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.364 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/85c7db79-832a-47ce-85b5-0d4393353dad/sim-cards -> 201
+13:56:48.370 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=4f2e7080-0392-48fd-a0fe-7cea3481a2da actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.375 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/85c7db79-832a-47ce-85b5-0d4393353dad/client-invoice -> 200
+13:56:48.382 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=7ec3c5f4-cf94-4ba8-97d4-97a1039f88db actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.393 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.408 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=7ec3c5f4-cf94-4ba8-97d4-97a1039f88db oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.410 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+13:56:48.416 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=7ec3c5f4-cf94-4ba8-97d4-97a1039f88db oldStatus=SENT newStatus=APPROVED actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.418 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agent-invoices/7ec3c5f4-cf94-4ba8-97d4-97a1039f88db/approve -> 200
+13:56:48.423 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=4f2e7080-0392-48fd-a0fe-7cea3481a2da kind=POSTPAID_SIM sourceId=81a3695f-0590-4684-a6b6-013a2c3fcd30 oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.429 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/85c7db79-832a-47ce-85b5-0d4393353dad/client-invoice/lines -> 200
+13:56:48.434 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.441 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=e3f7616e-1453-460f-a47e-8774b54c549b actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.443 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:48.449 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=45297912-3401-4e0b-8d60-30814a4a7738 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.449 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:48.451 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:48.457 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:48.462 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=7e92929a-bc08-4fa2-be8b-179180a3b257 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan 4f93acaa-bef4-4a4d-bdc9-84ab6d6734ff price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.463 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:48.472 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=99aca3ab-5548-4606-9b81-6c315fe69e14 contractId=45297912-3401-4e0b-8d60-30814a4a7738 carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=7e92929a-bc08-4fa2-be8b-179180a3b257 monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.472 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/45297912-3401-4e0b-8d60-30814a4a7738/sim-cards -> 201
+13:56:48.481 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=b4dced18-0717-4d81-b8aa-3d429d4172ea actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.488 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/45297912-3401-4e0b-8d60-30814a4a7738/client-invoice -> 200
+13:56:48.496 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=9a43f73f-2523-4ed4-843b-38e74b03fce9 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.504 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.515 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=9a43f73f-2523-4ed4-843b-38e74b03fce9 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.517 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+13:56:48.520 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=9a43f73f-2523-4ed4-843b-38e74b03fce9 oldStatus=SENT newStatus=APPROVED actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.522 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agent-invoices/9a43f73f-2523-4ed4-843b-38e74b03fce9/approve -> 200
+13:56:48.526 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=b4dced18-0717-4d81-b8aa-3d429d4172ea kind=POSTPAID_SIM sourceId=99aca3ab-5548-4606-9b81-6c315fe69e14 oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.531 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/45297912-3401-4e0b-8d60-30814a4a7738/client-invoice/lines -> 200
+13:56:48.535 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.541 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=39ee2019-33d3-4b5e-9b29-2dff4f7d93b0 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.542 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:48.547 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=bc0235a3-573b-4aab-ba91-139d7abc069b actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.547 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:48.549 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:48.555 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:48.559 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=de649cd0-de86-49af-aff6-89b11d75943d carrierId=c0000000-0000-0000-0000-000000000001 name=Plan d72e4f2f-fd38-44db-ac66-b5f7dc5ce843 price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.560 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:48.567 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=76da2769-c9cf-4e26-97b8-2f6244d444a9 contractId=bc0235a3-573b-4aab-ba91-139d7abc069b carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=de649cd0-de86-49af-aff6-89b11d75943d monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.567 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/bc0235a3-573b-4aab-ba91-139d7abc069b/sim-cards -> 201
+13:56:48.572 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=ae717d91-46e3-4ddc-9b05-2aef9759e0a4 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.575 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/bc0235a3-573b-4aab-ba91-139d7abc069b/client-invoice -> 200
+13:56:48.579 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=413c0a10-cfab-4d68-a5aa-fddabe057c26 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.586 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.598 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=413c0a10-cfab-4d68-a5aa-fddabe057c26 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.599 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+13:56:48.603 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=413c0a10-cfab-4d68-a5aa-fddabe057c26 oldStatus=SENT newStatus=APPROVED actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.604 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agent-invoices/413c0a10-cfab-4d68-a5aa-fddabe057c26/approve -> 200
+13:56:48.608 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=ae717d91-46e3-4ddc-9b05-2aef9759e0a4 kind=POSTPAID_SIM sourceId=76da2769-c9cf-4e26-97b8-2f6244d444a9 oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.612 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/bc0235a3-573b-4aab-ba91-139d7abc069b/client-invoice/lines -> 200
+13:56:48.615 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.622 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=b5d35e6f-bb2f-46b6-ada0-da573e8545a8 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.624 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:48.628 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=00ecb0b6-25f9-4b71-9a5f-c9dc3ed1a1e7 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.629 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:48.630 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:48.634 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:48.638 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=043cfab8-3970-475d-941a-19e7942df220 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan 85f3a522-39af-49a4-9892-a8537d5c712d price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.638 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:48.644 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=598c1a33-f33c-4f00-9b75-28e6730a3112 contractId=00ecb0b6-25f9-4b71-9a5f-c9dc3ed1a1e7 carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=043cfab8-3970-475d-941a-19e7942df220 monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.644 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/00ecb0b6-25f9-4b71-9a5f-c9dc3ed1a1e7/sim-cards -> 201
+13:56:48.649 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=1780443b-cf94-4476-be81-067d72f00343 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.652 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/00ecb0b6-25f9-4b71-9a5f-c9dc3ed1a1e7/client-invoice -> 200
+13:56:48.658 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=7c5714e7-c3d5-4e96-ba5e-04b9a5b57c95 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.665 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.675 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=7c5714e7-c3d5-4e96-ba5e-04b9a5b57c95 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.676 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+13:56:48.680 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=7c5714e7-c3d5-4e96-ba5e-04b9a5b57c95 oldStatus=SENT newStatus=APPROVED actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.681 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agent-invoices/7c5714e7-c3d5-4e96-ba5e-04b9a5b57c95/approve -> 200
+13:56:48.685 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=1780443b-cf94-4476-be81-067d72f00343 kind=POSTPAID_SIM sourceId=598c1a33-f33c-4f00-9b75-28e6730a3112 oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.689 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/00ecb0b6-25f9-4b71-9a5f-c9dc3ed1a1e7/client-invoice/lines -> 200
+13:56:48.692 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.700 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=18b9ddc2-e0e3-4e9e-a513-15608b81f0b5 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.701 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+13:56:48.705 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=126b8fc1-64f8-4b11-ab44-8dc768624502 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.706 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+13:56:48.707 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+13:56:48.711 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+13:56:48.714 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=43e3b7d7-6fc7-4b19-9733-1d8c4e312580 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan faa8c69f-614e-4697-8cf8-8178eaa7f8d0 price=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.715 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+13:56:48.720 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=71f1d16c-5101-4415-bdfc-bdcaa36f48bb contractId=126b8fc1-64f8-4b11-ab44-8dc768624502 carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=43e3b7d7-6fc7-4b19-9733-1d8c4e312580 monthlyFeeAmount=18.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.720 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/126b8fc1-64f8-4b11-ab44-8dc768624502/sim-cards -> 201
+13:56:48.725 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=0705cbd7-c0ed-4233-8d0f-48b288827a0d actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.728 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/126b8fc1-64f8-4b11-ab44-8dc768624502/client-invoice -> 200
+13:56:48.733 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=d9d48370-2f11-4b6e-a930-b4193e3039e4 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.739 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+13:56:48.748 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=d9d48370-2f11-4b6e-a930-b4193e3039e4 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.749 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+13:56:48.752 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=d9d48370-2f11-4b6e-a930-b4193e3039e4 oldStatus=SENT newStatus=APPROVED actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.753 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agent-invoices/d9d48370-2f11-4b6e-a930-b4193e3039e4/approve -> 200
+13:56:48.757 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId=0705cbd7-c0ed-4233-8d0f-48b288827a0d kind=POSTPAID_SIM sourceId=71f1d16c-5101-4415-bdfc-bdcaa36f48bb oldAmount=18.00 newAmount=31.40 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+13:56:48.761 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - PUT /api/contracts/126b8fc1-64f8-4b11-ab44-8dc768624502/client-invoice/lines -> 200
+13:56:48.764 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.429 s -- in com.remotesupport.backend.web.LocalSupportFeesRaceTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jar:3.4.2:jar (default-jar) @ backend ---
+[INFO] 
+[INFO] --- spring-boot:3.3.4:repackage (repackage) @ backend ---
+[INFO] Replacing main artifact /Users/oscar/myspace/projects/remote-support-app/backend/target/backend-0.1.0-SNAPSHOT.jar with repackaged archive, adding nested dependencies in BOOT-INF/.
+[INFO] The original artifact has been renamed to /Users/oscar/myspace/projects/remote-support-app/backend/target/backend-0.1.0-SNAPSHOT.jar.original
+[INFO] 
+[INFO] --- checkstyle:3.5.0:check (checkstyle-check) @ backend ---
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  10.098 s
+[INFO] Finished at: 2026-10-02T13:56:49+02:00
+[INFO] ------------------------------------------------------------------------

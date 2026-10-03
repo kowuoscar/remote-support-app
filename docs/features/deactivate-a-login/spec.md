@@ -1,7 +1,7 @@
 ---
 feature: deactivate-a-login
 epic: login-lifecycle
-status: draft
+status: approved
 date: 2026-10-02
 ---
 
@@ -583,12 +583,13 @@ None.
 
 ## Execution order
 
-Seven slices.
+Eight slices.
 
 1. `administered-login-lookup` — extract the Tenant-scoped target resolution and the guard call from `PasswordResetService` into one component. The reset suites pass unedited. Labels: `enabler`, `backend`. Depends on nothing. (stories: none)
 2. `deactivated-login-refused` — V58, `User.deactivatedAt`, `isEnabled()` wiring with the post-password check, `LOGIN_DEACTIVATED` at sign-in, the per-request Login-state check in the filter, and `ChangePasswordService`'s refusal with its narrow test. Tests deactivate through the `User` entity in-transaction. Labels: `backend`. Depends on nothing. (stories: 10, 11, 12, 13, 15, 26, 27)
 3. `deactivate-an-agents-login-api` — the Login-activation service, the new controller with the two Agent routes, the audit events, `loginDeactivatedAt` on the Agent response, and the integration tests including "not deletion", idempotency, the boundary and reset-on-deactivated. Labels: `backend`. Depends on `administered-login-lookup` and `deactivated-login-refused`. (stories: 1, 7, 8, 9, 16, 18, 19, 20, 21, 22, 23)
 4. `deactivate-a-testers-login-api` — the two Tester routes on the same controller and service, `deactivatedAt` on the Tester response, and their integration tests. Labels: `backend`. Depends on `deactivate-an-agents-login-api`. (stories: 2, 7, 8, 17, 19, 20, 22, 23)
-5. `deactivated-session-lands-on-sign-in` — `requireAgent`/`requireTester` on the backend-driven Agent and Tester pages, and the session route's `LOGIN_DEACTIVATED` message with component tests. Labels: `frontend`. Depends on `deactivated-login-refused`. (stories: 11, 14)
-6. `deactivate-an-agents-login-ui` — the two BFF proxies, both dialogs, the tag and the actions in `AgentSignInEmail`, component tests, the Agent half of the e2e spec, the stub-backend fixture and the Agent page's goldens. Labels: `frontend`. Depends on `deactivate-an-agents-login-api` and `deactivated-session-lands-on-sign-in`. (stories: 1, 3, 5, 6, 7, 13, 14, 18, 24)
-7. `deactivate-a-testers-login-ui` — the two BFF proxies, the tag and actions in the Testers table reusing the dialogs, the Tester half of the e2e spec and the Client page's goldens. Labels: `frontend`. Depends on `deactivate-a-testers-login-api` and `deactivate-an-agents-login-ui`. (stories: 2, 4, 5, 6, 7, 17, 24, 25)
+5. `deactivated-message-at-sign-in` — the session route's `LOGIN_DEACTIVATED` message with component tests. Labels: `frontend`. Depends on `deactivated-login-refused`. (stories: 11)
+6. `dead-session-lands-on-sign-in` — `requireAgent`/`requireTester` on the backend-driven Agent and Tester pages. Labels: `frontend`. Depends on `deactivated-login-refused`. (stories: 14)
+7. `deactivate-an-agents-login-ui` — the two BFF proxies, both dialogs, the tag and the actions in `AgentSignInEmail`, component tests, the Agent half of the e2e spec, the stub-backend fixture and the Agent page's goldens. Labels: `frontend`. Depends on `deactivate-an-agents-login-api` and `deactivated-message-at-sign-in` and `dead-session-lands-on-sign-in`. (stories: 1, 3, 5, 6, 7, 13, 14, 18, 24)
+8. `deactivate-a-testers-login-ui` — the two BFF proxies, the tag and actions in the Testers table reusing the dialogs, the Tester half of the e2e spec and the Client page's goldens. Labels: `frontend`. Depends on `deactivate-a-testers-login-api` and `deactivate-an-agents-login-ui`. (stories: 2, 4, 5, 6, 7, 17, 24, 25)

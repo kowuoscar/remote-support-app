@@ -243,6 +243,32 @@ public final class AuditLog {
   }
 
   /**
+   * An Agent editing one line of a draft Client Invoice (edit-client-invoice-lines spec,
+   * Observability): the invoice, the line's kind and source (SIM Card or Fee id, {@code null} for a
+   * {@code BASE_AMOUNT} line) and the amount before and after. Saving the computed amount back (a
+   * reset) is logged the same way. No free text, as {@link #agentInvoiceOverridden}.
+   */
+  public static void clientInvoiceLineEdited(
+      UUID invoiceId,
+      String kind,
+      UUID sourceId,
+      BigDecimal oldAmount,
+      BigDecimal newAmount,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action=CLIENT_INVOICE_LINE_EDITED entity=ClientInvoice entityId={} kind={} sourceId={} "
+            + "oldAmount={} newAmount={} actorUserId={} tenantId={}",
+        invoiceId,
+        kind,
+        sourceId,
+        oldAmount,
+        newAmount,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
    * A Manager overriding one Agent Invoice's Salary or Rollout Advance (new-advance) line at
    * approval time (agent-invoice-submission-and-approval ticket Observability: "override events
    * logged with Agent Invoice id, actor, old/new value"). Distinct from {@link #statusChanged} —
@@ -260,6 +286,30 @@ public final class AuditLog {
         field,
         oldValue,
         newValue,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
+   * A sent Agent Invoice's Local Support Fees moving by a Client Invoice line edit's difference
+   * (edit-client-invoice-lines spec, ADR 0004): the Agent Invoice, the Client Invoice whose edit
+   * moved it, and its Local Support Fees before and after. No free text, as {@link
+   * #agentInvoiceOverridden}.
+   */
+  public static void agentInvoiceLocalSupportFeesFollowed(
+      UUID agentInvoiceId,
+      UUID clientInvoiceId,
+      BigDecimal oldAmount,
+      BigDecimal newAmount,
+      UUID actorUserId,
+      UUID tenantId) {
+    log.info(
+        "audit action=AGENT_INVOICE_LOCAL_SUPPORT_FEES_FOLLOWED entity=AgentInvoice entityId={} "
+            + "clientInvoiceId={} oldAmount={} newAmount={} actorUserId={} tenantId={}",
+        agentInvoiceId,
+        clientInvoiceId,
+        oldAmount,
+        newAmount,
         actorUserId,
         tenantId);
   }

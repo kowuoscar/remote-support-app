@@ -1,0 +1,128 @@
+
+> frontend@0.1.0 test:visual
+> playwright test
+
+
+Running 71 tests using 4 workers
+
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] GET /api/agents/a0000000-0000-0000-0000-000000000001/invoice: load failed with status 500
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-000000000002/requests: load failed with status 500
+  ✓   1 tests/visual/agent-dashboard-requests.spec.ts:25:7 › the Agent dashboard's Request regions › degraded-requests-show-unavailable-never-a-dropped-contract-count (541ms)
+  ✓   3 tests/visual/agent-dashboard-requests.spec.ts:9:7 › the Agent dashboard's Request regions › healthy-agent-counts-open-requests-and-lists-the-five-newest (565ms)
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓   4 tests/visual/change-password-dialog.spec.ts:43:9 › change-password dialog — open — desktop — light (1.7s)
+  ✓   2 tests/visual/change-password-dialog.spec.ts:43:9 › change-password dialog — open — desktop — dark (1.7s)
+  ✓   5 tests/visual/change-password-dialog.spec.ts:43:9 › change-password dialog — open — mobile — light (1.4s)
+  ✓   6 tests/visual/change-password-dialog.spec.ts:43:9 › change-password dialog — open — mobile — dark (1.4s)
+  ✓   8 tests/visual/client-dashboard-invoices.spec.ts:27:7 › the Client dashboard's Latest Client Invoice card › open-invoices-link-goes-to-client-invoices (275ms)
+  ✓   7 tests/visual/client-dashboard-invoices.spec.ts:9:7 › the Client dashboard's Latest Client Invoice card › healthy-tester-rows-show-month-status-and-currency-total (305ms)
+[WebServer] GET /api/contracts: load failed with status 500
+[WebServer] GET /api/me/client/latest-client-invoices: load failed with status 500
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-0000000000b2/sim-cards: load failed with status 500
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-0000000000b2/requests: load failed with status 500
+[WebServer] GET /api/me/client/latest-client-invoices: load failed with status 500
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-0000000000b2/sim-cards: load failed with status 500
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-0000000000b2/requests: load failed with status 500
+  ✓   9 tests/visual/client-dashboard-invoices.spec.ts:48:7 › the Client dashboard's Latest Client Invoice card › contract-list-failure-shows-invoice-card-unavailable (368ms)
+  ✓  11 tests/visual/client-dashboard-regions.spec.ts:9:7 › the Client dashboard's stat regions › healthy-tester-counts-active-fleet-and-open-requests (353ms)
+  ✓  10 tests/visual/client-dashboard-invoices.spec.ts:35:7 › the Client dashboard's Latest Client Invoice card › degraded-tester-shows-invoices-unavailable-with-the-rest-of-the-page-intact (376ms)
+  ✓  12 tests/visual/client-dashboard-regions.spec.ts:23:7 › the Client dashboard's stat regions › degraded-tester-shows-unavailable-never-zero (370ms)
+[WebServer] GET /api/contracts: load failed with status 500
+[WebServer] Dashboard: Review Queue load failed with status 404
+  ✓  15 tests/visual/demo-footer.spec.ts:18:5 › agent-dashboard-shows-no-demo-footer (289ms)
+  ✓  13 tests/visual/client-dashboard-regions.spec.ts:37:7 › the Client dashboard's stat regions › contract-list-failure-shows-both-stats-unavailable-never-zero (326ms)
+  ✓  16 tests/visual/demo-footer.spec.ts:24:5 › manager-carriers-shows-no-demo-footer (302ms)
+  ✓  14 tests/visual/demo-footer.spec.ts:12:5 › manager-dashboard-shows-the-demo-footer (1.1s)
+  ✓  17 tests/visual/reset-password-dialog.spec.ts:28:9 › reset-password dialog — confirm — desktop — light (869ms)
+  ✓  19 tests/visual/reset-password-dialog.spec.ts:28:9 › reset-password dialog — confirm — desktop — dark (923ms)
+  ✓  18 tests/visual/reset-password-dialog.spec.ts:37:9 › reset-password dialog — reveal — desktop — light (1.2s)
+  ✓  21 tests/visual/reset-password-dialog.spec.ts:28:9 › reset-password dialog — confirm — mobile — light (722ms)
+  ✓  22 tests/visual/reset-password-dialog.spec.ts:37:9 › reset-password dialog — reveal — mobile — light (849ms)
+  ✓  20 tests/visual/reset-password-dialog.spec.ts:37:9 › reset-password dialog — reveal — desktop — dark (1.1s)
+  ✓  23 tests/visual/reset-password-dialog.spec.ts:28:9 › reset-password dialog — confirm — mobile — dark (714ms)
+  ✓  24 tests/visual/reset-password-dialog.spec.ts:37:9 › reset-password dialog — reveal — mobile — dark (704ms)
+  ✓  27 tests/visual/reset-tester-password-dialog.spec.ts:20:9 › reset-tester-password dialog — confirm — mobile — light (791ms)
+  ✓  25 tests/visual/reset-tester-password-dialog.spec.ts:20:9 › reset-tester-password dialog — confirm — desktop — light (959ms)
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓  28 tests/visual/reset-tester-password-dialog.spec.ts:20:9 › reset-tester-password dialog — confirm — mobile — dark (729ms)
+  ✓  26 tests/visual/reset-tester-password-dialog.spec.ts:20:9 › reset-tester-password dialog — confirm — desktop — dark (1.3s)
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓  30 tests/visual/surfaces.spec.ts:120:11 › manager — desktop — dark (1.2s)
+  ✓  29 tests/visual/surfaces.spec.ts:120:11 › manager — desktop — light (1.3s)
+  ✓  31 tests/visual/surfaces.spec.ts:120:11 › manager — mobile — light (1.2s)
+  ✓  32 tests/visual/surfaces.spec.ts:120:11 › manager — mobile — dark (1.2s)
+  ✓  33 tests/visual/surfaces.spec.ts:120:11 › agent — desktop — light (442ms)
+  ✓  34 tests/visual/surfaces.spec.ts:120:11 › agent — desktop — dark (485ms)
+  ✓  35 tests/visual/surfaces.spec.ts:120:11 › agent — mobile — light (437ms)
+  ✓  36 tests/visual/surfaces.spec.ts:120:11 › agent — mobile — dark (580ms)
+  ✓  37 tests/visual/surfaces.spec.ts:120:11 › client — desktop — light (563ms)
+  ✓  38 tests/visual/surfaces.spec.ts:120:11 › client — desktop — dark (479ms)
+  ✓  39 tests/visual/surfaces.spec.ts:120:11 › client — mobile — light (500ms)
+  ✓  40 tests/visual/surfaces.spec.ts:120:11 › client — mobile — dark (458ms)
+  ✓  41 tests/visual/surfaces.spec.ts:120:11 › agent-carriers — desktop — light (652ms)
+  ✓  42 tests/visual/surfaces.spec.ts:120:11 › agent-carriers — desktop — dark (712ms)
+  ✓  43 tests/visual/surfaces.spec.ts:120:11 › agent-carriers — mobile — light (681ms)
+  ✓  44 tests/visual/surfaces.spec.ts:120:11 › agent-carriers — mobile — dark (510ms)
+  ✓  46 tests/visual/surfaces.spec.ts:120:11 › manager-carriers — desktop — dark (681ms)
+  ✓  45 tests/visual/surfaces.spec.ts:120:11 › manager-carriers — desktop — light (769ms)
+  ✓  47 tests/visual/surfaces.spec.ts:120:11 › manager-carriers — mobile — light (631ms)
+  ✓  48 tests/visual/surfaces.spec.ts:120:11 › manager-carriers — mobile — dark (689ms)
+  ✓  51 tests/visual/surfaces.spec.ts:120:11 › manager-requests — mobile — light (443ms)
+  ✓  49 tests/visual/surfaces.spec.ts:120:11 › manager-requests — desktop — light (615ms)
+  ✓  50 tests/visual/surfaces.spec.ts:120:11 › manager-requests — desktop — dark (603ms)
+  ✓  52 tests/visual/surfaces.spec.ts:120:11 › manager-requests — mobile — dark (585ms)
+  ✓  53 tests/visual/surfaces.spec.ts:120:11 › agent-stock — desktop — light (561ms)
+  ✓  55 tests/visual/surfaces.spec.ts:120:11 › agent-stock — mobile — light (473ms)
+  ✓  54 tests/visual/surfaces.spec.ts:120:11 › agent-stock — desktop — dark (606ms)
+  ✓  56 tests/visual/surfaces.spec.ts:120:11 › agent-stock — mobile — dark (464ms)
+  ✓  57 tests/visual/surfaces.spec.ts:120:11 › manager-stock — desktop — light (618ms)
+  ✓  58 tests/visual/surfaces.spec.ts:120:11 › manager-stock — desktop — dark (630ms)
+  ✓  59 tests/visual/surfaces.spec.ts:120:11 › manager-stock — mobile — light (498ms)
+  ✓  60 tests/visual/surfaces.spec.ts:120:11 › manager-stock — mobile — dark (521ms)
+[WebServer] ⨯ Error: Agent dashboard: GET /api/me/agent failed with status 500
+[WebServer]     at q (.next/server/chunks/ssr/[root-of-the-server]__0qzwkwp._.js:1:1919)
+[WebServer]     at async u (.next/server/chunks/ssr/[root-of-the-server]__0qzwkwp._.js:1:4081) {
+[WebServer]   digest: '183983623'
+[WebServer] }
+[WebServer] GET /api/agents/a0000000-0000-0000-0000-000000000001/invoice: load failed with status 500
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-000000000002/requests: load failed with status 500
+  ✓  61 tests/visual/surfaces.spec.ts:137:7 › the Agent dashboard's identity states › unlinked-agent-shows-not-linked-message (345ms)
+  ✓  63 tests/visual/surfaces.spec.ts:152:7 › the Agent dashboard's identity states › degraded-invoice-shows-both-invoice-cards-unavailable (369ms)
+  ✓  62 tests/visual/surfaces.spec.ts:144:7 › the Agent dashboard's identity states › failing-identity-shows-page-level-message (394ms)
+  ✓  64 tests/visual/surfaces.spec.ts:170:7 › the Client dashboard's identity states › tester-header-and-chip-name-their-own-client-and-login (418ms)
+[WebServer] Client dashboard: GET /api/me/client failed with status 500
+[WebServer] ⨯ Error: Client dashboard: GET /api/me/client failed with status 500
+[WebServer]     at q (.next/server/chunks/ssr/[root-of-the-server]__1d1dkv0._.js:1:3222)
+[WebServer]     at async v (.next/server/chunks/ssr/[root-of-the-server]__1d1dkv0._.js:1:3653) {
+[WebServer]   digest: '599447597'
+[WebServer] }
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓  65 tests/visual/surfaces.spec.ts:180:7 › the Client dashboard's identity states › tester-header-keeps-the-full-client-name-at-390px (395ms)
+  ✓  66 tests/visual/surfaces.spec.ts:187:7 › the Client dashboard's identity states › unlinked-tester-shows-not-linked-message (369ms)
+  ✓  67 tests/visual/surfaces.spec.ts:197:7 › the Client dashboard's identity states › failing-identity-shows-the-single-dashboard-error (399ms)
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+[WebServer] Dashboard: Review Queue load failed with status 401
+[WebServer] Dashboard: Pending Requests load failed with status 401
+  ✓  68 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — desktop — light (1.3s)
+  ✓  70 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — mobile — light (1.3s)
+  ✓  71 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — mobile — dark (1.3s)
+  ✓  69 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — desktop — dark (1.4s)
+
+  71 passed (19.0s)

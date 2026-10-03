@@ -1,0 +1,120 @@
+### Open tabs
+- 0: [Client Invoices · Remote Support Platform](http://127.0.0.1:53000/agent/client-invoices)
+- 1: (current) [Client Invoices · Remote Support Platform](http://127.0.0.1:53000/agent/client-invoices)
+### Page
+- Page URL: http://127.0.0.1:53000/agent/client-invoices
+- Page Title: Client Invoices · Remote Support Platform
+- Console: 1 errors, 0 warnings
+### Snapshot
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: "N"
+        - generic [ref=e6]:
+          - paragraph [ref=e7]: Northwind Field Services
+          - paragraph [ref=e8]: Agent Console
+      - navigation [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=e43]:
+      - banner [ref=e44]:
+        - generic [ref=e46]:
+          - heading "Client Invoices" [level=1] [ref=e47]
+          - paragraph [ref=e48]: One per Contract per month
+        - generic [ref=e49]:
+          - button "cee@example.com · Agent" [ref=e51]
+          - button "Switch to dark theme" [ref=e53]
+      - main [ref=e57]:
+        - generic [ref=e59]:
+          - generic [ref=e60]: Browser Client — United States
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e67]:
+                - generic [ref=e68]:
+                  - paragraph [ref=e69]: October 2026
+                  - generic [ref=e70]: Draft
+                - paragraph [ref=e72]: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+              - generic [ref=e73]:
+                - generic [ref=e74]:
+                  - button "Attach carrier invoice" [ref=e75]
+                  - button "Attach carrier invoice file" [ref=e78]
+                - button "Send Client Invoice" [ref=e80]
+            - generic [ref=e83]:
+              - generic [ref=e84]:
+                - term [ref=e85]: Base amount
+                - definition [ref=e86]: $46.40
+              - generic [ref=e87]:
+                - term [ref=e88]: Fees this month
+                - definition [ref=e89]: $45.00
+              - generic [ref=e90]:
+                - term [ref=e91]: Total
+                - definition [ref=e92]: $91.40
+            - paragraph [ref=e93]: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+            - generic [ref=e94]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=e95]
+              - table [ref=e97]:
+                - rowgroup [ref=e98]:
+                  - row [ref=e99]:
+                    - columnheader "Number" [ref=e100]
+                    - columnheader "Billed" [ref=e101]
+                - rowgroup [ref=e102]:
+                  - row [ref=e103]:
+                    - cell "+1-555-2001" [ref=e104]
+                    - cell "$31.40 Edited · computed $25.00 Edit Reset" [ref=e105]:
+                      - generic [ref=e106]:
+                        - generic [ref=e107]: $31.40
+                        - paragraph [ref=e108]: Edited · computed $25.00
+                        - generic [ref=e109]:
+                          - button "Edit" [ref=e110]
+                          - button "Reset" [ref=e111]
+                        - status [ref=e112]
+                  - row [ref=e156]:
+                    - cell "+1-555-2002" [ref=e114]
+                    - cell [ref=e157]:
+                      - generic [ref=e116]:
+                        - generic [ref=e150]:
+                          - generic [ref=e151]: Billed amount for SIM +1-555-2002 (USD)
+                          - textbox "Billed amount for SIM +1-555-2002 (USD)" [invalid] [ref=e152]: "12.00"
+                          - generic [ref=e153]:
+                            - button "Cancel" [ref=e154]
+                            - button "Save" [ref=e155]
+                          - alert [ref=e158]: This invoice was sent. Refresh to see it.
+                        - status [ref=e120]
+            - generic [ref=e121]:
+              - heading "Fee lines" [level=3] [ref=e122]
+              - table [ref=e124]:
+                - rowgroup [ref=e125]:
+                  - row [ref=e126]:
+                    - columnheader "Type" [ref=e127]
+                    - columnheader "Description" [ref=e128]
+                    - columnheader "Logged" [ref=e129]
+                    - columnheader "Amount" [ref=e130]
+                - rowgroup [ref=e131]:
+                  - row [ref=e132]:
+                    - cell "Topup" [ref=e133]
+                    - cell "—" [ref=e134]
+                    - cell "Oct 2" [ref=e135]
+                    - cell "$45.00 Edit" [ref=e136]:
+                      - generic [ref=e137]:
+                        - generic [ref=e138]: $45.00
+                        - button "Edit" [ref=e140]
+                        - status [ref=e141]
+            - generic [ref=e142]:
+              - heading "Carrier invoice files" [level=3] [ref=e143]
+              - paragraph [ref=e146]: No carrier invoice files attached yet.
+  - alert [ref=e147]
+```

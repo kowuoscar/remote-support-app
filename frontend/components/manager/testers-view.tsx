@@ -8,7 +8,7 @@ import { IconClients } from "@/components/icons";
 import { CreateTesterDialog } from "@/components/manager/create-tester-dialog";
 import { Button } from "@/components/ui/button";
 import { ResetPasswordDialog, type ResetPasswordDialogHandle } from "@/components/manager/reset-password-dialog";
-import { useAnnouncement } from "@/components/manager/use-announcement";
+import { useAnnouncement } from "@/components/ui/use-announcement";
 import type { TesterListItem } from "@/lib/api/types";
 
 /**

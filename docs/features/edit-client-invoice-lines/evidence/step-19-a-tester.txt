@@ -1,0 +1,72 @@
+### Page
+- Page URL: http://127.0.0.1:53000/client/invoices
+- Page Title: Invoices · Remote Support Platform
+### Snapshot
+```yaml
+- generic [ref=e1]:
+  - alert [ref=e25]: Invoices · Remote Support Platform
+  - generic [ref=e26]:
+    - complementary [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]: "N"
+        - generic [ref=e30]:
+          - paragraph [ref=e31]: Northwind Field Services
+          - paragraph [ref=e32]: Client Portal
+      - navigation [ref=e33]:
+        - link "Dashboard" [ref=e34] [cursor=pointer]:
+          - /url: /client
+        - link "Fleet" [ref=e40] [cursor=pointer]:
+          - /url: /client/fleet
+        - link "Requests" [ref=e43] [cursor=pointer]:
+          - /url: /client/requests
+        - link "Invoices" [active] [ref=e47] [cursor=pointer]:
+          - /url: /client/invoices
+    - generic [ref=e52]:
+      - banner [ref=e94]:
+        - generic [ref=e96]:
+          - heading "Invoices" [level=1] [ref=e97]
+          - paragraph [ref=e98]: Sent by your Agent, one per Contract per month
+        - generic [ref=e99]:
+          - button "btester@example.com · Tester" [ref=e101]
+          - button "Switch to dark theme" [ref=e103]
+      - main [ref=e107]:
+        - generic [ref=e109]:
+          - generic [ref=e110]: Browser Client — United States
+          - generic [ref=e115]:
+            - generic [ref=e116]:
+              - generic [ref=e117]:
+                - generic [ref=e118]:
+                  - paragraph [ref=e119]: October 2026
+                  - generic [ref=e120]: Awaiting approval
+                - paragraph [ref=e122]: Sent Oct 2, 2026
+              - link "Download PDF" [ref=e123] [cursor=pointer]:
+                - /url: /api/contracts/89463f7c-a2c4-485e-9fec-3c377f2ccd4a/client-invoice/pdf
+            - generic [ref=e127]:
+              - generic [ref=e128]:
+                - term [ref=e129]: Base amount
+                - definition [ref=e130]: $46.40
+              - generic [ref=e131]:
+                - term [ref=e132]: Fees this month
+                - definition [ref=e133]: $45.00
+              - generic [ref=e134]:
+                - term [ref=e135]: Total
+                - definition [ref=e136]: $91.40
+            - generic [ref=e137]:
+              - heading "Fee lines" [level=3] [ref=e138]
+              - table [ref=e140]:
+                - rowgroup [ref=e141]:
+                  - row [ref=e142]:
+                    - columnheader "Type" [ref=e143]
+                    - columnheader "Description" [ref=e144]
+                    - columnheader "Logged" [ref=e145]
+                    - columnheader "Amount" [ref=e146]
+                - rowgroup [ref=e147]:
+                  - row [ref=e148]:
+                    - cell "Topup" [ref=e149]
+                    - cell "—" [ref=e150]
+                    - cell "Oct 2" [ref=e151]
+                    - cell "$45.00" [ref=e152]
+            - generic [ref=e153]:
+              - heading "Carrier invoice files" [level=3] [ref=e154]
+              - paragraph [ref=e157]: No carrier invoice files attached.
+```

@@ -1,7 +1,7 @@
 ---
 id: dead-session-lands-on-sign-in
 title: Send a dead Agent or Tester session to sign-in
-status: in-progress
+status: done
 depends_on: [deactivated-login-refused]
 labels: [frontend]
 stories: [14]

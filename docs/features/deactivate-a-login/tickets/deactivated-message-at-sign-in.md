@@ -1,7 +1,7 @@
 ---
 id: deactivated-message-at-sign-in
 title: Show the deactivated message at sign-in
-status: in-progress
+status: done
 depends_on: [deactivated-login-refused]
 labels: [frontend]
 stories: [11]

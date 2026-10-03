@@ -1,7 +1,7 @@
 ---
 id: approve-deactivate-a-login
 type: approval
-status: open
+status: answered
 blocks: [deactivate-a-login]
 created: 2026-10-02
 ---
@@ -58,3 +58,4 @@ the two approved invoice features are cut.
 
 ## Answer
 
+Approved (2026-10-03), including the five choices taken alone.

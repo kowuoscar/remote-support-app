@@ -1,7 +1,7 @@
 ---
 id: accept-real-client-dashboard
 type: acceptance
-status: open
+status: answered
 blocks: []
 created: 2026-10-02
 ---
@@ -39,3 +39,4 @@ The loop carries on with the invoice features.
 
 ## Answer
 
+Accepted (2026-10-03): steps 13 and 14 checked.

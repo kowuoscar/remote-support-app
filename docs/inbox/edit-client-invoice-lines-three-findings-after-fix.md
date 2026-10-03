@@ -1,7 +1,7 @@
 ---
 id: edit-client-invoice-lines-three-findings-after-fix
 type: question
-status: open
+status: answered
 blocks: [edit-client-invoice-lines]
 created: 2026-10-02
 ---
@@ -47,3 +47,4 @@ The loop moves on to whatever else is unblocked.
 
 ## Answer
 
+Ok (2026-10-03). One extra fix pass for F21, F22 and F23, kept inside the Edit control; then a fresh design re-check and the merge.

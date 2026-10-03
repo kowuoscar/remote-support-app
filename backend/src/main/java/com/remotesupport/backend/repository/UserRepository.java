@@ -34,7 +34,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
   /** Every Agent login in the tenant, in one query — at most one per Agent (V16's unique index). */
   @Query(
-      "SELECT new com.remotesupport.backend.repository.AgentLogin(u.agent.id, u.username)"
+      "SELECT new com.remotesupport.backend.repository.AgentLogin(u.agent.id, u.username, u.deactivatedAt)"
           + " FROM User u WHERE u.tenant.id = :tenantId AND u.agent IS NOT NULL")
   List<AgentLogin> findAgentLoginsByTenantId(@Param("tenantId") UUID tenantId);
 }

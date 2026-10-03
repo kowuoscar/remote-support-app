@@ -658,6 +658,24 @@ public final class AuditLog {
         tenantId);
   }
 
+  /** A Manager deactivating a Login (deactivate-a-login spec, "Observability"); real changes only. */
+  public static void loginDeactivated(UUID subjectUserId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=LOGIN_DEACTIVATED entity=User entityId={} actorUserId={} tenantId={}",
+        subjectUserId,
+        actorUserId,
+        tenantId);
+  }
+
+  /** A Manager reactivating a Login (deactivate-a-login spec, "Observability"); real changes only. */
+  public static void loginReactivated(UUID subjectUserId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=LOGIN_REACTIVATED entity=User entityId={} actorUserId={} tenantId={}",
+        subjectUserId,
+        actorUserId,
+        tenantId);
+  }
+
   public static void fleetItemProvisioned(
       String entity, UUID entityId, UUID contractId, UUID requestId, UUID actorUserId, UUID tenantId) {
     log.info(

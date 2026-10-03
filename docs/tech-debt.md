@@ -52,6 +52,7 @@ separated by ` · `.
 
 ## backend
 
+- `backend/src/main/java/com/remotesupport/backend/web/AuthController.java` · smell: Refusal bodies built in try/catch · sign-in builds its 401 bodies with `Map.of` in a try/catch rather than a per-controller `@ExceptionHandler` (coding-standards Backend 7); followed the file's existing shape · deactivate-a-login · 2026-10-03
 - `backend/src/main/java/com/remotesupport/backend/web/ContractAmountService.java` · smell: Repeated kind filters · the filter-by-kind/map-to-id streams repeat here and in `ClientInvoiceService`; a `ResolvedLine.sourceId()` accessor would remove them · edit-client-invoice-lines · 2026-10-03
 - `backend/src/test/java/com/remotesupport/backend/web/ClientInvoiceLineEditApiTest.java` · smell: Cases that don't name themselves · invalid amounts in a hand-rolled loop and six 404 cases in one `@Test`; use `@ParameterizedTest` · edit-client-invoice-lines · 2026-10-03
 - `backend/src/test/java/com/remotesupport/backend/web/LocalSupportFeesRaceTest.java` · smell: Sleep as proof of blocking · `Thread.sleep(700)` then `isDone()` false can pass vacuously under load; poll `pg_locks`/`pg_stat_activity` instead · edit-client-invoice-lines · 2026-10-03

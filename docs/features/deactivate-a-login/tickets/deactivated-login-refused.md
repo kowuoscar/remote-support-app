@@ -1,7 +1,7 @@
 ---
 id: deactivated-login-refused
 title: Refuse a deactivated Login at sign-in, on every token request and on password change
-status: in-progress
+status: done
 depends_on: []
 labels: [backend]
 stories: [10, 11, 12, 13, 15, 26, 27]

@@ -46,7 +46,7 @@ finds the finished invoices in the history view, filtered by month.
 
 ## Features
 
-- [ ] `edit-client-invoice-lines` — while a Client Invoice is a draft (before its first send, and again after a send-back), its Agent can edit every line, the base amount and each Fee; lines start pre-filled from the computation, because real usage (postpaid included) varies month to month.
+- [x] `edit-client-invoice-lines` — while a Client Invoice is a draft (before its first send, and again after a send-back), its Agent can edit every line, the base amount and each Fee; lines start pre-filled from the computation, because real usage (postpaid included) varies month to month.
 - [ ] `send-a-client-invoice-back` — a Manager returns a sent Client Invoice to the Agent with a reason; it leaves the Review Queue, its numbers go live again, and a resend freezes a fresh snapshot.
 - [ ] `invoice-adjustment` — a Manager records a correction, a credit or a charge with a reason, that lands on the next month's invoice, so an error found after sending or approval is settled forward, never by reopening a past month.
 - [ ] `send-an-agent-invoice-back` — the same for an Agent Invoice, whose snapshot is four scalar columns rather than a membership table.

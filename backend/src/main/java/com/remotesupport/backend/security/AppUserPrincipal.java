@@ -18,6 +18,7 @@ public class AppUserPrincipal implements UserDetails {
   private final String username;
   private final String passwordHash;
   private final String role;
+  private final boolean deactivated;
 
   public AppUserPrincipal(User user) {
     this.userId = user.getId();
@@ -25,6 +26,16 @@ public class AppUserPrincipal implements UserDetails {
     this.username = user.getUsername();
     this.passwordHash = user.getPasswordHash();
     this.role = user.getRole().name();
+    this.deactivated = user.isDeactivated();
+  }
+
+  /**
+   * {@code false} for a deactivated Login. {@link SecurityConfig}'s provider checks it only after
+   * the password, so a wrong password never reveals that the Login is switched off.
+   */
+  @Override
+  public boolean isEnabled() {
+    return !deactivated;
   }
 
   public UUID userId() {

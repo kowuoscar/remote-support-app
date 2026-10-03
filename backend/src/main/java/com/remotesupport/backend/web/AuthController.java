@@ -4,7 +4,9 @@ import com.remotesupport.backend.dto.LoginRequest;
 import com.remotesupport.backend.dto.LoginResponse;
 import com.remotesupport.backend.security.AppUserPrincipal;
 import com.remotesupport.backend.security.JwtService;
+import com.remotesupport.backend.security.LoginDeactivatedException;
 import jakarta.validation.Valid;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -34,12 +36,18 @@ public class AuthController {
   }
 
   @PostMapping("/login")
-  public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+  public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
     Authentication authentication;
     try {
       authentication =
           authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+    } catch (LoginDeactivatedException e) {
+      // Only reachable with the right password (SecurityConfig#authenticationManager), so the
+      // distinct answer reveals nothing to someone who does not hold the password.
+      log.warn(
+          "login refused deactivated userId={} tenantId={}", e.userId(), e.tenantId());
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("code", "LOGIN_DEACTIVATED"));
     } catch (BadCredentialsException e) {
       log.warn("login failed username={}", request.username());
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

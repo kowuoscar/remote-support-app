@@ -6,6 +6,7 @@ import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import com.remotesupport.backend.security.PasswordWrite;
 import com.remotesupport.backend.web.ChangePasswordRefusedException.Reason;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +43,8 @@ public class ChangePasswordService {
    * writes one {@code PASSWORD_CHANGED} audit line. Refuses with {@link
    * ChangePasswordRefusedException} (400, never 401/403 — spec.md Constraints) for a wrong current
    * password or a new password identical to the current one; a failed verification writes no
-   * audit line (spec.md Observability).
+   * audit line (spec.md Observability). A deactivated caller is refused first, with {@link
+   * BadCredentialsException} (401), before any verification.
    */
   @Transactional
   public void changeOwnPassword(
@@ -55,6 +57,12 @@ public class ChangePasswordService {
                     new IllegalStateException(
                         "Authenticated user " + principal.userId() + " has no User row"));
 
+    // Defence in depth behind JwtAuthenticationFilter: checks the same flag sign-in checks, so the
+    // two cannot drift apart. Refused before anything is verified. Not a ChangePasswordRefused
+    // (400): the session is no longer valid, which the frontend reads as 401.
+    if (user.isDeactivated()) {
+      throw new BadCredentialsException("Login is deactivated");
+    }
     if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
       throw new ChangePasswordRefusedException(
           Reason.WRONG_CURRENT_PASSWORD, "The current password is incorrect");

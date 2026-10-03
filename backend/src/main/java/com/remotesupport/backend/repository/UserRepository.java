@@ -23,6 +23,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
   @Query("SELECT COUNT(u) > 0 FROM User u WHERE lower(trim(u.username)) = lower(trim(:username))")
   boolean existsByUsernameNormalized(@Param("username") String username);
 
+  /** Whether this Login exists and is not deactivated: the per-request Login-state check. */
+  boolean existsByIdAndDeactivatedAtIsNull(UUID id);
+
   boolean existsByAgentId(UUID agentId);
 
   /** An Agent's own login, if it has one (at most one, per V16's unique index) — demo-story-loader

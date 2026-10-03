@@ -53,4 +53,20 @@ public class User {
 
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
+
+  /** When this Login was switched off; {@code null} while it is active. */
+  @Column(name = "deactivated_at")
+  private Instant deactivatedAt;
+
+  public boolean isDeactivated() {
+    return deactivatedAt != null;
+  }
+
+  public void deactivate(Instant now) {
+    this.deactivatedAt = now;
+  }
+
+  public void reactivate() {
+    this.deactivatedAt = null;
+  }
 }

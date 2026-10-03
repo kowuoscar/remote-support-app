@@ -154,6 +154,33 @@ describe("AgentClientInvoicesView", () => {
       expect(within(screen.getByRole("row", { name: /Topup/ })).getByRole("button", { name: "Edit" })).toBeInTheDocument();
     });
 
+    it("F23: Fees of one type logged the same day with no description get distinct names; long descriptions are cut", () => {
+      const long = "A".repeat(120);
+      render(
+        <AgentClientInvoicesView
+          contracts={[CONTRACT]}
+          invoicesByContract={{
+            "contract-1": invoice({
+              totalAmount: 100,
+              feeLines: [
+                FEE,
+                { ...FEE, id: "fee-2" },
+                { ...FEE, id: "fee-3", feeType: "REPLACE_SIM" as const, description: long },
+              ],
+            }),
+          }}
+        />,
+      );
+
+      const names = screen.getAllByRole("button", { name: "Edit" }).map((b) => b.getAttribute("aria-describedby"));
+      const labels = names.map((id) => document.getElementById(id!)!.textContent!);
+      expect(new Set(labels).size).toBe(3);
+      expect(labels[0]).toContain("1 of 2");
+      expect(labels[1]).toContain("2 of 2");
+      expect(labels[2].length).toBeLessThan(90);
+      expect(labels[2]).toContain("…");
+    });
+
     it("no-edit-or-reset-on-sent-invoice, yet the marker stays", () => {
       render(
         <AgentClientInvoicesView

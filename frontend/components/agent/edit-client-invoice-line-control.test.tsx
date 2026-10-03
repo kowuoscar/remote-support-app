@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
-import { stubFetch } from "@/tests/component/fetch";
+import { stubFetch, stubPendingFetch } from "@/tests/component/fetch";
 import { mockRouter } from "@/tests/component/next-navigation";
 import { EditClientInvoiceLineControl } from "./edit-client-invoice-line-control";
 
@@ -155,5 +155,70 @@ describe("EditClientInvoiceLineControl", () => {
 
     await screen.findByRole("alert");
     await waitFor(() => expect(screen.getByRole("button", { name: "Reset" })).toHaveFocus());
+  });
+  it("F22: Escape closes the editor whichever of its controls has focus", async () => {
+    stubFetch(200, {});
+    renderControl();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    screen.getByRole("button", { name: "Cancel" }).focus();
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit" })).toHaveFocus();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    screen.getByRole("button", { name: "Save" }).focus();
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit" })).toHaveFocus();
+  });
+
+  it("F21: Reset keeps keyboard focus while in flight, ignores repeat activation, then hands focus on", async () => {
+    const { fetchMock, respond } = stubPendingFetch();
+    renderControl({ amount: 31.4, computedAmount: 25, edited: true });
+
+    const reset = screen.getByRole("button", { name: "Reset" });
+    reset.focus();
+    await userEvent.keyboard("{Enter}");
+
+    expect(reset).toHaveFocus();
+    expect(reset).not.toBeDisabled();
+    expect(reset).toHaveAttribute("aria-disabled", "true");
+    expect(reset).toHaveAttribute("aria-busy", "true");
+    await userEvent.keyboard("{Enter}");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    respond(200, {});
+    await waitFor(() => expect(screen.getByRole("button", { name: "Edit" })).toHaveFocus());
+  });
+
+  it("F21: a button-pressed Save keeps keyboard focus while in flight", async () => {
+    const { fetchMock, respond } = stubPendingFetch();
+    renderControl();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    const save = screen.getByRole("button", { name: "Save" });
+    save.focus();
+    await userEvent.keyboard("{Enter}");
+
+    expect(save).toHaveFocus();
+    expect(save).not.toBeDisabled();
+    expect(save).toHaveAttribute("aria-disabled", "true");
+    expect(save).toHaveAttribute("aria-busy", "true");
+    await userEvent.keyboard("{Enter}");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    respond(200, {});
+    await waitFor(() => expect(screen.getByRole("button", { name: "Edit" })).toHaveFocus());
+  });
+
+  it("F24: a refused Reset points at its error as well as the line", async () => {
+    stubFetch(500);
+    renderControl({ amount: 31.4, computedAmount: 25, edited: true });
+
+    await userEvent.click(screen.getByRole("button", { name: "Reset" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(screen.getByRole("button", { name: "Reset" }).getAttribute("aria-describedby")).toContain(alert.id);
   });
 });

@@ -23,6 +23,15 @@ async function failureMessage(response: Response): Promise<string> {
   return RETRY_MESSAGE;
 }
 
+function Spinner() {
+  return (
+    <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2.5" opacity="0.25" />
+      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 /**
  * The amount cell of one editable line (a Postpaid SIM or a Fee) on a draft Client Invoice
  * (edit-client-invoice-lines ticket): the billed amount, with an Edit row action that opens an
@@ -121,9 +130,14 @@ export function EditClientInvoiceLineControl({
     if (await save(value, `${label} saved.`, "field")) close();
   }
 
-  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+  function handleKeyDown(event: KeyboardEvent<HTMLFormElement>) {
     if (event.key === "Escape" && !pending) close();
   }
+
+  // A pending control stays focusable (native `disabled` would drop keyboard focus to the page):
+  // it is marked aria-disabled + aria-busy and its repeat activation is ignored instead.
+  const busyProps = pending ? ({ "aria-disabled": true, "aria-busy": true } as const) : {};
+  const busyClass = pending ? "cursor-not-allowed opacity-50" : undefined;
 
   const errorNote = error ? (
     <p id={errorId} role="alert" className="flex items-start gap-1.5 text-label-sm text-danger">
@@ -135,7 +149,7 @@ export function EditClientInvoiceLineControl({
   return (
     <div className="relative flex flex-col items-end gap-1.5">
       {editing ? (
-        <form onSubmit={handleSubmit} className="flex flex-col items-end gap-2">
+        <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="flex flex-col items-end gap-2">
           <label htmlFor={inputId} className="sr-only">
             Billed amount for {label} ({currency})
           </label>
@@ -149,7 +163,6 @@ export function EditClientInvoiceLineControl({
               inputMode="decimal"
               value={value}
               onChange={(event) => setValue(event.target.value)}
-              onKeyDown={handleKeyDown}
               readOnly={pending}
               aria-busy={pending || undefined}
               aria-describedby={error ? errorId : undefined}
@@ -161,7 +174,8 @@ export function EditClientInvoiceLineControl({
             <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={close}>
               Cancel
             </Button>
-            <Button type="submit" variant="secondary" size="sm" loading={pending}>
+            <Button type="submit" variant="secondary" size="sm" {...busyProps} className={busyClass}>
+              {pending ? <Spinner /> : null}
               Save
             </Button>
           </div>
@@ -185,10 +199,12 @@ export function EditClientInvoiceLineControl({
                 type="button"
                 variant="ghost"
                 size="sm"
-                loading={pending}
-                aria-describedby={labelId}
-                onClick={() => void save(computedAmount.toFixed(2), `${label} reset to its computed amount.`, "reset")}
+                {...busyProps}
+                className={busyClass}
+                aria-describedby={error ? `${labelId} ${errorId}` : labelId}
+                onClick={() => !pending && void save(computedAmount.toFixed(2), `${label} reset to its computed amount.`, "reset")}
               >
+                {pending ? <Spinner /> : null}
                 Reset
               </Button>
             ) : null}

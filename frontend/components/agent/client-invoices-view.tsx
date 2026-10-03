@@ -16,6 +16,31 @@ import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from 
 import { formatDate, formatDateShort, formatLocalDate } from "@/lib/format";
 import { FEE_TYPE_LABEL, type ClientInvoiceDetail, type EditableClientInvoiceLineKind } from "@/lib/api/types";
 
+const FEE_LABEL_DESCRIPTION_MAX = 40;
+
+/**
+ * Names each Fee line for assistive tech: type, day and a shortened description; Fees that would
+ * still share a name (same type and day, no or equal description) get their ordinal among them.
+ */
+function feeLabels(fees: ClientInvoiceDetail["feeLines"]): string[] {
+  const base = fees.map((fee) => {
+    const description = fee.description?.trim();
+    const shown =
+      description && description.length > FEE_LABEL_DESCRIPTION_MAX
+        ? `${description.slice(0, FEE_LABEL_DESCRIPTION_MAX - 1).trimEnd()}…`
+        : description;
+    return `${FEE_TYPE_LABEL[fee.feeType]} Fee, ${formatDateShort(fee.createdAt)}${shown ? ` — ${shown}` : ""}`;
+  });
+  const seen = new Map<string, number>();
+  return base.map((label) => {
+    const total = base.filter((other) => other === label).length;
+    if (total === 1) return label;
+    const ordinal = (seen.get(label) ?? 0) + 1;
+    seen.set(label, ordinal);
+    return `${label} (${ordinal} of ${total})`;
+  });
+}
+
 function billingMonthLabel(billingMonth: string): string {
   // billingMonth is always a first-of-month ISO date (e.g. "2026-09-01") — parsed as UTC so it
   // never rolls back to the previous month in a timezone behind UTC.
@@ -87,6 +112,7 @@ export function AgentClientInvoicesView({
   const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
   const invoice = invoicesByContract[contractId];
   const editable = invoice?.status === "DRAFT";
+  const feeLabelList = invoice ? feeLabels(invoice.feeLines) : [];
 
   if (contracts.length === 0) {
     return (
@@ -241,7 +267,7 @@ export function AgentClientInvoicesView({
                     </Tr>
                   </Thead>
                   <Tbody>
-                    {invoice.feeLines.map((fee) => (
+                    {invoice.feeLines.map((fee, index) => (
                       <Tr key={fee.id}>
                         <Td className="font-medium text-ink">{FEE_TYPE_LABEL[fee.feeType]}</Td>
                         <Td className="text-ink-secondary">{fee.description ?? "—"}</Td>
@@ -252,7 +278,7 @@ export function AgentClientInvoicesView({
                             contractId={contractId}
                             kind="FEE"
                             sourceId={fee.id}
-                            label={`${FEE_TYPE_LABEL[fee.feeType]} Fee, ${formatDateShort(fee.createdAt)}${fee.description ? ` — ${fee.description}` : ""}`}
+                            label={feeLabelList[index]}
                             amount={fee.amount}
                             computedAmount={fee.computedAmount}
                             edited={fee.edited}

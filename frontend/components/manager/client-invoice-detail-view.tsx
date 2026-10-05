@@ -7,6 +7,7 @@ import { BilledAmount } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
 import { IconDownload, IconPaperclip } from "@/components/icons";
 import { ApproveClientInvoiceControl } from "@/components/manager/approve-client-invoice-control";
+import { SendBackClientInvoiceControl } from "@/components/manager/send-back-client-invoice-control";
 import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from "@/lib/status";
 import { formatBillingMonth, formatDate, formatLocalDate } from "@/lib/format";
 import { FEE_TYPE_LABEL, type ClientInvoiceDetail } from "@/lib/api/types";
@@ -14,6 +15,9 @@ import { FEE_TYPE_LABEL, type ClientInvoiceDetail } from "@/lib/api/types";
 function statusNote(invoice: ClientInvoiceDetail): string {
   switch (invoice.status) {
     case "DRAFT":
+      if (invoice.sentBackAt) {
+        return `Sent back to the Agent on ${formatDate(invoice.sentBackAt)} — waiting for them to resend`;
+      }
       return "Still being assembled by the Agent — nothing to review yet";
     case "SENT":
       return "Base amount and Fee lines are locked to what the Agent sent";
@@ -51,6 +55,11 @@ export function ClientInvoiceDetailView({ invoice: initial }: { invoice: ClientI
               {invoice.approvedAt ? ` · Approved ${formatDate(invoice.approvedAt)}` : ""}
             </p>
           ) : null}
+          {invoice.status === "SENT" && invoice.sentBackAt ? (
+            <p className="mt-0.5 text-[12px] text-ink-mute">
+              Previously sent back on {formatDate(invoice.sentBackAt)}: {invoice.sentBackReason}
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-start gap-2">
           {invoice.status !== "DRAFT" ? (
@@ -63,10 +72,19 @@ export function ClientInvoiceDetailView({ invoice: initial }: { invoice: ClientI
             </a>
           ) : null}
           {invoice.status === "SENT" ? (
-            <ApproveClientInvoiceControl invoiceId={invoice.id} onApproved={setInvoice} />
+            <>
+              <SendBackClientInvoiceControl endpoint={`${base}/send-back`} onSentBack={setInvoice} />
+              <ApproveClientInvoiceControl invoiceId={invoice.id} onApproved={setInvoice} />
+            </>
           ) : null}
         </div>
       </div>
+
+      {invoice.status === "DRAFT" && invoice.sentBackAt && invoice.sentBackReason ? (
+        <blockquote className="rounded-lg border border-hairline bg-canvas-soft px-4 py-3 text-label text-ink">
+          <p className="whitespace-pre-wrap break-words">{invoice.sentBackReason}</p>
+        </blockquote>
+      ) : null}
 
       <dl className="grid grid-cols-2 gap-4 rounded-lg border border-hairline bg-canvas-soft p-4 sm:grid-cols-3">
         <div>

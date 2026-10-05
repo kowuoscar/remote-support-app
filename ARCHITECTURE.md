@@ -49,6 +49,7 @@ error, not a nitpick.
 - `client` · components specific to the Client Portal.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
 - `frontend/components/manager/login-activation-dialog.tsx` · the shared confirm dialog a Manager uses to deactivate or reactivate a Login.
+- `frontend/components/manager/send-back-client-invoice-control.tsx` · inline reason form that POSTs a send-back to a given endpoint and hands the returned invoice to its caller.
 - `fleet` · smartphones, SIM cards, installation and serial editing.
 - `carriers` · the carrier catalog and its pickers.
 - `requests` · the request and provisioning workflow.

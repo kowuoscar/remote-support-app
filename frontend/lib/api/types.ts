@@ -540,6 +540,9 @@ export interface ClientInvoiceDetail {
   files: CarrierInvoiceFileListItem[];
   sentAt: string | null;
   approvedAt: string | null;
+  /** The most recent send-back's time and Manager's reason; null (or absent) if never sent back. Never sent to a Tester. */
+  sentBackAt?: string | null;
+  sentBackReason?: string | null;
 }
 
 // Mirrors backend/.../domain/StandingAmountType.java

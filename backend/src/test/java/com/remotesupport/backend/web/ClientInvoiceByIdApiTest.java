@@ -372,10 +372,16 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
     UUID fileId = attachFile(agentToken, contractId, "carrier.pdf", "x");
     UUID invoiceId = send(agentToken, contractId);
 
-    for (String token : List.of(agentToken, testerToken)) {
-      for (MockHttpServletRequestBuilder route : everyByIdRoute(invoiceId, fileId)) {
-        mockMvc.perform(route.header("Authorization", "Bearer " + token)).andExpect(status().isForbidden());
-      }
+    // The Contract's own Agent reads its invoice and files by id since send-a-client-invoice-back;
+    // what stays refused to it is the PDF and the Manager's approve.
+    for (MockHttpServletRequestBuilder route :
+        List.of(
+            get("/api/client-invoices/" + invoiceId + "/pdf"),
+            post("/api/client-invoices/" + invoiceId + "/approve"))) {
+      mockMvc.perform(route.header("Authorization", "Bearer " + agentToken)).andExpect(status().isForbidden());
+    }
+    for (MockHttpServletRequestBuilder route : everyByIdRoute(invoiceId, fileId)) {
+      mockMvc.perform(route.header("Authorization", "Bearer " + testerToken)).andExpect(status().isForbidden());
     }
     mockMvc
         .perform(get("/api/client-invoices/" + invoiceId).header("Authorization", "Bearer " + managerToken))

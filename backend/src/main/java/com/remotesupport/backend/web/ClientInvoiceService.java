@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -153,6 +155,7 @@ public class ClientInvoiceService {
       throw new ConflictException(
           "Cannot attach a carrier invoice file to a Client Invoice that has already been sent");
     }
+    requireOpenToAgent(invoice);
 
     CarrierInvoiceFile carrierFile = new CarrierInvoiceFile();
     carrierFile.setId(UUID.randomUUID());
@@ -314,6 +317,7 @@ public class ClientInvoiceService {
     if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
       throw new ConflictException("Cannot edit a line of a Client Invoice that is " + invoice.getStatus());
     }
+    requireOpenToAgent(invoice);
     UUID wantedSource = kind == ClientInvoiceLineKind.BASE_AMOUNT ? null : sourceId;
     ResolvedLine line =
         lines(invoice).stream()
@@ -348,6 +352,26 @@ public class ClientInvoiceService {
     return toResponse(invoice, true);
   }
 
+  /**
+   * Whether a draft is open to its Agent: sent back, or of the current billing month (UTC). A past
+   * month's draft that was never sent is not, because its lines could only be pre-filled from
+   * today's Fleet and Fees, so a month would be billed for the first time late.
+   */
+  private boolean isOpenToAgent(ClientInvoice invoice) {
+    return invoice.getStatus() == ClientInvoiceStatus.DRAFT
+        && (invoice.getSentBackAt() != null
+            || invoice.getBillingMonth().equals(LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1)));
+  }
+
+  /** The one gate of every write on a draft: one not open to its Agent is a coded 409. */
+  private void requireOpenToAgent(ClientInvoice invoice) {
+    if (invoice.getStatus() == ClientInvoiceStatus.DRAFT && !isOpenToAgent(invoice)) {
+      throw new ClientInvoiceConflictException(
+          ClientInvoiceConflictException.Reason.PAST_MONTH_DRAFT_NOT_SENDABLE,
+          "A past month's draft that was never sent cannot be sent or changed");
+    }
+  }
+
   private static UUID sourceOf(ResolvedLine line) {
     return switch (line.kind()) {
       case POSTPAID_SIM -> line.simCard().getId();
@@ -370,6 +394,7 @@ public class ClientInvoiceService {
     if (!oldStatus.canTransitionTo(ClientInvoiceStatus.SENT)) {
       throw new ConflictException("Cannot send a Client Invoice from status " + oldStatus);
     }
+    requireOpenToAgent(invoice);
 
     boolean neverSent = !invoice.isLinesStored();
     for (ResolvedLine line : lines(invoice)) {

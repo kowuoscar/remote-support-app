@@ -198,6 +198,23 @@ public class SecurityConfig {
                     // Which Agent's Stock a caller may see is enforced in StockController.
                     .requestMatchers("/api/stock", "/api/stock/**")
                     .hasAnyRole("MANAGER", "AGENT")
+                    // send-a-client-invoice-back spec: the Contract's own Agent reaches its Client
+                    // Invoice by id. Approve, send-back and the PDF keep a Manager-only matcher
+                    // placed first, so role enforcement never rests on the guard alone; which
+                    // Contract's invoice is checked per request in ClientInvoiceAccessGuard.
+                    .requestMatchers(
+                        HttpMethod.POST, "/api/client-invoices/*/approve", "/api/client-invoices/*/send-back")
+                    .hasRole("MANAGER")
+                    .requestMatchers(HttpMethod.GET, "/api/client-invoices/*/pdf")
+                    .hasRole("MANAGER")
+                    .requestMatchers(HttpMethod.PUT, "/api/client-invoices/*/lines")
+                    .hasRole("AGENT")
+                    .requestMatchers(HttpMethod.POST, "/api/client-invoices/*/send")
+                    .hasRole("AGENT")
+                    .requestMatchers(HttpMethod.GET, "/api/client-invoices/*", "/api/client-invoices/*/files", "/api/client-invoices/*/files/*")
+                    .hasAnyRole("MANAGER", "AGENT")
+                    .requestMatchers(HttpMethod.POST, "/api/client-invoices/*/files")
+                    .hasAnyRole("MANAGER", "AGENT")
                     .requestMatchers("/api/review-queue","/api/client-invoices/**", "/api/agent-invoices/**")
                     .hasRole("MANAGER")
                     // manager-approves-requests ticket: the Pending Requests list and a Request's

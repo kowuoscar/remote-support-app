@@ -4,14 +4,15 @@
     {
       "id": "F1",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceService.java:666",
       "citation": "spec.md, Backend: the Agent reaches an invoice by its id: \"| `POST …/files` (new) | yes | yes, open to its Agent only (409 otherwise) | 403 |\" and \"One predicate in `ClientInvoiceService`, **open to its Agent**, ... gates every Agent write by id\"",
       "note": "attachFile calls requireOpenToAgent whatever the caller's role, so a Manager attaching a file by id to a past-month never-sent draft gets 409 PAST_MONTH_DRAFT_NOT_SENDABLE; the table gives the Manager an unconditional yes. Apply the check only for an Agent caller, with a test.",
-      "fixed_in": "313a9f9"
+      "fixed_in": "313a9f9",
+      "confirmed_by": "reviewer-spec (fresh, re-review)"
     },
     {
       "id": "F2",

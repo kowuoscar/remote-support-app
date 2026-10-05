@@ -1,7 +1,7 @@
 ---
 id: agent-opens-a-client-invoice-on-its-own-page
 title: Let the Agent open, correct and resend a Client Invoice on its own page
-status: in-progress
+status: done
 depends_on: [agent-client-invoice-card-addresses-the-invoice-by-id, manager-send-back-control-on-the-client-invoice-page]
 labels: [frontend]
 stories: [15, 16, 17, 18, 19, 20, 21, 24, 25, 35]

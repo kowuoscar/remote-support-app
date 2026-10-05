@@ -1,7 +1,7 @@
 ---
 id: accept-edit-client-invoice-lines
 type: acceptance
-status: open
+status: answered
 blocks: []
 created: 2026-10-03
 ---
@@ -41,3 +41,4 @@ Nothing.
 
 ## Answer
 
+Accepted (2026-10-05): steps 22 and 23 checked.

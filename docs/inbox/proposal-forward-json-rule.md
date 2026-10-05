@@ -1,7 +1,7 @@
 ---
 id: proposal-forward-json-rule
 type: proposal
-status: open
+status: answered
 blocks: []
 created: 2026-10-03
 ---
@@ -37,3 +37,4 @@ Nothing waits on it.
 
 ## Answer
 
+Ok (2026-10-05): name `forwardJson` in Frontend 13; old hand-written routes switch when next touched.

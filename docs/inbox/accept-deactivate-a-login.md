@@ -1,7 +1,7 @@
 ---
 id: accept-deactivate-a-login
 type: acceptance
-status: open
+status: answered
 blocks: []
 created: 2026-10-05
 ---
@@ -42,3 +42,4 @@ The login epic closes, and the loop moves on to `send-a-client-invoice-back`.
 
 ## Answer
 
+Accepted (2026-10-05): steps 21–23 checked.

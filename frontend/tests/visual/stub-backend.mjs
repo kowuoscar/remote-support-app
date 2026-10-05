@@ -202,6 +202,8 @@ const CLIENT = {
 const CLIENT_TESTERS = [
   { id: "33333333-0000-0000-0000-000000000001", clientId: CLIENT.id, username: "priya.raman@aurora.example", isPrimaryContact: true },
   { id: "33333333-0000-0000-0000-000000000003", clientId: CLIENT.id, username: "nadia.okafor@aurora.example", isPrimaryContact: false },
+  // deactivate-a-login: a Tester whose Login is deactivated, for the reactivate confirm step.
+  { id: "33333333-0000-0000-0000-000000000004", clientId: CLIENT.id, username: "tomas.lindqvist@aurora.example", isPrimaryContact: false, deactivatedAt: "2026-10-02T09:14:00Z" },
 ];
 
 const STOCK_UNITS = [

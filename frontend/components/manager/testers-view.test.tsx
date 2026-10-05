@@ -11,9 +11,14 @@ const testers: TesterListItem[] = [
   { id: "t-3", clientId: "client-1", username: "cleo@client.example", isPrimaryContact: false },
 ];
 
-function renderView() {
-  return render(<ManagerTestersView clientId="client-1" testers={testers} />);
+function renderView(list: TesterListItem[] = testers) {
+  return render(<ManagerTestersView clientId="client-1" testers={list} />);
 }
+
+const withDeactivated: TesterListItem[] = [
+  ...testers.slice(0, 2),
+  { ...testers[2], deactivatedAt: "2026-10-02T09:14:00Z" },
+];
 
 describe("ManagerTestersView reset password", () => {
   it("offers one Reset password action per Tester, each named with that Tester's email", () => {
@@ -31,7 +36,7 @@ describe("ManagerTestersView reset password", () => {
     renderView();
 
     const dialogs = Array.from(document.querySelectorAll("dialog"));
-    expect(dialogs).toHaveLength(2); // Add tester + the one reset dialog, however many rows
+    expect(dialogs).toHaveLength(4); // Add tester + the one reset, deactivate and reactivate dialogs, however many rows
     expect(document.querySelectorAll("dialog form")).toHaveLength(0);
   });
 
@@ -89,5 +94,114 @@ describe("ManagerTestersView reset password", () => {
     renderView();
     expect(screen.getByRole("columnheader", { name: "Actions" })).toHaveClass("text-right");
     expect(screen.getAllByRole("cell", { name: "Actions" })[0]).toHaveClass("text-right");
+  });
+});
+
+describe("ManagerTestersView deactivate and reactivate login", () => {
+  it("active-tester-shows-reset-and-deactivate-named-with-email", () => {
+    renderView(withDeactivated);
+
+    const row = screen.getByRole("row", { name: /ben@client\.example/ });
+    const buttons = within(row).getAllByRole("button");
+    expect(buttons.map((b) => b.getAttribute("aria-label"))).toEqual([
+      "Reset password for ben@client.example",
+      "Deactivate login for ben@client.example",
+    ]);
+    expect(within(row).queryByText("Deactivated")).not.toBeInTheDocument();
+  });
+
+  it("deactivated-tester-shows-tag-in-email-cell-and-reactivate", () => {
+    renderView(withDeactivated);
+
+    const row = screen.getByRole("row", { name: /cleo@client\.example/ });
+    const buttons = within(row).getAllByRole("button");
+    expect(buttons.map((b) => b.getAttribute("aria-label"))).toEqual([
+      "Reset password for cleo@client.example",
+      "Reactivate login for cleo@client.example",
+    ]);
+    const emailCell = within(row).getByRole("cell", {
+      name: /cleo@client\.example/,
+    });
+    expect(within(emailCell).getByText("Deactivated")).toBeInTheDocument();
+    expect(within(emailCell).getByText("Deactivated since 2 Oct 2026")).toBeInTheDocument();
+    expect(within(row).getByText("Tester")).toBeInTheDocument();
+  });
+
+  it("deactivate-confirm-calls-the-tester-route-closes-and-announces", async () => {
+    const fetchMock = stubFetch(200, { deactivatedAt: "2026-10-05T10:00:00Z" });
+    renderView(withDeactivated);
+    const trigger = screen.getByRole("button", {
+      name: "Deactivate login for ben@client.example",
+    });
+
+    await userEvent.click(trigger);
+    const dialog = screen.getByRole("dialog");
+    expect(
+      within(dialog).getByRole("heading", {
+        name: "Deactivate login for ben@client.example",
+      }),
+    ).toBeInTheDocument();
+    await userEvent.click(within(dialog).getByRole("button", { name: "Deactivate login" }));
+
+    expect(fetchMock).toHaveBeenCalledWith("/api/clients/client-1/testers/t-2/deactivate", { method: "POST" });
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent("Login deactivated for ben@client.example."),
+    );
+    expect(trigger).toHaveFocus();
+  });
+
+  it("reactivate-confirm-calls-the-tester-route", async () => {
+    const fetchMock = stubFetch(200, {});
+    renderView(withDeactivated);
+
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: "Reactivate login for cleo@client.example",
+      }),
+    );
+    const dialog = screen.getByRole("dialog");
+    await userEvent.click(within(dialog).getByRole("button", { name: "Reactivate login" }));
+
+    expect(fetchMock).toHaveBeenCalledWith("/api/clients/client-1/testers/t-3/reactivate", { method: "POST" });
+    await waitFor(() =>
+      expect(screen.getByRole("status")).toHaveTextContent("Login reactivated for cleo@client.example."),
+    );
+  });
+
+  it("cancel-sends-nothing", async () => {
+    const fetchMock = stubFetch(200, {});
+    renderView(withDeactivated);
+
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: "Deactivate login for ben@client.example",
+      }),
+    );
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: "Cancel",
+      }),
+    );
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(screen.getByRole("status")).toBeEmptyDOMElement();
+  });
+
+  it("404-shows-no-longer-exists-message", async () => {
+    stubFetch(404);
+    renderView(withDeactivated);
+
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: "Deactivate login for ben@client.example",
+      }),
+    );
+    await userEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: "Deactivate login",
+      }),
+    );
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("ben@client.example no longer exists.");
   });
 });

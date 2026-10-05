@@ -55,4 +55,25 @@ public interface ClientInvoiceRepository extends JpaRepository<ClientInvoice, UU
       """)
   List<ClientInvoiceQueueRow> findQueueRows(
       @Param("tenantId") UUID tenantId, @Param("status") ClientInvoiceStatus status);
+
+  /**
+   * The {@code DRAFT} invoices an Agent's Contracts have had sent back, oldest send-back first, any
+   * Contract and billing month. A resent invoice is {@code SENT} again, so it is no longer here.
+   */
+  @Query(
+      """
+      select new com.remotesupport.backend.repository.ClientInvoiceSentBackRow(
+          ci.id, c.id, cl.name, a.country, ci.billingMonth, ci.currency,
+          ci.sentBackAt, ci.sentBackReason)
+      from ClientInvoice ci
+      join ci.contract c
+      join c.client cl
+      join c.agent a
+      where ci.tenant.id = :tenantId and a.id = :agentId
+        and ci.status = com.remotesupport.backend.domain.ClientInvoiceStatus.DRAFT
+        and ci.sentBackAt is not null
+      order by ci.sentBackAt asc, ci.id asc
+      """)
+  List<ClientInvoiceSentBackRow> findSentBackRows(
+      @Param("tenantId") UUID tenantId, @Param("agentId") UUID agentId);
 }

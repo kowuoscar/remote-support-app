@@ -85,10 +85,13 @@ public class ClientInvoiceService {
 
   /**
    * Approves a sent Client Invoice ({@code SENT -> APPROVED}); any other status is a clean {@link
-   * ConflictException} (409), never a silent no-op. Logs the status-transition audit event.
+   * ConflictException} (409), never a silent no-op. Logs the status-transition audit event. The
+   * invoice is re-read under the row lock send, edit and send-back take, so an approval racing a
+   * send-back runs after it and gets 409.
    */
   @Transactional
-  public ClientInvoiceResponse approve(ClientInvoice invoice, AuthenticatedPrincipal principal) {
+  public ClientInvoiceResponse approve(ClientInvoice found, AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
     ClientInvoiceStatus oldStatus = invoice.getStatus();
     if (!oldStatus.canTransitionTo(ClientInvoiceStatus.APPROVED)) {
       throw new ConflictException("Cannot approve a Client Invoice from status " + oldStatus);
@@ -204,7 +207,42 @@ public class ClientInvoiceService {
         total(lines),
         files(invoice),
         invoice.getSentAt(),
-        invoice.getApprovedAt());
+        invoice.getApprovedAt(),
+        includeEdits ? invoice.getSentBackAt() : null,
+        includeEdits ? invoice.getSentBackReason() : null);
+  }
+
+  /**
+   * A Manager's send-back ({@code SENT -> DRAFT}, ADR 0005) as one transaction under the row lock
+   * approve, send and edit take. Touches no line and leaves {@code linesStored} set: the draft
+   * carries the stored lines it was sent with, nothing recomputed. Clears {@code sentAt}, records
+   * {@code sentBackAt} and the reason. The audit line names who and which invoice, never the
+   * reason's text.
+   */
+  @Transactional
+  public ClientInvoiceResponse sendBack(
+      ClientInvoice found, String reason, AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
+    ClientInvoiceStatus oldStatus = invoice.getStatus();
+    if (!oldStatus.canTransitionTo(ClientInvoiceStatus.DRAFT)) {
+      throw new ConflictException("Cannot send a Client Invoice back from status " + oldStatus);
+    }
+
+    invoice.setStatus(ClientInvoiceStatus.DRAFT);
+    invoice.setSentAt(null);
+    invoice.setSentBackAt(Instant.now());
+    invoice.setSentBackReason(reason);
+    clientInvoiceRepository.save(invoice);
+
+    AuditLog.statusChanged(
+        "ClientInvoice",
+        invoice.getId(),
+        oldStatus.name(),
+        ClientInvoiceStatus.DRAFT.name(),
+        principal.userId(),
+        principal.tenantId());
+
+    return toResponse(invoice, true);
   }
 
   /**

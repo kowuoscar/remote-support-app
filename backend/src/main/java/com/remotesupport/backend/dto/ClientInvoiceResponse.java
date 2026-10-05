@@ -23,6 +23,10 @@ import java.util.UUID;
  * Solution, "Billing a cancelled Postpaid SIM"). {@code null} once the invoice is {@code
  * SENT}/{@code APPROVED} — there is no per-unit breakdown of the frozen {@code
  * snapshotBaseAmount} to serve (ADR 0001).
+ *
+ * <p>{@code sentBackAt}/{@code sentBackReason} (send-a-client-invoice-back) are the latest
+ * send-back; {@code null} if never sent back, and always {@code null} for a Tester caller, to whom
+ * the reason (a note from the Manager to the Agent) is not part of the statement.
  */
 public record ClientInvoiceResponse(
     UUID id,
@@ -36,4 +40,6 @@ public record ClientInvoiceResponse(
     BigDecimal totalAmount,
     List<CarrierInvoiceFileResponse> files,
     Instant sentAt,
-    Instant approvedAt) {}
+    Instant approvedAt,
+    Instant sentBackAt,
+    String sentBackReason) {}

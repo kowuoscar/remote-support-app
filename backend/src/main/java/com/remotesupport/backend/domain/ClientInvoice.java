@@ -93,4 +93,16 @@ public class ClientInvoice {
    */
   @Column(name = "lines_stored", nullable = false)
   private boolean linesStored;
+
+  /**
+   * When a Manager last sent this invoice back to draft; {@code null} if never. Stays on the row
+   * through the resend and is overwritten by the next send-back. A {@code DRAFT} carrying it is
+   * "sent back" (send-a-client-invoice-back spec).
+   */
+  @Column(name = "sent_back_at")
+  private Instant sentBackAt;
+
+  /** The Manager's reason for the latest send-back; a note to the Agent, never shown to a Tester. */
+  @Column(name = "sent_back_reason", length = 1000)
+  private String sentBackReason;
 }

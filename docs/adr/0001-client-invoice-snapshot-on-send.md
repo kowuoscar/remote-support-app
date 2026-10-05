@@ -64,3 +64,7 @@ Freeze the numbers at the moment of the `draft -> sent` transition:
 ## Note (2026-10-02)
 
 Amended by ADR 0004: a draft's lines are pre-filled by the computation and editable by the Agent; the snapshot at send stores lines, not Fee membership; a stored line is never recomputed.
+
+## Note (2026-10-05)
+
+Amended by ADR 0005: `sent -> draft` by a Manager's send-back; the stored lines it was sent with become the draft's editable lines, nothing recomputed, and a late Fee of that month joins as a new line; `approved` stays terminal.

@@ -42,11 +42,11 @@ export function ClientInvoiceDetailView({ invoice: initial }: { invoice: ClientI
   const previousStatus = useRef(initial.status);
 
   // A send-back or approval swaps the controls the Manager was on for the new state, so the status
-  // note takes focus (tabIndex -1) instead of focus falling to the page; first render never does.
+  // note takes focus (tabIndex -1) when focus fell to the page with them; first render never does.
   useEffect(() => {
     if (previousStatus.current !== invoice.status) {
       previousStatus.current = invoice.status;
-      statusNote.current?.focus();
+      if (document.activeElement === document.body) statusNote.current?.focus();
     }
   }, [invoice.status]);
 

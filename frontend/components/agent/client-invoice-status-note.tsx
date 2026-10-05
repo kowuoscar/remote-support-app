@@ -6,7 +6,7 @@ import type { ClientInvoiceStatusValue } from "@/lib/api/types";
 /**
  * The card's one-line status note. When the invoice's status changes under the user (the Agent
  * sent it and the page refreshed), the control they were on is gone, so the note takes focus
- * (tabIndex -1) and a screen reader reads the new status instead of focus falling to the page. The
+ * (tabIndex -1) when focus has fallen to the page, so a screen reader reads the new status. The
  * first render never steals focus.
  */
 export function ClientInvoiceStatusNote({
@@ -24,7 +24,8 @@ export function ClientInvoiceStatusNote({
   useEffect(() => {
     if (previous.current !== status) {
       previous.current = status;
-      note.current?.focus();
+      // Only when focus was lost with the control; never pull it from wherever the user went since.
+      if (document.activeElement === document.body) note.current?.focus();
     }
   }, [status]);
 

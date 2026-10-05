@@ -33,7 +33,10 @@ services:
     volumes:
       - postgres_demo_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U remote_support"]
+      # -d: without it pg_isready probes a database named after the user
+      # (remote_support), which doesn't exist here, and Postgres logs a FATAL
+      # on every probe.
+      test: ["CMD-SHELL", "pg_isready -U remote_support -d remote_support_demo"]
       interval: 2s
       timeout: 3s
       retries: 30

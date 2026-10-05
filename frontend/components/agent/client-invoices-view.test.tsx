@@ -373,6 +373,43 @@ describe("AgentClientInvoicesView", () => {
       expect(screen.getByRole("row", { name: /\+1-555-0100/ })).toHaveTextContent("$25.00");
     });
 
+    it("offers no PDF for a past-month sent invoice, whose PDF isn't served by id", () => {
+      renderPage(invoice({ status: "SENT", sentAt: "2026-09-10T10:00:00Z" }));
+
+      expect(screen.queryByRole("link", { name: "Download PDF" })).not.toBeInTheDocument();
+    });
+
+    it("keeps the PDF link on a current-month sent invoice", () => {
+      renderPage(invoice({ billingMonth: CURRENT_MONTH, status: "SENT", sentAt: "2026-10-02T10:00:00Z" }));
+
+      expect(screen.getByRole("link", { name: "Download PDF" })).toBeInTheDocument();
+    });
+
+    it("a past-month sent-back draft isn't described as this month's", () => {
+      renderPage(sentBack());
+
+      expect(screen.queryByText(/this month’s Fees/)).not.toBeInTheDocument();
+    });
+
+    it("names the Client and country in the breadcrumb", () => {
+      render(
+        <AgentClientInvoicePageView
+          invoice={sentBack()}
+          currentBillingMonth={CURRENT_MONTH}
+          contractLabel="Acme — Kenya"
+        />,
+      );
+
+      expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent("Acme — Kenya · September 2026");
+    });
+
+    it("not found: honest copy and the breadcrumb back", () => {
+      renderPage(null);
+
+      expect(screen.getByText("It doesn't exist or isn't one of yours.")).toBeInTheDocument();
+      expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent("Client Invoices");
+    });
+
     it("a current-month draft never sent stays editable on its by-id page", () => {
       renderPage(invoice({ billingMonth: CURRENT_MONTH, basePostpaidSims: [SIM] }));
 

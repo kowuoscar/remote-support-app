@@ -49,7 +49,7 @@ error, not a nitpick.
 - `manager` · components specific to the Manager Console.
 - `client` · components specific to the Client Portal.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
-- `frontend/components/agent/agent-client-invoice-card.tsx` · renders one Client Invoice for the Agent with its send, attach, edit and file-download controls addressed by invoice id.
+- `frontend/components/agent/agent-client-invoice-card.tsx` · the Agent's Client Invoice card.
 - `frontend/components/manager/login-activation-dialog.tsx` · the shared confirm dialog a Manager uses to deactivate or reactivate a Login.
 - `frontend/components/manager/send-back-client-invoice-control.tsx` · inline reason form that POSTs a send-back to a given endpoint and hands the returned invoice to its caller.
 - `fleet` · smartphones, SIM cards, installation and serial editing.
@@ -62,7 +62,7 @@ error, not a nitpick.
 - `api` · typed callers for the BFF routes.
 - `auth` · session and token handling.
 - `demo` · demo data generation for development and the visual goldens.
-- `frontend/lib/api/client-invoice.ts` · maps the by-id Client Invoice response to an invoice or null (403/404 are the not-found state).
+- `frontend/lib/api/client-invoice.ts` · the Agent's by-id Client Invoice read.
 
 ## Dependency direction
 

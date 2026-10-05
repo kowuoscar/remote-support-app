@@ -74,7 +74,7 @@ function SentBackNotice({ sentBackAt, reason }: { sentBackAt: string; reason?: s
   return (
     <section
       aria-labelledby="sent-back-notice"
-      className="flex flex-col gap-1.5 rounded-lg border border-warning/40 bg-warning-bg px-4 py-3"
+      className="flex flex-col gap-1.5 rounded-lg border border-hairline bg-warning-bg px-4 py-3"
     >
       <h2 id="sent-back-notice" className="flex items-center gap-1.5 text-label font-semibold text-warning">
         <IconAlertTriangle className="h-4 w-4 shrink-0" />
@@ -114,12 +114,14 @@ function SentBackSection({ rows }: { rows: SentBackClientInvoice[] }) {
                 const month = formatBillingMonth(row.billingMonth);
                 return (
                   <Tr key={row.id}>
-                    <Td className="whitespace-nowrap font-medium text-ink">
-                      {row.clientName} — {countryLabel(row.country)}
+                    <Td className="min-w-32 max-w-56 font-medium text-ink">
+                      <span className="line-clamp-2 break-words">
+                        {row.clientName} — {countryLabel(row.country)}
+                      </span>
                     </Td>
                     <Td className="whitespace-nowrap text-ink-secondary">{month}</Td>
                     <Td className="whitespace-nowrap text-ink-mute">{formatDate(row.sentBackAt)}</Td>
-                    <Td className="max-w-md">
+                    <Td className="min-w-56 max-w-md">
                       <p className="line-clamp-2 break-words text-ink-secondary" title={row.sentBackReason ?? undefined}>
                         {row.sentBackReason}
                       </p>
@@ -128,7 +130,7 @@ function SentBackSection({ rows }: { rows: SentBackClientInvoice[] }) {
                       <Link
                         href={`/agent/client-invoices/${row.id}`}
                         aria-label={`Open ${row.clientName}, ${month}`}
-                        className="inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary-soft-bg px-3 text-[13px] font-medium text-primary-soft-text transition-colors hover:bg-primary/20 active:bg-primary/25"
+                        className="inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary-soft-bg px-3 text-label font-medium text-primary-soft-text transition-colors hover:bg-primary/20 active:bg-primary/25"
                       >
                         Open
                         <IconArrowRight className="h-3.5 w-3.5" />
@@ -156,22 +158,28 @@ function SentBackSection({ rows }: { rows: SentBackClientInvoice[] }) {
 export function AgentClientInvoicePageView({
   invoice,
   currentBillingMonth,
+  contractLabel,
 }: {
   invoice: ClientInvoiceDetail | null;
   currentBillingMonth: string;
+  /** "Client — Country" of the invoice's Contract, shown in the breadcrumb; absent if not resolved. */
+  contractLabel?: string;
 }) {
   if (!invoice) {
     return (
-      <EmptyState
-        icon={<IconAlertTriangle className="h-5 w-5" />}
-        title="Client Invoice not found"
-        description="It may have been removed, or it isn't one of yours."
-        action={
-          <Link href="/agent/client-invoices" className="text-label font-medium text-primary hover:underline">
-            Back to Client Invoices
-          </Link>
-        }
-      />
+      <div className="flex flex-col gap-4">
+        <Breadcrumb items={[{ label: "Client Invoices", href: "/agent/client-invoices" }, { label: "Not found" }]} />
+        <EmptyState
+          icon={<IconAlertTriangle className="h-5 w-5" />}
+          title="Client Invoice not found"
+          description="It doesn't exist or isn't one of yours."
+          action={
+            <Link href="/agent/client-invoices" className="text-label font-medium text-primary hover:underline">
+              Back to Client Invoices
+            </Link>
+          }
+        />
+      </div>
     );
   }
 
@@ -183,13 +191,21 @@ export function AgentClientInvoicePageView({
       <Breadcrumb
         items={[
           { label: "Client Invoices", href: "/agent/client-invoices" },
-          { label: formatBillingMonth(invoice.billingMonth) },
+          {
+            label: contractLabel
+              ? `${contractLabel} · ${formatBillingMonth(invoice.billingMonth)}`
+              : formatBillingMonth(invoice.billingMonth),
+          },
         ]}
       />
       {sentBack && invoice.sentBackAt ? (
         <SentBackNotice sentBackAt={invoice.sentBackAt} reason={invoice.sentBackReason} />
       ) : null}
-      <AgentClientInvoiceCard invoice={invoice} readOnly={closed} />
+      <AgentClientInvoiceCard
+        invoice={invoice}
+        readOnly={closed}
+        currentMonth={invoice.billingMonth === currentBillingMonth}
+      />
     </div>
   );
 }

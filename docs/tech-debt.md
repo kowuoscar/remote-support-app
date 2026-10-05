@@ -14,7 +14,7 @@ separated by ` · `.
 ## frontend
 
 - `frontend/components/manager/testers-view.tsx` · smell: Page scrolls sideways on mobile · the Manager's Client page scrolls horizontally at the mobile breakpoint because the Testers table sits in TableScroll; the second row action (Deactivate/Reactivate) makes the table wider. The e2e checks only that the tag, row actions and dialog fit inside 390px · deactivate-a-login · 2026-10-05
-- `frontend/components/manager/login-activation-dialog.tsx` · smell: Arbitrary values copied from the reset dialog · the 13px body text and `w-[min(420px,90vw)]` width repeat the reset dialog's arbitrary values (with its justification comments); the 13px could be `text-label` · deactivate-a-login · 2026-10-03
+- `frontend/components/manager/login-activation-dialog.tsx` · smell: Arbitrary width copied from the reset dialog · `w-[min(420px,90vw)]` repeats the reset dialog's width, with its justification comment · deactivate-a-login · 2026-10-03
 - `frontend/app/api/contracts/[contractId]/client-invoice/lines/route.ts` · smell: Hand-written JSON pass-through · no shared forwarder in `frontend/lib/api` fits a plain JSON response; extract a `forwardJson` (see the proposal on Frontend 13) · edit-client-invoice-lines · 2026-10-03
 - `frontend/components/agent/edit-client-invoice-line-control.tsx` · smell: Pending state duplicated outside Button · a local Spinner copies Button's, the pending dim also fades the focus ring (~2.4:1 for the ~600ms request), and an aria-disabled pending button still gets hover styles; give `frontend/components/ui/button.tsx` a focusable busy mode (aria-disabled + aria-busy) and use it here · edit-client-invoice-lines · 2026-10-03
 - `frontend/components/agent/edit-client-invoice-line-control.tsx` · smell: Effect with no dependency array · a `useEffect` driven by a mutable `nextFocus` ref runs after every render; correct but fragile · edit-client-invoice-lines · 2026-10-03
@@ -54,7 +54,7 @@ separated by ` · `.
 
 ## backend
 
-- `backend/src/main/java/com/remotesupport/backend/web/AuthController.java` · smell: Refusal bodies built in try/catch · sign-in builds its 401 bodies with `Map.of` in a try/catch rather than a per-controller `@ExceptionHandler` (coding-standards Backend 7); followed the file's existing shape · deactivate-a-login · 2026-10-03
+- `backend/src/main/java/com/remotesupport/backend/web/AuthController.java` · smell: Refusal body built in try/catch · the wrong-password 401 is still a `catch (BadCredentialsException)` rather than a per-controller `@ExceptionHandler` (coding-standards Backend 7); the deactivated path now uses one · deactivate-a-login · 2026-10-03
 - `backend/src/main/java/com/remotesupport/backend/web/ContractAmountService.java` · smell: Repeated kind filters · the filter-by-kind/map-to-id streams repeat here and in `ClientInvoiceService`; a `ResolvedLine.sourceId()` accessor would remove them · edit-client-invoice-lines · 2026-10-03
 - `backend/src/test/java/com/remotesupport/backend/web/ClientInvoiceLineEditApiTest.java` · smell: Cases that don't name themselves · invalid amounts in a hand-rolled loop and six 404 cases in one `@Test`; use `@ParameterizedTest` · edit-client-invoice-lines · 2026-10-03
 - `backend/src/test/java/com/remotesupport/backend/web/LocalSupportFeesRaceTest.java` · smell: Sleep as proof of blocking · `Thread.sleep(700)` then `isDone()` false can pass vacuously under load; poll `pg_locks`/`pg_stat_activity` instead · edit-client-invoice-lines · 2026-10-03

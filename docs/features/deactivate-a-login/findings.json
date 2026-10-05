@@ -4,50 +4,54 @@
     {
       "id": "F1",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/AuthController.java:45",
       "citation": "docs/agents/coding-standards.md (Backend 7): \"Exceptions crossing the service→controller boundary are domain exceptions carrying `@ResponseStatus`, translated to a response body by a per-controller `@ExceptionHandler` when the body needs a machine-readable `code` — never a `try/catch` producing an ad hoc `ResponseEntity`.\"",
       "note": "New catch (LoginDeactivatedException) returns an ad hoc ResponseEntity with code LOGIN_DEACTIVATED. Use a per-controller @ExceptionHandler(LoginDeactivatedException.class). The existing BadCredentials catch is untouched debt.",
-      "fixed_in": "4f4f0f8"
+      "fixed_in": "4f4f0f8",
+      "confirmed_by": "reviewer-standards (fresh, re-review)"
     },
     {
       "id": "F2",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ChangePasswordService.java:63",
       "citation": "docs/agents/coding-standards.md (Backend 7): \"Exceptions crossing the service→controller boundary are domain exceptions carrying `@ResponseStatus`\"",
       "note": "Throws Spring's BadCredentialsException from a web service. Use a small domain exception with @ResponseStatus(UNAUTHORIZED).",
-      "fixed_in": "4f4f0f8"
+      "fixed_in": "4f4f0f8",
+      "confirmed_by": "reviewer-standards (fresh, re-review)"
     },
     {
       "id": "F3",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/login-activation-dialog.tsx:116",
       "citation": "docs/agents/coding-standards.md (Frontend 8): \"an arbitrary value (`w-[123px]`) needs a comment saying why it isn't a token. The two small type sizes are tokens, not arbitrary values, once the `type-scale-tokens` enabler lands\"",
       "note": "text-[13px] with a now-false comment; text-label (13px) exists. Use text-label.",
-      "fixed_in": "5c9b701"
+      "fixed_in": "5c9b701",
+      "confirmed_by": "reviewer-standards (fresh, re-review)"
     },
     {
       "id": "F4",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "ARCHITECTURE.md:21",
       "citation": "ARCHITECTURE.md (header): \"This file **points**; it never **describes**. A route, a schema, a function signature is read in the code, never copied here — a copy goes stale, a pointer does not.\"",
       "note": "The V58 line copies schema (adds the nullable users.deactivated_at) and the LoginDeactivatedException line copies its type shape. Reduce to pointer plus role; keep file-level lines out of the package list.",
-      "fixed_in": "4f4f0f8"
+      "fixed_in": "4f4f0f8",
+      "confirmed_by": "reviewer-standards (fresh, re-review)"
     },
     {
       "id": "F5",
@@ -199,6 +203,28 @@
       "citation": "",
       "note": "The spec's Solution door 3 and an after-review decision still named BadCredentialsException after the fix pass switched to CallerLoginDeactivatedException (401 unchanged).",
       "fixed_in": "spec wording, orchestrator"
+    },
+    {
+      "id": "F18",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/login-activation-dialog.tsx:129",
+      "citation": "",
+      "note": "The confirm button re-implements Button's loading state to keep focus; the root cause is Button's loading setting native disabled (frontend/components/ui/button.tsx)."
+    },
+    {
+      "id": "F19",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/login-activation-controls.tsx:11",
+      "citation": "",
+      "note": "formatDate gained locale/timeZone for one caller, which shows '2 Oct 2026' (en-GB, UTC) while the rest of the app shows 'Oct 2, 2026'."
     }
   ]
 }

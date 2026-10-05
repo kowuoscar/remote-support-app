@@ -1,7 +1,7 @@
 ---
 id: deactivate-a-testers-login-ui
 title: Let a Manager deactivate and reactivate a Tester's Login from the Client's page
-status: in-progress
+status: done
 depends_on: [deactivate-a-testers-login-api, deactivate-an-agents-login-ui]
 labels: [frontend]
 stories: [2, 4, 5, 6, 7, 17, 24, 25]

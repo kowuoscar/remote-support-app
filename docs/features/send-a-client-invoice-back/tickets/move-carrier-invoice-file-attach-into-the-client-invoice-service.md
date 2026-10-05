@@ -1,7 +1,7 @@
 ---
 id: move-carrier-invoice-file-attach-into-the-client-invoice-service
 title: Move Carrier Invoice File attach from the controller into the Client Invoice service
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [backend, enabler]
 stories: []

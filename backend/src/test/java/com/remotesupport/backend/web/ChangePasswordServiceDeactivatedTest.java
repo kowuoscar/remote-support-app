@@ -14,7 +14,6 @@ import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.web.servlet.MvcResult;
 
 /**
@@ -36,12 +35,12 @@ class ChangePasswordServiceDeactivatedTest extends IntegrationTest {
     deactivate(login.user());
 
     // A wrong current password would be refused too, but with ChangePasswordRefusedException (400);
-    // BadCredentialsException proves the deactivation check ran first.
+    // CallerLoginDeactivatedException proves the deactivation check ran first.
     assertThatThrownBy(
             () ->
                 changePasswordService.changeOwnPassword(
                     principalOf(login.user()), "definitely-the-wrong-password", NEW_PASSWORD))
-        .isInstanceOf(BadCredentialsException.class);
+        .isInstanceOf(CallerLoginDeactivatedException.class);
   }
 
   @Test
@@ -53,7 +52,7 @@ class ChangePasswordServiceDeactivatedTest extends IntegrationTest {
             () ->
                 changePasswordService.changeOwnPassword(
                     principalOf(login.user()), login.password(), NEW_PASSWORD))
-        .isInstanceOf(BadCredentialsException.class);
+        .isInstanceOf(CallerLoginDeactivatedException.class);
 
     login.user().reactivate();
     userRepository.saveAndFlush(login.user());

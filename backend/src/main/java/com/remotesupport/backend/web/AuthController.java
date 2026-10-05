@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,12 +43,6 @@ public class AuthController {
       authentication =
           authenticationManager.authenticate(
               new UsernamePasswordAuthenticationToken(request.username(), request.password()));
-    } catch (LoginDeactivatedException e) {
-      // Only reachable with the right password (SecurityConfig#authenticationManager), so the
-      // distinct answer reveals nothing to someone who does not hold the password.
-      log.warn(
-          "login refused deactivated userId={} tenantId={}", e.userId(), e.tenantId());
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("code", "LOGIN_DEACTIVATED"));
     } catch (BadCredentialsException e) {
       log.warn("login failed username={}", request.username());
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -64,5 +59,15 @@ public class AuthController {
         principal.role(),
         principal.getUsername());
     return ResponseEntity.ok(new LoginResponse(token, principal.role()));
+  }
+
+  /**
+   * Only reachable with the right password (SecurityConfig#authenticationManager), so the distinct
+   * answer reveals nothing to someone who does not hold the password.
+   */
+  @ExceptionHandler(LoginDeactivatedException.class)
+  public ResponseEntity<Map<String, String>> loginDeactivated(LoginDeactivatedException e) {
+    log.warn("login refused deactivated userId={} tenantId={}", e.userId(), e.tenantId());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("code", "LOGIN_DEACTIVATED"));
   }
 }

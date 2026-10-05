@@ -1,0 +1,10 @@
+-------------------------------------------------------------------------------
+Test set: com.remotesupport.backend.web.ClientInvoiceSendBackRaceTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.463 s -- in com.remotesupport.backend.web.ClientInvoiceSendBackRaceTest
+TEST-com.remotesupport.backend.web.ClientInvoiceSendBackRaceTest.xml:testcase name="sendBackVersusApproveLeavesOneConsistentFinalState"
+TEST-com.remotesupport.backend.web.ClientInvoiceLineEditRaceTest.xml:testcase name="editVersusClientInvoiceSendLeavesSentLinesAsStored"
+TEST-com.remotesupport.backend.web.LocalSupportFeesRaceTest.xml:testcase name="editAndFirstEverAgentInvoiceSendSerialiseOnTheAgentRow"
+TEST-com.remotesupport.backend.web.LocalSupportFeesRaceTest.xml:testcase name="editVersusAgentInvoiceSendCountsEditOnce"
+TEST-com.remotesupport.backend.web.LocalSupportFeesRaceTest.xml:testcase name="editVersusAgentInvoiceApproveCountsEditOnceOrNotAtAll"
+TEST-com.remotesupport.backend.web.LocalSupportFeesRaceTest.xml:testcase name="editVersusFirstEverAgentInvoiceSendCountsEditOnce"

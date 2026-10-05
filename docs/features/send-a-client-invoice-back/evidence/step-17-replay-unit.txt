@@ -1,0 +1,124 @@
+
+> frontend@0.1.0 lint
+> eslint
+
+
+> frontend@0.1.0 build
+> next build
+
+▲ Next.js 16.3.5 (Turbopack)
+✓ Running next.config.ts took 61ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 833ms
+  Running TypeScript ...
+  Finished TypeScript in 1328ms ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/31) ...
+  Generating static pages using 7 workers (7/31) 
+  Generating static pages using 7 workers (15/31) 
+  Generating static pages using 7 workers (23/31) 
+✓ Generating static pages using 7 workers (31/31) in 134ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /agent
+├ ƒ /agent/carriers
+├ ƒ /agent/client-invoices
+├ ƒ /agent/client-invoices/[invoiceId]
+├ ƒ /agent/fleet
+├ ƒ /agent/my-invoice
+├ ƒ /agent/requests
+├ ƒ /agent/stock
+├ ƒ /api/agent-invoices/[invoiceId]/approve
+├ ƒ /api/agent-invoices/[invoiceId]/override
+├ ƒ /api/agent-invoices/[invoiceId]/paid
+├ ƒ /api/agents
+├ ƒ /api/agents/[agentId]/invoice
+├ ƒ /api/agents/[agentId]/invoice/send
+├ ƒ /api/agents/[agentId]/login
+├ ƒ /api/agents/[agentId]/login/deactivate
+├ ƒ /api/agents/[agentId]/login/password
+├ ƒ /api/agents/[agentId]/login/reactivate
+├ ƒ /api/agents/[agentId]/standing-amounts
+├ ƒ /api/carriers
+├ ƒ /api/carriers/[carrierId]
+├ ƒ /api/carriers/[carrierId]/[list]
+├ ƒ /api/carriers/[carrierId]/[list]/[entryId]
+├ ƒ /api/carriers/[carrierId]/[list]/[entryId]/archive
+├ ƒ /api/carriers/[carrierId]/archive
+├ ƒ /api/client-invoices/[invoiceId]
+├ ƒ /api/client-invoices/[invoiceId]/approve
+├ ƒ /api/client-invoices/[invoiceId]/files
+├ ƒ /api/client-invoices/[invoiceId]/files/[fileId]
+├ ƒ /api/client-invoices/[invoiceId]/lines
+├ ƒ /api/client-invoices/[invoiceId]/pdf
+├ ƒ /api/client-invoices/[invoiceId]/send
+├ ƒ /api/client-invoices/[invoiceId]/send-back
+├ ƒ /api/client-invoices/sent-back
+├ ƒ /api/clients
+├ ƒ /api/clients/[clientId]/testers
+├ ƒ /api/clients/[clientId]/testers/[testerId]/deactivate
+├ ƒ /api/clients/[clientId]/testers/[testerId]/password
+├ ƒ /api/clients/[clientId]/testers/[testerId]/reactivate
+├ ƒ /api/contracts
+├ ƒ /api/contracts/[contractId]/client-invoice
+├ ƒ /api/contracts/[contractId]/client-invoice/files
+├ ƒ /api/contracts/[contractId]/client-invoice/files/[fileId]
+├ ƒ /api/contracts/[contractId]/client-invoice/lines
+├ ƒ /api/contracts/[contractId]/client-invoice/pdf
+├ ƒ /api/contracts/[contractId]/client-invoice/send
+├ ƒ /api/contracts/[contractId]/fees
+├ ƒ /api/contracts/[contractId]/requests
+├ ƒ /api/contracts/[contractId]/requests/[requestId]/status
+├ ƒ /api/contracts/[contractId]/sim-cards
+├ ƒ /api/contracts/[contractId]/sim-cards/[simCardId]/installed-in
+├ ƒ /api/contracts/[contractId]/sim-cards/[simCardId]/status
+├ ƒ /api/contracts/[contractId]/smartphones
+├ ƒ /api/contracts/[contractId]/smartphones/[smartphoneId]/serial
+├ ƒ /api/contracts/[contractId]/smartphones/[smartphoneId]/status
+├ ƒ /api/contracts/[contractId]/testers
+├ ƒ /api/me/password
+├ ƒ /api/requests/[requestId]/approve
+├ ƒ /api/requests/[requestId]/reject
+├ ƒ /api/session
+├ ƒ /client
+├ ƒ /client/fleet
+├ ƒ /client/invoices
+├ ƒ /client/requests
+├ ƒ /login
+├ ƒ /manager
+├ ƒ /manager/agents
+├ ƒ /manager/agents/[agentId]
+├ ƒ /manager/carriers
+├ ƒ /manager/clients
+├ ƒ /manager/clients/[clientId]
+├ ƒ /manager/contracts
+├ ƒ /manager/contracts/[contractId]
+├ ƒ /manager/invoices
+├ ƒ /manager/invoices/agent/[invoiceId]
+├ ƒ /manager/invoices/client/[invoiceId]
+├ ƒ /manager/requests
+└ ƒ /manager/stock
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+> frontend@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.11 /Users/oscar/myspace/projects/remote-support-app/frontend
+
+
+ Test Files  53 passed (53)
+      Tests  358 passed (358)
+   Start at  20:23:38
+   Duration  14.36s (transform 2.34s, setup 10.97s, import 5.81s, tests 30.22s, environment 43.17s)
+

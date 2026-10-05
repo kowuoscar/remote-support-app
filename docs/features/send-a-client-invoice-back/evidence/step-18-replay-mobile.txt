@@ -1,0 +1,28 @@
+89:    await page.setViewportSize({ width: 375, height: 800 });
+92:      .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
+98:    await expect(open).toBeFocused();
+104:    await page.setViewportSize({ width: 1280, height: 800 });
+  ✓  80 tests/e2e/send-a-client-invoice-back.spec.ts:24:7 › send a client invoice back › manager-sends-back-agent-corrects-and-resends-manager-approves (7.6s)
+
+NOTE: the e2e spec sets 375px only for the Agent's sent-back table (overflow check + Open link focus via keyboard), then returns to 1280px before the by-id page. The Manager's reason form and the by-id page at 375px are not covered by any e2e or visual spec; not played.
+
+=== 375px keyboard-only pass (scratch frontend copy, next dev + extended stub backend; viewport 375x812) ===
+Setup: scratch fe/ app code identical to branch (diff -rq app components lib proxy.ts clean); stub backend extended with PUT /api/client-invoices/:id/lines. Script: scratchpad/fe/fin.mjs. Screenshots: scratchpad/fin-*-375.png
+[M trigger] BUTTON "Send back" box 183-275 of 375; outline solid 2px rgb(11, 18, 32); scrollW 375 | notBODY+ring: true
+[M form open] TEXTAREA "" box 37-338 of 375; outline solid 2px rgb(83, 58, 253); scrollW 375 | notBODY+ring: true
+[M typed] TEXTAREA "Missing carrier file for SIM 0101" box 37-338 of 375; outline solid 2px rgb(83, 58, 253); scrollW 375 | notBODY+ring: true
+[M confirm button] BUTTON "Confirm send back" box 37-179 of 375; outline solid 2px rgb(255, 255, 255); scrollW 375 | notBODY+ring: true
+[M pending] BUTTON "Sending back…" box 37-158 of 375; outline solid 2px rgb(83, 58, 253); scrollW 375 | notBODY+ring: true
+[M after success] P "Sent back to the Agent on Oct 5, 2026 — " box 37-338 of 375; outline solid 2px rgb(83, 58, 253); scrollW 375 | notBODY+ring: true
+M status text: 
+[A Edit] BUTTON "Edit" box 273-321 of 375; outline solid 2px rgb(71, 48, 224); scrollW 375 | notBODY+ring: true
+[A edit field] INPUT "" box 209-321 of 375; outline solid 2px rgb(83, 58, 253); scrollW 375 | notBODY+ring: true
+[A after save] BUTTON "Edit" box 208-256 of 375; outline solid 2px rgb(83, 58, 253); scrollW 375 | notBODY+ring: true
+[A send trigger] BUTTON "Send Client Invoice" box 53-219 of 375; outline solid 2px rgb(255, 255, 255); scrollW 375 | notBODY+ring: true
+[A confirm open] BUTTON "Confirm send" box 189-297 of 375; outline solid 2px rgb(83, 58, 253); scrollW 375 | notBODY+ring: true
+[A tab in confirm] BUTTON "Edit" box 208-256 of 375; outline solid 2px rgb(71, 48, 224); scrollW 375 | notBODY+ring: true
+[A back to confirm] BUTTON "Confirm send" box 189-297 of 375; outline solid 2px rgb(83, 58, 253); scrollW 375 | notBODY+ring: true
+[A pending] BUTTON "Sending…" box 210-297 of 375; outline solid 2px rgb(83, 58, 253); scrollW 375 | notBODY+ring: true
+[A after success] P "Sent to the Manager and Client — numbers" box 37-338 of 375; outline solid 2px rgb(83, 58, 253); scrollW 375 | notBODY+ring: true
+Every stop: focus not on BODY, outline solid 2px, element box inside 0-375, documentElement.scrollWidth 375 (no horizontal scroll).
+Notes: stub amount edit may not echo the new amount (stub quirk); the keyboard path and focus are what was observed. Filled-accent buttons (Confirm send back, Send Client Invoice) show a white 2px outline (ring inside the accent fill). 'A tab in confirm' moved focus to Edit, i.e. Tab leaves the inline confirm after Confirm send (no trap; confirm is inline, not a dialog).

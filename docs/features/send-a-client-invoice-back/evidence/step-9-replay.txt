@@ -1,0 +1,10 @@
+mvn verify BUILD SUCCESS, 704 tests, 0 failures, 0 checkstyle violations
+-------------------------------------------------------------------------------
+Test set: com.remotesupport.backend.web.ClientInvoiceSendBackApiTest
+-------------------------------------------------------------------------------
+Tests run: 33, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 16.78 s -- in com.remotesupport.backend.web.ClientInvoiceSendBackApiTest
+testcase name="managerMayAttachAFileToAPastMonthNeverSentDraft" classname="com.remotesupport.backend.web.ClientInvoiceSendBackApiTest" time="0.229"
+testcase name="sendBackBackfilledInvoiceReturnsSingleBaseLineAndFeeLines" classname="com.remotesupport.backend.web.ClientInvoiceSendBackApiTest" time="0.171"
+testcase name="sendBackPastMonthFixtureInvoiceReturnsLinesAsSent" classname="com.remotesupport.backend.web.ClientInvoiceSendBackApiTest" time="0.376"
+testcase name="pastMonthSentBackInvoiceReadEditAttachAndResendById" classname="com.remotesupport.backend.web.ClientInvoiceSendBackApiTest" time="0.398"
+testcase name="pastMonthNeverSentDraftIs409WithCodeAndUnchanged" classname="com.remotesupport.backend.web.ClientInvoiceSendBackApiTest" time="0.187"

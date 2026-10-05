@@ -35,9 +35,9 @@
     {
       "step": 5,
       "actor": "agent",
-      "status": "not-played",
-      "evidence": "",
-      "note": "Race test not run (turn limit); to be replayed."
+      "status": "passed",
+      "evidence": "evidence/step-5-replay.txt",
+      "note": "ClientInvoiceSendBackRaceTest 1 test, 0 failures (mvn verify 704 green)."
     },
     {
       "step": 6,
@@ -63,9 +63,9 @@
     {
       "step": 9,
       "actor": "agent",
-      "status": "not-played",
-      "evidence": "evidence/step-9.txt",
-      "note": "API half passed on a SQL-moved past-month stand-in; the Java past-month and backfilled cases not run (turn limit); to be replayed."
+      "status": "passed",
+      "evidence": "evidence/step-9-replay.txt",
+      "note": "API half passed earlier; Java half: ClientInvoiceSendBackApiTest 33 tests, 0 failures, incl. past-month and backfilled cases."
     },
     {
       "step": 10,
@@ -119,16 +119,16 @@
     {
       "step": 17,
       "actor": "agent",
-      "status": "not-played",
-      "evidence": "evidence/step-17.txt",
-      "note": "No-section check passed; the full suites not run (turn limit); to be replayed."
+      "status": "passed",
+      "evidence": "evidence/step-17-replay-unit.txt",
+      "note": "No-section check passed earlier; mvn verify 704 with 0 Checkstyle violations; lint, build, tsc, vitest 358; e2e 84/84 (step-17-replay-e2e.txt); visual 87/87 (step-17-replay-visual.txt)."
     },
     {
       "step": 18,
       "actor": "agent",
-      "status": "not-played",
-      "evidence": "evidence/step-18.txt",
-      "note": "Desktop keyboard flows passed with a visible ring at every stop; the 375px half not played (turn limit); to be replayed."
+      "status": "passed",
+      "evidence": "evidence/step-18-replay-mobile.txt",
+      "note": "Desktop keyboard flows passed earlier; 375px keyboard-only Manager send-back and Agent by-id edit and resend: focus never on BODY, 2px outline at every stop, within the viewport, no page scroll (scratch frontend copy with the stub backend)."
     },
     {
       "step": 19,

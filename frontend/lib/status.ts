@@ -86,7 +86,25 @@ export const clientInvoiceStatusLabelByValue: Record<ClientInvoiceStatusValue, s
   APPROVED: "Approved",
 };
 
-export const agentInvoiceStatusTone: Record<AgentInvoiceStatus, Tone> = {
+/**
+ * What a Client Invoice's status badge shows. A draft the Manager sent back is still `DRAFT` in the
+ * backend; "Sent back" is a derived display state (send-a-client-invoice-back spec, Badge), so it
+ * lives here with the other badge maps rather than in a view.
+ */
+export function clientInvoiceBadge(invoice: { status: ClientInvoiceStatusValue; sentBackAt?: string | null }): {
+  label: string;
+  tone: Tone;
+} {
+  if (invoice.status === "DRAFT" && invoice.sentBackAt) {
+    return { label: "Sent back", tone: "warning" };
+  }
+  return {
+    label: clientInvoiceStatusLabelByValue[invoice.status],
+    tone: clientInvoiceStatusToneByValue[invoice.status],
+  };
+}
+
+export const agentInvoiceStatusTone:Record<AgentInvoiceStatus, Tone> = {
   draft: "neutral",
   sent: "warning",
   approved: "info",

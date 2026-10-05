@@ -37,6 +37,7 @@ error, not a nitpick.
 - `frontend/app/api/agents/[agentId]/login/password/route.ts` · BFF pass-through for the Manager's password reset of an Agent, forwarding `Cache-Control: no-store`.
 - `frontend/app/api/clients/[clientId]/testers/[testerId]/password/route.ts` · BFF pass-through for the Manager's password reset of a Tester, forwarding `Cache-Control: no-store`.
 - `frontend/app/client/(dashboard)` · the /client dashboard page and its error.tsx.
+- `frontend/app/agent/client-invoices/[invoiceId]` · the Agent's by-id Client Invoice page, guarded by `requireAgent`.
 
 ### Frontend — `frontend/components`
 
@@ -61,6 +62,7 @@ error, not a nitpick.
 - `api` · typed callers for the BFF routes.
 - `auth` · session and token handling.
 - `demo` · demo data generation for development and the visual goldens.
+- `frontend/lib/api/client-invoice.ts` · maps the by-id Client Invoice response to an invoice or null (403/404 are the not-found state).
 
 ## Dependency direction
 

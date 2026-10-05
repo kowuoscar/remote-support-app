@@ -56,50 +56,54 @@
     {
       "id": "F5",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/send-back-client-invoice-control.tsx:81",
       "citation": "web-design-guidelines: \"Async updates (toasts, validation) need `aria-live=\"polite\"`\"",
       "note": "After a successful send-back the control unmounts and focus falls to BODY; nothing announces the change. Move focus to the status note (tabIndex=-1) or announce it in an aria-live polite region.",
-      "fixed_in": "98d1177 + 79b54cf"
+      "fixed_in": "98d1177 + 79b54cf",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F6",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/send-back-client-invoice-control.tsx:140",
       "citation": "web-design-guidelines: \"Submit button stays enabled until request starts; spinner during request\"",
       "note": "While in flight Confirm send back only fades to 50%; no spinner or 'Sending back…' label. Show progress while keeping it focusable.",
-      "fixed_in": "98d1177"
+      "fixed_in": "98d1177",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F7",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/client-invoices-view.tsx:77",
       "citation": "DESIGN.md: \"**Don't** introduce a border color outside the `hairline`/`hairline-strong` tokens.\"",
       "note": "SentBackNotice uses border-warning/40. Use border-hairline or no border.",
-      "fixed_in": "6f07087"
+      "fixed_in": "6f07087",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F8",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/send-client-invoice-control.tsx:51",
       "citation": "WCAG 2.1 SC 2.4.3 Focus Order (Level A): If a Web page can be navigated sequentially and the navigation sequences affect meaning or operation, focusable components receive focus in an order that preserves meaning and operability.",
       "note": "On the new by-id page (story 35), focus falls to BODY when the confirm opens, on Back, while sending (native disabled) and after success; Escape doesn't close the confirm. Focus Confirm on open, refocus the trigger on Back, use the aria-disabled+aria-busy busy mode, close on Escape, focus a status line after success.",
-      "fixed_in": "98d1177 + 79b54cf"
+      "fixed_in": "98d1177 + 79b54cf",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F9",
@@ -263,6 +267,28 @@
       "where": "frontend/app/agent/client-invoices/[invoiceId]/page.tsx:27",
       "citation": "",
       "note": "backendFetchList('/api/contracts') turns a failure into [] with no log, so the title silently falls back to 'Client Invoice'; use backendFetchJsonOrNull."
+    },
+    {
+      "id": "F23",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/client-invoices-view.tsx:117",
+      "citation": "",
+      "note": "Sent-back table: the clamped Contract cell cuts long names before the country, with no title and an Open aria-label without the country."
+    },
+    {
+      "id": "F24",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": true,
+      "in_changed_lines": false,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:190",
+      "citation": "",
+      "note": "At 375 the SIM and Fee tables show only the first column; Billed and Edit sit off-screen in TableScroll with no hint (moved unchanged from main)."
     }
   ]
 }

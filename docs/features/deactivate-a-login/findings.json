@@ -56,14 +56,15 @@
     {
       "id": "F5",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/testers-view.tsx:78",
       "citation": "DESIGN.md: \"Spacing runs a tight, consistent rhythm: `4/8/12/16/20px` steps.\"",
       "note": "The Actions cell's Reset password and Deactivate/Reactivate buttons touch with no gap (side by side at 1280px, stacked edge to edge at 375px). Wrap them in inline-flex flex-wrap justify-end gap-x-3 gap-y-1.5 as on the Agent page.",
-      "fixed_in": "5c9b701"
+      "fixed_in": "5c9b701",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F6",
@@ -225,6 +226,39 @@
       "where": "frontend/components/manager/login-activation-controls.tsx:11",
       "citation": "",
       "note": "formatDate gained locale/timeZone for one caller, which shows '2 Oct 2026' (en-GB, UTC) while the rest of the app shows 'Oct 2, 2026'."
+    },
+    {
+      "id": "F20",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/login-activation-dialog.tsx:139",
+      "citation": "",
+      "note": "A third spinner style (CSS border) differs from Button's SVG and the edit control's; share one spinner."
+    },
+    {
+      "id": "F21",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": true,
+      "in_changed_lines": false,
+      "where": "frontend/components/manager/reset-password-dialog.tsx:119",
+      "citation": "",
+      "note": "The reset-password confirm still drops focus to BODY in flight and after failure (Button loading = native disabled); only the activation dialog was fixed."
+    },
+    {
+      "id": "F22",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": true,
+      "in_changed_lines": false,
+      "where": "frontend/components/manager/testers-view.tsx:47",
+      "citation": "",
+      "note": "Cause of the Client page's sideways scroll at 375px: the Actions <th>'s sr-only span is absolutely positioned with no positioned ancestor and escapes TableScroll. Predates the feature; a relative wrapper fixes it."
     }
   ]
 }

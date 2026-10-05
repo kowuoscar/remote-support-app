@@ -187,6 +187,18 @@
       "where": "frontend/components/manager/agent-sign-in-email.tsx:68",
       "citation": "",
       "note": "The 'since' date is only in a title tooltip on a non-focusable span plus sr-only text; sighted touch/keyboard users can't see it (also testers-view.tsx:62). Spec chose tooltip; consider visible muted text."
+    },
+    {
+      "id": "F17",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-spec",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ChangePasswordService.java:63",
+      "citation": "",
+      "note": "The spec's Solution door 3 and an after-review decision still named BadCredentialsException after the fix pass switched to CallerLoginDeactivatedException (401 unchanged).",
+      "fixed_in": "spec wording, orchestrator"
     }
   ]
 }

@@ -210,8 +210,9 @@ call the resolver, while the filter covers every authenticated route. (The human
 answer, 2026-10-02, to what was open question 1: at once.)
 
 **3. Self-service password change.** `ChangePasswordService` refuses a
-deactivated caller before it verifies anything. It throws the same
-`BadCredentialsException` path its controller already maps to `401`. It does
+deactivated caller before it verifies anything. It throws a domain exception,
+`CallerLoginDeactivatedException`, carrying `@ResponseStatus(UNAUTHORIZED)`
+(coding-standards Backend 7), so the answer is `401`. It does
 not switch to `AuthenticationManager`. Its `matches` check stays, as the
 sibling specs left it. What changes is that it now checks the same flag sign-in
 checks, so the two can no longer drift apart quietly. Door 2 already stops a deactivated caller before this
@@ -552,7 +553,7 @@ read `deactivated_at` from the database to prove a refusal.
   back.
 
 - **The test guard's false positive on `LoginDeactivatedException` is named in the ticket, not treated as a retry (after review, `deactivated-login-refused`).** `sdlc-test-guard` matched `.Disabled` in Spring's `DisabledException` import in production code; no test was skipped or edited. The ticket's `## Regression` now names it and the same commit was re-merged. Reason: no code was wrong, so a fresh implementer would have nothing to change.
-- **A deactivated caller's own password change answers 401 through `BadCredentialsException`, as the Solution says; the ticket's line that the controller "already maps" it to 401 was inaccurate (`ChangePasswordController` maps its own refusals to 400). Door 2 refuses such a caller first, so this path is defence in depth.**
+- **A deactivated caller's own password change answers 401 through a domain exception, `CallerLoginDeactivatedException` with `@ResponseStatus(UNAUTHORIZED)` (after review: the fix pass replaced the first build's `BadCredentialsException` to obey Backend 7).** The ticket's line that the controller "already maps" it to 401 was inaccurate (`ChangePasswordController` maps its own refusals to 400). Door 2 refuses such a caller first, so this path is defence in depth.
 
 ## Open questions
 

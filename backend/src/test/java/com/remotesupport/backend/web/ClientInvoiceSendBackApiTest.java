@@ -18,6 +18,7 @@ import com.remotesupport.backend.domain.ClientInvoiceLine;
 import com.remotesupport.backend.domain.ClientInvoiceLineKind;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Contract;
+import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.repository.ClientInvoiceLineRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
@@ -952,5 +953,136 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
     assertThat(none).isEmpty();
     assertThat(agentInvoiceFees()).isEqualByComparingTo(approvedFees);
     assertThat(agentInvoice().get("status").asText()).isEqualTo("APPROVED");
+  }
+
+  private ResultActions sentBackListAs(String token) throws Exception {
+    return mockMvc.perform(get("/api/client-invoices/sent-back").header("Authorization", "Bearer " + token));
+  }
+
+  private JsonNode sentBackList(String token) throws Exception {
+    return objectMapper.readTree(
+        sentBackListAs(token).andExpect(status().isOk()).andReturn().getResponse().getContentAsString());
+  }
+
+  private static JsonNode listed(JsonNode list, UUID invoiceId) {
+    for (JsonNode row : list) {
+      if (row.get("id").asText().equals(invoiceId.toString())) {
+        return row;
+      }
+    }
+    return null;
+  }
+
+  private static int indexOf(JsonNode list, UUID invoiceId) {
+    for (int i = 0; i < list.size(); i++) {
+      if (list.get(i).get("id").asText().equals(invoiceId.toString())) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  @Test
+  void agentListsOwnSentBackInvoicesOldestFirstWithFieldsAndNoAmounts() throws Exception {
+    UUID first = sentInvoice();
+    UUID firstContractId = contractId;
+    UUID second = sentInvoice();
+    moveToPastMonth(second);
+    UUID neverSentBack = sentInvoice();
+    sendBack(second);
+    Thread.sleep(5);
+    sendBack(first);
+
+    JsonNode list = sentBackList(agentToken);
+
+    assertThat(indexOf(list, second)).isGreaterThanOrEqualTo(0);
+    assertThat(indexOf(list, first)).isGreaterThan(indexOf(list, second));
+    assertThat(listed(list, neverSentBack)).isNull();
+    JsonNode row = listed(list, first);
+    assertThat(row.get("contractId").asText()).isEqualTo(firstContractId.toString());
+    assertThat(row.get("clientName").asText()).startsWith("Send Back ");
+    assertThat(row.get("country").asText()).isNotBlank();
+    assertThat(row.get("billingMonth").asText())
+        .isEqualTo(LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1).toString());
+    assertThat(row.get("currency").asText()).isNotBlank();
+    assertThat(row.get("sentBackReason").asText()).isEqualTo(REASON);
+    assertThat(Instant.parse(row.get("sentBackAt").asText())).isNotNull();
+    assertThat(row.fieldNames())
+        .toIterable()
+        .containsExactlyInAnyOrder(
+            "id", "contractId", "clientName", "country", "billingMonth", "currency", "sentBackAt", "sentBackReason");
+    for (int i = 1; i < list.size(); i++) {
+      assertThat(Instant.parse(list.get(i - 1).get("sentBackAt").asText()))
+          .isBeforeOrEqualTo(Instant.parse(list.get(i).get("sentBackAt").asText()));
+    }
+  }
+
+  @Test
+  void otherAgentsInvoicesAndOtherTenantsAreAbsent() throws Exception {
+    UUID mine = sentInvoice();
+    sendBack(mine);
+
+    UUID otherAgentId = createAgent(managerToken, "Other Agent", Country.SPAIN);
+    UUID otherContractId = createContract(managerToken, clientId, otherAgentId);
+    Contract otherContract = contractRepository.findById(otherContractId).orElseThrow();
+    UUID otherAgentsInvoice = sentBackInvoiceFor(otherContract);
+
+    UUID otherTenant = otherTenantFixture.sentClientInvoiceInAnotherTenant();
+    ClientInvoice foreign = clientInvoiceRepository.findById(otherTenant).orElseThrow();
+    foreign.setStatus(ClientInvoiceStatus.DRAFT);
+    foreign.setSentAt(null);
+    foreign.setSentBackAt(Instant.now());
+    foreign.setSentBackReason("foreign");
+    clientInvoiceRepository.saveAndFlush(foreign);
+
+    JsonNode list = sentBackList(agentToken);
+
+    assertThat(listed(list, mine)).isNotNull();
+    assertThat(listed(list, otherAgentsInvoice)).isNull();
+    assertThat(listed(list, otherTenant)).isNull();
+  }
+
+  private UUID sentBackInvoiceFor(Contract contract) {
+    ClientInvoice invoice = new ClientInvoice();
+    invoice.setId(UUID.randomUUID());
+    invoice.setTenant(contract.getTenant());
+    invoice.setContract(contract);
+    invoice.setBillingMonth(LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1));
+    invoice.setStatus(ClientInvoiceStatus.DRAFT);
+    invoice.setCurrency(contract.getCurrency());
+    invoice.setCreatedAt(Instant.now());
+    invoice.setSentBackAt(Instant.now());
+    invoice.setSentBackReason("not yours");
+    return clientInvoiceRepository.saveAndFlush(invoice).getId();
+  }
+
+  @Test
+  void resentInvoiceLeavesTheListAndSecondSendBackReentersIt() throws Exception {
+    UUID invoiceId = sentInvoice();
+    sendBack(invoiceId);
+    JsonNode firstRow = listed(sentBackList(agentToken), invoiceId);
+    assertThat(firstRow).isNotNull();
+
+    send();
+    assertThat(listed(sentBackList(agentToken), invoiceId)).isNull();
+
+    Thread.sleep(5);
+    sendBackAs(managerToken, invoiceId, "second reason").andExpect(status().isOk());
+    JsonNode secondRow = listed(sentBackList(agentToken), invoiceId);
+    assertThat(secondRow).isNotNull();
+    assertThat(secondRow.get("sentBackReason").asText()).isEqualTo("second reason");
+    assertThat(Instant.parse(secondRow.get("sentBackAt").asText()))
+        .isAfter(Instant.parse(firstRow.get("sentBackAt").asText()));
+  }
+
+  @Test
+  void managerAndTesterGet403OnTheList() throws Exception {
+    UUID invoiceId = sentInvoice();
+    sendBack(invoiceId);
+    String testerToken =
+        createTesterAndLogin(managerToken, clientId, "tester-" + UUID.randomUUID() + "@example.com");
+
+    sentBackListAs(managerToken).andExpect(status().isForbidden());
+    sentBackListAs(testerToken).andExpect(status().isForbidden());
   }
 }

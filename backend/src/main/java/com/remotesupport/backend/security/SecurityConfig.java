@@ -177,6 +177,11 @@ public class SecurityConfig {
                     .hasRole("AGENT")
                     .requestMatchers("/api/agents/*/invoice", "/api/agents/*/invoice/**")
                     .authenticated()
+                    // send-a-client-invoice-back spec: the list of invoices sent back to an Agent
+                    // is the Agent's alone; it must precede the Manager-only
+                    // /api/client-invoices/** matcher below so it wins.
+                    .requestMatchers(HttpMethod.GET, "/api/client-invoices/sent-back")
+                    .hasRole("AGENT")
                     // Manager-only entity setup (manager-entity-setup ticket): Client, Tester
                     // (nested under /api/clients/{id}/testers), Agent and Contract creation and
                     // listing are all Manager-only; an Agent or Tester request is rejected 403.

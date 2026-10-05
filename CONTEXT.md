@@ -120,6 +120,12 @@ _Avoid_: Bill.
 **Client Invoice line**:
 One stored line of a Client Invoice: a `POSTPAID_SIM` share of the base amount, a `FEE`, or (backfill only) a `BASE_AMOUNT` frozen as one number. `amount` is what was billed, `computedAmount` what the computation said; a line is edited when they differ. `ClientInvoice.linesStored` says whether the invoice reads its stored lines instead of computing.
 
+**Sent back**:
+A Client Invoice that is `draft` and carries a `sentBackAt`; reached only by a Manager's send-back of a `sent` invoice. Keeps its stored lines and `linesStored`; the latest reason and time stay on the row through the resend.
+
+**Send-back**:
+A Manager's `sent` → `draft` transition of a Client Invoice with a required reason (ADR 0005); recomputes and clears nothing, and moves no pay.
+
 **Payable amount** (of a Contract for a month):
 What a Contract adds to the Agent's Local Support Fees: every line its Client Invoice bills at its billed amount, plus anything of that month the invoice does not bill at its computed amount; with no Client Invoice, the computation.
 

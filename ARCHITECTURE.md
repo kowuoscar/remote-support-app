@@ -24,6 +24,7 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/security/LoginState.java` · the per-request check that a userId is an active Login, used by `JwtAuthenticationFilter`.
 - `backend/src/main/java/com/remotesupport/backend/security/LoginDeactivatedException.java` · the sign-in refusal for a deactivated Login.
 - `backend/src/main/resources/db/migration/V58__add_users_deactivated_at.sql` · the migration behind deactivating a Login.
+- `backend/src/main/resources/db/migration/V59__add_client_invoice_sent_back.sql` · the migration behind sending a Client Invoice back to draft.
 
 ### Frontend — `frontend/app`
 

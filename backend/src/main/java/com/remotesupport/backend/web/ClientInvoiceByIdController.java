@@ -3,8 +3,10 @@ package com.remotesupport.backend.web;
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
+import com.remotesupport.backend.dto.ClientInvoiceSendBackRequest;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
@@ -12,12 +14,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  * A Client Invoice addressed by its own id (manager-invoice-review-queue spec, "invoice by id"):
- * the Manager's read, Carrier Invoice Files, PDF and approve, for an invoice of any billing month.
+ * the Manager's read, Carrier Invoice Files, PDF, approve and send-back, for an invoice of any billing month.
  *
  * <p>Unlike {@link ClientInvoiceController}, nothing here ever gets-or-creates: it only finds an
  * invoice that already exists. The lookup is scoped to the caller's tenant, so an unknown id and
@@ -48,6 +51,14 @@ public class ClientInvoiceByIdController {
   public ClientInvoiceResponse approve(
       @PathVariable UUID invoiceId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     return clientInvoiceService.approve(find(invoiceId, principal), principal);
+  }
+
+  @PostMapping("/send-back")
+  public ClientInvoiceResponse sendBack(
+      @PathVariable UUID invoiceId,
+      @Valid @RequestBody ClientInvoiceSendBackRequest request,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    return clientInvoiceService.sendBack(find(invoiceId, principal), request.reason(), principal);
   }
 
   @GetMapping("/pdf")

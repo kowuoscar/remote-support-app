@@ -16,38 +16,41 @@
     {
       "id": "F2",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/agent-client-invoice-card.tsx:121",
       "citation": "docs/agents/coding-standards.md: Frontend 8 — \"Compose Tailwind classes from the tokens in `frontend/app/globals.css` (`@theme`, Tailwind v4); an arbitrary value (`w-[123px]`) needs a comment saying why it isn't a token. The two small type sizes are tokens, not arbitrary values, once the `type-scale-tokens` enabler lands\"",
       "note": "Changed lines use text-[12px]/text-[13px] and max-w-[260px]/min-w-[220px] with no comment: agent-client-invoice-card.tsx (121,129,143,153,159,169,185,200,229,231,273,278,290,294), client-invoices-view.tsx:131, client-invoice-detail-view.tsx:59, send-client-invoice-control.tsx:44, contract-switcher.tsx:65. Use text-label-sm/text-label; comment or tokenise the widths.",
-      "fixed_in": "98d1177"
+      "fixed_in": "98d1177",
+      "confirmed_by": "reviewer-standards (fresh, re-review)"
     },
     {
       "id": "F3",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/agent-client-invoice-card.tsx:1",
       "citation": "docs/agents/coding-standards.md: Frontend 1 — \"Default every component to a Server Component; add \\\"use client\\\" only when the file needs state, effects, or browser APIs — not to \\\"be safe\\\".\"",
       "note": "New file declares \"use client\" with no state, effects or browser APIs; it only renders client controls.",
-      "fixed_in": "98d1177"
+      "fixed_in": "98d1177",
+      "confirmed_by": "reviewer-standards (fresh, re-review)"
     },
     {
       "id": "F4",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceService.java:151",
       "citation": "docs/agents/coding-standards.md: Backend 3 — \"The transaction boundary is the service method (`@Transactional`), never the repository or the controller\"",
       "note": "attachFile (status check + requireOpenToAgent + save) has no @Transactional, unlike send, editLine, sendBack, approve, which are @Transactional and take findByIdForUpdate.",
-      "fixed_in": "313a9f9"
+      "fixed_in": "313a9f9",
+      "confirmed_by": "reviewer-standards (fresh, re-review)"
     },
     {
       "id": "F5",
@@ -237,6 +240,28 @@
       "where": "frontend/components/ui/button.tsx:25",
       "citation": "",
       "note": "Dark-theme danger button: white on #f16b7a is ~2.95:1, below AA; pre-existing and app-wide. Give danger a passing dark-theme pairing."
+    },
+    {
+      "id": "F21",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/client-invoice-detail-view.tsx:1",
+      "citation": "",
+      "note": "Re-implements the focus-on-status-change logic of the new ClientInvoiceStatusNote; render it instead."
+    },
+    {
+      "id": "F22",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/app/agent/client-invoices/[invoiceId]/page.tsx:27",
+      "citation": "",
+      "note": "backendFetchList('/api/contracts') turns a failure into [] with no log, so the title silently falls back to 'Client Invoice'; use backendFetchJsonOrNull."
     }
   ]
 }

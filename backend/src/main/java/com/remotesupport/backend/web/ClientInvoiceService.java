@@ -136,7 +136,7 @@ public class ClientInvoiceService {
         .body(pdfBytes);
   }
 
-  /** An empty upload is refused ({@link InvalidRequestException}, 400). */
+  /** An empty upload is refused ({@link InvalidRequestException}, 400). Callers run it first. */
   public void requireNonEmpty(MultipartFile file) {
     if (file.isEmpty()) {
       throw new InvalidRequestException("file must not be empty");
@@ -144,18 +144,23 @@ public class ClientInvoiceService {
   }
 
   /**
-   * Attaches a Carrier Invoice File to a found invoice: only a {@code DRAFT} takes one (any other
-   * status is a {@link ConflictException}, 409), and an empty file is refused. Stores the bytes,
-   * saves the row, logs its creation, and answers {@code 201} with the file.
+   * Attaches a Carrier Invoice File to a found, non-empty-file invoice, as one transaction: the
+   * invoice is re-read under the row lock the send takes, so an attach never lands on a sent
+   * invoice. Only a {@code DRAFT} takes one (any other status is a {@link ConflictException},
+   * 409), and an Agent only on a draft open to them (the Manager attaches regardless). Stores the
+   * bytes, saves the row, logs its creation, and answers {@code 201} with the file.
    */
+  @Transactional
   public ResponseEntity<CarrierInvoiceFileResponse> attachFile(
-      ClientInvoice invoice, MultipartFile file, AuthenticatedPrincipal principal) {
-    requireNonEmpty(file);
+      ClientInvoice found, MultipartFile file, AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
     if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
       throw new ConflictException(
           "Cannot attach a carrier invoice file to a Client Invoice that has already been sent");
     }
-    requireOpenToAgent(invoice);
+    if ("AGENT".equals(principal.role())) {
+      requireOpenToAgent(invoice);
+    }
 
     CarrierInvoiceFile carrierFile = new CarrierInvoiceFile();
     carrierFile.setId(UUID.randomUUID());
@@ -353,19 +358,16 @@ public class ClientInvoiceService {
   }
 
   /**
-   * Whether a draft is open to its Agent: sent back, or of the current billing month (UTC). A past
-   * month's draft that was never sent is not, because its lines could only be pre-filled from
-   * today's Fleet and Fees, so a month would be billed for the first time late.
+   * The one gate of every Agent write on a draft (the caller has checked it is a {@code DRAFT}):
+   * one sent back, or of the current billing month (UTC), is open to its Agent. A past month's
+   * draft that was never sent is not, because its lines could only be pre-filled from today's
+   * Fleet and Fees, so a month would be billed for the first time late: a coded 409.
    */
-  private boolean isOpenToAgent(ClientInvoice invoice) {
-    return invoice.getStatus() == ClientInvoiceStatus.DRAFT
-        && (invoice.getSentBackAt() != null
-            || invoice.getBillingMonth().equals(LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1)));
-  }
-
-  /** The one gate of every write on a draft: one not open to its Agent is a coded 409. */
   private void requireOpenToAgent(ClientInvoice invoice) {
-    if (invoice.getStatus() == ClientInvoiceStatus.DRAFT && !isOpenToAgent(invoice)) {
+    boolean open =
+        invoice.getSentBackAt() != null
+            || invoice.getBillingMonth().equals(LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1));
+    if (!open) {
       throw new ClientInvoiceConflictException(
           ClientInvoiceConflictException.Reason.PAST_MONTH_DRAFT_NOT_SENDABLE,
           "A past month's draft that was never sent cannot be sent or changed");

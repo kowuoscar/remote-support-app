@@ -113,6 +113,7 @@ public class ClientInvoiceByIdController {
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     ClientInvoice invoice = find(invoiceId, principal);
     clientInvoiceAccessGuard.requireCanBuildOrView(invoice.getContract(), principal);
+    clientInvoiceService.requireNonEmpty(file);
     return clientInvoiceService.attachFile(invoice, file, principal);
   }
 

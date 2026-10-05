@@ -841,8 +841,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
         List.of(
             postSendById(agentToken, invoiceId),
             putLineById(agentToken, invoiceId, "POSTPAID_SIM", simId, "20.00"),
-            postFileById(agentToken, invoiceId, "x.pdf", "x"),
-            postFileById(managerToken, invoiceId, "x.pdf", "x"));
+            postFileById(agentToken, invoiceId, "x.pdf", "x"));
     for (ResultActions refused : refusals) {
       refused
           .andExpect(status().isConflict())
@@ -860,6 +859,20 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
                 .count())
         .isZero();
     assertThat(body(getById(managerToken, invoiceId, "/files"))).isEmpty();
+  }
+
+  @Test
+  void managerMayAttachAFileToAPastMonthNeverSentDraft() throws Exception {
+    fixture("Past Manager Attach " + UUID.randomUUID());
+    addPostpaidSim("+1-555-0425", "18.00");
+    UUID invoiceId = UUID.fromString(agentRead().get("id").asText());
+    moveToPastMonth(invoiceId);
+
+    postFileById(managerToken, invoiceId, "m.pdf", "m-bytes").andExpect(status().isCreated());
+
+    assertThat(body(getById(managerToken, invoiceId, "/files"))).hasSize(1);
+    assertThat(clientInvoiceRepository.findById(invoiceId).orElseThrow().getStatus())
+        .isEqualTo(ClientInvoiceStatus.DRAFT);
   }
 
   @Test

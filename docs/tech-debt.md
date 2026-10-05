@@ -13,6 +13,7 @@ separated by ` · `.
 
 ## frontend
 
+- `frontend/components/ui/contract-switcher.tsx` · smell: Single-contract label can overflow · the single-contract branch is an `inline-flex` div with no truncation or `max-w`, so a very long client name would push the page wider than a phone (the multi-contract button was fixed) · send-a-client-invoice-back · 2026-10-05
 - `frontend/components/manager/client-invoice-detail-view.tsx` · smell: Two badges for one state · the Manager's detail view still shows Draft on a sent-back invoice while the Agent card shows Sent back via `clientInvoiceBadge` in `frontend/lib/status.ts`; one helper could serve both · send-a-client-invoice-back · 2026-10-05
 - `frontend/components/agent/agent-client-invoice-card.tsx` · smell: Dead end for an old draft · a past-month draft never sent opens read-only with only a closed note; the Agent has no way to act on it · send-a-client-invoice-back · 2026-10-05
 - `frontend/app/api/contracts/[contractId]/client-invoice/send/route.ts` · smell: Dead BFF routes · the contract-scoped send, lines and files (POST and GET list) Route Handlers under `frontend/app/api/contracts/[contractId]/client-invoice/` have no frontend caller since the Agent card addresses the invoice by id; remove them (the Client's file download still uses the contract-scoped `frontend/app/api/contracts/[contractId]/client-invoice/files/[fileId]` route) and update the comment in `frontend/app/api/agents/[agentId]/invoice/send/route.ts` · send-a-client-invoice-back · 2026-10-05

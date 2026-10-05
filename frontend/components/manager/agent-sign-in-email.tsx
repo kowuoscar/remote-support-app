@@ -4,12 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CreateAgentLoginDialog } from "@/components/manager/create-agent-login-dialog";
 import { ResetPasswordDialog, type ResetPasswordDialogHandle } from "@/components/manager/reset-password-dialog";
-import { DeactivateLoginDialog, type LoginActivationDialogHandle } from "@/components/manager/deactivate-login-dialog";
-import { ReactivateLoginDialog } from "@/components/manager/reactivate-login-dialog";
+import { LoginActivationDialog, type LoginActivationDialogHandle } from "@/components/manager/login-activation-dialog";
+import { DeactivatedTag, LoginActivationButton } from "@/components/manager/login-activation-controls";
 import { useAnnouncement } from "@/components/ui/use-announcement";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatDayMonthYear } from "@/lib/format";
 
 /**
  * The "Sign-in email" field of an Agent's detail view (agent-login-on-creation spec): the email
@@ -54,7 +52,6 @@ export function AgentSignInEmail({
   }
 
   const deactivated = loginDeactivatedAt !== null;
-  const since = loginDeactivatedAt ? `Deactivated since ${formatDayMonthYear(loginDeactivatedAt)}` : "";
 
   return (
     <div className="min-w-0">
@@ -64,14 +61,7 @@ export function AgentSignInEmail({
           <p ref={emailRef} tabIndex={-1} className="text-sm break-all text-ink">
             {email}
           </p>
-          {deactivated ? (
-            <span title={since}>
-              <span aria-hidden="true">
-                <Badge>Deactivated</Badge>
-              </span>
-              <span className="sr-only">{since}</span>
-            </span>
-          ) : null}
+          {loginDeactivatedAt ? <DeactivatedTag deactivatedAt={loginDeactivatedAt} /> : null}
           <Button
             variant="row"
             size="sm"
@@ -86,9 +76,8 @@ export function AgentSignInEmail({
           >
             Reset password
           </Button>
-          <Button
-            variant="row"
-            size="sm"
+          <LoginActivationButton
+            deactivated={deactivated}
             onClick={() =>
               (deactivated ? reactivateRef : deactivateRef).current?.open({
                 name: agentName,
@@ -97,16 +86,16 @@ export function AgentSignInEmail({
                 listLink: { href: "/manager/agents", label: "Back to the Agents list" },
               })
             }
-          >
-            {deactivated ? "Reactivate login" : "Deactivate login"}
-          </Button>
+          />
           <ResetPasswordDialog ref={resetRef} onReset={(resetEmail) => announce(`Password reset for ${resetEmail}.`)} />
-          <DeactivateLoginDialog
+          <LoginActivationDialog
             ref={deactivateRef}
+            mode="deactivate"
             onChanged={(changedEmail) => announce(`Login deactivated for ${changedEmail}.`)}
           />
-          <ReactivateLoginDialog
+          <LoginActivationDialog
             ref={reactivateRef}
+            mode="reactivate"
             onChanged={(changedEmail) => announce(`Login reactivated for ${changedEmail}.`)}
           />
         </div>

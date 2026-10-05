@@ -42,8 +42,8 @@ const GENERIC_FAILURE = "Couldn't change this login. Try again.";
 /**
  * The confirm step a Manager answers before a Login is switched off or back on (deactivate-a-login
  * spec). One instance per view, opened for whichever target was chosen through its handle, so a
- * page of thirty Testers holds one closed dialog, not thirty. Used through DeactivateLoginDialog
- * and ReactivateLoginDialog, the two names the views know. On 200 it closes, refreshes the page
+ * page of thirty Testers holds one closed dialog, not thirty. Rendered with a `mode`
+ * per action, so a view holds one of each. On 200 it closes, refreshes the page
  * and hands the email back through `onChanged` so the view's own always-mounted polite status can
  * say what happened; focus returns to whatever opened it.
  */
@@ -82,7 +82,8 @@ export const LoginActivationDialog = forwardRef<
   }
 
   async function confirm() {
-    if (!target) return;
+    // aria-disabled, unlike disabled, leaves the button focusable, so a repeat Enter or click lands here.
+    if (!target || submitting) return;
     setError(null);
     setSubmitting(true);
     try {
@@ -116,8 +117,7 @@ export const LoginActivationDialog = forwardRef<
             <h2 id={titleId} className="break-words text-base font-semibold text-ink">
               {copy.action} for {target.name}
             </h2>
-            {/* 13px: the dialog body size; the type scale has no token between text-xs and text-sm. */}
-            <p className="mt-1 break-words text-[13px] text-ink-mute">{copy.body(target.email)}</p>
+            <p className="mt-1 break-words text-label text-ink-mute">{copy.body(target.email)}</p>
           </div>
 
           {error ? <DialogErrorAlert message={error.message} link={error.link} /> : null}
@@ -126,7 +126,18 @@ export const LoginActivationDialog = forwardRef<
             <Button type="button" variant="secondary" onClick={close} disabled={submitting}>
               Cancel
             </Button>
-            <Button type="button" variant="primary" loading={submitting} onClick={confirm}>
+            {/* Not `loading`: that sets native disabled and drops focus to the page while the request runs and after it fails. */}
+            <Button
+              type="button"
+              variant="primary"
+              aria-disabled={submitting}
+              aria-busy={submitting}
+              className="aria-disabled:pointer-events-none aria-disabled:bg-primary/40"
+              onClick={confirm}
+            >
+              {submitting ? (
+                <span aria-hidden="true" className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : null}
               {copy.action}
             </Button>
           </div>

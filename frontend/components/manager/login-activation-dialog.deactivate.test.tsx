@@ -2,9 +2,9 @@ import { useRef } from "react";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { stubFetch } from "@/tests/component/fetch";
+import { stubFetch, stubPendingFetch } from "@/tests/component/fetch";
 import { mockRouter } from "@/tests/component/next-navigation";
-import { DeactivateLoginDialog, type LoginActivationDialogHandle } from "./deactivate-login-dialog";
+import { LoginActivationDialog, type LoginActivationDialogHandle } from "./login-activation-dialog";
 
 const target = {
   name: "Camille Duforet",
@@ -20,7 +20,7 @@ function Host({ onChanged }: Readonly<{ onChanged: (email: string) => void }>) {
       <button type="button" onClick={() => ref.current?.open(target)}>
         Open dialog
       </button>
-      <DeactivateLoginDialog ref={ref} onChanged={onChanged} />
+      <LoginActivationDialog ref={ref} mode="deactivate" onChanged={onChanged} />
     </>
   );
 }
@@ -36,7 +36,7 @@ async function confirm(dialog: HTMLElement) {
   await userEvent.click(within(dialog).getByRole("button", { name: "Deactivate login" }));
 }
 
-describe("DeactivateLoginDialog", () => {
+describe("LoginActivationDialog (deactivate)", () => {
   beforeEach(() => mockRouter.refresh.mockReset());
 
   it("asks for confirmation, naming the person and saying what stays", async () => {
@@ -123,5 +123,34 @@ describe("DeactivateLoginDialog", () => {
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't change this login. Try again.");
     expect(within(dialog).getByRole("button", { name: "Deactivate login" })).toBeEnabled();
+  });
+
+  it("keeps focus on the confirm button while the request is in flight, and ignores a repeat", async () => {
+    const { fetchMock, respond } = stubPendingFetch();
+    const { dialog } = await openDialog();
+    const button = within(dialog).getByRole("button", { name: "Deactivate login" });
+
+    await userEvent.click(button);
+    await userEvent.click(button);
+    await userEvent.keyboard("{Enter}");
+
+    expect(button).toHaveFocus();
+    expect(button).toHaveAttribute("aria-busy", "true");
+    expect(button).toHaveAttribute("aria-disabled", "true");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    respond(500);
+    await screen.findByRole("alert");
+  });
+
+  it("keeps focus on the confirm button after a failed request", async () => {
+    stubFetch(500);
+    const { dialog } = await openDialog();
+    const button = within(dialog).getByRole("button", { name: "Deactivate login" });
+
+    await userEvent.click(button);
+
+    await screen.findByRole("alert");
+    expect(button).toHaveFocus();
+    expect(button).toHaveAttribute("aria-busy", "false");
   });
 });

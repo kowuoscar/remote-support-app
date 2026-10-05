@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { stubFetch } from "@/tests/component/fetch";
 import { mockRouter } from "@/tests/component/next-navigation";
-import { ReactivateLoginDialog, type LoginActivationDialogHandle } from "./reactivate-login-dialog";
+import { LoginActivationDialog, type LoginActivationDialogHandle } from "./login-activation-dialog";
 
 const target = {
   name: "Camille Duforet",
@@ -20,7 +20,7 @@ function Host({ onChanged }: Readonly<{ onChanged: (email: string) => void }>) {
       <button type="button" onClick={() => ref.current?.open(target)}>
         Open dialog
       </button>
-      <ReactivateLoginDialog ref={ref} onChanged={onChanged} />
+      <LoginActivationDialog ref={ref} mode="reactivate" onChanged={onChanged} />
     </>
   );
 }
@@ -36,7 +36,7 @@ async function confirm(dialog: HTMLElement) {
   await userEvent.click(within(dialog).getByRole("button", { name: "Reactivate login" }));
 }
 
-describe("ReactivateLoginDialog", () => {
+describe("LoginActivationDialog (reactivate)", () => {
   beforeEach(() => mockRouter.refresh.mockReset());
 
   it("asks for confirmation, naming the person and saying the existing password works", async () => {

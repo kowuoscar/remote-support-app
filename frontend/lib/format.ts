@@ -26,17 +26,17 @@ export function formatCompactMoney(amount: number, currency: string): string {
   return formatter.format(amount);
 }
 
-export function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
+/**
+ * "Oct 2, 2026" in the viewer's zone by default. Pass `locale` and `timeZone` where the day must not
+ * depend on the viewer (the Deactivated tag: "2 Oct 2026" in UTC).
+ */
+export function formatDate(iso: string, { locale = "en-US", timeZone }: { locale?: string; timeZone?: string } = {}): string {
+  return new Date(iso).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone,
   });
-}
-
-/** "2 Oct 2026" for an instant, in UTC so the day never depends on the viewer's zone. */
-export function formatDayMonthYear(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 }
 
 const monthNames = [

@@ -8,9 +8,8 @@ import { IconClients } from "@/components/icons";
 import { CreateTesterDialog } from "@/components/manager/create-tester-dialog";
 import { Button } from "@/components/ui/button";
 import { ResetPasswordDialog, type ResetPasswordDialogHandle } from "@/components/manager/reset-password-dialog";
-import { DeactivateLoginDialog, type LoginActivationDialogHandle } from "@/components/manager/deactivate-login-dialog";
-import { ReactivateLoginDialog } from "@/components/manager/reactivate-login-dialog";
-import { formatDayMonthYear } from "@/lib/format";
+import { LoginActivationDialog, type LoginActivationDialogHandle } from "@/components/manager/login-activation-dialog";
+import { DeactivatedTag, LoginActivationButton } from "@/components/manager/login-activation-controls";
 import { useAnnouncement } from "@/components/ui/use-announcement";
 import type { TesterListItem } from "@/lib/api/types";
 
@@ -53,19 +52,13 @@ export function ManagerTestersView({ clientId, testers }: { clientId: string; te
               {testers.map((tester) => {
                 const deactivatedAt = tester.deactivatedAt ?? null;
                 const deactivated = deactivatedAt !== null;
-                const since = deactivatedAt ? `Deactivated since ${formatDayMonthYear(deactivatedAt)}` : "";
                 return (
                   <Tr key={tester.id}>
                     <Td className="font-medium text-ink">
-                      <span className="break-all">{tester.username}</span>
-                      {deactivated ? (
-                        <span title={since} className="ml-2 whitespace-nowrap">
-                          <span aria-hidden="true">
-                            <Badge>Deactivated</Badge>
-                          </span>
-                          <span className="sr-only">{since}</span>
-                        </span>
-                      ) : null}
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span className="break-all">{tester.username}</span>
+                        {deactivatedAt ? <DeactivatedTag deactivatedAt={deactivatedAt} /> : null}
+                      </div>
                     </Td>
                     <Td>
                       {tester.isPrimaryContact ? (
@@ -76,43 +69,41 @@ export function ManagerTestersView({ clientId, testers }: { clientId: string; te
                     </Td>
                     {/* Named "Actions" so the cell never repeats the email its button carries: the email cell stays the one cell that answers to the email. */}
                     <Td aria-label="Actions" className="text-right">
-                      <Button
-                        variant="row"
-                        size="sm"
-                        aria-label={`Reset password for ${tester.username}`}
-                        onClick={() =>
-                          resetRef.current?.open({
-                            name: tester.username,
-                            email: tester.username,
-                            endpoint: `/api/clients/${clientId}/testers/${tester.id}/password`,
-                            listLink: {
-                              href: "/manager/clients",
-                              label: "Back to the Clients list",
-                            },
-                          })
-                        }
-                      >
-                        Reset password
-                      </Button>
-                      {/* One button whose label and dialog follow the state, so it keeps its place in the row (and its focus) across the refresh. */}
-                      <Button
-                        variant="row"
-                        size="sm"
-                        aria-label={`${deactivated ? "Reactivate" : "Deactivate"} login for ${tester.username}`}
-                        onClick={() =>
-                          (deactivated ? reactivateRef : deactivateRef).current?.open({
-                            name: tester.username,
-                            email: tester.username,
-                            endpoint: `/api/clients/${clientId}/testers/${tester.id}/${deactivated ? "reactivate" : "deactivate"}`,
-                            listLink: {
-                              href: "/manager/clients",
-                              label: "Back to the Clients list",
-                            },
-                          })
-                        }
-                      >
-                        {deactivated ? "Reactivate login" : "Deactivate login"}
-                      </Button>
+                      <div className="inline-flex flex-wrap justify-end gap-x-3 gap-y-1.5">
+                        <Button
+                          variant="row"
+                          size="sm"
+                          aria-label={`Reset password for ${tester.username}`}
+                          onClick={() =>
+                            resetRef.current?.open({
+                              name: tester.username,
+                              email: tester.username,
+                              endpoint: `/api/clients/${clientId}/testers/${tester.id}/password`,
+                              listLink: {
+                                href: "/manager/clients",
+                                label: "Back to the Clients list",
+                              },
+                            })
+                          }
+                        >
+                          Reset password
+                        </Button>
+                        <LoginActivationButton
+                          deactivated={deactivated}
+                          person={tester.username}
+                          onClick={() =>
+                            (deactivated ? reactivateRef : deactivateRef).current?.open({
+                              name: tester.username,
+                              email: tester.username,
+                              endpoint: `/api/clients/${clientId}/testers/${tester.id}/${deactivated ? "reactivate" : "deactivate"}`,
+                              listLink: {
+                                href: "/manager/clients",
+                                label: "Back to the Clients list",
+                              },
+                            })
+                          }
+                        />
+                      </div>
                     </Td>
                   </Tr>
                 );
@@ -122,8 +113,8 @@ export function ManagerTestersView({ clientId, testers }: { clientId: string; te
         </TableScroll>
       )}
       <ResetPasswordDialog ref={resetRef} onReset={(email) => announce(`Password reset for ${email}.`)} />
-      <DeactivateLoginDialog ref={deactivateRef} onChanged={(email) => announce(`Login deactivated for ${email}.`)} />
-      <ReactivateLoginDialog ref={reactivateRef} onChanged={(email) => announce(`Login reactivated for ${email}.`)} />
+      <LoginActivationDialog ref={deactivateRef} mode="deactivate" onChanged={(email) => announce(`Login deactivated for ${email}.`)} />
+      <LoginActivationDialog ref={reactivateRef} mode="reactivate" onChanged={(email) => announce(`Login reactivated for ${email}.`)} />
       <output className="sr-only">{announcement}</output>
     </div>
   );

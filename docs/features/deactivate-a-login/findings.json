@@ -69,14 +69,15 @@
     {
       "id": "F6",
       "type": "acceptance-failed",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "acceptance-runner",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/tests/e2e/deactivate-a-login.spec.ts:206",
       "citation": "spec.md Acceptance walkthrough 12: the full isolated e2e suite green",
       "note": "The Tester keyboard-walk test fails at line 226: an Enter sent within ~30ms of the Escape that closed the dialog is swallowed, so the dialog never reopens. Failed in the full suite and twice in isolation (the merger's verify had passed it). Fix the race in the dialog/trigger (likely the shared DialogShell's close handling) rather than only pausing in the test.",
-      "fixed_in": "1ab9758"
+      "fixed_in": "1ab9758",
+      "confirmed_by": "acceptance-runner (replay of step 12, 4 full isolated runs)"
     },
     {
       "id": "F7",

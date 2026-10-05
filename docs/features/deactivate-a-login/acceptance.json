@@ -84,9 +84,9 @@
     {
       "step": 12,
       "actor": "agent",
-      "status": "failed",
-      "evidence": "evidence/step-12-e2e-full.txt",
-      "note": "All green except the isolated e2e suite: 82 passed, 1 failed (deactivate-a-login.spec.ts:206 keyboard walk; Enter within ~30ms of Escape is swallowed). Failed again on 2 isolated reruns. Finding F6."
+      "status": "passed",
+      "evidence": "evidence/step-12-replay-e2e-full.txt",
+      "note": "Replayed after 1ab9758: mvn verify 670 green, vitest 321, tsc and lint clean, isolated e2e 83/83 including the keyboard walk, visual 87/87 with no snapshot differences."
     },
     {
       "step": 13,
@@ -142,7 +142,7 @@
       "actor": "agent",
       "status": "passed",
       "evidence": "evidence/step-20.txt",
-      "note": "Passed with a 150ms pause after Escape (same race as step 12). Mobile: table scrolls in its container; tag, actions and dialog in the viewport."
+      "note": "Passed with a 150ms pause after Escape (same race as step 12). Mobile: table scrolls in its container; tag, actions and dialog in the viewport. Replayed: keyboard walk passed 3 of 3 further full isolated runs with no added pause."
     },
     {
       "step": 21,

@@ -1,7 +1,7 @@
 ---
 id: manager-send-back-control-on-the-client-invoice-page
 title: Let a Manager send a Client Invoice back from its detail page with an inline reason form
-status: ready-for-agent
+status: in-progress
 depends_on: [manager-sends-a-client-invoice-back]
 labels: [frontend]
 stories: [1, 2, 3, 4, 7, 8, 10, 35]

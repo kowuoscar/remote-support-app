@@ -1,0 +1,15 @@
+ ✓ components/manager/reactivate-login-dialog.test.tsx > ReactivateLoginDialog > agent-has-no-login-shows-stale-page-message 23ms
+ ✓ components/manager/reactivate-login-dialog.test.tsx > ReactivateLoginDialog > 404-shows-no-longer-exists-message 23ms
+ ✓ components/manager/deactivate-login-dialog.test.tsx > DeactivateLoginDialog > agent-has-no-login-shows-stale-page-message 22ms
+ ✓ components/manager/deactivate-login-dialog.test.tsx > DeactivateLoginDialog > 404-shows-no-longer-exists-message 24ms
+ ✓ components/manager/testers-view.test.tsx > ManagerTestersView reset password > says the Tester no longer exists on a 404 35ms
+ ✓ components/manager/testers-view.test.tsx > ManagerTestersView deactivate and reactivate login > 404-shows-no-longer-exists-message 29ms
+ Test Files  4 passed (4)
+      Tests  36 passed (36)
+   Duration  1.40s (transform 261ms, setup 410ms, import 548ms, tests 1.53s, environment 1.44s)
+4:89-    stubFetch(409, { code: "AGENT_HAS_NO_LOGIN" });
+9:94-    expect(await screen.findByRole("alert")).toHaveTextContent(
+12:97-    expect(onChanged).not.toHaveBeenCalled();
+13:98-    expect(mockRouter.refresh).not.toHaveBeenCalled();
+23:108-    expect(alert).toHaveTextContent("Camille Duforet no longer exists.");
+24:109-    expect(within(alert).getByRole("link", { name: "Back to the Agents list" })).toHaveAttribute(

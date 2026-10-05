@@ -1,0 +1,9 @@
+
+ RUN  v4.1.11 /Users/oscar/myspace/projects/remote-support-app/frontend
+
+
+ Test Files  51 passed (51)
+      Tests  319 passed (319)
+   Start at  15:00:31
+   Duration  9.03s (transform 2.39s, setup 6.89s, import 4.88s, tests 18.15s, environment 25.53s)
+

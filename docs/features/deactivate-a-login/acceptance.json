@@ -1,0 +1,169 @@
+{
+  "feature": "deactivate-a-login",
+  "played_at": "2026-10-05",
+  "played_on": "feature/deactivate-a-login",
+  "environment": "Throwaway postgres:16-alpine; backend mvn spring-boot:run (JDK 21); next build+start; curl for API steps and a Playwright script for UI steps, with its own Agents and Testers; suites run after the stack was stopped.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1.txt",
+      "note": "POST deactivate 200 with deactivatedAt"
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2.txt",
+      "note": "right pw 401 LOGIN_DEACTIVATED; wrong pw 401 empty body, same as active"
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3.txt",
+      "note": "/api/me, /api/me/agent, POST /api/me/password all 401; ChangePasswordServiceDeactivatedTest 2/2"
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4.txt",
+      "note": "only loginDeactivatedAt differs on the Agents list row (no GET-by-id); 409 AGENT_ALREADY_HAS_LOGIN"
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": "same deactivatedAt, one audit line"
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": "reset 200, sign-in refused until reactivation, then the reset password signs in"
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": "original password signs in after deactivate+reactivate"
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8.txt",
+      "note": "Tester flow; email, Primary Contact and request raiser kept"
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9.txt",
+      "note": "409 AGENT_HAS_NO_LOGIN; 404 unknown and other-Tenant (SQL-built); other-Tenant Logins still sign in"
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-10.txt",
+      "note": "403 for all four routes with Agent and Tester tokens; no Manager target"
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-11.txt",
+      "note": "one audit line per real change; refused sign-ins logged without passwords; none for refusals"
+    },
+    {
+      "step": 12,
+      "actor": "agent",
+      "status": "failed",
+      "evidence": "evidence/step-12-e2e-full.txt",
+      "note": "All green except the isolated e2e suite: 82 passed, 1 failed (deactivate-a-login.spec.ts:206 keyboard walk; Enter within ~30ms of Escape is swallowed). Failed again on 2 isolated reruns. Finding F6."
+    },
+    {
+      "step": 13,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-13.txt",
+      "note": ""
+    },
+    {
+      "step": 14,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-14.txt",
+      "note": "Cancel leaves the Agent signing in"
+    },
+    {
+      "step": 15,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-15.txt",
+      "note": "status region and focus on Reactivate verified"
+    },
+    {
+      "step": 16,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-16.txt",
+      "note": ""
+    },
+    {
+      "step": 17,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-17.txt",
+      "note": ""
+    },
+    {
+      "step": 18,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-18.txt",
+      "note": "row action names carry the email; tag in the email cell"
+    },
+    {
+      "step": 19,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-19.txt",
+      "note": "409 and 404 messages asserted by component tests (36)"
+    },
+    {
+      "step": 20,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-20.txt",
+      "note": "Passed with a 150ms pause after Escape (same race as step 12). Mobile: table scrolls in its container; tag, actions and dialog in the viewport."
+    },
+    {
+      "step": 21,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 22,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 23,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    }
+  ]
+}

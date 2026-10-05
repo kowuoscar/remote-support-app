@@ -1,0 +1,14 @@
+- banner:
+  - text: N Remote Support Platform
+  - button "Switch to dark theme"
+- main:
+  - heading "Sign in" [level=1]
+  - paragraph: Use your Manager, Agent or Client Portal credentials.
+  - text: Email
+  - textbox "Email":
+    - /placeholder: you@example.com
+  - text: Password
+  - textbox "Password":
+    - /placeholder: ••••••••
+  - button "Sign in"
+- alert

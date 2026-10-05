@@ -1,0 +1,4 @@
+## STEP 3
+GET /api/me -> 401 
+GET /api/me/agent -> 401 
+POST /api/me/password -> 401 

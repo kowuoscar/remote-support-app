@@ -1,0 +1,1 @@
+A	backend/src/main/resources/db/migration/V58__add_users_deactivated_at.sql

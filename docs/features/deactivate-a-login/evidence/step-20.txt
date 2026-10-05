@@ -1,0 +1,17 @@
+ring row action: solid 2px rgb(71, 48, 224)
+PASS Tab to row action: focused, visible ring
+PASS open: Cancel focused
+ring Cancel: solid 2px rgb(11, 18, 32)
+PASS Escape closes, focus returns to row action
+ring confirm: solid 2px rgb(255, 255, 255)
+PASS Tab to confirm: focused with ring
+PASS confirm by keyboard: closes, focus on Reactivate
+{"x":233.28125,"y":303.640625,"width":123.71875,"height":28}
+{"x":232.71875,"y":331.640625,"width":124.28125,"height":28}
+{"x":143.6875,"y":327.640625,"width":1,"height":1}
+PASS mobile: tag + both row actions inside viewport
+{"x":19.5,"y":313.75,"width":351,"height":216.5}
+PASS mobile: dialog inside viewport
+visible tag box {"x":41,"y":328.640625,"width":103.6875,"height":26} of 1
+{"x":17,"y":291.140625,"width":720,"height":80.5}
+doc scrollWidth [ 721, 390 ]

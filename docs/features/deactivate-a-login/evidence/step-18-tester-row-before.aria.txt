@@ -1,0 +1,6 @@
+- row "ui.tester@example.com Tester Actions":
+  - cell "ui.tester@example.com"
+  - cell "Tester"
+  - cell "Actions":
+    - button "Reset password for ui.tester@example.com": Reset password
+    - button "Deactivate login for ui.tester@example.com": Deactivate login

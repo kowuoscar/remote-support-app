@@ -1,0 +1,5 @@
+- dialog "Deactivate login for UI Agent Acc":
+  - heading "Deactivate login for UI Agent Acc" [level=2]
+  - paragraph: ui.agent@example.com will no longer be able to sign in, and is signed out at once. Their record, requests and invoices stay as they are. You can reactivate this login later.
+  - button "Cancel"
+  - button "Deactivate login"

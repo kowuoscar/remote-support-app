@@ -1,0 +1,36 @@
+## STEP 10
+-- agent token
+POST /api/agents/796ccc5f-01f1-446f-9ced-e6beab42ba5e/login/deactivate -> 403 {"timestamp":"2026-10-05T12:52:27.745+00:00","status":403,"error":"Forbidden","path":"/api/agents/796ccc5f-01f1-446f-9ced-e6beab42ba5e/login/deactivate"}
+POST /api/agents/796ccc5f-01f1-446f-9ced-e6beab42ba5e/login/reactivate -> 403 {"timestamp":"2026-10-05T12:52:27.759+00:00","status":403,"error":"Forbidden","path":"/api/agents/796ccc5f-01f1-446f-9ced-e6beab42ba5e/login/reactivate"}
+POST /api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/b17afe39-eb19-466c-9a03-174d93017292/deactivate -> 403 {"timestamp":"2026-10-05T12:52:27.772+00:00","status":403,"error":"Forbidden","path":"/api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/b17afe39-eb19-466c-9a03-174d93017292/deactivate"}
+POST /api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/b17afe39-eb19-466c-9a03-174d93017292/reactivate -> 403 {"timestamp":"2026-10-05T12:52:27.785+00:00","status":403,"error":"Forbidden","path":"/api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/b17afe39-eb19-466c-9a03-174d93017292/reactivate"}
+-- tester token
+POST /api/agents/796ccc5f-01f1-446f-9ced-e6beab42ba5e/login/deactivate -> 403 {"timestamp":"2026-10-05T12:52:27.799+00:00","status":403,"error":"Forbidden","path":"/api/agents/796ccc5f-01f1-446f-9ced-e6beab42ba5e/login/deactivate"}
+POST /api/agents/796ccc5f-01f1-446f-9ced-e6beab42ba5e/login/reactivate -> 403 {"timestamp":"2026-10-05T12:52:27.813+00:00","status":403,"error":"Forbidden","path":"/api/agents/796ccc5f-01f1-446f-9ced-e6beab42ba5e/login/reactivate"}
+POST /api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/b17afe39-eb19-466c-9a03-174d93017292/deactivate -> 403 {"timestamp":"2026-10-05T12:52:27.827+00:00","status":403,"error":"Forbidden","path":"/api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/b17afe39-eb19-466c-9a03-174d93017292/deactivate"}
+POST /api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/b17afe39-eb19-466c-9a03-174d93017292/reactivate -> 403 {"timestamp":"2026-10-05T12:52:27.840+00:00","status":403,"error":"Forbidden","path":"/api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/b17afe39-eb19-466c-9a03-174d93017292/reactivate"}
+-- tokens still valid:
+GET /api/me -> 200 {"userId":"33333333-3333-3333-3333-333333333333","username":"agent@example.com","tenantId":"11111111-1111-1111-1111-111111111111","role":"AGENT","agentId":"55555555-5555-5555-5555-555555555555"}
+GET /api/me -> 200 {"userId":"44444444-4444-4444-4444-444444444444","username":"tester@example.com","tenantId":"11111111-1111-1111-1111-111111111111","role":"TESTER"}
+-- body naming a User ignored? route signatures:
+11:import org.springframework.web.bind.annotation.PathVariable;
+12:import org.springframework.web.bind.annotation.PostMapping;
+30:  @PostMapping("/api/agents/{agentId}/login/deactivate")
+32:      @PathVariable UUID agentId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+36:  @PostMapping("/api/agents/{agentId}/login/reactivate")
+38:      @PathVariable UUID agentId, @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+42:  @PostMapping("/api/clients/{clientId}/testers/{testerId}/deactivate")
+44:      @PathVariable UUID clientId,
+45:      @PathVariable UUID testerId,
+50:  @PostMapping("/api/clients/{clientId}/testers/{testerId}/reactivate")
+52:      @PathVariable UUID clientId,
+53:      @PathVariable UUID testerId,
+-- manager-role user id attempt as agentId/testerId (404):
+POST /api/agents/22222222-2222-2222-2222-222222222222/login/deactivate -> 404 {"timestamp":"2026-10-05T12:52:27.897+00:00","status":404,"error":"Not Found","path":"/api/agents/22222222-2222-2222-2222-222222222222/login/deactivate"}
+POST /api/agents/22222222-2222-2222-2222-222222222222/login/deactivate -> 404 {"timestamp":"2026-10-05T12:52:27.982+00:00","status":404,"error":"Not Found","path":"/api/agents/22222222-2222-2222-2222-222222222222/login/deactivate"}
+POST /api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/22222222-2222-2222-2222-222222222222/deactivate -> 404 {"timestamp":"2026-10-05T12:52:28.000+00:00","status":404,"error":"Not Found","path":"/api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/22222222-2222-2222-2222-222222222222/deactivate"}
+-- manager login still works:
+200
+manager user appears in agents list / testers lists? (expect 0)
+0
+0

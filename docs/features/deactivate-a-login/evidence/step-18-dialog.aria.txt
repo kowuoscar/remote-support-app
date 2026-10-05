@@ -1,0 +1,5 @@
+- dialog "Deactivate login for ui.tester@example.com":
+  - heading "Deactivate login for ui.tester@example.com" [level=2]
+  - paragraph: ui.tester@example.com will no longer be able to sign in, and is signed out at once. Their record, requests and invoices stay as they are. You can reactivate this login later.
+  - button "Cancel"
+  - button "Deactivate login"

@@ -545,6 +545,18 @@ export interface ClientInvoiceDetail {
   sentBackReason?: string | null;
 }
 
+/** One row of GET /api/client-invoices/sent-back (Agent only): an invoice the Manager sent back, no amounts. */
+export interface SentBackClientInvoice {
+  id: string;
+  contractId: string;
+  clientName: string;
+  country: string;
+  billingMonth: string;
+  currency: string;
+  sentBackAt: string;
+  sentBackReason: string | null;
+}
+
 // Mirrors backend/.../domain/StandingAmountType.java
 export type StandingAmountTypeValue = "SALARY" | "ROLLOUT_ADVANCE";
 

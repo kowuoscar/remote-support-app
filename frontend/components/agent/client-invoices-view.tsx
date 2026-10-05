@@ -4,11 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
 import { EmptyState } from "@/components/ui/empty-state";
-import { IconAlertTriangle, IconInvoices } from "@/components/icons";
+import { IconAlertTriangle, IconArrowRight, IconInvoices } from "@/components/icons";
+import { Card } from "@/components/ui/card";
+import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { AgentClientInvoiceCard } from "@/components/agent/agent-client-invoice-card";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { formatBillingMonth, formatDate } from "@/lib/format";
-import type { ClientInvoiceDetail } from "@/lib/api/types";
+import { countryLabel, type ClientInvoiceDetail, type SentBackClientInvoice } from "@/lib/api/types";
 
 /**
  * Agent opens a Contract's current-month Client Invoice draft (client-invoice-generation ticket
@@ -21,9 +23,12 @@ import type { ClientInvoiceDetail } from "@/lib/api/types";
 export function AgentClientInvoicesView({
   contracts,
   invoicesByContract,
+  sentBack = [],
 }: {
   contracts: ContractOption[];
   invoicesByContract: Record<string, ClientInvoiceDetail | null>;
+  /** The Agent's sent-back invoices from any month, oldest first; the section is absent when empty. */
+  sentBack?: SentBackClientInvoice[];
 }) {
   const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
   const invoice = invoicesByContract[contractId];
@@ -40,6 +45,7 @@ export function AgentClientInvoicesView({
 
   return (
     <div className="flex flex-col gap-4">
+      <SentBackSection rows={sentBack} />
       <ContractSwitcher contracts={contracts} value={contractId} onChange={setContractId} />
 
       {!invoice ? (
@@ -49,9 +55,93 @@ export function AgentClientInvoicesView({
           description="Switch contracts or reload the page to try again."
         />
       ) : (
-        <AgentClientInvoiceCard invoice={invoice} />
+        <>
+          {invoice.status === "DRAFT" && invoice.sentBackAt ? (
+            <SentBackNotice sentBackAt={invoice.sentBackAt} reason={invoice.sentBackReason} />
+          ) : null}
+          <AgentClientInvoiceCard invoice={invoice} />
+        </>
       )}
     </div>
+  );
+}
+
+/**
+ * The Manager's send-back as a warning-toned notice: when, the reason, and what to do next. Shown
+ * on the by-id page and above a sent-back current-month card.
+ */
+function SentBackNotice({ sentBackAt, reason }: { sentBackAt: string; reason?: string | null }) {
+  return (
+    <section
+      aria-labelledby="sent-back-notice"
+      className="flex flex-col gap-1.5 rounded-lg border border-warning/40 bg-warning-bg px-4 py-3"
+    >
+      <h2 id="sent-back-notice" className="flex items-center gap-1.5 text-label font-semibold text-warning">
+        <IconAlertTriangle className="h-4 w-4 shrink-0" />
+        Sent back by the Manager on {formatDate(sentBackAt)}
+      </h2>
+      {reason ? <p className="whitespace-pre-wrap break-words text-label text-ink">{reason}</p> : null}
+      <p className="text-label text-ink-secondary">Correct what is needed, then send it again.</p>
+    </section>
+  );
+}
+
+/** "Sent back to you": every invoice the Manager sent back, any month; renders nothing when none. */
+function SentBackSection({ rows }: { rows: SentBackClientInvoice[] }) {
+  if (rows.length === 0) return null;
+  return (
+    <section aria-labelledby="sent-back-to-you">
+      <Card className="overflow-hidden">
+        <h2 id="sent-back-to-you" className="px-4 py-3 text-sm font-semibold text-ink">
+          Sent back to you
+        </h2>
+        <TableScroll className="rounded-none border-0 border-t">
+          <Table>
+            <Thead>
+              <Tr>
+                <Th>Contract</Th>
+                <Th>Billing month</Th>
+                <Th>Sent back</Th>
+                <Th>Reason</Th>
+                {/* relative: keeps the sr-only label inside the table's scroll container on narrow screens */}
+                <Th className="relative text-right">
+                  <span className="sr-only">Action</span>
+                </Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {rows.map((row) => {
+                const month = formatBillingMonth(row.billingMonth);
+                return (
+                  <Tr key={row.id}>
+                    <Td className="whitespace-nowrap font-medium text-ink">
+                      {row.clientName} — {countryLabel(row.country)}
+                    </Td>
+                    <Td className="whitespace-nowrap text-ink-secondary">{month}</Td>
+                    <Td className="whitespace-nowrap text-ink-mute">{formatDate(row.sentBackAt)}</Td>
+                    <Td className="max-w-md">
+                      <p className="line-clamp-2 break-words text-ink-secondary" title={row.sentBackReason ?? undefined}>
+                        {row.sentBackReason}
+                      </p>
+                    </Td>
+                    <Td className="text-right">
+                      <Link
+                        href={`/agent/client-invoices/${row.id}`}
+                        aria-label={`Open ${row.clientName}, ${month}`}
+                        className="inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary-soft-bg px-3 text-[13px] font-medium text-primary-soft-text transition-colors hover:bg-primary/20 active:bg-primary/25"
+                      >
+                        Open
+                        <IconArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
+        </TableScroll>
+      </Card>
+    </section>
   );
 }
 
@@ -97,19 +187,7 @@ export function AgentClientInvoicePageView({
         ]}
       />
       {sentBack && invoice.sentBackAt ? (
-        <section
-          aria-labelledby="sent-back-notice"
-          className="flex flex-col gap-1.5 rounded-lg border border-warning/40 bg-warning-bg px-4 py-3"
-        >
-          <h2 id="sent-back-notice" className="flex items-center gap-1.5 text-label font-semibold text-warning">
-            <IconAlertTriangle className="h-4 w-4 shrink-0" />
-            Sent back by the Manager on {formatDate(invoice.sentBackAt)}
-          </h2>
-          {invoice.sentBackReason ? (
-            <p className="whitespace-pre-wrap break-words text-label text-ink">{invoice.sentBackReason}</p>
-          ) : null}
-          <p className="text-label text-ink-secondary">Correct what is needed, then send it again.</p>
-        </section>
+        <SentBackNotice sentBackAt={invoice.sentBackAt} reason={invoice.sentBackReason} />
       ) : null}
       <AgentClientInvoiceCard invoice={invoice} readOnly={closed} />
     </div>

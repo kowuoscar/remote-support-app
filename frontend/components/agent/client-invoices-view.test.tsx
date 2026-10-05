@@ -27,6 +27,62 @@ function invoice(overrides: Partial<ClientInvoiceDetail> = {}): ClientInvoiceDet
   };
 }
 
+const SENT_BACK_ROW = {
+  id: "invoice-9",
+  contractId: "contract-2",
+  clientName: "Birch Telecom",
+  country: "KE",
+  billingMonth: "2026-07-01",
+  currency: "USD",
+  sentBackAt: "2026-09-03T10:00:00Z",
+  sentBackReason: "The July roaming Fee is missing its receipt, please attach it.",
+};
+
+describe("AgentClientInvoicesView sent back to you", () => {
+  it("section-absent-when-list-is-empty", () => {
+    render(
+      <AgentClientInvoicesView contracts={[CONTRACT]} invoicesByContract={{ "contract-1": invoice() }} sentBack={[]} />,
+    );
+    expect(screen.queryByRole("heading", { name: "Sent back to you" })).not.toBeInTheDocument();
+  });
+
+  it("rows-show-contract-month-date-reason-and-open-link", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT]}
+        invoicesByContract={{ "contract-1": invoice() }}
+        sentBack={[SENT_BACK_ROW]}
+      />,
+    );
+    const region = screen.getByRole("region", { name: "Sent back to you" });
+    const row = within(region).getByRole("row", { name: /Birch Telecom/ });
+    expect(within(row).getByText(/Birch Telecom/)).toBeInTheDocument();
+    expect(within(row).getByText("July 2026")).toBeInTheDocument();
+    expect(within(row).getByText(/Sep 3, 2026/)).toBeInTheDocument();
+    expect(within(row).getByText(SENT_BACK_ROW.sentBackReason)).toBeInTheDocument();
+    expect(within(row).getByRole("link", { name: /Open.*Birch Telecom.*July 2026/ })).toHaveAttribute(
+      "href",
+      "/agent/client-invoices/invoice-9",
+    );
+    // the section sits above the Contract switcher
+    const switcher = screen.getByText("Aurora Retail Group");
+    expect(region.compareDocumentPosition(switcher) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("current-month-card-shows-reason-and-badge-when-sent-back", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT]}
+        invoicesByContract={{
+          "contract-1": invoice({ sentBackAt: "2026-09-03T10:00:00Z", sentBackReason: "Fix the base amount." }),
+        }}
+      />,
+    );
+    expect(screen.getByText("Fix the base amount.")).toBeInTheDocument();
+    expect(screen.getByText("Sent back")).toBeInTheDocument();
+  });
+});
+
 describe("AgentClientInvoicesView", () => {
   it("lists a still-Active Postpaid SIM Card with no cancellation marker", () => {
     render(

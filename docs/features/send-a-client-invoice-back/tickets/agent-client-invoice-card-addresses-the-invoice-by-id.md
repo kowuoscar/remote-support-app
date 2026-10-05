@@ -1,7 +1,7 @@
 ---
 id: agent-client-invoice-card-addresses-the-invoice-by-id
 title: Extract the Agent's Client Invoice card and point its controls at the by-id routes
-status: in-progress
+status: done
 depends_on: [agent-reaches-a-client-invoice-by-its-id]
 labels: [frontend, enabler]
 stories: []

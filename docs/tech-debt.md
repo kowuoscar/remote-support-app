@@ -13,6 +13,7 @@ separated by ` · `.
 
 ## frontend
 
+- `frontend/app/api/contracts/[contractId]/client-invoice/send/route.ts` · smell: Dead BFF routes · the contract-scoped send, lines and files (POST and GET list) Route Handlers under `frontend/app/api/contracts/[contractId]/client-invoice/` have no frontend caller since the Agent card addresses the invoice by id; remove them (the Client's file download still uses the contract-scoped `files/[fileId]` route) and update the comment in `frontend/app/api/agents/[agentId]/invoice/send/route.ts` · send-a-client-invoice-back · 2026-10-05
 - `frontend/components/manager/send-back-client-invoice-control.tsx` · smell: No shared Textarea · the send-back reason field styles a raw `<textarea>` with the `Input` classes; a shared `Textarea` in `frontend/components/ui` would remove the duplication · send-a-client-invoice-back · 2026-10-05
 - `frontend/components/manager/reset-password-dialog.tsx` · smell: Focus lost while confirming · the reset confirm uses Button `loading` (native disabled), so focus drops to BODY in flight and after a failure; the login-activation dialog fixed this locally with aria-disabled + aria-busy and a third spinner style. Give `frontend/components/ui/button.tsx` a focusable busy mode and use it in both · deactivate-a-login · 2026-10-05
 - `frontend/components/manager/login-activation-controls.tsx` · smell: Two date styles · the Deactivated tag shows '2 Oct 2026' (en-GB, UTC) through new `formatDate` options while the rest of the app shows 'Oct 2, 2026' in the viewer's zone · deactivate-a-login · 2026-10-05

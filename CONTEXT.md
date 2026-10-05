@@ -126,6 +126,9 @@ A Client Invoice that is `draft` and carries a `sentBackAt`; reached only by a M
 **Send-back**:
 A Manager's `sent` → `draft` transition of a Client Invoice with a required reason (ADR 0005); recomputes and clears nothing, and moves no pay.
 
+**Open to its Agent**:
+A Client Invoice draft that is sent back or of the current billing month (UTC). The one predicate in `ClientInvoiceService` gating every Agent write by id; a draft not open to its Agent (a past month never sent) is refused 409 `PAST_MONTH_DRAFT_NOT_SENDABLE`.
+
 **Payable amount** (of a Contract for a month):
 What a Contract adds to the Agent's Local Support Fees: every line its Client Invoice bills at its billed amount, plus anything of that month the invoice does not bill at its computed amount; with no Client Invoice, the computation.
 

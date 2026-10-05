@@ -62,6 +62,8 @@ export interface TesterListItem {
   clientId: string;
   username: string;
   isPrimaryContact: boolean;
+  /** When the Tester's Login was deactivated; absent or null while it is active. */
+  deactivatedAt?: string | null;
 }
 
 // GET /api/me/client — the Client the calling Tester belongs to.

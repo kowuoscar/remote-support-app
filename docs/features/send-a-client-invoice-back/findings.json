@@ -1,0 +1,225 @@
+{
+  "feature": "send-a-client-invoice-back",
+  "findings": [
+    {
+      "id": "F1",
+      "type": "spec-wrong",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceService.java:666",
+      "citation": "spec.md, Backend: the Agent reaches an invoice by its id: \"| `POST …/files` (new) | yes | yes, open to its Agent only (409 otherwise) | 403 |\" and \"One predicate in `ClientInvoiceService`, **open to its Agent**, ... gates every Agent write by id\"",
+      "note": "attachFile calls requireOpenToAgent whatever the caller's role, so a Manager attaching a file by id to a past-month never-sent draft gets 409 PAST_MONTH_DRAFT_NOT_SENDABLE; the table gives the Manager an unconditional yes. Apply the check only for an Agent caller, with a test."
+    },
+    {
+      "id": "F2",
+      "type": "rule-violated",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:121",
+      "citation": "docs/agents/coding-standards.md: Frontend 8 — \"Compose Tailwind classes from the tokens in `frontend/app/globals.css` (`@theme`, Tailwind v4); an arbitrary value (`w-[123px]`) needs a comment saying why it isn't a token. The two small type sizes are tokens, not arbitrary values, once the `type-scale-tokens` enabler lands\"",
+      "note": "Changed lines use text-[12px]/text-[13px] and max-w-[260px]/min-w-[220px] with no comment: agent-client-invoice-card.tsx (121,129,143,153,159,169,185,200,229,231,273,278,290,294), client-invoices-view.tsx:131, client-invoice-detail-view.tsx:59, send-client-invoice-control.tsx:44, contract-switcher.tsx:65. Use text-label-sm/text-label; comment or tokenise the widths."
+    },
+    {
+      "id": "F3",
+      "type": "rule-violated",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:1",
+      "citation": "docs/agents/coding-standards.md: Frontend 1 — \"Default every component to a Server Component; add \\\"use client\\\" only when the file needs state, effects, or browser APIs — not to \\\"be safe\\\".\"",
+      "note": "New file declares \"use client\" with no state, effects or browser APIs; it only renders client controls."
+    },
+    {
+      "id": "F4",
+      "type": "rule-violated",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceService.java:151",
+      "citation": "docs/agents/coding-standards.md: Backend 3 — \"The transaction boundary is the service method (`@Transactional`), never the repository or the controller\"",
+      "note": "attachFile (status check + requireOpenToAgent + save) has no @Transactional, unlike send, editLine, sendBack, approve, which are @Transactional and take findByIdForUpdate."
+    },
+    {
+      "id": "F5",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/send-back-client-invoice-control.tsx:81",
+      "citation": "web-design-guidelines: \"Async updates (toasts, validation) need `aria-live=\"polite\"`\"",
+      "note": "After a successful send-back the control unmounts and focus falls to BODY; nothing announces the change. Move focus to the status note (tabIndex=-1) or announce it in an aria-live polite region."
+    },
+    {
+      "id": "F6",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/send-back-client-invoice-control.tsx:140",
+      "citation": "web-design-guidelines: \"Submit button stays enabled until request starts; spinner during request\"",
+      "note": "While in flight Confirm send back only fades to 50%; no spinner or 'Sending back…' label. Show progress while keeping it focusable."
+    },
+    {
+      "id": "F7",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/client-invoices-view.tsx:77",
+      "citation": "DESIGN.md: \"**Don't** introduce a border color outside the `hairline`/`hairline-strong` tokens.\"",
+      "note": "SentBackNotice uses border-warning/40. Use border-hairline or no border."
+    },
+    {
+      "id": "F8",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/send-client-invoice-control.tsx:51",
+      "citation": "WCAG 2.1 SC 2.4.3 Focus Order (Level A): If a Web page can be navigated sequentially and the navigation sequences affect meaning or operation, focusable components receive focus in an order that preserves meaning and operability.",
+      "note": "On the new by-id page (story 35), focus falls to BODY when the confirm opens, on Back, while sending (native disabled) and after success; Escape doesn't close the confirm. Focus Confirm on open, refocus the trigger on Back, use the aria-disabled+aria-busy busy mode, close on Escape, focus a status line after success."
+    },
+    {
+      "id": "F9",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:136",
+      "citation": "",
+      "note": "On the by-id page a past-month non-draft invoice links Download PDF to the contract's current-month PDF route, so the Agent downloads another month's invoice; hide the link when billingMonth isn't the current month. Also a sent-back past-month draft reads 'this month's Fees — still being assembled'."
+    },
+    {
+      "id": "F10",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceController.java:165",
+      "citation": "",
+      "note": "requireNonEmpty runs in the controller and again inside attachFile."
+    },
+    {
+      "id": "F11",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:150",
+      "citation": "",
+      "note": "Summary, Fee-lines and Carrier-files sections closely repeat frontend/components/manager/client-invoice-detail-view.tsx."
+    },
+    {
+      "id": "F12",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "ARCHITECTURE.md:52",
+      "citation": "",
+      "note": "Two new lines (lines 52 and 65) lean toward describing behaviour rather than pointing to role."
+    },
+    {
+      "id": "F13",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceSentBackController.java:30",
+      "citation": "",
+      "note": "Controller goes straight to the repository and maps rows, no service (weak; package precedent)."
+    },
+    {
+      "id": "F14",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceService.java:376",
+      "citation": "",
+      "note": "requireOpenToAgent checks DRAFT, then isOpenToAgent checks it again."
+    },
+    {
+      "id": "F15",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/ui/contract-switcher.tsx:65",
+      "citation": "",
+      "note": "The width fix's w-full makes the switcher span 992px at 1280px on the Agent Client Invoices and Fleet pages (it used to fit its label). Drop w-full, keep max-w-full plus truncation, or self-start on the root."
+    },
+    {
+      "id": "F16",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/client-invoices-view.tsx:117",
+      "citation": "",
+      "note": "'Sent back to you' table: a long client name squeezes the Reason column to two words; Open clipped at 1280px; at 375px only Contract shows. Give the reason a min width and let Contract wrap/truncate."
+    },
+    {
+      "id": "F17",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/app/agent/client-invoices/[invoiceId]/page.tsx:34",
+      "citation": "",
+      "note": "The by-id page never names the Contract or Client; show client and country in the title or breadcrumb as the Manager's page does."
+    },
+    {
+      "id": "F18",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/client-invoice-detail-view.tsx:76",
+      "citation": "",
+      "note": "Approve stays enabled beside the open send-back form and the action row reflows awkwardly. Hide Approve while the form is open and render the form as its own full-width row."
+    },
+    {
+      "id": "F19",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/client-invoices-view.tsx:168",
+      "citation": "",
+      "note": "Not-found copy says 'It may have been removed' (invoices are never removed) and the state has no breadcrumb. Use 'It doesn't exist or isn't one of yours.' plus the breadcrumb."
+    },
+    {
+      "id": "F20",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit (impeccable + web-design-guidelines)",
+      "after_review": false,
+      "in_changed_lines": false,
+      "where": "frontend/components/ui/button.tsx:25",
+      "citation": "",
+      "note": "Dark-theme danger button: white on #f16b7a is ~2.95:1, below AA; pre-existing and app-wide. Give danger a passing dark-theme pairing."
+    }
+  ]
+}

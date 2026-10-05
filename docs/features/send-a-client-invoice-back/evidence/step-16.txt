@@ -1,0 +1,1 @@
+U16 past-month (Aug 2026) never-sent draft opened by id as Agent: read-only notice 'This month has ended and the invoice was never sent — it is shown as it stands and is closed to changes'; no Edit/Attach/Send buttons (only header theme/viewer buttons). See step-16-past-draft.yml

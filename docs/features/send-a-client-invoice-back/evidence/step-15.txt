@@ -1,0 +1,1 @@
+U3 (SB 534eb8c7): queue row total $44.90; open page shows 'Edited · computed $18.00' / 'Edited · computed $5.00' and 'Previously sent back on Oct 5, 2026: Carrier bill shows a different amount for the SIM - UI-run-3'; Approve -> Approved. See step-15-*.yml

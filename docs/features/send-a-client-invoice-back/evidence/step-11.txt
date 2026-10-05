@@ -1,0 +1,15 @@
+U1 client: SB e7924835
+occurrences in queue snapshot:
+0
+occurrences in dashboard snapshot:
+0
+queue still lists other invoices (rows):
+10
+        - link "Invoices" [ref=f3e43] [cursor=pointer]:
+          - /url: /manager/invoices
+              - generic [ref=f3e155]: Client + Agent Invoices awaiting review
+                - /url: /manager/invoices
+                - link "Jordan Ellis Agent Invoice · October 2026 · waiting since today $2,836.00" [ref=f3e103] [cursor=pointer]:
+                  - /url: /manager/invoices/agent/896880c8-e446-413e-aee8-ee0bbd55e6dc
+                    - generic [ref=f3e112]: Agent Invoice · October 2026 · waiting since today
+                - link "SB b624f682 — SB Agent One Client Invoice · October 2026 · waiting since today $25.00" [ref=f3e115] [cursor=pointer]:

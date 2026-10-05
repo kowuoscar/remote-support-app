@@ -1,0 +1,1 @@
+U3: edited SIM 20.00->31.40 and Fee 5.00->6.50 in the editor, attached carrier-ui.pdf (file chooser), clicked Send: confirmation 'Sends to the Manager and Client, and locks the numbers. Only the Manager can send it back to you.' -> Confirm send -> Awaiting approval, total $44.90, files list carrier-ui.pdf; Client Invoices list no longer holds 534eb8c7. See step-14-*.yml

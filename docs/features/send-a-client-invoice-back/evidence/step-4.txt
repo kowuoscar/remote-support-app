@@ -1,0 +1,149 @@
+## manager reads resent invoice by id: GET /api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877 -> 200
+{
+ "id": "0d47e9c7-3c7d-4bbb-81e5-79a819c79877",
+ "contractId": "42fe22c0-54e3-4eed-ad38-7d5b78a5607f",
+ "billingMonth": "2026-10-01",
+ "status": "SENT",
+ "currency": "USD",
+ "baseAmount": 20.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "a0cc19b9-4ced-47f7-b40e-f270a8c23e33",
+   "number": "+1-555-0400",
+   "monthlyFeeAmount": 18.0,
+   "cancellationEffectiveDate": null,
+   "amount": 20.0,
+   "computedAmount": 18.0,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "67e1c75f-5ffb-4d0f-ad5f-f724e83b4d92",
+   "contractId": "42fe22c0-54e3-4eed-ad38-7d5b78a5607f",
+   "requestId": "6b9f1ad8-acd6-4f86-b548-3c9010fbe862",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 6.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:38:53.250904Z",
+   "computedAmount": 5.0,
+   "edited": true
+  },
+  {
+   "id": "54085330-bf87-47cd-bf75-1d213f23a52b",
+   "contractId": "42fe22c0-54e3-4eed-ad38-7d5b78a5607f",
+   "requestId": "903e8dfa-6027-44ca-985c-66cd3b01df49",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 8.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:38:53.315094Z",
+   "computedAmount": 7.0,
+   "edited": true
+  }
+ ],
+ "totalAmount": 34.0,
+ "files": [],
+ "sentAt": "2026-10-05T17:38:53.918108Z",
+ "approvedAt": null,
+ "sentBackAt": "2026-10-05T17:38:53.372266Z",
+ "sentBackReason": "Line one does not match the carrier bill - zebra-quartz-77"
+}
+## manager approves: POST /api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877/approve -> 200
+approve -> 200 APPROVED
+## send back the APPROVED invoice (step 2 evidence): POST /api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877/send-back body={"reason": "Line one does not match the carrier bill - zebra-quartz-77"} -> 409
+{
+ "timestamp": "2026-10-05T17:38:54.031+00:00",
+ "status": 409,
+ "error": "Conflict",
+ "path": "/api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877/send-back"
+}
+## send-back #1: POST /api/client-invoices/ad4d03d7-5256-4a78-bef6-50a4e7b9b917/send-back body={"reason": "Line one does not match the carrier bill - zebra-quartz-77"} -> 200
+{
+ "id": "ad4d03d7-5256-4a78-bef6-50a4e7b9b917",
+ "contractId": "11a57a74-7ef0-4a25-b7fe-deb2307b2245",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "baseAmount": 20.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "e08d5cf1-6650-4956-a8fe-0c3746159eae",
+   "number": "+1-555-34235",
+   "monthlyFeeAmount": 18.0,
+   "cancellationEffectiveDate": null,
+   "amount": 20.0,
+   "computedAmount": 18.0,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "7249f16d-72d4-4384-b683-472c358a703f",
+   "contractId": "11a57a74-7ef0-4a25-b7fe-deb2307b2245",
+   "requestId": "27eceda7-b250-439c-afcb-5a7222867e01",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 5.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:38:54.267723Z",
+   "computedAmount": 5.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 25.0,
+ "files": [],
+ "sentAt": null,
+ "approvedAt": null,
+ "sentBackAt": "2026-10-05T17:38:54.312892Z",
+ "sentBackReason": "Line one does not match the carrier bill - zebra-quartz-77"
+}
+## agent resend #1: POST /api/client-invoices/ad4d03d7-5256-4a78-bef6-50a4e7b9b917/send -> 200
+resend -> 200 SENT
+## send-back #2: POST /api/client-invoices/ad4d03d7-5256-4a78-bef6-50a4e7b9b917/send-back body={"reason": "Line one does not match the carrier bill - zebra-quartz-77"} -> 200
+{
+ "id": "ad4d03d7-5256-4a78-bef6-50a4e7b9b917",
+ "contractId": "11a57a74-7ef0-4a25-b7fe-deb2307b2245",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "baseAmount": 20.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "e08d5cf1-6650-4956-a8fe-0c3746159eae",
+   "number": "+1-555-34235",
+   "monthlyFeeAmount": 18.0,
+   "cancellationEffectiveDate": null,
+   "amount": 20.0,
+   "computedAmount": 18.0,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "7249f16d-72d4-4384-b683-472c358a703f",
+   "contractId": "11a57a74-7ef0-4a25-b7fe-deb2307b2245",
+   "requestId": "27eceda7-b250-439c-afcb-5a7222867e01",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 5.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:38:54.267723Z",
+   "computedAmount": 5.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 25.0,
+ "files": [],
+ "sentAt": null,
+ "approvedAt": null,
+ "sentBackAt": "2026-10-05T17:38:54.335337Z",
+ "sentBackReason": "Line one does not match the carrier bill - zebra-quartz-77"
+}
+## agent resend #2: POST /api/client-invoices/ad4d03d7-5256-4a78-bef6-50a4e7b9b917/send -> 200
+resend -> 200 SENT

@@ -1,0 +1,123 @@
+- Page URL: http://localhost:13000/agent/client-invoices/0e8fad1f-80c6-41ff-aaac-40fb3be1a110
+- Page Title: Client Invoice · Remote Support Platform
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - complementary [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - generic [ref=f2e5]: "N"
+        - generic [ref=f2e6]:
+          - paragraph [ref=f2e7]: Northwind Field Services
+          - paragraph [ref=f2e8]: Agent Console
+      - navigation [ref=f2e9]:
+        - link "Dashboard" [ref=f2e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f2e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f2e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f2e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f2e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f2e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f2e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f2e43]:
+      - banner [ref=f2e203]:
+        - generic [ref=f2e205]:
+          - heading "Client Invoice" [level=1] [ref=f2e206]
+          - paragraph [ref=f2e207]: One per Contract per month
+        - generic [ref=f2e208]:
+          - button "agent@example.com · Agent" [ref=f2e210]
+          - button "Switch to dark theme" [ref=f2e212]
+      - main [ref=f2e216]:
+        - generic [ref=f2e218]:
+          - navigation "Breadcrumb" [ref=f2e219]:
+            - link "Client Invoices" [ref=f2e221] [cursor=pointer]:
+              - /url: /agent/client-invoices
+            - generic [ref=f2e222]: October 2026
+          - region [ref=f2e226]:
+            - heading "Sent back by the Manager on Oct 5, 2026" [level=2] [ref=f2e227]
+            - paragraph [ref=f2e231]: Carrier bill shows a different amount for the SIM - UI-run-3
+            - paragraph [ref=f2e232]: Correct what is needed, then send it again.
+          - generic [ref=f2e233]:
+            - generic [ref=f2e234]:
+              - generic [ref=f2e235]:
+                - generic [ref=f2e236]:
+                  - paragraph [ref=f2e237]: October 2026
+                  - generic [ref=f2e238]: Sent back
+                - paragraph [ref=f2e240]: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+              - generic [ref=f2e241]:
+                - generic [ref=f2e242]:
+                  - button "Attach carrier invoice" [ref=f2e243]
+                  - button "Attach carrier invoice file" [ref=f2e246]
+                - button "Send Client Invoice" [ref=f2e248]
+            - generic [ref=f2e251]:
+              - generic [ref=f2e252]:
+                - term [ref=f2e253]: Base amount
+                - definition [ref=f2e254]: $31.40
+              - generic [ref=f2e255]:
+                - term [ref=f2e256]: Fees this month
+                - definition [ref=f2e257]: $13.50
+              - generic [ref=f2e258]:
+                - term [ref=f2e259]: Total
+                - definition [ref=f2e260]: $44.90
+            - paragraph [ref=f2e261]: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+            - generic [ref=f2e262]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f2e263]
+              - table [ref=f2e265]:
+                - rowgroup [ref=f2e266]:
+                  - row [ref=f2e267]:
+                    - columnheader "Number" [ref=f2e268]
+                    - columnheader "Billed" [ref=f2e269]
+                - rowgroup [ref=f2e270]:
+                  - row [ref=f2e326]:
+                    - cell "+1-555-30244" [ref=f2e272]
+                    - cell "$31.40 Edited · computed $18.00 Edit Reset" [ref=f2e327]:
+                      - generic [ref=f2e274]:
+                        - generic [ref=f2e328]: $31.40
+                        - paragraph [ref=f2e329]: Edited · computed $18.00
+                        - generic [ref=f2e330]:
+                          - button "Edit" [ref=f2e331]
+                          - button "Reset" [ref=f2e332]
+                        - status [ref=f2e280]: SIM +1-555-30244 saved.
+            - generic [ref=f2e281]:
+              - heading "Fee lines" [level=3] [ref=f2e282]
+              - table [ref=f2e284]:
+                - rowgroup [ref=f2e285]:
+                  - row [ref=f2e286]:
+                    - columnheader "Type" [ref=f2e287]
+                    - columnheader "Description" [ref=f2e288]
+                    - columnheader "Logged" [ref=f2e289]
+                    - columnheader "Billed" [ref=f2e290]
+                - rowgroup [ref=f2e291]:
+                  - row [ref=f2e342]:
+                    - cell "Other" [ref=f2e293]
+                    - cell "—" [ref=f2e294]
+                    - cell "Oct 5" [ref=f2e295]
+                    - cell "$6.50 Edited · computed $5.00 Edit Reset" [ref=f2e343]:
+                      - generic [ref=f2e297]:
+                        - generic [ref=f2e344]: $6.50
+                        - paragraph [ref=f2e345]: Edited · computed $5.00
+                        - generic [ref=f2e346]:
+                          - button "Edit" [ref=f2e347]
+                          - button "Reset" [ref=f2e348]
+                        - status [ref=f2e301]: Other Fee, Oct 5 (1 of 2) saved.
+                  - row [ref=f2e302]:
+                    - cell "Other" [ref=f2e303]
+                    - cell "—" [ref=f2e304]
+                    - cell "Oct 5" [ref=f2e305]
+                    - cell "$7.00 Edit" [ref=f2e306]:
+                      - generic [ref=f2e307]:
+                        - generic [ref=f2e308]: $7.00
+                        - button "Edit" [ref=f2e310]
+                        - status [ref=f2e311]
+            - generic [ref=f2e312]:
+              - heading "Carrier invoice files" [level=3] [ref=f2e313]
+              - list [ref=f2e349]:
+                - listitem [ref=f2e350]:
+                  - generic [ref=f2e351]: carrier-ui.pdf
+                  - link "Download" [ref=f2e355] [cursor=pointer]:
+                    - /url: /api/client-invoices/0e8fad1f-80c6-41ff-aaac-40fb3be1a110/files/0b9e04c0-5ff3-413c-b303-7bd9c6ca98b8
+  - alert [ref=f2e202]: Client Invoice · Remote Support Platform

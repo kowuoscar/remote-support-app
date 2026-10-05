@@ -1,0 +1,93 @@
+- Page URL: http://localhost:13000/manager/invoices/client/0e8fad1f-80c6-41ff-aaac-40fb3be1a110
+- Page Title: Client Invoice · Remote Support Platform
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - complementary [ref=f5e3]:
+      - generic [ref=f5e4]:
+        - generic [ref=f5e5]: "N"
+        - generic [ref=f5e6]:
+          - paragraph [ref=f5e7]: Northwind Field Services
+          - paragraph [ref=f5e8]: Manager Console
+      - navigation [ref=f5e9]:
+        - link "Dashboard" [ref=f5e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f5e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f5e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f5e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f5e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f5e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f5e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f5e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f5e48]:
+      - banner [ref=f5e209]:
+        - generic [ref=f5e211]:
+          - heading "SB 534eb8c7 — Jordan Ellis" [level=1] [ref=f5e212]
+          - paragraph [ref=f5e213]: Client Invoice
+        - generic [ref=f5e214]:
+          - button "Manager" [ref=f5e216]
+          - button "Switch to dark theme" [ref=f5e218]
+      - main [ref=f5e222]:
+        - generic [ref=f5e223]:
+          - navigation "Breadcrumb" [ref=f5e224]:
+            - link "Invoices" [ref=f5e226] [cursor=pointer]:
+              - /url: /manager/invoices
+            - generic [ref=f5e227]: SB 534eb8c7 — Jordan Ellis
+          - generic [ref=f5e231]:
+            - generic [ref=f5e232]:
+              - generic [ref=f5e233]:
+                - generic [ref=f5e234]:
+                  - heading "October 2026" [level=2] [ref=f5e235]
+                  - generic [ref=f5e236]: Awaiting approval
+                - paragraph [ref=f5e238]: Base amount and Fee lines are locked to what the Agent sent
+                - paragraph [ref=f5e239]: Sent Oct 5, 2026
+                - paragraph [ref=f5e240]: "Previously sent back on Oct 5, 2026: Carrier bill shows a different amount for the SIM - UI-run-3"
+              - generic [ref=f5e241]:
+                - link "Download PDF" [ref=f5e242] [cursor=pointer]:
+                  - /url: /api/client-invoices/0e8fad1f-80c6-41ff-aaac-40fb3be1a110/pdf
+                - button "Send back" [ref=f5e246]
+                - button "Approve" [ref=f5e248]
+            - generic [ref=f5e252]:
+              - generic [ref=f5e253]:
+                - term [ref=f5e254]: Base amount
+                - definition [ref=f5e255]: $31.40
+              - generic [ref=f5e256]:
+                - term [ref=f5e257]: Fees
+                - definition [ref=f5e258]: $13.50
+              - generic [ref=f5e259]:
+                - term [ref=f5e260]: Total
+                - definition [ref=f5e261]: $44.90
+            - generic [ref=f5e262]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f5e263]
+              - list "Postpaid SIM Cards" [ref=f5e264]:
+                - listitem [ref=f5e265]:
+                  - generic [ref=f5e266]: +1-555-30244
+                  - generic [ref=f5e267]:
+                    - generic [ref=f5e268]: $31.40
+                    - paragraph [ref=f5e269]: Edited · computed $18.00
+            - generic [ref=f5e270]:
+              - heading "Fee lines" [level=3] [ref=f5e271]
+              - list [ref=f5e272]:
+                - listitem [ref=f5e273]:
+                  - generic [ref=f5e274]: Other
+                  - generic [ref=f5e275]:
+                    - generic [ref=f5e276]: $6.50
+                    - paragraph [ref=f5e277]: Edited · computed $5.00
+                - listitem [ref=f5e278]:
+                  - generic [ref=f5e279]: Other
+                  - generic [ref=f5e280]: $7.00
+            - generic [ref=f5e282]:
+              - heading "Carrier invoice files" [level=3] [ref=f5e283]
+              - list [ref=f5e286]:
+                - listitem [ref=f5e287]:
+                  - generic [ref=f5e288]: carrier-ui.pdf
+                  - link "Download carrier-ui.pdf" [ref=f5e292] [cursor=pointer]:
+                    - /url: /api/client-invoices/0e8fad1f-80c6-41ff-aaac-40fb3be1a110/files/0b9e04c0-5ff3-413c-b303-7bd9c6ca98b8
+                    - text: Download
+  - alert [ref=f5e208]: Client Invoice · Remote Support Platform

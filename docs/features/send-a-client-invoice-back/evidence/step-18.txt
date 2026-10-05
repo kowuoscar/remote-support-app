@@ -1,0 +1,32 @@
+== Manager send-back by keyboard alone (Tab / Enter / typing only), desktop 1280x800, invoice SB 3a172406 (cf9b663f). Each STOP = element holding focus | its computed outline
+STOP(tab x13) "Send back | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP after Enter (form open; focus): "TEXTAREA | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP(tab x1) "Confirm send back | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+46:                - generic [ref=f9e76]: Draft
+49:              - paragraph [ref=f9e130]: Keyboard-only send back reason
+
+== Agent open-edit-and-resend by keyboard alone, desktop 1280x800 (Jordan), invoice SB 3a172406
+STOP(tab x11) "Open SB 3a172406, October 2026 | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP on the by-id page after Enter: "N  Northwind Field Services  Agent Console  Dashboard Requests Fleet S | outline=none 3px rgb(11, 18, 32) | scrollW<=innerW=true"
+STOP(tab x7) "Edit | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP after Enter on Edit (editor field): "INPUT | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP(tab x2) "Save | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP(tab x17) "Send Client Invoice | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP(tab x2) "Confirm send | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+46:                  - generic [ref=f5e238]: Awaiting approval
+54-                - definition [ref=f5e254]: $20.00
+
+== MOBILE 375x800: Manager send-back by keyboard, invoice SB 02d9fb02 (56eb8d50); scrollW<=innerW shows no horizontal page overflow
+NOTE: in the run above the amount did not change: my Ctrl+A on macOS moved the caret to line start, so the typed digits were not a valid amount (driver artifact, the invoice was resent unchanged at 20.00). Rerun of the Agent's keyboard edit-and-resend on a fresh sent-back invoice, using End + Backspace to clear the field:
+== Agent keyboard run 2, desktop 1280x800, invoice SB c4980b3d (36724e48)
+STOP(tab x11) "Open SB c4980b3d, October 2026 | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP(tab x7) "Edit | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP after Enter on Edit (editor field): "INPUT | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP(tab x2) "Save | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP(tab x15) "Send Client Invoice | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+STOP(tab x2) "Confirm send | outline=solid 2px rgb(83, 58, 253) | scrollW<=innerW=true"
+45:                  - generic [ref=f6e238]: Awaiting approval
+70:                    - cell "$23.00 Edited · computed $18.00" [ref=f6e333]:
+73:                        - paragraph [ref=f6e336]: Edited · computed $18.00
+
+NOTE: mobile (375px) half of step 18 NOT played (turn limit). Desktop manager and agent keyboard flows played with focus ring (2px solid outline) at every stop.

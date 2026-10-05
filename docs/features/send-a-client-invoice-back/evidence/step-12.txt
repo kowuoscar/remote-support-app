@@ -1,0 +1,1 @@
+U2 (SB 14155d94): tab 2 approved (Approved - final record). Tab 1, still showing Awaiting approval, Send back + reason + Confirm -> alert: 'This invoice is no longer awaiting approval. Refresh to see its current status.' (step-12-a, step-12-b snapshots)

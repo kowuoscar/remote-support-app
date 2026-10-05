@@ -1,0 +1,130 @@
+Fee F2 7.00 logged after the first send of Client Invoice e7f4ba60-f85f-4865-8115-033932bd872e
+Agent Invoice localSupportFees BEFORE send-back: 128.0 status DRAFT
+## send-back: POST /api/client-invoices/e7f4ba60-f85f-4865-8115-033932bd872e/send-back body={"reason": "Line one does not match the carrier bill - zebra-quartz-77"} -> 200
+{
+ "id": "e7f4ba60-f85f-4865-8115-033932bd872e",
+ "contractId": "f127c85f-5b6e-41d1-8973-626958626232",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "baseAmount": 20.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "09a06cb4-413f-428b-a348-6ccb25685d6e",
+   "number": "+1-555-69150",
+   "monthlyFeeAmount": 18.0,
+   "cancellationEffectiveDate": null,
+   "amount": 20.0,
+   "computedAmount": 18.0,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "6ab8d32d-09e8-41b4-9ad7-80de59428967",
+   "contractId": "f127c85f-5b6e-41d1-8973-626958626232",
+   "requestId": "e93732dc-bab4-407f-9c10-d3306c0b7c0a",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 5.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:39:29.206020Z",
+   "computedAmount": 5.0,
+   "edited": false
+  },
+  {
+   "id": "88852031-c3cf-43f4-b97b-a34ac5b31421",
+   "contractId": "f127c85f-5b6e-41d1-8973-626958626232",
+   "requestId": "dc5fbedc-80a4-440e-90a1-40ed63e904ec",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 7.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:39:29.269095Z",
+   "computedAmount": 7.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 32.0,
+ "files": [],
+ "sentAt": null,
+ "approvedAt": null,
+ "sentBackAt": "2026-10-05T17:39:29.344234Z",
+ "sentBackReason": "Line one does not match the carrier bill - zebra-quartz-77"
+}
+send-back -> 200 DRAFT fee lines: [False, True]
+localSupportFees AFTER send-back (late Fee now a line): 128.0
+## agent resend (no edits): POST /api/client-invoices/e7f4ba60-f85f-4865-8115-033932bd872e/send -> 200
+resend -> 200 SENT
+localSupportFees AFTER resend: 128.0
+ALL THREE EQUAL: True
+## Agent sends the Agent Invoice: POST /api/agents/98531009-d802-4a0b-903f-7be2d459c4f7/invoice/send -> 200
+agent invoice send -> 200 SENT
+## send-back again (Agent Invoice SENT): POST /api/client-invoices/e7f4ba60-f85f-4865-8115-033932bd872e/send-back body={"reason": "Second look: line one still wrong - quartz-88"} -> 200
+{
+ "id": "e7f4ba60-f85f-4865-8115-033932bd872e",
+ "contractId": "f127c85f-5b6e-41d1-8973-626958626232",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "baseAmount": 20.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "09a06cb4-413f-428b-a348-6ccb25685d6e",
+   "number": "+1-555-69150",
+   "monthlyFeeAmount": 18.0,
+   "cancellationEffectiveDate": null,
+   "amount": 20.0,
+   "computedAmount": 18.0,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "6ab8d32d-09e8-41b4-9ad7-80de59428967",
+   "contractId": "f127c85f-5b6e-41d1-8973-626958626232",
+   "requestId": "e93732dc-bab4-407f-9c10-d3306c0b7c0a",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 5.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:39:29.206020Z",
+   "computedAmount": 5.0,
+   "edited": false
+  },
+  {
+   "id": "88852031-c3cf-43f4-b97b-a34ac5b31421",
+   "contractId": "f127c85f-5b6e-41d1-8973-626958626232",
+   "requestId": "dc5fbedc-80a4-440e-90a1-40ed63e904ec",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 7.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:39:29.269095Z",
+   "computedAmount": 7.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 32.0,
+ "files": [],
+ "sentAt": null,
+ "approvedAt": null,
+ "sentBackAt": "2026-10-05T17:39:29.555826Z",
+ "sentBackReason": "Second look: line one still wrong - quartz-88"
+}
+-> 200
+## agent edits SIM line by id 20 -> 25 (up $5.00): PUT /api/client-invoices/e7f4ba60-f85f-4865-8115-033932bd872e/lines body={"kind": "POSTPAID_SIM", "sourceId": "09a06cb4-413f-428b-a348-6ccb25685d6e", "amount": "25.00"} -> 200
+-> 200
+Local Support Fees before edit 128.0 after 133.0 delta 5.0
+## manager approves the Agent Invoice: POST /api/agent-invoices/d8d467eb-4a93-4cef-ad5e-0a6eca92c3ce/approve -> 200
+approve agent invoice -> 200
+## agent edits Fee line by id 5 -> 9 after approval: PUT /api/client-invoices/e7f4ba60-f85f-4865-8115-033932bd872e/lines body={"kind": "FEE", "sourceId": "6ab8d32d-09e8-41b4-9ad7-80de59428967", "amount": "9.00"} -> 200
+-> 200
+Local Support Fees after approved-edit: 133.0 status APPROVED unchanged: True
+AGENT_INVOICE_ID d8d467eb-4a93-4cef-ad5e-0a6eca92c3ce CLIENT_INVOICE_ID e7f4ba60-f85f-4865-8115-033932bd872e
+--- step 10 audit:
+2026-10-05T19:39:29.589+02:00 INFO  [11111111-1111-1111-1111-111111111111:d858c3df-6162-48b0-8296-09a97c4d5f8b] AUDIT - audit action=AGENT_INVOICE_LOCAL_SUPPORT_FEES_FOLLOWED entity=AgentInvoice entityId=d8d467eb-4a93-4cef-ad5e-0a6eca92c3ce clientInvoiceId=e7f4ba60-f85f-4865-8115-033932bd872e oldAmount=128.00 newAmount=133.00 actorUserId=d858c3df-6162-48b0-8296-09a97c4d5f8b tenantId=11111111-1111-1111-1111-111111111111

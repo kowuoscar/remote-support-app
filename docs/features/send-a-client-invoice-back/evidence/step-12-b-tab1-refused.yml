@@ -1,0 +1,90 @@
+- Page URL: http://localhost:13000/manager/invoices/client/1981e94c-3fea-497e-adb6-3f2e485a8742
+- Page Title: Client Invoice · Remote Support Platform
+- Console: 1 errors, 0 warnings
+- generic [ref=f4e1]:
+  - generic [ref=f4e2]:
+    - complementary [ref=f4e3]:
+      - generic [ref=f4e4]:
+        - generic [ref=f4e5]: "N"
+        - generic [ref=f4e6]:
+          - paragraph [ref=f4e7]: Northwind Field Services
+          - paragraph [ref=f4e8]: Manager Console
+      - navigation [ref=f4e9]:
+        - link "Dashboard" [ref=f4e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f4e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f4e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f4e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f4e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f4e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f4e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f4e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f4e48]:
+      - banner [ref=f4e49]:
+        - generic [ref=f4e51]:
+          - heading "SB 14155d94 — Jordan Ellis" [level=1] [ref=f4e52]
+          - paragraph [ref=f4e53]: Client Invoice
+        - generic [ref=f4e54]:
+          - button "Manager" [ref=f4e56]
+          - button "Switch to dark theme" [ref=f4e58]
+      - main [ref=f4e62]:
+        - generic [ref=f4e63]:
+          - navigation "Breadcrumb" [ref=f4e64]:
+            - link "Invoices" [ref=f4e66] [cursor=pointer]:
+              - /url: /manager/invoices
+            - generic [ref=f4e67]: SB 14155d94 — Jordan Ellis
+          - generic [ref=f4e71]:
+            - generic [ref=f4e72]:
+              - generic [ref=f4e73]:
+                - generic [ref=f4e74]:
+                  - heading "October 2026" [level=2] [ref=f4e75]
+                  - generic [ref=f4e76]: Awaiting approval
+                - paragraph [ref=f4e78]: Base amount and Fee lines are locked to what the Agent sent
+                - paragraph [ref=f4e79]: Sent Oct 5, 2026
+              - generic [ref=f4e80]:
+                - link "Download PDF" [ref=f4e81] [cursor=pointer]:
+                  - /url: /api/client-invoices/1981e94c-3fea-497e-adb6-3f2e485a8742/pdf
+                - generic [ref=f4e122]:
+                  - generic [ref=f4e123]: Reason for sending back
+                  - textbox "Reason for sending back" [ref=f4e124]: Stale tab reason
+                  - paragraph [ref=f4e125]: Tell the Agent what is wrong or missing. They can change any line and attach files before sending it again.
+                  - generic [ref=f4e126]:
+                    - button "Confirm send back" [active] [ref=f4e127]
+                    - button "Back" [ref=f4e128]
+                  - alert [ref=f4e129]: This invoice is no longer awaiting approval. Refresh to see its current status.
+                - button "Approve" [ref=f4e87]
+            - generic [ref=f4e91]:
+              - generic [ref=f4e92]:
+                - term [ref=f4e93]: Base amount
+                - definition [ref=f4e94]: $20.00
+              - generic [ref=f4e95]:
+                - term [ref=f4e96]: Fees
+                - definition [ref=f4e97]: $5.00
+              - generic [ref=f4e98]:
+                - term [ref=f4e99]: Total
+                - definition [ref=f4e100]: $25.00
+            - generic [ref=f4e101]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f4e102]
+              - list "Postpaid SIM Cards" [ref=f4e103]:
+                - listitem [ref=f4e104]:
+                  - generic [ref=f4e105]: +1-555-29943
+                  - generic [ref=f4e106]:
+                    - generic [ref=f4e107]: $20.00
+                    - paragraph [ref=f4e108]: Edited · computed $18.00
+            - generic [ref=f4e109]:
+              - heading "Fee lines" [level=3] [ref=f4e110]
+              - list [ref=f4e111]:
+                - listitem [ref=f4e112]:
+                  - generic [ref=f4e113]: Other
+                  - generic [ref=f4e114]: $5.00
+            - generic [ref=f4e116]:
+              - heading "Carrier invoice files" [level=3] [ref=f4e117]
+              - paragraph [ref=f4e120]: No carrier invoice files attached.
+  - alert [ref=f4e121]

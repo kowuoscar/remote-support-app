@@ -1,0 +1,121 @@
+added Postpaid SIM 2 b4f280de-f825-42f3-b2e5-9dcfd6cd6193 to the Contract
+## agent reads sent-back invoice by id: GET /api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877 -> 200
+{
+ "id": "0d47e9c7-3c7d-4bbb-81e5-79a819c79877",
+ "contractId": "42fe22c0-54e3-4eed-ad38-7d5b78a5607f",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "baseAmount": 20.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "a0cc19b9-4ced-47f7-b40e-f270a8c23e33",
+   "number": "+1-555-0400",
+   "monthlyFeeAmount": 18.0,
+   "cancellationEffectiveDate": null,
+   "amount": 20.0,
+   "computedAmount": 18.0,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "67e1c75f-5ffb-4d0f-ad5f-f724e83b4d92",
+   "contractId": "42fe22c0-54e3-4eed-ad38-7d5b78a5607f",
+   "requestId": "6b9f1ad8-acd6-4f86-b548-3c9010fbe862",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 5.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:38:53.250904Z",
+   "computedAmount": 5.0,
+   "edited": false
+  },
+  {
+   "id": "54085330-bf87-47cd-bf75-1d213f23a52b",
+   "contractId": "42fe22c0-54e3-4eed-ad38-7d5b78a5607f",
+   "requestId": "903e8dfa-6027-44ca-985c-66cd3b01df49",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 7.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:38:53.315094Z",
+   "computedAmount": 7.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 32.0,
+ "files": [],
+ "sentAt": null,
+ "approvedAt": null,
+ "sentBackAt": "2026-10-05T17:38:53.372266Z",
+ "sentBackReason": "Line one does not match the carrier bill - zebra-quartz-77"
+}
+sim2 gained a line? False
+F2 line present: True edited False amount 7.0 computed 7.0
+lines as sent still present & unchanged: True
+## agent edits sent Fee line F1 5->6: PUT /api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877/lines body={"kind": "FEE", "sourceId": "67e1c75f-5ffb-4d0f-ad5f-f724e83b4d92", "amount": "6.00"} -> 200
+## agent edits late Fee line F2 7->8: PUT /api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877/lines body={"kind": "FEE", "sourceId": "54085330-bf87-47cd-bf75-1d213f23a52b", "amount": "8.00"} -> 200
+## agent reads again before resend: GET /api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877 -> 200
+shown before resend: ['SIM a0cc19b9-4ced-47f7-b40e-f270a8c23e33 20.0/18.0', 'FEE 67e1c75f-5ffb-4d0f-ad5f-f724e83b4d92 6.0/5.0', 'FEE 54085330-bf87-47cd-bf75-1d213f23a52b 8.0/7.0', 'TOTAL 34.0']
+## agent resends by id: POST /api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877/send -> 200
+{
+ "id": "0d47e9c7-3c7d-4bbb-81e5-79a819c79877",
+ "contractId": "42fe22c0-54e3-4eed-ad38-7d5b78a5607f",
+ "billingMonth": "2026-10-01",
+ "status": "SENT",
+ "currency": "USD",
+ "baseAmount": 20.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "a0cc19b9-4ced-47f7-b40e-f270a8c23e33",
+   "number": "+1-555-0400",
+   "monthlyFeeAmount": 18.0,
+   "cancellationEffectiveDate": null,
+   "amount": 20.0,
+   "computedAmount": 18.0,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "67e1c75f-5ffb-4d0f-ad5f-f724e83b4d92",
+   "contractId": "42fe22c0-54e3-4eed-ad38-7d5b78a5607f",
+   "requestId": "6b9f1ad8-acd6-4f86-b548-3c9010fbe862",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 6.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:38:53.250904Z",
+   "computedAmount": 5.0,
+   "edited": true
+  },
+  {
+   "id": "54085330-bf87-47cd-bf75-1d213f23a52b",
+   "contractId": "42fe22c0-54e3-4eed-ad38-7d5b78a5607f",
+   "requestId": "903e8dfa-6027-44ca-985c-66cd3b01df49",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 8.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:38:53.315094Z",
+   "computedAmount": 7.0,
+   "edited": true
+  }
+ ],
+ "totalAmount": 34.0,
+ "files": [],
+ "sentAt": "2026-10-05T17:38:53.918108Z",
+ "approvedAt": null,
+ "sentBackAt": "2026-10-05T17:38:53.372266Z",
+ "sentBackReason": "Line one does not match the carrier bill - zebra-quartz-77"
+}
+RESULT 200 SENT frozen lines equal shown: True
+## manager reads resent after logging Fee F3 (3.00): GET /api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877 -> 200
+resent invoice unchanged after another Fee: True | F3 present: False
+queue row: [{'kind': 'CLIENT_INVOICE', 'id': '0d47e9c7-3c7d-4bbb-81e5-79a819c79877', 'status': 'SENT', 'billingMonth': '2026-10-01', 'contractId': '42fe22c0-54e3-4eed-ad38-7d5b78a5607f', 'clientName': 'SB a9c6e299', 'agentId': None, 'agentName': 'SB Agent One', 'currency': 'USD', 'totalAmount': 34.0, 'waitingSince': '2026-10-05T17:38:53.918108Z'}]
+waitingSince == sentAt: True

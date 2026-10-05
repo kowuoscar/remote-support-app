@@ -1,0 +1,165 @@
+demo review queue before: [('AGENT_INVOICE', '896880c8-e446-413e-aee8-ee0bbd55e6dc', '2026-10-01'), ('CLIENT_INVOICE', 'fe26c7a4-0808-4339-9a92-1796cae468bf', '2026-10-01'), ('CLIENT_INVOICE', '6ae7e144-f2ea-4169-bf9b-0ce44f1d3e1f', '2026-10-01'), ('CLIENT_INVOICE', '72e30c8c-212b-4368-bf8f-e351cf483379', '2026-10-01'), ('CLIENT_INVOICE', 'ad4d03d7-5256-4a78-bef6-50a4e7b9b917', '2026-10-01'), ('AGENT_INVOICE', 'd8d467eb-4a93-4cef-ad5e-0a6eca92c3ce', '2026-10-01'), ('CLIENT_INVOICE', 'c4b87634-d8d0-4624-9007-4d247d0491a1', '2026-10-01'), ('CLIENT_INVOICE', '4aefda93-5422-4762-a140-cd1bafc0b38a', '2026-10-01')]
+demo data has no past-month SENT Client Invoice; moved the demo's sent Solstice US invoice to four months ago (fixture stand-in for the month rollover): UPDATE 1 
+## manager reads the past-month SENT invoice, lines noted: GET /api/client-invoices/4aefda93-5422-4762-a140-cd1bafc0b38a -> 200
+{
+ "id": "4aefda93-5422-4762-a140-cd1bafc0b38a",
+ "contractId": "8a52e9f4-da36-44ab-a130-816c7bd22273",
+ "billingMonth": "2026-06-01",
+ "status": "SENT",
+ "currency": "USD",
+ "baseAmount": 60.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "4cd379ab-efb1-4b14-8cb7-196f8ad1829c",
+   "number": "+1-202-555-0102",
+   "monthlyFeeAmount": 65.99,
+   "cancellationEffectiveDate": null,
+   "amount": 60.0,
+   "computedAmount": 65.99,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "8d6d8522-519e-4148-81a2-b806a5a3413a",
+   "contractId": "8a52e9f4-da36-44ab-a130-816c7bd22273",
+   "requestId": "378c5bdc-cc68-4b5b-a925-577305a84515",
+   "requestType": "TOPUP",
+   "feeType": "TOPUP",
+   "amount": 25.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:36:23.264275Z",
+   "topupOptionId": "d0000000-0000-0000-0000-000000000001",
+   "topupOptionName": "Prepaid Refill 25",
+   "computedAmount": 25.0,
+   "edited": false
+  },
+  {
+   "id": "9c7fedfc-4fd1-4320-b9b3-959d3431da80",
+   "contractId": "8a52e9f4-da36-44ab-a130-816c7bd22273",
+   "requestId": "3f3f14d4-84e8-4f57-b5fe-865ce76cb1f2",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 45.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:36:23.368714Z",
+   "computedAmount": 45.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 130.0,
+ "files": [
+  {
+   "id": "4b005d10-ad0d-40be-894b-f7c560879794",
+   "clientInvoiceId": "4aefda93-5422-4762-a140-cd1bafc0b38a",
+   "filename": "carrier-bill.pdf",
+   "contentType": "application/pdf",
+   "sizeBytes": 8,
+   "uploadedAt": "2026-10-05T17:40:08.713627Z"
+  }
+ ],
+ "sentAt": "2026-10-05T17:40:08.738392Z",
+ "approvedAt": null,
+ "sentBackAt": "2026-10-05T17:40:08.616184Z",
+ "sentBackReason": "Last month line does not match the carrier bill"
+}
+NOTED: ['SIM 4cd379ab-efb1-4b14-8cb7-196f8ad1829c 60.0/65.99', 'FEE 8d6d8522-519e-4148-81a2-b806a5a3413a 25.0/25.0', 'FEE 9c7fedfc-4fd1-4320-b9b3-959d3431da80 45.0/45.0', 'TOTAL 130.0'] 2026-06-01 SENT
+added Postpaid SIM 5714c2ae-b7ef-4ed0-93a5-1af26130da8e to the Contract
+## send-back: POST /api/client-invoices/4aefda93-5422-4762-a140-cd1bafc0b38a/send-back body={"reason": "Last month line does not match the carrier bill"} -> 200
+{
+ "id": "4aefda93-5422-4762-a140-cd1bafc0b38a",
+ "contractId": "8a52e9f4-da36-44ab-a130-816c7bd22273",
+ "billingMonth": "2026-06-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "baseAmount": 60.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "4cd379ab-efb1-4b14-8cb7-196f8ad1829c",
+   "number": "+1-202-555-0102",
+   "monthlyFeeAmount": 65.99,
+   "cancellationEffectiveDate": null,
+   "amount": 60.0,
+   "computedAmount": 65.99,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "8d6d8522-519e-4148-81a2-b806a5a3413a",
+   "contractId": "8a52e9f4-da36-44ab-a130-816c7bd22273",
+   "requestId": "378c5bdc-cc68-4b5b-a925-577305a84515",
+   "requestType": "TOPUP",
+   "feeType": "TOPUP",
+   "amount": 25.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:36:23.264275Z",
+   "topupOptionId": "d0000000-0000-0000-0000-000000000001",
+   "topupOptionName": "Prepaid Refill 25",
+   "computedAmount": 25.0,
+   "edited": false
+  },
+  {
+   "id": "9c7fedfc-4fd1-4320-b9b3-959d3431da80",
+   "contractId": "8a52e9f4-da36-44ab-a130-816c7bd22273",
+   "requestId": "3f3f14d4-84e8-4f57-b5fe-865ce76cb1f2",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 45.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:36:23.368714Z",
+   "computedAmount": 45.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 130.0,
+ "files": [
+  {
+   "id": "4b005d10-ad0d-40be-894b-f7c560879794",
+   "clientInvoiceId": "4aefda93-5422-4762-a140-cd1bafc0b38a",
+   "filename": "carrier-bill.pdf",
+   "contentType": "application/pdf",
+   "sizeBytes": 8,
+   "uploadedAt": "2026-10-05T17:40:08.713627Z"
+  }
+ ],
+ "sentAt": null,
+ "approvedAt": null,
+ "sentBackAt": "2026-10-05T17:40:19.591515Z",
+ "sentBackReason": "Last month line does not match the carrier bill"
+}
+send-back -> 200 DRAFT
+## Agent GET /api/client-invoices/sent-back: GET /api/client-invoices/sent-back -> 200
+[
+ {
+  "id": "4aefda93-5422-4762-a140-cd1bafc0b38a",
+  "contractId": "8a52e9f4-da36-44ab-a130-816c7bd22273",
+  "clientName": "Solstice Retail Group",
+  "country": "UNITED_STATES",
+  "billingMonth": "2026-06-01",
+  "currency": "USD",
+  "sentBackAt": "2026-10-05T17:40:19.591515Z",
+  "sentBackReason": "Last month line does not match the carrier bill"
+ }
+]
+## Agent reads by id: GET /api/client-invoices/4aefda93-5422-4762-a140-cd1bafc0b38a -> 200
+lines equal noted: True ['SIM 4cd379ab-efb1-4b14-8cb7-196f8ad1829c 60.0/65.99', 'FEE 8d6d8522-519e-4148-81a2-b806a5a3413a 25.0/25.0', 'FEE 9c7fedfc-4fd1-4320-b9b3-959d3431da80 45.0/45.0', 'TOTAL 130.0'] | new SIM got a line: False
+## Agent edits SIM line by id current -> 58.00: PUT /api/client-invoices/4aefda93-5422-4762-a140-cd1bafc0b38a/lines body={"kind": "POSTPAID_SIM", "sourceId": "4cd379ab-efb1-4b14-8cb7-196f8ad1829c", "amount": "58.00"} -> 200
+-> 200
+## Agent attaches file by id: POST /api/client-invoices/4aefda93-5422-4762-a140-cd1bafc0b38a/files -> 201
+{
+ "id": "45446a2b-6e68-4b91-93a3-6220035c950f",
+ "clientInvoiceId": "4aefda93-5422-4762-a140-cd1bafc0b38a",
+ "filename": "carrier-bill.pdf",
+ "contentType": "application/pdf",
+ "sizeBytes": 8,
+ "uploadedAt": "2026-10-05T17:40:19.646235Z"
+}
+## Agent resends by id: POST /api/client-invoices/4aefda93-5422-4762-a140-cd1bafc0b38a/send -> 200
+RESULT 200 SENT edited SIM amount 58.0 files ['carrier-bill.pdf', 'carrier-bill.pdf'] total 128.0
+## sent-back list after resend: GET /api/client-invoices/sent-back -> 200
+[]

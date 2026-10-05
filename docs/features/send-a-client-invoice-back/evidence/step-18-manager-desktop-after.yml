@@ -1,0 +1,77 @@
+- Page URL: http://localhost:13000/manager/invoices/client/cf9b663f-ab1a-4bec-b435-be31666b9f85
+- Page Title: Client Invoice · Remote Support Platform
+- generic [active] [ref=f9e1]:
+  - generic [ref=f9e2]:
+    - complementary [ref=f9e3]:
+      - generic [ref=f9e4]:
+        - generic [ref=f9e5]: "N"
+        - generic [ref=f9e6]:
+          - paragraph [ref=f9e7]: Northwind Field Services
+          - paragraph [ref=f9e8]: Manager Console
+      - navigation [ref=f9e9]:
+        - link "Dashboard" [ref=f9e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f9e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f9e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f9e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f9e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f9e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f9e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f9e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f9e48]:
+      - banner [ref=f9e49]:
+        - generic [ref=f9e51]:
+          - heading "SB 3a172406 — Jordan Ellis" [level=1] [ref=f9e52]
+          - paragraph [ref=f9e53]: Client Invoice
+        - generic [ref=f9e54]:
+          - button "Manager" [ref=f9e56]
+          - button "Switch to dark theme" [ref=f9e58]
+      - main [ref=f9e62]:
+        - generic [ref=f9e63]:
+          - navigation "Breadcrumb" [ref=f9e64]:
+            - link "Invoices" [ref=f9e66] [cursor=pointer]:
+              - /url: /manager/invoices
+            - generic [ref=f9e67]: SB 3a172406 — Jordan Ellis
+          - generic [ref=f9e71]:
+            - generic [ref=f9e73]:
+              - generic [ref=f9e74]:
+                - heading "October 2026" [level=2] [ref=f9e75]
+                - generic [ref=f9e76]: Draft
+              - paragraph [ref=f9e78]: Sent back to the Agent on Oct 5, 2026 — waiting for them to resend
+            - blockquote [ref=f9e129]:
+              - paragraph [ref=f9e130]: Keyboard-only send back reason
+            - generic [ref=f9e91]:
+              - generic [ref=f9e92]:
+                - term [ref=f9e93]: Base amount
+                - definition [ref=f9e94]: $20.00
+              - generic [ref=f9e95]:
+                - term [ref=f9e96]: Fees
+                - definition [ref=f9e97]: $5.00
+              - generic [ref=f9e98]:
+                - term [ref=f9e99]: Total
+                - definition [ref=f9e100]: $25.00
+            - generic [ref=f9e101]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f9e102]
+              - list "Postpaid SIM Cards" [ref=f9e103]:
+                - listitem [ref=f9e104]:
+                  - generic [ref=f9e105]: +1-555-69226
+                  - generic [ref=f9e106]:
+                    - generic [ref=f9e107]: $20.00
+                    - paragraph [ref=f9e108]: Edited · computed $18.00
+            - generic [ref=f9e109]:
+              - heading "Fee lines" [level=3] [ref=f9e110]
+              - list [ref=f9e111]:
+                - listitem [ref=f9e112]:
+                  - generic [ref=f9e113]: Other
+                  - generic [ref=f9e114]: $5.00
+            - generic [ref=f9e116]:
+              - heading "Carrier invoice files" [level=3] [ref=f9e117]
+              - paragraph [ref=f9e120]: No carrier invoice files attached.
+  - alert [ref=f9e121]

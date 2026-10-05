@@ -92,42 +92,42 @@
       "step": 13,
       "actor": "agent",
       "status": "passed",
-      "evidence": "evidence/step-13.txt",
+      "evidence": "evidence/step-13-active-agent.aria.txt",
       "note": ""
     },
     {
       "step": 14,
       "actor": "agent",
       "status": "passed",
-      "evidence": "evidence/step-14.txt",
+      "evidence": "evidence/step-14-dialog.aria.txt",
       "note": "Cancel leaves the Agent signing in"
     },
     {
       "step": 15,
       "actor": "agent",
       "status": "passed",
-      "evidence": "evidence/step-15.txt",
+      "evidence": "evidence/step-15-deactivated.aria.txt",
       "note": "status region and focus on Reactivate verified"
     },
     {
       "step": 16,
       "actor": "agent",
       "status": "passed",
-      "evidence": "evidence/step-16.txt",
+      "evidence": "evidence/step-16-deactivated-message.aria.txt",
       "note": ""
     },
     {
       "step": 17,
       "actor": "agent",
       "status": "passed",
-      "evidence": "evidence/step-17.txt",
+      "evidence": "evidence/step-17-reactivated.aria.txt",
       "note": ""
     },
     {
       "step": 18,
       "actor": "agent",
       "status": "passed",
-      "evidence": "evidence/step-18.txt",
+      "evidence": "evidence/step-18-tester-row-deactivated.aria.txt",
       "note": "row action names carry the email; tag in the email cell"
     },
     {

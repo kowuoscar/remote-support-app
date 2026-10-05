@@ -26,9 +26,12 @@ const MAX_REASON_LENGTH = 1000;
 export function SendBackClientInvoiceControl({
   endpoint,
   onSentBack,
+  onOpenChange,
 }: Readonly<{
   endpoint: string;
   onSentBack?: (invoice: ClientInvoiceDetail) => void;
+  /** Told whenever the form opens or closes, so the view can hide the sibling Approve while it is open. */
+  onOpenChange?: (open: boolean) => void;
 }>) {
   const router = useRouter();
   const reasonId = useId();
@@ -41,6 +44,10 @@ export function SendBackClientInvoiceControl({
   const [reason, setReason] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    onOpenChange?.(open);
+  }, [open, onOpenChange]);
 
   useEffect(() => {
     if (!open && refocusTrigger.current) {
@@ -78,6 +85,8 @@ export function SendBackClientInvoiceControl({
         setPending(false);
         return;
       }
+      // Stays pending ("Sending back…") until the view swaps this control out; the view's status
+      // note then takes focus.
       onSentBack?.((await response.json()) as ClientInvoiceDetail);
       router.refresh();
     } catch {
@@ -110,7 +119,7 @@ export function SendBackClientInvoiceControl({
     <form
       onSubmit={submit}
       onKeyDown={handleKeyDown}
-      className="flex w-full flex-col gap-2 sm:w-80"
+      className="flex w-full basis-full flex-col gap-2"
     >
       <label htmlFor={reasonId} className="text-label font-medium text-ink">
         Reason for sending back
@@ -127,11 +136,11 @@ export function SendBackClientInvoiceControl({
         aria-required="true"
         aria-invalid={error === BLANK_MESSAGE || undefined}
         aria-describedby={error ? `${hintId} ${errorId}` : hintId}
-        className={`w-full resize-y rounded-lg border bg-canvas px-3 py-2 text-sm text-ink focus-visible:border-primary ${
+        className={`w-full max-w-lg resize-y rounded-lg border bg-canvas px-3 py-2 text-sm text-ink focus-visible:border-primary ${
           error === BLANK_MESSAGE ? "border-danger" : "border-hairline-strong"
         }`}
       />
-      <p id={hintId} className="text-label-sm text-ink-mute">
+      <p id={hintId} className="max-w-lg text-label-sm text-ink-mute">
         Tell the Agent what is wrong or missing. They can change any line and attach files before sending it again.
       </p>
       <div className="flex items-center gap-1.5">
@@ -142,7 +151,7 @@ export function SendBackClientInvoiceControl({
           {...busyProps}
           className={pending ? "cursor-not-allowed opacity-50" : undefined}
         >
-          Confirm send back
+          {pending ? "Sending back…" : "Confirm send back"}
         </Button>
         <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={close}>
           Back

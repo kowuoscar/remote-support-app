@@ -75,7 +75,7 @@ describe("SendBackClientInvoiceControl", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ reason: "Wrong amount" }),
     });
-    const confirm = screen.getByRole("button", { name: "Confirm send back" });
+    const confirm = screen.getByRole("button", { name: "Sending back…" });
     expect(confirm).toHaveAttribute("aria-busy", "true");
     expect(confirm).not.toBeDisabled();
     await userEvent.click(confirm);
@@ -83,6 +83,15 @@ describe("SendBackClientInvoiceControl", () => {
 
     respond(200, { id: "invoice-1" });
     await waitFor(() => expect(mockRouter.refresh).toHaveBeenCalledOnce());
+  });
+
+  it("reports its form opening and closing", async () => {
+    const onOpenChange = vi.fn();
+    render(<SendBackClientInvoiceControl endpoint={URL} onOpenChange={onOpenChange} />);
+    await openForm();
+    expect(onOpenChange).toHaveBeenLastCalledWith(true);
+    await userEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(onOpenChange).toHaveBeenLastCalledWith(false);
   });
 
   it("409-shows-refresh-copy", async () => {

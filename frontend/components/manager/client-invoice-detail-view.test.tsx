@@ -98,6 +98,28 @@ describe("ClientInvoiceDetailView", () => {
     expect(screen.queryByRole("button", { name: "Approve" })).not.toBeInTheDocument();
   });
 
+  it("hides Approve while the send-back form is open and brings it back on Back", async () => {
+    render(<ClientInvoiceDetailView invoice={invoice()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Send back" }));
+    expect(screen.queryByRole("button", { name: "Approve" })).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(screen.getByRole("button", { name: "Approve" })).toBeInTheDocument();
+  });
+
+  it("moves focus to the status note once the invoice is sent back", async () => {
+    stubFetch(200, invoice({ status: "DRAFT", sentAt: null, sentBackAt: "2026-09-02T10:00:00Z", sentBackReason: "Wrong" }));
+    render(<ClientInvoiceDetailView invoice={invoice()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Send back" }));
+    await userEvent.type(screen.getByRole("textbox"), "Wrong");
+    await userEvent.click(screen.getByRole("button", { name: "Confirm send back" }));
+
+    const note = await screen.findByText(/Sent back to the Agent on/);
+    expect(note).toHaveFocus();
+  });
+
   it("offers no PDF for a draft, which has nothing final to render", () => {
     render(<ClientInvoiceDetailView invoice={invoice({ status: "DRAFT", sentAt: null })} />);
 

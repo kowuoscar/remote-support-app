@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { IconAlertTriangle, IconArrowRight } from "@/components/icons";
@@ -12,14 +12,39 @@ import { IconAlertTriangle, IconArrowRight } from "@/components/icons";
  * RequestStatusControl's cancel flow — because sending is a one-way door: there is no "un-send"
  * anywhere in this app, it opens the invoice to the Client and the Manager's review queue, and it
  * freezes the numbers permanently (see ClientInvoice's Javadoc on the backend).
+ *
+ * <p>Focus follows the flow: Confirm takes it when the confirm opens, the trigger gets it back on
+ * Back or Escape, and a pending Confirm stays focusable (aria-disabled + aria-busy, repeat
+ * activation ignored) instead of natively disabled, so it never falls to the page. After a send the
+ * control stays mounted ("Sending…") until the refreshed page replaces it, and the card's status
+ * note takes focus then.
  */
 export function SendClientInvoiceControl({ invoiceId }: { invoiceId: string }) {
   const router = useRouter();
+  const trigger = useRef<HTMLButtonElement>(null);
+  const confirmButton = useRef<HTMLButtonElement>(null);
+  const refocusTrigger = useRef(false);
   const [confirming, setConfirming] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (confirming) {
+      confirmButton.current?.focus();
+    } else if (refocusTrigger.current) {
+      refocusTrigger.current = false;
+      trigger.current?.focus();
+    }
+  }, [confirming]);
+
+  function close() {
+    refocusTrigger.current = true;
+    setConfirming(false);
+    setError(null);
+  }
+
   async function send() {
+    if (pending) return;
     setPending(true);
     setError(null);
     try {
@@ -29,8 +54,8 @@ export function SendClientInvoiceControl({ invoiceId }: { invoiceId: string }) {
         setPending(false);
         return;
       }
-      setConfirming(false);
-      setPending(false);
+      // Stays pending ("Sending…") until the refreshed page replaces this control; the card's
+      // status note then takes focus (ClientInvoiceStatusNote).
       router.refresh();
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
@@ -38,42 +63,52 @@ export function SendClientInvoiceControl({ invoiceId }: { invoiceId: string }) {
     }
   }
 
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key === "Escape" && !pending) close();
+  }
+
+  const errorLine = error ? (
+    <p role="alert" className="flex items-center gap-1.5 text-label-sm text-danger">
+      <IconAlertTriangle className="h-3.5 w-3.5 shrink-0" />
+      {error}
+    </p>
+  ) : null;
+
   if (confirming) {
     return (
-      <div className="flex flex-col items-end gap-1.5">
-        <p className="max-w-[260px] text-right text-[12px] text-ink-mute">
+      <div className="flex flex-col items-end gap-1.5" onKeyDown={handleKeyDown}>
+        <p className="max-w-65 text-right text-label-sm text-ink-mute">
           Sends to the Manager and Client, and locks the numbers. Only the Manager can send it back to you.
         </p>
         <div className="flex items-center gap-1.5">
-          <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={() => setConfirming(false)}>
+          <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={close}>
             Back
           </Button>
-          <Button type="button" variant="primary" size="sm" loading={pending} onClick={send}>
-            Confirm send
+          <Button
+            ref={confirmButton}
+            type="button"
+            variant="primary"
+            size="sm"
+            aria-disabled={pending || undefined}
+            aria-busy={pending || undefined}
+            className={pending ? "cursor-not-allowed opacity-60" : undefined}
+            onClick={send}
+          >
+            {pending ? "Sending…" : "Confirm send"}
           </Button>
         </div>
-        {error ? (
-          <p role="alert" className="flex items-center gap-1.5 text-[12px] text-danger">
-            <IconAlertTriangle className="h-3.5 w-3.5 shrink-0" />
-            {error}
-          </p>
-        ) : null}
+        {errorLine}
       </div>
     );
   }
 
   return (
     <div className="flex flex-col items-end gap-1.5">
-      <Button type="button" variant="primary" size="sm" onClick={() => setConfirming(true)}>
+      <Button ref={trigger} type="button" variant="primary" size="sm" onClick={() => setConfirming(true)}>
         <IconArrowRight className="h-4 w-4" />
         Send Client Invoice
       </Button>
-      {error ? (
-        <p role="alert" className="flex items-center gap-1.5 text-[12px] text-danger">
-          <IconAlertTriangle className="h-3.5 w-3.5 shrink-0" />
-          {error}
-        </p>
-      ) : null}
+      {errorLine}
     </div>
   );
 }

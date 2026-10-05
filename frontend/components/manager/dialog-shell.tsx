@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState, type ReactNode } from "react";
 
 export type DialogShellHandle = { open: () => void; close: () => void };
 
@@ -37,22 +37,28 @@ export const DialogShell = forwardRef<
     onClosedRef.current = onClosed;
   });
 
-  function dismiss() {
+  const dismiss = useCallback(() => {
     setMounted(false);
     if (!isOpenRef.current) return;
     isOpenRef.current = false;
     onClosedRef.current?.();
-  }
+  }, []);
+
+  // Closes now, in the event that asked for it. The native `close` event arrives later, in its own
+  // task: closing only from that event left `mounted` true through a quick Escape-then-Enter, so
+  // the re-open's setMounted(true) changed nothing, showModal never ran, and the late `close`
+  // event then unmounted the dialog the user had just asked for.
+  const closeNow = useCallback(() => {
+    dialogRef.current?.close();
+    dismiss();
+  }, [dismiss]);
 
   useImperativeHandle(ref, () => ({
     open: () => {
       isOpenRef.current = true;
       setMounted(true);
     },
-    close: () => {
-      dialogRef.current?.close();
-      dismiss();
-    },
+    close: closeNow,
   }));
 
   // showModal() runs after the children mount, so the native focus step finds them.
@@ -65,21 +71,25 @@ export const DialogShell = forwardRef<
     if (!dialog) return;
     function handleBackdropClick(event: MouseEvent) {
       if (event.target !== dialogRef.current || submitting) return;
-      dialogRef.current?.close();
-      dismiss();
+      closeNow();
     }
     dialog.addEventListener("click", handleBackdropClick);
     return () => dialog.removeEventListener("click", handleBackdropClick);
-  }, [submitting]);
+  }, [submitting, closeNow]);
 
   return (
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
       onCancel={(event) => {
-        if (submitting) event.preventDefault();
+        // Escape: never let the browser close it on its own schedule (see closeNow).
+        event.preventDefault();
+        if (!submitting) closeNow();
       }}
-      onClose={dismiss}
+      // A `close` that arrives after a re-open belongs to the earlier session; ignore it.
+      onClose={() => {
+        if (!dialogRef.current?.open) dismiss();
+      }}
       className={`m-auto ${widthClassName} rounded-xl border border-hairline bg-canvas-overlay p-0 shadow-elevated-strong backdrop:bg-ink/40 backdrop:backdrop-blur-[2px]`}
     >
       {mounted ? children : null}

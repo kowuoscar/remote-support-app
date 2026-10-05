@@ -53,7 +53,7 @@ describe("CreateAgentLoginDialog", () => {
     await submit(dialog);
     await within(dialog).findByLabelText("Generated password");
 
-    dialog.dispatchEvent(new Event("close"));
+    dialog.dispatchEvent(new Event("cancel", { cancelable: true }));
 
     await waitFor(() => expect(onCreated).toHaveBeenCalledExactlyOnceWith("camille@agents.example"));
   });

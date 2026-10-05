@@ -934,7 +934,9 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
     List<String> feeAudit =
         followAuditOf(() -> putLineById(agentToken, sentInvoice, "FEE", lateFee, "9.00").andExpect(status().isOk()));
     assertThat(feeAudit).hasSize(1);
-    assertThat(feeAudit.get(0)).contains("oldAmount=" + base.add(new BigDecimal("3.00"))).contains("newAmount=" + base.add(new BigDecimal("5.00")));
+    assertThat(feeAudit.get(0))
+        .contains("oldAmount=" + base.add(new BigDecimal("3.00")))
+        .contains("newAmount=" + base.add(new BigDecimal("5.00")));
     assertThat(agentInvoiceFees()).isEqualByComparingTo(base.add(new BigDecimal("5.00")));
     assertThat(agentInvoice().get("status").asText()).isEqualTo("SENT");
 

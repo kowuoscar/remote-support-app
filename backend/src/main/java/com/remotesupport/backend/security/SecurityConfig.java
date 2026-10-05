@@ -211,7 +211,11 @@ public class SecurityConfig {
                     .hasRole("AGENT")
                     .requestMatchers(HttpMethod.POST, "/api/client-invoices/*/send")
                     .hasRole("AGENT")
-                    .requestMatchers(HttpMethod.GET, "/api/client-invoices/*", "/api/client-invoices/*/files", "/api/client-invoices/*/files/*")
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/client-invoices/*",
+                        "/api/client-invoices/*/files",
+                        "/api/client-invoices/*/files/*")
                     .hasAnyRole("MANAGER", "AGENT")
                     .requestMatchers(HttpMethod.POST, "/api/client-invoices/*/files")
                     .hasAnyRole("MANAGER", "AGENT")

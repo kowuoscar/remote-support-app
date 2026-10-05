@@ -8,7 +8,7 @@ import { EditClientInvoiceLineControl } from "./edit-client-invoice-line-control
 function renderControl(overrides: { amount?: number; computedAmount?: number; edited?: boolean } = {}) {
   render(
     <EditClientInvoiceLineControl
-      contractId="contract-1"
+      invoiceId="invoice-1"
       kind="POSTPAID_SIM"
       sourceId="sim-1"
       label="SIM +1-555-0100"
@@ -44,7 +44,7 @@ describe("EditClientInvoiceLineControl", () => {
     await userEvent.type(amountField(), "31.40");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
-    expect(fetchMock).toHaveBeenCalledWith("/api/contracts/contract-1/client-invoice/lines", {
+    expect(fetchMock).toHaveBeenCalledWith("/api/client-invoices/invoice-1/lines", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ kind: "POSTPAID_SIM", sourceId: "sim-1", amount: "31.40" }),
@@ -100,7 +100,7 @@ describe("EditClientInvoiceLineControl", () => {
     await userEvent.click(screen.getByRole("button", { name: "Reset" }));
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/contracts/contract-1/client-invoice/lines",
+      "/api/client-invoices/invoice-1/lines",
       expect.objectContaining({ body: JSON.stringify({ kind: "POSTPAID_SIM", sourceId: "sim-1", amount: "25.00" }) }),
     );
     await waitFor(() => expect(mockRouter.refresh).toHaveBeenCalledOnce());

@@ -13,7 +13,7 @@ import { IconAlertTriangle, IconArrowRight } from "@/components/icons";
  * anywhere in this app, it opens the invoice to the Client and the Manager's review queue, and it
  * freezes the numbers permanently (see ClientInvoice's Javadoc on the backend).
  */
-export function SendClientInvoiceControl({ contractId }: { contractId: string }) {
+export function SendClientInvoiceControl({ invoiceId }: { invoiceId: string }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [pending, setPending] = useState(false);
@@ -23,7 +23,7 @@ export function SendClientInvoiceControl({ contractId }: { contractId: string })
     setPending(true);
     setError(null);
     try {
-      const response = await fetch(`/api/contracts/${contractId}/client-invoice/send`, { method: "POST" });
+      const response = await fetch(`/api/client-invoices/${invoiceId}/send`, { method: "POST" });
       if (!response.ok) {
         setError("Couldn't send. Try again.");
         setPending(false);

@@ -75,7 +75,7 @@ test.describe("client invoice generation", () => {
     await expect(page.getByText("No carrier invoice files attached yet.")).toBeVisible();
     const [uploadResponse] = await Promise.all([
       page.waitForResponse(
-        (resp) => resp.url().includes("/client-invoice/files") && resp.request().method() === "POST",
+        (resp) => resp.url().includes("/api/client-invoices/") && resp.url().includes("/files") && resp.request().method() === "POST",
       ),
       page.getByLabel("Attach carrier invoice file").setInputFiles({
         name: "october-carrier-invoice.pdf",

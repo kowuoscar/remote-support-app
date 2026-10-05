@@ -41,8 +41,8 @@ export function SendClientInvoiceControl({ invoiceId }: { invoiceId: string }) {
   if (confirming) {
     return (
       <div className="flex flex-col items-end gap-1.5">
-        <p className="max-w-[220px] text-right text-[12px] text-ink-mute">
-          Sends to the Manager and Client, and locks the numbers. This can&rsquo;t be undone.
+        <p className="max-w-[260px] text-right text-[12px] text-ink-mute">
+          Sends to the Manager and Client, and locks the numbers. Only the Manager can send it back to you.
         </p>
         <div className="flex items-center gap-1.5">
           <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={() => setConfirming(false)}>

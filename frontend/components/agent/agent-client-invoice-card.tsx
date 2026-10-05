@@ -9,7 +9,7 @@ import { IconDownload, IconPaperclip } from "@/components/icons";
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
 import { EditClientInvoiceLineControl } from "@/components/agent/edit-client-invoice-line-control";
 import { SendClientInvoiceControl } from "@/components/agent/send-client-invoice-control";
-import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from "@/lib/status";
+import { clientInvoiceBadge } from "@/lib/status";
 import { formatDate, formatDateShort, formatLocalDate } from "@/lib/format";
 import { FEE_TYPE_LABEL, type ClientInvoiceDetail, type EditableClientInvoiceLineKind } from "@/lib/api/types";
 
@@ -98,8 +98,16 @@ function LineAmount({
  * files as simple lists below. Its controls address the invoice by its own id, so the same card
  * serves the current-month page and an invoice of any other billing month.
  */
-export function AgentClientInvoiceCard({ invoice }: { invoice: ClientInvoiceDetail }) {
-  const editable = invoice.status === "DRAFT";
+export function AgentClientInvoiceCard({
+  invoice,
+  readOnly = false,
+}: {
+  invoice: ClientInvoiceDetail;
+  /** A past-month draft never sent: shown as it stands, with no editor, Attach file or Send. */
+  readOnly?: boolean;
+}) {
+  const editable = invoice.status === "DRAFT" && !readOnly;
+  const badge = clientInvoiceBadge(invoice);
   const feeLabelList = feeLabels(invoice.feeLines);
 
   return (
@@ -108,12 +116,12 @@ export function AgentClientInvoiceCard({ invoice }: { invoice: ClientInvoiceDeta
         <div>
           <div className="flex items-center gap-2">
             <p className="text-sm font-semibold text-ink">{billingMonthLabel(invoice.billingMonth)}</p>
-            <Badge tone={clientInvoiceStatusToneByValue[invoice.status]}>
-              {clientInvoiceStatusLabelByValue[invoice.status]}
-            </Badge>
+            <Badge tone={badge.tone}>{badge.label}</Badge>
           </div>
           <p className="mt-1 text-[13px] text-ink-mute">
-            {invoice.status === "DRAFT"
+            {readOnly && invoice.status === "DRAFT"
+              ? "This month has ended and the invoice was never sent — it is shown as it stands and is closed to changes"
+              : invoice.status === "DRAFT"
               ? "This Contract’s postpaid base amount plus this month’s Fees — still being assembled"
               : "Sent to the Manager and Client — numbers are locked to what was sent"}
           </p>
@@ -124,12 +132,12 @@ export function AgentClientInvoiceCard({ invoice }: { invoice: ClientInvoiceDeta
             </p>
           ) : null}
         </div>
-        {invoice.status === "DRAFT" ? (
+        {editable ? (
           <div className="flex flex-col items-end gap-2">
             <AttachCarrierInvoiceFileControl invoiceId={invoice.id} />
             <SendClientInvoiceControl invoiceId={invoice.id} />
           </div>
-        ) : (
+        ) : invoice.status === "DRAFT" ? null : (
           <a
             href={`/api/contracts/${invoice.contractId}/client-invoice/pdf`}
             className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-hairline-strong bg-canvas px-3 py-1.5 text-[13px] font-medium text-ink hover:bg-canvas-soft"

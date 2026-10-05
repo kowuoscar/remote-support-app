@@ -1,0 +1,6 @@
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.256 s -- in com.remotesupport.backend.demo.DemoDataLoaderApiTest
+[INFO] Tests run: 10, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.473 s -- in com.remotesupport.backend.web.ChangeOwnPasswordApiTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.389 s -- in com.remotesupport.backend.web.ChangePasswordServiceDeactivatedTest
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.308 s -- in com.remotesupport.backend.web.AuthLoginTest
+[INFO] Tests run: 670, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS

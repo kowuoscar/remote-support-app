@@ -1,7 +1,7 @@
 ---
 id: deactivate-an-agents-login-api
 title: Let a Manager deactivate and reactivate an Agent's Login
-status: ready-for-agent
+status: done
 depends_on: [administered-login-lookup, deactivated-login-refused]
 labels: [backend]
 stories: [1, 7, 8, 9, 16, 18, 19, 20, 21, 22, 23]

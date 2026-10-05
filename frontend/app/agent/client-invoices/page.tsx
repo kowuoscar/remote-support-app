@@ -2,6 +2,7 @@ import { SurfacePage } from "@/components/app-shell/surface-page";
 import { AgentClientInvoicesView } from "@/components/agent/client-invoices-view";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
 import { countryLabel, type ClientInvoiceDetail, type ContractListItem } from "@/lib/api/types";
+import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "Client Invoices" };
 
@@ -16,6 +17,7 @@ export const metadata = { title: "Client Invoices" };
  * ClientInvoiceController's Javadoc) is built around.
  */
 export default async function AgentClientInvoicesPage() {
+  await requireAgent();
   const [contracts, meResponse] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),

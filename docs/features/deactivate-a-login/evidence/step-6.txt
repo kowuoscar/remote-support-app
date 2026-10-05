@@ -1,0 +1,7 @@
+## STEP 6
+POST /api/agents/796ccc5f-01f1-446f-9ced-e6beab42ba5e/login/password -> 200 {"password":"rasf-4nwq-a9bc"}
+HTTP/1.1 401 
+{"code":"LOGIN_DEACTIVATED"}
+POST /api/agents/796ccc5f-01f1-446f-9ced-e6beab42ba5e/login/reactivate -> 200 {"deactivatedAt":null}
+signin with reset pw after reactivate: 200
+signin with ORIGINAL pw after reset: 401

@@ -173,6 +173,19 @@ const AGENTS = [
     contractCount: 1,
     loginUsername: null,
   },
+  // deactivate-an-agents-login-ui ticket: an Agent whose Login is deactivated, for the reactivate
+  // confirm step's golden. Its name is no wider than "Jordan Ellis" so /manager/stock's auto-width
+  // Agent filter (fed by this list) does not change size.
+  {
+    id: "a0000000-0000-0000-0000-000000000003",
+    name: "Ana Costa",
+    country: "UNITED_STATES",
+    currency: "USD",
+    salaryAmount: 2600,
+    contractCount: 1,
+    loginUsername: "ana@example.com",
+    loginDeactivatedAt: "2026-10-02T09:14:00Z",
+  },
 ];
 
 // The password the stubbed reset route reveals (the golden of the reveal step).
@@ -189,6 +202,8 @@ const CLIENT = {
 const CLIENT_TESTERS = [
   { id: "33333333-0000-0000-0000-000000000001", clientId: CLIENT.id, username: "priya.raman@aurora.example", isPrimaryContact: true },
   { id: "33333333-0000-0000-0000-000000000003", clientId: CLIENT.id, username: "nadia.okafor@aurora.example", isPrimaryContact: false },
+  // deactivate-a-login: a Tester whose Login is deactivated, for the reactivate confirm step.
+  { id: "33333333-0000-0000-0000-000000000004", clientId: CLIENT.id, username: "tomas.lindqvist@aurora.example", isPrimaryContact: false, deactivatedAt: "2026-10-02T09:14:00Z" },
 ];
 
 const STOCK_UNITS = [

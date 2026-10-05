@@ -13,6 +13,7 @@ import type {
   SimCardListItem,
   SmartphoneListItem,
 } from "@/lib/api/types";
+import { requireTester } from "@/lib/api/guard";
 
 export const metadata = { title: "Dashboard" };
 
@@ -69,6 +70,7 @@ const OPEN_REQUEST_STATUSES: readonly RequestListItem["status"][] = [
 ];
 
 export default async function ClientDashboardPage() {
+  await requireTester();
   const [client, me] = await Promise.all([
     readIdentity<ClientOwnRecord>("/api/me/client", true),
     readIdentity<{ username: string }>("/api/me", false),

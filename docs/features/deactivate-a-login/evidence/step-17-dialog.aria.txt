@@ -1,0 +1,5 @@
+- dialog "Reactivate login for UI Agent Acc":
+  - heading "Reactivate login for UI Agent Acc" [level=2]
+  - paragraph: ui.agent@example.com will be able to sign in again with their existing password. If they don't know it, reset it afterwards.
+  - button "Cancel"
+  - button "Reactivate login"

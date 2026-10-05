@@ -1,7 +1,7 @@
 ---
 id: deactivated-message-at-sign-in
 title: Show the deactivated message at sign-in
-status: ready-for-agent
+status: done
 depends_on: [deactivated-login-refused]
 labels: [frontend]
 stories: [11]

@@ -21,6 +21,7 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -106,7 +107,7 @@ public class AgentController {
 
     AuditLog.created("Agent", agent.getId(), principal.userId(), principal.tenantId());
 
-    return created(AgentResponse.of(agent, 0, login.user().getUsername()), login);
+    return created(AgentResponse.of(agent, 0, login.user().getUsername(), null), login);
   }
 
   /**
@@ -132,7 +133,10 @@ public class AgentController {
 
     return created(
         AgentResponse.of(
-            agent, contractRepository.countByAgentId(agent.getId()), login.user().getUsername()),
+            agent,
+            contractRepository.countByAgentId(agent.getId()),
+            login.user().getUsername(),
+            null),
         login);
   }
 
@@ -146,16 +150,19 @@ public class AgentController {
 
   @GetMapping
   public List<AgentResponse> list(@AuthenticationPrincipal AuthenticatedPrincipal principal) {
-    Map<UUID, String> loginUsernames =
+    Map<UUID, AgentLogin> logins =
         userRepository.findAgentLoginsByTenantId(principal.tenantId()).stream()
-            .collect(Collectors.toMap(AgentLogin::agentId, AgentLogin::username));
+            .collect(Collectors.toMap(AgentLogin::agentId, Function.identity()));
     return agentRepository.findByTenantIdOrderByNameAsc(principal.tenantId()).stream()
         .map(
-            agent ->
-                AgentResponse.of(
-                    agent,
-                    contractRepository.countByAgentId(agent.getId()),
-                    loginUsernames.get(agent.getId())))
+            agent -> {
+              AgentLogin login = logins.get(agent.getId());
+              return AgentResponse.of(
+                  agent,
+                  contractRepository.countByAgentId(agent.getId()),
+                  login == null ? null : login.username(),
+                  login == null ? null : login.deactivatedAt());
+            })
         .toList();
   }
 

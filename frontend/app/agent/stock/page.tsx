@@ -2,6 +2,7 @@ import { SurfacePage } from "@/components/app-shell/surface-page";
 import { StockView } from "@/components/stock/stock-view";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
 import type { StockUnitItem } from "@/lib/api/types";
+import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "Stock" };
 
@@ -12,6 +13,7 @@ export const metadata = { title: "Stock" };
  * (`StockController#resolveScopeAgentId`), so this fetches with no query param at all.
  */
 export default async function AgentStockPage() {
+  await requireAgent();
   const [units, meResponse] = await Promise.all([
     backendFetchList<StockUnitItem>("/api/stock"),
     backendFetch("/api/me"),

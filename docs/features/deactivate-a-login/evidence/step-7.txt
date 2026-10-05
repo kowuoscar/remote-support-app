@@ -1,0 +1,5 @@
+## STEP 7
+POST /api/agents -> 201 {"id":"70e3eaaa-c656-4852-bbc0-119adbeb9077","name":"Acc Agent Two","country":"UNITED_STATES","currency":"USD","salaryAmount":900,"contractCount":0,"loginUsername":"acc.two@example.com","password":"bcq4-xta3-txch"}
+POST /api/agents/70e3eaaa-c656-4852-bbc0-119adbeb9077/login/deactivate -> 200 {"deactivatedAt":"2026-10-05T12:52:01.588756Z"}
+POST /api/agents/70e3eaaa-c656-4852-bbc0-119adbeb9077/login/reactivate -> 200 {"deactivatedAt":null}
+signin with original generated pw: 200

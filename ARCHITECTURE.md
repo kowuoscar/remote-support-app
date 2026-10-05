@@ -21,6 +21,9 @@ error, not a nitpick.
 - `web` · HTTP controllers, the services holding business rules, and the domain factories they share.
 - `logging` · the audit trail written when an entity is created or changes state.
 - `demo` · the `demo` profile's seed loader, used for development and demonstration.
+- `backend/src/main/java/com/remotesupport/backend/security/LoginState.java` · the per-request check that a userId is an active Login, used by `JwtAuthenticationFilter`.
+- `backend/src/main/java/com/remotesupport/backend/security/LoginDeactivatedException.java` · the sign-in refusal for a deactivated Login.
+- `backend/src/main/resources/db/migration/V58__add_users_deactivated_at.sql` · the migration behind deactivating a Login.
 
 ### Frontend — `frontend/app`
 
@@ -44,6 +47,7 @@ error, not a nitpick.
 - `manager` · components specific to the Manager Console.
 - `client` · components specific to the Client Portal.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
+- `frontend/components/manager/login-activation-dialog.tsx` · the shared confirm dialog a Manager uses to deactivate or reactivate a Login.
 - `fleet` · smartphones, SIM cards, installation and serial editing.
 - `carriers` · the carrier catalog and its pickers.
 - `requests` · the request and provisioning workflow.

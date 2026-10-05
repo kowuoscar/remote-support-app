@@ -1,0 +1,8 @@
+    Error Context: test-results/deactivate-a-login-manager-a1aeb-h-a-focus-ring-at-each-stop/error-context.md
+
+  1 failed
+    tests/e2e/deactivate-a-login.spec.ts:206:7 › manager deactivates a Tester's Login › keyboard walk: Tab to the row action, open, Escape, open again, confirm, with a focus ring at each stop 
+    Error Context: test-results/deactivate-a-login-manager-a1aeb-h-a-focus-ring-at-each-stop/error-context.md
+
+  1 failed
+    tests/e2e/deactivate-a-login.spec.ts:206:7 › manager deactivates a Tester's Login › keyboard walk: Tab to the row action, open, Escape, open again, confirm, with a focus ring at each stop 

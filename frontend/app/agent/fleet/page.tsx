@@ -7,6 +7,7 @@ import {
   type SimCardListItem,
   type SmartphoneListItem,
 } from "@/lib/api/types";
+import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "Fleet" };
 
@@ -18,6 +19,7 @@ export const metadata = { title: "Fleet" };
  * interaction like the design-system ticket's demo version.
  */
 export default async function AgentFleetPage() {
+  await requireAgent();
   const [contracts, meResponse] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),

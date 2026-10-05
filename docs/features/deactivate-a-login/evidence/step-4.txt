@@ -1,0 +1,9 @@
+## STEP 4
+--- diff before/after step 1 (empty except loginDeactivatedAt expected) ---
+2c2
+< [{"contractCount": 1, "country": "UNITED_STATES", "currency": "USD", }, {"contractCount": 0, "country": "UNITED_STATES", "currency": "USD", "id": "55555555-5555-5555-5555-555555555555", "loginDeactivatedAt": null, "loginUsername": "agent@example.com", "name": "Jordan Ellis", "salaryAmount": 2500.0}]
+---
+> [{"contractCount": 1, "country": "UNITED_STATES", "currency": "USD", }, {"contractCount": 0, "country": "UNITED_STATES", "currency": "USD", "id": "55555555-5555-5555-5555-555555555555", "loginDeactivatedAt": null, "loginUsername": "agent@example.com", "name": "Jordan Ellis", "salaryAmount": 2500.0}]
+--- agent row after ---
+{'contractCount': 1, 'country': 'UNITED_STATES', 'currency': 'USD', 'id': '796ccc5f-01f1-446f-9ced-e6beab42ba5e', 'loginDeactivatedAt': '2026-10-05T12:51:49.430408Z', 'loginUsername': 'acc.one@example.com', 'name': 'Acc Agent One', 'salaryAmount': 1000.0}
+POST /api/agents/796ccc5f-01f1-446f-9ced-e6beab42ba5e/login -> 409 {"message":"Agent 796ccc5f-01f1-446f-9ced-e6beab42ba5e already has a login","code":"AGENT_ALREADY_HAS_LOGIN"}

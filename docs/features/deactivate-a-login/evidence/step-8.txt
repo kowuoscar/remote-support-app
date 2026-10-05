@@ -1,0 +1,24 @@
+## STEP 8
+POST /api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/b17afe39-eb19-466c-9a03-174d93017292/deactivate -> 200 {"deactivatedAt":"2026-10-05T12:52:12.539398Z"}
+HTTP/1.1 401 
+{"code":"LOGIN_DEACTIVATED"}
+wrong pw: 401
+GET /api/me -> 401 
+GET /api/contracts/a8198b85-3b42-49fb-be3c-5b94c3cb3b63/requests -> 401 
+POST /api/me/password -> 401 
+--- testers list + requests after deactivation ---
+GET /api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers
+[{"clientId": "09cba62a-3d21-4869-a912-2fa1090e2465", "deactivatedAt": "2026-10-05T12:52:12.539398Z", "id": "b17afe39-eb19-466c-9a03-174d93017292", "isPrimaryContact": true, "username": "acc.tester1@example.com"}]
+GET /api/contracts/a8198b85-3b42-49fb-be3c-5b94c3cb3b63/requests
+[{"agentAuthored": false, "contractId": "a8198b85-3b42-49fb-be3c-5b94c3cb3b63", "createdAt": "2026-10-05T12:51:40.367885Z", "description": "tester raised", "id": "0049bc9a-b00e-4da5-ac07-958e67e2f68c", "loggedByUsername": "acc.tester1@example.com", "raisedByTesterId": "b17afe39-eb19-466c-9a03-174d93017292", "raisedByUsername": "acc.tester1@example.com", "status": "SUBMITTED", "type": "OTHER"}, {"agentAuthored": true, "contractId": "a8198b85-3b42-49fb-be3c-5b94c3cb3b63", "createdAt": "2026-10-05T12:51:49.154214Z", "description": "agent raised", "id": "204d22a3-3893-464d-9a45-1ed30c9979c5", "loggedByUsername": "acc.one@example.com", "raisedByTesterId": "b17afe39-eb19-466c-9a03-174d93017292", "raisedByUsername": "acc.tester1@example.com", "status": "SUBMITTED", "type": "OTHER"}]
+--- diff vs before (expect testers row gains deactivatedAt only) ---
+2c2
+< [{"clientId": "09cba62a-3d21-4869-a912-2fa1090e2465", "deactivatedAt": null, "id": "b17afe39-eb19-466c-9a03-174d93017292", "isPrimaryContact": true, "username": "acc.tester1@example.com"}]
+---
+> [{"clientId": "09cba62a-3d21-4869-a912-2fa1090e2465", "deactivatedAt": "2026-10-05T12:52:12.539398Z", "id": "b17afe39-eb19-466c-9a03-174d93017292", "isPrimaryContact": true, "username": "acc.tester1@example.com"}]
+POST /api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/b17afe39-eb19-466c-9a03-174d93017292/password -> 200 {"password":"e3ke-uavp-3ebx"}
+HTTP/1.1 401 
+{"code":"LOGIN_DEACTIVATED"}
+POST /api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers/b17afe39-eb19-466c-9a03-174d93017292/reactivate -> 200 {"deactivatedAt":null}
+signin with reset pw after reactivate: 200
+GET /api/clients/09cba62a-3d21-4869-a912-2fa1090e2465/testers -> 200 [{"id":"b17afe39-eb19-466c-9a03-174d93017292","clientId":"09cba62a-3d21-4869-a912-2fa1090e2465","username":"acc.tester1@example.com","isPrimaryContact":true,"deactivatedAt":null}]

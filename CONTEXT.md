@@ -12,8 +12,17 @@ _Avoid_: Organisation, workspace, account (this last one is the Client's word).
 The username and password a person signs in with — a `User` row belonging to exactly one Tenant, optionally linked to an Agent or a Tester (unlinked for a Manager). Its username is unique across the whole deployment, compared case- and trim-insensitively (`globally-unique-usernames`).
 _Avoid_: Account, credentials.
 
+**Deactivated Login**:
+A `User` row with `deactivated_at` set: it cannot sign in, its existing tokens are refused on the next request, and it cannot change its password. The row and everything referencing it are kept, and a password reset still works.
+
+**Login-state check**:
+The per-request primary-key read in `JwtAuthenticationFilter` that a token's Login still exists and is not deactivated; no cache.
+
 **Password write**:
 The single component (`PasswordWrite`) where a Login's password is written; every creation and change path goes through it. Two operations: set a typed value, or give the Login a freshly generated password and return it in the clear (redrawn up to three draws if it equals the current one). It encodes and sets, and neither validates nor saves.
+
+**Administered-Login lookup**:
+The single component (`AdministeredLoginLookup`) that turns route ids (an Agent id, or a Client id plus Tester id) into the target Login within the caller's Tenant and asks the `LoginAdministrationGuard` once.
 
 **Password generator**:
 The security component (`PasswordGenerator`) that draws a candidate generated password. It knows nothing about any Login.

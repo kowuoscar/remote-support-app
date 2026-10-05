@@ -39,12 +39,25 @@ describe("DialogShell", () => {
     expect(cancel.defaultPrevented).toBe(true);
   });
 
-  it("allows Escape when not submitting", () => {
+  it("closes at once on Escape when not submitting, so an immediate re-open finds it closed", () => {
     const { ref, dialog } = renderShell(false);
     act(() => ref.current?.open());
-    const cancel = new Event("cancel", { cancelable: true });
-    dialog.dispatchEvent(cancel);
-    expect(cancel.defaultPrevented).toBe(false);
+    act(() => {
+      dialog.dispatchEvent(new Event("cancel", { cancelable: true }));
+    });
+    expect(dialog.open).toBe(false);
+    expect(dialog.querySelector("form")).toBeNull();
+
+    act(() => ref.current?.open());
+    expect(dialog.open).toBe(true);
+    expect(dialog.querySelector("form")).not.toBeNull();
+
+    // The close event of the first session arrives late; it must not close the second.
+    act(() => {
+      dialog.dispatchEvent(new Event("close"));
+    });
+    expect(dialog.open).toBe(true);
+    expect(dialog.querySelector("form")).not.toBeNull();
   });
 
   it("closes on a backdrop click when not submitting", () => {

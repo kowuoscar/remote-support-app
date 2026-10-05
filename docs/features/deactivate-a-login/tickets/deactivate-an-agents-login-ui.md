@@ -1,7 +1,7 @@
 ---
 id: deactivate-an-agents-login-ui
 title: Let a Manager deactivate and reactivate an Agent's Login from the Agent's page
-status: ready-for-agent
+status: done
 depends_on: [deactivate-an-agents-login-api, deactivated-message-at-sign-in, dead-session-lands-on-sign-in]
 labels: [frontend]
 stories: [1, 3, 5, 6, 7, 13, 14, 18, 24]

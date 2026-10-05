@@ -53,7 +53,7 @@ test.describe("client invoice submission and visibility", () => {
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     const [sendResponse] = await Promise.all([
       page.waitForResponse(
-        (resp) => resp.url().includes("/client-invoice/send") && resp.request().method() === "POST",
+        (resp) => resp.url().includes("/api/client-invoices/") && resp.url().includes("/send") && resp.request().method() === "POST",
       ),
       page.getByRole("button", { name: "Confirm send" }).click(),
     ]);

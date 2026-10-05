@@ -1,7 +1,7 @@
 ---
 id: agent-lists-the-client-invoices-sent-back-to-them
 title: Let the Agent list every Client Invoice sent back to them
-status: ready-for-agent
+status: in-progress
 depends_on: [manager-sends-a-client-invoice-back]
 labels: [backend]
 stories: [13, 14]

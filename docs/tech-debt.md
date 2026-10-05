@@ -13,6 +13,7 @@ separated by ` · `.
 
 ## frontend
 
+- `frontend/components/manager/send-back-client-invoice-control.tsx` · smell: No shared Textarea · the send-back reason field styles a raw `<textarea>` with the `Input` classes; a shared `Textarea` in `frontend/components/ui` would remove the duplication · send-a-client-invoice-back · 2026-10-05
 - `frontend/components/manager/reset-password-dialog.tsx` · smell: Focus lost while confirming · the reset confirm uses Button `loading` (native disabled), so focus drops to BODY in flight and after a failure; the login-activation dialog fixed this locally with aria-disabled + aria-busy and a third spinner style. Give `frontend/components/ui/button.tsx` a focusable busy mode and use it in both · deactivate-a-login · 2026-10-05
 - `frontend/components/manager/login-activation-controls.tsx` · smell: Two date styles · the Deactivated tag shows '2 Oct 2026' (en-GB, UTC) through new `formatDate` options while the rest of the app shows 'Oct 2, 2026' in the viewer's zone · deactivate-a-login · 2026-10-05
 - `frontend/components/manager/agent-sign-in-email.tsx` · smell: Date hidden from sighted touch and keyboard users · the 'since' date is only in a `title` tooltip on a non-focusable span plus sr-only text (spec-decided); consider visible muted text · deactivate-a-login · 2026-10-05

@@ -1,6 +1,5 @@
 package com.remotesupport.backend.web;
 
-import com.remotesupport.backend.domain.CarrierInvoiceFile;
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Contract;
@@ -8,13 +7,10 @@ import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
 import com.remotesupport.backend.dto.ClientInvoiceLineEditRequest;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
 import com.remotesupport.backend.logging.AuditLog;
-import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.security.ClientInvoiceAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -24,8 +20,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.FieldError;
@@ -73,23 +67,17 @@ public class ClientInvoiceController {
 
   private final ContractRepository contractRepository;
   private final ClientInvoiceRepository clientInvoiceRepository;
-  private final CarrierInvoiceFileRepository carrierInvoiceFileRepository;
   private final ClientInvoiceAccessGuard clientInvoiceAccessGuard;
-  private final CarrierInvoiceFileStorage fileStorage;
   private final ClientInvoiceService clientInvoiceService;
 
   public ClientInvoiceController(
       ContractRepository contractRepository,
       ClientInvoiceRepository clientInvoiceRepository,
-      CarrierInvoiceFileRepository carrierInvoiceFileRepository,
       ClientInvoiceAccessGuard clientInvoiceAccessGuard,
-      CarrierInvoiceFileStorage fileStorage,
       ClientInvoiceService clientInvoiceService) {
     this.contractRepository = contractRepository;
     this.clientInvoiceRepository = clientInvoiceRepository;
-    this.carrierInvoiceFileRepository = carrierInvoiceFileRepository;
     this.clientInvoiceAccessGuard = clientInvoiceAccessGuard;
-    this.fileStorage = fileStorage;
     this.clientInvoiceService = clientInvoiceService;
   }
 
@@ -173,41 +161,11 @@ public class ClientInvoiceController {
     Contract contract = findContract(contractId, principal);
     clientInvoiceAccessGuard.requireCanBuildOrView(contract, principal);
 
-    if (file.isEmpty()) {
-      throw new InvalidRequestException("file must not be empty");
-    }
+    // Refused before the draft is get-or-created: an empty upload must not conjure one.
+    clientInvoiceService.requireNonEmpty(file);
 
     ClientInvoice invoice = getOrCreateDraftForCurrentMonth(contract, principal);
-    if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
-      throw new ConflictException(
-          "Cannot attach a carrier invoice file to a Client Invoice that has already been sent");
-    }
-
-    CarrierInvoiceFile carrierFile = new CarrierInvoiceFile();
-    carrierFile.setId(UUID.randomUUID());
-    carrierFile.setTenant(contract.getTenant());
-    carrierFile.setClientInvoice(invoice);
-    carrierFile.setFilename(
-        file.getOriginalFilename() != null && !file.getOriginalFilename().isBlank()
-            ? file.getOriginalFilename()
-            : "carrier-invoice");
-    carrierFile.setContentType(
-        file.getContentType() != null ? file.getContentType() : MediaType.APPLICATION_OCTET_STREAM_VALUE);
-    carrierFile.setSizeBytes(file.getSize());
-    carrierFile.setUploadedAt(Instant.now());
-
-    String storagePath;
-    try {
-      storagePath = fileStorage.store(invoice.getId(), carrierFile.getId(), file);
-    } catch (IOException e) {
-      throw new UncheckedIOException("Failed to store carrier invoice file", e);
-    }
-    carrierFile.setStoragePath(storagePath);
-    carrierInvoiceFileRepository.save(carrierFile);
-
-    AuditLog.created("CarrierInvoiceFile", carrierFile.getId(), principal.userId(), principal.tenantId());
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(CarrierInvoiceFileResponse.of(carrierFile));
+    return clientInvoiceService.attachFile(invoice, file, principal);
   }
 
   @GetMapping("/files")

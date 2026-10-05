@@ -36,10 +36,12 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * What every Client Invoice route does once it has found its invoice, whether it was addressed as
@@ -127,6 +129,53 @@ public class ClientInvoiceService {
             HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=\"client-invoice-" + invoice.getBillingMonth() + ".pdf\"")
         .body(pdfBytes);
+  }
+
+  /** An empty upload is refused ({@link InvalidRequestException}, 400). */
+  public void requireNonEmpty(MultipartFile file) {
+    if (file.isEmpty()) {
+      throw new InvalidRequestException("file must not be empty");
+    }
+  }
+
+  /**
+   * Attaches a Carrier Invoice File to a found invoice: only a {@code DRAFT} takes one (any other
+   * status is a {@link ConflictException}, 409), and an empty file is refused. Stores the bytes,
+   * saves the row, logs its creation, and answers {@code 201} with the file.
+   */
+  public ResponseEntity<CarrierInvoiceFileResponse> attachFile(
+      ClientInvoice invoice, MultipartFile file, AuthenticatedPrincipal principal) {
+    requireNonEmpty(file);
+    if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
+      throw new ConflictException(
+          "Cannot attach a carrier invoice file to a Client Invoice that has already been sent");
+    }
+
+    CarrierInvoiceFile carrierFile = new CarrierInvoiceFile();
+    carrierFile.setId(UUID.randomUUID());
+    carrierFile.setTenant(invoice.getTenant());
+    carrierFile.setClientInvoice(invoice);
+    carrierFile.setFilename(
+        file.getOriginalFilename() != null && !file.getOriginalFilename().isBlank()
+            ? file.getOriginalFilename()
+            : "carrier-invoice");
+    carrierFile.setContentType(
+        file.getContentType() != null ? file.getContentType() : MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    carrierFile.setSizeBytes(file.getSize());
+    carrierFile.setUploadedAt(Instant.now());
+
+    String storagePath;
+    try {
+      storagePath = fileStorage.store(invoice.getId(), carrierFile.getId(), file);
+    } catch (IOException e) {
+      throw new UncheckedIOException("Failed to store carrier invoice file", e);
+    }
+    carrierFile.setStoragePath(storagePath);
+    carrierInvoiceFileRepository.save(carrierFile);
+
+    AuditLog.created("CarrierInvoiceFile", carrierFile.getId(), principal.userId(), principal.tenantId());
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(CarrierInvoiceFileResponse.of(carrierFile));
   }
 
   public List<CarrierInvoiceFileResponse> files(ClientInvoice invoice) {

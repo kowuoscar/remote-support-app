@@ -4,68 +4,74 @@
     {
       "id": "F1",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/AuthController.java:45",
       "citation": "docs/agents/coding-standards.md (Backend 7): \"Exceptions crossing the service→controller boundary are domain exceptions carrying `@ResponseStatus`, translated to a response body by a per-controller `@ExceptionHandler` when the body needs a machine-readable `code` — never a `try/catch` producing an ad hoc `ResponseEntity`.\"",
-      "note": "New catch (LoginDeactivatedException) returns an ad hoc ResponseEntity with code LOGIN_DEACTIVATED. Use a per-controller @ExceptionHandler(LoginDeactivatedException.class). The existing BadCredentials catch is untouched debt."
+      "note": "New catch (LoginDeactivatedException) returns an ad hoc ResponseEntity with code LOGIN_DEACTIVATED. Use a per-controller @ExceptionHandler(LoginDeactivatedException.class). The existing BadCredentials catch is untouched debt.",
+      "fixed_in": "4f4f0f8"
     },
     {
       "id": "F2",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ChangePasswordService.java:63",
       "citation": "docs/agents/coding-standards.md (Backend 7): \"Exceptions crossing the service→controller boundary are domain exceptions carrying `@ResponseStatus`\"",
-      "note": "Throws Spring's BadCredentialsException from a web service. Use a small domain exception with @ResponseStatus(UNAUTHORIZED)."
+      "note": "Throws Spring's BadCredentialsException from a web service. Use a small domain exception with @ResponseStatus(UNAUTHORIZED).",
+      "fixed_in": "4f4f0f8"
     },
     {
       "id": "F3",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/login-activation-dialog.tsx:116",
       "citation": "docs/agents/coding-standards.md (Frontend 8): \"an arbitrary value (`w-[123px]`) needs a comment saying why it isn't a token. The two small type sizes are tokens, not arbitrary values, once the `type-scale-tokens` enabler lands\"",
-      "note": "text-[13px] with a now-false comment; text-label (13px) exists. Use text-label."
+      "note": "text-[13px] with a now-false comment; text-label (13px) exists. Use text-label.",
+      "fixed_in": "5c9b701"
     },
     {
       "id": "F4",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "ARCHITECTURE.md:21",
       "citation": "ARCHITECTURE.md (header): \"This file **points**; it never **describes**. A route, a schema, a function signature is read in the code, never copied here — a copy goes stale, a pointer does not.\"",
-      "note": "The V58 line copies schema (adds the nullable users.deactivated_at) and the LoginDeactivatedException line copies its type shape. Reduce to pointer plus role; keep file-level lines out of the package list."
+      "note": "The V58 line copies schema (adds the nullable users.deactivated_at) and the LoginDeactivatedException line copies its type shape. Reduce to pointer plus role; keep file-level lines out of the package list.",
+      "fixed_in": "4f4f0f8"
     },
     {
       "id": "F5",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/testers-view.tsx:78",
       "citation": "DESIGN.md: \"Spacing runs a tight, consistent rhythm: `4/8/12/16/20px` steps.\"",
-      "note": "The Actions cell's Reset password and Deactivate/Reactivate buttons touch with no gap (side by side at 1280px, stacked edge to edge at 375px). Wrap them in inline-flex flex-wrap justify-end gap-x-3 gap-y-1.5 as on the Agent page."
+      "note": "The Actions cell's Reset password and Deactivate/Reactivate buttons touch with no gap (side by side at 1280px, stacked edge to edge at 375px). Wrap them in inline-flex flex-wrap justify-end gap-x-3 gap-y-1.5 as on the Agent page.",
+      "fixed_in": "5c9b701"
     },
     {
       "id": "F6",
       "type": "acceptance-failed",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "acceptance-runner",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/tests/e2e/deactivate-a-login.spec.ts:206",
       "citation": "spec.md Acceptance walkthrough 12: the full isolated e2e suite green",
-      "note": "The Tester keyboard-walk test fails at line 226: an Enter sent within ~30ms of the Escape that closed the dialog is swallowed, so the dialog never reopens. Failed in the full suite and twice in isolation (the merger's verify had passed it). Fix the race in the dialog/trigger (likely the shared DialogShell's close handling) rather than only pausing in the test."
+      "note": "The Tester keyboard-walk test fails at line 226: an Enter sent within ~30ms of the Escape that closed the dialog is swallowed, so the dialog never reopens. Failed in the full suite and twice in isolation (the merger's verify had passed it). Fix the race in the dialog/trigger (likely the shared DialogShell's close handling) rather than only pausing in the test.",
+      "fixed_in": "1ab9758"
     },
     {
       "id": "F7",
@@ -114,57 +120,62 @@
     {
       "id": "F11",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/testers-view.tsx:53",
       "citation": "",
-      "note": "Deactivated tag and the toggle button are duplicated with agent-sign-in-email.tsx:56-111; extract a DeactivatedTag and a LoginActivationButton."
+      "note": "Deactivated tag and the toggle button are duplicated with agent-sign-in-email.tsx:56-111; extract a DeactivatedTag and a LoginActivationButton.",
+      "fixed_in": "5c9b701"
     },
     {
       "id": "F12",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/deactivate-login-dialog.tsx:1",
       "citation": "",
-      "note": "Middle Man: deactivate-/reactivate-login-dialog.tsx only forward to LoginActivationDialog with a fixed mode."
+      "note": "Middle Man: deactivate-/reactivate-login-dialog.tsx only forward to LoginActivationDialog with a fixed mode.",
+      "fixed_in": "5c9b701"
     },
     {
       "id": "F13",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/lib/format.ts:38",
       "citation": "",
-      "note": "formatDayMonthYear duplicates formatDate apart from locale order and UTC."
+      "note": "formatDayMonthYear duplicates formatDate apart from locale order and UTC.",
+      "fixed_in": "5c9b701"
     },
     {
       "id": "F14",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/login-activation-dialog.tsx:129",
       "citation": "",
-      "note": "Focus falls to BODY while Confirm is in flight (Button loading sets native disabled) and stays there after a failed request. Keep the busy button focusable (aria-disabled + ignore clicks) or refocus the confirm/error on failure. Same pattern in reset-password-dialog.tsx:119."
+      "note": "Focus falls to BODY while Confirm is in flight (Button loading sets native disabled) and stays there after a failed request. Keep the busy button focusable (aria-disabled + ignore clicks) or refocus the confirm/error on failure. Same pattern in reset-password-dialog.tsx:119.",
+      "fixed_in": "5c9b701"
     },
     {
       "id": "F15",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit (impeccable + web-design-guidelines)",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/testers-view.tsx:62",
       "citation": "",
-      "note": "At 375px the Deactivated tag wraps under the email but keeps ml-2, so it sits indented. Use flex flex-wrap items-center gap-x-2 gap-y-1 as the Agent page does."
+      "note": "At 375px the Deactivated tag wraps under the email but keeps ml-2, so it sits indented. Use flex flex-wrap items-center gap-x-2 gap-y-1 as the Agent page does.",
+      "fixed_in": "5c9b701"
     },
     {
       "id": "F16",

@@ -56,13 +56,13 @@ export function ContractSwitcher({
   }
 
   return (
-    <div ref={rootRef} className="relative inline-block text-left">
+    <div ref={rootRef} className="relative inline-block max-w-full text-left">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="inline-flex min-w-[220px] items-center justify-between gap-2 rounded-lg border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink transition-colors hover:bg-canvas-soft"
+        className="inline-flex w-full min-w-[220px] max-w-full items-center justify-between gap-2 rounded-lg border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink transition-colors hover:bg-canvas-soft"
       >
         <span className="flex items-center gap-2 truncate">
           <IconContracts className="h-4 w-4 shrink-0 text-ink-mute" />

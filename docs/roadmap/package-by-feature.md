@@ -1,7 +1,7 @@
 ---
 id: package-by-feature
 title: Package the backend by feature, not by layer
-status: planned
+status: in-progress
 journeys: []
 ---
 
@@ -48,21 +48,49 @@ understand without opening four others.
 
 ## Features
 
-Not cut yet. The first feature must be the research and the plan, because how
-this is cut depends on what that research concludes:
+- [ ] `package-layout-decision` — research how Spring Boot codebases of this shape are packaged and propose this codebase's layout and move order as an ADR; no file moves. Its spec ends in the human's approval of the cut.
+- [ ] `package-boundary-check` — an automated check (ArchUnit or Spring Modulith, per the decision) that encodes the chosen layout and fails `verify` on a new class in a layer package; existing classes allowed by a shrinking list.
+- [ ] `move-carriers-and-catalog` — the least-coupled cluster moves first, proving the move recipe (classes, tests, ARCHITECTURE.md) on a small feature.
+- [ ] `move-fleet-and-stock` — Smartphones, SIM Cards, installation and Agent stock.
+- [ ] `move-requests-and-fees` — Requests, their detail and completion handlers, Fees, pending requests.
+- [ ] `move-people-and-contracts` — Clients, Testers, Agents and Contracts.
+- [ ] `move-invoicing` — Client Invoices, Agent Invoices, standing amounts, the Review Queue; resolves the `@Lazy` cycle the decision rules on.
+- [ ] `move-authentication-and-identity` — sign-in, logins, passwords, `/api/me`; ends with the layer packages empty and deleted.
 
-- research the layouts actually used by Spring Boot codebases of this shape
-  (package-by-feature, package-by-feature-with-layers-inside, modulith with
-  enforced boundaries), against this project's real constraints: JPA entities
-  referenced across features, Flyway migrations that are global by nature,
-  Spring Security configuration that spans everything, and a test suite whose
-  base class every integration test extends;
-- report where the seams genuinely are, and where two "features" share so much
-  domain that splitting them would be worse than leaving them;
-- propose the cut — which package moves first, and how the epic stays green
-  at every step — for the human to approve before any file moves.
+The lines after the first are provisional: `package-layout-decision` may merge,
+split or reorder them, and its delivery rewrites this list before the next
+spec is drafted.
 
 ## Reworked
+
+Sized on 2026-10-06 by an exploration of `main`, before cutting:
+
+- **222 main classes** in seven layer packages: `web` 78 (30 controllers plus
+  services, factories and exceptions), `dto` 60, `domain` 38, `repository` 25,
+  `security` 17, `logging` 2, `demo` 1. **71 test classes**, 47 of them
+  integration tests extending `IntegrationTest`.
+- **Twelve clusters are visible from names and tests:** authentication,
+  agents, fleet, requests, Client Invoices, Agent Invoices, carriers, stock,
+  contracts, fees, clients and Testers, identity (`/api/me`).
+- **Coupling is concentrated, not spread.**
+  - `Contract` is the most referenced entity, about 35 references from
+    `web`, followed by `Request` (about 24).
+  - `ContractAmountService` and `ClientInvoiceService` already depend on each
+    other through `@Lazy`, and `AgentInvoiceService` sits on top of both. The
+    decision has to say whether invoicing stays one package or the cycle is
+    broken first.
+- **Some pieces stay global whatever the layout:** Flyway migrations,
+  `SecurityConfig`'s single matcher chain, `AuditLog`, and the
+  `IntegrationTest` base class with its seeded fixtures. The decision has to
+  name a home for each.
+- **No boundary tooling exists.** Checkstyle covers hygiene only, and there is
+  no ArchUnit or Spring Modulith, so nothing would stop the layout drifting
+  back. Hence the `package-boundary-check` feature right after the decision.
+- **A move is mechanically low-risk.** `@SpringBootApplication` scans the
+  whole package tree with no explicit `@ComponentScan` or `@EntityScan`, so
+  moving a class rewires nothing. The cost is the size of the diffs and merge
+  conflicts with in-flight features. Moves therefore go one cluster at a
+  time, each green, scheduled when no other feature is mid-build.
 
 ## Later
 

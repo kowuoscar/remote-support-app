@@ -42,7 +42,7 @@ function Spinner() {
  * does; after a save the page refreshes so the base amount, Fees total and total follow.
  */
 export function EditClientInvoiceLineControl({
-  contractId,
+  invoiceId,
   kind,
   sourceId,
   label,
@@ -51,7 +51,7 @@ export function EditClientInvoiceLineControl({
   edited,
   currency,
 }: {
-  contractId: string;
+  invoiceId: string;
   kind: EditableClientInvoiceLineKind;
   sourceId: string;
   /** Names the line for assistive tech, e.g. "SIM +1-555-0100" or "Topup Fee". */
@@ -102,7 +102,7 @@ export function EditClientInvoiceLineControl({
     nextFocus.current = onRefused;
     setError(null);
     try {
-      const response = await fetch(`/api/contracts/${contractId}/client-invoice/lines`, {
+      const response = await fetch(`/api/client-invoices/${invoiceId}/lines`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ kind, sourceId, amount: newAmount.trim() }),

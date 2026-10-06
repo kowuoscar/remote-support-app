@@ -15,7 +15,7 @@ import { IconAlertTriangle, IconPaperclip } from "@/components/icons";
  * own upload (the backend accepts one file per call), sequentially, so a failure partway through
  * leaves the files that already succeeded attached rather than losing all of them.
  */
-export function AttachCarrierInvoiceFileControl({ contractId }: { contractId: string }) {
+export function AttachCarrierInvoiceFileControl({ invoiceId }: { invoiceId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
@@ -30,7 +30,7 @@ export function AttachCarrierInvoiceFileControl({ contractId }: { contractId: st
       for (const file of Array.from(fileList)) {
         const formData = new FormData();
         formData.append("file", file);
-        const response = await fetch(`/api/contracts/${contractId}/client-invoice/files`, {
+        const response = await fetch(`/api/client-invoices/${invoiceId}/files`, {
           method: "POST",
           body: formData,
         });

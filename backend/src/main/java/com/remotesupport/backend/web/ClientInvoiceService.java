@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -36,10 +38,12 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * What every Client Invoice route does once it has found its invoice, whether it was addressed as
@@ -85,10 +89,13 @@ public class ClientInvoiceService {
 
   /**
    * Approves a sent Client Invoice ({@code SENT -> APPROVED}); any other status is a clean {@link
-   * ConflictException} (409), never a silent no-op. Logs the status-transition audit event.
+   * ConflictException} (409), never a silent no-op. Logs the status-transition audit event. The
+   * invoice is re-read under the row lock send, edit and send-back take, so an approval racing a
+   * send-back runs after it and gets 409.
    */
   @Transactional
-  public ClientInvoiceResponse approve(ClientInvoice invoice, AuthenticatedPrincipal principal) {
+  public ClientInvoiceResponse approve(ClientInvoice found, AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
     ClientInvoiceStatus oldStatus = invoice.getStatus();
     if (!oldStatus.canTransitionTo(ClientInvoiceStatus.APPROVED)) {
       throw new ConflictException("Cannot approve a Client Invoice from status " + oldStatus);
@@ -127,6 +134,59 @@ public class ClientInvoiceService {
             HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=\"client-invoice-" + invoice.getBillingMonth() + ".pdf\"")
         .body(pdfBytes);
+  }
+
+  /** An empty upload is refused ({@link InvalidRequestException}, 400). Callers run it first. */
+  public void requireNonEmpty(MultipartFile file) {
+    if (file.isEmpty()) {
+      throw new InvalidRequestException("file must not be empty");
+    }
+  }
+
+  /**
+   * Attaches a Carrier Invoice File to a found, non-empty-file invoice, as one transaction: the
+   * invoice is re-read under the row lock the send takes, so an attach never lands on a sent
+   * invoice. Only a {@code DRAFT} takes one (any other status is a {@link ConflictException},
+   * 409), and an Agent only on a draft open to them (the Manager attaches regardless). Stores the
+   * bytes, saves the row, logs its creation, and answers {@code 201} with the file.
+   */
+  @Transactional
+  public ResponseEntity<CarrierInvoiceFileResponse> attachFile(
+      ClientInvoice found, MultipartFile file, AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
+    if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
+      throw new ConflictException(
+          "Cannot attach a carrier invoice file to a Client Invoice that has already been sent");
+    }
+    if ("AGENT".equals(principal.role())) {
+      requireOpenToAgent(invoice);
+    }
+
+    CarrierInvoiceFile carrierFile = new CarrierInvoiceFile();
+    carrierFile.setId(UUID.randomUUID());
+    carrierFile.setTenant(invoice.getTenant());
+    carrierFile.setClientInvoice(invoice);
+    carrierFile.setFilename(
+        file.getOriginalFilename() != null && !file.getOriginalFilename().isBlank()
+            ? file.getOriginalFilename()
+            : "carrier-invoice");
+    carrierFile.setContentType(
+        file.getContentType() != null ? file.getContentType() : MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    carrierFile.setSizeBytes(file.getSize());
+    carrierFile.setUploadedAt(Instant.now());
+
+    String storagePath;
+    try {
+      storagePath = fileStorage.store(invoice.getId(), carrierFile.getId(), file);
+    } catch (IOException e) {
+      throw new UncheckedIOException("Failed to store carrier invoice file", e);
+    }
+    carrierFile.setStoragePath(storagePath);
+    carrierInvoiceFileRepository.save(carrierFile);
+
+    AuditLog.created("CarrierInvoiceFile", carrierFile.getId(), principal.userId(), principal.tenantId());
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(CarrierInvoiceFileResponse.of(carrierFile));
   }
 
   public List<CarrierInvoiceFileResponse> files(ClientInvoice invoice) {
@@ -204,7 +264,42 @@ public class ClientInvoiceService {
         total(lines),
         files(invoice),
         invoice.getSentAt(),
-        invoice.getApprovedAt());
+        invoice.getApprovedAt(),
+        includeEdits ? invoice.getSentBackAt() : null,
+        includeEdits ? invoice.getSentBackReason() : null);
+  }
+
+  /**
+   * A Manager's send-back ({@code SENT -> DRAFT}, ADR 0005) as one transaction under the row lock
+   * approve, send and edit take. Touches no line and leaves {@code linesStored} set: the draft
+   * carries the stored lines it was sent with, nothing recomputed. Clears {@code sentAt}, records
+   * {@code sentBackAt} and the reason. The audit line names who and which invoice, never the
+   * reason's text.
+   */
+  @Transactional
+  public ClientInvoiceResponse sendBack(
+      ClientInvoice found, String reason, AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
+    ClientInvoiceStatus oldStatus = invoice.getStatus();
+    if (!oldStatus.canTransitionTo(ClientInvoiceStatus.DRAFT)) {
+      throw new ConflictException("Cannot send a Client Invoice back from status " + oldStatus);
+    }
+
+    invoice.setStatus(ClientInvoiceStatus.DRAFT);
+    invoice.setSentAt(null);
+    invoice.setSentBackAt(Instant.now());
+    invoice.setSentBackReason(reason);
+    clientInvoiceRepository.save(invoice);
+
+    AuditLog.statusChanged(
+        "ClientInvoice",
+        invoice.getId(),
+        oldStatus.name(),
+        ClientInvoiceStatus.DRAFT.name(),
+        principal.userId(),
+        principal.tenantId());
+
+    return toResponse(invoice, true);
   }
 
   /**
@@ -227,6 +322,7 @@ public class ClientInvoiceService {
     if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
       throw new ConflictException("Cannot edit a line of a Client Invoice that is " + invoice.getStatus());
     }
+    requireOpenToAgent(invoice);
     UUID wantedSource = kind == ClientInvoiceLineKind.BASE_AMOUNT ? null : sourceId;
     ResolvedLine line =
         lines(invoice).stream()
@@ -261,6 +357,23 @@ public class ClientInvoiceService {
     return toResponse(invoice, true);
   }
 
+  /**
+   * The one gate of every Agent write on a draft (the caller has checked it is a {@code DRAFT}):
+   * one sent back, or of the current billing month (UTC), is open to its Agent. A past month's
+   * draft that was never sent is not, because its lines could only be pre-filled from today's
+   * Fleet and Fees, so a month would be billed for the first time late: a coded 409.
+   */
+  private void requireOpenToAgent(ClientInvoice invoice) {
+    boolean open =
+        invoice.getSentBackAt() != null
+            || invoice.getBillingMonth().equals(LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1));
+    if (!open) {
+      throw new ClientInvoiceConflictException(
+          ClientInvoiceConflictException.Reason.PAST_MONTH_DRAFT_NOT_SENDABLE,
+          "A past month's draft that was never sent cannot be sent or changed");
+    }
+  }
+
   private static UUID sourceOf(ResolvedLine line) {
     return switch (line.kind()) {
       case POSTPAID_SIM -> line.simCard().getId();
@@ -283,6 +396,7 @@ public class ClientInvoiceService {
     if (!oldStatus.canTransitionTo(ClientInvoiceStatus.SENT)) {
       throw new ConflictException("Cannot send a Client Invoice from status " + oldStatus);
     }
+    requireOpenToAgent(invoice);
 
     boolean neverSent = !invoice.isLinesStored();
     for (ResolvedLine line : lines(invoice)) {

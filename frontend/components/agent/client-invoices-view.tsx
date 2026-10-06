@@ -1,98 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { BilledAmount } from "@/components/ui/billed-amount";
-import { Money } from "@/components/ui/money";
 import { EmptyState } from "@/components/ui/empty-state";
+import { IconAlertTriangle, IconArrowRight, IconInvoices } from "@/components/icons";
+import { Card } from "@/components/ui/card";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
-import { IconAlertTriangle, IconDownload, IconInvoices, IconPaperclip } from "@/components/icons";
-import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
-import { EditClientInvoiceLineControl } from "@/components/agent/edit-client-invoice-line-control";
-import { SendClientInvoiceControl } from "@/components/agent/send-client-invoice-control";
-import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from "@/lib/status";
-import { formatDate, formatDateShort, formatLocalDate } from "@/lib/format";
-import { FEE_TYPE_LABEL, type ClientInvoiceDetail, type EditableClientInvoiceLineKind } from "@/lib/api/types";
-
-const FEE_LABEL_DESCRIPTION_MAX = 40;
-
-/**
- * Names each Fee line for assistive tech: type, day and a shortened description; Fees that would
- * still share a name (same type and day, no or equal description) get their ordinal among them.
- */
-function feeLabels(fees: ClientInvoiceDetail["feeLines"]): string[] {
-  const base = fees.map((fee) => {
-    const description = fee.description?.trim();
-    const shown =
-      description && description.length > FEE_LABEL_DESCRIPTION_MAX
-        ? `${description.slice(0, FEE_LABEL_DESCRIPTION_MAX - 1).trimEnd()}…`
-        : description;
-    return `${FEE_TYPE_LABEL[fee.feeType]} Fee, ${formatDateShort(fee.createdAt)}${shown ? ` — ${shown}` : ""}`;
-  });
-  const seen = new Map<string, number>();
-  return base.map((label) => {
-    const total = base.filter((other) => other === label).length;
-    if (total === 1) return label;
-    const ordinal = (seen.get(label) ?? 0) + 1;
-    seen.set(label, ordinal);
-    return `${label} (${ordinal} of ${total})`;
-  });
-}
-
-function billingMonthLabel(billingMonth: string): string {
-  // billingMonth is always a first-of-month ISO date (e.g. "2026-09-01") — parsed as UTC so it
-  // never rolls back to the previous month in a timezone behind UTC.
-  return new Date(`${billingMonth}T00:00:00Z`).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
-
-/**
- * One line's amount: with Edit/Reset on a draft, otherwise the billed amount alone, plus the
- * "Edited · computed" note when the line was edited (a sent invoice keeps showing it).
- */
-function LineAmount({
-  editable,
-  contractId,
-  kind,
-  sourceId,
-  label,
-  amount,
-  computedAmount,
-  edited,
-  currency,
-}: {
-  editable: boolean;
-  contractId: string;
-  kind: EditableClientInvoiceLineKind;
-  sourceId: string;
-  label: string;
-  amount: number;
-  computedAmount: number | null | undefined;
-  edited: boolean | null | undefined;
-  currency: string;
-}) {
-  const isEdited = Boolean(edited) && computedAmount != null;
-  if (editable) {
-    return (
-      <EditClientInvoiceLineControl
-        contractId={contractId}
-        kind={kind}
-        sourceId={sourceId}
-        label={label}
-        amount={amount}
-        computedAmount={computedAmount ?? amount}
-        edited={isEdited}
-        currency={currency}
-      />
-    );
-  }
-  return <BilledAmount amount={amount} computedAmount={computedAmount} edited={isEdited} currency={currency} />;
-}
+import { AgentClientInvoiceCard } from "@/components/agent/agent-client-invoice-card";
+import { Breadcrumb } from "@/components/app-shell/top-bar";
+import { formatBillingMonth, formatDate } from "@/lib/format";
+import { countryLabel, type ClientInvoiceDetail, type SentBackClientInvoice } from "@/lib/api/types";
 
 /**
  * Agent opens a Contract's current-month Client Invoice draft (client-invoice-generation ticket
@@ -105,14 +23,15 @@ function LineAmount({
 export function AgentClientInvoicesView({
   contracts,
   invoicesByContract,
+  sentBack = [],
 }: {
   contracts: ContractOption[];
   invoicesByContract: Record<string, ClientInvoiceDetail | null>;
+  /** The Agent's sent-back invoices from any month, oldest first; the section is absent when empty. */
+  sentBack?: SentBackClientInvoice[];
 }) {
   const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
   const invoice = invoicesByContract[contractId];
-  const editable = invoice?.status === "DRAFT";
-  const feeLabelList = invoice ? feeLabels(invoice.feeLines) : [];
 
   if (contracts.length === 0) {
     return (
@@ -126,6 +45,7 @@ export function AgentClientInvoicesView({
 
   return (
     <div className="flex flex-col gap-4">
+      <SentBackSection rows={sentBack} />
       <ContractSwitcher contracts={contracts} value={contractId} onChange={setContractId} />
 
       {!invoice ? (
@@ -135,198 +55,157 @@ export function AgentClientInvoicesView({
           description="Switch contracts or reload the page to try again."
         />
       ) : (
-        <Card className="flex flex-col gap-6 p-5">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-ink">{billingMonthLabel(invoice.billingMonth)}</p>
-                <Badge tone={clientInvoiceStatusToneByValue[invoice.status]}>
-                  {clientInvoiceStatusLabelByValue[invoice.status]}
-                </Badge>
-              </div>
-              <p className="mt-1 text-[13px] text-ink-mute">
-                {invoice.status === "DRAFT"
-                  ? "This Contract’s postpaid base amount plus this month’s Fees — still being assembled"
-                  : "Sent to the Manager and Client — numbers are locked to what was sent"}
-              </p>
-              {invoice.sentAt ? (
-                <p className="mt-0.5 text-[12px] text-ink-mute">
-                  Sent {formatDate(invoice.sentAt)}
-                  {invoice.approvedAt ? ` · Approved ${formatDate(invoice.approvedAt)}` : ""}
-                </p>
-              ) : null}
-            </div>
-            {invoice.status === "DRAFT" ? (
-              <div className="flex flex-col items-end gap-2">
-                <AttachCarrierInvoiceFileControl contractId={contractId} />
-                <SendClientInvoiceControl contractId={contractId} />
-              </div>
-            ) : (
-              <a
-                href={`/api/contracts/${contractId}/client-invoice/pdf`}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-hairline-strong bg-canvas px-3 py-1.5 text-[13px] font-medium text-ink hover:bg-canvas-soft"
-              >
-                <IconDownload className="h-3.5 w-3.5" />
-                Download PDF
-              </a>
-            )}
-          </div>
-
-          <dl className="grid grid-cols-2 gap-4 rounded-lg border border-hairline bg-canvas-soft p-4 sm:grid-cols-3">
-            <div>
-              <dt className="text-[12px] font-medium uppercase tracking-wide text-ink-mute">Base amount</dt>
-              <dd className="mt-1">
-                <Money amount={invoice.baseAmount} currency={invoice.currency} className="text-base" />
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[12px] font-medium uppercase tracking-wide text-ink-mute">Fees this month</dt>
-              <dd className="mt-1">
-                <Money
-                  amount={invoice.totalAmount - invoice.baseAmount}
-                  currency={invoice.currency}
-                  className="text-base"
-                />
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[12px] font-medium uppercase tracking-wide text-ink-mute">Total</dt>
-              <dd className="mt-1">
-                <Money amount={invoice.totalAmount} currency={invoice.currency} emphasize className="text-lg" />
-              </dd>
-            </div>
-          </dl>
-
-          {editable ? (
-            <p className="-mt-2 text-label text-ink-mute">
-              You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these
-              amounts, unless it is already approved.
-            </p>
+        <>
+          {invoice.status === "DRAFT" && invoice.sentBackAt ? (
+            <SentBackNotice sentBackAt={invoice.sentBackAt} reason={invoice.sentBackReason} />
           ) : null}
-
-          {invoice.basePostpaidSims && invoice.basePostpaidSims.length > 0 ? (
-            <div>
-              <h3 className="mb-2 text-[13px] font-medium text-ink-secondary">Postpaid SIM Cards</h3>
-              <TableScroll>
-                <Table>
-                  <Thead>
-                    <Tr>
-                      <Th>Number</Th>
-                      <Th className="text-right">Billed</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {invoice.basePostpaidSims.map((sim) => (
-                      <Tr key={sim.simCardId}>
-                        <Td className="tnum font-medium text-ink">
-                          {sim.number}
-                          {sim.cancellationEffectiveDate ? (
-                            <span className="mt-1 block text-[12px] font-normal text-ink-mute">
-                              Cancelled {formatLocalDate(sim.cancellationEffectiveDate)} — still billed through this
-                              month
-                            </span>
-                          ) : null}
-                        </Td>
-                        <Td className="text-right">
-                          {/* An edited line bills its own amount, not the SIM's monthly fee. Older fixtures omit `amount`. */}
-                          <LineAmount
-                            editable={editable}
-                            contractId={contractId}
-                            kind="POSTPAID_SIM"
-                            sourceId={sim.simCardId}
-                            label={`SIM ${sim.number}`}
-                            amount={sim.amount ?? sim.monthlyFeeAmount}
-                            computedAmount={sim.computedAmount}
-                            edited={sim.edited}
-                            currency={invoice.currency}
-                          />
-                        </Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
-              </TableScroll>
-            </div>
-          ) : null}
-
-          <div>
-            <h3 className="mb-2 text-[13px] font-medium text-ink-secondary">Fee lines</h3>
-            {invoice.feeLines.length === 0 ? (
-              <p className="rounded-lg border border-dashed border-hairline-strong px-4 py-6 text-center text-[13px] text-ink-mute">
-                No Fees logged against this Contract yet this month.
-              </p>
-            ) : (
-              <TableScroll>
-                <Table>
-                  <Thead>
-                    <Tr>
-                      <Th>Type</Th>
-                      <Th>Description</Th>
-                      <Th>Logged</Th>
-                      <Th className="text-right">Billed</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {invoice.feeLines.map((fee, index) => (
-                      <Tr key={fee.id}>
-                        <Td className="font-medium text-ink">{FEE_TYPE_LABEL[fee.feeType]}</Td>
-                        <Td className="text-ink-secondary">{fee.description ?? "—"}</Td>
-                        <Td className="whitespace-nowrap text-ink-mute">{formatDateShort(fee.createdAt)}</Td>
-                        <Td className="text-right">
-                          <LineAmount
-                            editable={editable}
-                            contractId={contractId}
-                            kind="FEE"
-                            sourceId={fee.id}
-                            label={feeLabelList[index]}
-                            amount={fee.amount}
-                            computedAmount={fee.computedAmount}
-                            edited={fee.edited}
-                            currency={fee.currency}
-                          />
-                        </Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
-              </TableScroll>
-            )}
-          </div>
-
-          <div>
-            <h3 className="mb-2 flex items-center gap-1.5 text-[13px] font-medium text-ink-secondary">
-              <IconPaperclip className="h-4 w-4" />
-              Carrier invoice files
-            </h3>
-            {invoice.files.length === 0 ? (
-              <p className="rounded-lg border border-dashed border-hairline-strong px-4 py-6 text-center text-[13px] text-ink-mute">
-                No carrier invoice files attached yet.
-              </p>
-            ) : (
-              <ul className="flex flex-col gap-1.5">
-                {invoice.files.map((file) => (
-                  <li
-                    key={file.id}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-hairline bg-canvas px-3.5 py-2.5"
-                  >
-                    <div className="flex min-w-0 items-center gap-2">
-                      <IconPaperclip className="h-4 w-4 shrink-0 text-ink-mute" />
-                      <span className="truncate text-[13px] text-ink">{file.filename}</span>
-                    </div>
-                    <a
-                      href={`/api/contracts/${contractId}/client-invoice/files/${file.id}`}
-                      className="inline-flex shrink-0 items-center gap-1 text-[12px] font-medium text-primary hover:underline"
-                    >
-                      <IconDownload className="h-3.5 w-3.5" />
-                      Download
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </Card>
+          <AgentClientInvoiceCard invoice={invoice} />
+        </>
       )}
+    </div>
+  );
+}
+
+/**
+ * The Manager's send-back as a warning-toned notice: when, the reason, and what to do next. Shown
+ * on the by-id page and above a sent-back current-month card.
+ */
+function SentBackNotice({ sentBackAt, reason }: { sentBackAt: string; reason?: string | null }) {
+  return (
+    <section
+      aria-labelledby="sent-back-notice"
+      className="flex flex-col gap-1.5 rounded-lg border border-hairline bg-warning-bg px-4 py-3"
+    >
+      <h2 id="sent-back-notice" className="flex items-center gap-1.5 text-label font-semibold text-warning">
+        <IconAlertTriangle className="h-4 w-4 shrink-0" />
+        Sent back by the Manager on {formatDate(sentBackAt)}
+      </h2>
+      {reason ? <p className="whitespace-pre-wrap break-words text-label text-ink">{reason}</p> : null}
+      <p className="text-label text-ink-secondary">Correct what is needed, then send it again.</p>
+    </section>
+  );
+}
+
+/** "Sent back to you": every invoice the Manager sent back, any month; renders nothing when none. */
+function SentBackSection({ rows }: { rows: SentBackClientInvoice[] }) {
+  if (rows.length === 0) return null;
+  return (
+    <section aria-labelledby="sent-back-to-you">
+      <Card className="overflow-hidden">
+        <h2 id="sent-back-to-you" className="px-4 py-3 text-sm font-semibold text-ink">
+          Sent back to you
+        </h2>
+        <TableScroll className="rounded-none border-0 border-t">
+          <Table>
+            <Thead>
+              <Tr>
+                <Th>Contract</Th>
+                <Th>Billing month</Th>
+                <Th>Sent back</Th>
+                <Th>Reason</Th>
+                {/* relative: keeps the sr-only label inside the table's scroll container on narrow screens */}
+                <Th className="relative text-right">
+                  <span className="sr-only">Action</span>
+                </Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {rows.map((row) => {
+                const month = formatBillingMonth(row.billingMonth);
+                return (
+                  <Tr key={row.id}>
+                    <Td className="min-w-32 max-w-56 font-medium text-ink">
+                      <span className="line-clamp-2 break-words">
+                        {row.clientName} — {countryLabel(row.country)}
+                      </span>
+                    </Td>
+                    <Td className="whitespace-nowrap text-ink-secondary">{month}</Td>
+                    <Td className="whitespace-nowrap text-ink-mute">{formatDate(row.sentBackAt)}</Td>
+                    <Td className="min-w-56 max-w-md">
+                      <p className="line-clamp-2 break-words text-ink-secondary" title={row.sentBackReason ?? undefined}>
+                        {row.sentBackReason}
+                      </p>
+                    </Td>
+                    <Td className="text-right">
+                      <Link
+                        href={`/agent/client-invoices/${row.id}`}
+                        aria-label={`Open ${row.clientName}, ${month}`}
+                        className="inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary-soft-bg px-3 text-label font-medium text-primary-soft-text transition-colors hover:bg-primary/20 active:bg-primary/25"
+                      >
+                        Open
+                        <IconArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </Td>
+                  </Tr>
+                );
+              })}
+            </Tbody>
+          </Table>
+        </TableScroll>
+      </Card>
+    </section>
+  );
+}
+
+/**
+ * One Client Invoice on its own page, `/agent/client-invoices/{invoiceId}` (send-a-client-invoice-back
+ * spec, Frontend: Agent): any billing month, reached by id. A draft the Manager sent back opens with
+ * the Manager's reason in a warning notice above the same card the current-month page uses; a draft of
+ * a past month that was never sent is shown read-only, because the backend refuses the Agent's writes
+ * to it. `invoice` is null for another Agent's id, an unknown id and another Tenant's id alike.
+ * `currentBillingMonth` comes from the server so server and client agree on the month.
+ */
+export function AgentClientInvoicePageView({
+  invoice,
+  currentBillingMonth,
+  contractLabel,
+}: {
+  invoice: ClientInvoiceDetail | null;
+  currentBillingMonth: string;
+  /** "Client — Country" of the invoice's Contract, shown in the breadcrumb; absent if not resolved. */
+  contractLabel?: string;
+}) {
+  if (!invoice) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Breadcrumb items={[{ label: "Client Invoices", href: "/agent/client-invoices" }, { label: "Not found" }]} />
+        <EmptyState
+          icon={<IconAlertTriangle className="h-5 w-5" />}
+          title="Client Invoice not found"
+          description="It doesn't exist or isn't one of yours."
+          action={
+            <Link href="/agent/client-invoices" className="text-label font-medium text-primary hover:underline">
+              Back to Client Invoices
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
+  const sentBack = invoice.status === "DRAFT" && Boolean(invoice.sentBackAt);
+  const closed = invoice.status === "DRAFT" && !sentBack && invoice.billingMonth < currentBillingMonth;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Breadcrumb
+        items={[
+          { label: "Client Invoices", href: "/agent/client-invoices" },
+          {
+            label: contractLabel
+              ? `${contractLabel} · ${formatBillingMonth(invoice.billingMonth)}`
+              : formatBillingMonth(invoice.billingMonth),
+          },
+        ]}
+      />
+      {sentBack && invoice.sentBackAt ? (
+        <SentBackNotice sentBackAt={invoice.sentBackAt} reason={invoice.sentBackReason} />
+      ) : null}
+      <AgentClientInvoiceCard
+        invoice={invoice}
+        readOnly={closed}
+        currentMonth={invoice.billingMonth === currentBillingMonth}
+      />
     </div>
   );
 }

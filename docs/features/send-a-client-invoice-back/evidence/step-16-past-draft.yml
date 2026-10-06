@@ -1,0 +1,73 @@
+- Page URL: http://localhost:13000/agent/client-invoices/e8dd11aa-61a8-45dc-a357-f4392ea60f3c
+- Page Title: Client Invoice · Remote Support Platform
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e2]:
+    - complementary [ref=f4e3]:
+      - generic [ref=f4e4]:
+        - generic [ref=f4e5]: "N"
+        - generic [ref=f4e6]:
+          - paragraph [ref=f4e7]: Northwind Field Services
+          - paragraph [ref=f4e8]: Agent Console
+      - navigation [ref=f4e9]:
+        - link "Dashboard" [ref=f4e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f4e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f4e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f4e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f4e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f4e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f4e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f4e43]:
+      - banner [ref=f4e44]:
+        - generic [ref=f4e46]:
+          - heading "Client Invoice" [level=1] [ref=f4e47]
+          - paragraph [ref=f4e48]: One per Contract per month
+        - generic [ref=f4e49]:
+          - button "agent@example.com · Agent" [ref=f4e51]
+          - button "Switch to dark theme" [ref=f4e53]
+      - main [ref=f4e57]:
+        - generic [ref=f4e59]:
+          - navigation "Breadcrumb" [ref=f4e60]:
+            - link "Client Invoices" [ref=f4e62] [cursor=pointer]:
+              - /url: /agent/client-invoices
+            - generic [ref=f4e63]: August 2026
+          - generic [ref=f4e67]:
+            - generic [ref=f4e69]:
+              - generic [ref=f4e70]:
+                - paragraph [ref=f4e71]: August 2026
+                - generic [ref=f4e72]: Draft
+              - paragraph [ref=f4e74]: This month has ended and the invoice was never sent — it is shown as it stands and is closed to changes
+            - generic [ref=f4e75]:
+              - generic [ref=f4e76]:
+                - term [ref=f4e77]: Base amount
+                - definition [ref=f4e78]: $12.00
+              - generic [ref=f4e79]:
+                - term [ref=f4e80]: Fees this month
+                - definition [ref=f4e81]: $0.00
+              - generic [ref=f4e82]:
+                - term [ref=f4e83]: Total
+                - definition [ref=f4e84]: $12.00
+            - generic [ref=f4e85]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f4e86]
+              - table [ref=f4e88]:
+                - rowgroup [ref=f4e89]:
+                  - row [ref=f4e90]:
+                    - columnheader "Number" [ref=f4e91]
+                    - columnheader "Billed" [ref=f4e92]
+                - rowgroup [ref=f4e93]:
+                  - row [ref=f4e94]:
+                    - cell "+1-555-0777" [ref=f4e95]
+                    - cell "$12.00" [ref=f4e96]
+            - generic [ref=f4e99]:
+              - heading "Fee lines" [level=3] [ref=f4e100]
+              - paragraph [ref=f4e101]: No Fees logged against this Contract yet this month.
+            - generic [ref=f4e102]:
+              - heading "Carrier invoice files" [level=3] [ref=f4e103]
+              - paragraph [ref=f4e106]: No carrier invoice files attached yet.
+  - alert [ref=f4e107]

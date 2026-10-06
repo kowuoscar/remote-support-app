@@ -1,7 +1,7 @@
 ---
 id: agent-sees-sent-back-invoices-on-the-client-invoices-page
 title: Show the Agent every Client Invoice sent back to them on the Client Invoices page
-status: ready-for-agent
+status: done
 depends_on: [agent-lists-the-client-invoices-sent-back-to-them, agent-opens-a-client-invoice-on-its-own-page]
 labels: [frontend]
 stories: [9, 10, 11, 13, 14, 22, 23, 34]

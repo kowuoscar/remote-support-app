@@ -1,7 +1,7 @@
 ---
 id: agent-reaches-a-client-invoice-by-its-id
 title: Let the Contract's Agent read, edit, attach to and send a Client Invoice by its id
-status: ready-for-agent
+status: done
 depends_on: [manager-sends-a-client-invoice-back, move-carrier-invoice-file-attach-into-the-client-invoice-service]
 labels: [backend]
 stories: [15, 17, 18, 19, 20, 24, 25, 28, 33]

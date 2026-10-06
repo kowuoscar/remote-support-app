@@ -1,7 +1,7 @@
 ---
 feature: deactivate-a-login
 epic: login-lifecycle
-status: approved
+status: accepted
 date: 2026-10-02
 ---
 

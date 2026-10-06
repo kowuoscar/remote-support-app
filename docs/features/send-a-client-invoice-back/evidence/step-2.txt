@@ -1,0 +1,23 @@
+queue ids after send-back: ['4aefda93-5422-4762-a140-cd1bafc0b38a', '896880c8-e446-413e-aee8-ee0bbd55e6dc', 'fe26c7a4-0808-4339-9a92-1796cae468bf', '6ae7e144-f2ea-4169-bf9b-0ce44f1d3e1f']
+invoice in queue: False
+## send back a DRAFT (the sent-back invoice): POST /api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877/send-back body={"reason": "Line one does not match the carrier bill - zebra-quartz-77"} -> 409
+{
+ "timestamp": "2026-10-05T17:38:53.394+00:00",
+ "status": 409,
+ "error": "Conflict",
+ "path": "/api/client-invoices/0d47e9c7-3c7d-4bbb-81e5-79a819c79877/send-back"
+}
+## empty reason on a SENT invoice: POST /api/client-invoices/72e30c8c-212b-4368-bf8f-e351cf483379/send-back body={"reason": ""} -> 400
+{
+ "message": "must not be blank"
+}
+## 1001-char reason on a SENT invoice: POST /api/client-invoices/72e30c8c-212b-4368-bf8f-e351cf483379/send-back body={"reason": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"} -> 400
+{
+ "message": "size must be between 0 and 1000"
+}
+## blank (spaces) reason: POST /api/client-invoices/72e30c8c-212b-4368-bf8f-e351cf483379/send-back body={"reason": "   "} -> 400
+{
+ "message": "must not be blank"
+}
+## 1000-char reason is accepted (boundary) - NOT run on S2 to keep it sent: GET /api/client-invoices/72e30c8c-212b-4368-bf8f-e351cf483379 -> 200
+--- approved invoice send-back (from step 4's approved invoice): 409

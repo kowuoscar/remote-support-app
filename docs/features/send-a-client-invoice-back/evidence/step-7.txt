@@ -1,0 +1,100 @@
+## manager send-back (reason: Line one does not match the carrier bill - zebra-quartz-77): POST /api/client-invoices/c4b87634-d8d0-4624-9007-4d247d0491a1/send-back body={"reason": "Line one does not match the carrier bill - zebra-quartz-77"} -> 200
+{
+ "id": "c4b87634-d8d0-4624-9007-4d247d0491a1",
+ "contractId": "f61271fc-8bd8-4cf9-bd61-cbf12cd30a78",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "baseAmount": 20.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "d70637f5-b3f7-4a6c-ac42-62ad8bc046b3",
+   "number": "+1-555-70605",
+   "monthlyFeeAmount": 18.0,
+   "cancellationEffectiveDate": null,
+   "amount": 20.0,
+   "computedAmount": 18.0,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "6ee26794-cec6-4887-a000-d7797d428878",
+   "contractId": "f61271fc-8bd8-4cf9-bd61-cbf12cd30a78",
+   "requestId": "3ee7c051-ce2c-4252-b85c-56a96ffd82c4",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 5.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:39:30.648035Z",
+   "computedAmount": 5.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 25.0,
+ "files": [],
+ "sentAt": null,
+ "approvedAt": null,
+ "sentBackAt": "2026-10-05T17:39:30.705997Z",
+ "sentBackReason": "Line one does not match the carrier bill - zebra-quartz-77"
+}
+## Tester reads current-month invoice (by contract) while sent back (expect 403): GET /api/contracts/f61271fc-8bd8-4cf9-bd61-cbf12cd30a78/client-invoice -> 403
+{
+ "timestamp": "2026-10-05T17:39:30.719+00:00",
+ "status": 403,
+ "error": "Forbidden",
+ "path": "/api/contracts/f61271fc-8bd8-4cf9-bd61-cbf12cd30a78/client-invoice"
+}
+## Tester reads by id while sent back: GET /api/client-invoices/c4b87634-d8d0-4624-9007-4d247d0491a1 -> 403
+## agent edits SIM 20 -> 22: PUT /api/client-invoices/c4b87634-d8d0-4624-9007-4d247d0491a1/lines body={"kind": "POSTPAID_SIM", "sourceId": "d70637f5-b3f7-4a6c-ac42-62ad8bc046b3", "amount": "22.00"} -> 200
+## agent resends: POST /api/client-invoices/c4b87634-d8d0-4624-9007-4d247d0491a1/send -> 200
+-> 200 SENT total 27.0
+## Tester reads current-month invoice after resend (expect 200): GET /api/contracts/f61271fc-8bd8-4cf9-bd61-cbf12cd30a78/client-invoice -> 200
+{
+ "id": "c4b87634-d8d0-4624-9007-4d247d0491a1",
+ "contractId": "f61271fc-8bd8-4cf9-bd61-cbf12cd30a78",
+ "billingMonth": "2026-10-01",
+ "status": "SENT",
+ "currency": "USD",
+ "baseAmount": 22.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "d70637f5-b3f7-4a6c-ac42-62ad8bc046b3",
+   "number": "+1-555-70605",
+   "monthlyFeeAmount": 18.0,
+   "cancellationEffectiveDate": null,
+   "amount": 22.0,
+   "computedAmount": null,
+   "edited": null
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "6ee26794-cec6-4887-a000-d7797d428878",
+   "contractId": "f61271fc-8bd8-4cf9-bd61-cbf12cd30a78",
+   "requestId": "3ee7c051-ce2c-4252-b85c-56a96ffd82c4",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 5.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:39:30.648035Z",
+   "computedAmount": null,
+   "edited": null
+  }
+ ],
+ "totalAmount": 27.0,
+ "files": [],
+ "sentAt": "2026-10-05T17:39:30.745313Z",
+ "approvedAt": null,
+ "sentBackAt": null,
+ "sentBackReason": null
+}
+tester view total 27.0 == resent 27.0 | sentBackReason None | sentBackAt None | any edited marker: False | any computedAmount key: True
+PDF as tester: HTTP 200, 951 bytes, content-type application/pdf
+PDF as manager: HTTP 200, 951 bytes, content-type application/pdf
+resent numbers (SIM 22.00, Fee 5.00, total 27.00):
+PDF text (tester): Client Invoice | Client: SB 174c9e2a | Billing month: October 2026 | Status: SENT | Currency: USD | Base amount: 22.00 USD | Fee lines |   OTHER: 5.00 USD | Total: 27.00 USD
+PDF text (manager): Client Invoice | Client: SB 174c9e2a | Billing month: October 2026 | Status: SENT | Currency: USD | Base amount: 22.00 USD | Fee lines |   OTHER: 5.00 USD | Total: 27.00 USD
+reason text in PDF: False

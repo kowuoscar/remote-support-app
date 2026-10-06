@@ -1,0 +1,152 @@
+- Page URL: http://localhost:13000/agent/client-invoices
+- Page Title: Client Invoices · Remote Support Platform
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - generic [ref=f1e5]: "N"
+        - generic [ref=f1e6]:
+          - paragraph [ref=f1e7]: Northwind Field Services
+          - paragraph [ref=f1e8]: Agent Console
+      - navigation [ref=f1e9]:
+        - link "Dashboard" [ref=f1e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f1e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f1e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f1e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f1e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f1e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f1e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f1e43]:
+      - banner [ref=f1e44]:
+        - generic [ref=f1e46]:
+          - heading "Client Invoices" [level=1] [ref=f1e47]
+          - paragraph [ref=f1e48]: One per Contract per month
+        - generic [ref=f1e49]:
+          - button "agent@example.com · Agent" [ref=f1e51]
+          - button "Switch to dark theme" [ref=f1e53]
+      - main [ref=f1e57]:
+        - generic [ref=f1e59]:
+          - region [ref=f1e60]:
+            - generic [ref=f1e61]:
+              - heading "Sent back to you" [level=2] [ref=f1e62]
+              - table [ref=f1e64]:
+                - rowgroup [ref=f1e65]:
+                  - row [ref=f1e66]:
+                    - columnheader "Contract" [ref=f1e67]
+                    - columnheader "Billing month" [ref=f1e68]
+                    - columnheader "Sent back" [ref=f1e69]
+                    - columnheader "Reason" [ref=f1e70]
+                    - columnheader "Action" [ref=f1e71]
+                - rowgroup [ref=f1e73]:
+                  - row [ref=f1e74]:
+                    - cell "SB e7924835 — United States" [ref=f1e75]
+                    - cell "October 2026" [ref=f1e76]
+                    - cell "Oct 5, 2026" [ref=f1e77]
+                    - cell [ref=f1e78]:
+                      - paragraph [ref=f1e79]: The base amount is wrong, please recheck it. UI-run-1
+                    - cell [ref=f1e80]:
+                      - link "Open SB e7924835, October 2026" [ref=f1e81] [cursor=pointer]:
+                        - /url: /agent/client-invoices/c14d4ef8-6df8-482b-a071-a00db5a55e2d
+                        - text: Open
+                  - row [ref=f1e84]:
+                    - cell "SB 534eb8c7 — United States" [ref=f1e85]
+                    - cell "October 2026" [ref=f1e86]
+                    - cell "Oct 5, 2026" [ref=f1e87]
+                    - cell [ref=f1e88]:
+                      - paragraph [ref=f1e89]: Carrier bill shows a different amount for the SIM - UI-run-3
+                    - cell [ref=f1e90]:
+                      - link "Open SB 534eb8c7, October 2026" [ref=f1e91] [cursor=pointer]:
+                        - /url: /agent/client-invoices/0e8fad1f-80c6-41ff-aaac-40fb3be1a110
+                        - text: Open
+          - button "Solstice Retail Group — United States" [ref=f1e95]
+          - generic [ref=f1e104]:
+            - generic [ref=f1e105]:
+              - generic [ref=f1e106]:
+                - generic [ref=f1e107]:
+                  - paragraph [ref=f1e108]: October 2026
+                  - generic [ref=f1e109]: Draft
+                - paragraph [ref=f1e111]: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+              - generic [ref=f1e112]:
+                - generic [ref=f1e113]:
+                  - button "Attach carrier invoice" [ref=f1e114]
+                  - button "Attach carrier invoice file" [ref=f1e117]
+                - button "Send Client Invoice" [ref=f1e119]
+            - generic [ref=f1e122]:
+              - generic [ref=f1e123]:
+                - term [ref=f1e124]: Base amount
+                - definition [ref=f1e125]: $87.99
+              - generic [ref=f1e126]:
+                - term [ref=f1e127]: Fees this month
+                - definition [ref=f1e128]: $70.00
+              - generic [ref=f1e129]:
+                - term [ref=f1e130]: Total
+                - definition [ref=f1e131]: $157.99
+            - paragraph [ref=f1e132]: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+            - generic [ref=f1e133]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f1e134]
+              - table [ref=f1e136]:
+                - rowgroup [ref=f1e137]:
+                  - row [ref=f1e138]:
+                    - columnheader "Number" [ref=f1e139]
+                    - columnheader "Billed" [ref=f1e140]
+                - rowgroup [ref=f1e141]:
+                  - row [ref=f1e142]:
+                    - cell "+1-202-555-0102" [ref=f1e143]
+                    - cell "$65.99 Edit" [ref=f1e144]:
+                      - generic [ref=f1e145]:
+                        - generic [ref=f1e146]: $65.99
+                        - button "Edit" [ref=f1e148]
+                        - status [ref=f1e149]
+                  - row [ref=f1e150]:
+                    - cell "+1-202-555-0199" [ref=f1e151]
+                    - cell "$11.00 Edit" [ref=f1e152]:
+                      - generic [ref=f1e153]:
+                        - generic [ref=f1e154]: $11.00
+                        - button "Edit" [ref=f1e156]
+                        - status [ref=f1e157]
+                  - row [ref=f1e158]:
+                    - cell "+1-202-555-0198" [ref=f1e159]
+                    - cell "$11.00 Edit" [ref=f1e160]:
+                      - generic [ref=f1e161]:
+                        - generic [ref=f1e162]: $11.00
+                        - button "Edit" [ref=f1e164]
+                        - status [ref=f1e165]
+            - generic [ref=f1e166]:
+              - heading "Fee lines" [level=3] [ref=f1e167]
+              - table [ref=f1e169]:
+                - rowgroup [ref=f1e170]:
+                  - row [ref=f1e171]:
+                    - columnheader "Type" [ref=f1e172]
+                    - columnheader "Description" [ref=f1e173]
+                    - columnheader "Logged" [ref=f1e174]
+                    - columnheader "Billed" [ref=f1e175]
+                - rowgroup [ref=f1e176]:
+                  - row [ref=f1e177]:
+                    - cell "Topup" [ref=f1e178]
+                    - cell "—" [ref=f1e179]
+                    - cell "Oct 5" [ref=f1e180]
+                    - cell "$25.00 Edit" [ref=f1e181]:
+                      - generic [ref=f1e182]:
+                        - generic [ref=f1e183]: $25.00
+                        - button "Edit" [ref=f1e185]
+                        - status [ref=f1e186]
+                  - row [ref=f1e187]:
+                    - cell "Other" [ref=f1e188]
+                    - cell "—" [ref=f1e189]
+                    - cell "Oct 5" [ref=f1e190]
+                    - cell "$45.00 Edit" [ref=f1e191]:
+                      - generic [ref=f1e192]:
+                        - generic [ref=f1e193]: $45.00
+                        - button "Edit" [ref=f1e195]
+                        - status [ref=f1e196]
+            - generic [ref=f1e197]:
+              - heading "Carrier invoice files" [level=3] [ref=f1e198]
+              - paragraph [ref=f1e201]: No carrier invoice files attached yet.
+  - alert [ref=f1e202]

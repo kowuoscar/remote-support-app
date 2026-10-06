@@ -1,0 +1,161 @@
+- Page URL: http://localhost:13000/manager/invoices
+- Page Title: Invoices · Remote Support Platform
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - complementary [ref=f5e3]:
+      - generic [ref=f5e4]:
+        - generic [ref=f5e5]: "N"
+        - generic [ref=f5e6]:
+          - paragraph [ref=f5e7]: Northwind Field Services
+          - paragraph [ref=f5e8]: Manager Console
+      - navigation [ref=f5e9]:
+        - link "Dashboard" [ref=f5e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f5e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f5e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f5e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f5e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f5e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f5e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f5e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f5e48]:
+      - banner [ref=f5e49]:
+        - generic [ref=f5e51]:
+          - heading "Invoices" [level=1] [ref=f5e52]
+          - paragraph [ref=f5e53]: Waiting on you, longest waiting first
+        - generic [ref=f5e54]:
+          - button "Manager" [ref=f5e56]
+          - button "Switch to dark theme" [ref=f5e58]
+      - main [ref=f5e62]:
+        - generic [ref=f5e64]:
+          - tablist "Filter the Review Queue by invoice type" [ref=f5e65]:
+            - tab "All" [selected] [ref=f5e66]
+            - tab "Client Invoices" [ref=f5e67]
+            - tab "Agent Invoices" [ref=f5e68]
+          - table [ref=f5e70]:
+            - rowgroup [ref=f5e71]:
+              - row [ref=f5e72]:
+                - columnheader "Waiting" [ref=f5e73]
+                - columnheader "Type" [ref=f5e74]
+                - columnheader "Subject" [ref=f5e75]
+                - columnheader "Waiting for" [ref=f5e76]
+                - columnheader "Billing month" [ref=f5e77]
+                - columnheader "Total" [ref=f5e78]
+                - columnheader "Action" [ref=f5e79]
+            - rowgroup [ref=f5e81]:
+              - row [ref=f5e82]:
+                - cell [ref=f5e83]:
+                  - time [ref=f5e84]: Today
+                - cell "Agent Invoice" [ref=f5e85]
+                - cell "Jordan Ellis" [ref=f5e88]
+                - cell "Approval" [ref=f5e89]
+                - cell "October 2026" [ref=f5e90]
+                - cell "$2,848.90" [ref=f5e91]
+                - cell [ref=f5e92]:
+                  - 'link "Review Agent Invoice: Jordan Ellis, October 2026" [ref=f5e93] [cursor=pointer]':
+                    - /url: /manager/invoices/agent/896880c8-e446-413e-aee8-ee0bbd55e6dc
+                    - text: Review
+              - row [ref=f5e96]:
+                - cell [ref=f5e97]:
+                  - time [ref=f5e98]: Today
+                - cell "Client Invoice" [ref=f5e99]
+                - cell "SB b624f682 — SB Agent One" [ref=f5e102]
+                - cell "Approval" [ref=f5e103]
+                - cell "October 2026" [ref=f5e104]
+                - cell "$25.00" [ref=f5e105]
+                - cell [ref=f5e106]:
+                  - 'link "Review Client Invoice: SB b624f682 — SB Agent One, October 2026" [ref=f5e107] [cursor=pointer]':
+                    - /url: /manager/invoices/client/fe26c7a4-0808-4339-9a92-1796cae468bf
+                    - text: Review
+              - row [ref=f5e110]:
+                - cell [ref=f5e111]:
+                  - time [ref=f5e112]: Today
+                - cell "Client Invoice" [ref=f5e113]
+                - cell "SB a1448894 — SB Agent One" [ref=f5e116]
+                - cell "Approval" [ref=f5e117]
+                - cell "October 2026" [ref=f5e118]
+                - cell "$25.00" [ref=f5e119]
+                - cell [ref=f5e120]:
+                  - 'link "Review Client Invoice: SB a1448894 — SB Agent One, October 2026" [ref=f5e121] [cursor=pointer]':
+                    - /url: /manager/invoices/client/6ae7e144-f2ea-4169-bf9b-0ce44f1d3e1f
+                    - text: Review
+              - row [ref=f5e124]:
+                - cell [ref=f5e125]:
+                  - time [ref=f5e126]: Today
+                - cell "Client Invoice" [ref=f5e127]
+                - cell "SB 6d3dd270 — SB Agent One" [ref=f5e130]
+                - cell "Approval" [ref=f5e131]
+                - cell "October 2026" [ref=f5e132]
+                - cell "$25.00" [ref=f5e133]
+                - cell [ref=f5e134]:
+                  - 'link "Review Client Invoice: SB 6d3dd270 — SB Agent One, October 2026" [ref=f5e135] [cursor=pointer]':
+                    - /url: /manager/invoices/client/72e30c8c-212b-4368-bf8f-e351cf483379
+                    - text: Review
+              - row [ref=f5e138]:
+                - cell [ref=f5e139]:
+                  - time [ref=f5e140]: Today
+                - cell "Client Invoice" [ref=f5e141]
+                - cell "SB 6883691e — SB Agent One" [ref=f5e144]
+                - cell "Approval" [ref=f5e145]
+                - cell "October 2026" [ref=f5e146]
+                - cell "$25.00" [ref=f5e147]
+                - cell [ref=f5e148]:
+                  - 'link "Review Client Invoice: SB 6883691e — SB Agent One, October 2026" [ref=f5e149] [cursor=pointer]':
+                    - /url: /manager/invoices/client/ad4d03d7-5256-4a78-bef6-50a4e7b9b917
+                    - text: Review
+              - row [ref=f5e152]:
+                - cell [ref=f5e153]:
+                  - time [ref=f5e154]: Today
+                - cell "Agent Invoice" [ref=f5e155]
+                - cell "SB Agent One" [ref=f5e158]
+                - cell "Payment" [ref=f5e159]
+                - cell "October 2026" [ref=f5e160]
+                - cell "$2,133.00" [ref=f5e161]
+                - cell [ref=f5e162]:
+                  - 'link "Review Agent Invoice: SB Agent One, October 2026" [ref=f5e163] [cursor=pointer]':
+                    - /url: /manager/invoices/agent/d8d467eb-4a93-4cef-ad5e-0a6eca92c3ce
+                    - text: Review
+              - row [ref=f5e166]:
+                - cell [ref=f5e167]:
+                  - time [ref=f5e168]: Today
+                - cell "Client Invoice" [ref=f5e169]
+                - cell "SB 174c9e2a — SB Agent One" [ref=f5e172]
+                - cell "Approval" [ref=f5e173]
+                - cell "October 2026" [ref=f5e174]
+                - cell "$27.00" [ref=f5e175]
+                - cell [ref=f5e176]:
+                  - 'link "Review Client Invoice: SB 174c9e2a — SB Agent One, October 2026" [ref=f5e177] [cursor=pointer]':
+                    - /url: /manager/invoices/client/c4b87634-d8d0-4624-9007-4d247d0491a1
+                    - text: Review
+              - row [ref=f5e180]:
+                - cell [ref=f5e181]:
+                  - time [ref=f5e182]: Today
+                - cell "Client Invoice" [ref=f5e183]
+                - cell "Solstice Retail Group — Jordan Ellis" [ref=f5e186]
+                - cell "Approval" [ref=f5e187]
+                - cell "June 2026" [ref=f5e188]
+                - cell "$128.00" [ref=f5e189]
+                - cell [ref=f5e190]:
+                  - 'link "Review Client Invoice: Solstice Retail Group — Jordan Ellis, June 2026" [ref=f5e191] [cursor=pointer]':
+                    - /url: /manager/invoices/client/4aefda93-5422-4762-a140-cd1bafc0b38a
+                    - text: Review
+              - row [ref=f5e194]:
+                - cell [ref=f5e195]:
+                  - time [ref=f5e196]: Today
+                - cell "Client Invoice" [ref=f5e197]
+                - cell "SB 534eb8c7 — Jordan Ellis" [ref=f5e200]
+                - cell "Approval" [ref=f5e201]
+                - cell "October 2026" [ref=f5e202]
+                - cell "$44.90" [ref=f5e203]
+                - cell [ref=f5e204]:
+                  - 'link "Review Client Invoice: SB 534eb8c7 — Jordan Ellis, October 2026" [ref=f5e205] [cursor=pointer]':
+                    - /url: /manager/invoices/client/0e8fad1f-80c6-41ff-aaac-40fb3be1a110
+                    - text: Review
+  - alert [ref=f5e208]

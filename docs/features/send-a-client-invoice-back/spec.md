@@ -386,8 +386,8 @@ and belong to the invoice's own page. A Manager or a Tester gets `403`.
 
 ### Schema and contract
 
-- **One additive migration**, the version after `edit-client-invoice-lines`'
-  (`V57` if that one is `V56`): nullable `sent_back_at timestamptz` and
+- **One additive migration**, `V59` (the first free version once
+  `deactivate-a-login`'s V58 had shipped): nullable `sent_back_at timestamptz` and
   `sent_back_reason varchar(1000)` on `client_invoices`. This follows
   `Request`'s distinct-reason-column prior art (`cancellation_reason`,
   `rejection_reason`), not a shared reason field. No data is rewritten, and
@@ -793,6 +793,8 @@ or component internals.
 - **Testing decisions item 3 names the forced test edits (after review, ticket cut).** The ticket critic showed that the by-id routes and the by-id line control force edits to four existing tests the item had listed as unedited; the item and walkthrough step 17 now name them as exceptions, each limited to what is forced. Reason: a test seam is a *how*; the spec contradicted its own Solution, and the tests' intent is unchanged.
 
 - **The ticket cut's last critic failure was fixed by the orchestrator, not escalated (after review).** The second critique failed only R5 on `agent-opens-a-client-invoice-on-its-own-page` (unnamed not-found cases; an unagreed `lib/status.ts` unit seam). The critic's own wording was applied. Reason: a wording slip with the fix given, not an unclear spec.
+
+- **The migration is V59, not the reserved V57 (after review, `manager-sends-a-client-invoice-back`).** `deactivate-a-login` shipped V58 first, and Flyway runs with `outOfOrder=false`, so a V57 would fail validation on any database that already has V58. Reason: the next free version is the only one every existing database accepts.
 
 ## Open questions
 

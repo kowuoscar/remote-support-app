@@ -1,0 +1,90 @@
+## send-back with Agent token (expect 403): POST /api/client-invoices/628e0c32-cd87-4ad3-b038-86fa582e66a1/send-back body={"reason": "x"} -> 403
+## send-back with Tester token (expect 403): POST /api/client-invoices/628e0c32-cd87-4ad3-b038-86fa582e66a1/send-back body={"reason": "x"} -> 403
+## manager send-back (so the by-id routes have a file etc.): POST /api/client-invoices/628e0c32-cd87-4ad3-b038-86fa582e66a1/send-back body={"reason": "Line one does not match the carrier bill - zebra-quartz-77"} -> 200
+{
+ "id": "628e0c32-cd87-4ad3-b038-86fa582e66a1",
+ "contractId": "ff972672-c769-48d1-afd4-ac41b92606c9",
+ "billingMonth": "2026-10-01",
+ "status": "DRAFT",
+ "currency": "USD",
+ "baseAmount": 20.0,
+ "basePostpaidSims": [
+  {
+   "simCardId": "9d4efd2d-cc96-4d68-8a2f-cf6bc1c90d11",
+   "number": "+1-555-69839",
+   "monthlyFeeAmount": 18.0,
+   "cancellationEffectiveDate": null,
+   "amount": 20.0,
+   "computedAmount": 18.0,
+   "edited": true
+  }
+ ],
+ "feeLines": [
+  {
+   "id": "3ddc5b84-3842-4033-aab6-35e909fbf073",
+   "contractId": "ff972672-c769-48d1-afd4-ac41b92606c9",
+   "requestId": "45e2c13f-ba87-4b04-919b-2439fae6df70",
+   "requestType": "OTHER",
+   "feeType": "OTHER",
+   "amount": 5.0,
+   "currency": "USD",
+   "billingMonth": "2026-10-01",
+   "createdAt": "2026-10-05T17:39:29.873777Z",
+   "computedAmount": 5.0,
+   "edited": false
+  }
+ ],
+ "totalAmount": 25.0,
+ "files": [],
+ "sentAt": null,
+ "approvedAt": null,
+ "sentBackAt": "2026-10-05T17:39:29.928330Z",
+ "sentBackReason": "Line one does not match the carrier bill - zebra-quartz-77"
+}
+## agent attaches a file by id: POST /api/client-invoices/628e0c32-cd87-4ad3-b038-86fa582e66a1/files -> 201
+## files: GET /api/client-invoices/628e0c32-cd87-4ad3-b038-86fa582e66a1/files -> 200
+## other Agent (Priya) token below: GET /api/health -> 200
+## OTHER Agent (Priya) read (expect 403): GET /api/client-invoices/628e0c32-cd87-4ad3-b038-86fa582e66a1 -> 403
+## OTHER Agent (Priya) files list (expect 403): GET /api/client-invoices/628e0c32-cd87-4ad3-b038-86fa582e66a1/files -> 403
+## OTHER Agent (Priya) file download (expect 403): GET /api/client-invoices/628e0c32-cd87-4ad3-b038-86fa582e66a1/files/bff9b6d9-8f49-4ed8-9d01-40522fe5a1b8 -> 403
+## OTHER Agent (Priya) line edit (expect 403): PUT /api/client-invoices/628e0c32-cd87-4ad3-b038-86fa582e66a1/lines body={"kind": "POSTPAID_SIM", "sourceId": "9d4efd2d-cc96-4d68-8a2f-cf6bc1c90d11", "amount": "99.00"} -> 403
+## OTHER Agent (Priya) send (expect 403): POST /api/client-invoices/628e0c32-cd87-4ad3-b038-86fa582e66a1/send -> 403
+## invoice after the 403s (unchanged): GET /api/client-invoices/628e0c32-cd87-4ad3-b038-86fa582e66a1 -> 200
+['SIM 9d4efd2d-cc96-4d68-8a2f-cf6bc1c90d11 20.0/18.0', 'FEE 3ddc5b84-3842-4033-aab6-35e909fbf073 5.0/5.0', 'TOTAL 25.0'] DRAFT
+other-tenant fixture insert (OtherTenantFixture's shape, via SQL): 0  invoice 2937781d-fd08-495a-b50d-dca174d6b7dc
+## Manager read (expect 404): GET /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc -> 404
+## Manager send-back (expect 404): POST /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/send-back body={"reason": "x"} -> 404
+## Manager approve (expect 404): POST /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/approve -> 404
+## Manager pdf (expect 404): GET /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/pdf -> 404
+## Manager files list (expect 404): GET /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/files -> 404
+## Manager file download (expect 404): GET /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/files/9634a70a-c1f8-4e44-8684-d13d8891eb0e -> 404
+## Manager attach file (expect 404): POST /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/files -> 404
+## Manager line edit (expect 404): PUT /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/lines body={"kind": "POSTPAID_SIM", "sourceId": "b0e9a1d4-29fa-4922-a0ca-54c33f0cd10c", "amount": "1.00"} -> 403
+## Manager send (expect 404): POST /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/send -> 403
+## Agent read (expect 404): GET /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc -> 404
+## Agent send-back (expect 404): POST /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/send-back body={"reason": "x"} -> 403
+## Agent approve (expect 404): POST /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/approve -> 403
+## Agent pdf (expect 404): GET /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/pdf -> 403
+## Agent files list (expect 404): GET /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/files -> 404
+## Agent file download (expect 404): GET /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/files/89502eb2-cc55-474b-98d0-e65b2fa443e4 -> 404
+## Agent attach file (expect 404): POST /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/files -> 404
+## Agent line edit (expect 404): PUT /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/lines body={"kind": "POSTPAID_SIM", "sourceId": "428c8e8e-570c-498a-8fe5-60d6c54d1766", "amount": "1.00"} -> 404
+## Agent send (expect 404): POST /api/client-invoices/2937781d-fd08-495a-b50d-dca174d6b7dc/send -> 404
+## past-month never-sent draft, by id (as Agent): GET /api/client-invoices/d41a9e5e-2e2e-4fcb-aedc-66cb2fa20c42 -> 200
+2026-08-01 DRAFT ['SIM bc3e0296-a59c-4bfe-86b4-47c4ad3728a9 12.0/12.0', 'TOTAL 12.0']
+## send past-month draft: POST /api/client-invoices/d41a9e5e-2e2e-4fcb-aedc-66cb2fa20c42/send -> 409
+{
+ "message": "A past month's draft that was never sent cannot be sent or changed",
+ "code": "PAST_MONTH_DRAFT_NOT_SENDABLE"
+}
+## attach file to past-month draft: POST /api/client-invoices/d41a9e5e-2e2e-4fcb-aedc-66cb2fa20c42/files -> 409
+{
+ "message": "A past month's draft that was never sent cannot be sent or changed",
+ "code": "PAST_MONTH_DRAFT_NOT_SENDABLE"
+}
+## edit line of past-month draft: PUT /api/client-invoices/d41a9e5e-2e2e-4fcb-aedc-66cb2fa20c42/lines body={"kind": "POSTPAID_SIM", "sourceId": "bc3e0296-a59c-4bfe-86b4-47c4ad3728a9", "amount": "15.00"} -> 409
+{
+ "message": "A past month's draft that was never sent cannot be sent or changed",
+ "code": "PAST_MONTH_DRAFT_NOT_SENDABLE"
+}
+invoice unchanged after: True

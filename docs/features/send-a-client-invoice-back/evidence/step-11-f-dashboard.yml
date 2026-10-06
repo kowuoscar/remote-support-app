@@ -1,0 +1,105 @@
+- Page URL: http://localhost:13000/manager
+- Page Title: Dashboard · Remote Support Platform
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - complementary [ref=f3e3]:
+      - generic [ref=f3e4]:
+        - generic [ref=f3e5]: "N"
+        - generic [ref=f3e6]:
+          - paragraph [ref=f3e7]: Northwind Field Services
+          - paragraph [ref=f3e8]: Manager Console
+      - navigation [ref=f3e9]:
+        - link "Dashboard" [ref=f3e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f3e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f3e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f3e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f3e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f3e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f3e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f3e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f3e48]:
+      - banner [ref=f3e49]:
+        - generic [ref=f3e51]:
+          - heading "Dashboard" [level=1] [ref=f3e52]
+          - paragraph [ref=f3e53]: Tenant-wide overview
+        - generic [ref=f3e54]:
+          - button "Priya Ashford · Manager" [ref=f3e56]
+          - button "Switch to dark theme" [ref=f3e58]
+      - main [ref=f3e62]:
+        - generic [ref=f3e63]:
+          - generic [ref=f3e64]:
+            - generic [ref=f3e152]:
+              - generic [ref=f3e153]: Pending approvals
+              - generic [ref=f3e154]: "10"
+              - generic [ref=f3e155]: Client + Agent Invoices awaiting review
+            - generic [ref=f3e156]:
+              - generic [ref=f3e157]: Pending Requests
+              - generic [ref=f3e158]: "2"
+              - link "Review requests" [ref=f3e160] [cursor=pointer]:
+                - /url: /manager/requests
+            - generic [ref=f3e163]:
+              - generic [ref=f3e164]: Billed this month
+              - generic [ref=f3e165]: $41,280.00
+              - generic [ref=f3e166]: Tenant-wide, all Contracts
+            - generic [ref=f3e167]:
+              - generic [ref=f3e168]: Payout this month
+              - generic [ref=f3e169]: $22,940.00
+              - generic [ref=f3e170]: Tenant-wide, all Agents
+            - generic [ref=f3e171]:
+              - generic [ref=f3e172]: Clients
+              - generic [ref=f3e173]: "6"
+              - generic [ref=f3e174]: Active this tenant
+            - generic [ref=f3e175]:
+              - generic [ref=f3e176]: Agents
+              - generic [ref=f3e177]: "5"
+              - generic [ref=f3e178]: Across all countries
+            - generic [ref=f3e179]:
+              - generic [ref=f3e180]: Contracts
+              - generic [ref=f3e181]: "8"
+              - generic [ref=f3e182]: Client × Agent pairs
+          - generic [ref=f3e93]:
+            - generic [ref=f3e94]:
+              - generic [ref=f3e95]:
+                - heading "Pending approvals" [level=2] [ref=f3e96]
+                - paragraph [ref=f3e97]: Longest waiting first
+              - link "Review all" [ref=f3e98] [cursor=pointer]:
+                - /url: /manager/invoices
+            - list "Pending approvals" [ref=f3e101]:
+              - listitem [ref=f3e102]:
+                - link "Jordan Ellis Agent Invoice · October 2026 · waiting since today $2,836.00" [ref=f3e103] [cursor=pointer]:
+                  - /url: /manager/invoices/agent/896880c8-e446-413e-aee8-ee0bbd55e6dc
+                  - generic [ref=f3e110]:
+                    - generic [ref=f3e111]: Jordan Ellis
+                    - generic [ref=f3e112]: Agent Invoice · October 2026 · waiting since today
+                  - generic [ref=f3e113]: $2,836.00
+              - listitem [ref=f3e114]:
+                - link "SB b624f682 — SB Agent One Client Invoice · October 2026 · waiting since today $25.00" [ref=f3e115] [cursor=pointer]:
+                  - /url: /manager/invoices/client/fe26c7a4-0808-4339-9a92-1796cae468bf
+                  - generic [ref=f3e122]:
+                    - generic [ref=f3e123]: SB b624f682 — SB Agent One
+                    - generic [ref=f3e124]: Client Invoice · October 2026 · waiting since today
+                  - generic [ref=f3e125]: $25.00
+              - listitem [ref=f3e126]:
+                - link "SB a1448894 — SB Agent One Client Invoice · October 2026 · waiting since today $25.00" [ref=f3e127] [cursor=pointer]:
+                  - /url: /manager/invoices/client/6ae7e144-f2ea-4169-bf9b-0ce44f1d3e1f
+                  - generic [ref=f3e134]:
+                    - generic [ref=f3e135]: SB a1448894 — SB Agent One
+                    - generic [ref=f3e136]: Client Invoice · October 2026 · waiting since today
+                  - generic [ref=f3e137]: $25.00
+              - listitem [ref=f3e138]:
+                - link "SB 6d3dd270 — SB Agent One Client Invoice · October 2026 · waiting since today $25.00" [ref=f3e139] [cursor=pointer]:
+                  - /url: /manager/invoices/client/72e30c8c-212b-4368-bf8f-e351cf483379
+                  - generic [ref=f3e146]:
+                    - generic [ref=f3e147]: SB 6d3dd270 — SB Agent One
+                    - generic [ref=f3e148]: Client Invoice · October 2026 · waiting since today
+                  - generic [ref=f3e149]: $25.00
+      - paragraph [ref=f3e150]: Demo data — names, amounts and statuses on this screen are synthetic and do not represent real Clients, Agents or invoices.
+  - alert [ref=f3e151]

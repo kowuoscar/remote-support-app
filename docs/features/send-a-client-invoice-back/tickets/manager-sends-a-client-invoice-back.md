@@ -1,7 +1,7 @@
 ---
 id: manager-sends-a-client-invoice-back
 title: Let a Manager send a sent Client Invoice back to draft with a reason
-status: ready-for-agent
+status: done
 depends_on: []
 labels: [backend]
 stories: [1, 2, 4, 5, 6, 7, 8, 9, 11, 12, 16, 26, 27, 29, 30, 31, 32, 34, 36]
@@ -9,7 +9,7 @@ stories: [1, 2, 4, 5, 6, 7, 8, 9, 11, 12, 16, 26, 27, 29, 30, 31, 32, 34, 36]
 
 ## Context
 
-First slice of `spec.md` (`## Execution order`), the backend half, resting on the merged `edit-client-invoice-lines`. Adds `POST /api/client-invoices/{invoiceId}/send-back` (spec `## Solution`, "Backend: send back" and "The lifecycle, amended"): migration `V57` (nullable `sent_back_at`, `sent_back_reason varchar(1000)` on `client_invoices`), the `SENT -> DRAFT` edge in `ClientInvoiceStatus.canTransitionTo`, `ClientInvoiceService.sendBack(invoice, reason, principal)` under the Client Invoice row lock that `send` and `editLine` already take, `approve` made to take the same lock, `sentBackAt` and `sentBackReason` on `ClientInvoiceResponse` (null for a Tester), and the audit line through the existing `AuditLog.statusChanged`. A send-back writes no `client_invoice_lines` row and never clears `linesStored`.
+First slice of `spec.md` (`## Execution order`), the backend half, resting on the merged `edit-client-invoice-lines`. Adds `POST /api/client-invoices/{invoiceId}/send-back` (spec `## Solution`, "Backend: send back" and "The lifecycle, amended"): migration `V59`, not the reserved V57 since V58 shipped first (nullable `sent_back_at`, `sent_back_reason varchar(1000)` on `client_invoices`), the `SENT -> DRAFT` edge in `ClientInvoiceStatus.canTransitionTo`, `ClientInvoiceService.sendBack(invoice, reason, principal)` under the Client Invoice row lock that `send` and `editLine` already take, `approve` made to take the same lock, `sentBackAt` and `sentBackReason` on `ClientInvoiceResponse` (null for a Tester), and the audit line through the existing `AuditLog.statusChanged`. A send-back writes no `client_invoice_lines` row and never clears `linesStored`.
 
 Also records ADR 0005 and adds the dated "Amended by ADR 0005" note to ADR 0001 (spec `## Solution`, "ADR"; ADR 0004 is the stored-lines model). Modules: `domain`, `dto`, `web`.
 

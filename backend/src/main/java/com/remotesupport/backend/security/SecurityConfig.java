@@ -177,6 +177,11 @@ public class SecurityConfig {
                     .hasRole("AGENT")
                     .requestMatchers("/api/agents/*/invoice", "/api/agents/*/invoice/**")
                     .authenticated()
+                    // send-a-client-invoice-back spec: the list of invoices sent back to an Agent
+                    // is the Agent's alone; it must precede the Manager-only
+                    // /api/client-invoices/** matcher below so it wins.
+                    .requestMatchers(HttpMethod.GET, "/api/client-invoices/sent-back")
+                    .hasRole("AGENT")
                     // Manager-only entity setup (manager-entity-setup ticket): Client, Tester
                     // (nested under /api/clients/{id}/testers), Agent and Contract creation and
                     // listing are all Manager-only; an Agent or Tester request is rejected 403.
@@ -197,6 +202,27 @@ public class SecurityConfig {
                     // since Stock (unlike Fleet) has no per-Contract ownership to check per request.
                     // Which Agent's Stock a caller may see is enforced in StockController.
                     .requestMatchers("/api/stock", "/api/stock/**")
+                    .hasAnyRole("MANAGER", "AGENT")
+                    // send-a-client-invoice-back spec: the Contract's own Agent reaches its Client
+                    // Invoice by id. Approve, send-back and the PDF keep a Manager-only matcher
+                    // placed first, so role enforcement never rests on the guard alone; which
+                    // Contract's invoice is checked per request in ClientInvoiceAccessGuard.
+                    .requestMatchers(
+                        HttpMethod.POST, "/api/client-invoices/*/approve", "/api/client-invoices/*/send-back")
+                    .hasRole("MANAGER")
+                    .requestMatchers(HttpMethod.GET, "/api/client-invoices/*/pdf")
+                    .hasRole("MANAGER")
+                    .requestMatchers(HttpMethod.PUT, "/api/client-invoices/*/lines")
+                    .hasRole("AGENT")
+                    .requestMatchers(HttpMethod.POST, "/api/client-invoices/*/send")
+                    .hasRole("AGENT")
+                    .requestMatchers(
+                        HttpMethod.GET,
+                        "/api/client-invoices/*",
+                        "/api/client-invoices/*/files",
+                        "/api/client-invoices/*/files/*")
+                    .hasAnyRole("MANAGER", "AGENT")
+                    .requestMatchers(HttpMethod.POST, "/api/client-invoices/*/files")
                     .hasAnyRole("MANAGER", "AGENT")
                     .requestMatchers("/api/review-queue","/api/client-invoices/**", "/api/agent-invoices/**")
                     .hasRole("MANAGER")

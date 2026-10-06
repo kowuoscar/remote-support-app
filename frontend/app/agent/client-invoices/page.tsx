@@ -1,7 +1,12 @@
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { AgentClientInvoicesView } from "@/components/agent/client-invoices-view";
-import { backendFetch, backendFetchList } from "@/lib/api/backend";
-import { countryLabel, type ClientInvoiceDetail, type ContractListItem } from "@/lib/api/types";
+import { backendFetch, backendFetchJsonOrNull, backendFetchList } from "@/lib/api/backend";
+import {
+  countryLabel,
+  type ClientInvoiceDetail,
+  type ContractListItem,
+  type SentBackClientInvoice,
+} from "@/lib/api/types";
 import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "Client Invoices" };
@@ -18,9 +23,11 @@ export const metadata = { title: "Client Invoices" };
  */
 export default async function AgentClientInvoicesPage() {
   await requireAgent();
-  const [contracts, meResponse] = await Promise.all([
+  const [contracts, meResponse, sentBack] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),
+    // A failed read leaves the page as it was (logged server-side) rather than blanking it.
+    backendFetchJsonOrNull<SentBackClientInvoice[]>("/api/client-invoices/sent-back", "agent sent-back invoices"),
   ]);
   const me = meResponse.ok ? ((await meResponse.json()) as { username?: string }) : {};
 
@@ -49,6 +56,7 @@ export default async function AgentClientInvoicesPage() {
           currency: c.currency,
         }))}
         invoicesByContract={invoicesByContract}
+        sentBack={sentBack ?? []}
       />
     </SurfacePage>
   );

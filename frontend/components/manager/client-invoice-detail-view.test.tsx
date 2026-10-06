@@ -98,6 +98,28 @@ describe("ClientInvoiceDetailView", () => {
     expect(screen.queryByRole("button", { name: "Approve" })).not.toBeInTheDocument();
   });
 
+  it("hides Approve while the send-back form is open and brings it back on Back", async () => {
+    render(<ClientInvoiceDetailView invoice={invoice()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Send back" }));
+    expect(screen.queryByRole("button", { name: "Approve" })).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(screen.getByRole("button", { name: "Approve" })).toBeInTheDocument();
+  });
+
+  it("moves focus to the status note once the invoice is sent back", async () => {
+    stubFetch(200, invoice({ status: "DRAFT", sentAt: null, sentBackAt: "2026-09-02T10:00:00Z", sentBackReason: "Wrong" }));
+    render(<ClientInvoiceDetailView invoice={invoice()} />);
+
+    await userEvent.click(screen.getByRole("button", { name: "Send back" }));
+    await userEvent.type(screen.getByRole("textbox"), "Wrong");
+    await userEvent.click(screen.getByRole("button", { name: "Confirm send back" }));
+
+    const note = await screen.findByText(/Sent back to the Agent on/);
+    expect(note).toHaveFocus();
+  });
+
   it("offers no PDF for a draft, which has nothing final to render", () => {
     render(<ClientInvoiceDetailView invoice={invoice({ status: "DRAFT", sentAt: null })} />);
 
@@ -166,6 +188,64 @@ describe("ClientInvoiceDetailView", () => {
       render(<ClientInvoiceDetailView invoice={invoice()} />);
       expect(screen.queryByRole("list", { name: "Postpaid SIM Cards" })).not.toBeInTheDocument();
       expect(screen.queryByText(/Edited · computed/)).not.toBeInTheDocument();
+    });
+  });
+
+  describe("send back", () => {
+    it("send-back-only-while-sent", () => {
+      render(<ClientInvoiceDetailView invoice={invoice()} />);
+
+      expect(screen.getByRole("button", { name: "Send back" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Approve" })).toBeInTheDocument();
+    });
+
+    it("no-send-back-on-draft-or-approved", () => {
+      const { unmount } = render(<ClientInvoiceDetailView invoice={invoice({ status: "DRAFT", sentAt: null })} />);
+      expect(screen.queryByRole("button", { name: "Send back" })).not.toBeInTheDocument();
+      expect(screen.queryByText(/Previously sent back/)).not.toBeInTheDocument();
+      unmount();
+      render(<ClientInvoiceDetailView invoice={invoice({ status: "APPROVED", approvedAt: "2026-09-01T09:00:00Z" })} />);
+      expect(screen.queryByRole("button", { name: "Send back" })).not.toBeInTheDocument();
+    });
+
+    it("sent-back-draft-shows-note-and-quoted-reason", async () => {
+      const fetchMock = stubFetch(
+        200,
+        invoice({
+          status: "DRAFT",
+          sentAt: null,
+          sentBackAt: "2026-09-02T08:00:00Z",
+          sentBackReason: "The top-up Fee is wrong",
+        }),
+      );
+      render(<ClientInvoiceDetailView invoice={invoice()} />);
+
+      await userEvent.click(screen.getByRole("button", { name: "Send back" }));
+      await userEvent.type(screen.getByRole("textbox", { name: "Reason for sending back" }), "The top-up Fee is wrong");
+      await userEvent.click(screen.getByRole("button", { name: "Confirm send back" }));
+
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/client-invoices/invoice-1/send-back",
+        expect.objectContaining({ method: "POST" }),
+      );
+      expect(
+        await screen.findByText("Sent back to the Agent on Sep 2, 2026 — waiting for them to resend"),
+      ).toBeInTheDocument();
+      expect(screen.getByRole("blockquote")).toHaveTextContent("The top-up Fee is wrong");
+      expect(screen.getByText("$70.00")).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Approve" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Send back" })).not.toBeInTheDocument();
+    });
+
+    it("resent-invoice-shows-previously-sent-back-line", () => {
+      render(
+        <ClientInvoiceDetailView
+          invoice={invoice({ sentBackAt: "2026-09-02T08:00:00Z", sentBackReason: "Missing the carrier bill" })}
+        />,
+      );
+
+      expect(screen.getByText("Previously sent back on Sep 2, 2026: Missing the carrier bill")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Send back" })).toBeInTheDocument();
     });
   });
 });

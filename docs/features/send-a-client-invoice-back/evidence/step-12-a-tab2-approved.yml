@@ -1,0 +1,81 @@
+- 0: [Client Invoice · Remote Support Platform](http://localhost:13000/manager/invoices/client/1981e94c-3fea-497e-adb6-3f2e485a8742)
+- 1: (current) [Client Invoice · Remote Support Platform](http://localhost:13000/manager/invoices/client/1981e94c-3fea-497e-adb6-3f2e485a8742)
+- Page URL: http://localhost:13000/manager/invoices/client/1981e94c-3fea-497e-adb6-3f2e485a8742
+- Page Title: Client Invoice · Remote Support Platform
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: "N"
+        - generic [ref=e6]:
+          - paragraph [ref=e7]: Northwind Field Services
+          - paragraph [ref=e8]: Manager Console
+      - navigation [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=e48]:
+      - banner [ref=e49]:
+        - generic [ref=e51]:
+          - heading "SB 14155d94 — Jordan Ellis" [level=1] [ref=e52]
+          - paragraph [ref=e53]: Client Invoice
+        - generic [ref=e54]:
+          - button "Manager" [ref=e56]
+          - button "Switch to dark theme" [ref=e58]
+      - main [ref=e62]:
+        - generic [ref=e63]:
+          - navigation "Breadcrumb" [ref=e64]:
+            - link "Invoices" [ref=e66] [cursor=pointer]:
+              - /url: /manager/invoices
+            - generic [ref=e67]: SB 14155d94 — Jordan Ellis
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - generic [ref=e73]:
+                - generic [ref=e74]:
+                  - heading "October 2026" [level=2] [ref=e75]
+                  - generic [ref=e76]: Approved
+                - paragraph [ref=e78]: Approved — this is the final record for the month
+                - paragraph [ref=e79]: Sent Oct 5, 2026 · Approved Oct 5, 2026
+              - link "Download PDF" [ref=e81] [cursor=pointer]:
+                - /url: /api/client-invoices/1981e94c-3fea-497e-adb6-3f2e485a8742/pdf
+            - generic [ref=e91]:
+              - generic [ref=e92]:
+                - term [ref=e93]: Base amount
+                - definition [ref=e94]: $20.00
+              - generic [ref=e95]:
+                - term [ref=e96]: Fees
+                - definition [ref=e97]: $5.00
+              - generic [ref=e98]:
+                - term [ref=e99]: Total
+                - definition [ref=e100]: $25.00
+            - generic [ref=e101]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=e102]
+              - list "Postpaid SIM Cards" [ref=e103]:
+                - listitem [ref=e104]:
+                  - generic [ref=e105]: +1-555-29943
+                  - generic [ref=e106]:
+                    - generic [ref=e107]: $20.00
+                    - paragraph [ref=e108]: Edited · computed $18.00
+            - generic [ref=e109]:
+              - heading "Fee lines" [level=3] [ref=e110]
+              - list [ref=e111]:
+                - listitem [ref=e112]:
+                  - generic [ref=e113]: Other
+                  - generic [ref=e114]: $5.00
+            - generic [ref=e116]:
+              - heading "Carrier invoice files" [level=3] [ref=e117]
+              - paragraph [ref=e120]: No carrier invoice files attached.
+  - alert [ref=e121]

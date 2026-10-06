@@ -139,10 +139,11 @@ not something a ticket does on the side.
 12. Client-side global state (Zustand/Context) holds only UI state that must
     survive navigation; server state stays in the cache Next.js already
     manages — do not duplicate it into a store.
-13. Route Handlers reuse a shared forwarder from `lib/api` where one fits
-    (`forwardBinary`, `forwardSecretJson`), never an ad hoc shape per route;
-    the older hand-written pass-throughs are known debt. (Amended by the
-    human, 2026-10-02.)
+13. Route Handlers reuse a shared forwarder from `lib/api`: `forwardJson` for
+    a plain JSON answer, `forwardSecretJson` when the body carries a secret,
+    `forwardBinary` for a file — never an ad hoc shape per route. The older
+    hand-written pass-throughs are known debt, switched when a feature next
+    touches them. (Amended by the human, 2026-10-02 and 2026-10-05.)
 14. `params`/`searchParams` are typed and parsed once at the top of the
     route or page; do not re-parse them further down the tree.
 15. A third-party or long-running call inside a Server Component carries an

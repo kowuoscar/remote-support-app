@@ -124,12 +124,13 @@ A Manager can browse invoices that have left the Review Queue — approved
 Client Invoices, approved and paid Agent Invoices — filtered by month,
 Contract and Agent. Today a finished invoice is reachable only by its id.
 
-### Keep a login working over time — wanted
+### Keep a login working over time — exists
 
 A user changes their own password; a Manager resets the password of an Agent
 or a Tester who is locked out; a login is deactivated when a person leaves,
-without destroying the Agent record and the invoice history hanging off it.
-Today a password can never be changed by anyone.
+without destroying the Agent record and the invoice history hanging off it,
+and switched back on. Played end to end on `main` at the close of
+`login-lifecycle` (2026-10-06): `docs/roadmap/evidence/login-lifecycle/`.
 
 ### Operate a second tenant safely — exists
 

@@ -1,0 +1,38 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "My Invoice" [level=1]
+  - paragraph: Local Support Fees, salary and Rollout Advance
+  - button "journey.agent+1791269045158@agents.example · Agent"
+  - button "Switch to dark theme"
+- main:
+  - heading "October 2026" [level=2]
+  - text: Draft
+  - button "Send Agent Invoice"
+  - term: Local Support Fees
+  - definition: €0.00
+  - term: Salary
+  - definition: €2,400.00
+  - term: Rollout Advance repayment
+  - definition: €0.00
+  - term: Rollout Advance new
+  - definition: €0.00
+  - text: Total €2,400.00
+- alert

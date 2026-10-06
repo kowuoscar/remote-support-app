@@ -19,3 +19,7 @@ then the epic that shares its code, then new capability, then the surface fix.
 
 Both placed at the end by the human on 2026-09-30: new capability first, the
 layout move and tenant administration after.
+
+Proposed, waiting for the human to place or drop:
+
+- `login-onboarding` — change a login's email, force a password change on first sign-in; invitation emails need a mail service decision first. Promoted from `login-lifecycle`'s `## Later` (2026-10-06).

@@ -1,0 +1,16 @@
+reset password returned: <non-empty>
+agent GET /api/me/agent (open token, before deactivation): 200
+deactivate: 200
+agent GET /api/me/agent (same open token, after): 401
+agent sign-in while deactivated: {"code":"LOGIN_DEACTIVATED"} [401]
+--- manager GET /api/agents
+[{"id":"55555555-5555-5555-5555-555555555555","name":"Jordan Ellis","country":"UNITED_STATES","currency":"USD","salaryAmount":2500.00,"contractCount":0,"loginUsername":"agent@example.com","loginDeactivatedAt":null},{"id":"a5d5523e-0c91-4f1c-b322-d25fcfd052db","name":"Journey Agent 1791268548276","country":"FRANCE","currency":"EUR","salaryAmount":2400.00,"contractCount":1,"loginUsername":"journey.agent+1791268548276@agents.example","loginDeactivatedAt":null},{"id":"ec93ee32-9c81-49cd-afa1-9071e3b661a5","name":"Journey Agent 1791268797657","country":"FRANCE","currency":"EUR","salaryAmount":2400.00,"contractCount":1,"loginUsername":"journey.agent+1791268797657@agents.example","loginDeactivatedAt":null},{"id":"66c19ee6-e61e-4276-a739-c64b5ebb43be","name":"Journey Agent 1791269045158","country":"FRANCE","currency":"EUR","salaryAmount":2400.00,"contractCount":1,"loginUsername":"journey.agent+1
+[200]
+--- manager GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice
+{"id":"7fb0bb45-4d46-41fa-ae20-68f7c14a0608","agentId":"66c19ee6-e61e-4276-a739-c64b5ebb43be","billingMonth":"2026-10-01","status":"DRAFT","currency":"EUR","localSupportFees":0,"salary":2400.00,"rolloutAdvanceRepayment":0,"rolloutAdvanceNewAdvance":0,"totalAmount":2400.00,"sentAt":null,"approvedAt":null,"paidAt":null}
+[200]
+--- manager GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/client-invoice
+{"id":"2f5ca4fd-64cf-454d-851f-5a6a794e2dbc","contractId":"bc9697cb-324d-4d75-ae4c-ad683edcd9d9","billingMonth":"2026-10-01","status":"DRAFT","currency":"EUR","baseAmount":0,"basePostpaidSims":[],"feeLines":[],"totalAmount":0,"files":[],"sentAt":null,"approvedAt":null,"sentBackAt":null,"sentBackReason":null}
+[200]
+reactivate: 200
+agent sign-in after reactivation: 200

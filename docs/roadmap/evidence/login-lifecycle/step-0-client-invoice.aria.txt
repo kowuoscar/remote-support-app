@@ -1,0 +1,44 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Client Invoices" [level=1]
+  - paragraph: One per Contract per month
+  - button "journey.agent+1791269045158@agents.example · Agent"
+  - button "Switch to dark theme"
+- main:
+  - text: Journey Client 1791269045158 — France
+  - paragraph: October 2026
+  - text: Draft
+  - paragraph: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+  - button "Attach carrier invoice"
+  - button "Attach carrier invoice file"
+  - button "Send Client Invoice"
+  - term: Base amount
+  - definition: €0.00
+  - term: Fees this month
+  - definition: €0.00
+  - term: Total
+  - definition: €0.00
+  - paragraph: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees logged against this Contract yet this month.
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached yet.
+- alert

@@ -1,7 +1,7 @@
 ---
 id: login-lifecycle
 title: Keep a login working over time
-status: in-progress
+status: done
 journeys: [keep-a-login-working-over-time]
 ---
 
@@ -92,8 +92,12 @@ request but checks no account state, so either answer is reachable.
 
 ## Later
 
-- Changing a login's email address after creation — the one item of the
-  original deferral the human left out of scope at init.
-- Invitation emails or any outbound email; forcing a password change on first
-  sign-in (`docs/features/agent-login-on-creation/spec.md:40,43`).
+Emptied at closure (2026-10-06):
 
+- Changing a login's email address after creation → feature line
+  `change-a-logins-email` in the new proposed epic `login-onboarding`.
+- Forcing a password change on first sign-in → feature line
+  `password-change-on-first-sign-in` in `login-onboarding`.
+- Invitation emails or any outbound email → `login-onboarding`'s own
+  `## Later`: sending email means adopting a mail service, which is the
+  human's decision (escalation case 2).

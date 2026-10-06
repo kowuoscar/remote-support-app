@@ -1,0 +1,492 @@
+Waiting for isolated postgres (rs-ll-journey-pg, port 54871) to accept connections...
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+2026-10-06T08:35:15.869+02:00 INFO  [:] c.r.backend.BackendApplication - Starting BackendApplication using Java 21.0.11 with PID 87352 (/Users/oscar/myspace/projects/remote-support-app/backend/target/classes started by oscar in /Users/oscar/myspace/projects/remote-support-app/backend)
+2026-10-06T08:35:15.871+02:00 INFO  [:] c.r.backend.BackendApplication - No active profile set, falling back to 1 default profile: "default"
+2026-10-06T08:35:16.784+02:00 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-06T08:35:16.848+02:00 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 60 ms. Found 20 JPA repository interfaces.
+2026-10-06T08:35:17.318+02:00 INFO  [:] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 18481 (http)
+2026-10-06T08:35:17.325+02:00 INFO  [:] o.a.catalina.core.StandardService - Starting service [Tomcat]
+2026-10-06T08:35:17.326+02:00 INFO  [:] o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.30]
+2026-10-06T08:35:17.356+02:00 INFO  [:] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2026-10-06T08:35:17.356+02:00 INFO  [:] o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1459 ms
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+2026-10-06T08:35:17.602+02:00 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2026-10-06T08:35:17.701+02:00 INFO  [:] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@280484c7
+2026-10-06T08:35:17.702+02:00 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2026-10-06T08:35:17.718+02:00 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://127.0.0.1:54871/remote_support (PostgreSQL 16.15)
+2026-10-06T08:35:17.753+02:00 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+2026-10-06T08:35:17.755+02:00 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 50 migrations (execution time 00:00.025s)
+2026-10-06T08:35:17.766+02:00 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+2026-10-06T08:35:17.804+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+2026-10-06T08:35:17.808+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+2026-10-06T08:35:17.830+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+2026-10-06T08:35:17.839+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+2026-10-06T08:35:17.848+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+2026-10-06T08:35:17.876+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+2026-10-06T08:35:17.889+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+2026-10-06T08:35:17.906+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+2026-10-06T08:35:17.920+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+2026-10-06T08:35:17.933+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+2026-10-06T08:35:17.950+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+2026-10-06T08:35:17.959+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+2026-10-06T08:35:17.971+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+2026-10-06T08:35:17.984+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+2026-10-06T08:35:17.997+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+2026-10-06T08:35:18.016+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+2026-10-06T08:35:18.022+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+2026-10-06T08:35:18.032+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+2026-10-06T08:35:18.043+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+2026-10-06T08:35:18.050+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+2026-10-06T08:35:18.065+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+2026-10-06T08:35:18.074+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+2026-10-06T08:35:18.089+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+2026-10-06T08:35:18.096+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+2026-10-06T08:35:18.104+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+2026-10-06T08:35:18.111+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+2026-10-06T08:35:18.119+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+2026-10-06T08:35:18.126+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+2026-10-06T08:35:18.134+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+2026-10-06T08:35:18.139+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+2026-10-06T08:35:18.146+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+2026-10-06T08:35:18.154+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+2026-10-06T08:35:18.162+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+2026-10-06T08:35:18.169+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+2026-10-06T08:35:18.177+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+2026-10-06T08:35:18.183+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+2026-10-06T08:35:18.190+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+2026-10-06T08:35:18.196+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+2026-10-06T08:35:18.206+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+2026-10-06T08:35:18.212+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+2026-10-06T08:35:18.219+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+2026-10-06T08:35:18.226+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+2026-10-06T08:35:18.237+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+2026-10-06T08:35:18.242+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+2026-10-06T08:35:18.247+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+2026-10-06T08:35:18.252+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+2026-10-06T08:35:18.259+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+2026-10-06T08:35:18.268+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+2026-10-06T08:35:18.277+02:00 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+2026-10-06T08:35:18.282+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+2026-10-06T08:35:18.289+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "56 - create client invoice lines"
+2026-10-06T08:35:18.304+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "58 - add users deactivated at"
+2026-10-06T08:35:18.311+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "59 - add client invoice sent back"
+2026-10-06T08:35:18.321+02:00 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 50 migrations to schema "public", now at version v59 (execution time 00:00.243s)
+2026-10-06T08:35:18.370+02:00 INFO  [:] o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-10-06T08:35:18.398+02:00 INFO  [:] org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2026-10-06T08:35:18.413+02:00 INFO  [:] o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2026-10-06T08:35:18.545+02:00 INFO  [:] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-06T08:35:19.213+02:00 INFO  [:] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-06T08:35:19.253+02:00 INFO  [:] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-06T08:35:19.403+02:00 INFO  [:] o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-06T08:35:20.308+02:00 INFO  [:] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name appUserDetailsService
+2026-10-06T08:35:20.516+02:00 INFO  [:] o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2026-10-06T08:35:20.754+02:00 INFO  [:] o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 18481 (http) with context path '/'
+2026-10-06T08:35:20.762+02:00 INFO  [:] c.r.backend.BackendApplication - Started BackendApplication in 5.219 seconds (process running for 5.45)
+2026-10-06T08:35:23.672+02:00 INFO  [:] o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-06T08:35:23.672+02:00 INFO  [:] o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026-10-06T08:35:23.673+02:00 INFO  [:] o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2026-10-06T08:35:23.705+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - GET /api/health -> 200
+2026-10-06T08:35:49.797+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+2026-10-06T08:35:49.800+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:35:49.887+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/pending-requests -> 200
+2026-10-06T08:35:49.887+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/pending-requests -> 200
+2026-10-06T08:35:49.896+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/review-queue -> 200
+2026-10-06T08:35:49.896+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/review-queue -> 200
+2026-10-06T08:35:49.959+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:49.989+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:35:50.268+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=5d2ae30b-6c89-4c07-90ae-bef8f485f27f agentId=a5d5523e-0c91-4f1c-b322-d25fcfd052db actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:35:50.268+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Agent entityId=a5d5523e-0c91-4f1c-b322-d25fcfd052db actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:35:50.272+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/agents -> 201
+2026-10-06T08:35:50.299+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:50.310+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:35:50.358+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:50.365+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:35:50.530+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=c8ecdb80-a839-4b84-aa8e-a02c206524e2 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:35:50.549+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/clients -> 201
+2026-10-06T08:35:50.625+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:50.647+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:35:50.694+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:50.717+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:35:50.720+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:35:50.724+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:35:50.932+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=27850ca1-ae7e-4a99-9a0c-656f1ade3321 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:35:50.934+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/contracts -> 201
+2026-10-06T08:35:50.960+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:50.972+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:35:50.972+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:35:50.974+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:35:51.113+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:51.115+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:51.123+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:35:51.128+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:35:51.129+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients/c8ecdb80-a839-4b84-aa8e-a02c206524e2/testers -> 200
+2026-10-06T08:35:51.144+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/27850ca1-ae7e-4a99-9a0c-656f1ade3321/smartphones -> 200
+2026-10-06T08:35:51.146+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/27850ca1-ae7e-4a99-9a0c-656f1ade3321/sim-cards -> 200
+2026-10-06T08:35:51.148+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/carriers -> 200
+2026-10-06T08:35:51.158+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=ClientInvoice entityId=125c4115-5f6e-4883-8832-d7d742b9b4bd actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:35:51.184+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/27850ca1-ae7e-4a99-9a0c-656f1ade3321/client-invoice -> 200
+2026-10-06T08:35:51.410+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=15a4164f-9fbd-4413-a184-1f7579558424 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:35:51.414+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/clients/c8ecdb80-a839-4b84-aa8e-a02c206524e2/testers -> 201
+2026-10-06T08:35:51.468+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:51.495+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients/c8ecdb80-a839-4b84-aa8e-a02c206524e2/testers -> 200
+2026-10-06T08:35:51.501+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:35:51.541+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:51.552+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:35:51.643+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:51.735+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:35:51.743+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/a5d5523e-0c91-4f1c-b322-d25fcfd052db/standing-amounts -> 200
+2026-10-06T08:35:51.744+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=AgentInvoice entityId=1968815e-0666-4de3-a463-61b0e0f76df0 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:35:51.778+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/a5d5523e-0c91-4f1c-b322-d25fcfd052db/invoice -> 200
+2026-10-06T08:35:52.023+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=5d2ae30b-6c89-4c07-90ae-bef8f485f27f role=AGENT username=journey.agent+1791268548276@agents.example
+2026-10-06T08:35:52.024+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:35:52.043+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:52.044+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:52.060+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:35:52.060+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:35:52.073+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:35:52.073+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:35:52.103+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/27850ca1-ae7e-4a99-9a0c-656f1ade3321/requests -> 200
+2026-10-06T08:35:52.104+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/27850ca1-ae7e-4a99-9a0c-656f1ade3321/requests -> 200
+2026-10-06T08:35:52.106+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/agents/a5d5523e-0c91-4f1c-b322-d25fcfd052db/invoice -> 200
+2026-10-06T08:35:52.106+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/agents/a5d5523e-0c91-4f1c-b322-d25fcfd052db/invoice -> 200
+2026-10-06T08:35:52.157+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:52.186+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/agents/a5d5523e-0c91-4f1c-b322-d25fcfd052db/invoice -> 200
+2026-10-06T08:35:52.275+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:52.287+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/client-invoices/sent-back -> 200
+2026-10-06T08:35:52.288+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:35:52.308+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/27850ca1-ae7e-4a99-9a0c-656f1ade3321/client-invoice -> 200
+2026-10-06T08:35:53.419+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=5d2ae30b-6c89-4c07-90ae-bef8f485f27f actorUserId=5d2ae30b-6c89-4c07-90ae-bef8f485f27f tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:35:53.449+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - POST /api/me/password -> 204
+2026-10-06T08:35:54.135+02:00 WARN  [:] c.r.backend.web.AuthController - login failed username=journey.agent+1791268548276@agents.example
+2026-10-06T08:35:54.137+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 401
+2026-10-06T08:35:54.376+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=5d2ae30b-6c89-4c07-90ae-bef8f485f27f role=AGENT username=journey.agent+1791268548276@agents.example
+2026-10-06T08:35:54.376+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:35:54.390+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:54.393+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:54.402+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:35:54.403+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:35:54.409+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:35:54.411+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:35:54.419+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/27850ca1-ae7e-4a99-9a0c-656f1ade3321/requests -> 200
+2026-10-06T08:35:54.419+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/27850ca1-ae7e-4a99-9a0c-656f1ade3321/requests -> 200
+2026-10-06T08:35:54.422+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/agents/a5d5523e-0c91-4f1c-b322-d25fcfd052db/invoice -> 200
+2026-10-06T08:35:54.424+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/agents/a5d5523e-0c91-4f1c-b322-d25fcfd052db/invoice -> 200
+2026-10-06T08:35:54.735+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=5d2ae30b-6c89-4c07-90ae-bef8f485f27f role=AGENT username=journey.agent+1791268548276@agents.example
+2026-10-06T08:35:54.736+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:35:54.753+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:54.755+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:54.765+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:35:54.768+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:35:54.773+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:35:54.775+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:35:54.782+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/27850ca1-ae7e-4a99-9a0c-656f1ade3321/requests -> 200
+2026-10-06T08:35:54.782+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/27850ca1-ae7e-4a99-9a0c-656f1ade3321/requests -> 200
+2026-10-06T08:35:54.783+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/agents/a5d5523e-0c91-4f1c-b322-d25fcfd052db/invoice -> 200
+2026-10-06T08:35:54.786+02:00 INFO  [11111111-1111-1111-1111-111111111111:5d2ae30b-6c89-4c07-90ae-bef8f485f27f] c.r.b.logging.RequestLoggingFilter - GET /api/agents/a5d5523e-0c91-4f1c-b322-d25fcfd052db/invoice -> 200
+2026-10-06T08:35:55.078+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+2026-10-06T08:35:55.079+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:35:55.092+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/pending-requests -> 200
+2026-10-06T08:35:55.093+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/pending-requests -> 200
+2026-10-06T08:35:55.094+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/review-queue -> 200
+2026-10-06T08:35:55.094+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/review-queue -> 200
+2026-10-06T08:35:55.108+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:35:55.116+02:00 WARN  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'; Invalid UUID string: agents]
+2026-10-06T08:35:55.116+02:00 WARN  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Failed to convert value of type 'java.lang.String' to required type 'java.util.UUID'; Invalid UUID string: agents]
+2026-10-06T08:35:55.116+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/agents/invoice -> 400
+2026-10-06T08:35:55.116+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/agents/standing-amounts -> 400
+2026-10-06T08:35:55.120+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:39:58.131+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+2026-10-06T08:39:58.137+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:39:58.166+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/pending-requests -> 200
+2026-10-06T08:39:58.166+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/pending-requests -> 200
+2026-10-06T08:39:58.173+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/review-queue -> 200
+2026-10-06T08:39:58.173+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/review-queue -> 200
+2026-10-06T08:39:58.193+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:39:58.210+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:39:58.447+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=4256d01d-ac76-4a64-9b9d-ff5cace7355e agentId=ec93ee32-9c81-49cd-afa1-9071e3b661a5 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:39:58.448+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Agent entityId=ec93ee32-9c81-49cd-afa1-9071e3b661a5 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:39:58.452+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/agents -> 201
+2026-10-06T08:39:58.471+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:39:58.490+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:39:58.570+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:39:58.580+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:39:58.686+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=a25a8857-5907-4355-ab5b-12f7e3ed6e4d actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:39:58.689+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/clients -> 201
+2026-10-06T08:39:58.707+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:39:58.719+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:39:58.769+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:39:58.777+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:39:58.780+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:39:58.782+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:39:58.915+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=968795aa-374f-4f21-968c-2a4c522c161d actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:39:58.916+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/contracts -> 201
+2026-10-06T08:39:58.935+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:39:58.944+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:39:58.945+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:39:58.946+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:39:59.006+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:39:59.006+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:39:59.013+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients/a25a8857-5907-4355-ab5b-12f7e3ed6e4d/testers -> 200
+2026-10-06T08:39:59.014+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:39:59.020+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:39:59.024+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/carriers -> 200
+2026-10-06T08:39:59.025+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/968795aa-374f-4f21-968c-2a4c522c161d/smartphones -> 200
+2026-10-06T08:39:59.033+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=ClientInvoice entityId=b09cc7db-8a7e-4e99-896a-a80d1aac110c actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:39:59.035+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/968795aa-374f-4f21-968c-2a4c522c161d/sim-cards -> 200
+2026-10-06T08:39:59.039+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/968795aa-374f-4f21-968c-2a4c522c161d/client-invoice -> 200
+2026-10-06T08:39:59.239+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=1386a0f4-5354-4676-86c5-48d17122b4fe actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:39:59.239+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/clients/a25a8857-5907-4355-ab5b-12f7e3ed6e4d/testers -> 201
+2026-10-06T08:39:59.257+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:39:59.267+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients/a25a8857-5907-4355-ab5b-12f7e3ed6e4d/testers -> 200
+2026-10-06T08:39:59.270+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:39:59.350+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:39:59.361+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:39:59.433+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:39:59.443+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:39:59.443+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/ec93ee32-9c81-49cd-afa1-9071e3b661a5/standing-amounts -> 200
+2026-10-06T08:39:59.446+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=AgentInvoice entityId=6b39b6c2-414e-4d1b-807a-8f60b7e4a655 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:39:59.458+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/ec93ee32-9c81-49cd-afa1-9071e3b661a5/invoice -> 200
+2026-10-06T08:44:05.648+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+2026-10-06T08:44:05.649+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:05.677+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/pending-requests -> 200
+2026-10-06T08:44:05.677+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/pending-requests -> 200
+2026-10-06T08:44:05.680+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/review-queue -> 200
+2026-10-06T08:44:05.684+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/review-queue -> 200
+2026-10-06T08:44:05.702+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:05.716+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:05.953+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=4d999667-ca42-470c-a062-6eedea1d15d9 agentId=66c19ee6-e61e-4276-a739-c64b5ebb43be actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:05.953+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Agent entityId=66c19ee6-e61e-4276-a739-c64b5ebb43be actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:05.956+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/agents -> 201
+2026-10-06T08:44:05.982+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:05.996+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:06.077+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:06.091+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:44:06.204+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=8e3655a5-aacf-42ab-a246-47f93f3f8872 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:06.207+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/clients -> 201
+2026-10-06T08:44:06.226+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:06.246+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:44:06.285+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:06.291+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:06.293+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:06.295+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:44:06.457+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=bc9697cb-324d-4d75-ae4c-ad683edcd9d9 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:06.458+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/contracts -> 201
+2026-10-06T08:44:06.476+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:06.488+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:06.489+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:06.491+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:44:06.567+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:06.575+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:06.583+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/sim-cards -> 200
+2026-10-06T08:44:06.584+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/smartphones -> 200
+2026-10-06T08:44:06.584+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/carriers -> 200
+2026-10-06T08:44:06.592+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=ClientInvoice entityId=2f5ca4fd-64cf-454d-851f-5a6a794e2dbc actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:06.595+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/client-invoice -> 200
+2026-10-06T08:44:06.614+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:06.619+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients/8e3655a5-aacf-42ab-a246-47f93f3f8872/testers -> 200
+2026-10-06T08:44:06.623+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:44:06.835+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=1ade53c4-3ab5-4316-9622-a6114f07fb15 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:06.835+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/clients/8e3655a5-aacf-42ab-a246-47f93f3f8872/testers -> 201
+2026-10-06T08:44:06.853+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:06.862+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients/8e3655a5-aacf-42ab-a246-47f93f3f8872/testers -> 200
+2026-10-06T08:44:06.867+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:44:06.946+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:06.955+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:07.022+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:07.034+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/standing-amounts -> 200
+2026-10-06T08:44:07.034+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:07.038+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=AgentInvoice entityId=7fb0bb45-4d46-41fa-ae20-68f7c14a0608 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:07.049+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:07.228+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=4d999667-ca42-470c-a062-6eedea1d15d9 role=AGENT username=journey.agent+1791269045158@agents.example
+2026-10-06T08:44:07.229+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:07.241+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:07.241+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:07.252+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:07.252+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:07.261+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:07.261+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:07.269+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:07.269+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:07.271+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:07.271+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:07.292+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:07.310+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:07.375+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:07.383+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/client-invoices/sent-back -> 200
+2026-10-06T08:44:07.384+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:07.399+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/client-invoice -> 200
+2026-10-06T08:44:08.427+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=4d999667-ca42-470c-a062-6eedea1d15d9 actorUserId=4d999667-ca42-470c-a062-6eedea1d15d9 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:08.433+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - POST /api/me/password -> 204
+2026-10-06T08:44:09.160+02:00 WARN  [:] c.r.backend.web.AuthController - login failed username=journey.agent+1791269045158@agents.example
+2026-10-06T08:44:09.160+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 401
+2026-10-06T08:44:09.405+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=4d999667-ca42-470c-a062-6eedea1d15d9 role=AGENT username=journey.agent+1791269045158@agents.example
+2026-10-06T08:44:09.406+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:09.416+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:09.420+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:09.425+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:09.428+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:09.431+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:09.434+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:09.438+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:09.439+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:09.440+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:09.442+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:09.770+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=4d999667-ca42-470c-a062-6eedea1d15d9 role=AGENT username=journey.agent+1791269045158@agents.example
+2026-10-06T08:44:09.771+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:09.786+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:09.787+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:09.796+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:09.796+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:09.807+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:09.807+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:09.815+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:09.815+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:09.818+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:09.819+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:10.109+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+2026-10-06T08:44:10.109+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:10.126+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/pending-requests -> 200
+2026-10-06T08:44:10.127+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/review-queue -> 200
+2026-10-06T08:44:10.130+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/pending-requests -> 200
+2026-10-06T08:44:10.130+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/review-queue -> 200
+2026-10-06T08:44:10.144+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:10.152+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/standing-amounts -> 200
+2026-10-06T08:44:10.152+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:10.161+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:10.451+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=4d999667-ca42-470c-a062-6eedea1d15d9 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:10.468+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/login/password -> 200
+2026-10-06T08:44:10.626+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:10.638+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:10.646+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:10.662+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:10.665+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:10.968+02:00 WARN  [:] c.r.backend.web.AuthController - login failed username=journey.agent+1791269045158@agents.example
+2026-10-06T08:44:10.968+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 401
+2026-10-06T08:44:11.214+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=4d999667-ca42-470c-a062-6eedea1d15d9 role=AGENT username=journey.agent+1791269045158@agents.example
+2026-10-06T08:44:11.214+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:11.227+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:11.231+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:11.238+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:11.240+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:11.245+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:11.248+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:11.252+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:11.258+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:11.260+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:11.261+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:11.324+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:11.333+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients/8e3655a5-aacf-42ab-a246-47f93f3f8872/testers -> 200
+2026-10-06T08:44:11.338+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/clients -> 200
+2026-10-06T08:44:11.626+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=7c3da09a-d91a-45a1-946f-0df8e33b9901 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:11.633+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/clients/8e3655a5-aacf-42ab-a246-47f93f3f8872/testers/1ade53c4-3ab5-4316-9622-a6114f07fb15/password -> 200
+2026-10-06T08:44:11.987+02:00 WARN  [:] c.r.backend.web.AuthController - login failed username=journey.tester+1791269045158@client.example
+2026-10-06T08:44:11.987+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 401
+2026-10-06T08:44:12.231+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=7c3da09a-d91a-45a1-946f-0df8e33b9901 role=TESTER username=journey.tester+1791269045158@client.example
+2026-10-06T08:44:12.231+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:12.247+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:12.249+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:12.255+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/me/client -> 200
+2026-10-06T08:44:12.257+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/me/client -> 200
+2026-10-06T08:44:12.263+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:12.264+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:12.266+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/me/client/latest-client-invoices -> 200
+2026-10-06T08:44:12.266+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/me/client/latest-client-invoices -> 200
+2026-10-06T08:44:12.275+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/sim-cards -> 200
+2026-10-06T08:44:12.275+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/sim-cards -> 200
+2026-10-06T08:44:12.275+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/smartphones -> 200
+2026-10-06T08:44:12.275+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:12.275+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/smartphones -> 200
+2026-10-06T08:44:12.281+02:00 INFO  [11111111-1111-1111-1111-111111111111:7c3da09a-d91a-45a1-946f-0df8e33b9901] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:12.343+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:12.353+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:12.353+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/standing-amounts -> 200
+2026-10-06T08:44:12.358+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:12.466+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=LOGIN_DEACTIVATED entity=User entityId=4d999667-ca42-470c-a062-6eedea1d15d9 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:12.471+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/login/deactivate -> 200
+2026-10-06T08:44:12.532+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:12.543+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/standing-amounts -> 200
+2026-10-06T08:44:12.543+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:12.551+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:12.609+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 401
+2026-10-06T08:44:12.836+02:00 WARN  [:] c.r.backend.web.AuthController - login refused deactivated userId=4d999667-ca42-470c-a062-6eedea1d15d9 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:12.837+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 401
+2026-10-06T08:44:12.961+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 401
+2026-10-06T08:44:12.967+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/client-invoice -> 401
+2026-10-06T08:44:12.981+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:12.992+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/standing-amounts -> 200
+2026-10-06T08:44:12.993+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:13.001+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:13.075+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:13.087+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:13.123+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:13.134+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/standing-amounts -> 200
+2026-10-06T08:44:13.134+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:13.144+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:13.255+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=LOGIN_REACTIVATED entity=User entityId=4d999667-ca42-470c-a062-6eedea1d15d9 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:13.258+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/login/reactivate -> 200
+2026-10-06T08:44:13.275+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:13.286+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:13.286+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/standing-amounts -> 200
+2026-10-06T08:44:13.294+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:13.483+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=4d999667-ca42-470c-a062-6eedea1d15d9 role=AGENT username=journey.agent+1791269045158@agents.example
+2026-10-06T08:44:13.483+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:13.495+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:13.495+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me -> 200
+2026-10-06T08:44:13.505+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:13.505+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:13.514+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:13.514+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts -> 200
+2026-10-06T08:44:13.521+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:13.522+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/requests -> 200
+2026-10-06T08:44:13.525+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:13.525+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:13.607+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 401
+2026-10-06T08:44:22.085+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+2026-10-06T08:44:22.086+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:31.048+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+2026-10-06T08:44:31.049+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:31.237+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=PASSWORD_CHANGED entity=User entityId=4d999667-ca42-470c-a062-6eedea1d15d9 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:31.240+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/login/password -> 200
+2026-10-06T08:44:31.339+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=4d999667-ca42-470c-a062-6eedea1d15d9 role=AGENT username=journey.agent+1791269045158@agents.example
+2026-10-06T08:44:31.339+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:31.361+02:00 INFO  [11111111-1111-1111-1111-111111111111:4d999667-ca42-470c-a062-6eedea1d15d9] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 200
+2026-10-06T08:44:31.373+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=LOGIN_DEACTIVATED entity=User entityId=4d999667-ca42-470c-a062-6eedea1d15d9 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:31.377+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/login/deactivate -> 200
+2026-10-06T08:44:31.387+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - GET /api/me/agent -> 401
+2026-10-06T08:44:31.480+02:00 WARN  [:] c.r.backend.web.AuthController - login refused deactivated userId=4d999667-ca42-470c-a062-6eedea1d15d9 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:31.480+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 401
+2026-10-06T08:44:31.496+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents -> 200
+2026-10-06T08:44:31.519+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/invoice -> 200
+2026-10-06T08:44:31.540+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - GET /api/contracts/bc9697cb-324d-4d75-ae4c-ad683edcd9d9/client-invoice -> 200
+2026-10-06T08:44:31.550+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=LOGIN_REACTIVATED entity=User entityId=4d999667-ca42-470c-a062-6eedea1d15d9 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+2026-10-06T08:44:31.551+02:00 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.b.logging.RequestLoggingFilter - POST /api/agents/66c19ee6-e61e-4276-a739-c64b5ebb43be/login/reactivate -> 200
+2026-10-06T08:44:31.645+02:00 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=4d999667-ca42-470c-a062-6eedea1d15d9 role=AGENT username=journey.agent+1791269045158@agents.example
+2026-10-06T08:44:31.645+02:00 INFO  [:] c.r.b.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+2026-10-06T08:44:35.259+02:00 INFO  [:] o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-06T08:44:35.260+02:00 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2026-10-06T08:44:35.262+02:00 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.

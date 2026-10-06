@@ -13,6 +13,7 @@ separated by ` · `.
 
 ## frontend
 
+- `frontend/tests/e2e/helpers.ts` · smell: Possibly flaky logout helper · in the login-lifecycle journey run the shared `logout` helper's click on the Manager's Log out failed once with "element is not stable… detached"; unexplained, not reproduced · login-lifecycle · 2026-10-06
 - `frontend/components/agent/agent-client-invoice-card.tsx` · smell: Duplicated invoice layout · the summary, Fee-lines and Carrier-files sections closely repeat `frontend/components/manager/client-invoice-detail-view.tsx`; the Manager view also re-implements the focus-on-status-change logic of `frontend/components/agent/client-invoice-status-note.tsx` · send-a-client-invoice-back · 2026-10-06
 - `frontend/app/agent/client-invoices/[invoiceId]/page.tsx` · smell: Silent degraded title · the Contracts read uses `backendFetchList`, which turns a failure into [] without logging, so the title quietly falls back to 'Client Invoice'; use `backendFetchJsonOrNull` · send-a-client-invoice-back · 2026-10-06
 - `frontend/components/agent/client-invoices-view.tsx` · smell: Long Contract names lose the country · the clamped Contract cell in the 'Sent back to you' table cuts long names before the country, with no title, and the Open link's accessible name omits the country · send-a-client-invoice-back · 2026-10-06

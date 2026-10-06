@@ -1,0 +1,33 @@
+- alert: Dashboard · Remote Support Platform
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Dashboard" [level=1]
+  - paragraph: Journey Agent 1791269045158 · France
+  - button "Journey Agent 1791269045158 · Agent"
+  - button "Switch to dark theme"
+- main:
+  - text: Local Support Fees — October 2026 €0.00 Running total, all your Contracts Open Requests 0 Submitted or In Progress My Invoice status Draft October 2026 Standing salary + advance €2,400.00 + €0 Rollout Advance
+  - heading "Recent Requests" [level=2]
+  - paragraph: Across all your Contracts
+  - link "Open queue":
+    - /url: /agent/requests
+  - paragraph: No Requests yet
+  - paragraph: Requests from your Contracts' Testers will show up here.

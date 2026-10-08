@@ -11,26 +11,28 @@ date: 2026-10-06
 
 ## Problem
 
-A Company Manager who finds an amount wrong on an invoice that has already
-been sent or approved has no way to correct it. An approved Client Invoice is
-final (ADR 0001, ADR 0005), an Agent Invoice only moves forward (ADR 0003),
-and a Fee can never be edited, voided or back-dated (`FeeController` puts a
-new Fee in the month it is logged). So the error stays on the record, and
-settling it happens outside the app, from memory.
+A Company Manager who finds an amount wrong on a Client Invoice of a month
+that has already closed has no way to correct it. Fees can never be edited,
+voided or back-dated (`FeeController` puts a new Fee in the month it is
+logged), and once a month is closed nobody may edit its invoices. So the
+error stays on the record, and settling it happens outside the app, from
+memory.
 
-The human settled how the business works (2026-09-30, epic `## Reworked`):
-when an invoice is wrong after sending or approval, **the Manager** corrects
-it on the **following month's** invoice. A past month is never reopened.
-Send-back stays for errors caught before approval; there is no
-`correct-a-fee`.
+The human settled how the business works, in two steps:
 
-There is a second, already-promised gap. Since `edit-client-invoice-lines`, the
-Agent's pay follows each Client Invoice's billed lines until the Agent Invoice
-of that month is approved (the human's answers of 2026-10-01 and 2026-10-02,
-ADR 0004). An edit made after that approval, typically on a last-month
-Client Invoice the Manager sent back, moves nothing: ADR 0004's table calls
-the difference "a carry-over for `invoice-adjustment`". Today nothing records
-that carry-over. It is described, and then lost.
+- 2026-09-30 (epic `## Reworked`): a past month is never reopened; the
+  **Manager** corrects it on a later month's invoice. There is no
+  `correct-a-fee`.
+- 2026-10-08 (epic `## Reworked`, inbox `adjustment-which-month`): **the 5th
+  closes the month.** Until the 5th of the following month a month's Client
+  Invoice and Agent Invoice stay editable, draft, sent or approved, and an
+  Agent's edit moves that month's pay directly. From the 6th the month is
+  closed for everyone; an invoice not yet approved by then stays open, is
+  flagged Late, and closes on approval. That rule is the earlier feature
+  `month-closes-on-the-fifth`, which this spec depends on and does not
+  re-specify. Once a month is closed, **only an adjustment** corrects it: the
+  Manager records it, it lands on the **current month's** Client Invoice, and
+  it **moves the Agent's pay by the same amount**.
 
 A correction can lower an amount, which nothing in the app can express
 today: a Fee must be greater than zero (`FeeCreateRequest`), and a Client
@@ -38,8 +40,9 @@ Invoice line's amount is checked `>= 0`.
 
 ## Journeys
 
-Advances `docs/roadmap/invoice-correction-and-history.md`, the third of its
-features, after `edit-client-invoice-lines` and `send-a-client-invoice-back`.
+Advances `docs/roadmap/invoice-correction-and-history.md`, the fourth of its
+features, after `edit-client-invoice-lines`, `send-a-client-invoice-back` and
+`month-closes-on-the-fifth`.
 
 - **Send an invoice back for correction** (`wanted`, stays `wanted`). This
   feature delivers the epic's proof sentence "a Manager who finds an error
@@ -48,11 +51,11 @@ features, after `edit-client-invoice-lines` and `send-a-client-invoice-back`.
   `send-an-agent-invoice-back` lands too, so `docs/journeys.md` is not edited
   here.
 - **Bill the Client for the month** (`exists`, stays `exists`, extended). A
-  Client Invoice can carry adjustment lines below its base amount and Fees.
+  Client Invoice can carry adjustment lines below its lines.
 - **Get the Agent paid for the month** (`exists`, stays `exists`, extended).
-  An Agent Invoice can carry adjustments as a fifth figure beside its four,
-  and an edit made after the Agent Invoice's approval reaches a later month's
-  pay as a carry-over.
+  An adjustment landing on a Contract's Client Invoice moves the Agent's
+  Local Support Fees for that month by the same amount, through the payable
+  amount. The Agent Invoice gains no new figure.
 - **Work through what is waiting** (`exists`, stays `exists`). Review Queue
   totals include the adjustments an invoice carries. Membership is unchanged.
 - **Look back at finished invoices** (`wanted`): untouched. `invoice-history`
@@ -62,315 +65,311 @@ features, after `edit-client-invoice-lines` and `send-a-client-invoice-back`.
 
 **Goals**
 
-- From a Client Invoice that is `sent` or `approved`, a Manager records a
-  **Client adjustment**: a credit (lowers the bill) or a charge (raises it), an
-  amount in the Contract's currency, and a required reason.
-- From an Agent Invoice that is `sent`, `approved` or `paid`, a Manager
-  records an **Agent adjustment** the same way, in the Agent Invoice's
-  currency: a credit lowers the Agent's pay, a charge raises it.
-  *(Open question 1.)*
-- An adjustment is **pending** until it **lands**: it lands on the next
-  invoice of the same Contract (Client adjustment) or the same Agent (Agent
-  adjustment) that is sent for the first time, for the month it was recorded
-  in or later. Until then it shows on that invoice's draft as a pre-filled,
-  read-only line. *(Open question 4.)*
-- Once landed, an adjustment is part of that invoice's frozen figures, on
-  every surface that shows them: the detail pages, the Review Queue total,
-  and, for a Client adjustment, the Tester's view and the PDF.
-- An edit to a Client Invoice line, made while that month's Agent Invoice is
-  `approved` or `paid`, records a pending Agent adjustment of exactly the
-  edit's difference, automatically. *(Open question 5.)*
-- A Manager may withdraw an adjustment while it is pending, never after it
-  has landed.
-- The invoice an adjustment corrects lists it, pending, landed (and where) or
-  withdrawn, so the Manager can see the correction was made.
+- From a Client Invoice whose month is **closed** (as `month-closes-on-the-fifth`
+  defines it), a Manager records an **adjustment**: a credit (lowers the bill)
+  or a charge (raises it), an amount in the Contract's currency, and a
+  required reason. There is one kind of adjustment (2026-10-08).
+- The adjustment **lands on the current month's Client Invoice of the same
+  Contract** at the moment it is recorded. The Manager never picks the month
+  (2026-10-08).
+- It **moves the Agent's pay by the same amount**: the Contract's payable
+  amount for the receiving month includes it, so the Agent's Local Support
+  Fees for that month follow (2026-10-08). The one exception is a charge for
+  something the Agent was already paid for (open question 1).
+- It shows on the receiving invoice, on every surface that shows that
+  invoice's figures: the detail pages, the Agent's card, the Review Queue
+  total, the Tester's view and the PDF, each with the month it corrects and
+  its reason. The Agent sees it read-only (2026-10-08); the Client sees the
+  reason (2026-10-08).
+- A Manager may withdraw an adjustment until its receiving invoice is sent
+  (2026-10-08).
+- The invoice an adjustment corrects lists it, pending, on a sent invoice
+  (which one) or withdrawn, so the Manager can see the correction was made.
 
 **Non-goals.** Each of these is something a reasonable agent would otherwise
 build.
 
-- **No reopening a past month.** No adjustment ever lands on the invoice it
-  corrects, or on any invoice of an earlier month than the one it was
-  recorded in. An approved Client Invoice and an approved or paid Agent
-  Invoice stay final (ADR 0001, ADR 0003, ADR 0005).
+- **No closing rule here.** When a month closes, the Late flag, and what an
+  edit to a sent or approved open-month invoice does to its review are
+  `month-closes-on-the-fifth`'s. This spec only reads "is this invoice's month
+  closed".
+- **No adjustment on an open month.** Before the month closes the invoice is
+  edited or sent back instead; the record action is not offered.
+- **No reopening a closed month.** No adjustment ever lands on the invoice it
+  corrects or on any closed month.
+- **No Agent Invoice adjustment, and no adjustment to the Agent's pay alone**
+  (2026-10-08, the two-kinds design declined). An adjustment always sits on
+  the Client's bill. A Salary or Rollout Advance error is corrected before
+  the month closes, by the Manager's existing override.
+- **No automatic carry-over** (2026-10-08). No adjustment is ever generated
+  from an edit: until the 5th an Agent's edit moves that month's pay directly,
+  and after it the Agent cannot edit. `ClientInvoiceService.editLine` is not
+  touched.
+- **No rule for a credit larger than the invoice it lands on** (2026-10-08;
+  epic `## Later`). Nothing is split, carried on or refused; the receiving
+  invoice's total is the plain sum of its lines and adjustments.
+- **No choosing the receiving month.** It is always the current billing month.
 - **No editing, voiding or back-dating a Fee.** An adjustment is not a Fee,
   has no Request, and never changes a Fee row. There is no `correct-a-fee`.
 - **No negative Fee and no negative Client Invoice line.** `FeeCreateRequest`'s
   `> 0` rule and the line's `amount >= 0` check stay. Only an adjustment can
   be negative.
-- **No Agent-made adjustment.** Only a Manager records or withdraws one. The
-  Agent's only path to one is the automatic carry-over of their own edit.
-- **No editing an adjustment.** A wrong pending adjustment is withdrawn and
-  recorded again. A landed one is corrected by another adjustment.
-- **No choosing the receiving month.** The Manager does not pick where an
-  adjustment lands (open question 4's recommendation).
-- **No adjustment on a resend.** A sent-back invoice's resend takes no
-  adjustment; only a first send lands them. A sent-back invoice keeps the
-  adjustments it landed at its first send, as sent.
-- **No splitting a credit across months.** A credit larger than the receiving
-  invoice lands whole (open question 6).
-- **No Client adjustment moving the Agent's pay, and no Agent adjustment
-  moving the Client's bill** (open question 1's recommendation). When both
-  are wrong, the Manager records one of each.
-- **No Agent refusal, acknowledgement or dispute flow** (open question 2's
-  recommendation).
-- **No notification** of any kind. The pending line on the draft is the
-  signal, as the sent-back list was for send-back.
-- **No list of all pending adjustments across the Tenant.** They are seen on
-  the invoice they correct and on the draft that will receive them.
+- **No Agent-made adjustment.** Only a Manager records or withdraws one.
+- **No Agent refusal, acknowledgement or dispute flow** (2026-10-08). The
+  Agent sees it and settles any disagreement with the Manager outside the app.
+- **No editing an adjustment.** A wrong pending one is withdrawn and recorded
+  again; one already on a sent invoice is corrected by another adjustment.
+- **No separate adjustment figure on the Agent Invoice.** Its Local Support
+  Fees include the adjustment the way they include every billed line.
+- **No notification** of any kind. The line on the draft is the signal.
+- **No list of all adjustments across the Tenant.** They are seen on the
+  invoice they correct and on the invoice that receives them.
   `invoice-history` may add one.
-- **No change to the Manager's Agent Invoice override** (ADR 0003). It still
-  covers only Salary and the new-advance line of a `sent` invoice.
-- **No settling outside an invoice.** An adjustment for a Contract or an
-  Agent that never sends another invoice stays pending, visible on the
-  invoice it corrects.
+- **No settling outside an invoice.** An adjustment whose receiving invoice is
+  never sent stays pending on it.
 - **No Agent Invoice send-back.** That is `send-an-agent-invoice-back`.
 - **No dropping of the dead snapshot structures** (`snapshotBaseAmount`,
   `ClientInvoiceFeeSnapshot`). Still a later contract step.
 
 ## User stories
 
-1. As a Company Manager, I want to record a credit on a sent or approved Client Invoice I find was overbilled, with a reason, so that the Client is refunded on next month's invoice without reopening this one.
-2. As a Company Manager, I want to record a charge on a sent or approved Client Invoice I find was underbilled, with a reason, so that the Client pays what was missed on next month's invoice.
-3. As a Company Manager, I want to record a credit or a charge on a sent, approved or paid Agent Invoice I find wrong, with a reason, so that the Agent's pay is put right on their next Agent Invoice.
+1. As a Company Manager, I want to record a credit on a closed Client Invoice I find was overbilled, with a reason, so that the Client is refunded on the current month's invoice without reopening the closed one.
+2. As a Company Manager, I want to record a charge on a closed Client Invoice I find was underbilled, with a reason, so that the Client pays what was missed on the current month's invoice.
+3. As a Company Manager, I want an adjustment to move the Agent's pay for the current month by the same amount, so that the Agent is paid on what the Client is really billed without my recording anything twice.
 4. As a Company Manager, I want to enter the amount as a positive figure and choose credit or charge, so that I never have to reason about signs.
 5. As a Company Manager, I want to be refused, inline and with my input kept, an empty reason, a reason over 1000 characters, a zero, negative, blank or over-precise amount, so that I fix the input rather than start again.
-6. As a Company Manager, I want no adjustment action on a draft invoice, so that an error caught before sending is fixed by the Agent or by a send-back instead.
-7. As a Company Manager, I want the invoice I corrected to list every adjustment recorded from it, its amount, reason, whether it is pending, landed (on which invoice) or withdrawn, so that I can see the correction was made and where it went.
-8. As a Company Manager, I want to withdraw a pending adjustment I recorded by mistake, so that a wrong correction never reaches an invoice.
-9. As a Company Manager, I want a landed adjustment to have no withdraw action, so that a figure already sent never moves.
-10. As a Company Manager, I want an adjustment to land on the Contract's (or the Agent's) next invoice to be sent, without choosing a month, so that it cannot be aimed at a month already closed.
-11. As a Company Manager reviewing a sent invoice, I want its landed adjustments shown as their own lines, with the month they correct and the reason, and included in the total, so that I approve the real amount knowing why it differs.
-12. As a Company Manager, I want the Review Queue total of an invoice to include its landed adjustments, so that the queue and the invoice agree.
-13. As a Company Manager whose page is stale (the invoice was sent back, or the adjustment already landed or was withdrawn), I want a clear message telling me to refresh, so that I do not assume my action worked.
-14. As an Agent, I want my Client Invoice draft to show each pending Client adjustment for its Contract as a read-only line, with the month it corrects and the Manager's reason, and its total to include it, so that I send what will actually be billed.
-15. As an Agent, I want my Agent Invoice draft to show each pending Agent adjustment as a read-only line, with the month it corrects and the reason, and its total to include it, so that I see my pay as it will be.
+6. As a Company Manager, I want no adjustment action on an invoice whose month is still open (draft, sent, approved before the 6th, or Late and not yet approved), so that an error caught in time is edited or sent back instead.
+7. As a Company Manager, I want the reason field labelled "Shown to the Client on the invoice", so that I write it for the Client.
+8. As a Company Manager, I want an adjustment to land on the current month's Client Invoice of the same Contract, without choosing a month, so that it can never be aimed at a closed month.
+9. As a Company Manager, I want the invoice I corrected to list every adjustment recorded from it, its amount, reason, and whether it is pending, on a sent invoice (which one) or withdrawn, so that I can see the correction was made and where it went.
+10. As a Company Manager, I want to withdraw an adjustment while its receiving invoice has not been sent, so that a wrong correction never reaches a sent invoice.
+11. As a Company Manager, I want an adjustment whose receiving invoice was sent to have no withdraw action, so that a figure already sent is corrected only by another adjustment.
+12. As a Company Manager reviewing a sent invoice, I want its adjustments shown as their own lines, with the month they correct and the reason, and included in the total, so that I approve the real amount knowing why it differs.
+13. As a Company Manager, I want the Review Queue totals of the Client Invoice and of the Agent's Agent Invoice to include the adjustments, so that the queue and the invoices agree.
+14. As a Company Manager whose page is stale (the receiving invoice was sent, or the adjustment was already withdrawn), I want a clear message telling me to refresh, so that I do not assume my action worked.
+15. As an Agent, I want my Client Invoice to show each adjustment it receives as a read-only line, with the month it corrects and the Manager's reason, and its total to include it, so that I send what will actually be billed.
 16. As an Agent, I want an adjustment line to have no edit or reset control, so that it is clear the correction is the Manager's.
-17. As an Agent, I want sending my invoice to land exactly the adjustments it showed, and those to stay on it as sent, so that what I sent is what is reviewed.
-18. As an Agent, I want an adjustment recorded after I sent this month's invoice to wait for next month's, so that a sent invoice never changes under me.
-19. As an Agent, I want a sent-back invoice to keep the adjustments it landed at its first send, and to take no new one on its resend, so that correcting it never pulls in an unrelated correction.
-20. As an Agent who edits a Client Invoice line after that month's Agent Invoice was approved or paid, I want the difference recorded automatically as a pending Agent adjustment, so that my pay is corrected next month instead of the difference being lost.
-21. As an Agent, I want that automatic carry-over to say which Client Invoice, month and line it came from, and by how much, so that I can check it.
-22. As a Company Manager, I want an automatic carry-over to appear on the corrected Agent Invoice like any adjustment, marked as a carry-over, and to be withdrawable while pending, so that I keep control of what is paid.
-23. As an Agent, I want an edit made while my Agent Invoice is a draft or sent to move my pay exactly as it does today, and to record no carry-over, so that nothing is counted twice.
-24. As an Agent, I want a Client adjustment on my Contract's invoice to leave my Local Support Fees unchanged, so that a correction to the Client's bill does not silently change my pay.
-25. As a Tester, I want a sent or approved Client Invoice to show its adjustment lines, each labelled with the month it corrects (and the reason, per open question 3), and its total to include them, so that I understand why this month's bill differs from the work done.
-26. As a Tester, I want the PDF to show the same adjustment lines and total, so that the document and the page agree.
-27. As a Tester, I want to see no pending adjustment and no Agent adjustment, so that I see only the Client's own statement once sent.
-28. As the company, I want an invoice whose credit exceeds its other lines to show its true, negative total, so that no credit is lost or invented (open question 6).
-29. As the company, I want every adjustment recorded, withdrawn and landed written to the audit log (who, which, amount, without the reason's text), so that every correction can be traced.
-30. As the company, I want an adjustment to always name the invoice it corrects, so that an amount with no Request still traces back to a reviewed record.
-31. As an Agent or a Tester, I want to be unable to record or withdraw an adjustment, so that it stays the Manager's power.
-32. As a Manager of one Tenant, I want every adjustment route on another Tenant's invoice refused as if it did not exist, so that the Tenant boundary holds.
-33. As an Agent, I want to see adjustments only on my own Contracts' and my own invoices, so that I never see another Agent's.
-34. As the company, I want a first send and an adjustment recorded or withdrawn at the same moment to leave the adjustment either landed on that invoice or still pending, never both or neither, so that every adjustment lands exactly once.
-35. As everyone already using the product, I want invoices with no adjustment to look, total and behave exactly as before, so that this change carries no release risk.
-36. As a Manager or an Agent working by keyboard or on a phone, I want the adjustment form, the adjustment list and the adjustment lines usable without a mouse and at the mobile breakpoint, so that the action is available wherever I work.
+17. As an Agent, I want my Local Support Fees for the month to move by each adjustment my Contract's Client Invoice receives, so that my pay follows the corrected bill.
+18. As an Agent, I want an adjustment recorded after I sent this month's Client Invoice to appear on it and move my pay, since the month is still open, so that a correction is never deferred to a month later than the current one.
+19. As an Agent, I want a sent-back invoice to keep the adjustments it receives, so that correcting it never drops a correction.
+20. As the company, I want a charge for something the Agent was already paid for to leave the Agent's pay unchanged, so that the Agent is never paid twice (open question 1).
+21. As a Tester, I want a sent or approved Client Invoice to show its adjustment lines, each labelled with the month it corrects and the reason, and its total to include them, so that I understand why this month's bill differs from the work done.
+22. As a Tester, I want the PDF to show the same adjustment lines and total, so that the document and the page agree.
+23. As the company, I want every adjustment recorded and withdrawn written to the audit log (who, which, amount, without the reason's text), so that every correction can be traced.
+24. As the company, I want an adjustment to always name the invoice it corrects, so that an amount with no Request still traces back to a reviewed record.
+25. As an Agent or a Tester, I want to be unable to record or withdraw an adjustment, so that it stays the Manager's power.
+26. As a Manager of one Tenant, I want every adjustment route on another Tenant's invoice refused as if it did not exist, so that the Tenant boundary holds.
+27. As an Agent, I want to see adjustments only on my own Contracts' invoices, so that I never see another Agent's.
+28. As the company, I want a record or a withdraw racing a send of the receiving Client Invoice or of the Agent's Agent Invoice to leave the adjustment counted exactly once on the bill and once in the pay, so that no money is lost or doubled.
+29. As everyone already using the product, I want invoices with no adjustment to look, total and behave exactly as before, so that this change carries no release risk.
+30. As a Manager or an Agent working by keyboard or on a phone, I want the adjustment form, the adjustment list and the adjustment lines usable without a mouse and at the mobile breakpoint, so that the action is available wherever I work.
 
 ## Solution
 
-### Builds on the delivered siblings, unchanged
+### Builds on, unchanged
 
+- **`month-closes-on-the-fifth`** (must be merged first). This spec needs one
+  thing from it: a predicate saying whether a Client Invoice's month is
+  closed (approved, and past the 5th of the following month; a Late invoice
+  closes on approval). It also relies on that feature's rule that an edit to
+  an open month's Client Invoice, whatever its status, moves that month's
+  Agent Invoice's Local Support Fees (the human's 2026-10-08 words). If that
+  feature leaves a status in which an open-month edit does not move pay, the
+  adjustment's pay effect has a hole there, and the ticket must stop and
+  raise it.
 - **The line model and the one resolution** (`edit-client-invoice-lines`,
   ADR 0004): `ClientInvoiceService.lines(invoice)` stays the only place that
-  decides an invoice's lines, and keeps resolving `POSTPAID_SIM`, `FEE` and
-  `BASE_AMOUNT` lines exactly as today. Adjustments are **not** Client Invoice
-  lines (see Decisions taken); they are resolved beside the lines, by one
-  new operation, and the response, the total, the PDF and the queue sums add
-  them.
-- **The pay rule** (ADR 0004): `ContractAmountService.payableAmountForMonth`
-  is unchanged and never reads a Client adjustment (open question 1). The
-  lifecycle table gains its carry-over row's effect, below.
-- **Send-back** (ADR 0005): a send-back leaves landed adjustments as they are;
-  a resend lands none.
+  decides an invoice's lines. Adjustments are **not** Client Invoice lines
+  (see Decisions taken); they are resolved beside the lines by one new
+  operation, and the response, the total, the PDF, the queue sums and the
+  payable amount add them.
+- **Send-back** (ADR 0005): a send-back leaves a receiving invoice's
+  adjustments on it.
 - **The row locks and their order**: Client Invoice, then Agent, then Agent
-  Invoice. Every new write here takes the locks it needs in that order.
+  Invoice. Every new write takes the locks it needs in that order.
 
 ### The model: an adjustment
 
-Two tables, one per invoice type, because the two have different owners and
-different correcting/receiving invoices:
+One table:
 
 ```
-client_invoice_adjustments                 agent_invoice_adjustments
-  id, tenant_id                              id, tenant_id
-  contract_id         (receiver's owner)     agent_id            (receiver's owner)
-  corrects_invoice_id → client_invoices      corrects_invoice_id → agent_invoices
-  amount   numeric(12,2), <> 0, signed       amount   numeric(12,2), <> 0, signed
-  currency (copied from the Contract)        currency (copied from the Agent Invoice)
-  reason   varchar(1000), not blank          reason   varchar(1000), not blank
-                                             origin   MANAGER | CARRY_OVER
-                                             carry_over_line_id → client_invoice_lines (CARRY_OVER only)
-  recorded_month date (first of month, UTC)  recorded_month
-  recorded_at, recorded_by                   recorded_at, recorded_by
-  landed_invoice_id → client_invoices null   landed_invoice_id → agent_invoices null
-  landed_at null                             landed_at null
-  withdrawn_at, withdrawn_by null            withdrawn_at, withdrawn_by null
-  check: not (landed and withdrawn)          check: not (landed and withdrawn)
+invoice_adjustments
+  id, tenant_id
+  contract_id
+  corrects_invoice_id → client_invoices     (closed when recorded)
+  receiving_month     date, first of month  (the billing month current when recorded)
+  amount   numeric(12,2), <> 0, signed      (credit negative, charge positive)
+  currency (copied from the Contract)
+  reason   varchar(1000), not blank
+  recorded_at, recorded_by
+  withdrawn_at, withdrawn_by null
+  -- per open question 1's recommendation only:
+  already_paid_fee_id → fees null, already_paid_sim_card_id → sim_cards null
 ```
 
-A credit is stored negative, a charge positive. An adjustment is:
+The receiving invoice is addressed by `(contract_id, receiving_month)`, not by
+an id: the current month's Client Invoice may not exist as a row yet (it is
+get-or-created on first view), and the pair names it either way. The
+receiving month is always open, because the current month closes only on the
+6th of the next, so an adjustment can never land on a closed month or on the
+invoice it corrects.
+
+Its state is derived, never stored:
 
 ```
-PENDING   ──first send of a receiving invoice──▶ LANDED   (final)
-   │
-   └──withdraw (Manager)──▶ WITHDRAWN (final)
+WITHDRAWN  withdrawn_at set                                          (final)
+PENDING    not withdrawn; receiving invoice absent or DRAFT          (withdrawable)
+SENT       not withdrawn; receiving invoice SENT or APPROVED         (not withdrawable)
 ```
 
-`PENDING` = neither landed nor withdrawn. No status column: the state is
-derived from the two timestamps, as "sent back" is from `sentBackAt`.
-
-**Which invoice receives it.** An invoice of month M (Client Invoice of the
-adjustment's Contract, or Agent Invoice of its Agent) receives every pending
-adjustment with `recorded_month <= M`, **at its first send only**:
-
-- while that invoice is a draft never sent, its read shows those pending
-  adjustments as read-only lines, and its total includes them;
-- its first send, under the invoice's row lock, stamps `landed_invoice_id` and
-  `landed_at` on every pending adjustment it showed or that is pending at that
-  moment, in the same transaction;
-- from `sent` onward the invoice's adjustments are exactly the rows stamped
-  with its id. Nothing else ever joins it: a resend after a send-back lands
-  none, and a sent-back draft shows its landed adjustments, read-only, and no
-  pending one.
-
-So an adjustment recorded from September's invoice in early October lands on
-October's invoice when it is first sent. One recorded after October's was sent
-waits for November's. It can never land on the month it corrects or an
-earlier one, because the invoice it corrects is already past its first send,
-and every earlier month's invoice either was too or can no longer be sent
-(an invoice is first-sent only for the current month).
+A send-back of the receiving invoice returns its adjustments to `PENDING`
+(the invoice is a draft again, "until the invoice is sent" holds again). Once
+the receiving month closes, `SENT` is final.
 
 ### What a Manager does
 
-- **Record.** `POST /api/client-invoices/{id}/adjustments` and
-  `POST /api/agent-invoices/{id}/adjustments`, Manager only, body
-  `{ "kind": "CREDIT" | "CHARGE", "amount": "12.50", "reason": "…" }`.
-  `amount` is positive, at most two decimals, within the invoice amount
-  bounds already used for lines. `201` with the adjustment; `400` invalid
-  body; `404` not in the caller's Tenant; `409` when the corrected invoice is
-  a `DRAFT` (Client: `SENT` or `APPROVED` accepted; Agent: `SENT`, `APPROVED`
-  or `PAID`); `403` for any other role. It sets `recorded_month` to the
-  current billing month (UTC) and `currency` from the corrected invoice.
-- **Withdraw.** `POST /api/{client|agent}-invoice-adjustments/{adjustmentId}/withdraw`,
-  Manager only. `200`; `409` when it has landed or was already withdrawn
-  (coded body `ADJUSTMENT_NOT_PENDING`, carried by a `Reason` enum as the other
-  coded conflicts do). It re-reads the adjustment `FOR UPDATE`, so a withdraw
-  and a first send that race each other leave it in exactly one final state.
+- **Record.** `POST /api/client-invoices/{id}/adjustments`, Manager only,
+  body `{ "kind": "CREDIT" | "CHARGE", "amount": "12.50", "reason": "…" }`.
+  `amount` is positive, at most two decimals, within the amount bounds
+  already used for lines. `201` with the adjustment; `400` invalid body;
+  `404` not in the caller's Tenant; `409` coded `INVOICE_MONTH_NOT_CLOSED`
+  when `{id}`'s month is open; `403` for any other role. It sets
+  `receiving_month` to the current billing month, `currency` from the
+  Contract. In one transaction it locks the receiving Client Invoice if it
+  exists, then the Agent Invoice of the receiving month if it exists, writes
+  the row, and moves that Agent Invoice's Local Support Fees by the amount
+  exactly as a line edit of that month would (see below).
+- **Withdraw.** `POST /api/invoice-adjustments/{adjustmentId}/withdraw`,
+  Manager only. `200`; `409` coded `ADJUSTMENT_NOT_PENDING` when it is
+  `SENT` or `WITHDRAWN`, carried by a `Reason` enum as the other coded
+  conflicts are. It takes the same locks as a record, re-reads the
+  adjustment, and moves pay back by the amount.
 - **See.** The corrected invoice's by-id response gains
-  `adjustmentsRecorded`: every adjustment recorded from it, with `state`
-  (`PENDING`, `LANDED`, `WITHDRAWN`), and for a landed one the receiving
-  invoice's id and billing month.
+  `adjustmentsRecorded`: every adjustment recorded from it, with `state`, and
+  the receiving month (and invoice id, when it exists).
 
-### What an invoice carries
+### What a Client Invoice carries
 
-`ClientInvoiceResponse` and `AgentInvoiceResponse` each gain:
+`ClientInvoiceResponse` gains:
 
-- `adjustments`: the adjustments this invoice carries (pending ones on a never-sent draft,
-  landed ones from `sent` onward and on a sent-back draft), each
-  `{ id, amount, correctsBillingMonth, reason, origin, pending }`;
+- `adjustments`: every non-withdrawn adjustment with this invoice's Contract
+  and `receiving_month = billingMonth`, each
+  `{ id, amount, correctsBillingMonth, reason, pending }`;
 - `adjustmentsTotal`;
-- `totalAmount` now includes `adjustmentsTotal`.
+- `totalAmount` now includes `adjustmentsTotal`. Lines and the base amount
+  are unchanged.
 
-For a Client Invoice, `baseAmount` and the Fee lines are unchanged, and the
-total is lines plus adjustments. For an Agent Invoice the total is its four
-figures plus `adjustmentsTotal`; the four snapshot columns and ADR 0003's
-freeze are untouched, and the Manager's override still writes only Salary and
-new advance.
+Because the receiving month is fixed at record time, nothing is stamped at
+send: the invoice's adjustments are its rows, whatever its status. One
+recorded while the invoice is `SENT` or `APPROVED` appears on it at once;
+that is the human's rule (the current month's invoice, whatever its status)
+and, for the invoice's review state, a Manager edit of an open-month invoice
+under `month-closes-on-the-fifth`.
 
 - **Tester.** On a Client Invoice the Tester already sees (`SENT`, `APPROVED`),
-  each adjustment shows its amount and "Adjustment to the {Month YYYY}
-  invoice", with the reason per open question 3, and never `origin`. A Tester
-  is never shown `adjustmentsRecorded`. Agent adjustments are never in any
-  Tester-facing response.
+  each adjustment shows its amount, "Adjustment to the {Month YYYY} invoice"
+  and its reason (2026-10-08). A Tester is never shown `adjustmentsRecorded`.
 - **PDF.** The Client Invoice PDF renders an "Adjustments" block after the
-  Fees, with the same label as the Tester's, and the total including them.
-  It renders only what the response carries.
-- **Review Queue.** `ClientInvoiceQueueRow` and the Agent Invoice queue row
-  add the landed adjustments to their totals.
+  lines, same label and reason, and the total including them.
+- **Review Queue.** `ClientInvoiceQueueRow` adds the invoice's adjustments to
+  its total. The Agent Invoice queue row needs nothing: its Local Support
+  Fees already include them.
 
-### The carry-over, recorded automatically
+### The pay: same amount, through the payable amount
 
-ADR 0004's lifecycle table, with only its last row changed:
+`ContractAmountService.payableAmountForMonth(contract, month)` adds the
+`adjustmentsTotal` of `(contract, month)` in every branch (no Client Invoice,
+lines not stored, lines stored), minus any adjustment that open question 1
+excludes. So:
 
-| Agent Invoice of the edited month | Effect of the edit |
-|---|---|
-| none yet, or `DRAFT` | Nothing written; the draft reads the new figure live. |
-| `SENT` | Its Local Support Fees move by exactly the edit's difference, with an audit line. |
-| `APPROVED`, `PAID` | Nothing moves on it. A pending Agent adjustment of exactly the difference is recorded, `origin = CARRY_OVER`, correcting that Agent Invoice, `carry_over_line_id` the edited line. |
+- a `DRAFT` Agent Invoice of the receiving month reads it live;
+- a `SENT` one moves by the amount in the record's (or withdraw's)
+  transaction, with the existing `agentInvoiceLocalSupportFeesFollowed`
+  audit line, as ADR 0004's table does for a line edit;
+- an `APPROVED` or `PAID` one of an open month moves exactly as
+  `month-closes-on-the-fifth` makes a line edit move it.
 
-It is written inside `ClientInvoiceService.editLine`'s transaction, which
-already holds the Client Invoice lock and then the Agent Invoice lock, so no
-new lock order appears. Its reason is generated, not typed:
-"Carry-over: {Client} {Month YYYY} Client Invoice, {line description} edited
-from {old} to {new}". `recorded_by` is the editing Agent. An edit whose
-difference is zero records nothing. Each edit records its own adjustment, so
-an edit and its reset leave two that net to zero, both visible (see
-Decisions taken).
+This is why one kind can serve both sides: pay already follows what the
+Client Invoice bills (ADR 0004), so a credit for an overbilled SIM line
+removes pay the Agent got from that line, and a charge for an underbilled
+line pays what the Agent did not get. The only case it gets wrong is
+something of the closed month that pay counted **without** it being billed:
+ADR 0004 pays a Fee logged after the Client Invoice's send (and a Postpaid
+SIM added after it) at its computed amount even though the invoice never
+billed it. A charge for such a forgotten Topup would pay the Agent a second
+time. A Topup never logged in the app was never paid, and its charge
+correctly pays it once.
 
-Because a Client adjustment does not move pay (open question 1), the
-carry-over is the only path by which an invoice correction reaches pay
-automatically. A Manager correcting an error that hurt both the Client's bill
-and the Agent's pay records one of each.
+**Open question 1, as recommended:** on a charge, the form offers the closed
+invoice's paid-but-unbilled items (each Fee and Postpaid SIM of that month
+the invoice has no line for, with its computed amount). Picking one fills
+the amount, stores the item's id, and that adjustment is left out of the
+payable amount: it bills the Client and moves no pay, and its line reads
+"Already in the Agent's pay" to the Agent and the Manager (never to the
+Tester). The same item cannot be charged twice while a non-withdrawn
+adjustment names it.
 
 ### ADR
 
-**A new ADR 0006, "Corrections after sending settle forward as adjustments"**
-(numbered after 0005; if numbers shift at merge, the next free one). It
-records:
+**A new ADR 0006, "A closed month is corrected forward by an adjustment on the
+current month's Client Invoice"** (numbered after 0005; if numbers shift at
+merge, the next free one). It records:
 
 - an adjustment is the only signed amount in the billing model; Fees and
   Client Invoice lines stay non-negative;
 - an adjustment traces to the invoice it corrects, not to a Request. This
   narrows PRODUCT.md's principle "every billable amount traces back to a
   logged Request" for adjustments only, and the ADR says so;
-- it lands at a receiving invoice's first send and is then frozen with it,
-  so ADR 0001's and ADR 0003's reason (a reviewed figure never moves) holds;
-- ADR 0004's carry-over row is now realised as an automatic pending Agent
-  adjustment;
-- a Client adjustment does not enter the payable amount.
+- it exists only for a closed month and lands on the current month's Client
+  Invoice, never on a closed one;
+- it enters the Contract's payable amount for the receiving month, so the
+  Agent's pay moves by the same amount (amending ADR 0004's payable amount),
+  with open question 1's exception;
+- no adjustment is generated automatically; ADR 0004's "carry-over for
+  `invoice-adjustment`" row is not realised here (2026-10-08).
 
-ADR 0001, ADR 0003 and ADR 0004 each get a dated "Amended by ADR 0006" note.
-PRODUCT.md's principle 1 gets the same narrowing in the ADR's commit — a
-harness change the implementer declares and the merger applies.
+ADR 0004 gets a dated "Amended by ADR 0006" note. PRODUCT.md's principle 1
+gets the same narrowing in the ADR's commit, a harness change the implementer
+declares and the merger applies.
 
 ### Schema and contract
 
-- **Two additive migrations**, one per slice: `client_invoice_adjustments` at
-  the next free Flyway version at merge (V60 today), and
-  `agent_invoice_adjustments` at the one after. No existing row rewritten, no
-  existing check changed.
-- `ClientInvoiceResponse` and `AgentInvoiceResponse` gain `adjustments`,
-  `adjustmentsTotal` and (Manager by-id only) `adjustmentsRecorded`;
-  `totalAmount` includes the adjustments. For an invoice with none, every
-  existing field keeps its value.
+- **One additive migration**, `invoice_adjustments`, at the next free Flyway
+  version at merge. No existing row rewritten, no existing check changed.
+- `ClientInvoiceResponse` gains `adjustments`, `adjustmentsTotal` and
+  (Manager by-id only) `adjustmentsRecorded`; `totalAmount` includes the
+  adjustments. `AgentInvoiceResponse` changes shape not at all; its Local
+  Support Fees value includes them. For an invoice with none, every existing
+  field keeps its value.
 - New routes as above; `SecurityConfig` gets Manager-only matchers for the
   record and withdraw routes, before the broader invoice matchers.
-- Audit: three new `AuditLog` methods, `invoiceAdjustmentRecorded`,
-  `invoiceAdjustmentWithdrawn` and `invoiceAdjustmentsLanded` (type, ids,
-  signed amount, origin, actor, Tenant), never the reason's text.
+- Audit: two new `AuditLog` methods, `invoiceAdjustmentRecorded` and
+  `invoiceAdjustmentWithdrawn` (ids, signed amount, receiving month, actor,
+  Tenant), never the reason's text. A pay move reuses
+  `agentInvoiceLocalSupportFeesFollowed`.
 
 ### Frontend
 
-- **Manager, Client Invoice and Agent Invoice detail pages.** A
-  **Record adjustment** secondary control, shown while the invoice is past
-  `draft`, expanding an inline form in `SendBackClientInvoiceControl`'s shape:
-  a Credit / Charge segmented choice with a one-line hint each ("Lowers the
-  next invoice" / "Raises the next invoice"), an amount field with the
-  currency, a required reason textarea (labelled per open question 3), and
-  **Record** and **Back**. Below the invoice's own figures, an
-  "Adjustments recorded from this invoice" list: amount (signed, credit shown
-  with a minus), reason, state badge (Pending, Landed on {Month} with a link,
-  Withdrawn), and **Withdraw** on pending rows. The control takes its endpoint
-  URL, so both pages mount the same control.
-- **Every invoice view** (the Agent's Client Invoice card, the Agent's Agent
-  Invoice, the Manager's detail pages, the Tester's invoice): an
-  "Adjustments" block after the Fees (Client) or after the four figures
-  (Agent), one row per adjustment with "Adjustment to the {Month} invoice",
-  the reason where shown, the signed amount, a **Pending** badge on a draft's
-  pending ones, and **Carry-over** on a carry-over's row (not for a Tester).
-  The block is not rendered when the invoice has none.
-- **Line editor.** Adjustment rows never get the line editor's edit or
-  reset controls.
+- **Manager, Client Invoice detail page.** A **Record adjustment** secondary
+  control, shown only when the invoice's month is closed, expanding an inline
+  form in `SendBackClientInvoiceControl`'s shape: a Credit / Charge segmented
+  choice with a one-line hint each ("Lowers this month's invoice and the
+  Agent's pay" / "Raises this month's invoice and the Agent's pay"), an
+  amount field with the currency, a required reason textarea labelled
+  "Shown to the Client on the invoice" (2026-10-08), and **Record** and
+  **Back**. With Charge, the paid-but-unbilled picker of open question 1.
+  Below the invoice's own figures, an "Adjustments recorded from this
+  invoice" list: signed amount (credit with a minus), reason, state badge
+  (Pending on {Month}, On the {Month} invoice with a link, Withdrawn), and
+  **Withdraw** on pending rows.
+- **Every Client Invoice view** (the Agent's card, the Manager's detail page,
+  the Tester's invoice): an "Adjustments" block after the lines, one row per
+  adjustment with "Adjustment to the {Month} invoice", the reason, the signed
+  amount, a **Pending** badge while the invoice is a draft (not for a
+  Tester), and "Already in the Agent's pay" where open question 1 applies
+  (not for a Tester). The block is not rendered when there is none.
+- **Line editor.** Adjustment rows never get the line editor's controls.
+- **Agent Invoice pages**: unchanged; Local Support Fees carry the amount.
 - **BFF.** Pass-through proxies for the new routes with `backendFetch`.
 
 ## Design direction
@@ -378,15 +377,14 @@ harness change the implementer declares and the merger applies.
 **Operate**, built from shipped patterns; `DESIGN.md` does not change.
 
 - The record form copies the send-back form: 8px controls, `danger`-toned
-  inline error, the page's single pill (Approve, or Mark paid) unchanged
-  (Pill-Is-Primary Rule). The Credit / Charge choice uses the existing
-  segmented control.
+  inline error, the page's single pill unchanged (Pill-Is-Primary Rule). The
+  Credit / Charge choice uses the existing segmented control.
 - Amounts use the tabular figures the invoice pages already use. A credit is
   shown with a leading minus in the body colour, not in red: it is not an
   error.
-- The **Pending** badge is the `warning` tone ("awaiting" in DESIGN.md);
-  **Landed** and **Carry-over** are `neutral`; **Withdrawn** is `neutral`
-  with the row's text muted.
+- The **Pending** badge is the `warning` tone ("awaiting" in DESIGN.md); the
+  sent-on state and "Already in the Agent's pay" are `neutral`; **Withdrawn**
+  is `neutral` with the row's text muted.
 
 Visual goldens: **no new goldens**. Every adjustments block renders nothing
 when empty, so no existing golden should move; any golden that moves is a
@@ -394,25 +392,22 @@ finding.
 
 ## Constraints
 
-- Lands after `send-a-client-invoice-back` (merged). No dependency on
-  `send-an-agent-invoice-back`; when that lands, its resend follows this
-  spec's "first send only" rule.
-- Additive migrations only, at the next free version at merge. Flyway runs
+- Lands after `month-closes-on-the-fifth` (merged). No dependency on
+  `send-an-agent-invoice-back`.
+- Additive migration only, at the next free version at merge. Flyway runs
   with `outOfOrder=false`.
 - An adjustment's amount is non-zero, at most two decimals, signed only in
   storage; the API takes a kind and a positive amount.
-- An adjustment never lands on the invoice it corrects nor on any month
-  before its `recorded_month`; only a first send lands one; a landed or
-  withdrawn adjustment never changes again.
-- From `sent` onward an invoice's adjustments are fixed (ADR 0001, ADR 0003).
-- `payableAmountForMonth` never reads a Client adjustment (open question 1).
-- Locks: first send takes the invoice's row lock and stamps pending
-  adjustments in its transaction; withdraw locks the adjustment row; the
-  carry-over is written inside `editLine`'s existing lock order. A record
-  needs no invoice lock: a record committed after a send's stamp stays
-  pending for the next month.
-- The reason never appears in a log line or an audit line; to a Tester only
-  per open question 3; an Agent adjustment never reaches a Tester.
+- An adjustment is recorded only from a closed invoice and lands only on the
+  current billing month's invoice of the same Contract; its receiving month
+  never changes; a withdrawn one never changes again.
+- `payableAmountForMonth` includes every non-withdrawn adjustment of its
+  `(contract, month)`, except those open question 1 excludes.
+- Locks: record and withdraw take the receiving Client Invoice's lock, then
+  the receiving month's Agent Invoice's, as `editLine` does; withdraw re-reads
+  the adjustment under them. A send of either invoice and a record or withdraw
+  serialize on those locks.
+- The reason never appears in a log line or an audit line.
 - Backend tests run under `IntegrationTest`, rolled back per method; races
   commit and clean up. No repository mocks (Backend rule 5).
 - e2e and visual runs use the isolated stack; an e2e failure is judged
@@ -430,215 +425,171 @@ internals.
    `ClientInvoiceSendBackApiTest` (by-id Manager action, coded `409`, Tenant
    `404`, role `403`), `ClientInvoiceLineEditApiTest` (line resolution and
    totals), `LocalSupportFeesFollowClientInvoiceApiTest` (pay read through the
-   Agent Invoice's own response), `ClientInvoiceByIdApiTest`. New
-   `ClientInvoiceAdjustmentApiTest` and `AgentInvoiceAdjustmentApiTest`
-   cover: record on each allowed status and `409` on a draft; `400` cases;
-   the pending line on the next draft and its total; landing at first send;
-   a record after the send waiting for the next month (a past-month fixture
-   in `DemoDataLoader`'s shape plays the "next month" without a clock); no
-   landing on a resend after a send-back, and the landed ones kept on the
-   sent-back draft; withdraw while pending, `409 ADJUSTMENT_NOT_PENDING`
-   after; Tester view and `403`/`404` matrices; Review Queue totals; a Client
-   adjustment leaving Local Support Fees unchanged. A new
-   `ClientInvoiceLineEditCarryOverApiTest` (or new cases in
-   `LocalSupportFeesFollowClientInvoiceApiTest`) covers the carry-over row:
-   `APPROVED` and `PAID` record one of exactly the difference, `DRAFT` and
-   `SENT` record none, zero difference records none.
+   Agent Invoice's own response), `ClientInvoiceByIdApiTest`. A new
+   `InvoiceAdjustmentApiTest` covers: record on an approved invoice two months
+   back (closed whatever today's date) and `409 INVOICE_MONTH_NOT_CLOSED` on a
+   current-month invoice in each status; `400` cases; the adjustment on the
+   current month's draft and its total, and on a current-month invoice already
+   `SENT`; withdraw while pending, `409 ADJUSTMENT_NOT_PENDING` once the
+   receiving invoice is sent, and pending again after its send-back; Tester
+   view and `403`/`404` matrices; Review Queue totals. New cases in
+   `LocalSupportFeesFollowClientInvoiceApiTest` cover the pay: a `DRAFT`
+   Agent Invoice reads it, a `SENT` one moves by the amount on record and back
+   on withdraw, and (open question 1) a charge naming an unbilled Fee moves
+   none. The closed-month predicate itself is `month-closes-on-the-fifth`'s to
+   test; this suite uses only months that are closed or open on every day.
 2. **Races at the same seam, committing** (prior art
-   `ClientInvoiceSendBackRaceTest`): first send vs withdraw, and first send
-   vs record; each adjustment ends landed exactly once or pending/withdrawn.
-3. **Migration tests** under the existing migration test package: both
-   tables apply on a database at the previous version with data, and their
-   checks refuse a zero amount and a landed-and-withdrawn row.
+   `ClientInvoiceSendBackRaceTest`): record vs the receiving Client Invoice's
+   send, withdraw vs that send, record vs the Agent Invoice's send; the
+   adjustment ends counted once in the bill and once in the pay.
+3. **Migration test** under the existing migration test package: the table
+   applies on a database at the previous version with data, and its check
+   refuses a zero amount.
 4. **PDF**: an existing PDF test seam is extended to assert the adjustments
    block and total by extracted text, as the line-edit feature's PDF checks
    do.
 5. **Frontend component tests** (Vitest + Testing Library). Prior art:
    `send-back-client-invoice-control.test.tsx`,
    `client-invoice-detail-view.test.tsx`,
-   `edit-client-invoice-line-control.test.tsx`. Cover the record form
-   (kind, validation, `409`, input kept), the recorded list and withdraw,
-   the adjustments block's empty/pending/landed/carry-over states, and no
-   editor control on an adjustment row.
-6. **One e2e spec, `invoice-adjustment.spec.ts`.** e2e state does not roll
-   back and cannot reach a later month, so it plays only what the current
-   month allows, on a Contract it creates: the Agent sends; the Manager
-   approves, records a $20.00 credit from that invoice, sees it Pending in
-   the list, and the sent invoice is unchanged; the Manager withdraws it.
-   Landing on a following month's draft is proven at the API seam with a
-   past-month fixture (item 1) and by walkthrough steps 3–5 on demo data.
-7. **Existing suites pass unedited**: every invoice API test, the three
-   invoice e2e specs and the component tests, since an invoice with no
-   adjustment is unchanged. Any forced edit is named in its ticket's
-   `## Regression`.
-8. **No unit tests** of the landing rule beyond the HTTP seam (Backend
-   rule 6).
+   `edit-client-invoice-line-control.test.tsx`. Cover the record form (kind,
+   validation, the Client-facing label, `409`, input kept), the control's
+   absence on an open-month invoice, the recorded list and withdraw, the
+   adjustments block's empty/pending/sent states, and no editor control on
+   an adjustment row.
+6. **One e2e spec, `invoice-adjustment.spec.ts`**, on `DemoDataLoader`'s
+   approved Client Invoice of two months back (always closed): the Manager
+   records a $20.00 credit, sees it Pending on this month in the list, the
+   Agent sees it on the current month's card with the total down $20.00, and
+   the Manager withdraws it. e2e state does not roll back, so the spec ends
+   with the adjustment withdrawn.
+7. **Existing suites pass unedited**: every invoice API test, the invoice
+   e2e specs and the component tests, since an invoice with no adjustment is
+   unchanged. Any forced edit is named in its ticket's `## Regression`.
+8. **No unit tests** of the landing or pay rule beyond the HTTP seam
+   (Backend rule 6).
 
 ## Decisions taken
 
 ### Settled by the human
 
-- **Corrections after sending or approval carry forward to the next month,
-  made by the Manager; a past month is never reopened; no `correct-a-fee`**
+- **Corrections carry forward, made by the Manager; no `correct-a-fee`**
   (2026-09-30).
-- **Every Client Invoice line is editable by the Agent while draft** (2026-10-01).
-  Adjustment rows are not lines and are not editable (open question 2).
-- **An edit before the Agent Invoice's approval reaches that month's pay;
-  after approval it is a carry-over** (2026-10-01/02). Built here as the
-  carry-over row.
-- **Send-back is for errors caught before approval** (2026-09-30). The record
-  action is nonetheless offered on a `sent` invoice too, as the epic's line
-  says "after sending or approval".
+- **The 5th closes the month; an adjustment exists only for a closed month,
+  lands on the current month's invoice, and the Manager never picks the
+  month** (2026-10-08, inbox `adjustment-which-month`). The closing rule is
+  `month-closes-on-the-fifth`'s.
+- **One kind of adjustment: it sits on the Client's bill and moves the
+  Agent's pay by the same amount** (2026-10-08, inbox
+  `adjustment-agent-pay-or-client-bill`; the two-kinds recommendation was
+  declined). How a charge for something already paid avoids double pay is
+  open question 1.
+- **The Agent sees an adjustment with its reason, read-only; the Manager can
+  withdraw it until the invoice is sent** (2026-10-08, inbox
+  `adjustment-agent-sees-it`).
+- **The Client sees the reason; the field is labelled "Shown to the Client on
+  the invoice"** (2026-10-08, inbox `adjustment-client-sees-reason`).
+- **No automatic carry-over** (2026-10-08, inbox
+  `adjustment-carry-over-automatic`).
+- **A credit larger than the receiving invoice is out of scope** (2026-10-08,
+  inbox `adjustment-credit-bigger-than-invoice`; epic `## Later`).
 
 ### Taken alone
 
 - **Adjustments are their own rows, not a new Client Invoice line kind.** A
-  line kind would need the `amount >= 0` check relaxed, would flow into the
-  payable amount through the one resolution, and would be editable by the
-  Agent's line rule; a separate table keeps every existing line rule true.
-- **Two tables, one per invoice type.** Owner, corrected and receiving
-  invoices differ by type; one table would need nullable pairs and checks.
-- **No fixed receiving month; an adjustment lands at the next first send of
-  a month at or after the one it was recorded in.** A fixed target can point
-  at an invoice sent a moment later (an Agent's send is not serialized with a
-  Manager's record), leaving it stranded; stamping at send cannot.
-- **Only a first send lands adjustments.** A resend after a send-back would
-  otherwise add a line the Manager's reviewed figures never had, and break
-  ADR 0005's "lines as sent".
-- **No status column; state derived from `landed_at` / `withdrawn_at`.** Same
-  shape as "sent back"; one check forbids both.
+  line kind would need the `amount >= 0` check relaxed and would be editable
+  by the Agent's line rule; a separate table keeps every existing line rule
+  true.
+- **The receiving invoice is `(contract, receiving_month)`, fixed at record.**
+  The human's rule names the month; the pair names the invoice even before
+  its row exists, and nothing has to be stamped at send.
+- **One recorded onto a sent or approved current-month invoice appears on it
+  at once.** The human said "the current month's invoice" without exception,
+  and the month is still open; what that does to the invoice's review is
+  `month-closes-on-the-fifth`'s rule for any Manager edit.
+- **"Pending" means the receiving invoice is a draft; a send-back makes it
+  pending again.** That is the literal reading of "until the invoice is
+  sent", and a sent-back invoice is a draft.
+- **State derived, no status column.** Same shape as "sent back".
+- **The pay moves through `payableAmountForMonth`, not a separate write.** The
+  bill and the pay keep resolving through one place (ADR 0004), and a `SENT`
+  Agent Invoice moves by the difference as it already does for a line edit.
+- **No separate adjustment figure on the Agent Invoice.** Local Support Fees
+  have never broken down per billed line; the Agent sees the adjustment on
+  their Client Invoice.
+- **A credit larger than the invoice totals to a plain, possibly negative
+  sum.** Building nothing is cheapest to undo when the epic's Later item is
+  taken up.
 - **The API takes `CREDIT`/`CHARGE` and a positive amount; storage is signed.**
-  The Manager never types a sign; sums stay plain.
-- **The record action is offered on `sent` as well as later statuses.** The
-  epic says "after sending or approval"; send-back remains the better tool
-  for a `sent` Client Invoice and the form does not hide that.
-- **A Manager may withdraw a pending adjustment.** Without it a typo needs a
-  counter-adjustment on a real invoice; withdrawing touches no sent figure.
-- **No editing an adjustment.** Withdraw and record again covers it, with one
-  audit line each.
-- **The carry-over records one adjustment per edit, and nothing for a zero
-  difference.** Each edit already writes its own audit line; netting edits
-  in place would make a pending row change under the Manager. Cheap to
-  change to per-line netting.
-- **The carry-over's reason is generated and names the Client, month, line
-  and old/new amounts.** The Agent and Manager need to check it without the
-  audit log.
-- **`recorded_by` on a carry-over is the editing Agent.** That is who caused
-  it; `origin` says it was automatic.
-- **The corrected invoice lists its adjustments (`adjustmentsRecorded`); there
-  is no Tenant-wide list.** The Manager records from that page and checks
-  there; a list is `invoice-history`'s to add.
-- **A record takes no invoice lock.** Landing is decided by the send under its
-  own lock; a record committed after it simply waits a month. Withdraw locks
-  the adjustment row against the send's stamp.
-- **A new ADR 0006 with notes on 0001, 0003, 0004, and the narrowing of
-  PRODUCT.md principle 1.** Signed amounts and a non-Request-traced billed
-  amount are surprising without context and costly to reverse once invoices
-  carry them.
-- **Three new audit methods, without reason text.** Same rule as send-back:
-  no audit line carries free text.
+- **No editing an adjustment.** Withdraw and record again, one audit line
+  each.
+- **Record and withdraw take the Client Invoice then the Agent Invoice lock.**
+  They move pay, so they serialize with both sends in the existing order.
+- **The corrected invoice lists its adjustments (`adjustmentsRecorded`); no
+  Tenant-wide list.** A list is `invoice-history`'s to add.
+- **A new ADR 0006 with a note on 0004, and the narrowing of PRODUCT.md
+  principle 1.** A signed, non-Request-traced billed amount is surprising
+  without context and costly to reverse once invoices carry it.
+- **Two new audit methods, without reason text.** Same rule as send-back.
 - **Credits shown with a minus in the body colour.** A credit is not an error.
 - **Testing: the existing HTTP, component, PDF and e2e seams, plus committing
-  race tests.** Prior art named above; the month boundary is proven with a
-  past-month fixture, not a clock.
+  race tests; only months closed or open on every day.** The closing
+  predicate's day boundary is the dependency's to test.
 
 ## Open questions
 
-1. **Can an adjustment correct the Agent's pay as well as the Client's bill,
-   and does correcting one move the other?** Example: September's Client
-   Invoice billed a SIM at $50 instead of $30 and was approved; the Agent was
-   paid on $50. Recording a $20 credit for the Client — should the Agent's
-   October pay also drop $20 automatically? But if instead the Agent forgot to
-   bill a $15 Topup (already paid to them, since logged Fees always count in
-   pay), a $15 charge to the Client must not pay the Agent $15 again.
-   *Recommendation:* both kinds exist, and each moves only its own side: a
-   Client adjustment changes only what the Client is billed, an Agent
-   adjustment only what the Agent is paid; when both are wrong the Manager
-   records one of each. *Reason:* the two examples need opposite automatic
-   behaviour, so any automatic link is wrong half the time.
-2. **Does the Agent see an adjustment, and can they refuse or change it?**
-   Example: the Manager records a $20 credit on the Client's bill; the Agent's
-   October draft shows "Adjustment to the September invoice −$20.00" with the
-   Manager's reason. *Recommendation:* the Agent sees every adjustment on
-   their own Client Invoices and Agent Invoice, with the reason, and cannot
-   edit, remove or refuse it; disagreements are settled with the Manager
-   outside the app, and the Manager withdraws it if needed. *Reason:* the
-   Manager owns corrections (the human's 2026-09-30 answer) and approves
-   money; a refusal flow is a feature of its own.
-3. **Does the Client's Tester (and the PDF) see the adjustment's reason, or
-   only an "Adjustment to the September 2026 invoice −$20.00" line?**
-   *Recommendation:* show the reason too, and label the Manager's reason
-   field "Shown to the Client on the invoice". *Reason:* an unexplained credit
-   or charge on a statement invites questions, and unlike a send-back note it
-   is part of what the Client is billed. (If you prefer it hidden, the line
-   shows only the month it corrects.)
-4. **Where does an adjustment land: always the next invoice still being
-   prepared, or a month the Manager picks?** Example: on 3 October the Manager
-   finds September's invoice overbilled $20; the credit goes on October's
-   invoice. Had October's already been sent, it would go on November's.
-   *Recommendation:* always automatic, the next invoice sent for that Contract
-   (or Agent). *Reason:* a picked month can be one already sent or closed, and
-   "next month" is how the business already said it works.
-5. **When an Agent edits a Client Invoice line after their Agent Invoice for
-   that month was approved, should the difference be recorded automatically as
-   a pending adjustment to their pay, or left for the Manager to record?**
-   Example: September's Agent Invoice is approved; the Manager sends
-   September's Client Invoice back; the Agent corrects a SIM line from $30 to
-   $45. *Recommendation:* automatic — a +$15 Agent adjustment, marked
-   "Carry-over", appears pending on the Agent's October Agent Invoice, and the
-   Manager can withdraw it before it is sent. *Reason:* "otherwise it's a
-   carry-over" (2026-10-01) means it happens; by hand it is easily forgotten,
-   and the Manager still reviews it on the October invoice.
-6. **If a credit is larger than the invoice it lands on, what does the
-   invoice show?** Example: a $300 credit lands on an October Client Invoice
-   whose lines total $250. *Recommendation:* the invoice shows a total of
-   −$50.00 (the Client is owed $50), and nothing carries on to November.
-   *Reason:* rare, honest, and splitting a credit across months is a rule
-   that can be added later without touching stored data.
+1. **When the Manager charges the Client for something the Agent was already
+   paid for, how is the Agent kept from being paid twice?** Example: a $15
+   Topup was logged in September after September's Client Invoice was sent;
+   the app paid the Agent $15 for it but never billed the Client. In
+   November the Manager charges the Client $15 for it; by the one-kind rule
+   the Agent's November pay would also rise $15, a second time.
+   *Recommendation:* when recording a charge, the Manager can pick that
+   Topup (or any Fee or Postpaid SIM the closed invoice left off) from a
+   list; such a charge bills the Client and does not move the Agent's pay,
+   and the Agent sees it marked "Already in the Agent's pay". Every other
+   adjustment moves pay by the same amount. *Reason:* the app knows exactly
+   which items were paid but not billed, so the Manager cannot mark the
+   wrong one; a Topup never logged in the app was never paid, and its
+   ordinary charge pays the Agent once, correctly.
 
 ## Acceptance walkthrough
 
-1. [agent] As the Manager, on an approved Client Invoice of last month (demo data) for Contract C, `POST …/adjustments` a `CREDIT` of $20.00 with a reason; show `201`, amount `-20.00`, the Contract's currency, and the invoice's `adjustmentsRecorded` listing it `PENDING`. Record a `CHARGE` of $5.00 on a `SENT` invoice and show `201`. (stories: 1, 2, 4, 7)
-2. [agent] Send a zero, a negative, a three-decimal and a blank amount, an empty and a 1001-character reason, and show `400` each; record on a draft and show `409`; with the Agent's and a Tester's token show `403`; on `OtherTenantFixture`'s invoice show `404`. (stories: 5, 6, 31, 32)
-3. [agent] As C's Agent, read the current month's Client Invoice draft and show the $20.00 credit and the $5.00 charge as `adjustments` with `pending: true`, `correctsBillingMonth`, the reason, and `totalAmount` equal to lines − 20.00 + 5.00; try to edit an adjustment through `PUT …/lines` and show it refused. Show the Agent's Agent Invoice Local Support Fees unchanged by them. (stories: 14, 16, 24)
-4. [agent] Withdraw the $5.00 charge and show it `WITHDRAWN` and gone from the draft. As the Agent, send the draft; show the credit landed (`pending: false`) in the sent response, `adjustmentsRecorded` on last month's invoice showing `LANDED` on this invoice, and the Review Queue total for it including −20.00. Withdraw the landed credit and show `409 ADJUSTMENT_NOT_PENDING`. (stories: 8, 9, 11, 12, 17)
-5. [agent] Record another credit from last month's invoice after the send; show it pending, absent from the sent invoice, and shown on a next-month draft (fixture) instead. Send the current invoice back, resend it, and show the first credit still on it and the new one still pending. (stories: 10, 18, 19)
-6. [agent] As a Tester of C's Client, read the sent invoice and show the adjustment line labelled with the corrected month (and reason per open question 3), no `origin` and no `adjustmentsRecorded`; download the PDF and show the Adjustments block and the total. Show no pending adjustment ever appears to the Tester. (stories: 25, 26, 27)
-7. [agent] As the Manager, on an approved Agent Invoice record a $40.00 charge; as that Agent, show it pending on their current Agent Invoice draft with `totalAmount` up $40.00 and the four figures unchanged; send it and show it landed and in the Review Queue total. As another Agent, show it is not visible. (stories: 3, 15, 17, 33)
-8. [agent] With the Agent's September Agent Invoice `APPROVED`, have the Manager send September's Client Invoice back; as the Agent edit a SIM line from $30.00 to $45.00 by id; show a pending Agent adjustment of +$15.00, origin `CARRY_OVER`, its generated reason naming the Client, month, line and both amounts, correcting the September Agent Invoice, and the September Agent Invoice unchanged. Reset the line and show a second, −$15.00, carry-over. Repeat with the Agent Invoice `SENT` and with it `DRAFT`, and show no carry-over recorded and pay moved as before. (stories: 20, 21, 22, 23)
-9. [agent] Run the committing race tests: first send vs withdraw, first send vs record; show every adjustment landed exactly once or still pending/withdrawn. (stories: 34, 13)
-10. [agent] Grep the backend log for steps 1, 4 and 8 and show one audit line for each record, withdraw and landing, with actor, Tenant, ids and signed amount, and no reason text. (stories: 29, 30)
-11. [agent] Land a $300.00 credit on a fixture invoice whose lines total $250.00 and show `totalAmount` −50.00 on the response, the Review Queue and the PDF (per open question 6). (stories: 28)
-12. [agent] In a browser as the Manager, open an approved Client Invoice, expand **Record adjustment**, show Approve/pill unchanged, submit empty and show the inline refusal with input kept, record a $20.00 credit and show it listed as Pending; withdraw it; record again. In a second tab let the invoice's adjustment land (send as the Agent), then try to withdraw in the first tab and show the refresh message. Repeat the record on an Agent Invoice page. (stories: 1, 3, 5, 7, 8, 13)
-13. [agent] As the Agent in a browser, show the pending credit on the Client Invoice card with a Pending badge and no edit control, and on the Agent Invoice page a pending carry-over row marked Carry-over. As the Tester, show the landed adjustment line on the invoice page. Show that an invoice with no adjustment renders no Adjustments block. (stories: 14, 15, 16, 21, 25, 35)
-14. [agent] Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green, with existing suites unedited except as named in tickets' `## Regression`, and no golden moved. (stories: 35)
-15. [agent] Do the record, withdraw and the Agent's view by keyboard alone with a visible focus ring at each stop, and repeat at the mobile breakpoint with every form and list usable in the viewport. (stories: 36)
-16. [human] Take a real error from a past month's approved Client Invoice and record the credit or charge you would really record, with the reason you would really write. Read next month's invoice as the Agent and as the Client would see it, and the PDF. Confirm the wording and amounts are what you want the Client to receive. (stories: 1, 2, 14, 25, 26)
-17. [human] Take a real case where the Agent's approved pay was wrong, record an Agent adjustment, and read the Agent's next Agent Invoice. Then send back a last-month Client Invoice whose Agent Invoice is approved, correct a line as the Agent, and confirm the automatic carry-over is what you expect on next month's pay. (stories: 3, 15, 20, 21, 22)
-18. [human] Read ADR 0006 and the notes on ADR 0001, 0003, 0004 and PRODUCT.md, and confirm they say what you settled: corrections settle forward on the next invoice sent, never on a past month; only adjustments are negative; a Client adjustment does not move pay (if so answered); an edit after approval becomes a carry-over adjustment. (stories: 10, 24, 30)
+1. [agent] As the Manager, on the approved Client Invoice of two months back (demo data) for Contract C, `POST …/adjustments` a `CREDIT` of $20.00 with a reason; show `201`, amount `-20.00`, the Contract's currency, receiving month the current month, and the invoice's `adjustmentsRecorded` listing it `PENDING`. Record a `CHARGE` of $5.00 and show `201`. (stories: 1, 2, 4, 8, 9, 24)
+2. [agent] Send a zero, a negative, a three-decimal and a blank amount, an empty and a 1001-character reason, and show `400` each; record on a current-month invoice as draft, sent and approved and show `409 INVOICE_MONTH_NOT_CLOSED` each; with the Agent's and a Tester's token show `403`; on `OtherTenantFixture`'s invoice show `404`. (stories: 5, 6, 25, 26)
+3. [agent] As C's Agent, read the current month's Client Invoice draft and show the credit and the charge as `adjustments` with `pending: true`, `correctsBillingMonth`, the reason, and `totalAmount` equal to lines − 20.00 + 5.00; try to edit an adjustment through the line edit route and show it refused. Read the Agent's current Agent Invoice draft and show Local Support Fees down 15.00 from before step 1. (stories: 3, 15, 16, 17)
+4. [agent] Withdraw the $5.00 charge; show it `WITHDRAWN`, gone from the draft, and Local Support Fees up 5.00. As the Agent, send the Agent Invoice, then record a $10.00 credit from the closed invoice; show the sent Agent Invoice's Local Support Fees down 10.00 and an `agentInvoiceLocalSupportFeesFollowed` audit line. (stories: 10, 17, 28)
+5. [agent] As the Agent, send the current Client Invoice; show the adjustments on the sent response with `pending: false`, `adjustmentsRecorded` showing them on this invoice, the Review Queue totals (Client Invoice and Agent Invoice) including them, and withdraw returning `409 ADJUSTMENT_NOT_PENDING`. Record another $3.00 credit and show it on the sent invoice at once. Send the invoice back, show the adjustments still on it and withdraw now accepted; resend. (stories: 11, 12, 13, 18, 19)
+6. [agent] As a Tester of C's Client, read the sent invoice and show each adjustment line labelled with the corrected month and its reason, no `adjustmentsRecorded`; download the PDF and show the Adjustments block and the total. (stories: 21, 22)
+7. [agent] As another Agent, read C's invoices and show `404`, and show none of C's adjustments on their own invoices. (stories: 27)
+8. [agent] (Per open question 1's answer.) On a closed fixture invoice with a Fee logged after its send, record a charge picking that Fee; show it on the current month's Client Invoice and Local Support Fees unchanged; try to charge the same Fee again and show it refused. (stories: 20)
+9. [agent] Run the committing race tests: record vs Client Invoice send, withdraw vs Client Invoice send, record vs Agent Invoice send; show each adjustment counted once in the bill and once in the pay. (stories: 28, 14)
+10. [agent] Grep the backend log for steps 1, 4 and 5 and show one audit line for each record and withdraw, with actor, Tenant, ids and signed amount, and no reason text. (stories: 23, 24)
+11. [agent] In a browser as the Manager, open a current-month invoice and show no **Record adjustment** control; open the closed invoice, expand it, show the reason field's "Shown to the Client on the invoice" label and the pill unchanged, submit empty and show the inline refusal with input kept, record a $20.00 credit and show it listed Pending; withdraw it; record again. In a second tab send the receiving invoice as the Agent, then try to withdraw in the first tab and show the refresh message. (stories: 1, 5, 6, 7, 9, 10, 14)
+12. [agent] As the Agent in a browser, show the credit on the current Client Invoice card with a Pending badge, its reason and no edit control. As the Tester, show the adjustment line on the sent invoice page. Show that an invoice with no adjustment renders no Adjustments block. (stories: 15, 16, 21, 29)
+13. [agent] Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green, with existing suites unedited except as named in tickets' `## Regression`, and no golden moved. (stories: 29)
+14. [agent] Do the record, withdraw and the Agent's view by keyboard alone with a visible focus ring at each stop, and repeat at the mobile breakpoint with every form and list usable in the viewport. (stories: 30)
+15. [human] Take a real error from a closed month's Client Invoice and record the credit or charge you would really record, with the reason you would really write. Read the current month's invoice as the Agent and as the Client would see it, the PDF, and the Agent's Local Support Fees. Confirm the wording, the amounts and the pay move are what you want. (stories: 1, 2, 3, 7, 15, 17, 21, 22)
+16. [human] Take a real Topup that was paid to the Agent but never billed, charge it to the Client, and confirm the Agent is not paid for it twice. (stories: 20)
+17. [human] Read ADR 0006 and the notes on ADR 0004 and PRODUCT.md, and confirm they say what you settled: a closed month is corrected only by an adjustment on the current month's invoice; only adjustments are negative; an adjustment moves the Agent's pay by the same amount; nothing is carried over automatically. (stories: 3, 8, 24)
 
 ## Execution order
 
-**Depends on: `send-a-client-invoice-back`, merged.** Each slice is a
-vertical path through migration, service, route, BFF and UI.
+**Depends on: `month-closes-on-the-fifth`, merged.** Each slice is a vertical
+path through migration, service, route, BFF and UI. No ticket is cut until
+open question 1 is answered.
 
-1. `manager-records-a-client-invoice-adjustment`. Labels: `backend`,
-   `frontend`. The `client_invoice_adjustments` migration (next free version
-   at merge, V60 today), record and withdraw routes, `adjustmentsRecorded`,
-   the audit methods, ADR 0006, the Manager's form and list on the Client
-   Invoice page. No blocker.
-2. `client-invoice-adjustment-lands-on-the-next-client-invoice`. Labels:
-   `backend`, `frontend`. Pending lines on a never-sent draft, landing at
-   first send (none at resend), response totals, Review Queue total, Tester
-   view, PDF, the Agent's card block, the send-vs-withdraw and send-vs-record
+1. `manager-records-an-invoice-adjustment`. Labels: `backend`, `frontend`.
+   The `invoice_adjustments` migration, record and withdraw routes with the
+   closed-month gate, `adjustmentsRecorded`, the audit methods, ADR 0006, the
+   Manager's form and list. No blocker within this feature.
+2. `adjustment-shows-on-the-current-month-client-invoice`. Labels: `backend`,
+   `frontend`. `adjustments` and totals on the receiving invoice, pending vs
+   sent, Review Queue total, Tester view, PDF, the Agent's card block.
+   Depends on 1.
+3. `adjustment-moves-the-agents-pay`. Labels: `backend`. The payable amount,
+   the `SENT` Agent Invoice move on record and withdraw, the lock order, the
    race tests. Depends on 1.
-3. `manager-records-an-agent-invoice-adjustment`. Labels: `backend`,
-   `frontend`. The `agent_invoice_adjustments` migration (the version after
-   1's), record/withdraw on the Agent Invoice, landing at the Agent Invoice's
-   first send, totals and queue, the Manager and Agent views. Depends on 1
-   (shared control and audit methods).
-4. `client-invoice-edit-after-approval-carries-over`. Labels: `backend`,
-   `frontend`. The carry-over row in `editLine`, its generated reason, the
-   Carry-over marker. Depends on 3.
+4. `charge-for-something-already-paid`. Labels: `backend`, `frontend`. Open
+   question 1 as answered. Depends on 2 and 3.
 5. `invoice-adjustment-e2e`. Labels: `frontend`. The e2e spec of Testing
-   decisions item 6 across 2–4. Depends on 2 and 4.
+   decisions item 6. Depends on 2 and 3.

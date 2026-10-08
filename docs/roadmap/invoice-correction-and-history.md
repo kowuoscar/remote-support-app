@@ -48,7 +48,8 @@ finds the finished invoices in the history view, filtered by month.
 
 - [x] `edit-client-invoice-lines` — while a Client Invoice is a draft (before its first send, and again after a send-back), its Agent can edit every line, the base amount and each Fee; lines start pre-filled from the computation, because real usage (postpaid included) varies month to month.
 - [x] `send-a-client-invoice-back` — a Manager returns a sent Client Invoice to the Agent with a reason; it leaves the Review Queue, its numbers go live again, and a resend freezes a fresh snapshot.
-- [ ] `invoice-adjustment` — a Manager records a correction, a credit or a charge with a reason, that lands on the next month's invoice, so an error found after sending or approval is settled forward, never by reopening a past month.
+- [ ] `month-closes-on-the-fifth` — a month's Client Invoices and Agent Invoices stay editable by the Agent and the Manager until the 5th of the following month, sent or approved included; from the 6th the month is closed, and an invoice not yet approved by then is flagged Late and closes on approval.
+- [ ] `invoice-adjustment` — once a month has closed, a Manager records a correction, a credit or a charge with a reason, that lands on the current month's invoice and moves the Agent's pay by the same amount.
 - [ ] `send-an-agent-invoice-back` — the same for an Agent Invoice, whose snapshot is four scalar columns rather than a membership table.
 - [ ] `invoice-history` — a Manager browses final invoices of both types, filtered by month, Contract and Agent.
 
@@ -138,7 +139,26 @@ numbers it was sent with, and the Agent edits them. This replaces the
 computation. `edit-client-invoice-lines` comes first, and send-back builds on
 it.
 
+**Answered by the human on 2026-10-08: the 5th closes the month.** This
+amends the 2026-09-30 rule that a sent or approved invoice is never reopened.
+A month's Client Invoice and Agent Invoice stay editable **until the 5th of
+the following month**, whether draft, sent or approved: the Agent and the
+Manager can both edit, the Manager can still send one back, and an Agent's
+edit moves that month's pay directly. **From the 6th the month is closed for
+everyone**, and only the Manager can correct it, by an adjustment that lands
+on the current month's invoice (a September fix made after 5 October lands on
+October's). An invoice not yet approved on the 6th stays open, is flagged
+"Late" to the Manager, and closes on approval. So:
+
+- `month-closes-on-the-fifth` is new and comes before `invoice-adjustment`:
+  an adjustment only exists for a closed month.
+- `invoice-adjustment` has one kind: it sits on the Client's bill and moves
+  the Agent's pay by the same amount. Nothing is carried over automatically.
+- This is a further amendment to ADR 0001 and ADR 0003: an approved invoice
+  goes back to being editable until the 5th.
+
 ## Later
 
 - Whether a sent-back invoice should notify the Agent by any means other than
   it reappearing in their list.
+- A credit bigger than the invoice it lands on (e.g. −$300 on a $250 October invoice). Left out of `invoice-adjustment` by the human on 2026-10-08.

@@ -60,6 +60,10 @@ the `check` goal), Flyway, Testcontainers.
    exists nowhere in `backend/src/main`; four controllers use their own
    `@ExceptionHandler`, so the rule as written blocked every diff that followed
    the project's only pattern. The prohibition was always obeyed and is kept.)
+   Spring Security's own exceptions (`AccessDeniedException`,
+   `AuthenticationException` and their subclasses) are allowed from a service:
+   the security filter chain translates them, and a domain wrapper would add
+   nothing. (Amended by the human, 2026-10-08.)
 8. A `@Transactional` method never calls an external HTTP or queue client
    inside the transaction; dispatch that call after commit (event listener,
    outbox) so a slow downstream never holds a database lock.
@@ -125,10 +129,10 @@ not something a ticket does on the side.
    bug, not a config oversight.
 8. Compose Tailwind classes from the tokens in `frontend/app/globals.css`
    (`@theme`, Tailwind v4); an arbitrary value (`w-[123px]`) needs a comment
-   saying why it isn't a token. The two small type sizes are tokens, not
-   arbitrary values, once the `type-scale-tokens` enabler lands; until then
-   `text-[12px]`/`text-[13px]` in unchanged lines are known debt.
-   (Amended by the human, 2026-10-01.)
+   saying why it isn't a token. The two small type sizes are the tokens
+   `text-label-sm` and `text-label`: a new or changed line uses them, never
+   `text-[12px]`/`text-[13px]`, and those values left in untouched lines are
+   known debt. (Amended by the human, 2026-10-01 and 2026-10-08.)
 9. Unit and component tests (Vitest + Testing Library) sit next to the file
    as `*.test.tsx`; end-to-end journeys (Playwright) sit under `e2e/`, one
    file per journey.

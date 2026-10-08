@@ -38,7 +38,7 @@ comes from the code. A Contract's currency is its Agent's country's currency
 (`Country` → `Currency`: USD, EUR, GBP, MXN, PHP). The demo story already has
 USD Contracts (Jordan Ellis) and a GBP Contract (Priya Shah). The system holds
 no exchange rate, so one "USD" total over every invoice cannot be computed
-honestly.
+honestly. The human settled all four on 2026-10-08 (`## Decisions taken`).
 
 Three smaller defects come with it. The stat grid fakes a 550 ms loading
 skeleton (`useSimulatedLoad`) in front of data that was never loading. The
@@ -79,11 +79,11 @@ Goals:
 Non-goals. Each is something a reasonable agent would otherwise build:
 
 - **No currency conversion and no exchange-rate source.** The figures are not
-  converted into one currency (open question 3's recommendation). Adding a rate
+  converted into one currency (settled by the human on 2026-10-08). Adding a rate
   feed is a hosted-service decision for another feature.
 - **No forecast or expected figure.** A draft invoice's live total is not shown
-  as "expected", "to bill" or "accrued". Only what the open questions settle is
-  counted.
+  as "expected", "to bill" or "accrued". Only the statuses settled on
+  2026-10-08 are counted.
 - **No breakdown by Contract, Client or Agent, no chart, no trend against
   earlier months, no month picker.** Each money card is one figure per
   currency, for one month. A per-month list of final invoices is
@@ -140,8 +140,8 @@ Non-goals. Each is something a reasonable agent would otherwise build:
 
 ## Solution
 
-The money definitions below are the open questions' recommendations. If the
-human answers otherwise, the definitions change and the shape stays the same.
+The money definitions below are the ones the human settled on 2026-10-08
+(`## Decisions taken`).
 
 ### Where each figure comes from
 
@@ -417,6 +417,22 @@ component internals.
 
 ## Decisions taken
 
+- **"Billed this month" counts the current billing month's Client Invoices
+  that are sent or approved; drafts never count, a sent-back one included.**
+  Reason: answered by the human on 2026-10-08, as recommended
+  (`docs/inbox/manager-dashboard-billed-this-month.md`). Sending is when a
+  Client is billed, and a draft's total is still a live estimate. "This month"
+  means the current billing month, as on the Agent's dashboard, so the figure
+  reads low early in the month until the Agents send (stories 6, 7).
+- **"Payout this month" counts the current billing month's Agent Invoices that
+  the Manager approved or marked paid.** Reason: answered by the human on
+  2026-10-08, as recommended (`docs/inbox/manager-dashboard-payout-this-month.md`).
+  That is the pay the company has agreed to; a sent invoice is still awaiting
+  review and already shows on the Pending approvals card (stories 8, 9).
+- **Amounts in different currencies are shown as one total per currency on the
+  same card, with no conversion.** Reason: answered by the human on 2026-10-08,
+  as recommended (`docs/inbox/manager-dashboard-currencies.md`). The product
+  holds no exchange rate, and a rate source is its own feature (story 13).
 - **The money figures come from one new Manager-only read,
   `GET /api/tenant-totals`, and the counts from the three existing list
   routes.** Reason: the epic settles the counts as "one list call each". Money
@@ -455,7 +471,8 @@ component internals.
 - **Several currencies render as stacked `Money` lines in the existing value
   slot, ordered by currency code.** Reason: there is no new component, the
   order is stable from day to day (story 14), and at most six lines can occur.
-  This follows open question 3's recommendation. The layout is cheap to change.
+  This renders the human's 2026-10-08 answer of one total per currency. The
+  layout is cheap to change.
 - **The demo-keyed status maps in `lib/status.ts` are deleted, not moved, and
   `lib/demo/types.ts` goes with them.** Reason: the code shows nothing uses
   them. The real-enum maps replaced each one, so there is nothing to move. This
@@ -482,45 +499,14 @@ component internals.
 
 ## Open questions
 
-1. **What does "Billed this month" count?** Recommendation: the Client Invoices
-   *for the current billing month* (October on 6 October) that are **sent or
-   approved**. Drafts never count, including one the Manager sent back. Reason:
-   sending is the moment a Client is billed, and the Tester already sees sent
-   invoices. A draft's total is a live estimate that can still move. "This
-   month" then means what it means on the Agent's dashboard. The cost is that
-   the figure reads low early in the month, until the Agents send. Example from
-   the demo story: today it would read **$135.99**, from Solstice's US Contract,
-   which Jordan has sent. The Solstice UK and Harbor Line drafts don't count
-   until they are sent. The alternative is "the last completed month"
-   (September), relabelled "Billed for September": it is complete, but it is
-   not "this month". (case 1)
-2. **What does "Payout this month" count?** Recommendation: the Agent Invoices
-   *for the current billing month* that the Manager has **approved or marked
-   paid**. Reason: that is the pay the company has agreed to. A sent invoice is
-   still awaiting review and is already counted on the "Pending approvals"
-   card. The month matches question 1. Example from the demo story: today it
-   would read **"None yet"**. Jordan's October Agent Invoice (about $2,836) is
-   only sent and Priya's is a draft. It moves to about $2,836 the moment the
-   Manager approves Jordan's invoice. The alternatives are "paid only" (cash
-   actually out), "sent, approved or paid" (everything claimed), or "the last
-   completed month" (September, where Jordan's and Priya's invoices are both
-   paid). (case 1)
-3. **How are amounts in different currencies shown?** Contracts *do* differ.
-   Each Contract takes its Agent's currency, and the demo has USD (Jordan) and
-   GBP (Priya) Contracts, so one "USD" figure would add pounds to dollars.
-   Recommendation: **one total per currency on the same card**, for example
-   "$135.99" over "£20.00", with no conversion. Reason: the product holds no
-   exchange rate. Converting needs a rate source, a hosted service and a
-   decision about which day's rate, which belongs to its own feature. The
-   alternative is to show only USD and drop other currencies, which hides real
-   money. (case 1; conversion would also be case 2)
+None
 
 ## Acceptance walkthrough
 
 Run against an isolated stack with the backend on the `demo` profile (its own
 fresh database, seeded by `DemoDataLoader`), never the user's compose stack.
-Logins are in the root `README.md`. The figures assume the open questions'
-recommendations.
+Logins are in the root `README.md`. The figures follow the money definitions
+the human settled on 2026-10-08.
 
 1. [agent] Sign in as the Manager (`manager@example.com`) and open `/manager`. Show the chip "manager@example.com · Manager", and no occurrence of "Priya Ashford", "41,280", "22,940" or "Demo data" on the page. Show that the grid appears with no skeleton first. (stories: 1, 20, 24)
 2. [agent] Through the API, list `/api/clients`, `/api/agents` and `/api/contracts` as the Manager. Show the three cards equal their lengths (2, 3 and 3 in the demo story) and the Clients caption reads "In this tenant". (stories: 2, 3, 4, 5, 23)

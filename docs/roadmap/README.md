@@ -15,10 +15,13 @@ then the epic that shares its code, then new capability, then the surface fix.
 3. `invoice-correction-and-history` — a Manager can send an invoice back with a reason, and browse finished ones.
 4. `real-dashboards` — each role's home page shows their own real numbers.
 5. `package-by-feature` — package the backend by feature rather than by layer.
-6. `tenant-administration` — create and manage Tenants in the product instead of by hand-written `INSERT`.
+6. `frontend-cleanup` — pay down the frontend debt review keeps catching: a text-size lint rule, a busy button that keeps focus, then duplicated layouts and styles.
+7. `tenant-administration` — create and manage Tenants in the product instead of by hand-written `INSERT`.
 
 Both placed at the end by the human on 2026-09-30: new capability first, the
-layout move and tenant administration after.
+layout move and tenant administration after. `frontend-cleanup` placed by the
+human on 2026-10-08, right after `package-by-feature`, from the
+`login-lifecycle` retro.
 
 Proposed, waiting for the human to place or drop:
 

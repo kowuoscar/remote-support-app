@@ -32,8 +32,8 @@ The SuperAdmin role exists only as a word in the auth model. `Role` has
 There is also a structural constraint. **Every Login belongs to exactly one
 Tenant**: `users.tenant_id` is NOT NULL, the token always carries a `tenantId`
 claim, and every query is scoped by it. A SuperAdmin looks after all Tenants,
-so where its own Login lives has to be decided, and whatever is decided is
-hard to undo.
+so its own Login needs a home that keeps that invariant. The human chose a
+hidden **Operator Tenant** (2026-10-08).
 
 This is the first of the epic's four features and its front door. Creating a
 Tenant, resetting a Manager's password and deactivating a Manager's Login
@@ -88,12 +88,15 @@ Non-goals. Each is something a reasonable agent would otherwise build:
 - **No resetting a Manager's password, no deactivating a Manager's Login.**
   Those are the epic's third and fourth features.
 - **No creating, listing, resetting or deactivating SuperAdmin Logins in the
-  product.** There is exactly one way a SuperAdmin comes to exist (open
-  question 2). A second SuperAdmin, if ever wanted, is a later decision.
+  product.** There is exactly one way a SuperAdmin comes to exist: the
+  database seed (human, 2026-10-08). A second SuperAdmin, if ever wanted, is a
+  later decision.
 - **No impersonation, "view as Manager" or switching into a Tenant.**
-- **No counts beyond Managers.** No Agent, Client, Tester, Contract or
-  invoice counts per Tenant, and no activity or billing figures (open
-  question 3).
+- **Nothing of a Tenant's work, not even as a count.** No Agent, Client,
+  Tester, Contract or invoice lists or counts per Tenant, and no activity or
+  billing figures. A SuperAdmin sees the Tenant list and, in later features,
+  that Tenant's Manager Logins; never a Tenant's Agents, Clients or invoices
+  (human, 2026-10-08).
 - **No dashboard, charts or search.** One list.
 - **No change to how Managers, Agents and Testers sign in, what their tokens
   carry, or what they can see.**
@@ -128,11 +131,10 @@ Non-goals. Each is something a reasonable agent would otherwise build:
 
 ## Solution
 
-The recommendations of the three open questions are written in below, marked
-**(Q1)**, **(Q2)**, **(Q3)**. A different answer changes only the parts so
-marked.
+The three questions this spec raised were answered as recommended
+(2026-10-08); see `## Decisions taken`.
 
-### Where a SuperAdmin lives: the Operator Tenant (Q1)
+### Where a SuperAdmin lives: the Operator Tenant
 
 A SuperAdmin Login belongs to a dedicated **Operator Tenant**: a `tenants` row
 that holds the deployment's SuperAdmin Logins and nothing else. No Client,
@@ -154,7 +156,7 @@ CREATE UNIQUE INDEX uq_tenants_one_operator ON tenants (operator) WHERE operator
 
 `Tenant` gains the read-only `operator` field. The Tenant list excludes it.
 
-### How the first SuperAdmin exists: a migration seed (Q2)
+### How the first SuperAdmin exists: a migration seed
 
 One migration, **the next free Flyway version at merge (V60 today)**, does
 three things:
@@ -206,7 +208,7 @@ matcher so that they win:
 No existing matcher changes, so every Manager, Agent and Tester answer is
 unchanged.
 
-### The Tenant list API (Q3)
+### The Tenant list API
 
 ```
 GET /api/super-admin/tenants
@@ -373,6 +375,21 @@ list.
 
 ### Following the human's answers
 
+- **A SuperAdmin's Login lives in a hidden Operator Tenant** that holds only
+  SuperAdmins and never shows in the Tenant list (human, 2026-10-08, as
+  recommended). Sign-in, the token and every Tenant-scoped query keep working
+  unchanged, and a mistake would show an empty Tenant rather than another
+  Tenant's data. A Login with no Tenant was rejected.
+- **The first SuperAdmin is seeded by the database setup** as
+  `superadmin@example.com` with a documented password, changed at first
+  sign-in through **Change password** (human, 2026-10-08, as recommended),
+  exactly as `manager@example.com` exists today. No start-up hook and no
+  one-off command create one. Until it is changed, the documented password
+  opens the SuperAdmin Console in a deployment; the human accepted that.
+- **A SuperAdmin sees the Tenant list and, in later features, that Tenant's
+  Manager Logins; never a Tenant's Agents, Clients or invoices** (human,
+  2026-10-08, as recommended). This feature shows name, Manager count and
+  creation date only; the backend fence (stories 14, 15) holds the line.
 - **Resetting a Manager's password is the SuperAdmin's job** (human,
   2026-09-30). It is not in this feature; the console built here is where it
   will go.
@@ -400,7 +417,7 @@ list.
 - **The Operator Tenant is marked by a boolean column with a partial unique
   index, not recognised by a fixed id or a name.** A fixed id in code is a
   magic number; a name can be edited later. The column states the meaning
-  where the data lives. (Follows Q1's recommendation.)
+  where the data lives.
 - **The Operator Tenant is named `Operator`.** It never appears in the list,
   but it appears in logs and the database, where a plain name helps.
 - **The list is ordered by name, case-insensitively.** A person scanning for
@@ -430,36 +447,7 @@ list.
 
 ## Open questions
 
-1. **Where does a SuperAdmin's Login live?** Every Login today belongs to
-   exactly one Tenant, and the whole product relies on it. Either the
-   SuperAdmin belongs to a hidden **Operator** Tenant that holds only
-   SuperAdmins (it never shows in the Tenant list), or the SuperAdmin's Login
-   has no Tenant at all. **Recommendation: the hidden Operator Tenant.**
-   Reason: sign-in, the token and every query keep working exactly as they
-   do, and even a mistake would show a SuperAdmin an empty Tenant rather than
-   someone else's data. A Login with no Tenant touches the database rule, the
-   token and every query, and is costly to reverse once SuperAdmins exist.
-   (Case 2.)
-2. **How does the first SuperAdmin come to exist?** Options: (a) the
-   database migration creates `superadmin@example.com` with a documented
-   password, which the SuperAdmin changes on first sign-in, exactly as
-   `manager@example.com` exists today; (b) the server creates one at start-up
-   from an email and password set in its environment; (c) someone runs a
-   one-off command on the server. **Recommendation: (a), the migration
-   seed.** Reason: it is how every seeded Login exists today, needs no new
-   deployment step, and **Change password** already works for every role.
-   The cost is the same as today's seeded Manager: until changed, the
-   documented password opens the SuperAdmin Console in every deployment. If
-   that is unacceptable for production, choose (b). (Case 2: a migration
-   cannot be taken back once run.)
-3. **What may a SuperAdmin see of a Tenant?** For example: only "Acme Ltd —
-   2 Managers — created 3 Oct 2026", or also Acme's Agents, Clients and
-   invoices. **Recommendation: only the Tenant list and, in the later
-   features, that Tenant's Manager Logins; never a Tenant's work.** Reason:
-   the product's rule is that each role sees exactly its own scope, a
-   Tenant's Agents and invoices are that customer company's business, and
-   nothing in the epic needs more. Widening it later is a feature; narrowing
-   it after SuperAdmins have looked is not. (Case 1.)
+None
 
 ## Acceptance walkthrough
 
@@ -477,8 +465,8 @@ list.
 12. [agent] Sign out from the console's viewer menu and show `/login`. (stories: 13)
 13. [agent] By keyboard alone, from the sign-in page, sign in, reach the Tenants table, open the viewer menu, open **Change password**, cancel with Escape and sign out, showing a visible focus ring at each stop. At the mobile breakpoint, show the table's three columns inside the viewport. (stories: 21, 22)
 14. [agent] Show the README lists `superadmin@example.com` and its documented password beside the other seeded Logins, and that `PRODUCT.md` and `docs/journeys.md` describe the SuperAdmin and four roles. (stories: 23)
-15. [human] On the running app, sign in as the SuperAdmin with the documented password, change it from the console, sign out and back in with the new one. Confirm this is how you want the first SuperAdmin to get in. (stories: 1, 2, 12)
-16. [human] Look at the Tenant list as the person who will look after Tenants. Confirm name, Manager count and creation date are what you need to see, that the Operator Tenant being absent is right, and that nothing here shows you more of a Tenant than you want a SuperAdmin to see. (stories: 5, 6, 7, 11)
+15. [human] On the running app, sign in as the SuperAdmin with the documented password, change it from the console, sign out and back in with the new one, and show the documented password is now refused. Confirm the seeded first sign-in plays as decided on 2026-10-08. (stories: 1, 2, 12)
+16. [human] Look at the Tenant list as the person who will look after Tenants. Confirm it shows each Tenant's name, Manager count and creation date, no Operator Tenant, and nothing of a Tenant's Agents, Clients or invoices, as decided on 2026-10-08. (stories: 5, 6, 7, 11, 14)
 
 ## Execution order
 

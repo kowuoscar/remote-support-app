@@ -1,7 +1,7 @@
 ---
 id: package-layout-adr
 title: Propose the backend package layout as an ADR
-status: ready-for-agent
+status: in-progress
 depends_on: [layout-research-note]
 labels: [docs]
 stories: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21, 22]

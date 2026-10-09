@@ -1,7 +1,7 @@
 ---
 id: layout-research-note
 title: Write the package layout research note, pinned to one commit
-status: in-progress
+status: done
 depends_on: []
 labels: [docs]
 stories: [1, 2, 3, 4, 5, 6, 7, 21]

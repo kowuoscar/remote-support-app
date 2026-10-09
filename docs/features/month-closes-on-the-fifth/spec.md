@@ -416,10 +416,6 @@ Dated notes, each in the existing "Amended by ADR 0007: …" shape:
   editable until its month close". If open question 5 is answered yes, the note
   adds the `APPROVED → DRAFT` send-back while open.
 
-`invoice-adjustment`'s draft spec names its own ADR "0007". It becomes 0008
-when it is next revised (it must be revised anyway, against the 2026-10-08
-answers).
-
 ### Untouched, and why that is correct
 
 - **Fees** still land in the month they are logged.

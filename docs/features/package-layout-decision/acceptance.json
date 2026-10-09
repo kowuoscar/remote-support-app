@@ -105,9 +105,9 @@
     {
       "step": 15,
       "actor": "agent",
-      "status": "failed",
+      "status": "passed",
       "evidence": "evidence/step-15.txt",
-      "note": "No approval item for this feature in docs/inbox/."
+      "note": "Replayed: docs/inbox/approve-package-layout.md answerable approve/amend/reject; states cost and ArchUnit 1.4.2 test-scope Apache-2.0."
     },
     {
       "step": 16,

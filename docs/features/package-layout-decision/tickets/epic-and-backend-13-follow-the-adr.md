@@ -1,7 +1,7 @@
 ---
 id: epic-and-backend-13-follow-the-adr
 title: Rewrite the epic's feature list and amend Backend 13 from the ADR
-status: ready-for-agent
+status: in-progress
 depends_on: [package-layout-adr]
 labels: [docs]
 stories: [18, 19, 21]

@@ -1,0 +1,134 @@
+{
+  "feature": "package-layout-decision",
+  "played_at": "2026-10-09",
+  "played_on": "feature/package-layout-decision",
+  "environment": "Documentation-only: reads, greps and git show at pinned commit e22e81f; python recount; curl on source URLs; JDK 21 mvn verify and the frontend verify steps, 84 e2e passed.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1.txt",
+      "note": ""
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2.txt",
+      "note": ""
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3.txt",
+      "note": ""
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4.txt",
+      "note": ""
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": ""
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": ""
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": ""
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8.txt",
+      "note": ""
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9.txt",
+      "note": ""
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-10.txt",
+      "note": ""
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-11.txt",
+      "note": ""
+    },
+    {
+      "step": 12,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-12.txt",
+      "note": ""
+    },
+    {
+      "step": 13,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-13.txt",
+      "note": ""
+    },
+    {
+      "step": 14,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-14.txt",
+      "note": ""
+    },
+    {
+      "step": 15,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-15.txt",
+      "note": "Replayed: docs/inbox/approve-package-layout.md answerable approve/amend/reject; states cost and ArchUnit 1.4.2 test-scope Apache-2.0."
+    },
+    {
+      "step": 16,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 17,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 18,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+18:**Rejected candidates** (note section 3, comparison in section 4)
+19-
+20:- **Package by feature with layer sub-packages (`web`, `domain`, `repository`, `service` inside each
+21-  feature).** Rejected for the first pass. It re-creates the layer names that Backend 13 rejects, gives every
+22-  class a second decision, splits the `web` package's 78 classes a second time, and makes Backend 6's "beside
+23-  its package's unit tests" ambiguous. The note found no primary source recommending it [18]. A feature
+--
+25:- **Spring Modulith application modules.** Rejected for now. Its verification rejects cycles between
+26-  modules [6], and the code has them at twelve and at six packages, so verification would fail from day one;
+27-  open modules relax only the internals rule, not the cycle rule. Adopting it first means breaking the
+28-  `User`, `Agent` and `Tester` cycle and the invoicing cycle, which are code changes the epic excludes. It
+--
+32:- **Hexagonal (ports and adapters).** Rejected. It is a redesign of 222 classes rather than a move: separate
+33-  domain and JPA classes with mappers for 20 entities [16], new port interfaces for the use cases of about
+34-  30 controllers, and a behaviour risk in every step, in an epic that carries none. Its package names
+35-  (`adapter`, `application`, `port`) are layers, against Backend 13. The note found no production Spring
+--
+37:- **Keeping the layered packages and adding the boundary tool alone.** Rejected: it does not meet the
+38-  human's request, and `web` keeps growing.
+39:- **A facade in front of `Contract` and `Request`.** Rejected (decision 4): 43 and 29 call sites to rewrite,
+40-  no behaviour gained.
+41:- **Breaking the cycle first, or inside the invoicing move.** Rejected (decision 5): a move changes no
+42-  logic, and the break needs its own tests.
+43:- **Using Spring Modulith's test starter only as the verifier.** Not chosen: it brings the same cycle rule
+44-  that blocks it, and it pulls ArchUnit 1.3.1 anyway [9], so ArchUnit directly is the smaller dependency.
+45-
+46-**New dependencies, each with scope and licence**

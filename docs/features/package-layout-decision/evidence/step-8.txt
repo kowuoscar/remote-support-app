@@ -1,0 +1,65 @@
+### 3. Global pieces
+
+One line each. None of them belongs to a single feature.
+
+- **`SecurityConfig`** stays in `security`, alone in it once the epic is done. Its single matcher chain keeps
+  naming the routes of many features (28 `requestMatchers`, note C4); it is the one class allowed to
+  depend on every feature, and the one place a route's authorisation is read in full.
+- **`AuditLog`** stays in `logging` with `RequestLoggingFilter`. It is a static helper called from 27 main
+  files; any package may call it, and it imports no feature.
+- **The Flyway migrations** stay in `backend/src/main/resources/db/migration`. Their location is set by
+  configuration, not by Java packages [3]. No migration is edited and none is added by a move. The seven
+  migration tests stay in the test package `migration`.
+- **`IntegrationTest` and its fixtures** (`OtherTenantFixture`) stay in the test package `support`. Every
+  integration test extends `IntegrationTest` from its feature package, beside the unit tests of that
+  package (Backend 6).
+- **`demo`** stays as it is: `DemoDataLoader` runs only under the `demo` profile and imports 72 project types
+  from every layer (note C4). It may depend on any feature. No feature depends on it.
+- **Shared types.** `BillingMonth`, `Country`, `Currency`, `NotFoundException`, `ConflictException` and
+  `InvalidRequestException` go to `shared`; `Tenant` and `TenantRepository` go to `tenant`; `HealthController` goes to
+  `system`. `shared` and `tenant` import no feature. A type enters `shared` only when three or more
+  features use it and it names no feature's entity; anything else stays with its owner. `shared` is
+  where code that fits nowhere ends up, so a reviewer refuses a new class there that one feature uses.
+
+### 4. Cross-feature references
+
+One feature uses another's entity, repository or service in one of these ways, and no other.
+
+- **Entities: a feature may import another feature's entity and hold a JPA association to it.** There are
+  56 associations across the codebase and 17 of them point to `Tenant` (note C6), and they cross features
+  throughout. `Contract` is imported by 43 main files and `Request` by 29 (note C2). **No facade, interface or
+  copy is put in front of `Contract` or `Request`**: both are plain entities with public accessors, and
+  hiding them would need 43 and 29 call sites rewritten without any behaviour change to show for it. The
+  rule is the same for every other entity.
+- **Repositories are private to their feature.** A class outside a feature does not import that feature's
+  repository. It calls the owning feature's service, or the owning feature's access guard where one
+  already exists (`ContractAccessGuard`, `RequestAccessGuard`). `TenantRepository` is the exception,
+  because `tenant` is global. Today about 57 uses in 13 repositories break this rule (an identifier match
+  over the main tree, `TenantRepository` excluded, `ContractRepository` 9 and `SimCardRepository` and
+  `SmartphoneRepository` 9 each). They go to the boundary tool's frozen list; a move does not fix them, and
+  a new feature must not add one.
+- **Services: a cross-feature call goes to a public service class of the owner.** Never to a controller, and
+  never to a handler, validator or completion effect inside `request`'s sub-packages.
+- **Request and response types are private to their feature.** A controller returns its own feature's
+  response types. An existing exception goes to the frozen list.
+- **Direction.** Because eleven clusters form one cycle (Context), the rule cannot yet say "features form a
+  tree". It says no new package-to-package cycle may appear and the existing one may not grow. Breaking it
+  is later work (decision 5 and Consequences).
+
+### 5. The `@Lazy` cycle
+
+**Invoicing stays one package, `invoice`, so the cycle does not cross a package boundary, and no move breaks
+it.** `ClientInvoiceService`, `AgentInvoiceService` and `ContractAmountService` all land in `invoice`
+(decision 2), together with the Review Queue and standing amounts. The chain is the one in Context:
+`ClientInvoiceService` to `AgentInvoiceService` to `ContractAmountService`, and `ContractAmountService` back to
+`ClientInvoiceService` through `@Lazy`.
+
+**A feature of its own breaks it, `break-the-invoice-service-cycle`, not a prefactor inside the invoicing
+move.** It runs after `move-invoice` and does what the recorded debt already proposes: extract the line
+resolution that both `ClientInvoiceService` and `ContractAmountService` need into its own class, so no
+service depends on `ClientInvoiceService` lazily. It changes code and needs its own tests, which the move
+recipe forbids inside a move. It is not on the epic's critical path: the layer packages can be deleted
+without it. It absorbs the `docs/tech-debt.md` entry "Dependency cycle bridged by `@Lazy`" and
+the neighbouring "Repeated kind filters" entry on `ContractAmountService`.
+
+### 6. Boundary tool

@@ -13,6 +13,12 @@ separated by ` · `.
 
 ## frontend
 
+- `frontend/tests/e2e/helpers.ts` · smell: Possibly flaky logout helper · in the login-lifecycle journey run the shared `logout` helper's click on the Manager's Log out failed once with "element is not stable… detached"; unexplained, not reproduced · login-lifecycle · 2026-10-06
+- `frontend/components/agent/agent-client-invoice-card.tsx` · smell: Duplicated invoice layout · the summary, Fee-lines and Carrier-files sections closely repeat `frontend/components/manager/client-invoice-detail-view.tsx`; the Manager view also re-implements the focus-on-status-change logic of `frontend/components/agent/client-invoice-status-note.tsx` · send-a-client-invoice-back · 2026-10-06
+- `frontend/app/agent/client-invoices/[invoiceId]/page.tsx` · smell: Silent degraded title · the Contracts read uses `backendFetchList`, which turns a failure into [] without logging, so the title quietly falls back to 'Client Invoice'; use `backendFetchJsonOrNull` · send-a-client-invoice-back · 2026-10-06
+- `frontend/components/agent/client-invoices-view.tsx` · smell: Long Contract names lose the country · the clamped Contract cell in the 'Sent back to you' table cuts long names before the country, with no title, and the Open link's accessible name omits the country · send-a-client-invoice-back · 2026-10-06
+- `frontend/components/ui/button.tsx` · smell: Contrast below AA in dark · the danger variant is white on #f16b7a (~2.95:1) in dark theme; app-wide and pre-existing · send-a-client-invoice-back · 2026-10-06
+- `frontend/components/agent/agent-client-invoice-card.tsx` · smell: Columns hidden on phones · at 375px the SIM and Fee tables show only their first column; Billed and Edit sit off-screen inside TableScroll with no hint (pre-existing layout, moved unchanged) · send-a-client-invoice-back · 2026-10-06
 - `frontend/components/ui/contract-switcher.tsx` · smell: Single-contract label can overflow · the single-contract branch is an `inline-flex` div with no truncation or `max-w`, so a very long client name would push the page wider than a phone (the multi-contract button was fixed) · send-a-client-invoice-back · 2026-10-05
 - `frontend/components/manager/client-invoice-detail-view.tsx` · smell: Two badges for one state · the Manager's detail view still shows Draft on a sent-back invoice while the Agent card shows Sent back via `clientInvoiceBadge` in `frontend/lib/status.ts`; one helper could serve both · send-a-client-invoice-back · 2026-10-05
 - `frontend/components/agent/agent-client-invoice-card.tsx` · smell: Dead end for an old draft · a past-month draft never sent opens read-only with only a closed note; the Agent has no way to act on it · send-a-client-invoice-back · 2026-10-05
@@ -62,6 +68,7 @@ separated by ` · `.
 
 ## backend
 
+- `backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceSentBackController.java` · smell: Controller reads the repository directly · the sent-back list maps repository rows in the controller with no service (follows package precedent) · send-a-client-invoice-back · 2026-10-06
 - `backend/src/main/java/com/remotesupport/backend/web/AuthController.java` · smell: Refusal body built in try/catch · the wrong-password 401 is still a `catch (BadCredentialsException)` rather than a per-controller `@ExceptionHandler` (coding-standards Backend 7); the deactivated path now uses one · deactivate-a-login · 2026-10-03
 - `backend/src/main/java/com/remotesupport/backend/web/ContractAmountService.java` · smell: Repeated kind filters · the filter-by-kind/map-to-id streams repeat here and in `ClientInvoiceService`; a `ResolvedLine.sourceId()` accessor would remove them · edit-client-invoice-lines · 2026-10-03
 - `backend/src/test/java/com/remotesupport/backend/web/ClientInvoiceLineEditApiTest.java` · smell: Cases that don't name themselves · invalid amounts in a hand-rolled loop and six 404 cases in one `@Test`; use `@ParameterizedTest` · edit-client-invoice-lines · 2026-10-03

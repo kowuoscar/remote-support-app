@@ -60,6 +60,10 @@ the `check` goal), Flyway, Testcontainers.
    exists nowhere in `backend/src/main`; four controllers use their own
    `@ExceptionHandler`, so the rule as written blocked every diff that followed
    the project's only pattern. The prohibition was always obeyed and is kept.)
+   Spring Security's own exceptions (`AccessDeniedException`,
+   `AuthenticationException` and their subclasses) are allowed from a service:
+   the security filter chain translates them, and a domain wrapper would add
+   nothing. (Amended by the human, 2026-10-08.)
 8. A `@Transactional` method never calls an external HTTP or queue client
    inside the transaction; dispatch that call after commit (event listener,
    outbox) so a slow downstream never holds a database lock.
@@ -75,16 +79,31 @@ the `check` goal), Flyway, Testcontainers.
 12. Table-driven tests (`@ParameterizedTest` + `@MethodSource`) for any
     method with more than two branch conditions, instead of copy-pasted
     per-case tests.
-13. Package by feature (`authentication`, `fleet`, `requests`, `invoicing`),
-    not by layer (`controllers`, `services`, `repositories`) — a feature's
-    files stay next to each other. **This is the norm for new code**, decided
-    by the human on 2026-09-22.
+13. Package by feature, not by layer (`controllers`, `services`,
+    `repositories`) — a feature's files stay next to each other. **This is
+    the norm for new code**, decided by the human on 2026-09-22.
     The backend does not obey it yet: it is packaged by layer (`web`,
     `repository`, `dto`, `domain`, `security`, `logging`), and moving it is
     the `package-by-feature` epic, not something a feature ticket does on the
     side. Until that epic lands, a reviewer cites this rule only against a
     **new** package or module choosing the layered shape — never against a
     change that follows the existing layout, which has nowhere else to go.
+
+    **Once ADR 0006 (`docs/adr/0006-backend-is-packaged-by-feature-flat.md`)
+    is accepted by the human and the boundary check exists
+    (`package-boundary-check` merged)**, the rest of this rule applies in
+    addition; before both, it does not. The ADR then fixes the layout and the
+    package names, and wins over any package-name example in this file. The
+    backend moves one cluster at a time, and until the last move two layouts
+    coexist:
+    - A **moved** cluster takes new code in its feature package only.
+    - An **unmoved** cluster takes new code in the existing layered package,
+      with the boundary check's exception-list entry that ADR 0006 decision 6
+      describes.
+
+    Once the last cluster has moved, the boundary check is the authority. A
+    reviewer cites this rule against a class the check lets through only when
+    the exception list is wrong.
 14. Configuration is bound to typed `@ConfigurationProperties` classes,
     never scattered `@Value("${...}")` injections across unrelated beans.
 
@@ -125,10 +144,10 @@ not something a ticket does on the side.
    bug, not a config oversight.
 8. Compose Tailwind classes from the tokens in `frontend/app/globals.css`
    (`@theme`, Tailwind v4); an arbitrary value (`w-[123px]`) needs a comment
-   saying why it isn't a token. The two small type sizes are tokens, not
-   arbitrary values, once the `type-scale-tokens` enabler lands; until then
-   `text-[12px]`/`text-[13px]` in unchanged lines are known debt.
-   (Amended by the human, 2026-10-01.)
+   saying why it isn't a token. The two small type sizes are the tokens
+   `text-label-sm` and `text-label`: a new or changed line uses them, never
+   `text-[12px]`/`text-[13px]`, and those values left in untouched lines are
+   known debt. (Amended by the human, 2026-10-01 and 2026-10-08.)
 9. Unit and component tests (Vitest + Testing Library) sit next to the file
    as `*.test.tsx`; end-to-end journeys (Playwright) sit under `e2e/`, one
    file per journey.

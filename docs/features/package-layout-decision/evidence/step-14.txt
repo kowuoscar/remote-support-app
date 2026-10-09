@@ -1,0 +1,17 @@
+merge-base: e22e81fd5408f0c427b3e723008fcbf6e748d6db
+A	docs/adr/0008-backend-is-packaged-by-feature-flat.md
+M	docs/agents/coding-standards.md
+A	docs/features/package-layout-decision/research.md
+M	docs/features/package-layout-decision/tickets/epic-and-backend-13-follow-the-adr.md
+M	docs/features/package-layout-decision/tickets/layout-research-note.md
+M	docs/features/package-layout-decision/tickets/package-layout-adr.md
+M	docs/roadmap/package-by-feature.md
+
+?? docs/features/package-layout-decision/evidence/
+
+sdlc-check-harness
+{
+  "errors": [],
+  "ok": true,
+  "warnings": []
+}

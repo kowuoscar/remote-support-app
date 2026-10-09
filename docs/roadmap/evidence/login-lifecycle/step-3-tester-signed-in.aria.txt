@@ -1,0 +1,29 @@
+- alert: Dashboard
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Client Portal
+  - navigation:
+    - link "Dashboard":
+      - /url: /client
+    - link "Fleet":
+      - /url: /client/fleet
+    - link "Requests":
+      - /url: /client/requests
+    - link "Invoices":
+      - /url: /client/invoices
+- banner:
+  - heading "Dashboard" [level=1]
+  - paragraph: Journey Client 1791269045158
+  - button "journey.tester+1791269045158@client.example · Tester"
+  - button "Switch to dark theme"
+- main:
+  - text: Active Fleet 0 Smartphones + SIM Cards, all Contracts Open Requests 0 Pending Approval, Submitted or In Progress
+  - heading "Latest Client Invoice" [level=2]
+  - paragraph: Most recent month per Contract
+  - link "Open Invoices":
+    - /url: /client/invoices
+  - list:
+    - listitem:
+      - paragraph: Journey Client 1791269045158 — France
+      - text: No invoices yet

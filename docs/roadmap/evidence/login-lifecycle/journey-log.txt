@@ -1,0 +1,11 @@
+agent options: Journey Agent 1791269045158 · EUR
+setup ok agentId=66c19ee6-e61e-4276-a739-c64b5ebb43be contractId=bc9697cb-324d-4d75-ae4c-ad683edcd9d9 clientId=8e3655a5-aacf-42ab-a246-47f93f3f8872
+step1 ok: change, sign-out via redirect, old refused, new signs in
+step2 reset agent; 
+step2 observation: agent open session after reset url=http://127.0.0.1:13481/agent
+step2 ok
+step3 ok
+step4 open session /api/me status=404
+step4 done
+step5 invoice readable status=401
+step5 ok

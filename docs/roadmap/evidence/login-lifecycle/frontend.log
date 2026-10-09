@@ -1,0 +1,17 @@
+
+> frontend@0.1.0 start
+> next start -p 13481
+
+▲ Next.js 16.3.5
+- Local:         http://localhost:13481
+- Network:       http://192.168.1.34:13481
+✓ Ready in 81ms
+✓ Running next.config.ts took 29ms
+⨯ Error: The destination stream closed early.
+    at ignore-listed frames {
+  digest: '3054102308'
+}
+⨯ Error: The destination stream closed early.
+    at ignore-listed frames {
+  digest: '3054102308'
+}

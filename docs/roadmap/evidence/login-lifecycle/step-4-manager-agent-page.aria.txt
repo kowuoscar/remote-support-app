@@ -1,0 +1,64 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Manager Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /manager
+    - link "Requests":
+      - /url: /manager/requests
+    - link "Clients":
+      - /url: /manager/clients
+    - link "Agents":
+      - /url: /manager/agents
+    - link "Contracts":
+      - /url: /manager/contracts
+    - link "Stock":
+      - /url: /manager/stock
+    - link "Carriers":
+      - /url: /manager/carriers
+    - link "Invoices":
+      - /url: /manager/invoices
+- banner:
+  - heading "Journey Agent 1791269045158" [level=1]
+  - paragraph: France · EUR · 1 contract
+  - button "Manager"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Breadcrumb":
+    - link "Agents":
+      - /url: /manager/agents
+    - text: Journey Agent 1791269045158
+  - paragraph: Country
+  - paragraph: France
+  - paragraph: Currency
+  - paragraph: EUR
+  - paragraph: Contracts
+  - paragraph: "1"
+  - paragraph: Sign-in email
+  - paragraph: journey.agent+1791269045158@agents.example
+  - text: Deactivated since 6 Oct 2026
+  - button "Reset password"
+  - button "Reactivate login"
+  - status
+  - heading "Standing amounts" [level=2]
+  - heading "Standing monthly salary" [level=3]
+  - paragraph: Auto-populates the Salary line on every future Agent Invoice.
+  - text: Currently in effect €2,400.00 New amount (EUR)
+  - spinbutton "New amount (EUR) Save": "2400"
+  - button "Save"
+  - paragraph: Takes effect from November 2026 — never changes the invoice already in progress.
+  - heading "Standing Rollout Advance" [level=3]
+  - paragraph: Cash-flow support — repaid the following month and re-advanced each cycle.
+  - text: Currently in effect €0.00 New amount (EUR)
+  - spinbutton "New amount (EUR) Save": "0"
+  - button "Save"
+  - paragraph: Takes effect from November 2026 — never changes the invoice already in progress.
+  - region "Agent Invoice":
+    - heading "Agent Invoice" [level=2]
+    - paragraph: October 2026
+    - text: Draft
+    - paragraph: Total €2,400.00
+    - link "Open invoice":
+      - /url: /manager/invoices/agent/7fb0bb45-4d46-41fa-ae20-68f7c14a0608
+- alert

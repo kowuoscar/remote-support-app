@@ -1,0 +1,17 @@
+- banner:
+  - text: N Remote Support Platform
+  - button "Switch to dark theme"
+- main:
+  - heading "Sign in" [level=1]
+  - paragraph: Use your Manager, Agent or Client Portal credentials.
+  - alert: This login has been deactivated. Ask your Manager if you need access again.
+  - text: Email
+  - textbox "Email" [invalid]:
+    - /placeholder: you@example.com
+    - text: journey.agent+1791269045158@agents.example
+  - text: Password
+  - textbox "Password" [invalid]:
+    - /placeholder: ••••••••
+    - text: gv4r-nsjt-ugc8
+  - button "Sign in"
+- alert

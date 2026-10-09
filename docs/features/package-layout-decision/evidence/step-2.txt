@@ -1,0 +1,45 @@
+209:### 3.1 Package by feature, flat
+211:*What it is.* One package per feature; the feature's entity, repository, service, controller and DTOs live together.
+215:*Where it is used.* Spring PetClinic's main branch: packages `owner` (entity, controller, repository, validator,
+218:*Fit.* C1 fits: moves files, no redesign. C2 fits: Contract and Request stay public entities in their feature
+224:*Cost beyond moving files.* No tool enforces the boundary, so the check feature (ArchUnit) is added: one test class
+230:*Verdict.* Chosen.
+232:### 3.2 Package by feature with layer sub-packages
+234:*What it is.* One package per feature, with `web`, `domain` (or `model`), `repository`, `service` sub-packages
+237:*Where it is used.* Evidence of existence is thinner than for the other three. The Spring PetClinic microservices
+243:*Fit.* C1 costs: each of the 12 clusters needs its layer folders, up to about 48 sub-packages (12 times four) for 222
+250:*Cost beyond moving files.* A second decision for every class (which layer folder). The `web` package's 78 classes
+253:*Verdict.* Rejected for the first pass. A feature may later add one internal sub-package if it outgrows a flat
+256:### 3.3 Spring Modulith application modules with verified boundaries
+258:*What it is.* Each direct sub-package of the main package is an application module; its API is the public types in
+263:*Where it is used.* The project's own example: `example.order` and `example.inventory` modules, with
+266:*Fit.* C1 fits. C2 fits if Contract and Request are public in the base package. C3 fits if invoicing is one module.
+275:*Cost beyond moving files.* A runtime or compile dependency on `spring-modulith-api` only if modules are annotated
+281:*Verdict.* Rejected for now. Reconsider after the cycles are broken.
+283:### 3.4 Hexagonal (ports and adapters)
+285:*What it is.* The application core (domain objects and use cases) has no outward dependencies; it talks to the
+289:*Where it is used.* Buckpal, the companion repository of a book on the style, with `application/port/in`,
+294:*Fit.* C1 costs: it is a redesign of 222 classes, not a move. C2 costs: Contract and Request would become domain
+299:*Cost beyond moving files.* New port interfaces for 30 controllers' use cases, 20 JPA entity and domain pairs and
+302:*Verdict.* Rejected.
+## 4. Comparison
+
+One word per cell. "blocks" means it cannot be done without a change the epic excludes.
+
+| Constraint | Flat by feature | Feature plus layer sub-packages | Spring Modulith | Hexagonal |
+|---|---|---|---|---|
+| C1 size and clusters | fits | costs | fits | costs |
+| C2 Contract and Request | fits | fits | fits | costs |
+| C3 lazy cycle | fits | fits | fits | costs |
+| C4 global pieces | fits | fits | costs | fits |
+| C5 whole-tree scanning | fits | fits | fits | fits |
+| C6 JPA associations, visibility | fits | fits | fits | costs |
+| C7 Backend 6 | fits | costs | costs | costs |
+| C8 `ARCHITECTURE.md` and harness | costs | costs | costs | costs |
+| C9 Checkstyle | fits | fits | fits | fits |
+| C10 Boot 3.3.4, JDK 21 | fits | fits | fits | fits |
+| C11 module cycles | fits | fits | blocks | costs |
+| C12 Backend 13 norm | fits | costs | fits | costs |
+
+Trace: flat is 3.1, layer sub-packages 3.2, Modulith 3.3, hexagonal 3.4; each cell's reason is the "Fit" paragraph
+of that section.

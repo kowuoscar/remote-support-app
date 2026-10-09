@@ -1,0 +1,10 @@
+Step 15 replay (2026-10-09) - approval item docs/inbox/approve-package-layout.md
+
+1. Exists: docs/inbox/approve-package-layout.md (id approve-package-layout, type: approval, status: open, blocks: [package-boundary-check]).
+2. Answerable without opening code: "## Question" ends "Answer **approve**, **amend: ...** or **reject**."; the layout is in plain words,
+   points to ADR 0006 and research.md section 1; "## Answer" is empty and waiting; "## Recommendation" says Approve.
+3. Cost stated: "Eight features after this one" (listed 1-8), "217 of 222 classes change folder. Nothing changes for users, and the app stays working after each step."
+4. New dependency, scope and licence: "One new dependency: ArchUnit 1.4.2, used only in tests, free (Apache 2.0). Nothing new ships in the app."
+   Matches ADR 0006 lines 230-233, 274-276, 400-406 (archunit-junit5 1.4.2, test, Apache-2.0, no main-scope dependency).
+5. Also states the four choices made without the human (growable exceptions list, shared/system names, Backend 13 rewrite, epic move list).
+Result: PASS

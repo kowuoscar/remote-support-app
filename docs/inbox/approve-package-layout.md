@@ -2,7 +2,7 @@
 id: approve-package-layout
 type: approval
 status: open
-blocks: [package-by-feature]
+blocks: [package-boundary-check]
 created: 2026-10-09
 ---
 
@@ -59,7 +59,7 @@ features in flight keep working through the move.
 
 ## Blocks
 
-The moves in `package-by-feature`. The next feature, `package-boundary-check`,
+The moves in `package-by-feature`: the next feature, `package-boundary-check`,
 doesn't start until you answer.
 
 ## Meanwhile

@@ -1,0 +1,41 @@
+ls docs/inbox:
+adjustment-charge-already-paid.md
+approve-real-manager-dashboard.md
+approve-super-admin-signs-in.md
+month-close-paid-pay.md
+month-close-tester-sees-changes.md
+
+grep package-layout|0008|layout in inbox:
+docs/inbox/approve-super-admin-signs-in.md
+docs/inbox/approve-real-manager-dashboard.md
+
+## Decisions taken
+
+- **The layout is approved after the research, through an approval item, not
+  in this spec.** The order is:
+  1. This spec is approved. That approves the research plan.
+  2. The tickets deliver the note, the proposed ADR, the rewritten epic list
+     and the amended Backend 13, with the ADR at `Status: proposed`.
+  3. The delivery files one `approval` item in `docs/inbox/`. It covers the
+     recommendation, the cost, any new dependency with its scope and licence,
+     and the move order, and it can be answered "approve / amend: … /
+     reject".
+  4. When the human approves, the ADR becomes `accepted`. When the human
+     amends or rejects, the answer is a correction, and a fix pass rewrites
+     the four documents before anything else happens.
+  5. No spec for the next feature is drafted until the item is answered.
+
+  Reason: the human asked for a researched layout, so it cannot be put to
+  them before the research exists. Documents on `main` are cheap to revise,
+  so landing them as `proposed` costs nothing if the answer is "amend".
+- **A test-scope boundary library is the agents' call. A main-scope dependency
+  is not.** ArchUnit, or `spring-modulith-starter-test` used for verification
+  only, is free (Apache-2.0), replaceable and test-scope, so the research may
+  choose it without asking. Anything that would sit in main scope needs the
+  approval item, which states it plainly (story 22). That includes Spring
+  Modulith's `@ApplicationModule` annotations in production code, its event
+  publication registry, and jMolecules annotations. Reason: per
+  `escalation.md`, a free, replaceable library is a *how*, but a runtime
+  dependency woven through 222 classes is costly to undo.
+- **The note lives in the feature folder, not under a new `docs/research/`.**
+  It is this feature's evidence, and the ADR links to it. A new top-level

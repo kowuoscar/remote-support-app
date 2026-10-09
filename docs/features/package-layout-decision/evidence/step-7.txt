@@ -1,0 +1,27 @@
+dup main names [] dup test []
+rows 23
+OK  authentication 30 18 {'web': 10, 'security': 10, 'dto': 6, 'domain': 3, 'repository': 1}
+OK  identity (`/api/me`) 6 3 {'dto': 3, 'web': 3}
+OK  agents 11 3 {'domain': 1, 'web': 4, 'dto': 4, 'repository': 2}
+OK  clients and Testers 13 3 {'domain': 2, 'web': 4, 'dto': 5, 'repository': 2}
+OK  contracts 8 1 {'domain': 1, 'security': 1, 'web': 3, 'dto': 2, 'repository': 1}
+OK  carriers 19 2 {'domain': 4, 'security': 1, 'dto': 7, 'web': 3, 'repository': 4}
+OK  fleet 22 5 {'security': 1, 'domain': 6, 'dto': 9, 'web': 4, 'repository': 2}
+OK  stock 3 2 {'web': 2, 'dto': 1}
+OK  requests 19 7 {'domain': 5, 'dto': 7, 'web': 4, 'security': 1, 'repository': 2}
+OK  requests, completion effects 8 0 {'web': 8}
+OK  requests, approval 3 0 {'web': 3}
+OK  requests, details 11 0 {'web': 11}
+OK  fees 6 2 {'domain': 2, 'web': 1, 'dto': 2, 'repository': 1}
+OK  Client Invoices 31 11 {'domain': 6, 'repository': 6, 'dto': 9, 'web': 9, 'security': 1}
+OK  Agent Invoices 18 2 {'domain': 4, 'security': 1, 'web': 5, 'dto': 5, 'repository': 3}
+OK  global: shared types 6 0 {'domain': 3, 'web': 3}
+OK  global: Tenant 2 0 {'domain': 1, 'repository': 1}
+OK  global: health 1 1 {'web': 1}
+OK  global: security config (stays) 1 1 {'security': 1}
+OK  global: logging (stays) 2 0 {'logging': 2}
+OK  global: demo (stays) 1 1 {'demo': 1}
+OK  global: root (stays) 1 0 {'root': 1}
+OK  global: test support and migrations (sta 0 9 {}
+main listed 222 unique 222 actual 222 missing [] extra []
+test listed 71 unique 71 actual 71 missing [] extra []

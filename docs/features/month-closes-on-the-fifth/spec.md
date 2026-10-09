@@ -98,7 +98,7 @@ exists only for a closed month, and this feature defines "closed".
   both Client Invoices and their own Agent Invoice.
 - Open, closed and Late are computed from the clock when they are read. No
   job, no stored state, and an injected `Clock` makes every boundary testable.
-- A new ADR 0006 records the rule, and dated notes amend ADR 0001, 0003, 0004
+- A new the month-close ADR records the rule, and dated notes amend ADR 0001, 0003, 0004
   and 0005.
 
 **Non-goals.** Each of these is something a reasonable agent would otherwise
@@ -385,7 +385,7 @@ Agent Invoices of earlier months that are open, at most a handful, as
 
 ### ADR plan
 
-A new **ADR 0006, "A month's invoices stay open until the 5th of the following
+A new **ADR (the next free number in `docs/adr/` when it merges; no number is reserved), "A month's invoices stay open until the 5th of the following
 month"**, recorded with the first behaviour ticket. It records:
 
 - the rule above (open, closed, Late, computed on read, one close moment for
@@ -401,7 +401,7 @@ month"**, recorded with the first behaviour ticket. It records:
   sending an edited approved invoice back to review (the human said it stays
   editable).
 
-Dated notes, each in the existing "Amended by ADR 0006: …" shape:
+Dated notes, each in the existing "Amended by the month-close ADR: …" shape:
 
 - **ADR 0001**: from `sent` onward a figure may still move until the month
   close, by an edit of the Agent or a Manager. The freeze now holds from the
@@ -410,15 +410,11 @@ Dated notes, each in the existing "Amended by ADR 0006: …" shape:
   and Local Support Fees follow a Client Invoice edit while `SENT` or
   `APPROVED` and open. Its rejected alternative "override at `APPROVED`" is
   reversed until the close.
-- **ADR 0004**: the pay table is replaced by ADR 0006's, and `editLine` applies
+- **ADR 0004**: the pay table is replaced by the month-close ADR's, and `editLine` applies
   to every open invoice, not only drafts.
 - **ADR 0005**: "`approved` stays terminal" becomes "an approved invoice is
   editable until its month close". If open question 5 is answered yes, the note
   adds the `APPROVED → DRAFT` send-back while open.
-
-`invoice-adjustment`'s draft spec names its own ADR "0006". It becomes 0007
-when it is next revised (it must be revised anyway, against the 2026-10-08
-answers).
 
 ### Untouched, and why that is correct
 
@@ -630,10 +626,9 @@ internals of `MonthClose`.
 - **`PAST_MONTH_DRAFT_NOT_SENDABLE` is retired in favour of
   `MONTH_CLOSED`.** The case it guarded no longer exists. The enum value stays
   one release for clients that read it.
-- **One new ADR 0006 with dated notes on ADR 0001, 0003, 0004 and 0005.** The
+- **One new the month-close ADR with dated notes on ADR 0001, 0003, 0004 and 0005.** The
   decision is hard to reverse once real invoices change after approval,
   surprising without context, and a real trade-off against ADR 0001.
-  `invoice-adjustment`'s planned ADR becomes 0007.
 - **A sent or approved invoice still shows no late-Fee lines.** ADR 0004's
   read rule is untouched, and the Fee still reaches pay at its logged amount.
 - **Testing: one new seam (the clock) plus the existing HTTP, component and e2e
@@ -689,7 +684,7 @@ used in steps 11–13.
 15. [agent] If open question 5 is answered yes, at `2026-11-03`, send back an approved October Client Invoice as the Manager. Show `DRAFT`, the reason, `approvedAt` cleared, and the Agent Invoice unchanged. Then at `2026-11-06` show the same send-back refused on a closed one. (stories: 16)
 16. [human] On a real month: in the first days of the next month, change a line on an invoice you already approved, then check the Agent's pay for that month moved by the same amount and the invoice says "Changed after approval". Confirm that is how you want late corrections to look. (stories: 2, 4, 12, 22)
 17. [human] On the 6th, open the Late list and confirm the invoices it flags, and the "not sent · N days late" wording, are the ones you would chase. Confirm an approved invoice of last month now refuses changes and points you to an adjustment. (stories: 18, 23, 28)
-18. [human] Read ADR 0006 and the notes on ADR 0001, 0003, 0004 and 0005. Confirm they say what you settled: editable by the Agent and the Manager until the 5th whatever the status; an edit moves that month's pay; closed for everyone from the 6th; Late stays open and closes on approval; and paid pay never moves. (stories: 1, 2, 4, 23, 27)
+18. [human] Read the month-close ADR and the notes on ADR 0001, 0003, 0004 and 0005. Confirm they say what you settled: editable by the Agent and the Manager until the 5th whatever the status; an edit moves that month's pay; closed for everyone from the 6th; Late stays open and closes on approval; and paid pay never moves. (stories: 1, 2, 4, 23, 27)
 
 ## Execution order
 
@@ -703,7 +698,7 @@ final slices. This is the intended order:
 2. `client-invoices-stay-open-until-the-fifth`. Labels: `backend`. `MonthClose`,
    the open predicate replacing "open to its Agent" for edit, attach and send,
    `MONTH_CLOSED`, the Manager on the by-id line edit, `changedAfterApprovalAt`
-   (the migration), the response fields, ADR 0006 and the notes on 0001, 0004
+   (the migration), the response fields, the month-close ADR and the notes on 0001, 0004
    and 0005. Depends on 1.
 3. `agent-pay-follows-edits-until-the-fifth`. Labels: `backend`. The pay table
    (`APPROVED` while open moves; closed or `PAID` does not), the override on

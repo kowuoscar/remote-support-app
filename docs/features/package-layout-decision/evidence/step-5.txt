@@ -1,0 +1,26 @@
+main total: 222
+test total: 71
+extends IntegrationTest: 57
+Per-cluster main recount (via ADR class assignment, see step-7.txt) matches note section 5 table row by row for all 12 clusters and global=14 (checked by hand: auth 30 10/6/3/1/10, identity 6, agents 11, clients 13, contracts 8, carriers 19, fleet 22, stock 3, requests 19+8+3+11=41 (26/7/5/2/1), fees 6, CI 31, AI 18, global 14). Note test per-cluster: agents 2 vs ADR 3, global 13 vs ADR 12 (ADR ruling: CrossTenantUsernameAgentCreationApiTest moved to agents); totals both 71.
+
+Not-settled section lines 364-383:
+## 6. What is not settled
+
+- *Which cycles the ADR breaks, and when.* C11 measures cycles by identifier match, not by a compiler or ArchUnit
+  run; the exact edges that close them need a real tool run in `package-boundary-check`. Reason: no tool is added by
+  this feature.
+- *ArchUnit and the JUnit platform of Boot 3.3.4.* The chosen ArchUnit artifact declares no JUnit platform version
+  [12]; no source states it was run against Boot 3.3.4's JUnit. Reason: building it would edit `pom.xml`, which this
+  feature may not. `package-boundary-check` must run it once before relying on it.
+- *Evidence for layer sub-packages inside features.* Only a per-service example was found [18]; no primary source
+  recommends or warns against it. Reason: the sources surveyed describe flat modules (Boot, Modulith) or hexagonal
+  layers, not this hybrid.
+- *Hexagonal in a codebase this size.* Buckpal is a teaching project [17]; no production Spring codebase of 200+
+  classes was found with a documented migration cost. Reason: only blogs and books exist, and they count as
+  existence evidence only.
+- *Spring Modulith on JDK 21.* No Modulith page states a JDK range; the note infers it from Boot 3.3's range [2][7].
+  Reason: the reference documents Boot compatibility only. Not needed for the recommendation, which does not use it.
+- *Spring Boot 3.3.4 itself.* The system requirements page states Java support for the 3.3.13 line, not for 3.3.4
+  [2]. Reason: the reference is kept per minor line.
+- *Cluster assignment.* Borderline classes (section 5) may move when the ADR names target packages.
+- *Frontend.* Out of scope (the epic's `## Later`).

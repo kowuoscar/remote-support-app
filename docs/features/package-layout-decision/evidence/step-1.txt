@@ -1,0 +1,42 @@
+pinned commit line:
+**Pinned commit.** Every `path:line` in this note refers to commit
+`e22e81fd5408f0c427b3e723008fcbf6e748d6db` of `main` (2026-10-09, "docs(package-layout-decision): cut tickets").
+Read a citation with `git show e22e81fd5408f0c427b3e723008fcbf6e748d6db:<path>`. `backend/` is identical on the
+
+Recommendation lines:       35
+code fences in recommendation: 0
+## 1. Recommendation
+
+*Choice.* Package by feature, flat: one package per feature directly under the root package, holding that
+feature's entity, repository, service, controller and request/response shapes together. No layer sub-packages
+inside a feature. The one exception is Requests, whose three existing handler-family sub-packages stay (they split
+by request type, not by layer). Spring Modulith modules and hexagonal were judged and rejected for this codebase.
+
+*Cost.* Seven features after this one: one that adds the boundary check, then six that each move one group of
+clusters (see sizing in section 5). 208 of 222 main classes and 58 of 71 test classes change package. The other 14
+and 13 are global pieces that stay at the root. Net new dependency: ArchUnit 1.4.2, test scope, Apache-2.0 [11][12]. Nothing
+new in main scope, so nothing in the shipped application changes.
+
+The six questions from the spec's Problem, one line each:
+
+1. *Which layout?* Flat package by feature, named for glossary words; the twelve clusters become six move groups
+   (carriers; fleet with stock; requests with fees; agents, clients, testers and contracts; invoicing; sign-in with
+   identity).
+2. *Where do global pieces go?* They stay in a small root-level group: security configuration, audit log, request
+   logging, tenant, country, currency, billing month and the three common exceptions. The demo loader stays in
+   `demo`. Flyway scripts stay where they are, because their location is set by configuration, not by Java packages [3]. The test base
+   class and fixtures stay in `support`.
+3. *How does one feature refer to another's entity?* By importing the public entity type (Contract and Request
+   included, with 43 and 29 importing classes). Another feature's repository is used only through a frozen,
+   shrinking list. No facade is added in front of Contract or Request.
+4. *What of the lazy cycle?* Invoicing is one package, so the cycle between the contract-amount and client-invoice
+   services does not cross a boundary. Leave it as it is during the move; break it later as its own feature.
+5. *What stops drift?* ArchUnit rules run in the normal test phase, with a stored list of existing violations that
+   only shrinks [10]. Spring Modulith is not chosen, because its verification rejects module cycles [6] and the code has
+   them at both twelve- and six-package granularity.
+6. *Order and staying green?* Carriers first (fewest outgoing links), then fleet with stock, requests with fees,
+   people and contracts, invoicing, and sign-in with identity last. One group per feature; classes, tests and
+   `ARCHITECTURE.md` entries move in one merge; full `verify` stays green at every step.
+
+*What the human must approve.* The flat layout, the seven-feature cost, and the one test-scope dependency.
+

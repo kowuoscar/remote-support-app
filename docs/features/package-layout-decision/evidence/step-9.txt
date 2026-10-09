@@ -1,0 +1,51 @@
+### 6. Boundary tool
+
+- **Name and artifact.** ArchUnit, `com.tngtech.archunit:archunit-junit5` [12].
+- **Version.** 1.4.2.
+- **Scope.** Test. Nothing enters main scope.
+- **Licence.** Apache License 2.0 ("The Apache Software License, Version 2.0" in the artifact's POM) [12].
+- **Compatibility with Spring Boot 3.3.4 and JDK 21, and what it rests on.** ArchUnit added Java 21 support in
+  1.1.0 and the project ran its own tests on JDK 21 from 1.4.0 [11]. The `archunit-junit5` 1.4.2 POM declares
+  only `archunit-junit5-api` and `archunit-junit5-engine` [12], so it depends on no Spring library and Boot
+  has no version to conflict with. Boot 3.3 does not manage ArchUnit's version [4], so `package-boundary-check`
+  pins 1.4.2 itself in `backend/pom.xml`. The Spring Boot 3.3 system requirements say 3.3.13 "requires at least
+  Java 17 and is compatible with versions up to and including Java 23" [2]. **That page states the range for
+  3.3.13, not for 3.3.4**, and no source in the note says 3.3.4 itself runs on JDK 21. The project already
+  builds on JDK 21 with 3.3.4 (`backend/pom.xml:7-12` and `:21`); the claim made here is only that the new
+  dependency adds no constraint of its own. Two things are unsettled and go to
+  `package-boundary-check`, which must run the check once before relying on it: no source states that
+  `archunit-junit5` 1.4.2 was run against Boot 3.3.4's JUnit platform (note section 6), and the guide read for
+  the rules below covers 1.5.1, not 1.4.2 [10].
+- **Rules it encodes.** One test class in the normal test phase. The rules are fixed here; the exact
+  ArchUnit expressions are `package-boundary-check`'s.
+  1. **Layer packages stay empty of new classes.** No class resides in `web`, `dto`, `domain` or `repository`.
+     Frozen (below).
+  2. **Direction to the global packages.** `shared`, `tenant` and `logging` depend on no feature package. No
+     feature package depends on `demo`. `security`, `system` and `demo` may depend on features.
+  3. **No new cycle between feature packages.** a `slices().matching(...)` rule that `should().beFreeOfCycles()` [10], frozen, so the existing cycle is recorded and only a new one fails. The note measured that
+     eleven of twelve clusters are one component, so whether a frozen cycle rule stays stable on a graph
+     that is one large component is not proven. **If `package-boundary-check` finds it unstable, its fallback
+     is a frozen list of the allowed package-to-package dependencies, where a new pair fails.**
+  4. **Repositories are private to their feature** (decision 4). Frozen.
+  5. **Nothing depends on a controller** of another class (decision 4). Frozen only if the run shows a
+     violation.
+  6. **`request`'s sub-packages are internal to `request`** (decision 4). Frozen.
+- **How existing classes are let through.** A frozen list, in ArchUnit's `FreezingArchRule`: "recording all
+  existing violations to a ViolationStore. Consecutive runs will then only report new violations and ignore
+  known violations. If violations are fixed, FreezingArchRule will automatically reduce the known stored
+  violations to prevent any regression." [10] The store is a file committed with the test. A move
+  feature commits the shrunk store in the same merge. The list only shrinks, with one exception that Backend 13
+  requires: a feature that adds a class to a cluster that has **not moved yet** puts it in a layer package,
+  as today, and adds that one entry to the store in the same commit, where a reviewer sees it. The store may
+  hold no entry for a cluster whose move has merged. The last move deletes the store: rule 1 becomes plain.
+  This reading of "a shrinking list" differs slightly from the epic's wording ("existing classes allowed by
+  a shrinking list") and follows from keeping Backend 13's unmoved-cluster clause.
+- **Which feature adds it, and that it fails `verify`.** `package-boundary-check`, the first feature after
+  this one. The check is an ordinary JUnit test named `*Test`, so `mvn -f backend/pom.xml verify` (the
+  first command of `verify` in `docs/agents/sdlc.json`) fails when a rule is broken. That feature proves it
+  bites by showing a red run on a deliberately violating class that is then removed.
+- **Main-scope dependency, to be flagged for the approval item: none is proposed.** Spring Modulith's
+  `@ApplicationModule` annotations in production code, its event publication registry and jMolecules
+  annotations would be main scope and are not part of this ADR. ArchUnit is test scope and replaceable, so it
+  is the agents' call (spec Decisions taken); the approval item names it anyway.
+

@@ -1,0 +1,17 @@
+=== backend/src/main/java/com/remotesupport/backend/BackendApplication.java:7-8
+     1	@SpringBootApplication
+     2	public class BackendApplication {
+=== backend/src/main/java/com/remotesupport/backend/domain/Tester.java:39-41
+     1	  @OneToOne(optional = false)
+     2	  @JoinColumn(name = "user_id", nullable = false, unique = true)
+     3	  private User user;
+=== backend/src/main/java/com/remotesupport/backend/logging/AuditLog.java:17
+     1	public final class AuditLog {
+=== backend/src/main/resources/application.yml:9-10
+     1	    hibernate:
+     2	      ddl-auto: validate
+=== backend/src/main/java/com/remotesupport/backend/web/AgentController.java:45
+     1	@RequestMapping("/api/agents")
+=== backend/src/main/java/com/remotesupport/backend/web/InvalidRequestException.java:10-11
+     1	@ResponseStatus(HttpStatus.BAD_REQUEST)
+     2	public class InvalidRequestException extends RuntimeException {

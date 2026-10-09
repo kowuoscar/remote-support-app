@@ -1,0 +1,21 @@
+0001-client-invoice-snapshot-on-send.md
+0002-agent-invoice-local-support-fees-bypass-client-invoice.md
+0003-agent-invoice-snapshot-on-send-and-per-invoice-override.md
+0004-client-invoice-holds-its-own-lines.md
+0005-manager-may-send-a-client-invoice-back-to-draft.md
+0008-backend-is-packaged-by-feature-flat.md
+# 8. The backend is packaged by feature, flat, one package per glossary term
+
+Status: proposed
+Date: 2026-10-09
+Feature: package-layout-decision
+Ticket: package-layout-adr
+53:### 1. Layout
+99:### 2. Where each cluster goes
+158:### 3. Global pieces
+181:### 4. Cross-feature references
+206:### 5. The `@Lazy` cycle
+222:### 6. Boundary tool
+273:### 7. Move order
+306:### 8. The move recipe
+337:  `invoice-adjustment` (planning ADR 0007), `month-closes-on-the-fifth` (planning ADR 0006) and

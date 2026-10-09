@@ -1,0 +1,76 @@
+### 7. Move order
+
+One feature per step. Each reason is the one that put that step there.
+
+1. **`package-boundary-check`.** First, because it moves nothing, so it is safe before any file moves, and
+   because every later move then runs against the frozen list and shrinks it. It also stops layered drift
+   from the day it merges.
+2. **`move-carrier`** (carrier: 19 main, 2 test). The fewest outgoing links of any group (note section 1). It
+   proves the move recipe on a small diff before a coupled group.
+3. **`move-fleet-and-stock`** (fleet: 25 main, 7 test). Before Requests because the heaviest link in the
+   graph runs from requests-with-fees to fleet-with-stock, 98 class pairs (note C11), so fleet has already
+   moved when Requests do. Stock joins it because its three classes handle the same Smartphones and SIM Cards.
+4. **`move-request-and-fee`** (request and fee: 47 main, 9 test). Requests are the largest group by class
+   count after invoicing, and `Fee` points to `Contract` and `Request`, so the two go together.
+5. **`move-people-and-contract`** (agent, client and contract: 32 main, 7 test). They reference one another in
+   pairs (note C11: agents and contracts, clients and contracts), so they move together. `Contract` is the hub
+   (43 importing files); by now most of its importers are already in feature packages, so the rewrite
+   touches only the rest.
+6. **`move-invoice`** (invoice: 49 main, 13 test). Late, for two reasons. It imports the most from other
+   groups, which are all in feature packages by now. And the three draft specs in this cluster
+   (`invoice-adjustment`, `month-closes-on-the-fifth`, `real-manager-dashboard`) change its classes, so the
+   longer it waits the more of them are built, and the less a move overtakes (decision 8).
+7. **`break-the-invoice-service-cycle`** (decision 5). Straight after `move-invoice`, in the same package. It
+   needs the invoicing classes together in one place. It is the only step that changes code, and it is not
+   needed to empty the layer packages, so it may be postponed without blocking step 8.
+8. **`move-login-and-shared`** (login and the nine global classes: 45 main, 23 test). Last, because it has the
+   most inbound edges (`User` points to `Agent` and `Tester` points back to `User`, note C6; the access guards
+   and `SecurityConfig` depend on it), and because it ends the epic: it deletes the layer packages and the frozen store, and turns rule 1 into a plain rule. The
+   nine global classes move here so the nine types that every cluster imports are rewritten once, while
+   nothing else is moving.
+
+The epic's `## Features` list follows this order.
+
+### 8. The move recipe
+
+How every step stays green. A move feature's spec cites this section and adds only what is specific to its
+group.
+
+- **One group per feature.** The group is one row of the move-group table in decision 2.
+- **Classes, tests and `ARCHITECTURE.md` entries move in the same merge.** The classes are moved with `git mv`,
+  so rename detection shows each as a rename whose only changed lines are `package` and `import` lines.
+  `sdlc-check-harness` errors on a backticked path in `ARCHITECTURE.md`, `docs/agents/README.md` or
+  `docs/tech-debt.md` that no longer exists, and on a package directory that `ARCHITECTURE.md` does not
+  name (note C8). So every `tech-debt.md` path to a moved class is rewritten in the merge, and every new
+  package is named in `ARCHITECTURE.md`.
+- **Nothing in the HTTP surface, schema or bean names changes.** No controller route, response, migration or
+  configuration property is touched. A move changes nothing but package declarations, imports and the strings
+  below.
+- **Find fully qualified names in strings and comments.** The compiler does not see them. At the pinned commit
+  there are four JPQL constructor expressions that name a class by its full path
+  (`select new com.remotesupport.backend.repository.ClientInvoiceQueueRow(` in `ClientInvoiceRepository` twice,
+  and one each in `AgentInvoiceRepository` and `UserRepository`), a handful of Javadoc `{@link}` and inline
+  full paths in tests, and `<logger name="com.remotesupport.backend">` in
+  `backend/src/test/resources/logback-test.xml`, which names the root package and is unaffected. A move greps for
+  `com.remotesupport.backend.` outside `import` and `package` lines for its own old package names. A missed
+  JPQL path fails when Hibernate validates the query at startup, and the integration tests catch it.
+- **The full `verify` is green and nothing is skipped.** That is the command in `docs/agents/sdlc.json`:
+  Maven `verify` (tests, Checkstyle, the boundary check) and the frontend lint, build, typecheck, unit
+  tests and the isolated e2e suite. A move feature does not skip e2e because "only Java moved".
+- **No behaviour change.** A move adds no logic, fixes no bug and pays no recorded debt. It may rewrite the
+  path of a debt entry so the entry still resolves, and nothing else.
+- **A move is scheduled only when no feature in the same cluster is mid-build.** A feature is mid-build when
+  its tickets are in progress or its branch is unmerged. A draft spec that no one has started does not block.
+- **A draft spec whose cluster moves before it is built.** Three drafts sit in the invoicing cluster today:
+  `invoice-adjustment` (planning ADR 0007), `month-closes-on-the-fifth` (planning ADR 0006) and
+  `real-manager-dashboard`. All three say new backend classes go in the existing `web`, `repository` and
+  `dto` packages, which stays true until `move-invoice`. The `move-invoice` spec names every draft still in
+  its cluster, and its delivery changes each draft's code-location line and cited class paths to the new
+  package and nothing else. Behaviour is not touched, so the draft's approval is not reopened. A draft
+  built before the move simply moves with its cluster. The same rule applies to any future spec drafted
+  before its cluster moves.
+- **The boundary store shrinks in the same merge.** The move feature commits the reduced store (decision 6),
+  and `ARCHITECTURE.md` and `tech-debt.md` as above.
+- **A move feature is cut into tickets by package inside its group, never by main and test.** A test that
+  moves without its class (or the reverse) leaves a half-moved package. Each ticket leaves `verify` green.
+

@@ -311,7 +311,7 @@ adjustment names it.
 
 ### ADR
 
-**A new ADR 0007, "A closed month is corrected forward by an adjustment on the
+**A new ADR (the next free number in `docs/adr/` when it merges; no number is reserved), "A closed month is corrected forward by an adjustment on the
 current month's Client Invoice"** (numbered after 0005; if numbers shift at
 merge, the next free one). It records:
 
@@ -328,7 +328,7 @@ merge, the next free one). It records:
 - no adjustment is generated automatically; ADR 0004's "carry-over for
   `invoice-adjustment`" row is not realised here (2026-10-08).
 
-ADR 0004 gets a dated "Amended by ADR 0007" note. PRODUCT.md's principle 1
+ADR 0004 gets a dated "Amended by the adjustment ADR" note. PRODUCT.md's principle 1
 gets the same narrowing in the ADR's commit, a harness change the implementer
 declares and the merger applies.
 
@@ -526,7 +526,7 @@ internals.
   They move pay, so they serialize with both sends in the existing order.
 - **The corrected invoice lists its adjustments (`adjustmentsRecorded`); no
   Tenant-wide list.** A list is `invoice-history`'s to add.
-- **A new ADR 0007 with a note on 0004, and the narrowing of PRODUCT.md
+- **A new the adjustment ADR with a note on 0004, and the narrowing of PRODUCT.md
   principle 1.** A signed, non-Request-traced billed amount is surprising
   without context and costly to reverse once invoices carry it.
 - **Two new audit methods, without reason text.** Same rule as send-back.
@@ -570,7 +570,7 @@ internals.
 14. [agent] Do the record, withdraw and the Agent's view by keyboard alone with a visible focus ring at each stop, and repeat at the mobile breakpoint with every form and list usable in the viewport. (stories: 30)
 15. [human] Take a real error from a closed month's Client Invoice and record the credit or charge you would really record, with the reason you would really write. Read the current month's invoice as the Agent and as the Client would see it, the PDF, and the Agent's Local Support Fees. Confirm the wording, the amounts and the pay move are what you want. (stories: 1, 2, 3, 7, 15, 17, 21, 22)
 16. [human] Take a real Topup that was paid to the Agent but never billed, charge it to the Client, and confirm the Agent is not paid for it twice. (stories: 20)
-17. [human] Read ADR 0007 and the notes on ADR 0004 and PRODUCT.md, and confirm they say what you settled: a closed month is corrected only by an adjustment on the current month's invoice; only adjustments are negative; an adjustment moves the Agent's pay by the same amount; nothing is carried over automatically. (stories: 3, 8, 24)
+17. [human] Read the adjustment ADR and the notes on ADR 0004 and PRODUCT.md, and confirm they say what you settled: a closed month is corrected only by an adjustment on the current month's invoice; only adjustments are negative; an adjustment moves the Agent's pay by the same amount; nothing is carried over automatically. (stories: 3, 8, 24)
 
 ## Execution order
 
@@ -580,7 +580,7 @@ open question 1 is answered.
 
 1. `manager-records-an-invoice-adjustment`. Labels: `backend`, `frontend`.
    The `invoice_adjustments` migration, record and withdraw routes with the
-   closed-month gate, `adjustmentsRecorded`, the audit methods, ADR 0007, the
+   closed-month gate, `adjustmentsRecorded`, the audit methods, the adjustment ADR, the
    Manager's form and list. No blocker within this feature.
 2. `adjustment-shows-on-the-current-month-client-invoice`. Labels: `backend`,
    `frontend`. `adjustments` and totals on the receiving invoice, pending vs

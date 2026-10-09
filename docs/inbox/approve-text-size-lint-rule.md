@@ -45,7 +45,6 @@ for a change no user can see.
 
 ## Meanwhile
 
-The loop drafts the next frontend clean-up feature, the button that keeps
-keyboard focus while saving.
+The rest of the frontend clean-up epic waits behind this feature.
 
 ## Answer

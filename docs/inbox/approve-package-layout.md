@@ -2,7 +2,7 @@
 id: approve-package-layout
 type: approval
 status: open
-blocks: [package-boundary-check]
+blocks: [package-by-feature]
 created: 2026-10-09
 ---
 

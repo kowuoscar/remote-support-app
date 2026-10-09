@@ -142,14 +142,15 @@
     {
       "id": "F12",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": true,
       "in_changed_lines": true,
       "where": "docs/features/invoice-adjustment/spec.md:314, docs/features/month-closes-on-the-fifth/spec.md:101",
       "citation": "Constraints: \"Only files under `docs/` change. The allowed set is: this feature's folder; one new ADR file; the epic file; `docs/agents/coding-standards.md`.\"",
       "note": "Commit 40ad852 edited two other features' draft specs, outside the allowed set, and left broken sentences. Reverted to main's version on the branch; the orchestrator redoes the ADR-number wording on main after delivery.",
-      "fixed_in": "revert of both files to main"
+      "fixed_in": "revert of both files to main",
+      "confirmed_by": "reviewer-spec (fresh, re-review)"
     }
   ]
 }

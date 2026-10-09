@@ -1,4 +1,4 @@
-# 8. The backend is packaged by feature, flat, one package per glossary term
+# 6. The backend is packaged by feature, flat, one package per glossary term
 
 Status: proposed
 Date: 2026-10-09
@@ -91,6 +91,12 @@ Rules for a feature package:
 - **Names.** Lowercase, one word, singular, taken from the glossary in `CONTEXT.md`. The examples in
   Backend 13 (`authentication`, `requests`, `invoicing`) were illustrative; this table's names are the
   authoritative ones, and the ticket that amends Backend 13 aligns them.
+- **Exception to "a glossary term": `shared` and `system`.** The spec's non-goal prefers a glossary term for every
+  package. Two packages have none, because the code in them is not a domain concept: `shared` holds the types
+  every feature uses (`BillingMonth`, `Country`, `Currency`, the three common exceptions) and `system` holds the
+  health endpoint. Naming them for a glossary word would be wrong (`Currency` is no feature's term) and
+  `CONTEXT.md` is not changed by this feature. The exception is deliberate and limited to these two, plus the
+  packages that stay as they are (`security`, `logging`, `demo`). A new package needs a glossary term.
 - **Visibility does not change in a move.** Every top-level type is `public` today (note C6) and stays so.
   A class written new may be package-private when only its feature uses it.
 - **Nothing outside the root package.** `@SpringBootApplication` scans the tree and no `@ComponentScan` or
@@ -334,7 +340,7 @@ group.
 - **A move is scheduled only when no feature in the same cluster is mid-build.** A feature is mid-build when
   its tickets are in progress or its branch is unmerged. A draft spec that no one has started does not block.
 - **A draft spec whose cluster moves before it is built.** Three drafts sit in the invoicing cluster today:
-  `invoice-adjustment` (planning ADR 0007), `month-closes-on-the-fifth` (planning ADR 0006) and
+  `invoice-adjustment`, `month-closes-on-the-fifth` and
   `real-manager-dashboard`. All three say new backend classes go in the existing `web`, `repository` and
   `dto` packages, which stays true until `move-invoice`. The `move-invoice` spec names every draft still in
   its cluster, and its delivery changes each draft's code-location line and cited class paths to the new
@@ -420,4 +426,6 @@ A move absorbs an entry in one of two ways. Only the first pays the debt.
 **What the human is asked to approve** (the approval item restates this)
 
 The flat layout; the cost of eight features, 217 main and 61 test classes moved; the one test-scope
-dependency; the move order; and the amendment to "a shrinking list" described in decision 6.
+dependency; the move order; the amendment to "a shrinking list" described in decision 6; and the amendment to
+Backend 13 in `docs/agents/coding-standards.md`, which applies only once this ADR is accepted and
+`package-boundary-check` has merged, and which the human annotates "Amended by the human" when approving.

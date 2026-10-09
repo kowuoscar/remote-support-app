@@ -10,14 +10,22 @@ Where a `[n]` follows a claim, see Sources.
 
 ## 1. Recommendation
 
+> **Corrected to agree with the ADR.** The ADR
+> (`docs/adr/0006-backend-is-packaged-by-feature-flat.md`) is the document the human approves, and where this
+> section and the ADR differ the ADR rules. The cost and global-piece statements in this section were corrected
+> from an earlier draft (seven features, 208 and 58 classes, global pieces at the root); the ADR's decision 2
+> explains why. Sections 2 to 7 are the unedited evidence and still show the earlier sums in places (for example
+> sign-in with identity 36 and 21, global 14 main, which do not count the nine global classes that move).
+
 *Choice.* Package by feature, flat: one package per feature directly under the root package, holding that
 feature's entity, repository, service, controller and request/response shapes together. No layer sub-packages
 inside a feature. The one exception is Requests, whose three existing handler-family sub-packages stay (they split
 by request type, not by layer). Spring Modulith modules and hexagonal were judged and rejected for this codebase.
 
-*Cost.* Seven features after this one: one that adds the boundary check, then six that each move one group of
-clusters (see sizing in section 5). 208 of 222 main classes and 58 of 71 test classes change package. The other 14
-and 13 are global pieces that stay at the root. Net new dependency: ArchUnit 1.4.2, test scope, Apache-2.0 [11][12]. Nothing
+*Cost.* Eight features after this one: the boundary check, six that each move one group of clusters (see sizing in
+section 5), and the break of the invoicing cycle. 217 of 222 main classes and 61 of 71 test classes change package.
+The other 5 and 10 stay where they are (`BackendApplication`, `SecurityConfig`, `AuditLog`, `RequestLoggingFilter`,
+`DemoDataLoader`; the seven migration tests, `IntegrationTest`, `OtherTenantFixture`, `DemoDataLoaderApiTest`). Net new dependency: ArchUnit 1.4.2, test scope, Apache-2.0 [11][12]. Nothing
 new in main scope, so nothing in the shipped application changes.
 
 The six questions from the spec's Problem, one line each:
@@ -25,9 +33,9 @@ The six questions from the spec's Problem, one line each:
 1. *Which layout?* Flat package by feature, named for glossary words; the twelve clusters become six move groups
    (carriers; fleet with stock; requests with fees; agents, clients, testers and contracts; invoicing; sign-in with
    identity).
-2. *Where do global pieces go?* They stay in a small root-level group: security configuration, audit log, request
-   logging, tenant, country, currency, billing month and the three common exceptions. The demo loader stays in
-   `demo`. Flyway scripts stay where they are, because their location is set by configuration, not by Java packages [3]. The test base
+2. *Where do global pieces go?* Security configuration stays in `security`, the audit log and request logging in `logging`, the demo
+   loader in `demo`. Tenant goes to `tenant`; country, currency, billing month and the three common exceptions go to
+   `shared`; the health endpoint goes to `system`. Flyway scripts stay where they are, because their location is set by configuration, not by Java packages [3]. The test base
    class and fixtures stay in `support`.
 3. *How does one feature refer to another's entity?* By importing the public entity type (Contract and Request
    included, with 43 and 29 importing classes). Another feature's repository is used only through a frozen,
@@ -41,7 +49,7 @@ The six questions from the spec's Problem, one line each:
    people and contracts, invoicing, and sign-in with identity last. One group per feature; classes, tests and
    `ARCHITECTURE.md` entries move in one merge; full `verify` stays green at every step.
 
-*What the human must approve.* The flat layout, the seven-feature cost, and the one test-scope dependency.
+*What the human must approve.* The flat layout, the eight-feature cost, and the one test-scope dependency.
 
 ## 2. This codebase's constraints
 
@@ -337,7 +345,7 @@ activation services to authentication; `CallerIdentityResolver` goes to authenti
 |---|---|---|---|---|
 | authentication | 30 | 10 / 6 / 3 / 1 / 10 | 18 | 15 |
 | identity (`/api/me`) | 6 | 3 / 3 / 0 / 0 / 0 | 3 | 3 |
-| agents | 11 | 4 / 4 / 1 / 2 / 0 | 2 | 2 |
+| agents | 11 | 4 / 4 / 1 / 2 / 0 | 3 | 3 |
 | clients and testers | 13 | 4 / 5 / 2 / 2 / 0 | 3 | 3 |
 | contracts | 8 | 3 / 2 / 1 / 1 / 1 | 1 | 1 |
 | carriers | 19 | 3 / 7 / 4 / 4 / 1 | 2 | 2 |
@@ -347,13 +355,13 @@ activation services to authentication; `CallerIdentityResolver` goes to authenti
 | fees | 6 | 1 / 2 / 2 / 1 / 0 | 2 | 2 |
 | Client Invoices | 31 | 9 / 9 / 6 / 6 / 1 | 11 | 11 |
 | Agent Invoices | 18 | 5 / 5 / 4 / 3 / 1 | 2 | 2 |
-| global (root, security config, logging, demo, tenant, shared types, migrations tests, support) | 14 | 4 / 0 / 4 / 1 / 1, plus logging 2, demo 1, root 1 | 13 | 2 |
+| global (root, security config, logging, demo, tenant, shared types, migrations tests, support) | 14 | 4 / 0 / 4 / 1 / 1, plus logging 2, demo 1, root 1 | 12 | 2 |
 | **Total** | **222** | | **71** | **57** |
 
 Move groups (section 1): carriers 19 main and 2 test; fleet with stock 25 and 7; requests with fees 47 and 9; agents,
-clients, testers and contracts 32 and 6; invoicing (both) 49 and 13; sign-in with identity 36 and 21. Sum with
-global: 19+25+47+32+49+36+14 = 222 main; 2+7+9+6+13+21+13 = 71 test. Not moved: the 14 global main classes and
-13 global test classes (migration tests 7, `support` 2, `demo` 1, `domain` 1, health and protected-endpoint tests 2).
+clients, testers and contracts 32 and 7; invoicing (both) 49 and 13; sign-in with identity 36 and 21. Sum with
+global: 19+25+47+32+49+36+14 = 222 main; 2+7+9+7+13+21+12 = 71 test. Not moved: the 14 global main classes and
+12 global test classes (migration tests 7, `support` 2, `demo` 1, `domain` 1, health and protected-endpoint tests 2).
 
 Recount, reproducible: `find backend/src/main -name '*.java' | wc -l` gives 222; the same under `backend/src/test`
 gives 71; per-package counts are `web` 78, `dto` 60, `domain` 38, `repository` 25, `security` 17, `logging` 2,

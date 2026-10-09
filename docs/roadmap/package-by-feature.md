@@ -48,8 +48,8 @@ understand without opening four others.
 
 ## Features
 
-- [x] `package-layout-decision` — research how Spring Boot codebases of this shape are packaged and propose this codebase's layout and move order as an ADR; no file moves. Its spec ends in the human's approval of the cut.
-- [ ] `package-boundary-check` — an ArchUnit test that encodes the layout of ADR 0008 and fails `verify` on a new class in a layer package; existing classes allowed by a shrinking frozen list.
+- [x] `package-layout-decision` — research how Spring Boot codebases of this shape are packaged and propose this codebase's layout and move order as an ADR; no file moves. Its spec is approved when the human accepts ADR 0006; until then the ADR is proposed.
+- [ ] `package-boundary-check` — an ArchUnit test that encodes the layout of ADR 0006 and fails `verify` on a new class in a layer package; existing classes allowed by a shrinking frozen list.
 - [ ] `move-carrier` — the carrier cluster (19 main, 2 test classes) moves first, proving the move recipe on the smallest diff.
 - [ ] `move-fleet-and-stock` — fleet and stock: Smartphones, SIM Cards, installation and Agent stock (25 main, 7 test).
 - [ ] `move-request-and-fee` — Requests, their detail and completion handlers, Fees, pending requests (47 main, 9 test).
@@ -59,7 +59,7 @@ understand without opening four others.
 - [ ] `move-login-and-shared` — sign-in, logins, passwords, `/api/me` and the nine global classes (45 main, 23 test); ends with the layer packages empty and deleted, and the frozen list deleted.
 
 The move order and the names of these features are fixed by
-[ADR 0008](../adr/0008-backend-is-packaged-by-feature-flat.md), decision 7.
+[ADR 0006](../adr/0006-backend-is-packaged-by-feature-flat.md), decision 7.
 
 ## Reworked
 

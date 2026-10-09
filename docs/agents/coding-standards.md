@@ -79,16 +79,24 @@ the `check` goal), Flyway, Testcontainers.
 12. Table-driven tests (`@ParameterizedTest` + `@MethodSource`) for any
     method with more than two branch conditions, instead of copy-pasted
     per-case tests.
-13. Package by feature (`authentication`, `fleet`, `requests`, `invoicing`),
-    not by layer (`controllers`, `services`, `repositories`) — a feature's
-    files stay next to each other. **This is the norm for new code**, decided
-    by the human on 2026-09-22.
-    The backend does not obey it yet: it is packaged by layer (`web`,
-    `repository`, `dto`, `domain`, `security`, `logging`), and moving it is
-    the `package-by-feature` epic, not something a feature ticket does on the
-    side. Until that epic lands, a reviewer cites this rule only against a
-    **new** package or module choosing the layered shape — never against a
-    change that follows the existing layout, which has nowhere else to go.
+13. Package by feature (`login`, `fleet`, `request`, `invoice`), not by
+    layer (`controllers`, `services`, `repositories`) — a feature's files stay
+    next to each other. **This is the norm for new code**, decided by the
+    human on 2026-09-22. The layout and the package names are fixed by
+    ADR 0008 (`docs/adr/0008-backend-is-packaged-by-feature-flat.md`), which
+    wins over the examples here.
+    The backend moves one cluster at a time, in the `package-by-feature` epic,
+    never as a side effect of a feature ticket. Until the last move, two
+    layouts coexist:
+    - A **moved** cluster takes new code in its feature package only.
+    - An **unmoved** cluster takes new code in the existing layered package
+      (`web`, `dto`, `domain`, `repository`), and the feature adds that one
+      class to the boundary check's frozen exception list in the same commit.
+      The list otherwise only shrinks.
+
+    After the move, the boundary check is the authority. A reviewer cites
+    this rule against a class the check lets through only when the exception
+    list is wrong.
 14. Configuration is bound to typed `@ConfigurationProperties` classes,
     never scattered `@Value("${...}")` injections across unrelated beans.
 

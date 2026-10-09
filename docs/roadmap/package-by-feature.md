@@ -48,18 +48,18 @@ understand without opening four others.
 
 ## Features
 
-- [ ] `package-layout-decision` — research how Spring Boot codebases of this shape are packaged and propose this codebase's layout and move order as an ADR; no file moves. Its spec ends in the human's approval of the cut.
-- [ ] `package-boundary-check` — an automated check (ArchUnit or Spring Modulith, per the decision) that encodes the chosen layout and fails `verify` on a new class in a layer package; existing classes allowed by a shrinking list.
-- [ ] `move-carriers-and-catalog` — the least-coupled cluster moves first, proving the move recipe (classes, tests, ARCHITECTURE.md) on a small feature.
-- [ ] `move-fleet-and-stock` — Smartphones, SIM Cards, installation and Agent stock.
-- [ ] `move-requests-and-fees` — Requests, their detail and completion handlers, Fees, pending requests.
-- [ ] `move-people-and-contracts` — Clients, Testers, Agents and Contracts.
-- [ ] `move-invoicing` — Client Invoices, Agent Invoices, standing amounts, the Review Queue; resolves the `@Lazy` cycle the decision rules on.
-- [ ] `move-authentication-and-identity` — sign-in, logins, passwords, `/api/me`; ends with the layer packages empty and deleted.
+- [x] `package-layout-decision` — research how Spring Boot codebases of this shape are packaged and propose this codebase's layout and move order as an ADR; no file moves. Its spec ends in the human's approval of the cut.
+- [ ] `package-boundary-check` — an ArchUnit test that encodes the layout of ADR 0008 and fails `verify` on a new class in a layer package; existing classes allowed by a shrinking frozen list.
+- [ ] `move-carrier` — the carrier cluster (19 main, 2 test classes) moves first, proving the move recipe on the smallest diff.
+- [ ] `move-fleet-and-stock` — fleet and stock: Smartphones, SIM Cards, installation and Agent stock (25 main, 7 test).
+- [ ] `move-request-and-fee` — Requests, their detail and completion handlers, Fees, pending requests (47 main, 9 test).
+- [ ] `move-people-and-contract` — Agents, Clients, Testers and Contracts (32 main, 7 test).
+- [ ] `move-invoice` — Client Invoices, Agent Invoices, standing amounts, the Review Queue (49 main, 13 test).
+- [ ] `break-the-invoice-service-cycle` — removes the `@Lazy` cycle between the invoicing services, in the `invoice` package; the only step that changes code, and it may be postponed without blocking the last move.
+- [ ] `move-login-and-shared` — sign-in, logins, passwords, `/api/me` and the nine global classes (45 main, 23 test); ends with the layer packages empty and deleted, and the frozen list deleted.
 
-The lines after the first are provisional: `package-layout-decision` may merge,
-split or reorder them, and its delivery rewrites this list before the next
-spec is drafted.
+The move order and the names of these features are fixed by
+[ADR 0008](../adr/0008-backend-is-packaged-by-feature-flat.md), decision 7.
 
 ## Reworked
 

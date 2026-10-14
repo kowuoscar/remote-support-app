@@ -138,10 +138,10 @@ export async function addSmartphone(
 ) {
   await page.goto(`/manager/contracts/${contractId}`);
   await page.getByRole("button", { name: "Add smartphone" }).first().click();
-  await page.getByLabel("Model").fill(model);
+  await page.getByLabel("Model", { exact: true }).fill(model);
   await page.getByLabel("Serial").fill(serial);
   if (owner) {
-    await page.getByLabel("Owner").selectOption({ label: owner });
+    await page.getByRole("dialog").getByLabel("Owner").selectOption({ label: owner });
   }
   await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
   await expect(page.getByRole("cell", { name: serial })).toBeVisible();
@@ -165,14 +165,14 @@ export async function addSimCard(
 ) {
   await page.goto(`/manager/contracts/${contractId}`);
   await page.getByRole("button", { name: "Add SIM card" }).first().click();
-  await page.getByLabel("Number").fill(number);
+  await page.getByLabel("Number", { exact: true }).fill(number);
   await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: carrierLabel });
   await page.getByLabel("Flavor").selectOption(flavor);
   if (planLabel) {
     await page.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: planLabel });
   }
   await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
-  await expect(page.getByRole("cell", { name: number })).toBeVisible();
+  await expect(page.getByRole("cell").filter({ hasText: number })).toBeVisible();
 }
 
 /** Scopes a Pending Requests page row by both type and Client name — the page is tenant-wide and
@@ -347,12 +347,12 @@ export async function addPostpaidSimCard(page: Page, contractId: string, number:
   );
   await page.goto(`/manager/contracts/${contractId}`);
   await page.getByRole("button", { name: "Add SIM card" }).first().click();
-  await page.getByLabel("Number").fill(number);
+  await page.getByLabel("Number", { exact: true }).fill(number);
   await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
   await page.getByLabel("Flavor").selectOption({ label: "Postpaid" });
   await page.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: planName });
   await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
-  await expect(page.getByRole("cell", { name: number })).toBeVisible();
+  await expect(page.getByRole("cell").filter({ hasText: number })).toBeVisible();
 }
 
 /**

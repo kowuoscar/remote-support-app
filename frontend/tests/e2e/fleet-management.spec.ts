@@ -33,20 +33,20 @@ test.describe("fleet management", () => {
     await createClientAndContractWithSeededAgent(page, clientName);
 
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
-    await page.getByLabel("Model").fill("iPhone 14");
+    await page.getByLabel("Model", { exact: true }).fill("iPhone 14");
     await page.getByLabel("Serial").fill(`SN-${RUN_ID}`);
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
-    await expect(page.getByRole("cell", { name: "iPhone 14" })).toBeVisible();
+    await expect(page.getByRole("cell").filter({ hasText: "iPhone 14" })).toBeVisible();
     await expect(page.getByRole("row", { name: /iPhone 14/ })).toContainText("Active");
 
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
-    await page.getByLabel("Number").fill(`+1-555-${RUN_ID}`);
+    await page.getByLabel("Number", { exact: true }).fill(`+1-555-${RUN_ID}`);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
     await page.getByLabel("Flavor").selectOption("POSTPAID");
     // postpaid-sim-plan ticket: the monthly fee comes from a Postpaid Plan of the chosen Carrier.
     await page.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: "Unlimited Welcome" });
     await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
-    await expect(page.getByRole("cell", { name: `+1-555-${RUN_ID}` })).toBeVisible();
+    await expect(page.getByRole("cell").filter({ hasText: `+1-555-${RUN_ID}` })).toBeVisible();
     // sim-card-carrier ticket: the Carrier was picked from the catalog, and the Fleet names it.
     const simRow = page.getByRole("row", { name: new RegExp(`\\+1-555-${RUN_ID}`) });
     await expect(simRow).toContainText("Verizon");
@@ -61,17 +61,17 @@ test.describe("fleet management", () => {
     await createClientAndContractWithSeededAgent(page, clientName);
 
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
-    await page.getByLabel("Model").fill("Pixel 8");
+    await page.getByLabel("Model", { exact: true }).fill("Pixel 8");
     await page.getByLabel("Serial").fill(`SN-agent-${RUN_ID}`);
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
-    await expect(page.getByRole("cell", { name: "Pixel 8" })).toBeVisible();
+    await expect(page.getByRole("cell").filter({ hasText: "Pixel 8" })).toBeVisible();
 
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
-    await page.getByLabel("Number").fill(`+1-555-agent-${RUN_ID}`);
+    await page.getByLabel("Number", { exact: true }).fill(`+1-555-agent-${RUN_ID}`);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
     await page.getByLabel("Flavor").selectOption("PREPAID");
     await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
-    await expect(page.getByRole("cell", { name: `+1-555-agent-${RUN_ID}` })).toBeVisible();
+    await expect(page.getByRole("cell").filter({ hasText: `+1-555-agent-${RUN_ID}` })).toBeVisible();
 
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
@@ -119,11 +119,11 @@ test.describe("fleet management", () => {
     const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
 
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
-    await page.getByLabel("Number").fill(`+34-91-${RUN_ID}`);
+    await page.getByLabel("Number", { exact: true }).fill(`+34-91-${RUN_ID}`);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
     await page.getByLabel("Flavor").selectOption("PREPAID");
     await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
-    await expect(page.getByRole("cell", { name: `+34-91-${RUN_ID}` })).toBeVisible();
+    await expect(page.getByRole("cell").filter({ hasText: `+34-91-${RUN_ID}` })).toBeVisible();
 
     const testerEmail = `helena.voss+${RUN_ID}@kessler.example`;
     const testerPassword = await addTester(page, clientId, testerEmail);
@@ -134,7 +134,7 @@ test.describe("fleet management", () => {
 
     await page.goto("/client/fleet");
     await selectContractInSwitcher(page, clientName);
-    await expect(page.getByRole("cell", { name: `+34-91-${RUN_ID}` })).toBeVisible();
+    await expect(page.getByRole("cell").filter({ hasText: `+34-91-${RUN_ID}` })).toBeVisible();
   });
 
   test("a manager adds a client-owned smartphone without a serial, and the agent sets it from the fleet page", async ({
@@ -145,8 +145,8 @@ test.describe("fleet management", () => {
     await createClientAndContractWithSeededAgent(page, clientName);
 
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
-    await page.getByLabel("Model").fill("iPhone 15");
-    await page.getByLabel("Owner").selectOption("CLIENT");
+    await page.getByLabel("Model", { exact: true }).fill("iPhone 15");
+    await page.getByRole("dialog").getByLabel("Owner").selectOption("CLIENT");
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
 
     const managerRow = page.getByRole("row", { name: /iPhone 15/ });
@@ -177,17 +177,17 @@ test.describe("fleet management", () => {
     const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
 
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
-    await page.getByLabel("Model").fill("iPhone 14");
+    await page.getByLabel("Model", { exact: true }).fill("iPhone 14");
     await page.getByLabel("Serial").fill(`SN-install-${RUN_ID}`);
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
-    await expect(page.getByRole("cell", { name: "iPhone 14" })).toBeVisible();
+    await expect(page.getByRole("cell").filter({ hasText: "iPhone 14" })).toBeVisible();
 
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
-    await page.getByLabel("Number").fill(`+1-555-install-${RUN_ID}`);
+    await page.getByLabel("Number", { exact: true }).fill(`+1-555-install-${RUN_ID}`);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
     await page.getByLabel("Flavor").selectOption("PREPAID");
     await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
-    await expect(page.getByRole("cell", { name: `+1-555-install-${RUN_ID}` })).toBeVisible();
+    await expect(page.getByRole("cell").filter({ hasText: `+1-555-install-${RUN_ID}` })).toBeVisible();
 
     const testerEmail = `nadia.okafor+${RUN_ID}@solene.example`;
     const testerPassword = await addTester(page, clientId, testerEmail);
@@ -265,7 +265,7 @@ test.describe("fleet management", () => {
   // correct-a-smartphone-model ticket: each test creates its own unit and Client.
   async function addSmartphone(page: Page, model: string) {
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
-    await page.getByLabel("Model").fill(model);
+    await page.getByLabel("Model", { exact: true }).fill(model);
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
     await expect(page.getByRole("row", { name: new RegExp(model) })).toBeVisible();
   }
@@ -401,7 +401,7 @@ test.describe("fleet management", () => {
 
   async function addPrepaidSim(page: Page, number: string) {
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
-    await page.getByLabel("Number").fill(number);
+    await page.getByLabel("Number", { exact: true }).fill(number);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
     await page.getByLabel("Flavor").selectOption("PREPAID");
     await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
@@ -470,7 +470,7 @@ test.describe("fleet management", () => {
 
   async function addPostpaidSim(page: Page, number: string) {
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
-    await page.getByLabel("Number").fill(number);
+    await page.getByLabel("Number", { exact: true }).fill(number);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
     await page.getByLabel("Flavor").selectOption("POSTPAID");
     await page.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: "Unlimited Welcome" });

@@ -724,6 +724,11 @@ component internals.
   Reason: the spec's rule "the way every other amount in the API is" wins over
   its one string example; every existing amount is a JSON number. Taken by the
   `tenant-totals-read` implementer; `manager-dashboard-money` reads a number.
+- **(after review) The "Change name" item is opted in by a viewer-capabilities context that
+  `ShellFrame` sets for the Manager console, not by a `viewerCanChangeName` prop passed by
+  every Manager page.** Reason: the fix pass made this change for smell F8 (one flag
+  hand-added to 13 pages); the human kept it on 2026-10-14 because what the user sees is
+  identical. It supersedes the `viewerCanChangeName` prop entry above.
 
 ## Open questions
 

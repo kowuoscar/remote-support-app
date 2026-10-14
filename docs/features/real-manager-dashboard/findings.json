@@ -315,7 +315,7 @@
       "in_changed_lines": true,
       "where": "frontend/components/manager/dashboard-stats.tsx:117-150",
       "citation": "spec.md Solution, Frontend: \"A failed list read makes its count card show `—` with an sr-only \"Unavailable\" and a \"Couldn't load…\" meta (\"Couldn't load your Clients\", \"…Agents\", \"…Contracts\").\" and walkthrough step 12",
-      "note": "Fix pass (c0720f9, for smell F22) changed the meta to links \"Couldn’t load — open Clients/Agents/Contracts\" with no after-review decision."
+      "note": "Fix pass (c0720f9, for smell F22) changed the meta to links \"Couldn’t load — open Clients/Agents/Contracts\" with no after-review decision. human (2026-10-14): restore the spec's copy and remove the links; one more fixer pass authorised."
     },
     {
       "id": "F27",
@@ -326,7 +326,7 @@
       "in_changed_lines": true,
       "where": "frontend/components/manager/dashboard-stats.tsx:36",
       "citation": "spec.md Solution, Frontend: \"A failed `/api/tenant-totals` makes both money cards show `—` with \"Couldn't load this month's totals\".\"",
-      "note": "moneyMeta appends \"— reload to retry\"; no after-review decision."
+      "note": "moneyMeta appends \"— reload to retry\"; no after-review decision. human (2026-10-14): restore the spec's copy and remove the links; one more fixer pass authorised."
     },
     {
       "id": "F28",
@@ -337,18 +337,18 @@
       "in_changed_lines": true,
       "where": "frontend/components/manager/dashboard-stats.tsx:80",
       "citation": "Hunk dashboard-stats.tsx:77-86: no source in spec",
-      "note": "Pending approvals failure meta changed from \"Couldn’t load the Review Queue\" (main) to a link \"Couldn’t load — open Invoices\"."
+      "note": "Pending approvals failure meta changed from \"Couldn’t load the Review Queue\" (main) to a link \"Couldn’t load — open Invoices\". human (2026-10-14): restore the spec's copy and remove the links; one more fixer pass authorised."
     },
     {
       "id": "F29",
       "type": "spec-wrong",
-      "state": "open",
+      "state": "dismissed",
       "raised_by": "reviewer-spec",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/app-shell/viewer-capabilities.tsx:1; frontend/components/app-shell/app-shell.tsx:25",
       "citation": "spec.md ## Decisions taken: \"The item is opted in through one `viewerCanChangeName` prop on `SurfacePage`, passed by every Manager page.\"",
-      "note": "Fix pass (for smell F8) replaced the prop with a context set in ShellFrame from surface === \"manager\". Same user-visible result; reverses a recorded decision."
+      "note": "Fix pass (for smell F8) replaced the prop with a context set in ShellFrame from surface === \"manager\". Same user-visible result; reverses a recorded decision. human: keep the context (same user-visible result); recorded in ## Decisions taken (after review), 2026-10-14."
     },
     {
       "id": "F30",
@@ -359,7 +359,7 @@
       "in_changed_lines": true,
       "where": "commit 6a5d74a: frontend/tests/visual/__screenshots__/*.png",
       "citation": "docs/agents/frontend.md: Visual goldens pass, or were updated in the same commit as the code change that moved them (conforming to `DESIGN.md`) or as `DESIGN.md`. / A screenshot golden updated on its own, with no code change behind it, is drift.",
-      "note": "Goldens-only commit; its message blames the footer, but most non-dashboard goldens moved because c0720f9 changed the viewer chip without recapturing them."
+      "note": "Goldens-only commit; its message blames the footer, but most non-dashboard goldens moved because c0720f9 changed the viewer chip without recapturing them. human (2026-10-14): one more fixer pass authorised."
     },
     {
       "id": "F31",
@@ -381,7 +381,7 @@
       "in_changed_lines": true,
       "where": "frontend/tests/visual/__screenshots__/manager-requests-desktop-{light,dark}.png",
       "citation": "docs/agents/frontend.md — Visual regression: 'A golden changes only with a code change that conforms to `DESIGN.md`, or with `DESIGN.md` itself'",
-      "note": "Recaptured with no code change: only the date-driven masked 'Waiting' cell width differs. Restore both from 6a5d74a^."
+      "note": "Recaptured with no code change: only the date-driven masked 'Waiting' cell width differs. Restore both from 6a5d74a^. human (2026-10-14): one more fixer pass authorised."
     }
   ]
 }

@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CorrectionError } from "@/components/fleet/correction-error";
+import { useInlineEdit } from "@/components/fleet/use-inline-edit";
 
 const NUMBER_MESSAGES: Record<string, string> = {
-  NUMBER_TOO_LONG: "A number can be at most 64 characters.",
+  NUMBER_TOO_LONG: "A SIM number can be at most 64 characters.",
 };
-const GENERIC_ERROR = "Couldn’t update. Try again.";
 
 /**
  * Corrects a SIM Card's number from the Fleet page (correct-a-fleet-unit spec): the Manager and
@@ -25,53 +25,24 @@ export function SimCardNumberControl({
   simCardId: string;
   number: string;
 }) {
-  const router = useRouter();
-  const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(number);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { focusTarget, ...edit } = useInlineEdit({
+    url: `/api/contracts/${contractId}/sim-cards/${simCardId}/number`,
+    messages: NUMBER_MESSAGES,
+    onStart: () => setValue(number),
+  });
 
-  function startEditing() {
-    setValue(number);
-    setError(null);
-    setEditing(true);
-  }
-
-  async function save(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const trimmed = value.trim();
-    if (!trimmed) {
-      setError("Enter a number.");
-      return;
-    }
-    setPending(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/contracts/${contractId}/sim-cards/${simCardId}/number`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ number: trimmed }),
-      });
-      if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as { code?: string } | null;
-        setError((body?.code && NUMBER_MESSAGES[body.code]) || GENERIC_ERROR);
-        setPending(false);
-        return;
-      }
-      setPending(false);
-      setEditing(false);
-      router.refresh();
-    } catch {
-      setError(GENERIC_ERROR);
-      setPending(false);
-    }
-  }
-
-  if (!editing) {
+  if (!edit.editing) {
     return (
       <div className="flex items-center gap-2">
-        <span className="tnum font-medium text-ink">{number}</span>
-        <Button variant="row" size="sm" onClick={startEditing}>
+        <span className="tnum whitespace-nowrap font-medium text-ink">{number}</span>
+        <Button
+          ref={focusTarget}
+          variant="ghost"
+          size="sm"
+          aria-label={`Edit number, ${number}`}
+          onClick={edit.start}
+        >
           Edit
         </Button>
       </div>
@@ -79,25 +50,39 @@ export function SimCardNumberControl({
   }
 
   return (
-    <form onSubmit={save} className="flex flex-col items-start gap-1">
+    <form
+      onSubmit={(event) => {
+        const trimmed = value.trim();
+        if (!trimmed) {
+          event.preventDefault();
+          edit.setError("Enter a number.");
+          return;
+        }
+        void edit.submit(event, { number: trimmed });
+      }}
+      onKeyDown={edit.onKeyDown}
+      className="flex flex-col items-start gap-1"
+    >
       <div className="flex items-center gap-1.5">
         <Input
           autoFocus
           value={value}
           onChange={(event) => setValue(event.target.value)}
-          disabled={pending}
-          invalid={error !== null}
-          aria-label="SIM Card number"
-          className="h-7 w-40 text-label-sm"
+          disabled={edit.pending}
+          invalid={edit.error !== null}
+          aria-label="SIM number"
+          aria-describedby={edit.error ? edit.errorId : undefined}
+          inputMode="tel"
+          className="tnum h-7 w-40 text-label-sm"
         />
-        <Button type="submit" variant="row" size="sm" loading={pending}>
+        <Button type="submit" variant="row" size="sm" loading={edit.pending}>
           Save
         </Button>
-        <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={() => setEditing(false)}>
+        <Button type="button" variant="ghost" size="sm" disabled={edit.pending} onClick={edit.cancel}>
           Cancel
         </Button>
       </div>
-      {error ? <span className="text-label-sm text-danger">{error}</span> : null}
+      <CorrectionError id={edit.errorId} message={edit.error} />
     </form>
   );
 }

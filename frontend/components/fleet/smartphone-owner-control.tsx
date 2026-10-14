@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, type FormEvent, type KeyboardEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PickerSelect } from "@/components/fleet/picker-select";
+import { CorrectionError } from "@/components/fleet/correction-error";
+import { useInlineEdit } from "@/components/fleet/use-inline-edit";
 import { SMARTPHONE_OWNER_LABEL, type SmartphoneOwnerValue } from "@/lib/api/types";
 
 const OWNER_MESSAGES: Record<string, string> = {
   SMARTPHONE_ON_OPEN_RETURN: "This smartphone is on an open Return. Change its owner once the Return is done.",
 };
-const GENERIC_ERROR = "Couldn’t update. Try again.";
 
 /**
  * Corrects a Smartphone's owner from the Fleet page (correct-a-fleet-unit spec): the Manager and
@@ -20,61 +20,33 @@ const GENERIC_ERROR = "Couldn’t update. Try again.";
 export function SmartphoneOwnerControl({
   contractId,
   smartphoneId,
+  model,
   owner,
 }: {
   contractId: string;
   smartphoneId: string;
+  /** The phone's model; names which unit the Edit button is for. */
+  model: string;
   owner: SmartphoneOwnerValue;
 }) {
-  const router = useRouter();
-  const [editing, setEditing] = useState(false);
   const [value, setValue] = useState<SmartphoneOwnerValue>(owner);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { focusTarget, ...edit } = useInlineEdit({
+    url: `/api/contracts/${contractId}/smartphones/${smartphoneId}/owner`,
+    messages: OWNER_MESSAGES,
+    onStart: () => setValue(owner),
+  });
 
-  function startEditing() {
-    setValue(owner);
-    setError(null);
-    setEditing(true);
-  }
-
-  async function save(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setPending(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/contracts/${contractId}/smartphones/${smartphoneId}/owner`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner: value }),
-      });
-      if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as { code?: string } | null;
-        setError((body?.code && OWNER_MESSAGES[body.code]) || GENERIC_ERROR);
-        setPending(false);
-        return;
-      }
-      setPending(false);
-      setEditing(false);
-      router.refresh();
-    } catch {
-      setError(GENERIC_ERROR);
-      setPending(false);
-    }
-  }
-
-  function saveOnEnter(event: KeyboardEvent<HTMLFormElement>) {
-    if (event.key === "Enter" && event.target instanceof HTMLSelectElement) {
-      event.preventDefault();
-      event.currentTarget.requestSubmit();
-    }
-  }
-
-  if (!editing) {
+  if (!edit.editing) {
     return (
       <div className="flex items-center gap-2">
-        <span>{SMARTPHONE_OWNER_LABEL[owner]}</span>
-        <Button variant="row" size="sm" aria-label="Edit owner" onClick={startEditing}>
+        <span className="whitespace-nowrap">{SMARTPHONE_OWNER_LABEL[owner]}</span>
+        <Button
+          ref={focusTarget}
+          variant="ghost"
+          size="sm"
+          aria-label={`Edit owner of ${model}`}
+          onClick={edit.start}
+        >
           Edit
         </Button>
       </div>
@@ -82,7 +54,7 @@ export function SmartphoneOwnerControl({
   }
 
   return (
-    <form onSubmit={save} onKeyDown={saveOnEnter} className="flex flex-col items-start gap-1">
+    <form onSubmit={(event) => edit.submit(event, { owner: value })} onKeyDown={edit.onKeyDown} className="flex flex-col items-start gap-1">
       <div className="flex items-center gap-1.5">
         <PickerSelect
           id={`owner-${smartphoneId}`}
@@ -90,25 +62,21 @@ export function SmartphoneOwnerControl({
           autoFocus
           value={value}
           onChange={(next) => setValue(next as SmartphoneOwnerValue)}
-          disabled={pending}
+          disabled={edit.pending}
           size="sm"
           placeholder="Choose an owner"
         >
           <option value="CLIENT">{SMARTPHONE_OWNER_LABEL.CLIENT}</option>
           <option value="COMPANY">{SMARTPHONE_OWNER_LABEL.COMPANY}</option>
         </PickerSelect>
-        <Button type="submit" variant="row" size="sm" loading={pending}>
+        <Button type="submit" variant="row" size="sm" loading={edit.pending}>
           Save
         </Button>
-        <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={() => setEditing(false)}>
+        <Button type="button" variant="ghost" size="sm" disabled={edit.pending} onClick={edit.cancel}>
           Cancel
         </Button>
       </div>
-      {error ? (
-        <span role="alert" className="max-w-56 text-label-sm text-danger">
-          {error}
-        </span>
-      ) : null}
+      <CorrectionError id={edit.errorId} message={edit.error} />
     </form>
   );
 }

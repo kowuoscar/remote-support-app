@@ -67,7 +67,8 @@ export function ClientFleetView({
           contractId={contractId}
           currency={contracts.find((contract) => contract.id === contractId)?.currency}
           canCorrect
-          carriers={carriersByContract[contractId]}        />
+          carriers={carriersByContract[contractId]}
+        />
       </FleetTableCard>
     </div>
   );

@@ -277,7 +277,7 @@ test.describe("fleet management", () => {
 
     // Not located by its text: while editing, the model sits in a field, not in the row's name.
     const row = page.locator("table").first().locator("tbody tr").first();
-    await row.getByRole("button", { name: "Edit" }).first().click();
+    await row.getByRole("button", { name: "Edit model, Pixle 8", exact: true }).click();
     await row.getByLabel("Smartphone model").fill("  Pixel 8 Pro  ");
     await row.getByRole("button", { name: "Save" }).click();
 
@@ -303,7 +303,7 @@ test.describe("fleet management", () => {
     await selectContractInSwitcher(page, clientName);
 
     const row = page.locator("table").first().locator("tbody tr").first();
-    await row.getByRole("button", { name: "Edit" }).first().click();
+    await row.getByRole("button", { name: "Edit model, Galxy S24", exact: true }).click();
     await row.getByLabel("Smartphone model").fill("Galaxy S24");
     await row.getByRole("button", { name: "Save" }).click();
 
@@ -344,14 +344,14 @@ test.describe("fleet management", () => {
 
     const row = page.locator("table").first().locator("tbody tr").first();
     await expect(row.getByRole("cell", { name: /^Company/ })).toBeVisible();
-    await row.getByRole("button", { name: "Edit owner" }).click();
+    await row.getByRole("button", { name: "Edit owner of Nokia 3310", exact: true }).click();
     await row.getByLabel("Owner").selectOption("CLIENT");
     await row.getByRole("button", { name: "Save" }).click();
     await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
     await page.reload();
     await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
 
-    await row.getByRole("button", { name: "Edit owner" }).click();
+    await row.getByRole("button", { name: "Edit owner of Nokia 3310", exact: true }).click();
     await row.getByLabel("Owner").selectOption("COMPANY");
     await row.getByRole("button", { name: "Save" }).click();
     await expect(row.getByRole("cell", { name: /^Company/ })).toBeVisible();
@@ -373,7 +373,7 @@ test.describe("fleet management", () => {
     await selectContractInSwitcher(page, clientName);
 
     const row = page.locator("table").first().locator("tbody tr").first();
-    await row.getByRole("button", { name: "Edit owner" }).click();
+    await row.getByRole("button", { name: "Edit owner of Fairphone 4", exact: true }).click();
     await row.getByLabel("Owner").selectOption("CLIENT");
     await row.getByRole("button", { name: "Save" }).click();
     await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
@@ -396,7 +396,7 @@ test.describe("fleet management", () => {
 
     const row = page.getByRole("row", { name: /Moto E/ });
     await expect(row).toBeVisible();
-    await expect(row.getByRole("button", { name: "Edit owner" })).toHaveCount(0);
+    await expect(row.getByRole("button", { name: /^Edit owner/ })).toHaveCount(0);
   });
 
   async function addPrepaidSim(page: Page, number: string) {
@@ -415,8 +415,8 @@ test.describe("fleet management", () => {
 
     // Not located by its text: while editing, the number sits in a field, not in the row's name.
     const row = page.locator("table").filter({ hasText: "Installed in" }).locator("tbody tr").first();
-    await row.getByRole("button", { name: "Edit" }).first().click();
-    await row.getByLabel("SIM Card number").fill("  +44 7700 900123  ");
+    await row.getByRole("button", { name: "Edit number, +44 7700 900100", exact: true }).click();
+    await row.getByLabel("SIM number").fill("  +44 7700 900123  ");
     await row.getByRole("button", { name: "Save" }).click();
 
     await expect(page.getByRole("row", { name: /\+44 7700 900123/ })).toBeVisible();
@@ -439,8 +439,8 @@ test.describe("fleet management", () => {
     await selectContractInSwitcher(page, clientName);
 
     const row = page.locator("table").filter({ hasText: "Installed in" }).locator("tbody tr").first();
-    await row.getByRole("button", { name: "Edit" }).click();
-    await row.getByLabel("SIM Card number").fill("+44 7700 900223");
+    await row.getByRole("button", { name: "Edit number, +44 7700 900200", exact: true }).click();
+    await row.getByLabel("SIM number").fill("+44 7700 900223");
     await row.getByRole("button", { name: "Save" }).click();
 
     await expect(page.getByRole("row", { name: /\+44 7700 900223/ })).toBeVisible();
@@ -464,7 +464,7 @@ test.describe("fleet management", () => {
 
     const row = page.getByRole("row", { name: /\+44 7700 900300/ });
     await expect(row).toBeVisible();
-    await expect(row.getByLabel("SIM Card number")).toHaveCount(0);
+    await expect(row.getByLabel("SIM number")).toHaveCount(0);
     await expect(row.getByRole("cell", { name: "+44 7700 900300" }).getByRole("button")).toHaveCount(0);
   });
 
@@ -492,7 +492,7 @@ test.describe("fleet management", () => {
     // Located by the table, not by text: the plan name leaves the row while its select is open.
     const row = simTable(page).locator("tbody tr").first();
     await expect(row).toContainText("$65.00");
-    await row.getByRole("button", { name: "Edit plan", exact: true }).click();
+    await row.getByRole("button", { name: "Edit plan for +1-555-0310", exact: true }).click();
     const picker = row.getByRole("combobox", { name: "Postpaid plan" });
     // Only the Carrier's own active plans are offered, and the chosen one's fee shows before Save.
     await expect(picker.locator("option")).toContainText(["Choose a plan", "Unlimited Welcome", "Unlimited Plus"]);
@@ -513,7 +513,7 @@ test.describe("fleet management", () => {
     await createClientAndContractWithSeededAgent(page, `No Plan Prepaid ${RUN_ID}`);
     await addPrepaidSim(page, "+44 7700 900400");
 
-    await expect(simTable(page).locator("tbody tr").first().getByRole("button", { name: "Edit plan" })).toHaveCount(0);
+    await expect(simTable(page).locator("tbody tr").first().getByRole("button", { name: /^Edit plan/ })).toHaveCount(0);
   });
 
   test("a tester corrects a Postpaid SIM's plan on their own client's fleet", async ({ page }) => {
@@ -530,7 +530,7 @@ test.describe("fleet management", () => {
     await selectContractInSwitcher(page, clientName);
 
     const row = simTable(page).locator("tbody tr").first();
-    await row.getByRole("button", { name: "Edit plan", exact: true }).click();
+    await row.getByRole("button", { name: "Edit plan for +1-555-0320", exact: true }).click();
     await row.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: "Unlimited Plus" });
     // The Tester sees the fee the plan sets before saving, though their table has no fee column.
     await expect(row).toContainText("$80.00");
@@ -557,6 +557,6 @@ test.describe("fleet management", () => {
     const row = page.getByRole("row", { name: /\+1-555-0330/ });
     await expect(row).toBeVisible();
     await expect(row).toContainText("Unlimited Welcome");
-    await expect(row.getByRole("button", { name: "Edit plan" })).toHaveCount(0);
+    await expect(row.getByRole("button", { name: /^Edit plan/ })).toHaveCount(0);
   });
 });

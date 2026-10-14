@@ -37,6 +37,7 @@ function SimCardPlanCell({
       <SimCardPlanControl
         contractId={contractId}
         simCardId={sim.id}
+        number={sim.number}
         sim={sim}
         carrier={carrier}
         currency={currency}

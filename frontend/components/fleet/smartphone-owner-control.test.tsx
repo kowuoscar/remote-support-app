@@ -6,7 +6,7 @@ import { mockRouter } from "@/tests/component/next-navigation";
 import { SmartphoneOwnerControl } from "./smartphone-owner-control";
 
 function renderControl() {
-  render(<SmartphoneOwnerControl contractId="contract-1" smartphoneId="phone-1" owner="COMPANY" />);
+  render(<SmartphoneOwnerControl contractId="contract-1" smartphoneId="phone-1" model="Pixle 8" owner="COMPANY" />);
 }
 
 describe("SmartphoneOwnerControl", () => {
@@ -18,13 +18,13 @@ describe("SmartphoneOwnerControl", () => {
     renderControl();
 
     expect(screen.getByText("Company")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Edit owner" })).toHaveTextContent("Edit");
+    expect(screen.getByRole("button", { name: "Edit owner of Pixle 8" })).toHaveTextContent("Edit");
   });
 
   it("opens a select holding the current owner", async () => {
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit owner" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit owner of Pixle 8" }));
 
     expect(screen.getByLabelText("Owner")).toHaveValue("COMPANY");
   });
@@ -33,7 +33,7 @@ describe("SmartphoneOwnerControl", () => {
     const { fetchMock, respond } = stubPendingFetch();
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit owner" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit owner of Pixle 8" }));
     await userEvent.selectOptions(screen.getByLabelText("Owner"), "CLIENT");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
@@ -51,7 +51,7 @@ describe("SmartphoneOwnerControl", () => {
     stubFetch(409, { code: "SMARTPHONE_ON_OPEN_RETURN", message: "open" });
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit owner" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit owner of Pixle 8" }));
     await userEvent.selectOptions(screen.getByLabelText("Owner"), "CLIENT");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
@@ -66,7 +66,7 @@ describe("SmartphoneOwnerControl", () => {
     stubFetch(500, { code: "SOMETHING_ELSE" });
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit owner" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit owner of Pixle 8" }));
     await userEvent.selectOptions(screen.getByLabelText("Owner"), "CLIENT");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
@@ -78,7 +78,7 @@ describe("SmartphoneOwnerControl", () => {
     const fetchMock = stubFetch(200);
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit owner" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit owner of Pixle 8" }));
     await userEvent.selectOptions(screen.getByLabelText("Owner"), "CLIENT");
     await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
 
@@ -91,7 +91,7 @@ describe("SmartphoneOwnerControl", () => {
     renderControl();
 
     await userEvent.tab();
-    expect(screen.getByRole("button", { name: "Edit owner" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Edit owner of Pixle 8" })).toHaveFocus();
     await userEvent.keyboard("{Enter}");
     expect(screen.getByLabelText("Owner")).toHaveFocus();
     await userEvent.keyboard("{Enter}");

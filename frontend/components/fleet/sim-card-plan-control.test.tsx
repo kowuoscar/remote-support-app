@@ -24,6 +24,7 @@ function renderControl() {
     <SimCardPlanControl
       contractId="contract-1"
       simCardId="sim-1"
+      number="+44 7700 900100"
       sim={{ postpaidPlanId: "plan-Welcome", postpaidPlanName: "Welcome", postpaidPlanArchived: false }}
       carrier={carrier}
       currency="USD"
@@ -33,7 +34,7 @@ function renderControl() {
 }
 
 async function openEditor() {
-  await userEvent.click(screen.getByRole("button", { name: "Edit plan" }));
+  await userEvent.click(screen.getByRole("button", { name: "Edit plan for +44 7700 900100" }));
 }
 
 describe("SimCardPlanControl", () => {
@@ -41,11 +42,11 @@ describe("SimCardPlanControl", () => {
     mockRouter.refresh.mockReset();
   });
 
-  it("shows the plan's name and an Edit plan button", () => {
+  it("shows the plan's name and an Edit plan button naming the SIM", () => {
     renderControl();
 
     expect(screen.getByText("Welcome")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Edit plan" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit plan for +44 7700 900100" })).toBeInTheDocument();
   });
 
   it("offers only the active plans of the SIM's Carrier, holding the current one", async () => {
@@ -134,7 +135,7 @@ describe("SimCardPlanControl", () => {
     renderControl();
 
     await userEvent.tab();
-    expect(screen.getByRole("button", { name: "Edit plan" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Edit plan for +44 7700 900100" })).toHaveFocus();
     await userEvent.keyboard("{Enter}");
     expect(screen.getByRole("combobox", { name: "Postpaid plan" })).toHaveFocus();
     await userEvent.keyboard("{Enter}");
@@ -148,6 +149,7 @@ describe("SimCardPlanControl", () => {
       <SimCardPlanControl
         contractId="contract-1"
         simCardId="sim-1"
+        number="+44 7700 900100"
         sim={{ postpaidPlanId: "plan-Legacy", postpaidPlanName: "Legacy", postpaidPlanArchived: true }}
         carrier={carrier}
         currency="USD"

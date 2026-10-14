@@ -67,7 +67,7 @@ export function SmartphoneFleetTable({
             </Td>
             <Td className="text-ink-secondary">
               {contractId && canCorrect ? (
-                <SmartphoneOwnerControl contractId={contractId} smartphoneId={phone.id} owner={phone.owner} />
+                <SmartphoneOwnerControl contractId={contractId} smartphoneId={phone.id} model={phone.model} owner={phone.owner} />
               ) : (
                 SMARTPHONE_OWNER_LABEL[phone.owner]
               )}

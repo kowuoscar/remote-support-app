@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, type FormEvent, type KeyboardEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { PostpaidPlanPicker } from "@/components/fleet/postpaid-plan-picker";
 import { SimCardPlan } from "@/components/fleet/sim-card-plan";
+import { CorrectionError } from "@/components/fleet/correction-error";
+import { useInlineEdit } from "@/components/fleet/use-inline-edit";
 import type { CatalogCarrierItem, SimCardListItem } from "@/lib/api/types";
 
 const PLAN_UNUSABLE = "That plan can’t be chosen any more. Pick another.";
@@ -13,7 +14,6 @@ const PLAN_MESSAGES: Record<string, string> = {
   PLAN_NOT_ON_CARRIER: PLAN_UNUSABLE,
   CARRIER_NOT_USABLE: PLAN_UNUSABLE,
 };
-const GENERIC_ERROR = "Couldn’t update. Try again.";
 
 /**
  * Corrects a Postpaid SIM Card's plan from the Fleet page (correct-a-fleet-unit spec): the Manager
@@ -25,6 +25,7 @@ const GENERIC_ERROR = "Couldn’t update. Try again.";
 export function SimCardPlanControl({
   contractId,
   simCardId,
+  number,
   sim,
   carrier,
   currency,
@@ -32,62 +33,36 @@ export function SimCardPlanControl({
 }: {
   contractId: string;
   simCardId: string;
+  /** The SIM's number; names which unit the Edit button is for. */
+  number: string;
   sim: Pick<SimCardListItem, "postpaidPlanId" | "postpaidPlanName" | "postpaidPlanArchived">;
   carrier: CatalogCarrierItem;
   currency: string;
   carriersHref: string;
 }) {
-  const router = useRouter();
-  const [editing, setEditing] = useState(false);
   const [planId, setPlanId] = useState("");
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { focusTarget, ...edit } = useInlineEdit({
+    url: `/api/contracts/${contractId}/sim-cards/${simCardId}/postpaid-plan`,
+    messages: PLAN_MESSAGES,
+    onStart: () => {
+      const held = carrier.postpaidPlans.find((plan) => plan.id === sim.postpaidPlanId && plan.archivedAt === null);
+      setPlanId(held ? held.id : "");
+    },
+  });
 
-  function startEditing() {
-    const held = carrier.postpaidPlans.find((plan) => plan.id === sim.postpaidPlanId && plan.archivedAt === null);
-    setPlanId(held ? held.id : "");
-    setError(null);
-    setEditing(true);
-  }
-
-  async function save(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!planId) return;
-    setPending(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/contracts/${contractId}/sim-cards/${simCardId}/postpaid-plan`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postpaidPlanId: planId }),
-      });
-      if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as { code?: string } | null;
-        setError((body?.code && PLAN_MESSAGES[body.code]) || GENERIC_ERROR);
-        setPending(false);
-        return;
-      }
-      setPending(false);
-      setEditing(false);
-      router.refresh();
-    } catch {
-      setError(GENERIC_ERROR);
-      setPending(false);
-    }
-  }
-
-  function saveOnEnter(event: KeyboardEvent<HTMLFormElement>) {
-    if (event.key === "Enter" && event.target instanceof HTMLSelectElement) {
-      event.preventDefault();
-      event.currentTarget.requestSubmit();
-    }
-  }
-
-  if (!editing) {
+  if (!edit.editing) {
     return (
       <div className="flex items-center gap-2">
-        <SimCardPlan sim={sim} />
-        <Button variant="row" size="sm" aria-label="Edit plan" onClick={startEditing}>
+        <span className="whitespace-nowrap">
+          <SimCardPlan sim={sim} />
+        </span>
+        <Button
+          ref={focusTarget}
+          variant="ghost"
+          size="sm"
+          aria-label={`Edit plan for ${number}`}
+          onClick={edit.start}
+        >
           Edit
         </Button>
       </div>
@@ -95,30 +70,36 @@ export function SimCardPlanControl({
   }
 
   return (
-    <form onSubmit={save} onKeyDown={saveOnEnter} className="flex min-w-48 flex-col items-start gap-1.5">
+    <form
+      onSubmit={(event) => {
+        if (!planId) {
+          event.preventDefault();
+          return;
+        }
+        void edit.submit(event, { postpaidPlanId: planId });
+      }}
+      onKeyDown={edit.onKeyDown}
+      className="flex min-w-48 flex-col items-start gap-1.5"
+    >
       <PostpaidPlanPicker
         carrier={carrier}
         currency={currency}
         carriersHref={carriersHref}
         value={planId}
         onChange={setPlanId}
-        disabled={pending}
+        disabled={edit.pending}
         autoFocus
         size="sm"
       />
       <div className="flex items-center gap-1.5">
-        <Button type="submit" variant="row" size="sm" loading={pending} disabled={!planId}>
+        <Button type="submit" variant="row" size="sm" loading={edit.pending} disabled={!planId}>
           Save
         </Button>
-        <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={() => setEditing(false)}>
+        <Button type="button" variant="ghost" size="sm" disabled={edit.pending} onClick={edit.cancel}>
           Cancel
         </Button>
       </div>
-      {error ? (
-        <span role="alert" className="max-w-56 text-label-sm text-danger">
-          {error}
-        </span>
-      ) : null}
+      <CorrectionError id={edit.errorId} message={edit.error} />
     </form>
   );
 }

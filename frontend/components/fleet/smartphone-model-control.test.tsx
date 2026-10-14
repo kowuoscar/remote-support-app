@@ -18,13 +18,13 @@ describe("SmartphoneModelControl", () => {
     renderControl();
 
     expect(screen.getByText("Pixle 8")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit model, Pixle 8" })).toBeInTheDocument();
   });
 
   it("opens a field holding the current value", async () => {
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit model, Pixle 8" }));
 
     expect(screen.getByLabelText("Smartphone model")).toHaveValue("Pixle 8");
   });
@@ -33,7 +33,7 @@ describe("SmartphoneModelControl", () => {
     const { fetchMock, respond } = stubPendingFetch();
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit model, Pixle 8" }));
     await userEvent.clear(screen.getByLabelText("Smartphone model"));
     await userEvent.type(screen.getByLabelText("Smartphone model"), "  Pixel 8 Pro  ");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
@@ -52,7 +52,7 @@ describe("SmartphoneModelControl", () => {
     const fetchMock = stubFetch(200);
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit model, Pixle 8" }));
     await userEvent.clear(screen.getByLabelText("Smartphone model"));
     await userEvent.type(screen.getByLabelText("Smartphone model"), "   ");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
@@ -65,7 +65,7 @@ describe("SmartphoneModelControl", () => {
     stubFetch(400, { code: "MODEL_TOO_LONG", message: "too long" });
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit model, Pixle 8" }));
     await userEvent.type(screen.getByLabelText("Smartphone model"), " extra");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
@@ -78,7 +78,7 @@ describe("SmartphoneModelControl", () => {
     stubFetch(500, { code: "SOMETHING_ELSE" });
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit model, Pixle 8" }));
     await userEvent.type(screen.getByLabelText("Smartphone model"), "!");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
@@ -90,7 +90,7 @@ describe("SmartphoneModelControl", () => {
     const fetchMock = stubFetch(200);
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit model, Pixle 8" }));
     await userEvent.type(screen.getByLabelText("Smartphone model"), "zzz");
     await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
 
@@ -103,11 +103,48 @@ describe("SmartphoneModelControl", () => {
     renderControl();
 
     await userEvent.tab();
-    expect(screen.getByRole("button", { name: "Edit" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Edit model, Pixle 8" })).toHaveFocus();
     await userEvent.keyboard("{Enter}");
     expect(screen.getByLabelText("Smartphone model")).toHaveFocus();
     await userEvent.keyboard("{Enter}");
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+  });
+
+  it("returns focus to Edit on Cancel and on Escape, and Escape sends nothing", async () => {
+    const fetchMock = stubFetch(200);
+    renderControl();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit model, Pixle 8" }));
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.getByRole("button", { name: "Edit model, Pixle 8" })).toHaveFocus();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit model, Pixle 8" }));
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByLabelText("Smartphone model")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit model, Pixle 8" })).toHaveFocus();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("returns focus to Edit after a successful Save", async () => {
+    stubFetch(200, {});
+    renderControl();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit model, Pixle 8" }));
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "Edit model, Pixle 8" })).toHaveFocus());
+  });
+
+  it("announces a refusal as an alert the field is described by", async () => {
+    stubFetch(400, { code: "MODEL_TOO_LONG" });
+    renderControl();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit model, Pixle 8" }));
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveClass("max-w-56");
+    expect(screen.getByLabelText("Smartphone model")).toHaveAttribute("aria-describedby", alert.id);
   });
 });

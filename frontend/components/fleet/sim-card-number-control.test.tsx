@@ -18,24 +18,25 @@ describe("SimCardNumberControl", () => {
     renderControl();
 
     expect(screen.getByText("+44 7700 900100")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit number, +44 7700 900100" })).toBeInTheDocument();
   });
 
   it("opens a field holding the current value", async () => {
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit number, +44 7700 900100" }));
 
-    expect(screen.getByLabelText("SIM Card number")).toHaveValue("+44 7700 900100");
+    expect(screen.getByLabelText("SIM number")).toHaveValue("+44 7700 900100");
+    expect(screen.getByLabelText("SIM number")).toHaveAttribute("inputmode", "tel");
   });
 
   it("sends the trimmed number, then leaves editing and refreshes", async () => {
     const { fetchMock, respond } = stubPendingFetch();
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
-    await userEvent.clear(screen.getByLabelText("SIM Card number"));
-    await userEvent.type(screen.getByLabelText("SIM Card number"), "  +44 7700 900123  ");
+    await userEvent.click(screen.getByRole("button", { name: "Edit number, +44 7700 900100" }));
+    await userEvent.clear(screen.getByLabelText("SIM number"));
+    await userEvent.type(screen.getByLabelText("SIM number"), "  +44 7700 900123  ");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
     expect(fetchMock).toHaveBeenCalledWith(
@@ -45,16 +46,16 @@ describe("SimCardNumberControl", () => {
 
     respond(200, { id: "sim-1", number: "+44 7700 900123" });
     await waitFor(() => expect(mockRouter.refresh).toHaveBeenCalledOnce());
-    expect(screen.queryByLabelText("SIM Card number")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("SIM number")).not.toBeInTheDocument();
   });
 
   it("refuses a blank number without sending a request", async () => {
     const fetchMock = stubFetch(200);
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
-    await userEvent.clear(screen.getByLabelText("SIM Card number"));
-    await userEvent.type(screen.getByLabelText("SIM Card number"), "   ");
+    await userEvent.click(screen.getByRole("button", { name: "Edit number, +44 7700 900100" }));
+    await userEvent.clear(screen.getByLabelText("SIM number"));
+    await userEvent.type(screen.getByLabelText("SIM number"), "   ");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
     expect(screen.getByText("Enter a number.")).toBeInTheDocument();
@@ -65,12 +66,12 @@ describe("SimCardNumberControl", () => {
     stubFetch(400, { code: "NUMBER_TOO_LONG", message: "too long" });
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
-    await userEvent.type(screen.getByLabelText("SIM Card number"), " extra");
+    await userEvent.click(screen.getByRole("button", { name: "Edit number, +44 7700 900100" }));
+    await userEvent.type(screen.getByLabelText("SIM number"), " extra");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
-    expect(await screen.findByText("A number can be at most 64 characters.")).toBeInTheDocument();
-    expect(screen.getByLabelText("SIM Card number")).toHaveValue("+44 7700 900100 extra");
+    expect(await screen.findByText("A SIM number can be at most 64 characters.")).toBeInTheDocument();
+    expect(screen.getByLabelText("SIM number")).toHaveValue("+44 7700 900100 extra");
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
@@ -78,20 +79,20 @@ describe("SimCardNumberControl", () => {
     stubFetch(500, { code: "SOMETHING_ELSE" });
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
-    await userEvent.type(screen.getByLabelText("SIM Card number"), "!");
+    await userEvent.click(screen.getByRole("button", { name: "Edit number, +44 7700 900100" }));
+    await userEvent.type(screen.getByLabelText("SIM number"), "!");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
     expect(await screen.findByText(/Couldn.t update\. Try again\./)).toBeInTheDocument();
-    expect(screen.getByLabelText("SIM Card number")).toHaveValue("+44 7700 900100!");
+    expect(screen.getByLabelText("SIM number")).toHaveValue("+44 7700 900100!");
   });
 
   it("Cancel restores the old value without a request", async () => {
     const fetchMock = stubFetch(200);
     renderControl();
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
-    await userEvent.type(screen.getByLabelText("SIM Card number"), "zzz");
+    await userEvent.click(screen.getByRole("button", { name: "Edit number, +44 7700 900100" }));
+    await userEvent.type(screen.getByLabelText("SIM number"), "zzz");
     await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
 
     expect(screen.getByText("+44 7700 900100")).toBeInTheDocument();
@@ -103,11 +104,48 @@ describe("SimCardNumberControl", () => {
     renderControl();
 
     await userEvent.tab();
-    expect(screen.getByRole("button", { name: "Edit" })).toHaveFocus();
+    expect(screen.getByRole("button", { name: "Edit number, +44 7700 900100" })).toHaveFocus();
     await userEvent.keyboard("{Enter}");
-    expect(screen.getByLabelText("SIM Card number")).toHaveFocus();
+    expect(screen.getByLabelText("SIM number")).toHaveFocus();
     await userEvent.keyboard("{Enter}");
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+  });
+
+  it("returns focus to Edit on Cancel and on Escape, and Escape sends nothing", async () => {
+    const fetchMock = stubFetch(200);
+    renderControl();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit number, +44 7700 900100" }));
+    await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(screen.getByRole("button", { name: "Edit number, +44 7700 900100" })).toHaveFocus();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit number, +44 7700 900100" }));
+    await userEvent.keyboard("{Escape}");
+    expect(screen.queryByLabelText("SIM number")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit number, +44 7700 900100" })).toHaveFocus();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("returns focus to Edit after a successful Save", async () => {
+    stubFetch(200, {});
+    renderControl();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit number, +44 7700 900100" }));
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(screen.getByRole("button", { name: "Edit number, +44 7700 900100" })).toHaveFocus());
+  });
+
+  it("announces a refusal as an alert the field is described by", async () => {
+    stubFetch(400, { code: "NUMBER_TOO_LONG" });
+    renderControl();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit number, +44 7700 900100" }));
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveClass("max-w-56");
+    expect(screen.getByLabelText("SIM number")).toHaveAttribute("aria-describedby", alert.id);
   });
 });

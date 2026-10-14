@@ -15,7 +15,9 @@ test.describe("the Manager dashboard's identity and counts", () => {
     // The chip names the Manager by their name, else their login. The shared e2e Manager is unnamed
     // until the rename test below runs, and a name can't be cleared, so the expectation comes from
     // the same read the page makes, keeping this test independent of order and of earlier runs.
-    const me = (await (await page.request.get("/api/me")).json()) as { username: string; name?: string };
+    const me: { username: string; name?: string } = await page.evaluate(async () =>
+      (await fetch("/api/me")).json(),
+    );
     expect(me.username).toBe(SEEDED_USERS.manager.username);
     await expect(page.getByTestId("viewer-menu-trigger")).toHaveText(`${me.name || me.username} · Manager`);
     await expect(page.getByText("Priya Ashford")).toHaveCount(0);

@@ -218,16 +218,22 @@ Payout this month, per currency =
   special case.
 - **How adjustments will count, once `invoice-adjustment` lands.** That spec
   makes an adjustment part of an invoice's frozen figures once it *lands*. For a
-  Client Invoice it is an adjustment line. For an Agent Invoice it is a fifth
-  figure. The rule here is that each figure counts an invoice at the total its
-  own page shows. So a landed adjustment counts in the invoice it landed on,
-  signed: a credit lowers the figure and a charge raises it. A pending or
-  withdrawn adjustment never counts. A Client Invoice's adjustment lines are
-  stored lines, so the line sum includes them with no change. The Agent side
-  needs the fifth figure added to `total(ai)`. To keep that a one-place change,
-  the aggregate and the Review Queue build their Agent Invoice total from one
-  shared expression (`## Decisions taken`). Whichever feature lands second
-  updates it. This feature adds nothing for adjustments now.
+  Client Invoice it is an adjustment line. For an Agent Invoice it is not a new
+  figure: `invoice-adjustment` states that the Agent Invoice gains none, and an
+  adjustment landing on a Contract's Client Invoice instead moves that Contract's
+  contribution to the Agent's Local Support Fees by the same amount, through the
+  payable amount. The rule here is that each figure counts an invoice at the
+  total its own page shows. So a landed adjustment counts in the invoice it
+  landed on, signed: a credit lowers the figure and a charge raises it. A
+  pending or withdrawn adjustment never counts. A Client Invoice's adjustment
+  lines are stored lines, so the line sum includes them with no change. On the
+  Agent side `total(ai)` keeps its four figures and the adjustment shows up
+  inside the Local Support Fees figure, so the aggregate needs no change as long
+  as the Local Support Fees it reads are the ones the invoice's own page shows.
+  To keep that a one-place change, the aggregate and the Review Queue build their
+  Agent Invoice total from one shared expression (`## Decisions taken`).
+  Whichever feature lands second checks it. This feature adds nothing for
+  adjustments now.
 
 ### Backend: the Tenant-wide aggregate
 
@@ -668,9 +674,9 @@ component internals.
   avoids one line read per invoice, and the queue queries are prior art for
   both total expressions.
 - **The Agent Invoice total is one shared expression, used by the Review Queue
-  query and the new aggregate.** Reason: `invoice-adjustment` adds a fifth
-  figure to it. One expression makes that a single edit, so the queue and the
-  dashboard cannot drift. The Client side already shares "sum of stored lines".
+  query and the new aggregate.** Reason: `invoice-adjustment` moves the
+  Local Support Fees figure inside it (it adds no figure). One expression makes
+  that a single edit, so the queue and the dashboard cannot drift. The Client side already shares "sum of stored lines".
 - **The page does not throw on a failed `/api/me`. The chip falls back to plain
   "Manager", and there is no `(dashboard)` route group.** Reason: unlike the
   Agent and Client dashboards, no figure here is scoped by the caller's record.

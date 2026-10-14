@@ -5,11 +5,27 @@ import {
   createClientAndContractWithSeededAgent,
   login,
   logout,
-  rollSeededAgentInvoiceIntoThePast,
+  readRevealedPasswordAndClose,
   selectContractInSwitcher,
 } from "./helpers";
 
 const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+
+/**
+ * Creates a USD Agent with a login through the UI and returns the generated password. A fresh
+ * Agent's current-month Agent Invoice is this run's own, so the money steps never need to move
+ * another Agent's invoice out of the way (spec Constraints: no `billing_month` rewrite).
+ */
+async function createUsdAgentThroughTheUi(page: Page, name: string, email: string): Promise<string> {
+  await page.goto("/manager/agents");
+  await page.getByRole("button", { name: "Add agent" }).first().click();
+  await page.getByLabel("Agent name").fill(name);
+  await page.getByLabel("Country").selectOption("UNITED_STATES");
+  await page.getByLabel("Standing monthly salary").fill("2400");
+  await page.getByLabel("Email").fill(email);
+  await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
+  return readRevealedPasswordAndClose(page);
+}
 
 /** The USD line of a money card in cents, or 0 while the card reads a plain 0. */
 async function usdCents(page: Page, testId: string): Promise<number> {
@@ -159,10 +175,14 @@ test.describe("the Manager dashboard's money cards", () => {
     const afterApprove = await readMoneyCards(page);
     expect(afterApprove.billed).toBe(afterSend.billed);
 
-    // The Agent sends their Agent Invoice: Payout is unchanged.
-    await rollSeededAgentInvoiceIntoThePast();
+    // A fresh Agent sends their own current-month Agent Invoice: Payout is unchanged.
+    const payoutAgentName = `Money Payout Agent ${RUN_ID}`;
+    const payoutAgentEmail = `money.payout+${RUN_ID}@agents.example`;
+    const agentReview = new RegExp(`^Review Agent Invoice: ${payoutAgentName}, `);
+    const payoutAgentPassword = await createUsdAgentThroughTheUi(page, payoutAgentName, payoutAgentEmail);
+    const beforeAgentSend = await readMoneyCards(page);
     await logout(page);
-    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await login(page, payoutAgentEmail, payoutAgentPassword);
     await page.goto("/agent/my-invoice");
     await page.getByRole("button", { name: "Send Agent Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
@@ -171,18 +191,18 @@ test.describe("the Manager dashboard's money cards", () => {
 
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const afterAgentSend = await readMoneyCards(page);
-    expect(afterAgentSend.payout).toBe(afterApprove.payout);
+    expect(afterAgentSend.payout).toBe(beforeAgentSend.payout);
 
     // The Manager overrides the Salary (a total this run owns), approves, and Payout grows by it.
     await page.goto("/manager/invoices");
-    await page.getByRole("link", { name: /^Review Agent Invoice: Jordan Ellis, / }).click();
+    await page.getByRole("link", { name: agentReview }).click();
     const salaryInput = page.getByLabel(/Override Salary/);
     const overrideForm = page.locator("form").filter({ has: salaryInput });
     await salaryInput.fill("4321.00");
     await overrideForm.getByRole("button", { name: "Override" }).click();
     await expect(overrideForm.getByText("Applied to this invoice only.")).toBeVisible();
-    const agentTotal = await queuedTotalCents(page, /^Review Agent Invoice: Jordan Ellis, /);
-    await page.getByRole("link", { name: /^Review Agent Invoice: Jordan Ellis, / }).click();
+    const agentTotal = await queuedTotalCents(page, agentReview);
+    await page.getByRole("link", { name: agentReview }).click();
     await page.getByRole("button", { name: "Approve" }).click();
     await expect(page.getByText("Approved", { exact: true })).toBeVisible();
 
@@ -192,7 +212,7 @@ test.describe("the Manager dashboard's money cards", () => {
 
     // Marking it paid leaves Payout unchanged.
     await page.goto("/manager/invoices");
-    await page.getByRole("link", { name: /^Review Agent Invoice: Jordan Ellis, / }).click();
+    await page.getByRole("link", { name: agentReview }).click();
     await page.getByRole("button", { name: "Mark paid" }).click();
     await expect(page.getByText("Paid", { exact: true })).toBeVisible();
     expect((await readMoneyCards(page)).payout).toBe(afterAgentApprove.payout);

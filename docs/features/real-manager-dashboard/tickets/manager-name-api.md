@@ -1,7 +1,7 @@
 ---
 id: manager-name-api
 title: A Manager can read and correct their own name through the API
-status: in-progress
+status: done
 depends_on: []
 labels: [backend]
 stories: [30, 31, 33]

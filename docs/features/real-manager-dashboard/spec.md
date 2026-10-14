@@ -714,6 +714,10 @@ component internals.
   plain "Manager".** Reason: answered by the human on 2026-10-14, as recommended.
   It matches the Agent console, whose Dashboard alone shows the Agent's name;
   naming every page is a small follow-up if wanted.
+- **`/api/tenant-totals` amounts serialise as JSON numbers (`20.00`), not strings.**
+  Reason: the spec's rule "the way every other amount in the API is" wins over
+  its one string example; every existing amount is a JSON number. Taken by the
+  `tenant-totals-read` implementer; `manager-dashboard-money` reads a number.
 
 ## Open questions
 

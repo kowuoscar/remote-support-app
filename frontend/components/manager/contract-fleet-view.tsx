@@ -67,6 +67,8 @@ export function ManagerContractFleetView({
           contractId={contractId}
           smartphones={smartphones}
           canCorrect
+          carriers={carriers}
+          carriersHref={carriersHref}
         />
       </FleetTableCard>
     </div>

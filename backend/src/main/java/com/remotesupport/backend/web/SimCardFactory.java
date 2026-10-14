@@ -96,17 +96,18 @@ public class SimCardFactory {
     }
     UUID planId = postpaidPlanId;
     if (planId == null) {
-      throw new InvalidRequestException("A Postpaid SIM Card requires a postpaidPlanId");
+      throw new UnusablePlanException("PLAN_NOT_ON_CARRIER", "A Postpaid SIM Card requires a postpaidPlanId");
     }
     PostpaidPlan plan =
         postpaidPlanRepository
             .findByIdAndCarrierId(planId, carrier.getId())
             .orElseThrow(
                 () ->
-                    new InvalidRequestException(
+                    new UnusablePlanException(
+                        "PLAN_NOT_ON_CARRIER",
                         "No Postpaid Plan with id " + planId + " on the Carrier " + carrier.getName()));
     if (plan.isArchived()) {
-      throw new InvalidRequestException("The Postpaid Plan " + plan.getName() + " is archived");
+      throw new UnusablePlanException("PLAN_ARCHIVED", "The Postpaid Plan " + plan.getName() + " is archived");
     }
     return plan;
   }

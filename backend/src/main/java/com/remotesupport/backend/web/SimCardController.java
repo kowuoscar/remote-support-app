@@ -7,6 +7,7 @@ import com.remotesupport.backend.domain.Smartphone;
 import com.remotesupport.backend.dto.SimCardCreateRequest;
 import com.remotesupport.backend.dto.SimCardInstalledInUpdateRequest;
 import com.remotesupport.backend.dto.SimCardNumberUpdateRequest;
+import com.remotesupport.backend.dto.SimCardPostpaidPlanUpdateRequest;
 import com.remotesupport.backend.dto.SimCardResponse;
 import com.remotesupport.backend.dto.SimCardStatusUpdateRequest;
 import com.remotesupport.backend.logging.AuditLog;
@@ -184,6 +185,23 @@ public class SimCardController {
 
     return SimCardResponse.of(
         correctionService.correctNumber(contract, simCardId, request.number(), principal));
+  }
+
+  /**
+   * Corrects a Postpaid SIM Card's plan and re-copies the plan's price into its monthly fee
+   * (correct-a-fleet-unit spec): the Manager, or a Tester of the Contract's own Client.
+   */
+  @PatchMapping("/{simCardId}/postpaid-plan")
+  public SimCardResponse correctPostpaidPlan(
+      @PathVariable UUID contractId,
+      @PathVariable UUID simCardId,
+      @RequestBody SimCardPostpaidPlanUpdateRequest request,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    Contract contract = findContract(contractId, principal);
+    fleetAccessGuard.requireCanCorrect(contract, principal);
+
+    return SimCardResponse.of(
+        correctionService.correctPostpaidPlan(contract, simCardId, request.postpaidPlanId(), principal));
   }
 
   /** A refused correction's 400 carries a {@code code}, so the page can show it at the field. */

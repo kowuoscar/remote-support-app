@@ -45,6 +45,7 @@ Declares the Carrier glossary term (monthly fee clause) for the merger.
 At risk: Client Invoice base amounts, Agent Invoice Local Support Fees, the fee-at-creation rule, Tester Fleet page loading. Protected by `PostpaidSimPlanApiTest` (its re-pricing tests at :147 and :173), `ClientInvoiceStoredLinesApiTest`, `ClientInvoiceSendBackApiTest`, `AgentInvoiceApiTest`.
 
 Existing tests expected to change:
+- The 8 Fleet goldens (`manager-contract-fleet-*`, `client-fleet-*`): besides the plan "Edit" button, the diff also shows the Carrier, Plan, Flavor and Monthly fee cells of the stub's first ACTIVE SIM of Tester contract 0, which `frontend/tests/visual/stub-backend.mjs` now serves as a Postpaid SIM on Carrier c1 so the plan control can appear at all. No other golden moves. (Accepted by the orchestrator after implementation.)
 - `SimCardCorrectionApiTest` (created by `correct-a-sim-card-number`): gains the plan and money cases; every earlier method keeps passing unmodified.
 - `frontend/tests/e2e/fleet-management.spec.ts`: gains tests; every pre-existing test keeps passing unmodified.
 - The Manager Contract Fleet and Tester Fleet goldens (added by `correct-a-smartphone-model`): deleted, then recaptured, diff limited to the plan "Edit" button.

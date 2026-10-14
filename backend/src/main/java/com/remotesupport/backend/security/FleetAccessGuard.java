@@ -46,6 +46,19 @@ public class FleetAccessGuard {
     }
   }
 
+  /**
+   * Correcting a unit's mistyped number, model, owner or Postpaid plan (correct-a-fleet-unit spec):
+   * the Manager on any Contract of the Tenant, a Tester — any Tester, the Primary Contact or not —
+   * on a Contract of their own Client. An Agent never corrects, the Contract's own included.
+   */
+  public void requireCanCorrect(Contract contract, AuthenticatedPrincipal principal) {
+    switch (principal.role()) {
+      case "MANAGER" -> {}
+      case "TESTER" -> requireOwnsContractAsTester(contract, principal);
+      default -> throw new AccessDeniedException("Not allowed to correct this Contract's Fleet");
+    }
+  }
+
   private void requireOwnsContractAsAgent(Contract contract, AuthenticatedPrincipal principal) {
     boolean owns =
         callerIdentityResolver

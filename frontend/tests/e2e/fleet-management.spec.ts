@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import {
   SEEDED_USERS,
   addTester,
@@ -260,5 +260,79 @@ test.describe("fleet management", () => {
       return response.status;
     }, otherContractId);
     expect(testerStatus).toBe(403);
+  });
+
+  // correct-a-smartphone-model ticket: each test creates its own unit and Client.
+  async function addSmartphone(page: Page, model: string) {
+    await page.getByRole("button", { name: "Add smartphone" }).first().click();
+    await page.getByLabel("Model").fill(model);
+    await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
+    await expect(page.getByRole("row", { name: new RegExp(model) })).toBeVisible();
+  }
+
+  test("a manager corrects a smartphone's model and sees it after a reload", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await createClientAndContractWithSeededAgent(page, `Typo Model Traders ${RUN_ID}`);
+    await addSmartphone(page, "Pixle 8");
+
+    // Not located by its text: while editing, the model sits in a field, not in the row's name.
+    const row = page.locator("table").first().locator("tbody tr").first();
+    await row.getByRole("button", { name: "Edit" }).first().click();
+    await row.getByLabel("Smartphone model").fill("  Pixel 8 Pro  ");
+    await row.getByRole("button", { name: "Save" }).click();
+
+    await expect(page.getByRole("row", { name: /Pixel 8 Pro/ })).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole("row", { name: /Pixel 8 Pro/ })).toBeVisible();
+    await expect(page.getByRole("cell", { name: /Pixle 8/ })).toHaveCount(0);
+    // No status control on the Manager's Contract page.
+    await expect(page.getByLabel("Change smartphone status")).toHaveCount(0);
+  });
+
+  test("a tester corrects a smartphone's model on their own client's fleet", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Tester Typo Retail ${RUN_ID}`;
+    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    await addSmartphone(page, "Galxy S24");
+    const testerEmail = `typo.tester+${RUN_ID}@typo.example`;
+    const testerPassword = await addTester(page, clientId, testerEmail);
+
+    await logout(page);
+    await login(page, testerEmail, testerPassword);
+    await page.goto("/client/fleet");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = page.locator("table").first().locator("tbody tr").first();
+    await row.getByRole("button", { name: "Edit" }).click();
+    await row.getByLabel("Smartphone model").fill("Galaxy S24");
+    await row.getByRole("button", { name: "Save" }).click();
+
+    await expect(page.getByRole("row", { name: /Galaxy S24/ })).toBeVisible();
+    await page.reload();
+    await selectContractInSwitcher(page, clientName);
+    await expect(page.getByRole("row", { name: /Galaxy S24/ })).toBeVisible();
+    // The Tester's Fleet shows no serial or status control.
+    await expect(page.getByLabel("Smartphone serial")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Set serial" })).toHaveCount(0);
+    await expect(page.getByLabel("Change smartphone status")).toHaveCount(0);
+  });
+
+  test("an agent's fleet offers no model correction", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    // Not "Agent …": the Contract form's getByLabel("Agent") also matches a Client name containing it.
+    const clientName = `Read Only Fleet ${RUN_ID}`;
+    await createClientAndContractWithSeededAgent(page, clientName);
+    await addSmartphone(page, "Moto G");
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/fleet");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = page.getByRole("row", { name: /Moto G/ });
+    await expect(row).toBeVisible();
+    await expect(row.getByLabel("Smartphone model")).toHaveCount(0);
+    // The model cell holds no button: only the serial control's own are in the row.
+    await expect(row.getByRole("cell", { name: "Moto G" }).getByRole("button")).toHaveCount(0);
   });
 });

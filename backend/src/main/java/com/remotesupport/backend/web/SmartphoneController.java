@@ -6,6 +6,7 @@ import com.remotesupport.backend.domain.SmartphoneOwner;
 import com.remotesupport.backend.domain.SmartphoneStatus;
 import com.remotesupport.backend.dto.SmartphoneCreateRequest;
 import com.remotesupport.backend.dto.SmartphoneResponse;
+import com.remotesupport.backend.dto.SmartphoneModelUpdateRequest;
 import com.remotesupport.backend.dto.SmartphoneSerialUpdateRequest;
 import com.remotesupport.backend.dto.SmartphoneStatusUpdateRequest;
 import com.remotesupport.backend.logging.AuditLog;
@@ -16,11 +17,13 @@ import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,16 +46,19 @@ public class SmartphoneController {
   private final SmartphoneRepository smartphoneRepository;
   private final FleetAccessGuard fleetAccessGuard;
   private final SimInstallationService simInstallationService;
+  private final SmartphoneCorrectionService correctionService;
 
   public SmartphoneController(
       ContractRepository contractRepository,
       SmartphoneRepository smartphoneRepository,
       FleetAccessGuard fleetAccessGuard,
-      SimInstallationService simInstallationService) {
+      SimInstallationService simInstallationService,
+      SmartphoneCorrectionService correctionService) {
     this.contractRepository = contractRepository;
     this.smartphoneRepository = smartphoneRepository;
     this.fleetAccessGuard = fleetAccessGuard;
     this.simInstallationService = simInstallationService;
+    this.correctionService = correctionService;
   }
 
   @PostMapping
@@ -164,6 +170,30 @@ public class SmartphoneController {
         smartphone.getId(), oldSerial, newSerial, principal.userId(), principal.tenantId());
 
     return SmartphoneResponse.of(smartphone);
+  }
+
+  /**
+   * Corrects a Smartphone's model (correct-a-fleet-unit spec): the Manager, or a Tester of the
+   * Contract's own Client, through {@link FleetAccessGuard#requireCanCorrect}.
+   */
+  @PatchMapping("/{smartphoneId}/model")
+  public SmartphoneResponse correctModel(
+      @PathVariable UUID contractId,
+      @PathVariable UUID smartphoneId,
+      @RequestBody SmartphoneModelUpdateRequest request,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    Contract contract = findContract(contractId, principal);
+    fleetAccessGuard.requireCanCorrect(contract, principal);
+
+    return SmartphoneResponse.of(
+        correctionService.correctModel(contract, smartphoneId, request.model(), principal));
+  }
+
+  /** A refused correction's 400 carries a {@code code}, so the page can show it at the field. */
+  @ExceptionHandler(InvalidCorrectionException.class)
+  public ResponseEntity<Map<String, String>> invalidCorrection(InvalidCorrectionException e) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(Map.of("code", e.getCode(), "message", e.getMessage()));
   }
 
   private static String blankToNull(String value) {

@@ -47,7 +47,7 @@ The company whose Testers receive local support. The MVP serves a single Client.
 _Avoid_: Customer, account.
 
 **Tester**:
-An individual user belonging to a Client, with their own login, who submits task requests and views the fleet assigned to them.
+An individual user belonging to a Client, with their own login, who submits task requests and views the fleet assigned to them. May also make a Correction to a unit on any Contract of their own Client's Fleet: a SIM's number, a Postpaid SIM's plan, a Smartphone's model or its owner — not its serial, and never a Carrier.
 _Avoid_: End user, client user.
 
 **Primary Contact**:
@@ -91,6 +91,9 @@ _Avoid_: Denied, declined.
 
 **Owner** (of a Smartphone or SIM Card):
 A Smartphone is owned either by the Client or by the company; a SIM Card is always company-owned. A Smartphone reached through a Provision or Replace Request is always company-owned. Units are part of a Contract's Fleet, never assigned to an individual Tester.
+
+**Correction**:
+Fixing a mistake on a unit already on a Contract's Fleet — a SIM's number, a Postpaid SIM's plan, a Smartphone's model or its owner — in place, without raising a Request. Made by the Company Manager or a Client Tester, never an Agent; refused with a clear message when it would break a rule, and audit-logged with who made it, the old value and the new value. Not a Request, and not a change of Carrier or of Postpaid/Prepaid.
 
 **Installed in** (of a SIM Card):
 The Smartphone a SIM Card currently sits in, if any. A Smartphone holds at most two SIM Cards. A SIM Swap Request moves one SIM into another Smartphone, or exchanges the SIMs of two Smartphones.

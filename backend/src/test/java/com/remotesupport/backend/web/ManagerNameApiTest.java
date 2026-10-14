@@ -18,7 +18,11 @@ import com.remotesupport.backend.support.OtherTenantFixture;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -81,48 +85,40 @@ class ManagerNameApiTest extends IntegrationTest {
     me(manager.token()).andExpect(jsonPath("$.name").value("Second Name"));
   }
 
-  @Test
-  void aNameOfExactlyOneHundredCharactersIsAccepted() throws Exception {
-    ManagerLogin manager = freshManager();
-    String name = "n".repeat(100);
-
-    putName(manager.token(), name).andExpect(status().isNoContent());
-
-    me(manager.token()).andExpect(jsonPath("$.name").value(name));
+  static Stream<Arguments> acceptedNames() {
+    return Stream.of(
+        Arguments.of("n".repeat(100), "n".repeat(100)),
+        Arguments.of("  " + "n".repeat(100) + " \t", "n".repeat(100)));
   }
 
-  @Test
-  void aNameLongerThanOneHundredCharactersIsRefusedAndLeavesTheNameAlone() throws Exception {
+  @ParameterizedTest
+  @MethodSource("acceptedNames")
+  void aNameOfUpToOneHundredCharactersAfterTrimmingIsAccepted(String sent, String stored)
+      throws Exception {
+    ManagerLogin manager = freshManager();
+
+    putName(manager.token(), sent).andExpect(status().isNoContent());
+
+    me(manager.token()).andExpect(jsonPath("$.name").value(stored));
+  }
+
+  static Stream<Arguments> refusedNames() {
+    return Stream.of(
+        Arguments.of("n".repeat(101), "NAME_TOO_LONG"),
+        Arguments.of("", "NAME_BLANK"),
+        Arguments.of("   \t ", "NAME_BLANK"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("refusedNames")
+  void aRefusedNameIsA400WithItsCodeAndLeavesTheNameAlone(String sent, String code)
+      throws Exception {
     ManagerLogin manager = freshManager();
     storeName(manager.username(), "Kept Name");
 
-    putName(manager.token(), "n".repeat(101))
+    putName(manager.token(), sent)
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.code").value("NAME_TOO_LONG"));
-
-    assertThat(storedName(manager.username())).isEqualTo("Kept Name");
-  }
-
-  @Test
-  void aBlankNameIsRefusedAndLeavesTheNameAlone() throws Exception {
-    ManagerLogin manager = freshManager();
-    storeName(manager.username(), "Kept Name");
-
-    putName(manager.token(), "")
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.code").value("NAME_BLANK"));
-
-    assertThat(storedName(manager.username())).isEqualTo("Kept Name");
-  }
-
-  @Test
-  void aWhitespaceOnlyNameIsRefusedAsBlankAndLeavesTheNameAlone() throws Exception {
-    ManagerLogin manager = freshManager();
-    storeName(manager.username(), "Kept Name");
-
-    putName(manager.token(), "   \t ")
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.code").value("NAME_BLANK"));
+        .andExpect(jsonPath("$.code").value(code));
 
     assertThat(storedName(manager.username())).isEqualTo("Kept Name");
   }

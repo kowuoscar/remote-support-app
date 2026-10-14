@@ -1,7 +1,7 @@
 ---
 id: correct-a-smartphone-model
 title: Manager and Tester correct a Smartphone's model
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [backend, frontend, fleet]
 stories: [3, 7, 9, 10, 11, 12, 13, 21, 22, 25, 26, 27, 28, 29]

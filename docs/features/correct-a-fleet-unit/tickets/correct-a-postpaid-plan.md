@@ -1,7 +1,7 @@
 ---
 id: correct-a-postpaid-plan
 title: Manager and Tester correct a Postpaid SIM's plan and its monthly fee
-status: in-progress
+status: done
 depends_on: [correct-a-sim-card-number]
 labels: [backend, frontend, fleet]
 stories: [2, 6, 9, 10, 14, 15, 16, 17, 18, 19, 20, 25, 26, 27, 28]

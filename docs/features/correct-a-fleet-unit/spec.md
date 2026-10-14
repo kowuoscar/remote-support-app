@@ -521,6 +521,10 @@ or component internals.
 - **(answered by the human, 2026-10-14)** The Carrier and Postpaid ↔ Prepaid are not correctable in this feature; a SIM on the wrong Carrier or flavor is retired and added again.
 - **(answered by the human, 2026-10-14)** The Contract's Agent does not get the four corrections; only the Manager and the Tester.
 - **(answered by the human, 2026-10-14)** A Tester may change a Smartphone's owner in both directions, every change audit-logged with who made it; refused while an open Return names the phone.
+- **(during implementation)** Saving the owner already held is a `200` no-op even while an open Return names the phone: the same-value check runs before the open-Return check, since nothing changes.
+- **(during implementation)** A SIM whose current plan is archived opens the plan control with no plan chosen; Save stays disabled until one is picked.
+- **(during implementation)** A Tester's plan control gets no "Add one on the Carriers page" pointer, since a Tester has no Carriers page; a Carrier with no active plan gives the Tester no plan control.
+- **(during implementation)** The correction "Edit" buttons carry accessible names per field ("Edit owner", "Edit plan", …) so they stay distinct inside one row.
 
 ## Open questions
 

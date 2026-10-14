@@ -1,7 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { backendFetch } from "@/lib/api/backend";
+import { forwardJson } from "@/lib/api/forward-json";
 
-/** BFF proxy for setting, moving or clearing a SIM Card's Installed-in Smartphone — see app/api/clients/route.ts for the pattern. */
+/** BFF proxy for setting, moving or clearing a SIM Card's Installed-in Smartphone. */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ contractId: string; simCardId: string }> },
@@ -12,9 +13,5 @@ export async function PATCH(
     `/api/contracts/${contractId}/sim-cards/${simCardId}/installed-in`,
     { method: "PATCH", body },
   );
-  const responseBody = await backendResponse.text();
-  return new NextResponse(responseBody, {
-    status: backendResponse.status,
-    headers: { "Content-Type": "application/json" },
-  });
+  return forwardJson(backendResponse);
 }

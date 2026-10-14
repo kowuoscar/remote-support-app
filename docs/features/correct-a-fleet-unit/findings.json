@@ -241,24 +241,24 @@
     {
       "id": "F20",
       "type": "design-guideline",
-      "state": "open",
+      "state": "dismissed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": false,
       "where": "frontend/components/manager/contract-fleet-view.tsx:37",
       "citation": "DESIGN.md \"The Pill-Is-Primary Rule. … A screen with two pill buttons is a defect, not a variant.\"",
-      "note": "Pre-existing: \"Add smartphone\" and \"Add SIM card\" are both primary pills. Not this feature's lines -> debt."
+      "note": "Pre-existing: \"Add smartphone\" and \"Add SIM card\" are both primary pills. Not this feature's lines -> debt. human (2026-10-14): pre-existing; recorded as debt, not fixed here."
     },
     {
       "id": "F21",
       "type": "design-guideline",
-      "state": "open",
+      "state": "dismissed",
       "raised_by": "design-audit",
       "after_review": true,
       "in_changed_lines": false,
       "where": "frontend/components/fleet/smartphone-serial-control.tsx:66",
       "citation": "DESIGN.md \"The Reserved Indigo Rule. … never as a decorative fill … or secondary accent. Its rarity is the point\"",
-      "note": "After F19 the Manager row shows ghost Edit for model and owner but the pre-existing serial control keeps a soft-indigo row \"Edit\" chip with a bare accessible name. Fix: serial Edit to ghost with aria-label \"Edit serial, {serial}\"; recapture Manager Contract Fleet goldens in the same commit."
+      "note": "After F19 the Manager row shows ghost Edit for model and owner but the pre-existing serial control keeps a soft-indigo row \"Edit\" chip with a bare accessible name. Fix: serial Edit to ghost with aria-label \"Edit serial, {serial}\"; recapture Manager Contract Fleet goldens in the same commit. human (2026-10-14): recorded as debt, merge without fixing."
     },
     {
       "id": "F22",

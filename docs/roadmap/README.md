@@ -27,3 +27,4 @@ Proposed, waiting for the human to place or drop:
 
 - `login-onboarding` — change a login's email, force a password change on first sign-in; invitation emails need a mail service decision first. Promoted from `login-lifecycle`'s `## Later` (2026-10-06).
 - `fleet-corrections` — a Manager or a Tester corrects a mistyped SIM number, Postpaid plan, Smartphone model or owner. Raised by the human while testing (2026-10-14).
+- `agent-client-invoices-side-list` — on desktop, the Agent's Client Invoices page lists Clients in a side column instead of a dropdown; a phone keeps the dropdown. Raised by the human while testing (2026-10-14).

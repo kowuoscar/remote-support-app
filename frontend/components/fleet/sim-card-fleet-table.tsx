@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { Money } from "@/components/ui/money";
+import { SimCardNumberControl } from "@/components/fleet/sim-card-number-control";
 import { SimCardCarrier } from "@/components/fleet/sim-card-carrier";
 import { SimCardInstalledInControl, type InstallableSmartphone } from "@/components/fleet/sim-card-installed-in-control";
 import { SimCardPlan } from "@/components/fleet/sim-card-plan";
@@ -12,7 +13,8 @@ import { SIM_CARD_FLAVOR_LABEL, SIM_CARD_STATUS_LABEL, type SimCardListItem } fr
 /**
  * The SIM Card table markup shared by every Fleet view. `showMonthlyFee` and `changeStatus` are
  * the axes the three roles vary on (Agent: both; Client: neither; Manager: monthly fee only).
- * "Installed in" is always shown — editable (`SimCardInstalledInControl`) when `contractId` and
+ * The number is a correction control (`SimCardNumberControl`) only when `canCorrect` is given
+ * (Manager, Tester). "Installed in" is always shown — editable (`SimCardInstalledInControl`) when `contractId` and
  * `smartphones` are given (Agent, Manager), otherwise plain text (Client, read-only). Extracted
  * from the near-identical copies in agent/fleet-view.tsx, client/fleet-view.tsx and
  * manager/contract-fleet-view.tsx — same markup and classes each caller had inline, so rendering
@@ -24,6 +26,7 @@ export function SimCardFleetTable({
   showMonthlyFee = false,
   contractId,
   smartphones,
+  canCorrect,
   changeStatus,
 }: {
   sims: SimCardListItem[];
@@ -33,6 +36,9 @@ export function SimCardFleetTable({
    * Manager); omitted for read-only (Client). */
   contractId?: string;
   smartphones?: InstallableSmartphone[];
+  /** With `contractId`, renders the number correction control (Manager, Tester); omitted for
+   * plain text. Independent of the Installed-in control, which `smartphones` governs. */
+  canCorrect?: boolean;
   changeStatus?: (sim: SimCardListItem) => ReactNode;
 }) {
   return (
@@ -52,7 +58,13 @@ export function SimCardFleetTable({
       <Tbody>
         {sims.map((sim) => (
           <Tr key={sim.id}>
-            <Td className="tnum font-medium text-ink">{sim.number}</Td>
+            <Td className="tnum font-medium text-ink">
+              {contractId && canCorrect ? (
+                <SimCardNumberControl contractId={contractId} simCardId={sim.id} number={sim.number} />
+              ) : (
+                sim.number
+              )}
+            </Td>
             <Td>
               <SimCardCarrier sim={sim} />
             </Td>

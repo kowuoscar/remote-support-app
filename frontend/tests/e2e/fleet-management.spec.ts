@@ -335,4 +335,73 @@ test.describe("fleet management", () => {
     // The model cell holds no button: only the serial control's own are in the row.
     await expect(row.getByRole("cell", { name: "Moto G" }).getByRole("button")).toHaveCount(0);
   });
+
+  async function addPrepaidSim(page: Page, number: string) {
+    await page.getByRole("button", { name: "Add SIM card" }).first().click();
+    await page.getByLabel("Number").fill(number);
+    await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
+    await page.getByLabel("Flavor").selectOption("PREPAID");
+    await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
+    await expect(page.getByRole("row", { name: new RegExp(number.replace("+", "\\+")) })).toBeVisible();
+  }
+
+  test("a manager corrects a SIM card's number and sees it after a reload", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await createClientAndContractWithSeededAgent(page, `Typo Number Traders ${RUN_ID}`);
+    await addPrepaidSim(page, "+44 7700 900100");
+
+    // Not located by its text: while editing, the number sits in a field, not in the row's name.
+    const row = page.locator("table").nth(1).locator("tbody tr").first();
+    await row.getByRole("button", { name: "Edit" }).first().click();
+    await row.getByLabel("SIM Card number").fill("  +44 7700 900123  ");
+    await row.getByRole("button", { name: "Save" }).click();
+
+    await expect(page.getByRole("row", { name: /\+44 7700 900123/ })).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole("row", { name: /\+44 7700 900123/ })).toBeVisible();
+    await expect(page.getByRole("cell", { name: /900100/ })).toHaveCount(0);
+  });
+
+  test("a tester corrects a SIM card's number on their own client's fleet", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Tester Number Retail ${RUN_ID}`;
+    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    await addPrepaidSim(page, "+44 7700 900200");
+    const testerEmail = `number.tester+${RUN_ID}@typo.example`;
+    const testerPassword = await addTester(page, clientId, testerEmail);
+
+    await logout(page);
+    await login(page, testerEmail, testerPassword);
+    await page.goto("/client/fleet");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = page.locator("table").nth(1).locator("tbody tr").first();
+    await row.getByRole("button", { name: "Edit" }).click();
+    await row.getByLabel("SIM Card number").fill("+44 7700 900223");
+    await row.getByRole("button", { name: "Save" }).click();
+
+    await expect(page.getByRole("row", { name: /\+44 7700 900223/ })).toBeVisible();
+    await page.reload();
+    await selectContractInSwitcher(page, clientName);
+    await expect(page.getByRole("row", { name: /\+44 7700 900223/ })).toBeVisible();
+    // The Tester still gets no Installed-in or status control.
+    await expect(page.getByLabel("Installed in")).toHaveCount(0);
+  });
+
+  test("an agent's fleet offers no SIM number correction", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Read Only Sim Fleet ${RUN_ID}`;
+    await createClientAndContractWithSeededAgent(page, clientName);
+    await addPrepaidSim(page, "+44 7700 900300");
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/fleet");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = page.getByRole("row", { name: /\+44 7700 900300/ });
+    await expect(row).toBeVisible();
+    await expect(row.getByLabel("SIM Card number")).toHaveCount(0);
+    await expect(row.getByRole("cell", { name: "+44 7700 900300" }).getByRole("button")).toHaveCount(0);
+  });
 });

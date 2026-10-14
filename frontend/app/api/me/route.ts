@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import { backendFetch } from "@/lib/api/backend";
+import { forwardJson } from "@/lib/api/forward-json";
 
 /**
  * BFF proxy for `GET /api/me` (manager-changes-own-name ticket), so the browser-side
@@ -7,10 +7,5 @@ import { backendFetch } from "@/lib/api/backend";
  * httpOnly cookie. A plain pass-through of status and body.
  */
 export async function GET() {
-  const backendResponse = await backendFetch("/api/me");
-  const responseBody = await backendResponse.text();
-  return new NextResponse(responseBody || null, {
-    status: backendResponse.status,
-    headers: responseBody ? { "Content-Type": "application/json" } : undefined,
-  });
+  return forwardJson(await backendFetch("/api/me"));
 }

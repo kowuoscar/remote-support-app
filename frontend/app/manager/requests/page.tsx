@@ -19,7 +19,7 @@ export default async function ManagerRequestsPage() {
   const items = response.ok ? ((await response.json()) as PendingRequestItem[]) : null;
 
   return (
-    <SurfacePage title="Requests" subtitle="Pending Approval, longest waiting first" viewerLabel="Manager" viewerCanChangeName>
+    <SurfacePage title="Requests" subtitle="Pending Approval, longest waiting first" viewerLabel="Manager">
       {items ? (
         <PendingRequestsView items={items} now={new Date().toISOString()} />
       ) : (

@@ -51,9 +51,9 @@ describe("ManagerDashboardStats's grid (manager-dashboard-identity-and-counts ti
   });
 
   it.each([
-    ["clients-stat", { clientCount: null }, "Couldn't load your Clients"],
-    ["agents-stat", { agentCount: null }, "Couldn't load your Agents"],
-    ["contracts-stat", { contractCount: null }, "Couldn't load your Contracts"],
+    ["clients-stat", { clientCount: null }, "Couldn’t load — open Clients"],
+    ["agents-stat", { agentCount: null }, "Couldn’t load — open Agents"],
+    ["contracts-stat", { contractCount: null }, "Couldn’t load — open Contracts"],
   ])("%s reads — with its own Couldn't load line when unavailable, the rest still showing", (testId, props, meta) => {
     renderReady(props);
 
@@ -134,7 +134,7 @@ describe("ManagerDashboardStats's money cards (manager-dashboard-money ticket)",
       const card = screen.getByTestId(id);
       expect(card).toHaveTextContent("—");
       expect(card).toHaveTextContent("Unavailable");
-      expect(card).toHaveTextContent("Couldn't load this month's totals");
+      expect(card).toHaveTextContent("Couldn’t load this month’s totals");
     }
     expect(screen.getByTestId("clients-stat")).toHaveTextContent("4");
   });

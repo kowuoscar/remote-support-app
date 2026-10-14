@@ -245,11 +245,11 @@ test.describe("the Manager dashboard's identity and count states", () => {
     await expect(chip).toHaveText("Manager");
     const agents = page.getByTestId("agents-stat");
     await expect(agents).toContainText("—");
-    await expect(agents).toContainText("Couldn't load your Agents");
+    await expect(agents).toContainText("Couldn’t load — open Agents");
     for (const id of ["billed-stat", "payout-stat"]) {
       const card = page.getByTestId(id);
       await expect(card).toContainText("—");
-      await expect(card).toContainText("Couldn't load this month's totals");
+      await expect(card).toContainText("Couldn’t load this month’s totals");
     }
     await expect(page.getByTestId("clients-stat")).toContainText("In this tenant");
     await expect(page.getByTestId("contracts-stat")).toContainText("Client × Agent pairs");

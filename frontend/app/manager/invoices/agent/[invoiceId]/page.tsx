@@ -35,7 +35,7 @@ export default async function ManagerAgentInvoicePage({
   const subject = agents.find((a) => a.id === invoice.agentId)?.name ?? "Agent Invoice";
 
   return (
-    <SurfacePage title={subject} subtitle="Agent Invoice" viewerLabel="Manager" viewerCanChangeName>
+    <SurfacePage title={subject} subtitle="Agent Invoice" viewerLabel="Manager">
       <Breadcrumb items={[{ label: "Invoices", href: "/manager/invoices" }, { label: subject }]} />
       <AgentInvoiceDetailView invoice={invoice} />
     </SurfacePage>

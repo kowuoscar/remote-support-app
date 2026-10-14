@@ -24,7 +24,7 @@ export default async function ManagerInvoicesPage({
   const items = response.ok ? ((await response.json()) as ReviewQueueItem[]) : null;
 
   return (
-    <SurfacePage title="Invoices" subtitle="Waiting on you, longest waiting first" viewerLabel="Manager" viewerCanChangeName>
+    <SurfacePage title="Invoices" subtitle="Waiting on you, longest waiting first" viewerLabel="Manager">
       {items ? (
         <ReviewQueueView items={items} now={new Date().toISOString()} initialFilter={reviewQueueFilterFromParam(type)} />
       ) : (

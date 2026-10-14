@@ -26,7 +26,7 @@ export default async function ManagerContractsPage() {
     <SurfacePage
       title="Contracts"
       subtitle={`${rows.length} in this tenant`}
-      viewerLabel="Manager" viewerCanChangeName
+      viewerLabel="Manager"
     >
       <ManagerContractsView contracts={rows} clients={clients} agents={agents} />
     </SurfacePage>

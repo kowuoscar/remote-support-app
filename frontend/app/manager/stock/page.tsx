@@ -32,7 +32,7 @@ export default async function ManagerStockPage({
   ]);
 
   return (
-    <SurfacePage title="Stock" subtitle="Every Agent's company-owned units, off every Contract" viewerLabel="Manager" viewerCanChangeName>
+    <SurfacePage title="Stock" subtitle="Every Agent's company-owned units, off every Contract" viewerLabel="Manager">
       <StockAgentFilter agents={agents} agentId={agentId} />
       <StockView units={units} showAgentColumn />
     </SurfacePage>

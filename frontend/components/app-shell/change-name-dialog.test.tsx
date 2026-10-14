@@ -127,7 +127,7 @@ describe("ChangeNameDialog", () => {
     await userEvent.type(within(dialog).getByLabelText("Name"), "Yazan");
     await userEvent.click(within(dialog).getByRole("button", { name: "Change name" }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't change your name. Try again.");
+    expect(await screen.findByRole("alert")).toHaveTextContent("Couldn’t change your name. Try again.");
     expect(within(dialog).getByLabelText("Name")).toHaveValue("Yazan");
   });
 

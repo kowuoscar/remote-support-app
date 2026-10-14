@@ -6,7 +6,6 @@ export function SurfacePage({
   subtitle,
   actions,
   viewerLabel,
-  viewerCanChangeName,
   wrapSubtitle,
   children,
 }: {
@@ -14,14 +13,13 @@ export function SurfacePage({
   subtitle?: string;
   actions?: ReactNode;
   viewerLabel: string;
-  viewerCanChangeName?: boolean;
   wrapSubtitle?: boolean;
   children: ReactNode;
 }) {
   return (
     <>
       <TopBar title={title} subtitle={subtitle} actions={actions} viewerLabel={viewerLabel}
-        viewerCanChangeName={viewerCanChangeName} wrapSubtitle={wrapSubtitle}
+        wrapSubtitle={wrapSubtitle}
       />
       <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 sm:py-6" data-testid="surface-main">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">{children}</div>

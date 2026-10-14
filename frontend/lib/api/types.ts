@@ -662,3 +662,10 @@ export interface TenantTotals {
   billed: CurrencyAmount[];
   payout: CurrencyAmount[];
 }
+
+// GET /api/me — the slice of backend/.../dto/MeResponse.java the Manager console reads. `name` is the
+// Manager name, present only for a Manager who has set one (omitted otherwise).
+export interface MeResponse {
+  username: string;
+  name?: string;
+}

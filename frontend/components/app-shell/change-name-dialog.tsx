@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
 import { DialogShell, type DialogShellHandle } from "@/components/manager/dialog-shell";
 import { readErrorCode } from "@/lib/api/errors";
+import type { MeResponse } from "@/lib/api/types";
 
 export type ChangeNameDialogHandle = { open: () => void };
 
 const BLANK_MESSAGE = "Enter your name.";
 const TOO_LONG_MESSAGE = "Your name can be at most 100 characters.";
-const GENERIC_MESSAGE = "Couldn't change your name. Try again.";
+const GENERIC_MESSAGE = "Couldn’t change your name. Try again.";
 
 // Keyed by the backend's `code` (manager-name-api: ManagerName's NAME_BLANK / NAME_TOO_LONG).
 const CODE_MESSAGES: Record<string, string> = {
@@ -122,6 +123,7 @@ export const ChangeNameDialog = forwardRef<ChangeNameDialogHandle>(function Chan
           Name
           <Input
             type="text"
+            name="name"
             autoComplete="name"
             autoFocus
             value={name}
@@ -152,7 +154,7 @@ async function readCurrentName(): Promise<string | null> {
   try {
     const response = await fetch("/api/me");
     if (!response.ok) return null;
-    const body = (await response.json()) as { name?: unknown };
+    const body = (await response.json()) as Pick<MeResponse, "name">;
     return typeof body.name === "string" && body.name !== "" ? body.name : null;
   } catch {
     return null;

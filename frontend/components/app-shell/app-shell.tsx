@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { NavRail } from "@/components/app-shell/nav-rail";
+import { ViewerCanChangeNameProvider } from "@/components/app-shell/viewer-capabilities";
 import { MobileNavProvider } from "@/lib/mobile-nav";
 import type { Surface } from "@/lib/nav";
 
@@ -21,6 +22,7 @@ export function ShellFrame({
 }) {
   return (
     <MobileNavProvider>
+      <ViewerCanChangeNameProvider value={surface === "manager"}>
       {/*
         min-h-dvh, not h-dvh: the shell floors at one viewport but grows
         with content. The rail and TopBar are sticky (not a height-capped
@@ -33,6 +35,7 @@ export function ShellFrame({
         <NavRail surface={surface} roleLabel={roleLabel} />
         <div className="flex min-w-0 flex-1 flex-col">{children}</div>
       </div>
+      </ViewerCanChangeNameProvider>
     </MobileNavProvider>
   );
 }

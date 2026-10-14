@@ -55,7 +55,7 @@ export default async function ManagerContractDetailPage({
     <SurfacePage
       title={title}
       subtitle={`${countryLabel(contract.country)} · ${contract.currency} · ${smartphones.length} smartphone${smartphones.length === 1 ? "" : "s"} · ${simCards.length} SIM card${simCards.length === 1 ? "" : "s"}`}
-      viewerLabel="Manager" viewerCanChangeName
+      viewerLabel="Manager"
     >
       <Breadcrumb items={[{ label: "Contracts", href: "/manager/contracts" }, { label: title }]} />
       <div className="flex flex-col gap-5">

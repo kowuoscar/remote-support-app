@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { StatCard, UNAVAILABLE_FIGURE } from "@/components/ui/stat-card";
 import { Money } from "@/components/ui/money";
@@ -21,8 +22,18 @@ function moneyFigure(lines: CurrencyAmount[] | null) {
   );
 }
 
+/** A card's meta line as a link to the list behind it, so a failed read always has a next step. */
+function MetaLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link href={href} className="inline-flex items-center gap-1 text-primary hover:text-primary-hover">
+      {children}
+      <IconArrowRight className="h-3 w-3" />
+    </Link>
+  );
+}
+
 function moneyMeta(lines: CurrencyAmount[] | null, rule: string, billingMonth: string | null) {
-  if (lines === null) return "Couldn't load this month's totals";
+  if (lines === null) return "Couldn’t load this month’s totals — reload to retry";
   return billingMonth ? `${rule} · ${formatBillingMonth(billingMonth)}` : rule;
 }
 
@@ -66,9 +77,11 @@ export function ManagerDashboardStats({
         value={pendingApprovalsCount ?? "—"}
         primary
         meta={
-          pendingApprovalsCount === null
-            ? "Couldn’t load the Review Queue"
-            : "Client + Agent Invoices awaiting review"
+          pendingApprovalsCount === null ? (
+            <MetaLink href="/manager/invoices">Couldn’t load — open Invoices</MetaLink>
+          ) : (
+            "Client + Agent Invoices awaiting review"
+          )
         }
         data-testid="pending-approvals-stat"
       />
@@ -77,13 +90,9 @@ export function ManagerDashboardStats({
         value={pendingRequestsCount ?? "—"}
         primary
         meta={
-          <Link
-            href="/manager/requests"
-            className="inline-flex items-center gap-1 text-primary hover:text-primary-hover"
-          >
+          <MetaLink href="/manager/requests">
             {pendingRequestsCount === null ? "Couldn’t load — open Pending Requests" : "Review requests"}
-            <IconArrowRight className="h-3 w-3" />
-          </Link>
+          </MetaLink>
         }
         data-testid="pending-requests-stat"
       />
@@ -105,21 +114,39 @@ export function ManagerDashboardStats({
         label="Clients"
         value={clientCount ?? UNAVAILABLE_FIGURE}
         primary
-        meta={clientCount === null ? "Couldn't load your Clients" : "In this tenant"}
+        meta={
+          clientCount === null ? (
+            <MetaLink href="/manager/clients">Couldn’t load — open Clients</MetaLink>
+          ) : (
+            "In this tenant"
+          )
+        }
         data-testid="clients-stat"
       />
       <StatCard
         label="Agents"
         value={agentCount ?? UNAVAILABLE_FIGURE}
         primary
-        meta={agentCount === null ? "Couldn't load your Agents" : "Across all countries"}
+        meta={
+          agentCount === null ? (
+            <MetaLink href="/manager/agents">Couldn’t load — open Agents</MetaLink>
+          ) : (
+            "Across all countries"
+          )
+        }
         data-testid="agents-stat"
       />
       <StatCard
         label="Contracts"
         value={contractCount ?? UNAVAILABLE_FIGURE}
         primary
-        meta={contractCount === null ? "Couldn't load your Contracts" : "Client × Agent pairs"}
+        meta={
+          contractCount === null ? (
+            <MetaLink href="/manager/contracts">Couldn’t load — open Contracts</MetaLink>
+          ) : (
+            "Client × Agent pairs"
+          )
+        }
         data-testid="contracts-stat"
       />
     </div>

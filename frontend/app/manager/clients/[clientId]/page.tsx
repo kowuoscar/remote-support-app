@@ -32,7 +32,7 @@ export default async function ManagerClientDetailPage({
     <SurfacePage
       title={client.name}
       subtitle={`${client.contractCount} contract${client.contractCount === 1 ? "" : "s"} · ${testers.length} tester${testers.length === 1 ? "" : "s"}`}
-      viewerLabel="Manager" viewerCanChangeName
+      viewerLabel="Manager"
     >
       <Breadcrumb items={[{ label: "Clients", href: "/manager/clients" }, { label: client.name }]} />
       <ManagerTestersView clientId={client.id} testers={testers} />

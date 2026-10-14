@@ -5,6 +5,8 @@ import type { FocusEvent, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signOutAndRedirect } from "@/lib/auth/sign-out";
 
+type MenuItemId = "name" | "password" | "logout";
+
 const ITEM_CLASS =
   "flex w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink-secondary transition-colors hover:bg-canvas-soft";
 
@@ -104,10 +106,26 @@ export function ViewerMenu({
     onChangePassword?.();
   }
 
+  function selectItem(id: MenuItemId) {
+    if (id === "name") handleChangeName();
+    else if (id === "password") handleChangePassword();
+    else void handleLogout();
+  }
+
   async function handleLogout() {
     closeMenu();
     await signOutAndRedirect(router, "/login");
   }
+
+  const items: { id: MenuItemId; label: string }[] = [
+    ...(onChangeName ? [{ id: "name" as const, label: "Change name" }] : []),
+    { id: "password", label: "Change password" },
+    { id: "logout", label: "Log out" },
+  ];
+  // The role stays whole on a narrow screen: only the name before " · " truncates.
+  const separator = viewerLabel.lastIndexOf(" · ");
+  const who = separator === -1 ? viewerLabel : viewerLabel.slice(0, separator);
+  const role = separator === -1 ? "" : viewerLabel.slice(separator);
 
   return (
     <div ref={containerRef} onBlur={onContainerBlur} className="relative inline-block text-left">
@@ -116,6 +134,8 @@ export function ViewerMenu({
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
+        // The label is split across two spans below; the whole string stays the accessible name.
+        aria-label={viewerLabel}
         aria-expanded={open}
         // A dedicated test id (review finding F9), not the accessible name — that's `viewerLabel`
         // itself, which varies per signed-in user and per console, so it can't anchor a shared
@@ -123,9 +143,10 @@ export function ViewerMenu({
         // is `aria-haspopup="listbox"`; a second menu anywhere in the shell would have broken
         // every caller of the shared `logout(page)` helper in `frontend/tests/e2e/helpers.ts`.
         data-testid="viewer-menu-trigger"
-        className="inline-flex max-w-[45vw] items-center gap-1 truncate rounded-full border border-hairline bg-canvas-soft px-3 py-1 text-[12px] text-ink-mute transition-colors hover:border-hairline-strong hover:text-ink sm:max-w-none"
+        className="inline-flex max-w-[45vw] items-center truncate rounded-full border border-hairline bg-canvas-soft px-3 py-1 text-[12px] text-ink-mute transition-colors hover:border-hairline-strong hover:text-ink sm:max-w-none"
       >
-        <span className="truncate">{viewerLabel}</span>
+        <span className="truncate">{who}</span>
+        {role ? <span className="shrink-0 whitespace-pre">{role}</span> : null}
       </button>
       {open ? (
         <div
@@ -133,41 +154,20 @@ export function ViewerMenu({
           onKeyDown={onPanelKeyDown}
           className="absolute right-0 z-30 mt-2 w-56 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-hairline bg-canvas-overlay py-1 shadow-elevated"
         >
-          {onChangeName ? (
+          {items.map((item, index) => (
             <button
+              key={item.label}
               ref={(element) => {
-                itemRefs.current[0] = element;
+                itemRefs.current[index] = element;
               }}
               type="button"
               role="menuitem"
-              onClick={handleChangeName}
+              onClick={() => selectItem(item.id)}
               className={ITEM_CLASS}
             >
-              Change name
+              {item.label}
             </button>
-          ) : null}
-          <button
-            ref={(element) => {
-              itemRefs.current[onChangeName ? 1 : 0] = element;
-            }}
-            type="button"
-            role="menuitem"
-            onClick={handleChangePassword}
-            className={ITEM_CLASS}
-          >
-            Change password
-          </button>
-          <button
-            ref={(element) => {
-              itemRefs.current[onChangeName ? 2 : 1] = element;
-            }}
-            type="button"
-            role="menuitem"
-            onClick={handleLogout}
-            className={ITEM_CLASS}
-          >
-            Log out
-          </button>
+          ))}
         </div>
       ) : null}
     </div>

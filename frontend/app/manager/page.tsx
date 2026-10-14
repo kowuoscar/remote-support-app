@@ -6,6 +6,7 @@ import type {
   AgentListItem,
   ClientListItem,
   ContractListItem,
+  MeResponse,
   PendingRequestItem,
   ReviewQueueItem,
   TenantTotals,
@@ -13,14 +14,8 @@ import type {
 
 export const metadata = { title: "Dashboard" };
 
-/** The slice of `GET /api/me` the chip reads; `name` arrives with the Manager name (omitted while unset). */
-interface Me {
-  username: string;
-  name?: string;
-}
-
 /** `<name> · Manager`, else `<username> · Manager`, else plain "Manager" when the read failed. */
-function viewerLabelFor(me: Me | null): string {
+function viewerLabelFor(me: MeResponse | null): string {
   const who = me?.name || me?.username;
   return who ? `${who} · Manager` : "Manager";
 }
@@ -30,7 +25,7 @@ export default async function ManagerDashboardPage() {
   // its own card goes unavailable. No figure here is scoped by /api/me, so a failed identity read
   // only costs the chip its name.
   const [me, reviewQueue, pendingRequests, totals, clients, agents, contracts] = await Promise.all([
-    backendFetchJsonOrNull<Me>("/api/me", "Dashboard: GET /api/me"),
+    backendFetchJsonOrNull<MeResponse>("/api/me", "Dashboard: GET /api/me"),
     backendFetchJsonOrNull<ReviewQueueItem[]>("/api/review-queue", "Dashboard: Review Queue"),
     backendFetchJsonOrNull<PendingRequestItem[]>("/api/pending-requests", "Dashboard: Pending Requests"),
     backendFetchJsonOrNull<TenantTotals>("/api/tenant-totals", "Dashboard: GET /api/tenant-totals"),
@@ -40,7 +35,7 @@ export default async function ManagerDashboardPage() {
   ]);
 
   return (
-    <SurfacePage title="Dashboard" subtitle="Tenant-wide overview" viewerLabel={viewerLabelFor(me)} viewerCanChangeName>
+    <SurfacePage title="Dashboard" subtitle="Tenant-wide overview" viewerLabel={viewerLabelFor(me)}>
       <ManagerDashboardStats
         pendingApprovalsCount={reviewQueue?.length ?? null}
         pendingRequestsCount={pendingRequests?.length ?? null}

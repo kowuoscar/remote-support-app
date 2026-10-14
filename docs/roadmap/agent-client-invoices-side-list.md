@@ -33,9 +33,8 @@ What the human confirmed, with their desktop sketch
 This amends a written design rule: `DESIGN.md` says to "use a dropdown, never
 a tab set" for Contract scoping. The spec amends that rule for this page.
 
-`proposed`, not `planned`: written down at the human's request while
-implementation is paused for hands-on testing. The human places it in the
-epic order.
+Written down as `proposed` while implementation was paused for hands-on
+testing; placed first in the epic order by the human the same day.
 
 ## Questions for the spec gate
 

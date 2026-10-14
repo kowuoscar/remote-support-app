@@ -32,6 +32,7 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/web/TenantTotalsService.java` · selects and sums this month's billed (Client Invoices SENT/APPROVED) and payout (Agent Invoices APPROVED/PAID) per currency from frozen totals.
 - `backend/src/main/java/com/remotesupport/backend/repository/AgentInvoiceTotal.java` · the single JPQL expression for an Agent Invoice's frozen total, shared by the Review Queue and Tenant totals queries.
 - `backend/src/main/java/com/remotesupport/backend/web/SmartphoneCorrectionService.java` · the transactional Correction of a Smartphone's fields on a Contract's Fleet.
+- `backend/src/main/java/com/remotesupport/backend/web/SimCardCorrectionService.java` · the transactional Correction of a SIM Card's number on a Contract's Fleet.
 - `backend/src/main/java/com/remotesupport/backend/web/InvalidCorrectionException.java` · the coded 400 for a Correction the Fleet refuses.
 - `backend/src/main/java/com/remotesupport/backend/web/CorrectionConflictException.java` · the coded 409 for a Fleet Correction that clashes with the unit's state.
 
@@ -49,6 +50,7 @@ error, not a nitpick.
 - `frontend/app/api/me/name/route.ts` · BFF PUT proxy for the caller's own-name write.
 - `frontend/app/api/contracts/[contractId]/smartphones/[smartphoneId]/model/route.ts` · BFF PATCH proxy for a Smartphone's model Correction, via `forwardJson`.
 - `frontend/app/api/contracts/[contractId]/smartphones/[smartphoneId]/owner/route.ts` · BFF PATCH proxy for a Smartphone's owner Correction, via `forwardJson`.
+- `frontend/app/api/contracts/[contractId]/sim-cards/[simCardId]/number/route.ts` · BFF PATCH proxy for a SIM Card's number Correction, via `forwardJson`.
 - `frontend/app/client/(dashboard)` · the /client dashboard page and its error.tsx.
 - `frontend/app/agent/client-invoices/[invoiceId]` · the Agent's by-id Client Invoice page, guarded by `requireAgent`.
 
@@ -68,6 +70,7 @@ error, not a nitpick.
 - `frontend/components/manager/send-back-client-invoice-control.tsx` · inline reason form that POSTs a send-back to a given endpoint and hands the returned invoice to its caller.
 - `frontend/components/fleet/smartphone-model-control.tsx` · the inline control that corrects a Smartphone's model.
 - `frontend/components/fleet/smartphone-owner-control.tsx` · the inline control that corrects a Smartphone's owner.
+- `frontend/components/fleet/sim-card-number-control.tsx` · the inline control that corrects a SIM Card's number.
 - `fleet` · smartphones, SIM cards, installation and serial editing.
 - `carriers` · the carrier catalog and its pickers.
 - `requests` · the request and provisioning workflow.

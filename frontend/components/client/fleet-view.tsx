@@ -59,7 +59,7 @@ export function ClientFleetView({
         emptyTitle="No SIM cards on this contract yet"
         emptyDescription="Your Agent provisions SIM cards onto this contract's fleet."
       >
-        <SimCardFleetTable sims={sims} />
+        <SimCardFleetTable sims={sims} contractId={contractId} canCorrect />
       </FleetTableCard>
     </div>
   );

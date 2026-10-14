@@ -66,6 +66,7 @@ export function ManagerContractFleetView({
           showMonthlyFee
           contractId={contractId}
           smartphones={smartphones}
+          canCorrect
         />
       </FleetTableCard>
     </div>

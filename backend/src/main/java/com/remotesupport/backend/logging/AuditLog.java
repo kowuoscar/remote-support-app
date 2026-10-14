@@ -264,6 +264,30 @@ public final class AuditLog {
   }
 
   /**
+   * A Manager or Tester correcting a SIM Card's number (correct-a-fleet-unit ticket
+   * correct-a-sim-card-number Observability). Never emitted for a save of the value already held.
+   */
+  public static void simCardNumberCorrected(
+      UUID simCardId,
+      UUID contractId,
+      String oldNumber,
+      String newNumber,
+      UUID actorUserId,
+      String actorRole,
+      UUID tenantId) {
+    log.info(
+        "audit action=simCardNumberCorrected entity=SimCard entityId={} contractId={} "
+            + "oldNumber={} newNumber={} actorUserId={} role={} tenantId={}",
+        simCardId,
+        contractId,
+        oldNumber,
+        newNumber,
+        actorUserId,
+        actorRole,
+        tenantId);
+  }
+
+  /**
    * A Manager changing an Agent's standing salary or standing Rollout Advance
    * (agent-standing-amounts-and-invoice-generation ticket Observability: "standing-amount change
    * events logged with Agent id, old/new value, effective month, actor (Manager)"). {@code

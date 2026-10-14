@@ -25,6 +25,9 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/security/LoginDeactivatedException.java` · the sign-in refusal for a deactivated Login.
 - `backend/src/main/resources/db/migration/V58__add_users_deactivated_at.sql` · the migration behind deactivating a Login.
 - `backend/src/main/resources/db/migration/V59__add_client_invoice_sent_back.sql` · the migration behind sending a Client Invoice back to draft.
+- `backend/src/main/java/com/remotesupport/backend/domain/ManagerName.java` · the one rule for a valid Manager name (trim, non-blank, at most 100 chars).
+- `backend/src/main/java/com/remotesupport/backend/web/ManagerNameController.java` · `PUT /api/me/name`, Manager-only, writes the caller's own name.
+- `backend/src/main/resources/db/migration/V60__add_users_name.sql` · the migration behind a Manager's name.
 
 ### Frontend — `frontend/app`
 

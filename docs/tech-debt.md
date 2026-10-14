@@ -72,6 +72,9 @@ separated by ` · `.
 - `frontend/components/manager/dashboard-stats.tsx` · smell: Two unavailable states · the Pending cards still show a bare indigo "—" with no screen-reader text, while the rewritten cards use UNAVAILABLE_FIGURE · real-manager-dashboard · 2026-10-14
 - `frontend/components/app-shell/viewer-menu.tsx` · smell: Primitive Obsession · name and role are recovered by parsing " · " out of viewerLabel, a format built elsewhere; pass them separately · real-manager-dashboard · 2026-10-14
 - `DESIGN.md` · smell: Stale description · § Menu still says the viewer chip menu holds Change password and Log out; Manager pages now have Change name first · real-manager-dashboard · 2026-10-14
+- `frontend/components/fleet/smartphone-serial-control.tsx` · smell: Inconsistent Edit · the serial Edit is still the soft-indigo row chip with a bare "Edit" name beside the ghost correction Edits (F21; make it ghost, named "Edit serial, {serial}") · correct-a-fleet-unit · 2026-10-14
+- `frontend/components/manager/contract-fleet-view.tsx` · smell: Two pills · "Add smartphone" and "Add SIM card" are both primary pills, against DESIGN.md's Pill-Is-Primary Rule (F20, pre-existing) · correct-a-fleet-unit · 2026-10-14
+- `frontend/components/fleet/smartphone-owner-control.tsx` · smell: Repeated name · "Edit owner of {model}" repeats when several phones share a model; `serial ?? model` would be unique · correct-a-fleet-unit · 2026-10-14
 
 ## backend
 
@@ -91,3 +94,8 @@ separated by ` · `.
 - `backend/src/main/java/com/remotesupport/backend/web/AgentController.java` · smell: Transaction boundary on a controller · `@Transactional` sits on two controller methods, which Backend rule 3 forbids; found while re-reviewing this feature, pre-exists `main` and untouched by it · globally-unique-usernames · 2026-09-22
 - `docs/adr/0006-backend-is-packaged-by-feature-flat.md` · smell: A list that grows · the frozen exception list gains one entry when a feature adds a class to a cluster not yet moved, against the spec's "a list that only shrinks" (F6); put to the human in the layout approval · package-layout-decision · 2026-10-09
 - `backend/src/main/java/com/remotesupport/backend/web/SimCardCorrectionService.java` · smell: Duplicate numbers allowed · two SIM Cards may share a number: neither adding nor correcting a number checks for duplicates (spec Decisions taken); a mistyped number that matches another SIM is not caught · correct-a-sim-card-number · 2026-10-14
+- `backend/src/main/java/com/remotesupport/backend/web/CorrectionErrors.java` · smell: Divergent Change · the correction MethodArgumentNotValidException handlers also catch SimCardController/SmartphoneController's older @Valid endpoints and return a ProblemDetail body instead of Boot's /error JSON; no screen reads those bodies (F22) · correct-a-fleet-unit · 2026-10-14
+- `backend/src/main/java/com/remotesupport/backend/web/SmartphoneController.java` · smell: Duplicated Code · the invalidCorrection @ExceptionHandler is repeated in SimCardController (F9) · correct-a-fleet-unit · 2026-10-14
+- `backend/src/main/java/com/remotesupport/backend/web/SmartphoneCorrectionService.java` · smell: Duplicated Code · trim/length and find/no-op/save/audit mirror SimCardCorrectionService (F10) · correct-a-fleet-unit · 2026-10-14
+- `backend/src/main/java/com/remotesupport/backend/web/InvalidCorrectionException.java` · smell: Primitive Obsession · three exceptions each carry a bare String code mirrored in the frontend message maps (F11) · correct-a-fleet-unit · 2026-10-14
+- `backend/src/main/java/com/remotesupport/backend/web/SimCardCorrectionService.java` · smell: Middle Man · catches UnusablePlanException only to rethrow it as InvalidCorrectionException (F12) · correct-a-fleet-unit · 2026-10-14

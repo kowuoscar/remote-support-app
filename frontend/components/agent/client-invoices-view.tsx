@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
 import { ContractSideList } from "@/components/agent/contract-side-list";
 import { cn } from "@/lib/cn";
+import { clientInvoiceBadge } from "@/lib/status";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconAlertTriangle, IconArrowRight, IconInvoices } from "@/components/icons";
 import { Card } from "@/components/ui/card";
@@ -92,7 +93,10 @@ export function AgentClientInvoicesView({
     // list beside the invoice area.
     <div className="xl:flex xl:items-start">
       <ContractSideList
-        contracts={ordered}
+        contracts={ordered.map((c) => {
+          const current = invoicesByContract[c.id];
+          return { ...c, status: current ? clientInvoiceBadge(current) : null };
+        })}
         selectedId={contractId}
         onSelect={select}
         // top-14 / 3.5rem is the 56px sticky top bar; a calc, not a token, because the column's

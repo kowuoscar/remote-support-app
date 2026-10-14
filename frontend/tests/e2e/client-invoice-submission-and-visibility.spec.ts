@@ -49,7 +49,7 @@ test.describe("client invoice submission and visibility", () => {
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/client-invoices");
     await selectClientInvoiceContract(page, clientName);
-    await expect(page.getByText("Draft")).toBeVisible();
+    await expect(page.getByTestId("client-invoice-card").getByText("Draft")).toBeVisible();
 
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     const [sendResponse] = await Promise.all([
@@ -62,7 +62,7 @@ test.describe("client invoice submission and visibility", () => {
 
     // Sent — no longer editable: the Attach/Send controls are gone, a PDF download appears
     // instead (ticket AC: "a sent invoice is no longer editable by the Agent").
-    await expect(page.getByText("Awaiting approval")).toBeVisible();
+    await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
     await expect(page.getByRole("button", { name: "Attach carrier invoice" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Send Client Invoice" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Download PDF" })).toBeVisible();

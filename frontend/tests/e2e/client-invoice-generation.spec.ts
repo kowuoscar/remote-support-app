@@ -54,7 +54,7 @@ test.describe("client invoice generation", () => {
     await page.goto("/agent/client-invoices");
     await selectClientInvoiceContract(page, clientName);
 
-    await expect(page.getByText("Draft")).toBeVisible();
+    await expect(page.getByTestId("client-invoice-card").getByText("Draft")).toBeVisible();
     // Base amount: the one currently-Active Postpaid SIM's monthly fee. Fees this month: the
     // Topup fee just logged. Total: the sum of both — all three "at a glance" per the ticket's AC.
     await expect(page.getByText("Base amount", { exact: true })).toBeVisible();

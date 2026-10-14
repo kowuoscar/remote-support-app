@@ -42,15 +42,15 @@ test.describe("client invoices side list", () => {
     await expect(page.locator('[aria-haspopup="listbox"]')).toBeHidden();
 
     // Both rows, in alphabetical order; the first row in the column is the selected one.
-    const names = await clients.getByRole("link").allTextContents();
+    const names = (await clients.getByRole("link").allTextContents()).map((text) => text.replace(/\s*Draft$/, ""));
     expect(names.indexOf(ALPHA)).toBeGreaterThanOrEqual(0);
     expect(names.indexOf(ALPHA)).toBeLessThan(names.indexOf(ZULU));
     await expect(clients.getByRole("link").first()).toHaveAttribute("aria-current", "true");
     await expect.poll(async () => (await clients.boundingBox())?.width).toBe(256);
 
     // A click swaps the invoice in place: no document, no backend request.
-    const alpha = clients.getByRole("link", { name: ALPHA, exact: true });
-    const zulu = clients.getByRole("link", { name: ZULU, exact: true });
+    const alpha = clients.getByRole("link", { name: `${ALPHA} Draft`, exact: true });
+    const zulu = clients.getByRole("link", { name: `${ZULU} Draft`, exact: true });
     await alpha.click();
     await expect(alpha).toHaveAttribute("aria-current", "true");
     await expect(page.getByRole("cell", { name: SIM_NUMBER })).toBeVisible();
@@ -120,5 +120,26 @@ test.describe("client invoices side list", () => {
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth === window.innerWidth))
       .toBe(true);
+  });
+});
+
+test.describe("client invoices side list row status", () => {
+  test("each row reads Draft on arrival (side-list-row-status)", async ({ page }) => {
+    const first = `Sidestatus Alpha ${RUN_ID}`;
+    const second = `Sidestatus Zulu ${RUN_ID}`;
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await createClientAndContractWithSeededAgent(page, second);
+    await createClientAndContractWithSeededAgent(page, first);
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+
+    await page.goto("/agent/client-invoices");
+    const clients = page.getByRole("navigation", { name: "Clients" });
+    for (const name of [first, second]) {
+      // The link's accessible name is the Client name followed by the status label.
+      const row = clients.getByRole("link", { name: `${name} Draft`, exact: true });
+      await expect(row).toBeVisible();
+      await expect(row.getByText("Draft", { exact: true })).toBeVisible();
+    }
   });
 });

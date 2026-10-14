@@ -118,7 +118,7 @@ test.describe("edit client invoice lines", () => {
 
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
-    await expect(page.getByText("Awaiting approval")).toBeVisible();
+    await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
     await expect(page.getByRole("button", { name: /^(Edit|Reset)$/ })).toHaveCount(0);
     await expect(simRow.getByText("Edited · computed $25.00")).toBeVisible();
 

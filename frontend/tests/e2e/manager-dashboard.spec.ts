@@ -157,7 +157,7 @@ test.describe("the Manager dashboard's money cards", () => {
     await selectClientInvoiceContract(page, clientName);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
-    await expect(page.getByText("Awaiting approval")).toBeVisible();
+    await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
     await logout(page);
 
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);

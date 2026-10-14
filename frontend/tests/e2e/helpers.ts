@@ -391,13 +391,20 @@ export async function selectContractInSwitcher(page: Page, clientName: string) {
   }
 }
 
+/** The row's accessible name: the Client name, then the month's status label when its invoice loaded. */
+function clientInvoiceRowName(clientName: string): RegExp {
+  const escaped = clientName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`^${escaped}(?: (?:Draft|Awaiting approval|Approved|Sent back))?$`);
+}
+
 /**
  * Opens the Contract of `clientName` on the Agent's Client Invoices page, from its side list: clicks the
- * link named by the Client within the "Clients" navigation landmark (shown at 1280px and wider, the
- * default e2e viewport). The Contract Switcher is the phone path; see `selectContractInSwitcher`.
+ * link named by the Client (and its status label) within the "Clients" navigation landmark (shown at
+ * 1280px and wider, the default e2e viewport). The Contract Switcher is the phone path; see
+ * `selectContractInSwitcher`.
  */
 export async function selectClientInvoiceContract(page: Page, clientName: string) {
-  await page.getByRole("navigation", { name: "Clients" }).getByRole("link", { name: clientName, exact: true }).click();
+  await page.getByRole("navigation", { name: "Clients" }).getByRole("link", { name: clientInvoiceRowName(clientName) }).click();
 }
 
 /**

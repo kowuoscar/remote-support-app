@@ -8,6 +8,7 @@ import {
   logout,
   rollSeededAgentInvoiceIntoThePast,
   selectContractInSwitcher,
+  selectClientInvoiceContract,
 } from "./helpers";
 
 /**
@@ -41,7 +42,7 @@ test.describe("send a client invoice back", () => {
 
     // The Agent sends the invoice as it stands: the one Postpaid SIM line, $25.00.
     await page.goto("/agent/client-invoices");
-    await selectContractInSwitcher(page, clientName);
+    await selectClientInvoiceContract(page, clientName);
     await expect(page.getByRole("heading", { name: "Sent back to you" })).toHaveCount(0);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();

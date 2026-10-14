@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
+import { ContractSideList } from "@/components/agent/contract-side-list";
+import { cn } from "@/lib/cn";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconAlertTriangle, IconArrowRight, IconInvoices } from "@/components/icons";
 import { Card } from "@/components/ui/card";
@@ -11,6 +13,27 @@ import { AgentClientInvoiceCard } from "@/components/agent/agent-client-invoice-
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { formatBillingMonth, formatDate } from "@/lib/format";
 import { countryLabel, type ClientInvoiceDetail, type SentBackClientInvoice } from "@/lib/api/types";
+
+/** What the page passes per Contract; the view derives the switcher's options and the side list's rows. */
+export type ClientInvoicesContract = {
+  id: string;
+  clientName: string;
+  /** "Kenya", from `countryLabel(country)`. */
+  countryLabel: string;
+  currency: string;
+};
+
+// The shell's usual padding and width cap (SurfacePage), applied here because the page is `bleed`.
+const PAGE_PADDING = "min-w-0 px-4 py-5 sm:px-6 sm:py-6";
+const PAGE_WIDTH = "mx-auto flex w-full max-w-6xl flex-col gap-6";
+
+/** Column order: Client name, then Country, locale-aware and case-insensitive. */
+function sortContracts(contracts: ClientInvoicesContract[]): ClientInvoicesContract[] {
+  const collator = new Intl.Collator(undefined, { sensitivity: "base" });
+  return [...contracts].sort(
+    (a, b) => collator.compare(a.clientName, b.clientName) || collator.compare(a.countryLabel, b.countryLabel),
+  );
+}
 
 /**
  * Agent opens a Contract's current-month Client Invoice draft (client-invoice-generation ticket
@@ -25,43 +48,82 @@ export function AgentClientInvoicesView({
   invoicesByContract,
   sentBack = [],
 }: {
-  contracts: ContractOption[];
+  contracts: ClientInvoicesContract[];
   invoicesByContract: Record<string, ClientInvoiceDetail | null>;
   /** The Agent's sent-back invoices from any month, oldest first; the section is absent when empty. */
   sentBack?: SentBackClientInvoice[];
 }) {
-  const [contractId, setContractId] = useState(contracts[0]?.id ?? "");
+  const ordered = useMemo(() => sortContracts(contracts), [contracts]);
+  const [contractId, setContractId] = useState(ordered[0]?.id ?? "");
+  const invoiceAreaRef = useRef<HTMLDivElement>(null);
   const invoice = invoicesByContract[contractId];
 
-  if (contracts.length === 0) {
+  function select(id: string) {
+    setContractId(id);
+    // The document scrolls the invoice; return to its top when the new invoice would start off-screen.
+    if (invoiceAreaRef.current && invoiceAreaRef.current.getBoundingClientRect().top < 0) {
+      window.scrollTo({ top: 0 });
+    }
+  }
+
+  if (ordered.length === 0) {
     return (
-      <EmptyState
-        icon={<IconInvoices className="h-5 w-5" />}
-        title="No contracts yet"
-        description="Once a manager creates a contract for you, its monthly Client Invoice shows up here."
-      />
+      <div className={PAGE_PADDING}>
+        <div className={PAGE_WIDTH}>
+          <EmptyState
+            icon={<IconInvoices className="h-5 w-5" />}
+            title="No contracts yet"
+            description="Once a manager creates a contract for you, its monthly Client Invoice shows up here."
+          />
+        </div>
+      </div>
     );
   }
 
-  return (
-    <div className="flex flex-col gap-4">
-      <SentBackSection rows={sentBack} />
-      <ContractSwitcher contracts={contracts} value={contractId} onChange={setContractId} />
+  const switcherOptions: ContractOption[] = ordered.map((c) => ({
+    id: c.id,
+    label: `${c.clientName} — ${c.countryLabel}`,
+    meta: c.countryLabel,
+    currency: c.currency,
+  }));
 
-      {!invoice ? (
-        <EmptyState
-          icon={<IconAlertTriangle className="h-5 w-5" />}
-          title="Couldn't load this Contract's Client Invoice"
-          description="Switch contracts or reload the page to try again."
-        />
-      ) : (
-        <>
-          {invoice.status === "DRAFT" && invoice.sentBackAt ? (
-            <SentBackNotice sentBackAt={invoice.sentBackAt} reason={invoice.sentBackReason} />
-          ) : null}
-          <AgentClientInvoiceCard invoice={invoice} />
-        </>
-      )}
+  return (
+    // Below xl: today's page, padded and capped here because the page is `bleed`. At xl: the side
+    // list beside the invoice area.
+    <div className="xl:flex xl:items-start">
+      <ContractSideList
+        contracts={ordered}
+        selectedId={contractId}
+        onSelect={select}
+        // top-14 / 3.5rem is the 56px sticky top bar; a calc, not a token, because the column's
+        // height is the viewport's minus that bar.
+        className="hidden w-64 shrink-0 overflow-y-auto border-r border-hairline bg-canvas px-3 py-5 xl:sticky xl:top-14 xl:block xl:h-[calc(100dvh-3.5rem)]"
+      />
+      <div ref={invoiceAreaRef} className={cn(PAGE_PADDING, "xl:flex-1")}>
+        <div className={cn(PAGE_WIDTH, "xl:mx-0")}>
+          <div className="flex flex-col gap-4">
+            <SentBackSection rows={sentBack} />
+            <div className="xl:hidden">
+              <ContractSwitcher contracts={switcherOptions} value={contractId} onChange={select} />
+            </div>
+
+            {!invoice ? (
+              <EmptyState
+                icon={<IconAlertTriangle className="h-5 w-5" />}
+                title="Couldn't load this Contract's Client Invoice"
+                description="Pick another Client or reload the page to try again."
+              />
+            ) : (
+              <>
+                {invoice.status === "DRAFT" && invoice.sentBackAt ? (
+                  <SentBackNotice sentBackAt={invoice.sentBackAt} reason={invoice.sentBackReason} />
+                ) : null}
+                <AgentClientInvoiceCard invoice={invoice} />
+              </>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -47,12 +47,13 @@ export default async function AgentClientInvoicesPage() {
       title="Client Invoices"
       subtitle="One per Contract per month"
       viewerLabel={`${me.username ?? "Agent"} · Agent`}
+      bleed
     >
       <AgentClientInvoicesView
         contracts={contracts.map((c) => ({
           id: c.id,
-          label: `${c.clientName} — ${countryLabel(c.country)}`,
-          meta: countryLabel(c.country),
+          clientName: c.clientName,
+          countryLabel: countryLabel(c.country),
           currency: c.currency,
         }))}
         invoicesByContract={invoicesByContract}

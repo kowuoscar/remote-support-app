@@ -1,7 +1,7 @@
 ---
 id: delete-frontend-demo-fixtures
 title: No demo data, footer or simulated loading remains in the frontend
-status: ready-for-agent
+status: in-progress
 depends_on: [delete-demo-status-maps, manager-dashboard-money]
 labels: [frontend]
 stories: [24, 25]

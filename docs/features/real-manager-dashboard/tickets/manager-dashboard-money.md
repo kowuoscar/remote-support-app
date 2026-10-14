@@ -1,7 +1,7 @@
 ---
 id: manager-dashboard-money
 title: Manager dashboard shows real billed and payout totals per currency
-status: in-progress
+status: done
 depends_on: [tenant-totals-read, manager-changes-own-name]
 labels: [frontend]
 stories: [6, 8, 10, 13, 14, 15, 16, 18, 23]

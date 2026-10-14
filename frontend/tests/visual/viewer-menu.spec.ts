@@ -21,12 +21,12 @@ const breakpoints = [
 const themes = ["light", "dark"] as const;
 
 async function openMenuOnManagerDashboard(page: Page) {
-  // Same placeholder-session approach as surfaces.spec.ts: middleware only checks the session
-  // cookie's presence, never its validity, and this suite runs with no backend at all.
+  // The stub backend's named Manager session (tests/visual/stub-backend.mjs), the same one
+  // surfaces.spec.ts renders the dashboard from: every region has data, so nothing is masked.
   await page.context().addCookies([
     {
       name: SESSION_COOKIE_NAME,
-      value: "visual-regression-placeholder-session",
+      value: "visual-manager-session",
       url: "http://127.0.0.1:4173",
     },
   ]);
@@ -47,13 +47,6 @@ for (const breakpoint of breakpoints) {
 
       await expect(page).toHaveScreenshot(`manager-menu-open-${breakpoint.name}-${theme}.png`, {
         fullPage: true,
-        // Same backend-driven regions surfaces.spec.ts masks for the "manager" slug — this suite
-        // never runs a real backend, so these render their unavailable state.
-        mask: [
-          page.getByTestId("pending-approvals-stat"),
-          page.getByTestId("pending-requests-stat"),
-          page.getByTestId("pending-approvals-card"),
-        ],
       });
     });
   }

@@ -1,10 +1,7 @@
-"use client";
-
 import Link from "next/link";
-import { StatCard, StatCardSkeleton } from "@/components/ui/stat-card";
+import { StatCard, UNAVAILABLE_FIGURE } from "@/components/ui/stat-card";
 import { Money } from "@/components/ui/money";
 import { IconArrowRight } from "@/components/icons";
-import { useSimulatedLoad } from "@/lib/use-simulated-load";
 
 export function ManagerDashboardStats({
   pendingApprovalsCount,
@@ -27,25 +24,11 @@ export function ManagerDashboardStats({
   pendingRequestsCount: number | null;
   billedThisMonth: number;
   payoutThisMonth: number;
-  clientCount: number;
-  agentCount: number;
-  contractCount: number;
+  /** The Tenant's Client, Agent and Contract list lengths, or `null` when that list couldn't be loaded. */
+  clientCount: number | null;
+  agentCount: number | null;
+  contractCount: number | null;
 }) {
-  const loading = useSimulatedLoad();
-
-  if (loading) {
-    return (
-      <div
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        data-testid="dashboard-loading"
-      >
-        {Array.from({ length: 7 }).map((_, i) => (
-          <StatCardSkeleton key={i} />
-        ))}
-      </div>
-    );
-  }
-
   return (
     <div
       className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
@@ -89,9 +72,27 @@ export function ManagerDashboardStats({
         primary
         meta="Tenant-wide, all Agents"
       />
-      <StatCard label="Clients" value={clientCount} primary meta="Active this tenant" />
-      <StatCard label="Agents" value={agentCount} primary meta="Across all countries" />
-      <StatCard label="Contracts" value={contractCount} primary meta="Client × Agent pairs" />
+      <StatCard
+        label="Clients"
+        value={clientCount ?? UNAVAILABLE_FIGURE}
+        primary
+        meta={clientCount === null ? "Couldn't load your Clients" : "In this tenant"}
+        data-testid="clients-stat"
+      />
+      <StatCard
+        label="Agents"
+        value={agentCount ?? UNAVAILABLE_FIGURE}
+        primary
+        meta={agentCount === null ? "Couldn't load your Agents" : "Across all countries"}
+        data-testid="agents-stat"
+      />
+      <StatCard
+        label="Contracts"
+        value={contractCount ?? UNAVAILABLE_FIGURE}
+        primary
+        meta={contractCount === null ? "Couldn't load your Contracts" : "Client × Agent pairs"}
+        data-testid="contracts-stat"
+      />
     </div>
   );
 }

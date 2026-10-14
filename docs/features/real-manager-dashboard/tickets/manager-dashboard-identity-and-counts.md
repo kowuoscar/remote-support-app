@@ -1,7 +1,7 @@
 ---
 id: manager-dashboard-identity-and-counts
 title: Manager dashboard shows its real login and real Client, Agent and Contract counts
-status: in-progress
+status: done
 depends_on: []
 labels: [frontend]
 stories: [2, 3, 4, 5, 18, 19, 20, 26, 28]

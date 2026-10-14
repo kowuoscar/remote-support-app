@@ -1,6 +1,6 @@
 "use client";
 
-import type { MouseEvent } from "react";
+import { useEffect, useRef, type MouseEvent } from "react";
 import Link from "next/link";
 import { Badge, type Tone } from "@/components/ui/badge";
 import { cn } from "@/lib/cn";
@@ -38,6 +38,21 @@ export function ContractSideList({
     nameCounts.set(key, (nameCounts.get(key) ?? 0) + 1);
   }
 
+  // On arrival, bring the selected row into the column's own viewport. Scrolls the column, never
+  // the document (scrollIntoView would move both).
+  const navRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const nav = navRef.current;
+    const row = nav?.querySelector<HTMLElement>("[aria-current]");
+    if (!nav || !row) return;
+    const navBox = nav.getBoundingClientRect();
+    const rowBox = row.getBoundingClientRect();
+    if (rowBox.bottom > navBox.bottom) nav.scrollTop += rowBox.bottom - navBox.bottom;
+    else if (rowBox.top < navBox.top) nav.scrollTop -= navBox.top - rowBox.top;
+    // Arrival only: a later pick is of a row the Agent can already see.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function onClick(event: MouseEvent<HTMLAnchorElement>, id: string) {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
@@ -45,7 +60,7 @@ export function ContractSideList({
   }
 
   return (
-    <nav aria-labelledby="client-side-list-heading" className={className}>
+    <nav ref={navRef} aria-labelledby="client-side-list-heading" className={className}>
       <h2 id="client-side-list-heading" className="px-3 pb-2 text-label font-medium text-ink-mute">
         Clients
       </h2>

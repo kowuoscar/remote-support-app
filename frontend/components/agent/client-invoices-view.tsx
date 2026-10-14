@@ -48,19 +48,29 @@ export function AgentClientInvoicesView({
   contracts,
   invoicesByContract,
   sentBack = [],
+  initialContractId,
 }: {
   contracts: ClientInvoicesContract[];
   invoicesByContract: Record<string, ClientInvoiceDetail | null>;
   /** The Agent's sent-back invoices from any month, oldest first; the section is absent when empty. */
   sentBack?: SentBackClientInvoice[];
+  /** The page's `contract` search parameter, unvalidated: used only when it names one of `contracts`. */
+  initialContractId?: string;
 }) {
   const ordered = useMemo(() => sortContracts(contracts), [contracts]);
-  const [contractId, setContractId] = useState(ordered[0]?.id ?? "");
+  const [contractId, setContractId] = useState(
+    () => ordered.find((c) => c.id === initialContractId)?.id ?? ordered[0]?.id ?? "",
+  );
   const invoiceAreaRef = useRef<HTMLDivElement>(null);
   const invoice = invoicesByContract[contractId];
 
   function select(id: string) {
     setContractId(id);
+    // The address follows the selection with the native History API: no entry, no server render,
+    // no request. Never router.push/replace, which would re-run the page's reads.
+    const url = new URL(window.location.href);
+    url.searchParams.set("contract", id);
+    window.history.replaceState(window.history.state, "", url);
     // The document scrolls the invoice; return to its top when the new invoice would start off-screen.
     if (invoiceAreaRef.current && invoiceAreaRef.current.getBoundingClientRect().top < 0) {
       window.scrollTo({ top: 0 });
@@ -256,7 +266,7 @@ export function AgentClientInvoicePageView({
     <div className="flex flex-col gap-4">
       <Breadcrumb
         items={[
-          { label: "Client Invoices", href: "/agent/client-invoices" },
+          { label: "Client Invoices", href: `/agent/client-invoices?contract=${encodeURIComponent(invoice.contractId)}` },
           {
             label: contractLabel
               ? `${contractLabel} · ${formatBillingMonth(invoice.billingMonth)}`

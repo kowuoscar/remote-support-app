@@ -54,6 +54,10 @@ public class User {
   @Column(name = "created_at", nullable = false, updatable = false)
   private Instant createdAt;
 
+  /** The Manager name; {@code null} until set, and never set for an Agent or a Tester. */
+  @Column(name = "name")
+  private String name;
+
   /** When this Login was switched off; {@code null} while it is active. */
   @Column(name = "deactivated_at")
   private Instant deactivatedAt;

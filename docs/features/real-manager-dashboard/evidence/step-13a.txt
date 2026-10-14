@@ -1,0 +1,16 @@
+ls frontend/lib/demo:
+ls: frontend/lib/demo: No such file or directory
+--- grep lib/demo|DemoNote|demoData|useSimulatedLoad in frontend (excl. node_modules/.next/test-results):
+grep exit=1 (1 = no matches)
+--- text-[12px]/[13px]:
+files: frontend/app/manager/page.tsx frontend/components/agent/dashboard-stats.tsx frontend/components/manager/dashboard-stats.tsx frontend/components/app-shell/viewer-actions.tsx frontend/components/app-shell/change-name-dialog.tsx frontend/app/manager/page.tsx 
+grep exit=1 (1 = no matches)
+--- migrations added vs main:
+A	backend/src/main/resources/db/migration/V60__add_users_name.sql
+-- A Manager name (real-manager-dashboard): the name a Company Manager is known by, stored on
+-- their Login because a Manager has no record of their own. Nullable; no data is written, so
+-- every existing row (the V2 Manager included) stays unnamed.
+ALTER TABLE users ADD COLUMN name varchar(100);
+V7__create_requests.sql
+V8__add_request_fulfillment_fields.sql
+V9__create_fees.sql

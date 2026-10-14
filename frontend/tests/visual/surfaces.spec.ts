@@ -21,7 +21,7 @@ interface Surface {
 }
 
 const surfaces: Surface[] = [
-  { slug: "manager", path: "/manager" },
+  { slug: "manager", path: "/manager", session: "visual-manager-session" },
   { slug: "agent", path: "/agent", session: "visual-agent-session" },
   { slug: "client", path: "/client", session: "visual-tester-session" },
   { slug: "agent-carriers", path: "/agent/carriers", session: "visual-agent-session", ready: "carriers" },
@@ -87,22 +87,6 @@ async function gotoAndSettle(page: Page, surface: Surface) {
 }
 
 /**
- * Regions that read the real backend, which this suite never runs: they render their unavailable
- * state here, so they're masked rather than frozen into a golden (manager-invoice-review-queue
- * spec, Testing decisions 4). The Manager Dashboard's Pending approvals card and both its count
- * stats (Review Queue, and manager-approves-requests ticket's own Pending Requests) read the
- * backend.
- */
-function backendDrivenRegions(page: Page, surface: Surface) {
-  if (surface.slug !== "manager") return [];
-  return [
-    page.getByTestId("pending-approvals-stat"),
-    page.getByTestId("pending-requests-stat"),
-    page.getByTestId("pending-approvals-card"),
-  ];
-}
-
-/**
  * The Pending Requests page's own "Waiting" column resolves its fixture Requests' fixed
  * `createdAt` against the *real* current time on every render, so it drifts by a day every day
  * the suite runs — masked here rather than frozen into the golden, the same reasoning
@@ -124,7 +108,7 @@ for (const surface of surfaces) {
 
         await expect(page).toHaveScreenshot(
           `${surface.slug}-${breakpoint.name}-${theme}.png`,
-          { fullPage: true, mask: [...backendDrivenRegions(page, surface), ...timeDrivenRegions(page, surface)] },
+          { fullPage: true, mask: timeDrivenRegions(page, surface) },
         );
       });
     }
@@ -200,5 +184,76 @@ test.describe("the Client dashboard's identity states", () => {
     await expect(page.getByText("Couldn't load your dashboard — reload the page to try again")).toHaveCount(1);
     await expect(page.locator("header").first()).not.toContainText("Solstice Retail Group");
     await expect(page.getByTestId("dashboard-ready")).toHaveCount(0);
+  });
+});
+
+// real-manager-dashboard: states no golden captures. The stub answers the degraded Manager's
+// GET /api/me and GET /api/agents with 500, and the empty Manager's GET /api/me without a `name`
+// (tests/visual/stub-backend.mjs).
+test.describe("the Manager dashboard's identity and count states", () => {
+  test("named-manager-chip-and-counts-come-from-the-backend", async ({ page }) => {
+    await gotoWithSession(page, "/manager", "visual-manager-session");
+
+    await expect(page.getByTestId("dashboard-ready")).toBeVisible();
+    await expect(page.locator("header").first()).toContainText("Yazan Abuhassan · Manager");
+    await expect(page.getByText("Priya Ashford")).toHaveCount(0);
+    await expect(page.getByTestId("clients-stat")).toContainText("1");
+    await expect(page.getByTestId("clients-stat")).toContainText("In this tenant");
+    await expect(page.getByTestId("agents-stat")).toContainText("3");
+    await expect(page.getByTestId("contracts-stat")).toContainText("2");
+  });
+
+  test("unnamed-manager-chip-reads-the-username", async ({ page }) => {
+    await gotoWithSession(page, "/manager", "visual-manager-empty-session");
+
+    await expect(page.getByTestId("dashboard-ready")).toBeVisible();
+    await expect(page.locator("header").first()).toContainText("manager@example.com · Manager");
+  });
+
+  test("manager-money-cards-show-one-line-per-currency-with-the-reads-month", async ({ page }) => {
+    await gotoWithSession(page, "/manager", "visual-manager-session");
+
+    await expect(page.getByTestId("dashboard-ready")).toBeVisible();
+    const billed = page.getByTestId("billed-stat");
+    await expect(billed).toContainText("£2,310.00");
+    await expect(billed).toContainText("$1,284.50");
+    await expect(billed).toContainText("Sent or approved · September 2026");
+    const payout = page.getByTestId("payout-stat");
+    await expect(payout).toContainText("$2,835.99");
+    await expect(payout).toContainText("Approved or paid · September 2026");
+  });
+
+  test("empty-manager-money-cards-read-a-plain-zero", async ({ page }) => {
+    await gotoWithSession(page, "/manager", "visual-manager-empty-session");
+
+    await expect(page.getByTestId("dashboard-ready")).toBeVisible();
+    for (const [id, meta] of [
+      ["billed-stat", "Sent or approved · September 2026"],
+      ["payout-stat", "Approved or paid · September 2026"],
+    ] as const) {
+      const card = page.getByTestId(id);
+      await expect(card).toHaveText(new RegExp(`^.*0${meta}$`));
+      await expect(card).not.toContainText(/[$£€]|USD|GBP/);
+    }
+  });
+
+  test("degraded-manager-shows-plain-chip-and-agents-unavailable-with-other-cards-showing", async ({ page }) => {
+    await gotoWithSession(page, "/manager", "visual-manager-degraded-session");
+
+    await expect(page.getByTestId("dashboard-ready")).toBeVisible();
+    const chip = page.locator('[data-testid="viewer-menu-trigger"]');
+    await expect(chip).toHaveText("Manager");
+    const agents = page.getByTestId("agents-stat");
+    await expect(agents).toContainText("—");
+    await expect(agents).toContainText("Couldn’t load your Agents");
+    for (const id of ["billed-stat", "payout-stat"]) {
+      const card = page.getByTestId(id);
+      await expect(card).toContainText("—");
+      await expect(card).toContainText("Couldn’t load this month’s totals");
+    }
+    await expect(page.getByTestId("clients-stat")).toContainText("In this tenant");
+    await expect(page.getByTestId("contracts-stat")).toContainText("Client × Agent pairs");
+    await expect(page.getByTestId("pending-approvals-stat")).toContainText("2");
+    await expect(page.getByTestId("pending-requests-stat")).toContainText("2");
   });
 });

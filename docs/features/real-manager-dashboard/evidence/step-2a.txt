@@ -1,0 +1,16 @@
+menu opened:
+              - menuitem "Change name" [active] [ref=f5e133]
+after ArrowDown:
+              - menuitem "Change password" [active] [ref=f5e134]
+after ArrowDown:
+              - menuitem "Log out" [active] [ref=f5e135]
+after ArrowUp:
+              - menuitem "Change password" [active] [ref=f5e134]
+after ArrowUp:
+              - menuitem "Change name" [active] [ref=f5e133]
+            - menu [ref=f5e132]:
+              - menuitem "Change name" [active] [ref=f5e133]
+              - menuitem "Change password" [ref=f5e134]
+              - menuitem "Log out" [ref=f5e135]
+          - button "Switch to dark theme" [ref=f5e58]
+      - main [ref=f5e62]:

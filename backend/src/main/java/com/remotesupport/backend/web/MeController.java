@@ -20,8 +20,12 @@ public class MeController {
 
   private final CallerIdentityResolver callerIdentityResolver;
 
-  public MeController(CallerIdentityResolver callerIdentityResolver) {
+  private final ManagerNameService managerNameService;
+
+  public MeController(
+      CallerIdentityResolver callerIdentityResolver, ManagerNameService managerNameService) {
     this.callerIdentityResolver = callerIdentityResolver;
+    this.managerNameService = managerNameService;
   }
 
   @GetMapping("/me")
@@ -32,6 +36,7 @@ public class MeController {
         principal.tenantId(),
         principal.role(),
         callerIdentityResolver.resolveAgentId(principal).orElse(null),
-        callerIdentityResolver.resolveClientId(principal).orElse(null));
+        callerIdentityResolver.resolveClientId(principal).orElse(null),
+        managerNameService.nameOf(principal).orElse(null));
   }
 }

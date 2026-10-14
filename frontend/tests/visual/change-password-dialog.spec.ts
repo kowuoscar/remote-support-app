@@ -19,13 +19,12 @@ const breakpoints = [
 const themes = ["light", "dark"] as const;
 
 async function openChangePasswordDialogOnManagerDashboard(page: Page) {
-  // Same placeholder-session approach as surfaces.spec.ts/viewer-menu.spec.ts: middleware only
-  // checks the session cookie's presence, never its validity, and this suite runs with no
-  // backend at all.
+  // The stub backend's named Manager session (tests/visual/stub-backend.mjs), as in
+  // surfaces.spec.ts/viewer-menu.spec.ts: every region has data, so nothing is masked.
   await page.context().addCookies([
     {
       name: SESSION_COOKIE_NAME,
-      value: "visual-regression-placeholder-session",
+      value: "visual-manager-session",
       url: "http://127.0.0.1:4173",
     },
   ]);
@@ -45,26 +44,12 @@ for (const breakpoint of breakpoints) {
       await page.setViewportSize(breakpoint.viewport);
       await openChangePasswordDialogOnManagerDashboard(page);
 
-      // Unlike surfaces.spec.ts/viewer-menu.spec.ts's fixed three-testid mask list: Playwright
-      // paints a mask at its target's page position regardless of what's stacked on top at
-      // capture time, and this dialog covers a different part of the page at each breakpoint.
-      // "pending-approvals-card" sits directly under it everywhere and is dropped outright; on
-      // mobile the narrower stacked layout also puts "pending-requests-stat" underneath it, so
-      // only "pending-approvals-stat" — never covered at either breakpoint — is masked there.
-      // Masking either covered element would paint an opaque box over the dialog itself instead
-      // of the (already backdrop-dimmed, already invisible) content actually behind it.
-      const mask =
-        breakpoint.name === "mobile"
-          ? [page.getByTestId("pending-approvals-stat")]
-          : [page.getByTestId("pending-approvals-stat"), page.getByTestId("pending-requests-stat")];
-
       await expect(page).toHaveScreenshot(`change-password-dialog-open-${breakpoint.name}-${theme}.png`, {
         // NOT fullPage: a native `<dialog>` lives in the browser's top layer, fixed to the
         // viewport rather than scrolling with the document — a fullPage capture (which renders
         // beyond the viewport in one shot) recentres the UA's auto-margins against that taller
         // captured height and crops the dialog's own bottom half. The viewport alone always
         // contains the whole dialog, since `showModal()` is exactly what centres it there.
-        mask,
       });
     });
   }

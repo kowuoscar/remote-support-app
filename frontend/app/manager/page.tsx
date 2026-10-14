@@ -1,73 +1,50 @@
-import { unstable_rethrow } from "next/navigation";
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { ManagerDashboardStats } from "@/components/manager/dashboard-stats";
 import { PendingApprovalsCard } from "@/components/manager/pending-approvals-card";
-import { backendFetch } from "@/lib/api/backend";
-import type { PendingRequestItem, ReviewQueueItem } from "@/lib/api/types";
-import { tenantStats } from "@/lib/demo/manager";
+import { backendFetchJsonOrNull } from "@/lib/api/backend";
+import type {
+  AgentListItem,
+  ClientListItem,
+  ContractListItem,
+  MeResponse,
+  PendingRequestItem,
+  ReviewQueueItem,
+  TenantTotals,
+} from "@/lib/api/types";
 
 export const metadata = { title: "Dashboard" };
 
-/**
- * Reads the Review Queue for the Pending approvals card, or `null` when it can't be loaded. A
- * failure is logged and never thrown: only the card goes unavailable, the rest of the Dashboard
- * renders (manager-invoice-review-queue spec, Constraints) — which is also what lets the
- * backend-free visual suite render this page.
- */
-async function loadReviewQueue(): Promise<ReviewQueueItem[] | null> {
-  try {
-    const response = await backendFetch("/api/review-queue");
-    if (!response.ok) {
-      console.error(`Dashboard: Review Queue load failed with status ${response.status}`);
-      return null;
-    }
-    return (await response.json()) as ReviewQueueItem[];
-  } catch (error) {
-    // Next.js signals a request-time render by throwing from cookies(); that must reach Next.js.
-    unstable_rethrow(error);
-    console.error("Dashboard: Review Queue load failed with no response", error);
-    return null;
-  }
-}
-
-/**
- * Reads the Pending Requests list for the dashboard's own count stat (manager-approves-requests
- * ticket AC: "The Manager's dashboard shows the pending count") — same failure shape as
- * `loadReviewQueue` above: a failed load only takes the one stat unavailable, never the page.
- */
-async function loadPendingRequests(): Promise<PendingRequestItem[] | null> {
-  try {
-    const response = await backendFetch("/api/pending-requests");
-    if (!response.ok) {
-      console.error(`Dashboard: Pending Requests load failed with status ${response.status}`);
-      return null;
-    }
-    return (await response.json()) as PendingRequestItem[];
-  } catch (error) {
-    unstable_rethrow(error);
-    console.error("Dashboard: Pending Requests load failed with no response", error);
-    return null;
-  }
+/** `<name> · Manager`, else `<username> · Manager`, else plain "Manager" when the read failed. */
+function viewerLabelFor(me: MeResponse | null): string {
+  const who = me?.name || me?.username;
+  return who ? `${who} · Manager` : "Manager";
 }
 
 export default async function ManagerDashboardPage() {
-  const [reviewQueue, pendingRequests] = await Promise.all([loadReviewQueue(), loadPendingRequests()]);
+  // Each region loads alone and fails alone: a read that can't be made is `null` (logged), and only
+  // its own card goes unavailable. No figure here is scoped by /api/me, so a failed identity read
+  // only costs the chip its name.
+  const [me, reviewQueue, pendingRequests, totals, clients, agents, contracts] = await Promise.all([
+    backendFetchJsonOrNull<MeResponse>("/api/me", "Dashboard: GET /api/me"),
+    backendFetchJsonOrNull<ReviewQueueItem[]>("/api/review-queue", "Dashboard: Review Queue"),
+    backendFetchJsonOrNull<PendingRequestItem[]>("/api/pending-requests", "Dashboard: Pending Requests"),
+    backendFetchJsonOrNull<TenantTotals>("/api/tenant-totals", "Dashboard: GET /api/tenant-totals"),
+    backendFetchJsonOrNull<ClientListItem[]>("/api/clients", "Dashboard: GET /api/clients"),
+    backendFetchJsonOrNull<AgentListItem[]>("/api/agents", "Dashboard: GET /api/agents"),
+    backendFetchJsonOrNull<ContractListItem[]>("/api/contracts", "Dashboard: GET /api/contracts"),
+  ]);
 
   return (
-    <SurfacePage
-      title="Dashboard"
-      subtitle="Tenant-wide overview"
-      viewerLabel="Priya Ashford · Manager"
-      demoData
-    >
+    <SurfacePage title="Dashboard" subtitle="Tenant-wide overview" viewerLabel={viewerLabelFor(me)}>
       <ManagerDashboardStats
         pendingApprovalsCount={reviewQueue?.length ?? null}
         pendingRequestsCount={pendingRequests?.length ?? null}
-        billedThisMonth={tenantStats.billedThisMonthUSD}
-        payoutThisMonth={tenantStats.payoutThisMonthUSD}
-        clientCount={tenantStats.clientCount}
-        agentCount={tenantStats.agentCount}
-        contractCount={tenantStats.contractCount}
+        billedThisMonth={totals?.billed ?? null}
+        payoutThisMonth={totals?.payout ?? null}
+        billingMonth={totals?.billingMonth ?? null}
+        clientCount={clients?.length ?? null}
+        agentCount={agents?.length ?? null}
+        contractCount={contracts?.length ?? null}
       />
 
       <PendingApprovalsCard items={reviewQueue} now={new Date().toISOString()} />

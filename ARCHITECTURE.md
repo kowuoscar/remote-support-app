@@ -25,6 +25,12 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/security/LoginDeactivatedException.java` · the sign-in refusal for a deactivated Login.
 - `backend/src/main/resources/db/migration/V58__add_users_deactivated_at.sql` · the migration behind deactivating a Login.
 - `backend/src/main/resources/db/migration/V59__add_client_invoice_sent_back.sql` · the migration behind sending a Client Invoice back to draft.
+- `backend/src/main/java/com/remotesupport/backend/domain/ManagerName.java` · the one rule for a valid Manager name (trim, non-blank, at most 100 chars).
+- `backend/src/main/java/com/remotesupport/backend/web/ManagerNameController.java` · `PUT /api/me/name`, Manager-only, writes the caller's own name.
+- `backend/src/main/resources/db/migration/V60__add_users_name.sql` · the migration behind a Manager's name.
+- `backend/src/main/java/com/remotesupport/backend/web/TenantTotalsController.java` · `GET /api/tenant-totals`, Manager-only.
+- `backend/src/main/java/com/remotesupport/backend/web/TenantTotalsService.java` · selects and sums this month's billed (Client Invoices SENT/APPROVED) and payout (Agent Invoices APPROVED/PAID) per currency from frozen totals.
+- `backend/src/main/java/com/remotesupport/backend/repository/AgentInvoiceTotal.java` · the single JPQL expression for an Agent Invoice's frozen total, shared by the Review Queue and Tenant totals queries.
 
 ### Frontend — `frontend/app`
 
@@ -36,6 +42,8 @@ error, not a nitpick.
 - `fonts` · font assets served by the app.
 - `frontend/app/api/agents/[agentId]/login/password/route.ts` · BFF pass-through for the Manager's password reset of an Agent, forwarding `Cache-Control: no-store`.
 - `frontend/app/api/clients/[clientId]/testers/[testerId]/password/route.ts` · BFF pass-through for the Manager's password reset of a Tester, forwarding `Cache-Control: no-store`.
+- `frontend/app/api/me/route.ts` · BFF GET proxy for the caller's own read, so the browser can read the caller's own name.
+- `frontend/app/api/me/name/route.ts` · BFF PUT proxy for the caller's own-name write.
 - `frontend/app/client/(dashboard)` · the /client dashboard page and its error.tsx.
 - `frontend/app/agent/client-invoices/[invoiceId]` · the Agent's by-id Client Invoice page, guarded by `requireAgent`.
 
@@ -48,6 +56,7 @@ error, not a nitpick.
 - `agent` · components specific to the Agent Console.
 - `manager` · components specific to the Manager Console.
 - `client` · components specific to the Client Portal.
+- `frontend/components/app-shell/change-name-dialog.tsx` · the dialog behind the account menu's Change name item: edits the caller's own name, never signs out.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
 - `frontend/components/agent/agent-client-invoice-card.tsx` · the Agent's Client Invoice card.
 - `frontend/components/manager/login-activation-dialog.tsx` · the shared confirm dialog a Manager uses to deactivate or reactivate a Login.

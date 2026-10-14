@@ -1,0 +1,4 @@
+== degraded session
+- Page URL: http://127.0.0.1:3172/manager
+          - button "Manager" [ref=f1e56]
+"N | Northwind Field Services | Manager Console | Dashboard | Requests | Clients | Agents | Contracts | Stock | Carriers | Invoices | Dashboard | Tenant-wide overview | Manager | Pending approvals | 2 | Client + Agent Invoices awaiting review | Pending Requests | 2 | Review requests | Billed this month | — | Unavailable | Couldn't load this month's totals | Payout this month | — | Unavailable | Couldn't load this month's totals | Clients | 1 | In this tenant | Agents | — | Unavailable | Couldn't load your Agents | Contracts | 2 | Client × Agent pairs | Pending approvals | Longest waiting first | Review all | Aurora Retail Group — Jordan Ellis | Client Invoice · September 2026 · waiting 3 days | $1,284.50 | Priya Nair | Agent Invoice · September 2026 · waiting 1 day | £2,310.00"

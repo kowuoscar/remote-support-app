@@ -1,0 +1,17 @@
+## page text checks
+### Result
+"{\"chip\":[\"manager@example.com · Manager\"],\"forbidden\":[[\"Priya Ashford\",false],[\"41,280\",false],[\"22,940\",false],[\"Demo data\",false]]}"
+### Ran Playwright code
+```js
+await page.evaluate('() => { const t=document.body.innerText; return JSON.stringify({chip: [...document.querySelectorAll("button")].map(b=>b.innerText).filter(x=>x.includes("Manager")), forbidden: ["Priya Ashford","41,280","22,940","Demo data"].map(s=>[s,t.includes(s)])}) }');
+```
+## skeleton probe: iframe load of /manager sampled every 2ms
+### Result
+"{\"sawSkeleton\":false,\"firstGridMs\":null,\"samples\":1499}"
+### Ran Playwright code
+```js
+await page.evaluate('() => new Promise(res => { const f=document.createElement("iframe"); f.style.cssText="width:1200px;height:900px"; f.src="/manager"; document.body.appendChild(f); let sawSkeleton=false, firstGrid=null, samples=0; const t0=performance.now(); const iv=setInterval(()=>{ try{ const d=f.contentDocument; if(!d||!d.body) return; samples++; if(d.querySelector(".animate-pulse,[aria-busy=true],[data-skeleton],[class*=skeleton]")) sawSkeleton=true; if(firstGrid===null && d.body.innerText.includes("Billed this month") && /\\\\$135\\\\.99/.test(d.body.innerText)) firstGrid=Math.round(performance.now()-t0); }catch(e){} if(performance.now()-t0>6000){clearInterval(iv); res(JSON.stringify({sawSkeleton,firstGridMs:firstGrid,samples}));} },2); })');
+```
+## grep skeleton in manager components
+components/manager/dashboard-stats.test.tsx:31:  it("renders at once as dashboard-ready, with no skeleton first", () => {
+(end grep)

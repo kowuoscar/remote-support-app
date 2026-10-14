@@ -9,7 +9,18 @@ const PORT = Number(process.env.STUB_BACKEND_PORT ?? 4174);
 
 const ROLES = {
   "visual-agent-session": { username: "agent@example.com", role: "AGENT", country: "UNITED_STATES" },
-  "visual-manager-session": { username: "manager@example.com", role: "MANAGER" },
+  // real-manager-dashboard: the Manager is named, so the dashboard's chip reads
+  // "Yazan Abuhassan · Manager". The empty session is an unnamed Manager (the chip falls back to the
+  // username); the degraded one answers 500 on GET /api/me and GET /api/agents. Not captured as
+  // goldens; both are asserted in surfaces.spec.ts.
+  "visual-manager-session": { username: "manager@example.com", role: "MANAGER", name: "Yazan Abuhassan" },
+  "visual-manager-empty-session": { username: "manager@example.com", role: "MANAGER", emptyTotals: true },
+  "visual-manager-degraded-session": {
+    username: "manager@example.com",
+    role: "MANAGER",
+    name: "Yazan Abuhassan",
+    degraded: true,
+  },
   // real-agent-dashboard: an Agent login that is linked to no Agent record (GET /api/me/agent is
   // 404), and one whose identity read fails outright (500). Not captured as goldens; the
   // not-linked and page-level failure states are asserted in surfaces.spec.ts.
@@ -414,7 +425,58 @@ createServer((request, response) => {
   if (!caller) return send(response, 401);
 
   if (url.pathname === "/api/me") {
-    return send(response, 200, { username: caller.username, role: caller.role });
+    if (caller.role === "MANAGER" && caller.degraded) return send(response, 500);
+    return send(response, 200, { username: caller.username, role: caller.role, name: caller.name });
+  }
+  // real-manager-dashboard: two Review Queue items, one of each kind, `waitingSince` computed from the
+  // stub's own clock (never a calendar date) so the card's "waiting 2 days" reads the same every run.
+  if (url.pathname === "/api/review-queue" && request.method === "GET") {
+    if (caller.role !== "MANAGER") return send(response, 403);
+    const now = Date.now();
+    return send(response, 200, [
+      {
+        kind: "CLIENT_INVOICE",
+        id: "c1000000-0000-0000-0000-000000000001",
+        billingMonth: "2026-09-01",
+        status: "SENT",
+        agentName: AGENTS[0].name,
+        currency: "USD",
+        totalAmount: 1284.5,
+        waitingSince: new Date(now - 3 * DAY_MS - 2 * HOUR_MS).toISOString(),
+        contractId: AGENT_CONTRACTS[0].id,
+        clientName: "Aurora Retail Group",
+        agentId: null,
+      },
+      {
+        kind: "AGENT_INVOICE",
+        id: "c2000000-0000-0000-0000-000000000001",
+        billingMonth: "2026-09-01",
+        status: "SENT",
+        agentName: AGENTS[1].name,
+        currency: "GBP",
+        totalAmount: 2310,
+        waitingSince: new Date(now - DAY_MS - 2 * HOUR_MS).toISOString(),
+        contractId: null,
+        clientName: null,
+        agentId: AGENTS[1].id,
+      },
+    ]);
+  }
+  // real-manager-dashboard: the Tenant's money for a fixed Billing Month — billed in two currencies
+  // (GBP then USD, as the read orders them), payout in one. The empty session has nothing counted
+  // (both lists `[]`); the degraded one answers 500.
+  if (url.pathname === "/api/tenant-totals" && request.method === "GET") {
+    if (caller.role !== "MANAGER") return send(response, 403);
+    if (caller.degraded) return send(response, 500);
+    if (caller.emptyTotals) return send(response, 200, { billingMonth: "2026-09-01", billed: [], payout: [] });
+    return send(response, 200, {
+      billingMonth: "2026-09-01",
+      billed: [
+        { currency: "GBP", amount: 2310 },
+        { currency: "USD", amount: 1284.5 },
+      ],
+      payout: [{ currency: "USD", amount: 2835.99 }],
+    });
   }
   // real-client-dashboard: the caller's own Client; any non-Tester, or an unlinked Tester, is a 404.
   if (url.pathname === "/api/me/client" && request.method === "GET") {
@@ -521,6 +583,8 @@ createServer((request, response) => {
     if (caller.role === "TESTER") {
       return caller.contractsFailing ? send(response, 500) : send(response, 200, TESTER_CONTRACTS);
     }
+    // real-manager-dashboard: the Manager's Contract count reads this list; it reuses the Agent's two.
+    if (caller.role === "MANAGER") return send(response, 200, AGENT_CONTRACTS);
     return caller.role === "AGENT" ? send(response, 200, AGENT_CONTRACTS) : send(response, 403);
   }
   // real-client-dashboard: a Tester's own Contracts' Fleet and Requests. The degraded token's second
@@ -550,6 +614,7 @@ createServer((request, response) => {
     return caller.role === "MANAGER" ? send(response, 200, PENDING_REQUESTS) : send(response, 403);
   }
   if (url.pathname === "/api/agents" && request.method === "GET") {
+    if (caller.role === "MANAGER" && caller.degraded) return send(response, 500);
     return caller.role === "MANAGER" ? send(response, 200, AGENTS) : send(response, 403);
   }
   // agent-stock ticket: an Agent always sees their own Stock; the Manager sees every Agent's

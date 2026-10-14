@@ -1,0 +1,9 @@
+GET /api/tenant-totals as jordan
+{"timestamp":"2026-10-14T13:04:56.543+00:00","status":403,"error":"Forbidden","path":"/api/tenant-totals"}
+[403]
+GET /api/tenant-totals as dana
+{"timestamp":"2026-10-14T13:04:56.556+00:00","status":403,"error":"Forbidden","path":"/api/tenant-totals"}
+[403]
+no token
+
+[401]

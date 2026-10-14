@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 import { NavRail } from "@/components/app-shell/nav-rail";
+import { ViewerCanChangeNameProvider } from "@/components/app-shell/viewer-capabilities";
 import { MobileNavProvider } from "@/lib/mobile-nav";
 import type { Surface } from "@/lib/nav";
 
 /**
  * Layout-level chrome: the left rail plus the column every page renders its
- * own TopBar + content (+ DemoNote, opt-in) into (see `SurfacePage`). Split this way
+ * own TopBar + content into (see `SurfacePage`). Split this way
  * because Next's layout wraps every page under one route, but the page
  * title in the TopBar changes per page. MobileNavProvider wraps both so a
  * page's TopBar (rendered inside `children`) can open the NavRail drawer.
@@ -21,6 +22,7 @@ export function ShellFrame({
 }) {
   return (
     <MobileNavProvider>
+      <ViewerCanChangeNameProvider value={surface === "manager"}>
       {/*
         min-h-dvh, not h-dvh: the shell floors at one viewport but grows
         with content. The rail and TopBar are sticky (not a height-capped
@@ -33,6 +35,7 @@ export function ShellFrame({
         <NavRail surface={surface} roleLabel={roleLabel} />
         <div className="flex min-w-0 flex-1 flex-col">{children}</div>
       </div>
+      </ViewerCanChangeNameProvider>
     </MobileNavProvider>
   );
 }

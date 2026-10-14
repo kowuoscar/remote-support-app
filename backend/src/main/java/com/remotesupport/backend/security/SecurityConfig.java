@@ -96,6 +96,10 @@ public class SecurityConfig {
                     // Manager-only ones so they win (first match wins).
                     .requestMatchers(HttpMethod.GET, "/api/contracts")
                     .authenticated()
+                    // manager-name-api: only a Manager sets a Manager name. Must precede the
+                    // `.anyRequest().authenticated()` fall-through that /api/me/** otherwise hits.
+                    .requestMatchers(HttpMethod.PUT, "/api/me/name")
+                    .hasRole("MANAGER")
                     .requestMatchers(HttpMethod.POST, "/api/contracts/*/smartphones", "/api/contracts/*/sim-cards")
                     .hasRole("MANAGER")
                     .requestMatchers("/api/contracts/*/smartphones/**", "/api/contracts/*/sim-cards/**")
@@ -224,7 +228,7 @@ public class SecurityConfig {
                     .hasAnyRole("MANAGER", "AGENT")
                     .requestMatchers(HttpMethod.POST, "/api/client-invoices/*/files")
                     .hasAnyRole("MANAGER", "AGENT")
-                    .requestMatchers("/api/review-queue","/api/client-invoices/**", "/api/agent-invoices/**")
+                    .requestMatchers("/api/review-queue", "/api/tenant-totals", "/api/client-invoices/**", "/api/agent-invoices/**")
                     .hasRole("MANAGER")
                     // manager-approves-requests ticket: the Pending Requests list and a Request's
                     // own approve/reject are Manager-only (spec.md Constraints: "An Agent or

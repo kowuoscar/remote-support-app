@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef } from "react";
+import { useViewerCanChangeName } from "@/components/app-shell/viewer-capabilities";
 import { ViewerMenu } from "@/components/app-shell/viewer-menu";
+import { ChangeNameDialog, type ChangeNameDialogHandle } from "@/components/app-shell/change-name-dialog";
 import {
   ChangePasswordDialog,
   type ChangePasswordDialogHandle,
@@ -19,11 +21,19 @@ import {
  * frontend rule 1: add `"use client"` only when the file needs state, effects or browser APIs).
  */
 export function ViewerActions({ viewerLabel }: { viewerLabel: string }) {
+  // True under the Manager console only (real-manager-dashboard): adds "Change name" and its dialog.
+  const viewerCanChangeName = useViewerCanChangeName();
+  const changeNameRef = useRef<ChangeNameDialogHandle>(null);
   const changePasswordRef = useRef<ChangePasswordDialogHandle>(null);
 
   return (
     <>
-      <ViewerMenu viewerLabel={viewerLabel} onChangePassword={() => changePasswordRef.current?.open()} />
+      <ViewerMenu
+        viewerLabel={viewerLabel}
+        onChangeName={viewerCanChangeName ? () => changeNameRef.current?.open() : undefined}
+        onChangePassword={() => changePasswordRef.current?.open()}
+      />
+      {viewerCanChangeName ? <ChangeNameDialog ref={changeNameRef} /> : null}
       <ChangePasswordDialog ref={changePasswordRef} />
     </>
   );

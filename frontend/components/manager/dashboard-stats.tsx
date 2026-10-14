@@ -1,16 +1,48 @@
-"use client";
-
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { StatCard, StatCardSkeleton } from "@/components/ui/stat-card";
+import { StatCard, UNAVAILABLE_FIGURE } from "@/components/ui/stat-card";
 import { Money } from "@/components/ui/money";
 import { IconArrowRight } from "@/components/icons";
-import { useSimulatedLoad } from "@/lib/use-simulated-load";
+import type { CurrencyAmount } from "@/lib/api/types";
+import { formatBillingMonth } from "@/lib/format";
+
+/**
+ * One Money line per currency, in the read's order (never a sum); `[]` is a plain `0` with no
+ * currency mark; `null` is the unavailable figure.
+ */
+function moneyFigure(lines: CurrencyAmount[] | null) {
+  if (lines === null) return UNAVAILABLE_FIGURE;
+  if (lines.length === 0) return "0";
+  return (
+    <span className="flex flex-col">
+      {lines.map((line) => (
+        <Money key={line.currency} amount={line.amount} currency={line.currency} emphasize />
+      ))}
+    </span>
+  );
+}
+
+/** A card's meta line as a link to the list behind it, so a failed read always has a next step. */
+function MetaLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link href={href} className="inline-flex items-center gap-1 text-primary hover:text-primary-hover">
+      {children}
+      <IconArrowRight className="h-3 w-3" />
+    </Link>
+  );
+}
+
+function moneyMeta(lines: CurrencyAmount[] | null, rule: string, billingMonth: string | null) {
+  if (lines === null) return "Couldn’t load this month’s totals";
+  return billingMonth ? `${rule} · ${formatBillingMonth(billingMonth)}` : rule;
+}
 
 export function ManagerDashboardStats({
   pendingApprovalsCount,
   pendingRequestsCount,
   billedThisMonth,
   payoutThisMonth,
+  billingMonth,
   clientCount,
   agentCount,
   contractCount,
@@ -25,27 +57,16 @@ export function ManagerDashboardStats({
    * stay separate stats since the Review Queue itself stays invoices-only (spec.md).
    */
   pendingRequestsCount: number | null;
-  billedThisMonth: number;
-  payoutThisMonth: number;
-  clientCount: number;
-  agentCount: number;
-  contractCount: number;
+  /** Per-currency totals from `GET /api/tenant-totals`: `null` = unavailable, `[]` = a plain 0. */
+  billedThisMonth: CurrencyAmount[] | null;
+  payoutThisMonth: CurrencyAmount[] | null;
+  /** "YYYY-MM-01" from the same read, for the cards' meta; never the wall clock. */
+  billingMonth: string | null;
+  /** The Tenant's Client, Agent and Contract list lengths, or `null` when that list couldn't be loaded. */
+  clientCount: number | null;
+  agentCount: number | null;
+  contractCount: number | null;
 }) {
-  const loading = useSimulatedLoad();
-
-  if (loading) {
-    return (
-      <div
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        data-testid="dashboard-loading"
-      >
-        {Array.from({ length: 7 }).map((_, i) => (
-          <StatCardSkeleton key={i} />
-        ))}
-      </div>
-    );
-  }
-
   return (
     <div
       className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
@@ -67,31 +88,47 @@ export function ManagerDashboardStats({
         value={pendingRequestsCount ?? "—"}
         primary
         meta={
-          <Link
-            href="/manager/requests"
-            className="inline-flex items-center gap-1 text-primary hover:text-primary-hover"
-          >
+          <MetaLink href="/manager/requests">
             {pendingRequestsCount === null ? "Couldn’t load — open Pending Requests" : "Review requests"}
-            <IconArrowRight className="h-3 w-3" />
-          </Link>
+          </MetaLink>
         }
         data-testid="pending-requests-stat"
       />
       <StatCard
         label="Billed this month"
-        value={<Money amount={billedThisMonth} currency="USD" emphasize />}
+        value={moneyFigure(billedThisMonth)}
         primary
-        meta="Tenant-wide, all Contracts"
+        meta={moneyMeta(billedThisMonth, "Sent or approved", billingMonth)}
+        data-testid="billed-stat"
       />
       <StatCard
         label="Payout this month"
-        value={<Money amount={payoutThisMonth} currency="USD" emphasize />}
+        value={moneyFigure(payoutThisMonth)}
         primary
-        meta="Tenant-wide, all Agents"
+        meta={moneyMeta(payoutThisMonth, "Approved or paid", billingMonth)}
+        data-testid="payout-stat"
       />
-      <StatCard label="Clients" value={clientCount} primary meta="Active this tenant" />
-      <StatCard label="Agents" value={agentCount} primary meta="Across all countries" />
-      <StatCard label="Contracts" value={contractCount} primary meta="Client × Agent pairs" />
+      <StatCard
+        label="Clients"
+        value={clientCount ?? UNAVAILABLE_FIGURE}
+        primary
+        meta={clientCount === null ? "Couldn’t load your Clients" : "In this tenant"}
+        data-testid="clients-stat"
+      />
+      <StatCard
+        label="Agents"
+        value={agentCount ?? UNAVAILABLE_FIGURE}
+        primary
+        meta={agentCount === null ? "Couldn’t load your Agents" : "Across all countries"}
+        data-testid="agents-stat"
+      />
+      <StatCard
+        label="Contracts"
+        value={contractCount ?? UNAVAILABLE_FIGURE}
+        primary
+        meta={contractCount === null ? "Couldn’t load your Contracts" : "Client × Agent pairs"}
+        data-testid="contracts-stat"
+      />
     </div>
   );
 }

@@ -1,0 +1,18 @@
+== /api/clients
+length 2
+  Harbor Line Logistics
+  Solstice Retail Group
+== /api/agents
+length 3
+  Jordan Ellis
+  Marcus Webb
+  Priya Shah
+== /api/contracts
+length 3
+  0656ea51-952e-4a16-a4dc-e6d2b199d5c5
+  dc41c002-5742-4871-8797-b3bf577546a3
+  8bf97637-a2d6-438b-a08d-70a052ffb614
+
+== dashboard cards (playwright)
+### Result
+"Pending approvals | 2 | Client + Agent Invoices awaiting review | Pending Requests | 2 | Review requests | Billed this month | $135.99 | Sent or approved · October 2026 | Payout this month | 0 | Approved or paid · October 2026 | Clients | 2 | In this tenant | Agents | 3 | Across all countries | Contracts | 3 | Client × Agent pairs | Pending approvals |  | Longest waiting first |  | Review all | Solstice Retail Group — Jordan Ellis | Client Invoice · October 2026 · waiting since today | $135.99 | Jordan Ellis"

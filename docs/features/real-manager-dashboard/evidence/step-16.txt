@@ -1,0 +1,11 @@
+Step 16 replay (spec-comparison form; invoice-adjustment is a draft spec only, not landed)
+Commit under test: 23e86a4 (dashboard spec Solution + Decisions taken corrected)
+
+Dashboard spec.md lines 219-236 (Solution) and 677-681 (Decisions taken) vs invoice-adjustment/spec.md lines 56-58, 122-123, 275-276, 283-290, 400-408:
+MATCH: adjustment counts in the invoice it landed on, signed (credit lowers, charge raises).
+MATCH: pending and withdrawn adjustments never count (pending sits on a DRAFT receiving invoice, which the dashboard never counts).
+MATCH: Client Invoice adjustment lines are stored lines, so the line sum needs no change.
+MATCH: Agent Invoice gains NO new figure; the adjustment moves Local Support Fees through payableAmountForMonth. Dashboard now says exactly this; "fifth figure" no longer appears (grep: 0 hits).
+MATCH: the shared Agent Invoice total expression (Review Queue + aggregate) needs no change; Decisions taken says invoice-adjustment "adds no figure".
+Residual (non-blocking): invoice-adjustment can move an APPROVED/PAID Agent Invoice's Local Support Fees in an open month; dashboard rule "each figure counts an invoice at the total its own page shows" covers it, though unstated.
+Live form (record credit, send next month's invoice) NOT playable: invoice-adjustment not landed. Remains to re-run when it lands.

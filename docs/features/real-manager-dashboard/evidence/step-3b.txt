@@ -1,0 +1,8 @@
+== Jordan
+              - menuitem "Change password" [active] [ref=e172]
+              - menuitem "Log out" [ref=e173]
+== Dana
+- Page URL: http://127.0.0.1:3171/client
+          - button "dana.whitfield@solsticeretail.example · Tester" [ref=e60]
+              - menuitem "Change password" [active] [ref=e103]
+              - menuitem "Log out" [ref=e104]

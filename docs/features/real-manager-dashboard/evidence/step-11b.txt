@@ -1,0 +1,482 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.remotesupport:backend >----------------------
+[INFO] Building backend 0.1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ backend ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 51 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ backend ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ backend ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ backend ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.remotesupport.backend.web.TenantTotalsApiTest
+Standard Commons Logging discovery in action with spring-jcl: please remove commons-logging.jar from classpath in order to avoid potential conflicts
+15:07:09.135 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.web.TenantTotalsApiTest]: TenantTotalsApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:07:09.171 INFO  [:] org.testcontainers.images.PullPolicy - Image pull policy will be performed by: DefaultPullPolicy()
+15:07:09.172 INFO  [:] o.t.utility.ImageNameSubstitutor - Image name substitution will be performed by: DefaultImageNameSubstitutor (composite of 'ConfigurationFileImageNameSubstitutor' and 'PrefixingImageNameSubstitutor')
+15:07:09.188 INFO  [:] org.testcontainers.DockerClientFactory - Testcontainers version: 1.21.4
+15:07:09.380 INFO  [:] o.t.d.DockerClientProviderStrategy - Loaded org.testcontainers.dockerclient.UnixSocketClientProviderStrategy from ~/.testcontainers.properties, will try it first
+15:07:09.506 INFO  [:] o.t.d.DockerClientProviderStrategy - Found Docker environment with local Unix socket (unix:///var/run/docker.sock)
+15:07:09.507 INFO  [:] org.testcontainers.DockerClientFactory - Docker host IP address is localhost
+15:07:09.526 INFO  [:] org.testcontainers.DockerClientFactory - Connected to docker: 
+  Server Version: 29.7.2
+  API Version: 1.55
+  Operating System: Docker Desktop
+  Total Memory: 7934 MB
+  Labels: 
+    com.docker.desktop.address=unix:///Users/oscar/Library/Containers/com.docker.docker/Data/docker-cli.sock
+15:07:09.582 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Creating container for image: testcontainers/ryuk:0.12.0
+15:07:09.745 INFO  [:] o.t.utility.RegistryAuthLocator - Credential helper/store (docker-credential-desktop) does not have credentials for https://index.docker.io/v1/
+15:07:09.847 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Container testcontainers/ryuk:0.12.0 is starting: a0e6a678df7ece86808cd5c424fed33d7c46db3c330f01a11711a931af77ed50
+15:07:10.041 INFO  [:] tc.testcontainers/ryuk:0.12.0 - Container testcontainers/ryuk:0.12.0 started in PT0.458715S
+15:07:10.044 INFO  [:] o.t.utility.RyukResourceReaper - Ryuk started - will monitor and terminate Testcontainers containers on JVM exit
+15:07:10.044 INFO  [:] org.testcontainers.DockerClientFactory - Checking the system...
+15:07:10.045 INFO  [:] org.testcontainers.DockerClientFactory - ✔︎ Docker server version should be at least 1.6.0
+15:07:10.045 INFO  [:] tc.postgres:16-alpine - Creating container for image: postgres:16-alpine
+15:07:10.096 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine is starting: 92ae980193c35df7a6980194685e4e048a2798bac33180b2d25d993775ef7ba3
+15:07:11.113 INFO  [:] tc.postgres:16-alpine - Container postgres:16-alpine started in PT1.068077S
+15:07:11.114 INFO  [:] tc.postgres:16-alpine - Container is started (JDBC URL: jdbc:postgresql://localhost:50201/test?loggerLevel=OFF)
+15:07:11.253 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.web.TenantTotalsApiTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.4)
+
+15:07:11.431 INFO  [:] o.h.validator.internal.util.Version - HV000001: Hibernate Validator 8.0.1.Final
+15:07:11.457 INFO  [:] c.r.backend.web.TenantTotalsApiTest - Starting TenantTotalsApiTest using Java 21.0.11 with PID 6152 (started by oscar in /Users/oscar/myspace/projects/remote-support-app/backend)
+15:07:11.457 DEBUG [:] c.r.backend.web.TenantTotalsApiTest - Running with Spring Boot v3.3.4, Spring v6.1.13
+15:07:11.457 INFO  [:] c.r.backend.web.TenantTotalsApiTest - The following 1 profile is active: "test"
+15:07:11.962 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+15:07:12.006 INFO  [:] o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 40 ms. Found 20 JPA repository interfaces.
+15:07:12.548 INFO  [:] org.flywaydb.core.FlywayExecutor - Database: jdbc:postgresql://localhost:50201/test (PostgreSQL 16.15)
+15:07:12.585 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Schema history table "public"."flyway_schema_history" does not exist yet
+15:07:12.587 INFO  [:] o.f.core.internal.command.DbValidate - Successfully validated 51 migrations (execution time 00:00.023s)
+15:07:12.603 INFO  [:] o.f.c.i.s.JdbcTableSchemaHistory - Creating Schema History table "public"."flyway_schema_history" ...
+15:07:12.643 INFO  [:] o.f.core.internal.command.DbMigrate - Current version of schema "public": << Empty Schema >>
+15:07:12.648 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "1 - create tenants and users"
+15:07:12.666 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "2 - seed dev tenant and manager"
+15:07:12.675 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "3 - seed dev agent and tester"
+15:07:12.685 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "4 - create manager entities"
+15:07:12.704 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "5 - link agent user to agent"
+15:07:12.715 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "6 - create smartphones and sim cards"
+15:07:12.729 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "7 - create requests"
+15:07:12.742 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "8 - add request fulfillment fields"
+15:07:12.756 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "9 - create fees"
+15:07:12.773 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "10 - add request replaces fleet item"
+15:07:12.783 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "11 - create client invoices"
+15:07:12.793 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "12 - create carrier invoice files"
+15:07:12.811 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "13 - add client invoice send and approve"
+15:07:12.822 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "14 - create agent standing amounts and invoices"
+15:07:12.837 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "15 - add agent invoice lifecycle"
+15:07:12.844 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "16 - one login per agent"
+15:07:12.853 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "17 - seed dev tester with fleet"
+15:07:12.864 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "18 - seed second contract for demo client"
+15:07:12.872 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "19 - create carriers"
+15:07:12.881 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "20 - seed carriers for seeded agent country"
+15:07:12.888 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "21 - create topup options and postpaid plans"
+15:07:12.901 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "22 - seed topup options and postpaid plans"
+15:07:12.909 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "23 - link sim cards to carriers"
+15:07:12.916 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V23 sim-card-carrier migration: created 1 Carrier(s), linked 2 SIM Card(s)
+15:07:12.923 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "25 - add fee topup option"
+15:07:12.931 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "26 - seed topup fee from option"
+15:07:12.938 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "28 - link postpaid sim cards to plans"
+15:07:12.945 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "29 - seed postpaid sim card on a plan"
+15:07:12.951 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "30 - add request description and allow other type"
+15:07:12.959 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "31 - replace repair requests and fees with other"
+15:07:12.966 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "32 - add smartphone owner"
+15:07:12.973 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "33 - drop smartphone assigned to"
+15:07:12.978 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "34 - add sim card installed in smartphone"
+15:07:12.984 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "35 - seed sim cards installed in smartphones"
+15:07:12.990 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "36 - add request target units and topup option"
+15:07:12.997 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "38 - add request provision details"
+15:07:13.003 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "40 - widen request and fee type check for replace"
+15:07:13.011 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "42 - add request sim swap second move"
+15:07:13.017 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "44 - add request pending approval and rejected"
+15:07:13.025 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "45 - seed pending approval and rejected requests"
+15:07:13.032 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "46 - add return requests and returned units"
+15:07:13.042 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "48 - widen returned units disposition check"
+15:07:13.048 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "49 - add sim card cancellation effective date"
+15:07:13.053 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "51 - widen returned units disposition check for kept in stock"
+15:07:13.059 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "52 - add smartphone agent stock"
+15:07:13.067 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "53 - add sim card agent stock"
+15:07:13.075 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "54 - trim seed to test baseline"
+15:07:13.084 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoice_fee_snapshots
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from carrier_invoice_files
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from returned_units
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from fees
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 4 row(s) from requests
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 3 row(s) from sim_cards
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from smartphones
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from client_invoices
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from contracts
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from testers
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_standing_amounts
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 0 row(s) from agent_invoices
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from clients
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from users
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 2 row(s) from agents
+15:07:13.085 INFO  [:] o.f.c.i.s.DefaultSqlScriptExecutor - DB: V54 trim-seed-to-test-baseline: removed 1 row(s) from carriers
+15:07:13.090 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "55 - add global username index"
+15:07:13.097 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "56 - create client invoice lines"
+15:07:13.109 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "58 - add users deactivated at"
+15:07:13.114 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "59 - add client invoice sent back"
+15:07:13.120 INFO  [:] o.f.core.internal.command.DbMigrate - Migrating schema "public" to version "60 - add users name"
+15:07:13.128 INFO  [:] o.f.core.internal.command.DbMigrate - Successfully applied 51 migrations to schema "public", now at version v60 (execution time 00:00.209s)
+15:07:13.185 INFO  [:] o.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+15:07:13.215 INFO  [:] org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+15:07:13.231 INFO  [:] o.h.c.internal.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+15:07:13.383 INFO  [:] o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+15:07:13.396 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+15:07:13.415 INFO  [:] com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@37fc7e3c
+15:07:13.416 INFO  [:] com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+15:07:14.013 INFO  [:] o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+15:07:14.049 INFO  [:] o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+15:07:14.238 INFO  [:] o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+15:07:15.145 INFO  [:] o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name appUserDetailsService
+15:07:15.363 INFO  [:] o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+15:07:15.691 INFO  [:] o.s.b.t.m.w.SpringBootMockServletContext - Initializing Spring TestDispatcherServlet ''
+15:07:15.691 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Initializing Servlet ''
+15:07:15.692 INFO  [:] o.s.t.web.servlet.TestDispatcherServlet - Completed initialization in 1 ms
+15:07:15.729 INFO  [:] c.r.backend.web.TenantTotalsApiTest - Started TenantTotalsApiTest in 4.415 seconds (process running for 7.056)
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (/Users/oscar/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.19/byte-buddy-agent-1.14.19.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+15:07:16.358 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:16.364 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:16.451 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+15:07:16.452 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:16.482 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=87630fa0-0350-46ad-835a-eae6b90f8634 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:16.494 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+15:07:16.517 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=f8b8b07f-013d-4865-9684-c8dee37be10f actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:16.519 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+15:07:16.618 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=c150a288-6d5e-43a9-89f1-9cec011ee2c2 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:16.620 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/87630fa0-0350-46ad-835a-eae6b90f8634/testers -> 201
+15:07:16.697 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=91ab46e7-5e95-47e6-ba15-bd8775511e3f role=TESTER username=ines@solene.example
+15:07:16.698 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:16.775 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:16.775 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:16.783 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+15:07:16.802 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CARRIER_CREATED entity=Carrier entityId=04fbbe68-bcbc-43fc-9bb3-408db1423197 country=UNITED_STATES name=Fixture Carrier 1d80c515-dd28-4604-a678-b8c49832ceca actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:16.805 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers -> 201
+15:07:16.831 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=9c40715d-de56-4e66-be50-3a749133775a contractId=f8b8b07f-013d-4865-9684-c8dee37be10f carrierId=04fbbe68-bcbc-43fc-9bb3-408db1423197 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:16.834 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/f8b8b07f-013d-4865-9684-c8dee37be10f/sim-cards -> 201
+15:07:16.921 INFO  [11111111-1111-1111-1111-111111111111:91ab46e7-5e95-47e6-ba15-bd8775511e3f] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=70e68c98-099f-4f78-89eb-871b3dabfd54 contractId=f8b8b07f-013d-4865-9684-c8dee37be10f requestType=TOPUP descriptionGiven=true targetSmartphoneId=null targetSimCardId=9c40715d-de56-4e66-be50-3a749133775a topupOptionId=null actorUserId=91ab46e7-5e95-47e6-ba15-bd8775511e3f tenantId=11111111-1111-1111-1111-111111111111
+15:07:16.930 INFO  [11111111-1111-1111-1111-111111111111:91ab46e7-5e95-47e6-ba15-bd8775511e3f] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/f8b8b07f-013d-4865-9684-c8dee37be10f/requests -> 201
+15:07:17.005 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=FEE_LOGGED entity=Fee entityId=2e7ebe2d-8c03-4b53-9502-e306f79dee43 contractId=f8b8b07f-013d-4865-9684-c8dee37be10f requestId=70e68c98-099f-4f78-89eb-871b3dabfd54 feeType=TOPUP amount=45.00 topupOptionId=null actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.010 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/f8b8b07f-013d-4865-9684-c8dee37be10f/fees -> 201
+15:07:17.025 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=c0a99993-b9f8-4e72-9a53-7d4ad4f76c53 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.037 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=c0a99993-b9f8-4e72-9a53-7d4ad4f76c53 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.050 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/f8b8b07f-013d-4865-9684-c8dee37be10f/client-invoice/send -> 200
+15:07:17.128 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:17.128 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:17.132 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+15:07:17.138 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CARRIER_CREATED entity=Carrier entityId=e4a0cbab-ad39-4db0-943e-b2b9aecb7593 country=UNITED_STATES name=Fixture Carrier 9c18469f-2e76-4a2e-a525-3496ff71dba5 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.138 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers -> 201
+15:07:17.149 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=a409b1c8-8a8f-4eda-aa71-6f35bf737349 contractId=f8b8b07f-013d-4865-9684-c8dee37be10f carrierId=e4a0cbab-ad39-4db0-943e-b2b9aecb7593 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.150 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/f8b8b07f-013d-4865-9684-c8dee37be10f/sim-cards -> 201
+15:07:17.209 INFO  [11111111-1111-1111-1111-111111111111:91ab46e7-5e95-47e6-ba15-bd8775511e3f] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=f596523f-7dbc-482b-be47-3945bb637b20 contractId=f8b8b07f-013d-4865-9684-c8dee37be10f requestType=TOPUP descriptionGiven=true targetSmartphoneId=null targetSimCardId=a409b1c8-8a8f-4eda-aa71-6f35bf737349 topupOptionId=null actorUserId=91ab46e7-5e95-47e6-ba15-bd8775511e3f tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.215 INFO  [11111111-1111-1111-1111-111111111111:91ab46e7-5e95-47e6-ba15-bd8775511e3f] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/f8b8b07f-013d-4865-9684-c8dee37be10f/requests -> 201
+15:07:17.270 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=FEE_LOGGED entity=Fee entityId=72cf307e-0d5a-479b-a302-5ec06ff60c89 contractId=f8b8b07f-013d-4865-9684-c8dee37be10f requestId=f596523f-7dbc-482b-be47-3945bb637b20 feeType=TOPUP amount=999.00 topupOptionId=null actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.271 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/f8b8b07f-013d-4865-9684-c8dee37be10f/fees -> 201
+15:07:17.284 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=1 payoutCurrencies=0
+15:07:17.286 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:17.394 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:17.395 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:17.474 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+15:07:17.475 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:17.487 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=bf94a8c9-687f-42e4-b29c-9180925b96a5 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.498 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=bf94a8c9-687f-42e4-b29c-9180925b96a5 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.499 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+15:07:17.510 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_INVOICE_OVERRIDDEN entity=AgentInvoice entityId=bf94a8c9-687f-42e4-b29c-9180925b96a5 field=rolloutAdvanceNewAdvance oldValue=0 newValue=150.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.511 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agent-invoices/bf94a8c9-687f-42e4-b29c-9180925b96a5/override -> 200
+15:07:17.517 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=bf94a8c9-687f-42e4-b29c-9180925b96a5 oldStatus=SENT newStatus=APPROVED actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.517 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agent-invoices/bf94a8c9-687f-42e4-b29c-9180925b96a5/approve -> 200
+15:07:17.525 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=0 payoutCurrencies=1
+15:07:17.526 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:17.534 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=bf94a8c9-687f-42e4-b29c-9180925b96a5 oldStatus=APPROVED newStatus=PAID actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.534 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agent-invoices/bf94a8c9-687f-42e4-b29c-9180925b96a5/paid -> 200
+15:07:17.542 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=0 payoutCurrencies=1
+15:07:17.542 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:17.635 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:17.635 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:17.715 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+15:07:17.716 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:17.721 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=56780f29-6ed7-4341-a6db-508c6271f8e9 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.725 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+15:07:17.734 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=bc49e54d-96e3-4b4b-a72e-12c4856367c3 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.734 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+15:07:17.822 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=b786973d-278a-4d4b-ae0c-03d67e8e8d9b actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.822 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/56780f29-6ed7-4341-a6db-508c6271f8e9/testers -> 201
+15:07:17.900 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=d14ca060-1e41-48fe-899f-6b5a71e04fc8 role=TESTER username=ines@solene.example
+15:07:17.900 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:17.905 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+15:07:17.919 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+15:07:17.936 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=a85a28a1-0e8c-4aac-a7a9-112ca71de43e carrierId=c0000000-0000-0000-0000-000000000001 name=Plan 24ee3bc5-31ff-4713-ae4b-c2faf55e7c4e price=25.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.937 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+15:07:17.955 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=e282eb88-e2fb-4269-9681-f7728a53563a contractId=bc49e54d-96e3-4b4b-a72e-12c4856367c3 carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=a85a28a1-0e8c-4aac-a7a9-112ca71de43e monthlyFeeAmount=25.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:17.955 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/bc49e54d-96e3-4b4b-a72e-12c4856367c3/sim-cards -> 201
+15:07:18.069 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:18.070 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:18.074 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+15:07:18.079 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CARRIER_CREATED entity=Carrier entityId=0b54a267-0c45-4e3d-a8e1-b27a20349e5f country=UNITED_STATES name=Fixture Carrier 1e34de37-302d-449a-a2c7-d952d1ac7db3 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.080 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers -> 201
+15:07:18.088 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=12f3b2f6-08bb-4573-a445-a50f33eb9d51 contractId=bc49e54d-96e3-4b4b-a72e-12c4856367c3 carrierId=0b54a267-0c45-4e3d-a8e1-b27a20349e5f postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.088 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/bc49e54d-96e3-4b4b-a72e-12c4856367c3/sim-cards -> 201
+15:07:18.150 INFO  [11111111-1111-1111-1111-111111111111:d14ca060-1e41-48fe-899f-6b5a71e04fc8] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=e836baf7-1377-4130-ad25-5c7f1a906b68 contractId=bc49e54d-96e3-4b4b-a72e-12c4856367c3 requestType=TOPUP descriptionGiven=true targetSmartphoneId=null targetSimCardId=12f3b2f6-08bb-4573-a445-a50f33eb9d51 topupOptionId=null actorUserId=d14ca060-1e41-48fe-899f-6b5a71e04fc8 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.155 INFO  [11111111-1111-1111-1111-111111111111:d14ca060-1e41-48fe-899f-6b5a71e04fc8] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/bc49e54d-96e3-4b4b-a72e-12c4856367c3/requests -> 201
+15:07:18.210 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=FEE_LOGGED entity=Fee entityId=1979e1ed-f886-4494-92ab-e7010f8d638f contractId=bc49e54d-96e3-4b4b-a72e-12c4856367c3 requestId=e836baf7-1377-4130-ad25-5c7f1a906b68 feeType=TOPUP amount=45.00 topupOptionId=null actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.211 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/bc49e54d-96e3-4b4b-a72e-12c4856367c3/fees -> 201
+15:07:18.286 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:18.287 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:18.291 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+15:07:18.297 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CARRIER_CREATED entity=Carrier entityId=7fe91682-47b3-4eff-a8ce-7afbade0a5b8 country=UNITED_STATES name=Fixture Carrier b1c432cc-4c13-43e2-8406-aa321d7e280b actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.298 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers -> 201
+15:07:18.308 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=d18a760c-e7b7-4062-a9ee-a3a5a0c509ef contractId=bc49e54d-96e3-4b4b-a72e-12c4856367c3 carrierId=7fe91682-47b3-4eff-a8ce-7afbade0a5b8 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.308 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/bc49e54d-96e3-4b4b-a72e-12c4856367c3/sim-cards -> 201
+15:07:18.357 INFO  [11111111-1111-1111-1111-111111111111:d14ca060-1e41-48fe-899f-6b5a71e04fc8] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=234a3f31-e0dd-4119-822c-c0942445b3c4 contractId=bc49e54d-96e3-4b4b-a72e-12c4856367c3 requestType=TOPUP descriptionGiven=true targetSmartphoneId=null targetSimCardId=d18a760c-e7b7-4062-a9ee-a3a5a0c509ef topupOptionId=null actorUserId=d14ca060-1e41-48fe-899f-6b5a71e04fc8 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.360 INFO  [11111111-1111-1111-1111-111111111111:d14ca060-1e41-48fe-899f-6b5a71e04fc8] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/bc49e54d-96e3-4b4b-a72e-12c4856367c3/requests -> 201
+15:07:18.411 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=FEE_LOGGED entity=Fee entityId=7adddcc0-57b7-463c-950e-7d8542e4b5ce contractId=bc49e54d-96e3-4b4b-a72e-12c4856367c3 requestId=234a3f31-e0dd-4119-822c-c0942445b3c4 feeType=TOPUP amount=5.50 topupOptionId=null actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.411 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/bc49e54d-96e3-4b4b-a72e-12c4856367c3/fees -> 201
+15:07:18.416 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=34512212-0a14-4abd-8efb-6572a132147b actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.419 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+15:07:18.425 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=282acda4-0cd1-4a34-b7c7-721d2ac624b5 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.426 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+15:07:18.433 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=c1a034d4-61db-4bab-87f2-a79531f20f66 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.437 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=c1a034d4-61db-4bab-87f2-a79531f20f66 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.442 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/bc49e54d-96e3-4b4b-a72e-12c4856367c3/client-invoice/send -> 200
+15:07:18.448 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=c3bc19cd-a751-49e2-a7af-5a9a651439e4 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.452 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=c3bc19cd-a751-49e2-a7af-5a9a651439e4 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.454 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/282acda4-0cd1-4a34-b7c7-721d2ac624b5/client-invoice/send -> 200
+15:07:18.460 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=c3bc19cd-a751-49e2-a7af-5a9a651439e4 oldStatus=SENT newStatus=APPROVED actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.462 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/client-invoices/c3bc19cd-a751-49e2-a7af-5a9a651439e4/approve -> 200
+15:07:18.468 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/client-invoices/c1a034d4-61db-4bab-87f2-a79531f20f66 -> 200
+15:07:18.472 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=1 payoutCurrencies=0
+15:07:18.473 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:18.561 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:18.562 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:18.566 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=0 payoutCurrencies=0
+15:07:18.566 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:18.643 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+15:07:18.643 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:18.652 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=0cab5c1b-cde3-4724-858d-2e4e969efec6 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.658 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/agents/55555555-5555-5555-5555-555555555555/invoice -> 200
+15:07:18.730 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:18.731 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:18.737 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=0 payoutCurrencies=0
+15:07:18.737 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:18.751 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=0cab5c1b-cde3-4724-858d-2e4e969efec6 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:18.751 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+15:07:18.824 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:18.824 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:18.834 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=0 payoutCurrencies=0
+15:07:18.834 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:18.911 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:18.911 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:18.919 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=0 payoutCurrencies=0
+15:07:18.919 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:18.996 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:18.996 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:19.085 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=1679ab5d-50da-4eab-96df-04de8999c388 agentId=024d9f94-add4-4c9b-ab00-6f9d9237ef11 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.085 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Agent entityId=024d9f94-add4-4c9b-ab00-6f9d9237ef11 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.087 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents -> 201
+15:07:19.090 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=6295bec7-98a3-4e1f-be08-d00d9de1888e actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.093 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+15:07:19.099 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=1141f585-8258-4c2b-a0ee-2d1a55e96323 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.099 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+15:07:19.103 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=f8518375-3e20-453c-81be-fad5395d11d9 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.107 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+15:07:19.112 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=4b65315a-dcf2-4d27-9edb-9e655dc7b532 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.113 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+15:07:19.127 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=2 payoutCurrencies=1
+15:07:19.127 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:19.211 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:19.211 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:19.219 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=0 payoutCurrencies=0
+15:07:19.219 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:19.331 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:19.331 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:19.409 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+15:07:19.410 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:19.420 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=AgentInvoice entityId=056efa7c-bd94-40f9-b6f7-2e7572863d39 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.429 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=056efa7c-bd94-40f9-b6f7-2e7572863d39 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.429 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/agents/55555555-5555-5555-5555-555555555555/invoice/send -> 200
+15:07:19.436 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=STATUS_CHANGE entity=AgentInvoice entityId=056efa7c-bd94-40f9-b6f7-2e7572863d39 oldStatus=SENT newStatus=APPROVED actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.436 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agent-invoices/056efa7c-bd94-40f9-b6f7-2e7572863d39/approve -> 200
+15:07:19.509 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:19.509 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:19.516 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=0 payoutCurrencies=0
+15:07:19.516 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:19.592 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:19.592 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:19.667 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+15:07:19.668 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:19.671 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=52f4f584-ba2c-4650-b25e-eead227696ea actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.673 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+15:07:19.678 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=58ab5c8a-2f5b-46e8-bf71-a19a684618fc actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.678 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+15:07:19.684 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=e51c5c64-8db0-45c5-87f1-30b353b8255e actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.687 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts/58ab5c8a-2f5b-46e8-bf71-a19a684618fc/client-invoice -> 200
+15:07:19.690 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=14444969-4f8a-4be3-bc8c-afa7491a3f14 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.691 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+15:07:19.695 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=8b753fbb-26b9-4cb4-89bf-6b7440275791 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.695 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+15:07:19.783 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=f8b9553d-9d1c-4d4a-bf7a-17a22c06ac9a actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.784 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/14444969-4f8a-4be3-bc8c-afa7491a3f14/testers -> 201
+15:07:19.856 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=5b9fbdef-602d-454a-9725-d26af7e03863 role=TESTER username=k@kessler.example
+15:07:19.857 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:19.861 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+15:07:19.867 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/carriers -> 200
+15:07:19.876 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=POSTPAID_PLAN_CREATED entity=PostpaidPlan entityId=294fd547-7a0c-45a6-8d52-9a26da1f3092 carrierId=c0000000-0000-0000-0000-000000000001 name=Plan 7990b4d5-0fb7-481d-b4d9-b369b15c8a2e price=25.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.876 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers/c0000000-0000-0000-0000-000000000001/postpaid-plans -> 201
+15:07:19.889 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=13b78bfd-3061-47de-8cbb-b31a8cd881f9 contractId=8b753fbb-26b9-4cb4-89bf-6b7440275791 carrierId=c0000000-0000-0000-0000-000000000001 postpaidPlanId=294fd547-7a0c-45a6-8d52-9a26da1f3092 monthlyFeeAmount=25.00 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.889 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/8b753fbb-26b9-4cb4-89bf-6b7440275791/sim-cards -> 201
+15:07:19.962 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:19.962 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:19.965 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+15:07:19.973 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CARRIER_CREATED entity=Carrier entityId=fe5d5e13-beda-469c-a10c-d639340132c7 country=UNITED_STATES name=Fixture Carrier e61f514b-90cb-4ec0-8145-546e4b959cb8 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.973 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers -> 201
+15:07:19.986 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=0b2c9195-d16a-46af-bd9b-a7e247173f01 contractId=8b753fbb-26b9-4cb4-89bf-6b7440275791 carrierId=fe5d5e13-beda-469c-a10c-d639340132c7 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:19.986 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/8b753fbb-26b9-4cb4-89bf-6b7440275791/sim-cards -> 201
+15:07:20.038 INFO  [11111111-1111-1111-1111-111111111111:5b9fbdef-602d-454a-9725-d26af7e03863] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=6cd1e796-c2e5-4a62-99d3-f2d443fb43ee contractId=8b753fbb-26b9-4cb4-89bf-6b7440275791 requestType=TOPUP descriptionGiven=true targetSmartphoneId=null targetSimCardId=0b2c9195-d16a-46af-bd9b-a7e247173f01 topupOptionId=null actorUserId=5b9fbdef-602d-454a-9725-d26af7e03863 tenantId=11111111-1111-1111-1111-111111111111
+15:07:20.041 INFO  [11111111-1111-1111-1111-111111111111:5b9fbdef-602d-454a-9725-d26af7e03863] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/8b753fbb-26b9-4cb4-89bf-6b7440275791/requests -> 201
+15:07:20.099 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=FEE_LOGGED entity=Fee entityId=10c9112a-f72f-46d1-a14f-1d7cba75ed89 contractId=8b753fbb-26b9-4cb4-89bf-6b7440275791 requestId=6cd1e796-c2e5-4a62-99d3-f2d443fb43ee feeType=TOPUP amount=45.00 topupOptionId=null actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:20.100 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/8b753fbb-26b9-4cb4-89bf-6b7440275791/fees -> 201
+15:07:20.174 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:20.174 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:20.177 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/contracts -> 200
+15:07:20.182 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CARRIER_CREATED entity=Carrier entityId=007e4acd-e476-4cb3-91b3-3a0d5a0dfcf7 country=UNITED_STATES name=Fixture Carrier cbae158c-81a3-4e45-9290-2f0d298760b6 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:20.182 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/carriers -> 201
+15:07:20.188 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=SimCard entityId=49fbc932-7231-4f68-8088-97ff5480fde2 contractId=8b753fbb-26b9-4cb4-89bf-6b7440275791 carrierId=007e4acd-e476-4cb3-91b3-3a0d5a0dfcf7 postpaidPlanId=null monthlyFeeAmount=null actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:20.189 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/8b753fbb-26b9-4cb4-89bf-6b7440275791/sim-cards -> 201
+15:07:20.236 INFO  [11111111-1111-1111-1111-111111111111:5b9fbdef-602d-454a-9725-d26af7e03863] AUDIT - audit action=REQUEST_SUBMITTED entity=Request entityId=e6c34bd2-260a-498f-b165-6eb85ee49b71 contractId=8b753fbb-26b9-4cb4-89bf-6b7440275791 requestType=TOPUP descriptionGiven=true targetSmartphoneId=null targetSimCardId=49fbc932-7231-4f68-8088-97ff5480fde2 topupOptionId=null actorUserId=5b9fbdef-602d-454a-9725-d26af7e03863 tenantId=11111111-1111-1111-1111-111111111111
+15:07:20.239 INFO  [11111111-1111-1111-1111-111111111111:5b9fbdef-602d-454a-9725-d26af7e03863] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/8b753fbb-26b9-4cb4-89bf-6b7440275791/requests -> 201
+15:07:20.286 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=FEE_LOGGED entity=Fee entityId=e266864b-a67d-49c6-a148-93e49db7a462 contractId=8b753fbb-26b9-4cb4-89bf-6b7440275791 requestId=e6c34bd2-260a-498f-b165-6eb85ee49b71 feeType=TOPUP amount=5.50 topupOptionId=null actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:20.287 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/8b753fbb-26b9-4cb4-89bf-6b7440275791/fees -> 201
+15:07:20.295 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=CREATE entity=ClientInvoice entityId=a4f8991c-1459-453e-abb3-94a8dfa79104 actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:20.300 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=a4f8991c-1459-453e-abb3-94a8dfa79104 oldStatus=DRAFT newStatus=SENT actorUserId=33333333-3333-3333-3333-333333333333 tenantId=11111111-1111-1111-1111-111111111111
+15:07:20.304 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts/8b753fbb-26b9-4cb4-89bf-6b7440275791/client-invoice/send -> 200
+15:07:20.309 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=STATUS_CHANGE entity=ClientInvoice entityId=a4f8991c-1459-453e-abb3-94a8dfa79104 oldStatus=SENT newStatus=DRAFT actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:20.312 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/client-invoices/a4f8991c-1459-453e-abb3-94a8dfa79104/send-back -> 200
+15:07:20.315 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=2001c290-bafc-4493-83e5-3f085bece2da actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:20.316 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+15:07:20.321 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Contract entityId=7b7ed867-adfa-445b-81dc-534dda6b1920 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:20.322 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/contracts -> 201
+15:07:20.401 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:20.401 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:20.406 DEBUG [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.web.TenantTotalsController - tenant totals read tenantId=11111111-1111-1111-1111-111111111111 billedCurrencies=0 payoutCurrencies=0
+15:07:20.406 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 200
+15:07:20.489 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=33333333-3333-3333-3333-333333333333 role=AGENT username=agent@example.com
+15:07:20.489 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:20.494 INFO  [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 403
+15:07:20.572 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=44444444-4444-4444-4444-444444444444 role=TESTER username=tester@example.com
+15:07:20.572 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:20.575 INFO  [11111111-1111-1111-1111-111111111111:44444444-4444-4444-4444-444444444444] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 403
+15:07:20.576 INFO  [:] c.r.backend.logging.RequestLoggingFilter - GET /api/tenant-totals -> 401
+[INFO] Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.57 s -- in com.remotesupport.backend.web.TenantTotalsApiTest
+[INFO] Running com.remotesupport.backend.web.ManagerNameApiTest
+15:07:20.582 INFO  [:] o.s.t.c.s.AnnotationConfigContextLoaderUtils - Could not detect default configuration classes for test class [com.remotesupport.backend.web.ManagerNameApiTest]: ManagerNameApiTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:07:20.586 INFO  [:] o.s.b.t.c.SpringBootTestContextBootstrapper - Found @SpringBootConfiguration com.remotesupport.backend.BackendApplication for test class com.remotesupport.backend.web.ManagerNameApiTest
+15:07:20.763 INFO  [:] c.r.backend.web.AuthController - login success tenantId=12ce76c3-09b3-4825-97c1-3d153a212611 userId=322e46c8-5f6d-4e8a-8a2b-0ad03b03881f role=MANAGER username=name-manager-8c650b03-5cf5-45cb-a903-0e5688ddba4b@example.com
+15:07:20.763 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:20.770 INFO  [12ce76c3-09b3-4825-97c1-3d153a212611:322e46c8-5f6d-4e8a-8a2b-0ad03b03881f] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 204
+15:07:20.774 INFO  [12ce76c3-09b3-4825-97c1-3d153a212611:322e46c8-5f6d-4e8a-8a2b-0ad03b03881f] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 204
+15:07:20.780 INFO  [12ce76c3-09b3-4825-97c1-3d153a212611:322e46c8-5f6d-4e8a-8a2b-0ad03b03881f] c.r.backend.logging.RequestLoggingFilter - GET /api/me -> 200
+15:07:20.948 INFO  [:] c.r.backend.web.AuthController - login success tenantId=fc665bae-d0ea-4a72-af27-677bec83d160 userId=94d46a7b-1afd-48e6-83cb-20f07e65f909 role=MANAGER username=name-manager-9012d44e-29be-443d-a8a6-05d5d1192a0b@example.com
+15:07:20.949 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:20.958 INFO  [:] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 401
+15:07:21.132 INFO  [:] c.r.backend.web.AuthController - login success tenantId=890c3c56-51d5-4ae6-907e-66e4c26feef4 userId=db53827c-d09c-47ee-b6d3-2558478fb101 role=MANAGER username=name-manager-9cec5aad-eae4-4f31-b42b-2a5d11280a37@example.com
+15:07:21.132 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:21.288 INFO  [:] c.r.backend.web.AuthController - login success tenantId=7313a6bb-277b-4a27-8baa-55737cea01cf userId=4004dc3d-781e-41fa-9e9a-42338714cafd role=MANAGER username=name-manager-769e0ad0-977b-4f9c-8bee-8c2667774ea1@example.com
+15:07:21.289 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:21.295 INFO  [890c3c56-51d5-4ae6-907e-66e4c26feef4:db53827c-d09c-47ee-b6d3-2558478fb101] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 204
+15:07:21.464 INFO  [:] c.r.backend.web.AuthController - login success tenantId=942d5b9e-8869-4f88-945e-ca89c0fed560 userId=1c411229-ed98-499c-b222-1d23f9c2ac2e role=MANAGER username=name-manager-c2146888-c0c8-4b9d-9258-49790e9f1c06@example.com
+15:07:21.464 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:21.468 INFO  [942d5b9e-8869-4f88-945e-ca89c0fed560:1c411229-ed98-499c-b222-1d23f9c2ac2e] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 204
+15:07:21.473 INFO  [942d5b9e-8869-4f88-945e-ca89c0fed560:1c411229-ed98-499c-b222-1d23f9c2ac2e] c.r.backend.logging.RequestLoggingFilter - GET /api/me -> 200
+15:07:21.635 INFO  [:] c.r.backend.web.AuthController - login success tenantId=274145d7-f99a-4823-805d-1640ae195a4d userId=7f33d459-068d-4611-8638-215d341e516a role=MANAGER username=name-manager-6f3b0ca7-33fa-4c2f-a51f-1cca1925001e@example.com
+15:07:21.635 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:21.643 INFO  [274145d7-f99a-4823-805d-1640ae195a4d:7f33d459-068d-4611-8638-215d341e516a] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 400
+15:07:21.814 INFO  [:] c.r.backend.web.AuthController - login success tenantId=deae0623-eb9c-45e5-96b5-4ccd0d5c5c66 userId=26bc31d4-8d07-4363-9780-c0be1739726d role=MANAGER username=name-manager-f189961a-79fe-48fa-88b3-e5fa5e0f4d02@example.com
+15:07:21.815 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:21.821 INFO  [deae0623-eb9c-45e5-96b5-4ccd0d5c5c66:26bc31d4-8d07-4363-9780-c0be1739726d] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 400
+15:07:21.904 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:21.905 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:21.910 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Client entityId=e5992c2c-585d-40bc-8aa1-846c210a4926 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:21.913 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients -> 201
+15:07:22.026 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Tester entityId=6077bbbb-1cd3-4e13-a969-d524643bfeac actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:22.027 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/clients/e5992c2c-585d-40bc-8aa1-846c210a4926/testers -> 201
+15:07:22.117 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=5b9d74ba-7282-49c9-be40-bd6af516a398 role=TESTER username=name-tester-9f35fdc7-f4aa-438c-ae45-e2bb41095343@example.com
+15:07:22.117 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:22.120 INFO  [11111111-1111-1111-1111-111111111111:5b9d74ba-7282-49c9-be40-bd6af516a398] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 403
+15:07:22.126 INFO  [11111111-1111-1111-1111-111111111111:5b9d74ba-7282-49c9-be40-bd6af516a398] c.r.backend.logging.RequestLoggingFilter - GET /api/me -> 200
+15:07:22.209 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:22.209 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:22.293 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=AGENT_LOGIN_CREATED entity=User entityId=88cf5c1a-0deb-4640-ab23-4e53e7b9a4c1 agentId=880944b1-b2a2-49c9-9624-6ccd0f211088 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:22.293 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] AUDIT - audit action=CREATE entity=Agent entityId=880944b1-b2a2-49c9-9624-6ccd0f211088 actorUserId=22222222-2222-2222-2222-222222222222 tenantId=11111111-1111-1111-1111-111111111111
+15:07:22.294 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - POST /api/agents -> 201
+15:07:22.371 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=88cf5c1a-0deb-4640-ab23-4e53e7b9a4c1 role=AGENT username=name-agent-e2c12607-92e9-4048-8cef-e3590481cf34@agents.example
+15:07:22.372 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:22.375 INFO  [11111111-1111-1111-1111-111111111111:88cf5c1a-0deb-4640-ab23-4e53e7b9a4c1] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 403
+15:07:22.379 INFO  [11111111-1111-1111-1111-111111111111:88cf5c1a-0deb-4640-ab23-4e53e7b9a4c1] c.r.backend.logging.RequestLoggingFilter - GET /api/me -> 200
+15:07:22.547 INFO  [:] c.r.backend.web.AuthController - login success tenantId=108c3094-e5bb-4ea2-b225-2627ca07b54b userId=ca9b8936-a65a-4e0c-bb37-eaabc23ae6f5 role=MANAGER username=name-manager-50b83657-3764-4c86-83ce-6506edd01b28@example.com
+15:07:22.547 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:22.553 INFO  [108c3094-e5bb-4ea2-b225-2627ca07b54b:ca9b8936-a65a-4e0c-bb37-eaabc23ae6f5] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 400
+15:07:22.635 INFO  [:] c.r.backend.web.AuthController - login success tenantId=11111111-1111-1111-1111-111111111111 userId=22222222-2222-2222-2222-222222222222 role=MANAGER username=manager@example.com
+15:07:22.635 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:22.639 INFO  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] c.r.backend.logging.RequestLoggingFilter - GET /api/me -> 200
+15:07:22.798 INFO  [:] c.r.backend.web.AuthController - login success tenantId=6e0f846b-d836-47d4-9b76-7a5bb5ce9ec7 userId=881e9675-6572-48d8-a024-b4be8c81fada role=MANAGER username=name-manager-83fc7936-60c3-461e-b0fa-81e5c19fb5c3@example.com
+15:07:22.799 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:22.801 INFO  [6e0f846b-d836-47d4-9b76-7a5bb5ce9ec7:881e9675-6572-48d8-a024-b4be8c81fada] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 204
+15:07:22.807 INFO  [6e0f846b-d836-47d4-9b76-7a5bb5ce9ec7:881e9675-6572-48d8-a024-b4be8c81fada] c.r.backend.logging.RequestLoggingFilter - GET /api/me -> 200
+15:07:22.879 INFO  [:] c.r.backend.web.AuthController - login success tenantId=6e0f846b-d836-47d4-9b76-7a5bb5ce9ec7 userId=881e9675-6572-48d8-a024-b4be8c81fada role=MANAGER username=name-manager-83fc7936-60c3-461e-b0fa-81e5c19fb5c3@example.com
+15:07:22.879 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:23.038 INFO  [:] c.r.backend.web.AuthController - login success tenantId=fcccd67e-beb3-4a7a-9f5d-3b79d08fcffc userId=c5db6cab-75b4-419d-ac44-b7349420945f role=MANAGER username=name-manager-13f0a469-7b60-446d-904b-0cfe3e850be9@example.com
+15:07:23.038 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:23.044 INFO  [fcccd67e-beb3-4a7a-9f5d-3b79d08fcffc:c5db6cab-75b4-419d-ac44-b7349420945f] c.r.backend.logging.RequestLoggingFilter - GET /api/me -> 200
+15:07:23.197 INFO  [:] c.r.backend.web.AuthController - login success tenantId=6faea368-7344-4d5a-9a39-2997fdb068f9 userId=ec762181-1b81-4475-a8b9-c838fe39970a role=MANAGER username=name-manager-c467d2ba-b151-47d6-a67f-4609360ad648@example.com
+15:07:23.197 INFO  [:] c.r.backend.logging.RequestLoggingFilter - POST /api/auth/login -> 200
+15:07:23.206 INFO  [6faea368-7344-4d5a-9a39-2997fdb068f9:ec762181-1b81-4475-a8b9-c838fe39970a] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 400
+15:07:23.209 INFO  [:] c.r.backend.logging.RequestLoggingFilter - PUT /api/me/name -> 401
+[INFO] Tests run: 14, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.629 s -- in com.remotesupport.backend.web.ManagerNameApiTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 25, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  15.365 s
+[INFO] Finished at: 2026-10-14T15:07:23+02:00
+[INFO] ------------------------------------------------------------------------
+exit=0
+ManagerNameApiTest.java:17:import com.remotesupport.backend.support.OtherTenantFixture;
+ManagerNameApiTest.java:34:@Import(OtherTenantFixture.class)
+ManagerNameApiTest.java:39:  @Autowired private OtherTenantFixture otherTenantFixture;
+TenantTotalsApiTest.java:27:import com.remotesupport.backend.support.OtherTenantFixture;
+TenantTotalsApiTest.java:42:@Import(OtherTenantFixture.class)
+TenantTotalsApiTest.java:50:  @Autowired private OtherTenantFixture otherTenantFixture;
+TenantTotalsApiTest.java:166:  void anEmptyTenantGetsTheCurrentBillingMonthAndTwoEmptyLists() throws Exception {
+TenantTotalsApiTest.java:346:  void anotherTenantsInvoicesAreNeverCounted() throws Exception {

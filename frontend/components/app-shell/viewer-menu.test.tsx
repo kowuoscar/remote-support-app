@@ -127,6 +127,39 @@ describe("ViewerMenu", () => {
     expect(mockRouter.refresh).toHaveBeenCalled();
   });
 
+  it("with onChangeName, lists Change name, Change password, Log out and cycles all three", async () => {
+    const user = userEvent.setup();
+    render(<ViewerMenu viewerLabel="Manager" onChangeName={vi.fn()} />);
+
+    await user.click(screen.getByRole("button", { name: "Manager" }));
+
+    const items = within(screen.getByRole("menu")).getAllByRole("menuitem");
+    expect(items.map((item) => item.textContent)).toEqual(["Change name", "Change password", "Log out"]);
+    expect(items[0]).toHaveFocus();
+    await user.keyboard("{ArrowDown}");
+    expect(items[1]).toHaveFocus();
+    await user.keyboard("{ArrowDown}");
+    expect(items[2]).toHaveFocus();
+    await user.keyboard("{ArrowDown}");
+    expect(items[0]).toHaveFocus();
+    await user.keyboard("{ArrowUp}");
+    expect(items[2]).toHaveFocus();
+  });
+
+  it("activating Change name closes the menu, returns focus to the trigger and calls the callback", async () => {
+    const user = userEvent.setup();
+    const onChangeName = vi.fn();
+    render(<ViewerMenu viewerLabel="Manager" onChangeName={onChangeName} />);
+    const trigger = screen.getByRole("button", { name: "Manager" });
+
+    await user.click(trigger);
+    await user.click(screen.getByRole("menuitem", { name: "Change name" }));
+
+    expect(onChangeName).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+  });
+
   it("with the menu closed, an outside press or Escape has no effect on the page", async () => {
     render(
       <div>

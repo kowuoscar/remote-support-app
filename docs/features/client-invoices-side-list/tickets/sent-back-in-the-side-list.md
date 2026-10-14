@@ -1,7 +1,7 @@
 ---
 id: sent-back-in-the-side-list
 title: The side list marks a Client with a sent-back invoice
-status: ready-for-agent
+status: in-progress
 depends_on: [side-list-row-status, selected-client-in-the-address]
 labels: [frontend, invoicing]
 stories: [13, 14, 15, 24]

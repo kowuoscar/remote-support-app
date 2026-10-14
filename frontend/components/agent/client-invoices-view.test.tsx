@@ -228,6 +228,92 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
     expect(within(clientsNav()).getByText(name)).toHaveAttribute("title", name);
   });
 
+  describe("the selected Client in the address", () => {
+    beforeEach(() => window.history.replaceState(null, "", "/agent/client-invoices"));
+
+    it("a valid initialContractId makes that row current", () => {
+      render(
+        <AgentClientInvoicesView
+          contracts={[ZEPHYR, BIRCH, CONTRACT]}
+          invoicesByContract={byContract}
+          initialContractId="contract-2"
+        />,
+      );
+
+      expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom" })).toHaveAttribute("aria-current", "true");
+      expect(screen.getAllByText("$22.00").length).toBeGreaterThan(0);
+    });
+
+    it.each(["nonsense", "", undefined])("an unknown initialContractId (%s) opens the first row", (id) => {
+      const spy = vi.spyOn(console, "error");
+      render(
+        <AgentClientInvoicesView
+          contracts={[ZEPHYR, BIRCH, CONTRACT]}
+          invoicesByContract={byContract}
+          initialContractId={id}
+        />,
+      );
+
+      expect(within(clientsNav()).getAllByRole("link")[0]).toHaveAttribute("aria-current", "true");
+      expect(spy).not.toHaveBeenCalled();
+      spy.mockRestore();
+    });
+
+    it("a row click writes ?contract=<id> without a history entry, a request or a router call", async () => {
+      const fetchMock = stubFetch(200, {});
+      const lengthBefore = window.history.length;
+      render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
+
+      await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom" }));
+
+      expect(window.location.search).toBe("?contract=contract-2");
+      expect(window.history.length).toBe(lengthBefore);
+      expect(fetchMock).not.toHaveBeenCalled();
+      expect(mockRouter.push).not.toHaveBeenCalled();
+      expect(mockRouter.replace).not.toHaveBeenCalled();
+    });
+
+    it("a switcher choice writes ?contract=<id> too", async () => {
+      const fetchMock = stubFetch(200, {});
+      render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
+
+      await userEvent.click(switcherTrigger());
+      await userEvent.click(screen.getByRole("option", { name: /Birch Telecom/ }));
+
+      expect(window.location.search).toBe("?contract=contract-2");
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("scrolls the selected row into the column on arrival", () => {
+      const scrolled: number[] = [];
+      const rect = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (this: HTMLElement) {
+        if (this.tagName === "NAV") return { top: 0, bottom: 100, height: 100 } as DOMRect;
+        if (this.getAttribute("aria-current")) return { top: 400, bottom: 440, height: 40 } as DOMRect;
+        return { top: 0, bottom: 0, height: 0 } as DOMRect;
+      });
+      const original = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "scrollTop");
+      Object.defineProperty(HTMLElement.prototype, "scrollTop", {
+        configurable: true,
+        get: () => 0,
+        set: (v: number) => void scrolled.push(v),
+      });
+      try {
+        render(
+          <AgentClientInvoicesView
+            contracts={[CONTRACT, BIRCH]}
+            invoicesByContract={byContract}
+            initialContractId="contract-2"
+          />,
+        );
+        expect(scrolled).toEqual([340]);
+      } finally {
+        rect.mockRestore();
+        if (original) Object.defineProperty(HTMLElement.prototype, "scrollTop", original);
+        else delete (HTMLElement.prototype as unknown as Record<string, unknown>).scrollTop;
+      }
+    });
+  });
+
   it("scrolls the document to the top when the invoice area's top is above the viewport", async () => {
     const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
     const rect = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect");
@@ -562,6 +648,29 @@ describe("AgentClientInvoicesView", () => {
       );
 
       expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toHaveTextContent("Acme — Kenya · September 2026");
+    });
+
+    it("the breadcrumb returns to the list with this invoice's Client selected", () => {
+      render(
+        <AgentClientInvoicePageView
+          invoice={sentBack()}
+          currentBillingMonth={CURRENT_MONTH}
+          contractLabel="Acme — Kenya"
+        />,
+      );
+
+      expect(screen.getByRole("link", { name: "Client Invoices" })).toHaveAttribute(
+        "href",
+        "/agent/client-invoices?contract=contract-1",
+      );
+    });
+
+    it("not found: the links stay plain", () => {
+      renderPage(null);
+
+      for (const link of screen.getAllByRole("link")) {
+        expect(link).toHaveAttribute("href", "/agent/client-invoices");
+      }
     });
 
     it("not found: honest copy and the breadcrumb back", () => {

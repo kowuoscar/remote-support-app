@@ -121,4 +121,107 @@ test.describe("client invoices side list", () => {
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth === window.innerWidth))
       .toBe(true);
   });
+  test("the selected Client is kept in the address: reload, unknown id, scrolled into view, Back", async ({ page }) => {
+    test.setTimeout(240_000);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const names: string[] = [];
+    const ids: string[] = [];
+    for (let i = 1; i <= 14; i++) {
+      const name = `Sidelist Addr ${String(i).padStart(2, "0")} ${RUN_ID}`;
+      const { contractId } = await createClientAndContractWithSeededAgent(page, name);
+      names.push(name);
+      ids.push(contractId);
+    }
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+
+    await page.setViewportSize({ width: 1440, height: 500 });
+    await page.goto("/agent/client-invoices");
+    const clients = page.getByRole("navigation", { name: "Clients" });
+    const row = (name: string) => clients.getByRole("link", { name, exact: true });
+
+    // A pick writes ?contract=<id> with no request and no history entry; a reload reopens it.
+    const requests: string[] = [];
+    page.on("request", (request) => {
+      if (request.isNavigationRequest() || request.url().includes("/api/") || request.url().includes("_rsc")) {
+        requests.push(request.url());
+      }
+    });
+    const historyBefore = await page.evaluate(() => window.history.length);
+    await row(names[2]).click();
+    await expect(row(names[2])).toHaveAttribute("aria-current", "true");
+    await expect(page).toHaveURL(new RegExp(`\\?contract=${ids[2]}$`));
+    await page.waitForTimeout(300);
+    expect(requests).toEqual([]);
+    expect(await page.evaluate(() => window.history.length)).toBe(historyBefore);
+    await page.reload();
+    await expect(row(names[2])).toHaveAttribute("aria-current", "true");
+
+    // An unknown id opens the first row, quietly.
+    await page.goto("/agent/client-invoices?contract=nonsense");
+    await expect(clients.getByRole("link").first()).toHaveAttribute("aria-current", "true");
+
+    // The last of 14: that row is current and within the column's own viewport.
+    await page.goto(`/agent/client-invoices?contract=${ids[13]}`);
+    await expect(row(names[13])).toHaveAttribute("aria-current", "true");
+    await expect
+      .poll(async () => {
+        const navBox = await clients.boundingBox();
+        const rowBox = await row(names[13]).boundingBox();
+        return !!navBox && !!rowBox && rowBox.y >= navBox.y && rowBox.y + rowBox.height <= navBox.y + navBox.height;
+      })
+      .toBe(true);
+
+    // Back leaves the page: the pick added no entry.
+    await page.goto("/agent/requests");
+    await page.goto("/agent/client-invoices");
+    await row(names[4]).click();
+    await expect(page).toHaveURL(new RegExp(`\\?contract=${ids[4]}$`));
+    await page.goBack();
+    await expect(page).toHaveURL(/\/agent\/requests$/);
+
+    // Phone: a switcher choice is kept in the address across a reload.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/agent/client-invoices");
+    await page.locator('[aria-haspopup="listbox"]').click();
+    await page.getByRole("option", { name: new RegExp(names[6]) }).click();
+    await expect(page).toHaveURL(new RegExp(`\\?contract=${ids[6]}$`));
+    await page.reload();
+    await expect(page.locator('[aria-haspopup="listbox"]')).toContainText(names[6]);
+  });
+
+  test("Open on a sent-back invoice, then the breadcrumb, returns with that Client selected", async ({ page }) => {
+    const name = `Sidelist Zzz Return ${RUN_ID}`;
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const { contractId } = await createClientAndContractWithSeededAgent(page, name);
+    await addPostpaidSimCard(page, contractId, `+1-555-${RUN_ID.slice(-4)}`, "25.00");
+    await logout(page);
+
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto(`/agent/client-invoices?contract=${contractId}`);
+    await page.getByRole("button", { name: "Send Client Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm send" }).click();
+    await expect(page.getByText("Awaiting approval")).toBeVisible();
+    await logout(page);
+
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await page.goto("/manager/invoices");
+    await page.getByRole("link", { name: new RegExp(`^Review Client Invoice: ${name} `) }).click();
+    await page.getByRole("button", { name: "Send back" }).click();
+    await page.getByRole("textbox", { name: "Reason for sending back" }).fill("Please recheck the base amount.");
+    await page.getByRole("button", { name: "Confirm send back" }).click();
+    await expect(page.getByText(/Sent back to the Agent on/)).toBeVisible();
+    await logout(page);
+
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/client-invoices");
+    const section = page.getByRole("region", { name: "Sent back to you" });
+    await section.getByRole("row", { name: new RegExp(name) }).getByRole("link", { name: /^Open / }).click();
+    await expect(page).toHaveURL(/\/agent\/client-invoices\/.+/);
+    await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Client Invoices" }).click();
+    await expect(page).toHaveURL(new RegExp(`/agent/client-invoices\\?contract=${contractId}$`));
+    await expect(
+      page.getByRole("navigation", { name: "Clients" }).getByRole("link", { name, exact: true }),
+    ).toHaveAttribute("aria-current", "true");
+  });
 });

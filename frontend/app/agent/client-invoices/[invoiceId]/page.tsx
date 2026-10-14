@@ -1,6 +1,6 @@
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { AgentClientInvoicePageView } from "@/components/agent/client-invoices-view";
-import { backendFetch, backendFetchList } from "@/lib/api/backend";
+import { backendFetch, backendFetchJsonOrNull } from "@/lib/api/backend";
 import { clientInvoiceFromByIdResponse } from "@/lib/api/client-invoice";
 import { requireAgent } from "@/lib/api/guard";
 import { countryLabel, type ContractListItem } from "@/lib/api/types";
@@ -24,11 +24,11 @@ export default async function AgentClientInvoicePage({
   const [invoiceResponse, meResponse, contracts] = await Promise.all([
     backendFetch(`/api/client-invoices/${encodeURIComponent(invoiceId)}`),
     backendFetch("/api/me"),
-    backendFetchList<ContractListItem>("/api/contracts"),
+    backendFetchJsonOrNull<ContractListItem[]>("/api/contracts", "agent client invoice contracts"),
   ]);
   const invoice = await clientInvoiceFromByIdResponse(invoiceResponse);
   const me = meResponse.ok ? ((await meResponse.json()) as { username?: string }) : {};
-  const contract = invoice ? contracts.find((c) => c.id === invoice.contractId) : undefined;
+  const contract = invoice ? (contracts ?? []).find((c) => c.id === invoice.contractId) : undefined;
   const contractLabel = contract ? `${contract.clientName} — ${countryLabel(contract.country)}` : undefined;
   const currentBillingMonth = `${new Date().toISOString().slice(0, 7)}-01`;
 

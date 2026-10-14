@@ -21,8 +21,14 @@ export const metadata = { title: "Client Invoices" };
  * access — simply visiting this page is the "first view" the get-or-create mechanic (see
  * ClientInvoiceController's Javadoc) is built around.
  */
-export default async function AgentClientInvoicesPage() {
+export default async function AgentClientInvoicesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ contract?: string | string[] }>;
+}) {
   await requireAgent();
+  const { contract } = await searchParams;
+  const initialContractId = Array.isArray(contract) ? contract[0] : contract;
   const [contracts, meResponse, sentBack] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),
@@ -58,6 +64,7 @@ export default async function AgentClientInvoicesPage() {
         }))}
         invoicesByContract={invoicesByContract}
         sentBack={sentBack ?? []}
+        initialContractId={initialContractId}
       />
     </SurfacePage>
   );

@@ -15,8 +15,13 @@ export function PickerSelect({
   disabled,
   size,
   placeholder,
+  ariaLabel,
+  autoFocus,
   children,
 }: {
+  /** Names a select that has no `<label>` of its own (an inline Fleet control). */
+  ariaLabel?: string;
+  autoFocus?: boolean;
   id: string;
   name?: string;
   value?: string;
@@ -32,6 +37,8 @@ export function PickerSelect({
       id={id}
       name={name}
       required
+      aria-label={ariaLabel}
+      autoFocus={autoFocus}
       disabled={disabled}
       {...(value === undefined
         ? { defaultValue: "" }

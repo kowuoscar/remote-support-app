@@ -40,7 +40,7 @@ export function ManagerContractFleetView({
         emptyTitle="No smartphones yet"
         emptyDescription="Add this contract's first smartphone — it starts Active."
       >
-        <SmartphoneFleetTable phones={smartphones} simCards={simCards} contractId={contractId} />
+        <SmartphoneFleetTable phones={smartphones} simCards={simCards} contractId={contractId} canEditSerial canCorrect />
       </FleetTableCard>
 
       <FleetTableCard
@@ -66,6 +66,9 @@ export function ManagerContractFleetView({
           showMonthlyFee
           contractId={contractId}
           smartphones={smartphones}
+          canCorrect
+          carriers={carriers}
+          carriersHref={carriersHref}
         />
       </FleetTableCard>
     </div>

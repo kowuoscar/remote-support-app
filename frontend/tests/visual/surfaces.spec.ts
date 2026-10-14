@@ -11,7 +11,9 @@ interface Surface {
     | "manager-carriers"
     | "manager-requests"
     | "agent-stock"
-    | "manager-stock";
+    | "manager-stock"
+    | "manager-contract-fleet"
+    | "client-fleet";
   path: string;
   // The placeholder session token; the Carriers pages' tokens tell tests/visual/stub-backend.mjs
   // which role is asking, every other surface's token is unknown to it (see that file).
@@ -47,6 +49,15 @@ const surfaces: Surface[] = [
   // (Smartphones, SIM Cards) and the Manager's own Agent column are covered.
   { slug: "agent-stock", path: "/agent/stock", session: "visual-agent-session", ready: "stock" },
   { slug: "manager-stock", path: "/manager/stock", session: "visual-manager-session", ready: "stock" },
+  // correct-a-smartphone-model ticket: the Fleet pages whose Smartphone rows carry the model
+  // "Edit" button — the Manager's Contract Fleet and the Tester's Fleet (stub fixture Fleets).
+  {
+    slug: "manager-contract-fleet",
+    path: "/manager/contracts/22222222-0000-0000-0000-000000000001",
+    session: "visual-manager-session",
+    ready: "stock",
+  },
+  { slug: "client-fleet", path: "/client/fleet", session: "visual-tester-session", ready: "stock" },
 ];
 
 const breakpoints = [

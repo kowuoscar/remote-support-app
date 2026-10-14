@@ -6,6 +6,8 @@ import com.remotesupport.backend.domain.SimCardStatus;
 import com.remotesupport.backend.domain.Smartphone;
 import com.remotesupport.backend.dto.SimCardCreateRequest;
 import com.remotesupport.backend.dto.SimCardInstalledInUpdateRequest;
+import com.remotesupport.backend.dto.SimCardNumberUpdateRequest;
+import com.remotesupport.backend.dto.SimCardPostpaidPlanUpdateRequest;
 import com.remotesupport.backend.dto.SimCardResponse;
 import com.remotesupport.backend.dto.SimCardStatusUpdateRequest;
 import com.remotesupport.backend.logging.AuditLog;
@@ -16,10 +18,13 @@ import com.remotesupport.backend.security.FleetAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,6 +49,7 @@ public class SimCardController {
   private final FleetAccessGuard fleetAccessGuard;
   private final SimCardFactory simCardFactory;
   private final SimInstallationService simInstallationService;
+  private final SimCardCorrectionService correctionService;
 
   public SimCardController(
       ContractRepository contractRepository,
@@ -51,13 +57,15 @@ public class SimCardController {
       SmartphoneRepository smartphoneRepository,
       FleetAccessGuard fleetAccessGuard,
       SimCardFactory simCardFactory,
-      SimInstallationService simInstallationService) {
+      SimInstallationService simInstallationService,
+      SimCardCorrectionService correctionService) {
     this.contractRepository = contractRepository;
     this.simCardRepository = simCardRepository;
     this.smartphoneRepository = smartphoneRepository;
     this.fleetAccessGuard = fleetAccessGuard;
     this.simCardFactory = simCardFactory;
     this.simInstallationService = simInstallationService;
+    this.correctionService = correctionService;
   }
 
   @PostMapping
@@ -161,6 +169,52 @@ public class SimCardController {
     }
 
     return SimCardResponse.of(simCard);
+  }
+
+  /**
+   * Corrects a SIM Card's number (correct-a-fleet-unit spec): the Manager, or a Tester of the
+   * Contract's own Client, through {@link FleetAccessGuard#requireCanCorrect}.
+   */
+  @PatchMapping("/{simCardId}/number")
+  public SimCardResponse correctNumber(
+      @PathVariable UUID contractId,
+      @PathVariable UUID simCardId,
+      @Valid @RequestBody SimCardNumberUpdateRequest request,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    Contract contract = findContract(contractId, principal);
+    fleetAccessGuard.requireCanCorrect(contract, principal);
+
+    return SimCardResponse.of(
+        correctionService.correctNumber(contract, simCardId, request.number(), principal));
+  }
+
+  /**
+   * Corrects a Postpaid SIM Card's plan and re-copies the plan's price into its monthly fee
+   * (correct-a-fleet-unit spec): the Manager, or a Tester of the Contract's own Client.
+   */
+  @PatchMapping("/{simCardId}/postpaid-plan")
+  public SimCardResponse correctPostpaidPlan(
+      @PathVariable UUID contractId,
+      @PathVariable UUID simCardId,
+      @Valid @RequestBody SimCardPostpaidPlanUpdateRequest request,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    Contract contract = findContract(contractId, principal);
+    fleetAccessGuard.requireCanCorrect(contract, principal);
+
+    return SimCardResponse.of(
+        correctionService.correctPostpaidPlan(contract, simCardId, request.postpaidPlanId(), principal));
+  }
+
+  /** A refused correction's 400 carries a {@code code}, so the page can show it at the field. */
+  @ExceptionHandler(InvalidCorrectionException.class)
+  public ResponseEntity<Map<String, String>> invalidCorrection(InvalidCorrectionException e) {
+    return CorrectionErrors.badRequest(e);
+  }
+
+  /** A correction request whose DTO fails Bean Validation: the same coded 400. */
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<?> correctionRequestInvalid(MethodArgumentNotValidException e) {
+    return CorrectionErrors.badRequest(e);
   }
 
   private Contract findContract(UUID contractId, AuthenticatedPrincipal principal) {

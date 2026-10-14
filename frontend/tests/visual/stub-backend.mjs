@@ -349,9 +349,11 @@ const TESTER_SMARTPHONES = [
   [1, "Galaxy S20", "RETIRED"],
 ];
 
-// [contract index, number, status]
+// [contract index, number, status, flavor (default PREPAID)]. A POSTPAID row sits on the stub
+// catalog's first Carrier and its cheapest plan (correct-a-postpaid-plan ticket), so the Fleet
+// goldens show the plan "Edit" button.
 const TESTER_SIM_CARDS = [
-  [0, "+1-555-0201", "ACTIVE"],
+  [0, "+1-555-0201", "ACTIVE", "POSTPAID"],
   [0, "+1-555-0202", "ACTIVE"],
   [0, "+1-555-0203", "RETIRED"],
   [1, "+44-7700-900201", "ACTIVE"],
@@ -384,14 +386,28 @@ function testerSmartphones(contractIndex) {
 }
 
 function testerSimCards(contractIndex) {
-  return testerRows(TESTER_SIM_CARDS, contractIndex, ([, number, status], position) => ({
-    id: `88888888-0000-0000-0000-00000000000${position + 1}`,
-    contractId: TESTER_CONTRACTS[contractIndex].id,
-    number,
-    flavor: "PREPAID",
-    monthlyFeeAmount: null,
-    status,
-  }));
+  return testerRows(TESTER_SIM_CARDS, contractIndex, ([, number, status, flavor = "PREPAID"], position) => {
+    const sim = {
+      id: `88888888-0000-0000-0000-00000000000${position + 1}`,
+      contractId: TESTER_CONTRACTS[contractIndex].id,
+      number,
+      flavor,
+      monthlyFeeAmount: null,
+      status,
+    };
+    if (flavor !== "POSTPAID") return sim;
+    const [plan] = offers("c1", "postpaidPlans");
+    return {
+      ...sim,
+      carrierId: "c1",
+      carrierName: "AT&T",
+      carrierArchived: false,
+      postpaidPlanId: plan.id,
+      postpaidPlanName: plan.name,
+      postpaidPlanArchived: false,
+      monthlyFeeAmount: plan.price,
+    };
+  });
 }
 
 function testerRequests(contractIndex) {
@@ -598,6 +614,27 @@ createServer((request, response) => {
     if (resource === "smartphones") return send(response, 200, testerSmartphones(contractIndex));
     if (resource === "sim-cards") return send(response, 200, testerSimCards(contractIndex));
     return send(response, 200, testerRequests(contractIndex));
+  }
+  // correct-a-postpaid-plan ticket: a Tester's Fleet reads each of their Contracts' own active
+  // catalog, the Contract's Country's (GET /api/contracts/{id}/carriers).
+  const testerCarriersMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/carriers$/);
+  if (testerCarriersMatch && request.method === "GET" && caller.role === "TESTER") {
+    const contract = TESTER_CONTRACTS.find((candidate) => candidate.id === testerCarriersMatch[1]);
+    if (!contract) return send(response, 403);
+    const active = catalog(contract.country);
+    return send(response, 200, { ...active, carriers: active.carriers.filter((carrier) => carrier.archivedAt === null) });
+  }
+  // correct-a-smartphone-model ticket: the Manager's Contract page reads one Contract's Fleet. It
+  // reuses the Agent's first Contract and the Tester fixtures' Smartphone and SIM Card rows, so the
+  // golden shows the Edit buttons on a mixed-status Fleet. Its client-invoice read stays a 404.
+  const managerFleetMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/(smartphones|sim-cards)$/);
+  if (managerFleetMatch && request.method === "GET" && caller.role === "MANAGER") {
+    if (!AGENT_CONTRACTS.some((contract) => contract.id === managerFleetMatch[1])) return send(response, 404);
+    const rows = managerFleetMatch[1] === AGENT_CONTRACTS[0].id;
+    if (managerFleetMatch[2] === "smartphones") {
+      return send(response, 200, rows ? testerSmartphones(0).map((phone) => ({ ...phone, contractId: AGENT_CONTRACTS[0].id })) : []);
+    }
+    return send(response, 200, rows ? testerSimCards(0).map((sim) => ({ ...sim, contractId: AGENT_CONTRACTS[0].id })) : []);
   }
   const requestsMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/requests$/);
   if (requestsMatch && request.method === "GET") {

@@ -1,0 +1,39 @@
+# Step 11 keyboard-only (Tab/Enter via page.keyboard; focus ring = computed outline of document.activeElement)
+## manager-desktop (1280x800)
+Tab presses to reach Edit: 35 focus: outline solid 2px rgb(71,48,224) on BUTTON Edit; after Enter focus INPUT 'SIM Card number' outline solid 2px; saved with Enter -> number +1-202-555-0156; Tab1 Save (outline 2px), Tab2 Cancel (outline 2px), Enter on Cancel restored value; layout: viewport 1280, doc scrollWidth 1280, table wrapper overflow-x auto
+## manager-375 (375x800)
+Tab presses to reach Edit: 28 focus: {"tag":"BUTTON","name":"Edit","outline":"solid 2px rgb(71, 48, 224)","shadow":"none"}
+after Enter: {"tag":"INPUT","name":"SIM Card number","outline":"solid 2px rgb(11, 18, 32)","shadow":"none"}
+saved with Enter; row now: +1-202-555-0155+1-202-555-0156+1-202-555-0156+1-202-555-0155
+Edit
+focus on Edit (programmatic focus, then keyboard): {"tag":"BUTTON","name":"Edit","outline":"solid 2px rgb(71, 48, 224)","shadow":"none"}
+Tab1: {"tag":"BUTTON","name":"Save","outline":"solid 2px rgb(71, 48, 224)","shadow":"none"}
+Tab2 (Cancel?): {"tag":"BUTTON","name":"Cancel","outline":"solid 2px rgb(69, 80, 106)","shadow":"none"}
+after Cancel via keyboard, cell: +1-202-555-0155+1-202-555-0156+1-202-555-0156+1-202-555-0155
+Edit
+layout: {"viewport":375,"docScrollW":375,"wrapperOverflowX":"auto","wrapperClient":341,"wrapperScroll":720}
+NOTE: the manager-desktop/manager-375 runs above used Control+a (not select-all on macOS), so their typed value was appended to the old one in the number field; the keyboard flow (Tab to Edit, Enter opens, type, Enter saves, Tab to Save/Cancel, Enter cancels, focus ring 2px outline on every control, table scrolls in its own overflow-x:auto wrapper: 720px content in 341px at 375px, document width stays 375) is what is evidenced. The value was repaired afterwards through the API. The Dana runs below used ControlOrMeta+a and are clean.
+
+## dana-desktop (1280x800)
+Tab presses to reach Edit: 21 focus: {"tag":"BUTTON","name":"Edit","outline":"solid 2px rgb(71, 48, 224)","shadow":"none"}
+after Enter: {"tag":"INPUT","name":"SIM Card number","outline":"solid 2px rgb(11, 18, 32)","shadow":"none"}
+saved with Enter; row now: +1-202-555-0156
+Edit
+focus on Edit (programmatic focus, then keyboard): {"tag":"BUTTON","name":"Edit","outline":"solid 2px rgb(71, 48, 225)","shadow":"none"}
+Tab1: {"tag":"BUTTON","name":"Save","outline":"solid 2px rgb(71, 48, 224)","shadow":"none"}
+Tab2 (Cancel?): {"tag":"BUTTON","name":"Cancel","outline":"solid 2px rgb(69, 80, 106)","shadow":"none"}
+after Cancel via keyboard, cell: +1-202-555-0156
+Edit
+layout: {"viewport":1280,"docScrollW":1280,"wrapperOverflowX":"auto","wrapperClient":990,"wrapperScroll":990}
+
+## dana-375 (375x800)
+Tab presses to reach Edit: 18 focus: {"tag":"BUTTON","name":"Edit","outline":"solid 2px rgb(71, 48, 224)","shadow":"none"}
+after Enter: {"tag":"INPUT","name":"SIM Card number","outline":"solid 2px rgb(11, 18, 32)","shadow":"none"}
+saved with Enter; row now: +1-202-555-0155
+Edit
+focus on Edit (programmatic focus, then keyboard): {"tag":"BUTTON","name":"Edit","outline":"solid 2px rgb(71, 48, 224)","shadow":"none"}
+Tab1: {"tag":"BUTTON","name":"Save","outline":"solid 2px rgb(71, 48, 224)","shadow":"none"}
+Tab2 (Cancel?): {"tag":"BUTTON","name":"Cancel","outline":"solid 2px rgb(69, 80, 106)","shadow":"none"}
+after Cancel via keyboard, cell: +1-202-555-0155
+Edit
+layout: {"viewport":375,"docScrollW":375,"wrapperOverflowX":"auto","wrapperClient":341,"wrapperScroll":720}

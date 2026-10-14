@@ -1,0 +1,17 @@
+# Step 8
+## Prepaid SIM +1-202-555-0101: Manager Fleet row (snapshots in step-1/step-7 show Prepaid rows with plan cell '—' and no Edit plan button)
+PATCH postpaid-plan on Prepaid SIM:
+{"message":"A Prepaid SIM has no Postpaid plan.","code":"PREPAID_HAS_NO_PLAN"}
+HTTP 400
+
+## Archive Unlimited Premium (AT&T) as Agent Jordan
+{"id":"e0000000-0000-0000-0000-000000000002","carrierId":"c0000000-0000-0000-0000-000000000001","name":"Unlimited Premium","price":85.99,"archivedAt":"2026-10-14T20:10:45.276932Z"} HTTP 200
+Plans offered to the contract now:
+AT&T [('Unlimited Starter', False)]
+PATCH naming the archived plan:
+{"message":"The Postpaid Plan Unlimited Premium is archived","code":"PLAN_ARCHIVED"}
+HTTP 400
+PATCH naming T-Mobile's plan on an AT&T SIM:
+{"message":"No Postpaid Plan with id e0000000-0000-0000-0000-000000000003 on the Carrier AT&T","code":"PLAN_NOT_ON_CARRIER"}
+HTTP 400
+Pre-catalog SIM case: covered by SimCardCorrectionApiTest#aPreCatalogPostpaidSimWithACarrierIsGivenAPlanAndItsFeeBecomesThePlansPrice (green in step-6 run, 22 tests). Archive was done via API as Agent Jordan (not via Carriers page UI); the 'no longer offered' check is the contract's carriers catalog read above.

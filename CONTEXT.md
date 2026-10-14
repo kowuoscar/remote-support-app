@@ -47,7 +47,7 @@ The company whose Testers receive local support. The MVP serves a single Client.
 _Avoid_: Customer, account.
 
 **Tester**:
-An individual user belonging to a Client, with their own login, who submits task requests and views the fleet assigned to them.
+An individual user belonging to a Client, with their own login, who submits task requests and views the fleet assigned to them. May also make a Correction to a unit on any Contract of their own Client's Fleet: a SIM's number, a Postpaid SIM's plan, a Smartphone's model or its owner — not its serial, and never a Carrier.
 _Avoid_: End user, client user.
 
 **Primary Contact**:
@@ -90,7 +90,10 @@ The terminal status of a Request the Company Manager declined at approval, with 
 _Avoid_: Denied, declined.
 
 **Owner** (of a Smartphone or SIM Card):
-A Smartphone is owned either by the Client or by the company; a SIM Card is always company-owned. A Smartphone reached through a Provision or Replace Request is always company-owned. Units are part of a Contract's Fleet, never assigned to an individual Tester.
+A Smartphone is owned either by the Client or by the company; a SIM Card is always company-owned. A Smartphone reached through a Provision or Replace Request arrives company-owned, and may be corrected afterwards. The owner decides a Return's path. A Manager or a Tester of the Contract's own Client may correct it in either direction, refused (409 `SMARTPHONE_ON_OPEN_RETURN`) while a Return naming the phone is Pending Approval, Submitted or In Progress, and allowed again once that Return is Completed, Cancelled or Rejected. Units are part of a Contract's Fleet, never assigned to an individual Tester.
+
+**Correction**:
+Fixing a mistake on a unit already on a Contract's Fleet — a SIM's number, a Postpaid SIM's plan, a Smartphone's model or its owner — in place, without raising a Request. Made by the Company Manager or a Client Tester, never an Agent; refused with a clear message when it would break a rule, and audit-logged with who made it, the old value and the new value. Not a Request, and not a change of Carrier or of Postpaid/Prepaid.
 
 **Installed in** (of a SIM Card):
 The Smartphone a SIM Card currently sits in, if any. A Smartphone holds at most two SIM Cards. A SIM Swap Request moves one SIM into another Smartphone, or exchanges the SIMs of two Smartphones.
@@ -103,7 +106,7 @@ _Avoid_: Inventory, spare pool.
 What happens to a unit leaving a Fleet through a Return. A Client-owned Smartphone is always posted back to the Client. For a company-owned Smartphone the Company Manager chooses: posted back to the company, or kept in the Agent's Stock. For a SIM Card: cancelled, or kept in the Agent's Stock. A cancellation carries the effective cancellation date the Agent records; a Postpaid SIM's base amount counts a billing month in full — no part-month amount — whenever that month's first day is on or before the cancellation date, and drops out from the month after.
 
 **Carrier**:
-A mobile operator in one country, offering **Topup Options** (for a Topup Request) and **Postpaid Plans** (for a Postpaid SIM), each with a name and a price in that country's currency. Maintained by the Agents of that country, who know their local carriers' offers; archived rather than deleted once in use. Every SIM Card added to a Fleet names an active Carrier of its Contract's country; a SIM Card from before the catalog may name none, and one whose Carrier was archived later still shows it. Every Postpaid SIM added since the catalog names an active Plan of its own Carrier, and its monthly fee is copied from that Plan's price when it's provisioned — never typed in, and never re-read afterwards, so a later price change touches neither SIMs already on the plan nor any Client Invoice. A Postpaid SIM from before the catalog names no Plan and keeps the fee it was given. A Postpaid Plan's price is the SIM's monthly fee; a Topup Option's price is the suggested amount of the resulting Fee, which the Agent may adjust.
+A mobile operator in one country, offering **Topup Options** (for a Topup Request) and **Postpaid Plans** (for a Postpaid SIM), each with a name and a price in that country's currency. Maintained by the Agents of that country, who know their local carriers' offers; archived rather than deleted once in use. Every SIM Card added to a Fleet names an active Carrier of its Contract's country; a SIM Card from before the catalog may name none, and one whose Carrier was archived later still shows it. Every Postpaid SIM added since the catalog names an active Plan of its own Carrier, and its monthly fee is copied from that Plan's price when it's provisioned, and again when its Plan is corrected — never typed in, and never re-read on a Plan price change, so a later price change touches neither SIMs already on the plan nor any Client Invoice. A Postpaid SIM from before the catalog names no Plan and keeps the fee it was given. A Postpaid Plan's price is the SIM's monthly fee; a Topup Option's price is the suggested amount of the resulting Fee, which the Agent may adjust.
 _Avoid_: Operator, provider, network.
 
 **Proactive** (of a Request):

@@ -23,6 +23,7 @@ export function PostpaidPlanPicker({
   value,
   onChange,
   disabled,
+  autoFocus,
   size = "md",
 }: {
   carrier: CatalogCarrierItem | undefined;
@@ -32,6 +33,8 @@ export function PostpaidPlanPicker({
   value?: string;
   onChange?: (planId: string) => void;
   disabled?: boolean;
+  /** Focuses the select on mount: an inline Fleet control opens straight onto it. */
+  autoFocus?: boolean;
   size?: PickerSize;
 }) {
   const id = useId();
@@ -77,6 +80,7 @@ export function PostpaidPlanPicker({
           value={value}
           onChange={onChange}
           disabled={disabled}
+          autoFocus={autoFocus}
           size={size}
           placeholder="Choose a plan"
         >

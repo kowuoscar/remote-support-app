@@ -1,8 +1,10 @@
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { ClientFleetView } from "@/components/client/fleet-view";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
+import { loadContractCarrierCatalog } from "@/lib/api/carriers";
 import {
   countryLabel,
+  type CatalogCarrierItem,
   type ContractListItem,
   type SimCardListItem,
   type SmartphoneListItem,
@@ -26,13 +28,18 @@ export default async function ClientFleetPage() {
 
   const fleets = await Promise.all(
     contracts.map(async (contract) => {
-      const [smartphones, simCards] = await Promise.all([
+      const [smartphones, simCards, carriers] = await Promise.all([
         backendFetchList<SmartphoneListItem>(`/api/contracts/${contract.id}/smartphones`),
         backendFetchList<SimCardListItem>(`/api/contracts/${contract.id}/sim-cards`),
+        loadContractCarrierCatalog(contract.id),
       ]);
-      return { smartphones, simCards };
+      return { smartphones, simCards, carriers };
     }),
   );
+  const carriersByContract: Record<string, CatalogCarrierItem[]> = {};
+  contracts.forEach((contract, index) => {
+    carriersByContract[contract.id] = fleets[index].carriers;
+  });
 
   return (
     <SurfacePage
@@ -43,6 +50,7 @@ export default async function ClientFleetPage() {
       <ClientFleetView
         smartphones={fleets.flatMap((fleet) => fleet.smartphones)}
         simCards={fleets.flatMap((fleet) => fleet.simCards)}
+        carriersByContract={carriersByContract}
         contracts={contracts.map((c) => ({
           id: c.id,
           label: `${c.clientName} — ${countryLabel(c.country)}`,

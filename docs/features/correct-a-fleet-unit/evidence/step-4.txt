@@ -1,0 +1,43 @@
+# Step 4 - Manager, Solstice US Contract
+Pixel 7 (serial PX7-88210) corrected in the UI: model -> "Pixel 8 Pro" (Edit, Enter), owner Company -> Client (Edit owner, Save). Fleet after reload (snapshot):
+                    - row [ref=f9e130]:
+                      - cell "Pixel 8 Pro Edit" [ref=f9e131]:
+                        - generic [ref=f9e132]:
+                          - generic [ref=f9e133]: Pixel 8 Pro
+                          - button "Edit" [ref=f9e134]
+                      - cell "PX7-88210 Edit" [ref=f9e135]:
+                        - generic [ref=f9e136]:
+                          - generic [ref=f9e137]: PX7-88210
+                          - button "Edit" [ref=f9e138]
+                      - cell "Client Edit owner" [ref=f9e139]:
+                        - generic [ref=f9e140]:
+                          - generic [ref=f9e141]: Client
+                          - button "Edit owner" [ref=f9e142]: Edit
+                      - cell "+1-202-555-0101, +1-202-555-0199" [ref=f9e143]
+                      - cell "Active" [ref=f9e144]
+                    - row [ref=f9e147]:
+                      - cell "Galaxy A14 Edit" [ref=f9e148]:
+API: [('Pixel 8 Pro', 'CLIENT')]
+
+## Requests naming that phone (Dana's Client Portal /client/requests, snapshot lines):
+                - 'cell "Reboot Smartphone: Pixel 8 Pro" [ref=f1e109]':
+                  - text: Reboot
+                  - generic [ref=f1e110]: "Smartphone: Pixel 8 Pro"
+                - cell "dana.whitfield@solsticeretail.example" [ref=f1e111]
+                - cell "Cancelled" [ref=f1e112]
+                - cell "today" [ref=f1e115]
+              - row [ref=f1e116]:
+                - 'cell "Reboot Smartphone: Pixel 8 Pro" [ref=f1e117]':
+                  - text: Reboot
+                  - generic [ref=f1e118]: "Smartphone: Pixel 8 Pro"
+                - cell "dana.whitfield@solsticeretail.example" [ref=f1e119]
+                - cell "Completed" [ref=f1e120]
+=> both Reboot requests read "Smartphone: Pixel 8 Pro" (they were "Pixel 7" before the correction).
+
+## Recorded model unchanged (API, GET requests) after correcting phones through PATCH .../model:
+- Demo Provision Smartphone requests: requestedModel "Samsung Galaxy A54" (UK, pending) and "Motorola Edge" (US, in progress): unchanged; no fleet phone carries those models, so no Fleet phone correction can touch them.
+- Demo UK Replace Smartphone (completed) replaced phone 8e78ec24 (iPhone 12): corrected to "iPhone 12 (corrected)"; the Request has requestedModel=null (demo recorded none).
+- Added a Replace Smartphone Request as Dana (setup) on US OnePlus 10 with requestedModel "Pixel 9", then corrected that phone to "OnePlus 10 Pro":
+   {'type': 'REPLACE_SMARTPHONE', 'targetSmartphoneModel': 'OnePlus 10 Pro', 'requestedModel': 'Pixel 9'}
+  => requestedModel (what the Request recorded) stays "Pixel 9"; targetSmartphoneModel (the phone it names) reads live, same as the Pixel case and as asserted by SmartphoneCorrectionApiTest.aCorrectedModelShowsOnARequestAndAReturnedUnitWhileTheRequestedModelStays.
+NOTE: the demo story's Replace Request records no model of its own, so the "recorded model" check relies on requestedModel of Provision/Replace requests. The returned-unit view is covered by the backend test (per spec).

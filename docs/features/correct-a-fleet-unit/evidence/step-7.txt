@@ -1,0 +1,106 @@
+# Step 7 (Manager, US Contract Fleet) - part A: number, via run-code with PATCH request counting
+--- empty number (patches so far: 0)
+- row "Save Cancel Enter a number. Verizon — Prepaid — Active Not installed":
+  - cell "Save Cancel Enter a number.":
+    - textbox "SIM Card number" [invalid]
+    - button "Save"
+    - button "Cancel"
+    - text: Enter a number.
+  - cell "Verizon"
+  - cell "—"
+  - cell "Prepaid"
+  - cell "—"
+  - cell "Active"
+  - cell "Not installed":
+    - combobox "Installed in":
+      - option "Not installed" [selected]
+      - option "iPhone 13 Plus"
+      - option "Pixel 8 Pro — PX7-88210"
+      - option "OnePlus 10 Pro — OP10-33087"
+65-char: patches=1
+--- 65-char number (patches so far: 1)
+- row "11111111111111111111111111111111111111111111111111111111111111111 Save Cancel A number can be at most 64 characters. Verizon — Prepaid — Active Not installed":
+  - cell "11111111111111111111111111111111111111111111111111111111111111111 Save Cancel A number can be at most 64 characters.":
+    - textbox "SIM Card number" [invalid]: "11111111111111111111111111111111111111111111111111111111111111111"
+    - button "Save"
+    - button "Cancel"
+    - text: A number can be at most 64 characters.
+  - cell "Verizon"
+  - cell "—"
+  - cell "Prepaid"
+  - cell "—"
+  - cell "Active"
+  - cell "Not installed":
+    - combobox "Installed in":
+      - option "Not installed" [selected]
+      - option "iPhone 13 Plus"
+      - option "Pixel 8 Pro — PX7-88210"
+      - option "OnePlus 10 Pro — OP10-33087"
+textbox value kept (len): 65
+--- after Cancel (patches so far: 1)
+- row "+1-202-555-0155 Edit Verizon — Prepaid — Active Not installed":
+  - cell "+1-202-555-0155 Edit":
+    - text: +1-202-555-0155
+    - button "Edit"
+  - cell "Verizon"
+  - cell "—"
+  - cell "Prepaid"
+  - cell "—"
+  - cell "Active"
+  - cell "Not installed":
+    - combobox "Installed in":
+      - option "Not installed" [selected]
+      - option "iPhone 13 Plus"
+      - option "Pixel 8 Pro — PX7-88210"
+      - option "OnePlus 10 Pro — OP10-33087"
+unchanged save: patches sent=1 (PATCH /api/contracts/680607fd-1b69-4bda-8373-494d6dacac49/sim-cards/58398bc3-80f9-44d0-8887-048749915072/number)
+--- after unchanged save (patches so far: 2)
+- row "+1-202-555-0155 Edit Verizon — Prepaid — Active Not installed":
+  - cell "+1-202-555-0155 Edit":
+    - text: +1-202-555-0155
+    - button "Edit"
+  - cell "Verizon"
+  - cell "—"
+  - cell "Prepaid"
+  - cell "—"
+  - cell "Active"
+  - cell "Not installed":
+    - combobox "Installed in":
+      - option "Not installed" [selected]
+      - option "iPhone 13 Plus"
+      - option "Pixel 8 Pro — PX7-88210"
+      - option "OnePlus 10 Pro — OP10-33087"
+
+# part B: model
+EMPTY MODEL (patches 0): - cell "Save Cancel Enter a model.":
+  - textbox "Smartphone model" [invalid]
+  - button "Save"
+  - button "Cancel"
+  - text: Enter a model.
+256 MODEL (patches 1): - cell "mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm Save Cancel A model can be at most 255 characters.":
+  - textbox "Smartphone model" [invalid]: mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+  - button "Save"
+  - button "Cancel"
+  - text: A model can be at most 255 characters.
+value len kept=256
+AFTER CANCEL: - cell "iPhone 13 Plus Edit":
+  - text: iPhone 13 Plus
+  - button "Edit"
+
+# part C: backend stopped (killed), then Save of model 'Offline Model' on the iPhone 13 Plus row
+- row "Offline Model Save Cancel Couldn’t update. Try again. — Set serial Company Edit owner +1-202-555-0104 Active":
+  - cell "Offline Model Save Cancel Couldn’t update. Try again.":
+    - textbox "Smartphone model" [invalid]: Offline Model
+    - button "Save"
+    - button "Cancel"
+    - text: Couldn’t update. Try again.
+  - cell "— Set serial":
+    - text: —
+    - button "Set serial"
+  - cell "Company Edit owner":
+    - text: Company
+    - button "Edit owner": Edit
+TimeoutError: locator.ariaSnapshot: Timeout 30000ms exceeded.
+(last line = same row after page reload: value unchanged in DB since backend was down)
+NOTE: message renders with a typographic apostrophe: Couldn’t update. Try again. (spec text uses a straight one)
+['iPhone 13 Plus', 'Pixel 8 Pro', 'Galaxy A14 5G', 'OnePlus 10 Pro']

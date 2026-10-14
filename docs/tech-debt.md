@@ -64,6 +64,14 @@ separated by ` · `.
 - `frontend/components/ui/stat-card.tsx` · smell: Weak semantics · label, value and meta are sibling spans, not `dl`/`dt`/`dd`; two indigo stat numbers per screen read against DESIGN.md's "the primary stat number" (pre-existing) · real-client-dashboard · 2026-10-02
 - `frontend/components/app-shell/surface-page.tsx` · smell: No skip link · no skip-to-content link app-wide (pre-existing) · real-client-dashboard · 2026-10-02
 - `frontend/lib/format.ts` · smell: Hard-coded locale · the billing month is formatted with `en-US` (pre-existing) · real-client-dashboard · 2026-10-02
+- `frontend/tests/e2e/manager-dashboard.spec.ts` · smell: Indirect evidence · the counts case reads the pages' "N in this tenant" subtitles, not the list API lengths (no browser-reachable list GET exists) · real-manager-dashboard · 2026-10-14
+- `frontend/components/app-shell/change-name-dialog.tsx` · smell: autoFocus on mobile · the Name field autofocuses on phones too, opening the keyboard; mirrors ChangePasswordDialog, so change both together · real-manager-dashboard · 2026-10-14
+- `frontend/components/app-shell/change-name-dialog.tsx` · smell: Invisible success · a name saved on any page but the Dashboard changes nothing visible; a status line would confirm it · real-manager-dashboard · 2026-10-14
+- `frontend/components/app-shell/change-name-dialog.tsx` · smell: No client-side length cap · no maxLength; a naive maxLength={100} would count UTF-16 units, not the backend's code points after trimming · real-manager-dashboard · 2026-10-14
+- `frontend/app/manager/page.tsx` · smell: No loading state · seven reads in one Promise.all with no loading.tsx or Suspense; the page shows nothing until the slowest returns · real-manager-dashboard · 2026-10-14
+- `frontend/components/manager/dashboard-stats.tsx` · smell: Two unavailable states · the Pending cards still show a bare indigo "—" with no screen-reader text, while the rewritten cards use UNAVAILABLE_FIGURE · real-manager-dashboard · 2026-10-14
+- `frontend/components/app-shell/viewer-menu.tsx` · smell: Primitive Obsession · name and role are recovered by parsing " · " out of viewerLabel, a format built elsewhere; pass them separately · real-manager-dashboard · 2026-10-14
+- `DESIGN.md` · smell: Stale description · § Menu still says the viewer chip menu holds Change password and Log out; Manager pages now have Change name first · real-manager-dashboard · 2026-10-14
 
 ## backend
 
@@ -82,3 +90,4 @@ separated by ` · `.
 - `backend/src/main/java/com/remotesupport/backend/web/TesterController.java` · smell: Business rule in a controller · the "one primary contact per Client" rule branches on a fresh `testerRepository.existsByClientIdAndPrimaryContactTrue` query and throws a domain conflict, which Backend rule 2 names; it predates this feature, which only changed the exception it throws, so it was recorded rather than fixed · globally-unique-usernames · 2026-09-22
 - `backend/src/main/java/com/remotesupport/backend/web/AgentController.java` · smell: Transaction boundary on a controller · `@Transactional` sits on two controller methods, which Backend rule 3 forbids; found while re-reviewing this feature, pre-exists `main` and untouched by it · globally-unique-usernames · 2026-09-22
 - `docs/adr/0006-backend-is-packaged-by-feature-flat.md` · smell: A list that grows · the frozen exception list gains one entry when a feature adds a class to a cluster not yet moved, against the spec's "a list that only shrinks" (F6); put to the human in the layout approval · package-layout-decision · 2026-10-09
+- `backend/src/main/java/com/remotesupport/backend/web/SimCardCorrectionService.java` · smell: Duplicate numbers allowed · two SIM Cards may share a number: neither adding nor correcting a number checks for duplicates (spec Decisions taken); a mistyped number that matches another SIM is not caught · correct-a-sim-card-number · 2026-10-14

@@ -170,6 +170,40 @@ public class OtherTenantFixture {
     return option.getId();
   }
 
+  /** A Contract of another tenant with one Smartphone on its Fleet. */
+  public record ContractWithSmartphone(UUID contractId, UUID smartphoneId) {}
+
+  /**
+   * A Smartphone on the Fleet of a Contract in a brand-new tenant (correct-a-fleet-unit: another
+   * tenant's Contract is a 404 to a correction).
+   */
+  public ContractWithSmartphone smartphoneOnContractInAnotherTenant() {
+    Instant now = Instant.now();
+    Tenant tenant = newTenant(now);
+    Agent agent = newAgent(tenant, now);
+    Client client = newClient(tenant, "Other Tenant Fleet Client", now);
+
+    Contract contract = new Contract();
+    contract.setId(UUID.randomUUID());
+    contract.setTenant(tenant);
+    contract.setClient(client);
+    contract.setAgent(agent);
+    contract.setCurrency(Currency.USD);
+    contract.setCreatedAt(now);
+    contractRepository.saveAndFlush(contract);
+
+    Smartphone smartphone = new Smartphone();
+    smartphone.setId(UUID.randomUUID());
+    smartphone.setTenant(tenant);
+    smartphone.setContract(contract);
+    smartphone.setModel("Other Tenant Fleet Phone");
+    smartphone.setOwner(SmartphoneOwner.COMPANY);
+    smartphone.setStatus(SmartphoneStatus.ACTIVE);
+    smartphone.setCreatedAt(now);
+    smartphoneRepository.saveAndFlush(smartphone);
+    return new ContractWithSmartphone(contract.getId(), smartphone.getId());
+  }
+
   /**
    * A Smartphone in another tenant's Agent's Stock (agent-stock ticket AC: "another tenant's Stock
    * is invisible") — built straight through the repository, since {@code holdingAgent} can only be

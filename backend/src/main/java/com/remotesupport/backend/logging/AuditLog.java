@@ -216,6 +216,108 @@ public final class AuditLog {
   }
 
   /**
+   * A Manager or Tester correcting a Smartphone's model (correct-a-fleet-unit ticket
+   * correct-a-smartphone-model Observability). Never emitted for a save of the value already held.
+   */
+  public static void smartphoneModelCorrected(
+      UUID smartphoneId,
+      UUID contractId,
+      String oldModel,
+      String newModel,
+      UUID actorUserId,
+      String actorRole,
+      UUID tenantId) {
+    log.info(
+        "audit action=smartphoneModelCorrected entity=Smartphone entityId={} contractId={} "
+            + "oldModel={} newModel={} actorUserId={} role={} tenantId={}",
+        smartphoneId,
+        contractId,
+        oldModel,
+        newModel,
+        actorUserId,
+        actorRole,
+        tenantId);
+  }
+
+  /**
+   * A Manager or Tester correcting a Smartphone's owner (correct-a-smartphone-owner Observability).
+   * Never emitted for a save of the owner already held.
+   */
+  public static void smartphoneOwnerCorrected(
+      UUID smartphoneId,
+      UUID contractId,
+      String oldOwner,
+      String newOwner,
+      UUID actorUserId,
+      String actorRole,
+      UUID tenantId) {
+    log.info(
+        "audit action=smartphoneOwnerCorrected entity=Smartphone entityId={} contractId={} "
+            + "oldOwner={} newOwner={} actorUserId={} role={} tenantId={}",
+        smartphoneId,
+        contractId,
+        oldOwner,
+        newOwner,
+        actorUserId,
+        actorRole,
+        tenantId);
+  }
+
+  /**
+   * A Manager or Tester correcting a SIM Card's number (correct-a-fleet-unit ticket
+   * correct-a-sim-card-number Observability). Never emitted for a save of the value already held.
+   */
+  public static void simCardNumberCorrected(
+      UUID simCardId,
+      UUID contractId,
+      String oldNumber,
+      String newNumber,
+      UUID actorUserId,
+      String actorRole,
+      UUID tenantId) {
+    log.info(
+        "audit action=simCardNumberCorrected entity=SimCard entityId={} contractId={} "
+            + "oldNumber={} newNumber={} actorUserId={} role={} tenantId={}",
+        simCardId,
+        contractId,
+        oldNumber,
+        newNumber,
+        actorUserId,
+        actorRole,
+        tenantId);
+  }
+
+  /**
+   * A Manager or Tester correcting a Postpaid SIM Card's plan, which re-copies the plan's price
+   * into its monthly fee (correct-a-fleet-unit ticket correct-a-postpaid-plan Observability).
+   * Never emitted for a save of the plan already held.
+   */
+  public static void simCardPostpaidPlanCorrected(
+      UUID simCardId,
+      UUID contractId,
+      UUID oldPostpaidPlanId,
+      UUID newPostpaidPlanId,
+      BigDecimal oldMonthlyFeeAmount,
+      BigDecimal newMonthlyFeeAmount,
+      UUID actorUserId,
+      String actorRole,
+      UUID tenantId) {
+    log.info(
+        "audit action=simCardPostpaidPlanCorrected entity=SimCard entityId={} contractId={} "
+            + "oldPostpaidPlanId={} newPostpaidPlanId={} oldMonthlyFeeAmount={} newMonthlyFeeAmount={} "
+            + "actorUserId={} role={} tenantId={}",
+        simCardId,
+        contractId,
+        oldPostpaidPlanId,
+        newPostpaidPlanId,
+        oldMonthlyFeeAmount,
+        newMonthlyFeeAmount,
+        actorUserId,
+        actorRole,
+        tenantId);
+  }
+
+  /**
    * A Manager changing an Agent's standing salary or standing Rollout Advance
    * (agent-standing-amounts-and-invoice-generation ticket Observability: "standing-amount change
    * events logged with Agent id, old/new value, effective month, actor (Manager)"). {@code

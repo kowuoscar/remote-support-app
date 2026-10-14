@@ -6,7 +6,7 @@ import type { SimCardListItem } from "@/lib/api/types";
  * the Plan has since been archived, or "—" for a Prepaid SIM and for a Postpaid SIM from before
  * the catalog, which keeps its own monthly fee. Mirrors {@link SimCardCarrier}.
  */
-export function SimCardPlan({ sim }: { sim: SimCardListItem }) {
+export function SimCardPlan({ sim }: { sim: Pick<SimCardListItem, "postpaidPlanName" | "postpaidPlanArchived"> }) {
   if (!sim.postpaidPlanName) {
     return <span className="text-ink-mute">—</span>;
   }

@@ -1,0 +1,106 @@
+{
+  "feature": "correct-a-fleet-unit",
+  "played_at": "2026-10-14",
+  "played_on": "feature/correct-a-fleet-unit",
+  "environment": "Isolated stack: throwaway postgres:16-alpine on 55432, backend on 18080 (JDK 21, demo profile, fresh DB), frontend next dev on 13000, from a detached worktree. All torn down; the user's rsa-prod stack untouched.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1.txt",
+      "note": ""
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2.txt",
+      "note": "Demo UK catalog had one EE plan; two plans added via API before playing. The UK Postpaid SIM is RETIRED in demo data and still offers the plan control."
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3.txt",
+      "note": "Sent invoice API's informational SIM-line monthlyFeeAmount reads the live fee (85.99); the billed amount stays 65.99; the page does not render monthlyFeeAmount."
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4.txt",
+      "note": "Recorded model shown via requestedModel on Provision and an added Replace."
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": ""
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": ""
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": ""
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8.txt",
+      "note": "Archive done via API as the Agent; pre-catalog case via its backend test."
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9.txt",
+      "note": "Manager's Company->Client change via PATCH, not the UI."
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-10.txt",
+      "note": ""
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-11.txt",
+      "note": "First Manager keyboard runs used a non-macOS select-all chord (script error, repaired); Dana runs clean."
+    },
+    {
+      "step": 12,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-12.txt",
+      "note": ""
+    },
+    {
+      "step": 13,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 14,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    }
+  ]
+}

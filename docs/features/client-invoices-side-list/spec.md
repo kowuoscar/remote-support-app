@@ -1,7 +1,7 @@
 ---
 feature: client-invoices-side-list
 epic: agent-client-invoices-side-list
-status: draft
+status: approved
 date: 2026-10-14
 ---
 

@@ -112,9 +112,9 @@
     {
       "step": 16,
       "actor": "agent",
-      "status": "failed",
+      "status": "passed",
       "evidence": "evidence/step-16.txt",
-      "note": "Spec mismatch with invoice-adjustment ('fifth figure' vs 'no new figure'); see F25."
+      "note": "Replayed after fix 23e86a4: spec-comparison form passes; live form waits for invoice-adjustment."
     }
   ],
   "journeys": []

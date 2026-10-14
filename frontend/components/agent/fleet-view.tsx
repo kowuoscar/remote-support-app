@@ -49,6 +49,7 @@ export function AgentFleetView({
           phones={phones}
           simCards={sims}
           contractId={contractId}
+          canEditSerial
           changeStatus={(phone) => (
             <SmartphoneStatusControl contractId={contractId} smartphoneId={phone.id} status={phone.status} />
           )}

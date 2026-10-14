@@ -599,6 +599,18 @@ createServer((request, response) => {
     if (resource === "sim-cards") return send(response, 200, testerSimCards(contractIndex));
     return send(response, 200, testerRequests(contractIndex));
   }
+  // correct-a-smartphone-model ticket: the Manager's Contract page reads one Contract's Fleet. It
+  // reuses the Agent's first Contract and the Tester fixtures' Smartphone and SIM Card rows, so the
+  // golden shows the Edit buttons on a mixed-status Fleet. Its client-invoice read stays a 404.
+  const managerFleetMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/(smartphones|sim-cards)$/);
+  if (managerFleetMatch && request.method === "GET" && caller.role === "MANAGER") {
+    if (!AGENT_CONTRACTS.some((contract) => contract.id === managerFleetMatch[1])) return send(response, 404);
+    const rows = managerFleetMatch[1] === AGENT_CONTRACTS[0].id;
+    if (managerFleetMatch[2] === "smartphones") {
+      return send(response, 200, rows ? testerSmartphones(0).map((phone) => ({ ...phone, contractId: AGENT_CONTRACTS[0].id })) : []);
+    }
+    return send(response, 200, rows ? testerSimCards(0).map((sim) => ({ ...sim, contractId: AGENT_CONTRACTS[0].id })) : []);
+  }
   const requestsMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/requests$/);
   if (requestsMatch && request.method === "GET") {
     const contractIndex = AGENT_CONTRACTS.findIndex((contract) => contract.id === requestsMatch[1]);

@@ -1,7 +1,7 @@
 ---
 id: contract-side-list-on-desktop
 title: An Agent picks a Client's invoice from a side list on a desktop
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [frontend, invoicing]
 stories: [1, 2, 3, 4, 5, 6, 7, 8, 9, 16, 17, 19, 21, 22, 23, 26]

@@ -148,11 +148,14 @@ test.describe("client invoices side list", () => {
       }
     });
     const historyBefore = await page.evaluate(() => window.history.length);
+    requests.length = 0;
     await row(names[2]).click();
     await expect(row(names[2])).toHaveAttribute("aria-current", "true");
     await expect(page).toHaveURL(new RegExp(`\\?contract=${ids[2]}$`));
     await page.waitForTimeout(300);
-    expect(requests).toEqual([]);
+    // No document, no API read, and no render of the page for the new address. (The shell's own
+    // nav links may re-prefetch their bare routes after the address changes; those carry no contract.)
+    expect(requests.filter((url) => !url.includes("_rsc") || url.includes("contract="))).toEqual([]);
     expect(await page.evaluate(() => window.history.length)).toBe(historyBefore);
     await page.reload();
     await expect(row(names[2])).toHaveAttribute("aria-current", "true");
@@ -223,5 +226,16 @@ test.describe("client invoices side list", () => {
     await expect(
       page.getByRole("navigation", { name: "Clients" }).getByRole("link", { name, exact: true }),
     ).toHaveAttribute("aria-current", "true");
+
+    // Leave nothing behind: a sent-back invoice would show in later specs' "Sent back to you".
+    await page.getByRole("button", { name: "Send Client Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm send" }).click();
+    await expect(page.getByText("Awaiting approval")).toBeVisible();
+    await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await page.goto("/manager/invoices");
+    await page.getByRole("link", { name: new RegExp(`^Review Client Invoice: ${name} `) }).click();
+    await page.getByRole("button", { name: "Approve" }).click();
+    await expect(page.getByText("Approved", { exact: true })).toBeVisible();
   });
 });

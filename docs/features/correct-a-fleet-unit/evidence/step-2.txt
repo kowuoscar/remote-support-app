@@ -1,0 +1,47 @@
+# Step 2 - Manager, UK Postpaid SIM (+44-7700-900101, Carrier EE)
+SETUP NOTE: the demo UK catalog has only one EE plan (Flex 20), so before playing I added two EE plans through the API as Priya (Agent, UK): "Flex 25" 25.50 and "Flex 30" 30.00 (POST /api/carriers/<EE>/postpaid-plans -> 201 each). Without that no choice exists to demonstrate fee-changing. The SIM is also RETIRED (cancelled Oct 14) in the demo data; the plan control is offered anyway.
+
+## Plan control opened (snapshot): only EE's active plans offered; O2's "Essential" (18.00) is NOT offered
+165:                      - cell "Postpaid plan Flex 20 Monthly fee £20.00 Save Cancel" [ref=f4e288]:
+166-                        - generic [ref=f4e289]:
+167-                          - generic [ref=f4e290]:
+168-                            - generic [ref=f4e291]:
+169-                              - text: Postpaid plan
+170-                              - combobox "Postpaid plan" [active] [ref=f4e292]:
+171-                                - option "Choose a plan" [disabled]
+172-                                - option "Flex 20" [selected]
+173-                                - option "Flex 25"
+174-                                - option "Flex 30"
+175-                            - paragraph [ref=f4e293]:
+176-                              - generic [ref=f4e294]: Monthly fee
+177-                              - generic [ref=f4e295]: £20.00
+178-                          - generic [ref=f4e296]:
+179-                            - button "Save" [ref=f4e297]
+
+## Fee changes as you pick (snapshots)
+Flex 30 picked -> cell "Postpaid plan Flex 30 Monthly fee £30.00 Save Cancel"
+Flex 25 picked -> 165:                      - cell "Postpaid plan Flex 25 Monthly fee £25.50 Save Cancel" [ref=f4e302]:
+
+## Before (UK Client Invoice draft, GET /api/contracts/$CUK/client-invoice)
+status=DRAFT baseAmount=20.0 totalAmount=20.0 (basePostpaidSims: fee 20.0)
+## Saved Flex 25 -> Fleet row after save (snapshot):
+                      - cell "Flex 25 Edit plan" [ref=f4e304]:
+                        - generic [ref=f4e305]:
+                          - generic [ref=f4e306]: Flex 25
+                          - button "Edit plan" [ref=f4e308]: Edit
+                      - cell "Postpaid" [ref=f4e234]
+                      - cell "£25.50" [ref=f4e309]
+                      - cell "Retired Cancelled Oct 14, 2026" [ref=f4e236]:
+                        - generic [ref=f4e237]: Retired
+                        - generic [ref=f4e239]: Cancelled Oct 14, 2026
+                      - cell [ref=f4e240]:
+                        - combobox "Installed in" [ref=f4e242]:
+                          - option "Not installed" [selected]
+Monthly fee column: cell "£25.50"
+## After (API): status DRAFT baseAmount 25.5 totalAmount 25.5
+=> base amount moved 20.00 -> 25.50 = +5.50 = price difference (25.50 - 20.00)
+
+## Priya's Agent Invoice (GET /api/agents/<priya>/invoice) - is a DRAFT in the demo story
+before: localSupportFees=20.0 totalAmount=4770.0
+after : status DRAFT localSupportFees 25.5 totalAmount 4775.5
+=> Local Support Fees moved by +5.50, same amount.

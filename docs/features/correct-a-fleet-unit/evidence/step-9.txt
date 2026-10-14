@@ -1,0 +1,30 @@
+# Step 9
+## Noah on /client/fleet (Harbor Line), phone Spare Android on open Return 0a823e2e (PENDING_APPROVAL, awaiting Dispositions): Edit owner -> Client -> Save
+- cell "Client Edit owner":
+  - text: Client
+  - button "Edit owner": Edit
+----
+- row "Spare Android Edit SPARE-2270 Client Save Cancel +1-303-555-0202 Active":
+  - cell "Spare Android Edit":
+    - text: Spare Android
+    - button "Edit"
+  - cell "SPARE-2270"
+  - cell "Client Save Cancel":
+    - combobox "Owner":
+      - option "Choose an owner" [disabled]
+      - option "Client" [selected]
+      - option "Company"
+    - button "Save"
+    - button "Cancel"
+    - alert: This smartphone is on an open Return. Change its owner once the Return is done.
+  - cell "+1-303-555-0202"
+  - cell "Active"
+API after: "Spare Android","serial":"SPARE-2270","owner":"COMPANY"
+
+## Manager: phone iPhone 13 Plus (no open Return) owner COMPANY -> CLIENT (via PATCH .../owner API; UI owner edit is shown in steps 4/5)
+{"id":"27d36e26-1861-440d-bf02-40df88c66663","contractId":"680607fd-1b69-4bda-8373-494d6dacac49","model":"iPhone 13 Plus","serial":null,"owner":"CLIENT","status":"ACTIVE"}
+HTTP 200
+## Dana submits a Return of it
+{"id":"b3fb44e3-ef34-41d8-afdc-ba2a9a14a175","contractId":"680607fd-1b69-4bda-8373-494d6dacac49","type":"RETURN","status":"SUBMITTED","raisedByTesterId":"571ef47e-33b1-4acd-af6e-a4641da196f5","raisedByUsername":"dana.whitfield@solsticeretail.example","agentAuthored":false,"loggedByUsername":"dana.whitfield@solsticeretail.example","createdAt":"2026-10-14T20:11:12.335310Z","returnedUnits":[{"id":"5c4f0924-6b6c-44af-b9d8-2d17efdff87f","smartphoneId":"27d36e26-1861-440d-bf02-40df88c66663","smartphoneModel":"iPhone 13 Plus","disposition":"POSTED_TO_CLIENT"}]}
+HTTP 201
+RETURN status SUBMITTED [{'id': '5c4f0924-6b6c-44af-b9d8-2d17efdff87f', 'smartphoneId': '27d36e26-1861-440d-bf02-40df88c66663', 'smartphoneModel': 'iPhone 13 Plus', 'disposition': 'POSTED_TO_CLIENT'}]

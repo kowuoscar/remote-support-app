@@ -1,0 +1,65 @@
+# Step 3 - Manager, Solstice US Contract (Client Invoice Oct 2026 = SENT)
+Played in the UI: Postpaid SIM +1-202-555-0102 (AT&T) plan Unlimited Starter (65.99) -> Unlimited Premium (85.99): picker showed
+  cell "Postpaid plan Unlimited Premium Monthly fee $85.99 Save Cancel"
+ and saved. I also corrected its number to +1-202-555-0199 (so the sent invoice's "current number" can be seen).
+Fleet row after reload:
+                    - row [ref=f6e221]:
+                      - cell "+1-202-555-0199 Edit" [ref=f6e222]:
+                        - generic [ref=f6e223]:
+                          - generic [ref=f6e224]: +1-202-555-0199
+                          - button "Edit" [ref=f6e225]
+                      - cell "AT&T" [ref=f6e226]
+                      - cell "Unlimited Premium Edit plan" [ref=f6e229]:
+                        - generic [ref=f6e230]:
+                          - generic [ref=f6e231]: Unlimited Premium
+                          - button "Edit plan" [ref=f6e233]: Edit
+                      - cell "Postpaid" [ref=f6e234]
+                      - cell "$85.99" [ref=f6e235]
+                      - cell "Active" [ref=f6e236]
+
+## Sent Client Invoice, API diff before vs after (diff ci-us-before.json ci-us-after.json):
+11,12c11,12
+<             "number": "+1-202-555-0102",
+<             "monthlyFeeAmount": 65.99,
+---
+>             "number": "+1-202-555-0199",
+>             "monthlyFeeAmount": 85.99,
+=> status SENT, baseAmount 65.99, fee lines (Topup 25.00, Other 45.00), totalAmount 135.99, sentAt: all identical. Only the SIM line's reference fields changed: number now +1-202-555-0199 (current number, as expected) and the informational line field monthlyFeeAmount 65.99 -> 85.99 (the live plan fee; the line's billed "amount" stays 65.99).
+OBSERVATION: the API line's monthlyFeeAmount reads live (85.99) while its billed amount stays 65.99. The invoice page does not render monthlyFeeAmount.
+
+## Manager UI invoice page /manager/invoices/client/6949cf18... (snapshot, /private/tmp/claude-501/-Users-oscar-myspace-projects-remote-support-app/753ef9e9-c61f-4c45-8de5-6723f726d042/scratchpad/us-inv.md excerpt):
+            - generic [ref=f7e72]:
+              - generic [ref=f7e73]:
+                - generic [ref=f7e74]:
+                  - heading "October 2026" [level=2] [ref=f7e75]
+                  - generic [ref=f7e76]: Awaiting approval
+                - paragraph [ref=f7e78]: Base amount and Fee lines are locked to what the Agent sent
+                - paragraph [ref=f7e79]: Sent Oct 14, 2026
+              - generic [ref=f7e80]:
+                - link "Download PDF" [ref=f7e81] [cursor=pointer]:
+                  - /url: /api/client-invoices/6949cf18-5779-4f1a-9b81-f925c28f9194/pdf
+                - button "Send back" [ref=f7e85]
+                - button "Approve" [ref=f7e87]
+            - generic [ref=f7e91]:
+              - generic [ref=f7e92]:
+                - term [ref=f7e93]: Base amount
+                - definition [ref=f7e94]: $65.99
+              - generic [ref=f7e95]:
+                - term [ref=f7e96]: Fees
+                - definition [ref=f7e97]: $70.00
+              - generic [ref=f7e98]:
+                - term [ref=f7e99]: Total
+                - definition [ref=f7e100]: $135.99
+            - generic [ref=f7e101]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f7e102]
+              - list "Postpaid SIM Cards" [ref=f7e103]:
+                - listitem [ref=f7e104]:
+                  - generic [ref=f7e105]: +1-202-555-0199
+                  - generic [ref=f7e106]: $65.99
+            - generic [ref=f7e108]:
+              - heading "Fee lines" [level=3] [ref=f7e109]
+ Base amount $65.99, Fees $70.00, Total $135.99 (unchanged), SIM line "+1-202-555-0199  $65.99".
+
+## Jordan's Agent Invoice (SENT), diff before/after:
+no difference 
+localSupportFees=135.99 salary=2700.0 totalAmount=2835.99 status=SENT before and after.

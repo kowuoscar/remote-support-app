@@ -1,0 +1,51 @@
+# Step 5 - Dana (Tester, Primary Contact) on /client/fleet, both Solstice Contracts
+US Contract (UI): SIM number +1-202-555-0105 -> +1-202-555-0155; Postpaid SIM +1-202-555-0199 plan Unlimited Premium -> Unlimited Starter; phone iPhone 13 -> model "iPhone 13 Plus", owner Client -> Company.
+Fee shown BEFORE Save (aria snapshot of the SIM row in edit mode):
+  row "+1-202-555-0199 Edit AT&T Postpaid plan Unlimited Starter Monthly fee $65.99 Save Cancel Postpaid Active Pixel 8 Pro"
+After reload (snapshot lines):
+8:      - row "Model Serial Owner SIM Cards Status":
+15:      - row "iPhone 13 Plus Edit â Company Edit owner +1-202-555-0104 Active":
+25:      - row "Pixel 8 Pro Edit PX7-88210 Client Edit owner +1-202-555-0101, +1-202-555-0199 Active":
+35:      - row "Galaxy A14 Edit GA14-55021 Company Edit owner â In Repair":
+45:      - row "OnePlus 10 Pro Edit OP10-33087 Company Edit owner +1-202-555-0103 Active":
+59:      - row "Number Carrier Plan Flavor Status Installed in":
+67:      - row "+1-202-555-0101 Edit AT&T â Prepaid Active Pixel 8 Pro":
+76:      - row "+1-202-555-0199 Edit AT&T Unlimited Starter Edit plan Postpaid Active Pixel 8 Pro":
+87:      - row "+1-202-555-0103 Edit T-Mobile â Prepaid Active OnePlus 10 Pro":
+96:      - row "+1-202-555-0104 Edit T-Mobile â Prepaid Active iPhone 13 Plus":
+105:      - row "+1-202-555-0155 Edit Verizon â Prepaid Active â":
+
+UK Contract (UI, via the contract switcher): SIM +44-7700-900103 -> +44-7700-900133; Postpaid SIM +44-7700-900101 plan -> Flex 30 (fee before Save):
+  row "+44-7700-900101 Edit EE Postpaid plan Flex 30 Monthly fee £30.00 Save Cancel Postpaid Retired Cancelled Oct 14, 2026 —"
+  (options offered: Flex 20, Flex 25, Flex 30 only; O2's plan absent)
+phone iPhone 14 -> "iPhone 14 Pro", owner Company -> Client.
+After reload (snapshot lines):
+8:      - row "Model Serial Owner SIM Cards Status":
+15:      - row "iPhone 14 Pro Edit IP14-UK-2201 Client Edit owner — Active":
+25:      - row "Moto G Power Edit MGP-UK-1180 Client Edit owner — Retired":
+35:      - row "iPhone SE Spare Edit SE-UK-4471 Company Edit owner — Retired":
+45:      - row "iPhone 12 (corrected) Edit IP12-UK-0092 Company Edit owner — Retired":
+55:      - row "iPhone 12 Edit — Company Edit owner +44-7700-900133 Active":
+69:      - row "Number Carrier Plan Flavor Status Installed in":
+77:      - row "+44-7700-900101 Edit EE Flex 30 Edit plan Postpaid Retired Cancelled Oct 14, 2026 —":
+88:      - row "+44 7700 900123 Edit O2 — Prepaid Active —":
+97:      - row "+44-7700-900133 Edit EE — Prepaid Active iPhone 12":
+
+API as Dana confirms (GET): UK: iPhone 14 Pro CLIENT; +44-7700-900101 Flex 30 30.0; +44-7700-900133. US: iPhone 13 Plus COMPANY; +1-202-555-0155; +1-202-555-0199 Unlimited Starter 65.99.
+
+## Marco (Tester, not Primary Contact), US Fleet: model Galaxy A14 -> "Galaxy A14 5G", after reload:
+35:      - row "Galaxy A14 5G Edit GA14-55021 Company Edit owner — In Repair":
+
+## No status / serial / "Installed in" controls on either Tester's page
+Both Testers' Fleet snapshots (dana-uk-reload, marco-us): per-row buttons are only "Edit" (model, number), "Edit owner", "Edit plan" (Postpaid only). Serial cells are plain text ("IP14-UK-2201", "—", no "Set serial"); Status is plain text (Active/Retired/In Repair); the SIM table's "Installed in" is plain text (a phone model), no combobox. Zero combobox/textbox nodes in either snapshot at rest:
+  Marco: 0 combobox/textbox nodes; Dana UK: 0
+
+## PATCH as Dana (curl)
+PATCH smartphones/716223e9-0657-4756-bcc2-0f3e0ffaf150/status as Dana: body {"status":"IN_REPAIR"}
+HTTP 403
+PATCH smartphones/716223e9-0657-4756-bcc2-0f3e0ffaf150/serial as Dana: body {"serial":"ZZZ-1"}
+HTTP 403
+PATCH sim-cards/bb44969a-3342-4aea-b45d-62cb1a10d628/status as Dana: body {"status":"RETIRED"}
+HTTP 403
+PATCH sim-cards/bb44969a-3342-4aea-b45d-62cb1a10d628/installed-in as Dana: body {"smartphoneId":"716223e9-0657-4756-bcc2-0f3e0ffaf150"}
+HTTP 403

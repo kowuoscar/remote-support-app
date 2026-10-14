@@ -1,0 +1,62 @@
+# Step 6 - authorization
+### Dana (Solstice Tester) PATCH on Harbor Line's Contract 8ab92305-f623-4e30-a2cb-a26e9fdf8dae
+PATCH smartphones/913c7a59-2cd1-426d-b77d-6482192e29fa/model {"model":"X"}
+HTTP 403
+PATCH smartphones/913c7a59-2cd1-426d-b77d-6482192e29fa/owner {"owner":"CLIENT"}
+HTTP 403
+PATCH sim-cards/ba000e61-b12e-4ac5-b6f4-a9d9836d54db/number {"number":"+1-999"}
+HTTP 403
+PATCH sim-cards/ba000e61-b12e-4ac5-b6f4-a9d9836d54db/postpaid-plan {"postpaidPlanId":"e0000000-0000-0000-0000-000000000002"}
+HTTP 403
+
+### Jordan (Agent) PATCH on his own Solstice US Contract 680607fd-1b69-4bda-8373-494d6dacac49
+PATCH smartphones/716223e9-0657-4756-bcc2-0f3e0ffaf150/model {"model":"X"}
+HTTP 403
+PATCH smartphones/716223e9-0657-4756-bcc2-0f3e0ffaf150/owner {"owner":"CLIENT"}
+HTTP 403
+PATCH sim-cards/bb44969a-3342-4aea-b45d-62cb1a10d628/number {"number":"+1-999"}
+HTTP 403
+PATCH sim-cards/dc423b45-1f8a-4c80-a7d0-be9008de88a6/postpaid-plan {"postpaidPlanId":"e0000000-0000-0000-0000-000000000002"}
+HTTP 403
+
+### Jordan on Harbor Line (his other Contract)
+HTTP 403
+
+### No token
+PATCH smartphones/716223e9-0657-4756-bcc2-0f3e0ffaf150/model (no auth)
+
+HTTP 401
+PATCH smartphones/716223e9-0657-4756-bcc2-0f3e0ffaf150/owner (no auth)
+
+HTTP 401
+PATCH sim-cards/bb44969a-3342-4aea-b45d-62cb1a10d628/number (no auth)
+
+HTTP 401
+PATCH sim-cards/dc423b45-1f8a-4c80-a7d0-be9008de88a6/postpaid-plan (no auth)
+
+HTTP 401
+
+## Jordan's Fleet page (/agent/fleet, snapshot jordan-fleet): no correction offered
+Smartphone model, owner, SIM number and plan are plain cells (e.g. cell "Pixel 8 Pro", cell "Client", cell "Unlimited Starter"). The only "Edit" button on a row is beside the SERIAL (pre-existing control, "PX7-88210 Edit"/"Set serial"); status comboboxes ("Change smartphone status") and "Installed in" comboboxes/Retire are the Agent's pre-existing controls.
+      - row "Pixel 8 Pro PX7-88210 Edit Client +1-202-555-0101, +1-202-555-0199 Active Change status…":
+        - cell "Pixel 8 Pro"
+        - cell "PX7-88210 Edit":
+          - text: PX7-88210
+          - button "Edit"
+        - cell "Client"
+        - cell "+1-202-555-0101, +1-202-555-0199"
+      - row "+1-202-555-0199 AT&T Unlimited Starter Postpaid $65.99 Active Pixel 8 Pro — PX7-88210 Retire":
+        - cell "+1-202-555-0199"
+        - cell "AT&T"
+        - cell "Unlimited Starter"
+        - cell "Postpaid"
+        - cell "$65.99"
+        - cell "Active"
+
+## Backend tests (mvn -B test -Dtest='SmartphoneCorrectionApiTest,SimCardCorrectionApiTest' in the worktree, JDK 21)
+OtherTenantFixture referenced in: SmartphoneCorrectionApiTest (5 hits), SimCardCorrectionApiTest (5 hits)
+[INFO] Tests run: 22, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.76 s -- in com.remotesupport.backend.web.SimCardCorrectionApiTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.145 s -- in com.remotesupport.backend.web.SmartphoneCorrectionApiTest
+[INFO] Tests run: 38, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+(full log: step-6-mvn.log)

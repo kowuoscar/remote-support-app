@@ -2,6 +2,7 @@
 
 import type { MouseEvent } from "react";
 import Link from "next/link";
+import { Badge, type Tone } from "@/components/ui/badge";
 import { cn } from "@/lib/cn";
 
 export type SideListContract = {
@@ -9,6 +10,8 @@ export type SideListContract = {
   clientName: string;
   /** "Kenya", from `countryLabel(country)`. */
   countryLabel: string;
+  /** `clientInvoiceBadge` of the Contract's current-month invoice; null when that invoice failed to load. */
+  status: { label: string; tone: Tone } | null;
 };
 
 /**
@@ -66,11 +69,13 @@ export function ContractSideList({
                 <span className="line-clamp-2 min-w-0 break-words" title={contract.clientName}>
                   {contract.clientName}
                 </span>
-                {shared ? (
-                  <>
-                    {" "}
-                    <span className="text-label-sm text-ink-mute">{contract.countryLabel}</span>
-                  </>
+                {" "}
+                {shared || contract.status ? (
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    {shared ? <span className="text-label-sm text-ink-mute">{contract.countryLabel}</span> : null}
+                    {shared && contract.status ? " " : null}
+                    {contract.status ? <Badge tone={contract.status.tone}>{contract.status.label}</Badge> : null}
+                  </span>
                 ) : null}
               </Link>
             </li>

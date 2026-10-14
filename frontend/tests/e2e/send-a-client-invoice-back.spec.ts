@@ -46,7 +46,7 @@ test.describe("send a client invoice back", () => {
     await expect(page.getByRole("heading", { name: "Sent back to you" })).toHaveCount(0);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
-    await expect(page.getByText("Awaiting approval")).toBeVisible();
+    await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
 
     // The Manager opens it from the Review Queue and sends it back with a reason.
     await logout(page);

@@ -79,7 +79,8 @@ describe("AgentClientInvoicesView sent back to you", () => {
       />,
     );
     expect(screen.getByText("Fix the base amount.")).toBeInTheDocument();
-    expect(screen.getByText("Sent back")).toBeInTheDocument();
+    // The side list's row shows the same badge, so the card's is looked up inside the card.
+    expect(within(screen.getByText("September 2026").parentElement!).getByText("Sent back")).toBeInTheDocument();
   });
 });
 
@@ -105,7 +106,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
     render(<AgentClientInvoicesView contracts={[ZEPHYR, BIRCH, CONTRACT]} invoicesByContract={byContract} />);
 
     const links = within(clientsNav()).getAllByRole("link");
-    expect(links.map((l) => l.textContent)).toEqual(["Aurora Retail Group", "Birch Telecom", "zephyr Mobile"]);
+    expect(links.map((l) => l.textContent)).toEqual(["Aurora Retail Group Draft", "Birch Telecom Draft", "zephyr Mobile Draft"]);
 
     await userEvent.click(switcherTrigger());
     const options = within(screen.getByRole("listbox")).getAllByRole("option");
@@ -126,8 +127,8 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
     );
 
     const links = within(clientsNav()).getAllByRole("link");
-    expect(links.map((l) => l.textContent)).toEqual(["Aurora Retail Group", "Birch Telecom Ghana", "Birch Telecom Kenya"]);
-    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Ghana" })).toBeInTheDocument();
+    expect(links.map((l) => l.textContent)).toEqual(["Aurora Retail Group Draft", "Birch Telecom Ghana Draft", "Birch Telecom Kenya Draft"]);
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Ghana Draft" })).toBeInTheDocument();
     expect(within(links[0]).queryByText("Kenya")).not.toBeInTheDocument();
   });
 
@@ -145,7 +146,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
     const fetchMock = stubFetch(200, {});
     render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
 
-    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom" }));
+    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" }));
 
     const links = within(clientsNav()).getAllByRole("link");
     expect(links[1]).toHaveAttribute("aria-current", "true");
@@ -159,7 +160,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
   it("each row's href names the Contract, so a modified click opens it", () => {
     render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
 
-    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom" })).toHaveAttribute(
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" })).toHaveAttribute(
       "href",
       "/agent/client-invoices?contract=contract-2",
     );
@@ -167,7 +168,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
 
   it("a modified click is not intercepted", async () => {
     render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
-    const row = within(clientsNav()).getByRole("link", { name: "Birch Telecom" });
+    const row = within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" });
     // jsdom does not navigate; what matters is that the view did not take the click for itself.
     let seen: MouseEvent | null = null;
     row.addEventListener("click", (e) => (seen = e));
@@ -185,10 +186,10 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
   it("Enter on a focused row selects it", async () => {
     render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
 
-    within(clientsNav()).getByRole("link", { name: "Birch Telecom" }).focus();
+    within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" }).focus();
     await userEvent.keyboard("{Enter}");
 
-    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom" })).toHaveAttribute("aria-current", "true");
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" })).toHaveAttribute("aria-current", "true");
   });
 
   it("the switcher choice moves the selected row too", async () => {
@@ -197,7 +198,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
     await userEvent.click(switcherTrigger());
     await userEvent.click(screen.getByRole("option", { name: /Birch Telecom/ }));
 
-    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom" })).toHaveAttribute("aria-current", "true");
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" })).toHaveAttribute("aria-current", "true");
   });
 
   it("a single Contract gives one selected row", () => {
@@ -234,11 +235,11 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
     render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
 
     rect.mockReturnValue({ top: 120 } as DOMRect);
-    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom" }));
+    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" }));
     expect(scrollTo).not.toHaveBeenCalled();
 
     rect.mockReturnValue({ top: -300 } as DOMRect);
-    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group" }));
+    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft" }));
     expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 0 }));
     rect.mockRestore();
   });
@@ -615,5 +616,48 @@ describe("AgentClientInvoicesView", () => {
       const found = await clientInvoiceFromByIdResponse(new Response(JSON.stringify(sentBack()), { status: 200 }));
       expect(found?.id).toBe("invoice-1");
     });
+  });
+});
+
+describe("AgentClientInvoicesView side list row status (side-list-row-status)", () => {
+  const B = { id: "contract-2", clientName: "Birch Telecom", countryLabel: "Kenya", currency: "USD" };
+  const Z = { id: "contract-3", clientName: "Zephyr Mobile", countryLabel: "Ghana", currency: "USD" };
+  const Y = { id: "contract-4", clientName: "Yarrow Labs", countryLabel: "Ghana", currency: "USD" };
+
+  it("each row's label names the month's status: Draft, Awaiting approval, Approved, Sent back", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, B, Z, Y]}
+        invoicesByContract={{
+          "contract-1": invoice(),
+          "contract-2": invoice({ contractId: "contract-2", status: "SENT", sentAt: "2026-09-10T10:00:00Z" }),
+          "contract-3": invoice({ contractId: "contract-3", status: "APPROVED", approvedAt: "2026-09-11T10:00:00Z" }),
+          "contract-4": invoice({ contractId: "contract-4", sentBackAt: "2026-09-03T10:00:00Z" }),
+        }}
+      />,
+    );
+    const nav = clientsNav();
+    expect(within(nav).getByRole("link", { name: "Aurora Retail Group Draft" })).toBeInTheDocument();
+    expect(within(nav).getByRole("link", { name: "Birch Telecom Awaiting approval" })).toBeInTheDocument();
+    expect(within(nav).getByRole("link", { name: "Zephyr Mobile Approved" })).toBeInTheDocument();
+    expect(within(nav).getByRole("link", { name: "Yarrow Labs Sent back" })).toBeInTheDocument();
+  });
+
+  it("a Contract whose invoice failed to load stays listed with no badge; selecting it explains, others still open", async () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, B]}
+        invoicesByContract={{ "contract-1": invoice({ baseAmount: 11, totalAmount: 11 }), "contract-2": null }}
+      />,
+    );
+    const failed = within(clientsNav()).getByRole("link", { name: "Birch Telecom" });
+    await userEvent.click(failed);
+
+    expect(failed).toHaveAttribute("aria-current", "true");
+    expect(screen.getByText("Couldn't load this Contract's Client Invoice")).toBeInTheDocument();
+    expect(screen.getByText("Pick another Client or reload the page to try again.")).toBeInTheDocument();
+
+    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft" }));
+    expect(screen.getAllByText("$11.00").length).toBeGreaterThan(0);
   });
 });

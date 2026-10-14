@@ -4,13 +4,14 @@
     {
       "id": "F1",
       "type": "spec-wrong",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/tests/e2e/manager-dashboard.spec.ts:163",
       "citation": "spec.md Constraints: \"No test writes to the user's compose stack, including `postgres-demo`. No e2e step rewrites a `billing_month` in the database.\"",
-      "note": "The money e2e calls rollSeededAgentInvoiceIntoThePast() (frontend/tests/e2e/helpers.ts:516), an `update agent_invoices set billing_month = ...`; without E2E_DATABASE_URL it runs via `docker compose exec postgres` (the user's stack). Reach the send/approve Payout steps another way."
+      "note": "The money e2e calls rollSeededAgentInvoiceIntoThePast() (frontend/tests/e2e/helpers.ts:516), an `update agent_invoices set billing_month = ...`; without E2E_DATABASE_URL it runs via `docker compose exec postgres` (the user's stack). Reach the send/approve Payout steps another way.",
+      "fixed_in": "23e86a4"
     },
     {
       "id": "F2",
@@ -21,161 +22,175 @@
       "in_changed_lines": true,
       "where": "frontend/tests/e2e/manager-dashboard.spec.ts:58",
       "citation": "",
-      "note": "Testing decision 4 asks for counts equal to the API list lengths; the test reads the pages' 'N in this tenant' subtitles instead."
+      "note": "Testing decision 4 asks for counts equal to the API list lengths; the test reads the pages' 'N in this tenant' subtitles instead. Fixer contests: no browser-reachable list GET exists (app/api/{clients,agents,contracts} export only POST; JWT httpOnly); the subtitle is rows.length of the same list read."
     },
     {
       "id": "F3",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ManagerNameController.java:38",
       "citation": "docs/agents/coding-standards.md: Backend 3. The transaction boundary is the service method (`@Transactional`), never the repository or the controller",
-      "note": "@Transactional on the controller; move the write into a service. ManagerName.Refused then crosses the service->controller boundary and per Backend 7 carries @ResponseStatus(BAD_REQUEST), like ChangePasswordRefusedException."
+      "note": "@Transactional on the controller; move the write into a service. ManagerName.Refused then crosses the service->controller boundary and per Backend 7 carries @ResponseStatus(BAD_REQUEST), like ChangePasswordRefusedException.",
+      "fixed_in": "88ab3df"
     },
     {
       "id": "F4",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ManagerNameController.java:42",
       "citation": "docs/agents/coding-standards.md: Backend 2. Business rules live in the service layer; a controller translates HTTP <-> domain and never branches on domain state.",
-      "note": "ManagerName.of and the row write run in the controller."
+      "note": "ManagerName.of and the row write run in the controller.",
+      "fixed_in": "88ab3df"
     },
     {
       "id": "F5",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/MeController.java:48",
       "citation": "docs/agents/coding-standards.md: Backend 2. Business rules live in the service layer; a controller translates HTTP <-> domain and never branches on domain state.",
-      "note": "managerName() branches on Role and reads UserRepository in the controller."
+      "note": "managerName() branches on Role and reads UserRepository in the controller.",
+      "fixed_in": "88ab3df"
     },
     {
       "id": "F6",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/test/java/com/remotesupport/backend/web/ManagerNameApiTest.java:84",
       "citation": "docs/agents/coding-standards.md: Backend 12. Table-driven tests (`@ParameterizedTest` + `@MethodSource`) for any method with more than two branch conditions, instead of copy-pasted per-case tests.",
-      "note": "Four copy-pasted @Test methods for ManagerName.of's edge cases (100, 101, empty, whitespace-only)."
+      "note": "Four copy-pasted @Test methods for ManagerName.of's edge cases (100, 101, empty, whitespace-only).",
+      "fixed_in": "88ab3df"
     },
     {
       "id": "F7",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/app/api/me/route.ts:9; frontend/app/api/me/name/route.ts:9",
       "citation": "docs/agents/coding-standards.md: Frontend 13. Route Handlers reuse a shared forwarder from `lib/api`: `forwardJson` for a plain JSON answer, `forwardSecretJson` when the body carries a secret, `forwardBinary` for a file — never an ad hoc shape per route.",
-      "note": "GET can use forwardJson; the 204 PUT needs a shared 204-safe forwarder in lib/api."
+      "note": "GET can use forwardJson; the 204 PUT needs a shared 204-safe forwarder in lib/api.",
+      "fixed_in": "c0720f9"
     },
     {
       "id": "F8",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/app-shell/surface-page.tsx:9",
       "citation": "",
-      "note": "Possible Shotgun Surgery: viewerCanChangeName hand-added to 13 Manager pages; could come from the surface/layout."
+      "note": "Possible Shotgun Surgery: viewerCanChangeName hand-added to 13 Manager pages; could come from the surface/layout.",
+      "fixed_in": "c0720f9"
     },
     {
       "id": "F9",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/app-shell/viewer-menu.tsx:151",
       "citation": "",
-      "note": "Possible Repeated Switches: ref slots computed by `onChangeName ? n : m`; map an item list."
+      "note": "Possible Repeated Switches: ref slots computed by `onChangeName ? n : m`; map an item list.",
+      "fixed_in": "c0720f9"
     },
     {
       "id": "F10",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/domain/ManagerName.java:9",
       "citation": "",
-      "note": "Possible Mysterious Name: named like a value type but is a static validator returning String."
+      "note": "Possible Mysterious Name: named like a value type but is a static validator returning String.",
+      "fixed_in": "88ab3df"
     },
     {
       "id": "F11",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/app/manager/page.tsx:17; frontend/components/app-shell/change-name-dialog.tsx:155",
       "citation": "",
-      "note": "Possible Duplicated Code: /api/me body shape declared locally and cast inline; export one type from lib/api/types.ts."
+      "note": "Possible Duplicated Code: /api/me body shape declared locally and cast inline; export one type from lib/api/types.ts.",
+      "fixed_in": "c0720f9"
     },
     {
       "id": "F12",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/tests/visual/__screenshots__/manager-desktop-light.png",
       "citation": "docs/agents/frontend.md — Frontend additions to the DoD: 'Visual goldens pass, or were updated in the same commit as the code change that moved them'",
-      "note": "Auditor reads manager-desktop-{light,dark} and manager-menu-open-desktop-{light,dark} as still showing the deleted 'Demo data' footer. Note: the merger and the acceptance-runner both ran the visual suite green (94 passed). Check by running the suite and inspecting the PNGs; recapture if they are stale, dismiss with evidence if not."
+      "note": "Auditor reads manager-desktop-{light,dark} and manager-menu-open-desktop-{light,dark} as still showing the deleted 'Demo data' footer. Note: the merger and the acceptance-runner both ran the visual suite green (94 passed). Check by running the suite and inspecting the PNGs; recapture if they are stale, dismiss with evidence if not.",
+      "fixed_in": "6a5d74a"
     },
     {
       "id": "F13",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/tests/visual/__screenshots__/change-name-dialog-open-desktop-dark.png",
       "citation": "docs/agents/frontend.md — Frontend additions to the DoD: 'Visual goldens pass, or were updated in the same commit as the code change that moved them'",
-      "note": "Auditor reads all four change-name-dialog-open-* goldens as showing the old demo figures behind the dialog. Same caveat as F12: suite reported green; verify and recapture or dismiss with evidence."
+      "note": "Auditor reads all four change-name-dialog-open-* goldens as showing the old demo figures behind the dialog. Same caveat as F12: suite reported green; verify and recapture or dismiss with evidence.",
+      "fixed_in": "6a5d74a"
     },
     {
       "id": "F14",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/dashboard-stats.tsx:25",
       "citation": "web-design-guidelines — Typography: 'Curly quotes, not straight'",
-      "note": "New 'Couldn't load …' meta strings use a straight apostrophe; sibling strings use ’."
+      "note": "New 'Couldn't load …' meta strings use a straight apostrophe; sibling strings use ’.",
+      "fixed_in": "c0720f9"
     },
     {
       "id": "F15",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/app-shell/change-name-dialog.tsx:15",
       "citation": "web-design-guidelines — Typography: 'Curly quotes, not straight'",
-      "note": "GENERIC_MESSAGE uses a straight apostrophe."
+      "note": "GENERIC_MESSAGE uses a straight apostrophe.",
+      "fixed_in": "c0720f9"
     },
     {
       "id": "F16",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/app-shell/change-name-dialog.tsx:123",
       "citation": "web-design-guidelines — Forms: 'Inputs need autocomplete and meaningful name'",
-      "note": "The Name input has autoComplete but no name attribute."
+      "note": "The Name input has autoComplete but no name attribute.",
+      "fixed_in": "c0720f9"
     },
     {
       "id": "F17",
@@ -213,13 +228,14 @@
     {
       "id": "F20",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/app/manager/page.tsx:25",
       "citation": "",
-      "note": "On mobile the chip truncates the role ('Yazan Abuhassan · Man…'); truncate the name segment instead."
+      "note": "On mobile the chip truncates the role ('Yazan Abuhassan · Man…'); truncate the name segment instead.",
+      "fixed_in": "c0720f9"
     },
     {
       "id": "F21",
@@ -235,13 +251,14 @@
     {
       "id": "F22",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/dashboard-stats.tsx:108",
       "citation": "",
-      "note": "'Couldn't load …' messages give no next step; the count cards could link to their lists."
+      "note": "'Couldn't load …' messages give no next step; the count cards could link to their lists.",
+      "fixed_in": "c0720f9"
     },
     {
       "id": "F23",
@@ -268,13 +285,14 @@
     {
       "id": "F25",
       "type": "acceptance-failed",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "acceptance-runner",
       "after_review": false,
       "in_changed_lines": true,
       "where": "docs/features/real-manager-dashboard/spec.md:219",
       "citation": "spec.md Acceptance walkthrough step 16",
-      "note": "The dashboard spec (Solution, ~lines 219-230) says an adjustment is 'a fifth figure' on an Agent Invoice added to total(ai); docs/features/invoice-adjustment/spec.md says 'The Agent Invoice gains no new figure' (it moves Local Support Fees through payableAmountForMonth). Correct the dashboard spec's wording to match invoice-adjustment. Evidence: evidence/step-16.txt."
+      "note": "The dashboard spec (Solution, ~lines 219-230) says an adjustment is 'a fifth figure' on an Agent Invoice added to total(ai); docs/features/invoice-adjustment/spec.md says 'The Agent Invoice gains no new figure' (it moves Local Support Fees through payableAmountForMonth). Correct the dashboard spec's wording to match invoice-adjustment. Evidence: evidence/step-16.txt.",
+      "fixed_in": "23e86a4"
     }
   ]
 }

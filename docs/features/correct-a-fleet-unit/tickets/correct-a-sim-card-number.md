@@ -1,7 +1,7 @@
 ---
 id: correct-a-sim-card-number
 title: Manager and Tester correct a SIM Card's number
-status: ready-for-agent
+status: in-progress
 depends_on: [correct-a-smartphone-model]
 labels: [backend, frontend, fleet]
 stories: [1, 5, 9, 10, 12, 13, 21, 25, 26, 27, 28]

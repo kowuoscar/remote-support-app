@@ -260,3 +260,69 @@ test.describe("client invoices side list row status", () => {
     }
   });
 });
+
+test.describe("client invoices side list sent back", () => {
+  test("a Manager send-back reads once on the row with the list first; a resend clears both", async ({ page }) => {
+    const sentBackName = `Sidesent Zulu ${RUN_ID}`;
+    const otherName = `Sidesent Alpha ${RUN_ID}`;
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const { contractId } = await createClientAndContractWithSeededAgent(page, sentBackName);
+    await createClientAndContractWithSeededAgent(page, otherName);
+    await logout(page);
+
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto(`/agent/client-invoices?contract=${contractId}`);
+    const clients = page.getByRole("navigation", { name: "Clients" });
+    const card = page.getByTestId("client-invoice-card");
+    await page.getByRole("button", { name: "Send Client Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm send" }).click();
+    await expect(clients.getByRole("link", { name: `${sentBackName} Awaiting approval`, exact: true })).toBeVisible();
+    await logout(page);
+
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await page.goto("/manager/invoices");
+    await page.getByRole("link", { name: new RegExp(`^Review Client Invoice: ${sentBackName} `) }).click();
+    await page.getByRole("button", { name: "Send back" }).click();
+    await page.getByRole("textbox", { name: "Reason for sending back" }).fill("Please recheck the base amount.");
+    await page.getByRole("button", { name: "Confirm send back" }).click();
+    await expect(page.getByText(/Sent back to the Agent on/)).toBeVisible();
+    await logout(page);
+
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto(`/agent/client-invoices?contract=${contractId}`);
+    // The row reads "Sent back" once (its own badge, no second mark); no other row carries it.
+    const row = clients.getByRole("link", { name: `${sentBackName} Sent back`, exact: true });
+    await expect(row).toBeVisible();
+    await expect(row.getByText("Sent back")).toHaveCount(1);
+    await expect(clients.getByText("Sent back")).toHaveCount(1);
+
+    // The list sits above the invoice whichever Client is selected.
+    const region = page.getByRole("region", { name: "Sent back to you" });
+    for (const name of [sentBackName, otherName]) {
+      await clients.getByRole("link", { name: new RegExp(`^${name}`) }).click();
+      await expect(card).toBeVisible();
+      const regionBox = await region.boundingBox();
+      const cardBox = await card.boundingBox();
+      expect(regionBox!.y + regionBox!.height).toBeLessThanOrEqual(cardBox!.y);
+    }
+
+    // The Agent resends: the badge returns to "Awaiting approval", no "Sent back" is left on the
+    // row and the region is gone, with the same Client still selected.
+    await row.click();
+    await page.getByRole("button", { name: "Send Client Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm send" }).click();
+    const resent = clients.getByRole("link", { name: `${sentBackName} Awaiting approval`, exact: true });
+    await expect(resent).toBeVisible();
+    await expect(resent).toHaveAttribute("aria-current", "true");
+    await expect(clients.getByText("Sent back")).toHaveCount(0);
+    await expect(region).toHaveCount(0);
+
+    // Leave nothing behind for send-a-client-invoice-back.spec.ts: the Manager approves it.
+    await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await page.goto("/manager/invoices");
+    await page.getByRole("link", { name: new RegExp(`^Review Client Invoice: ${sentBackName} `) }).click();
+    await page.getByRole("button", { name: "Approve" }).click();
+    await expect(page.getByText("Approved", { exact: true })).toBeVisible();
+  });
+});

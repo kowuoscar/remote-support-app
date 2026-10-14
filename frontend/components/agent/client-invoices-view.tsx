@@ -61,6 +61,7 @@ export function AgentClientInvoicesView({
   const [contractId, setContractId] = useState(
     () => ordered.find((c) => c.id === initialContractId)?.id ?? ordered[0]?.id ?? "",
   );
+  const sentBackContracts = useMemo(() => new Set(sentBack.map((row) => row.contractId)), [sentBack]);
   const invoiceAreaRef = useRef<HTMLDivElement>(null);
   const invoice = invoicesByContract[contractId];
 
@@ -105,7 +106,11 @@ export function AgentClientInvoicesView({
       <ContractSideList
         contracts={ordered.map((c) => {
           const current = invoicesByContract[c.id];
-          return { ...c, status: current ? clientInvoiceBadge(current) : null };
+          const status = current ? clientInvoiceBadge(current) : null;
+          // The extra mark: a sent-back invoice of any month is in the list, and the row's own badge
+          // does not already say so (never twice).
+          const sentBackMark = sentBackContracts.has(c.id) && status?.label !== "Sent back";
+          return { ...c, status, sentBackMark };
         })}
         selectedId={contractId}
         onSelect={select}
@@ -188,11 +193,12 @@ function SentBackSection({ rows }: { rows: SentBackClientInvoice[] }) {
             <Tbody>
               {rows.map((row) => {
                 const month = formatBillingMonth(row.billingMonth);
+                const contractLabel = `${row.clientName} — ${countryLabel(row.country)}`;
                 return (
                   <Tr key={row.id}>
                     <Td className="min-w-32 max-w-56 font-medium text-ink">
-                      <span className="line-clamp-2 break-words">
-                        {row.clientName} — {countryLabel(row.country)}
+                      <span className="line-clamp-2 break-words" title={contractLabel}>
+                        {contractLabel}
                       </span>
                     </Td>
                     <Td className="whitespace-nowrap text-ink-secondary">{month}</Td>
@@ -205,7 +211,7 @@ function SentBackSection({ rows }: { rows: SentBackClientInvoice[] }) {
                     <Td className="text-right">
                       <Link
                         href={`/agent/client-invoices/${row.id}`}
-                        aria-label={`Open ${row.clientName}, ${month}`}
+                        aria-label={`Open ${contractLabel}, ${month}`}
                         className="inline-flex h-7 items-center gap-1.5 whitespace-nowrap rounded-lg bg-primary-soft-bg px-3 text-label font-medium text-primary-soft-text transition-colors hover:bg-primary/20 active:bg-primary/25"
                       >
                         Open

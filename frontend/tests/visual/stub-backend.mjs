@@ -700,7 +700,20 @@ createServer((request, response) => {
   if (url.pathname === "/api/client-invoices/sent-back" && request.method === "GET" && caller.invoices) {
     const contract = INVOICE_CONTRACTS[3];
     const invoice = clientInvoiceFor(contract);
+    // sent-back-in-the-side-list: an earlier month's invoice of the SENT Contract, so its row reads
+    // "Awaiting approval" plus the "Sent back" mark; oldest first, as the API returns them.
+    const sent = INVOICE_CONTRACTS[1];
     return send(response, 200, [
+      {
+        id: "99999999-0000-0000-0000-0000000000a2",
+        contractId: sent.id,
+        clientName: sent.clientName,
+        country: sent.country,
+        billingMonth: "2026-08-01",
+        currency: sent.currency,
+        sentBackAt: "2026-09-02T10:00:00Z",
+        sentBackReason: "The August roaming Fee is missing its receipt.",
+      },
       {
         id: invoice.id,
         contractId: contract.id,

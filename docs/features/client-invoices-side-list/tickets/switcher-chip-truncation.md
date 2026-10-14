@@ -1,7 +1,7 @@
 ---
 id: switcher-chip-truncation
 title: A long Client name in the single-Contract chip truncates
-status: in-progress
+status: done
 depends_on: []
 labels: [frontend]
 stories: [25]

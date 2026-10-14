@@ -25,7 +25,7 @@ Seams: vitest component tests, Playwright e2e, the stubbed visual suite (spec `#
 
 ## Regression
 
-Existing tests expected to change, each only by addition with every pre-existing case passing unmodified: `frontend/components/app-shell/viewer-menu.test.tsx` (new three-item and arrow-key cases); `tests/visual/viewer-menu.spec.ts` (golden recaptured with the third item); `tests/e2e/manager-dashboard.spec.ts` (name step added to the file created earlier). At risk: Agent and Tester menus and the change-password flow (`change-password.spec.ts`, `change-password-dialog.spec.ts`).
+Existing tests expected to change, each only by addition with every pre-existing case passing unmodified: `frontend/components/app-shell/viewer-menu.test.tsx` (new three-item and arrow-key cases); `tests/visual/viewer-menu.spec.ts` (golden recaptured with the third item); `tests/e2e/manager-dashboard.spec.ts` (name step added to the file created earlier; its existing first test no longer hard-codes the chip as `<username> · Manager` but derives it from the page's own `/api/me` read, because the rename step names the shared e2e Manager and a name cannot be cleared, so the hard-coded expectation would fail whenever the rename ran first). At risk: Agent and Tester menus and the change-password flow (`change-password.spec.ts`, `change-password-dialog.spec.ts`).
 
 ## Observability
 

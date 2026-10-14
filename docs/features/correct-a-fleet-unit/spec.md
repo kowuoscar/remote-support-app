@@ -1,7 +1,7 @@
 ---
 feature: correct-a-fleet-unit
 epic: fleet-corrections
-status: draft
+status: approved
 date: 2026-10-14
 ---
 

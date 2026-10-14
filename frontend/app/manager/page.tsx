@@ -8,8 +8,8 @@ import type {
   ContractListItem,
   PendingRequestItem,
   ReviewQueueItem,
+  TenantTotals,
 } from "@/lib/api/types";
-import { tenantStats } from "@/lib/demo/manager";
 
 export const metadata = { title: "Dashboard" };
 
@@ -29,10 +29,11 @@ export default async function ManagerDashboardPage() {
   // Each region loads alone and fails alone: a read that can't be made is `null` (logged), and only
   // its own card goes unavailable. No figure here is scoped by /api/me, so a failed identity read
   // only costs the chip its name.
-  const [me, reviewQueue, pendingRequests, clients, agents, contracts] = await Promise.all([
+  const [me, reviewQueue, pendingRequests, totals, clients, agents, contracts] = await Promise.all([
     backendFetchJsonOrNull<Me>("/api/me", "Dashboard: GET /api/me"),
     backendFetchJsonOrNull<ReviewQueueItem[]>("/api/review-queue", "Dashboard: Review Queue"),
     backendFetchJsonOrNull<PendingRequestItem[]>("/api/pending-requests", "Dashboard: Pending Requests"),
+    backendFetchJsonOrNull<TenantTotals>("/api/tenant-totals", "Dashboard: GET /api/tenant-totals"),
     backendFetchJsonOrNull<ClientListItem[]>("/api/clients", "Dashboard: GET /api/clients"),
     backendFetchJsonOrNull<AgentListItem[]>("/api/agents", "Dashboard: GET /api/agents"),
     backendFetchJsonOrNull<ContractListItem[]>("/api/contracts", "Dashboard: GET /api/contracts"),
@@ -43,8 +44,9 @@ export default async function ManagerDashboardPage() {
       <ManagerDashboardStats
         pendingApprovalsCount={reviewQueue?.length ?? null}
         pendingRequestsCount={pendingRequests?.length ?? null}
-        billedThisMonth={tenantStats.billedThisMonthUSD}
-        payoutThisMonth={tenantStats.payoutThisMonthUSD}
+        billedThisMonth={totals?.billed ?? null}
+        payoutThisMonth={totals?.payout ?? null}
+        billingMonth={totals?.billingMonth ?? null}
         clientCount={clients?.length ?? null}
         agentCount={agents?.length ?? null}
         contractCount={contracts?.length ?? null}

@@ -1,5 +1,39 @@
-import { test, expect } from "@playwright/test";
-import { SEEDED_USERS, login } from "./helpers";
+import { test, expect, type Page } from "@playwright/test";
+import {
+  SEEDED_USERS,
+  addPostpaidSimCard,
+  createClientAndContractWithSeededAgent,
+  login,
+  logout,
+  rollSeededAgentInvoiceIntoThePast,
+  selectContractInSwitcher,
+} from "./helpers";
+
+const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+
+/** The USD line of a money card in cents, or 0 while the card reads a plain 0. */
+async function usdCents(page: Page, testId: string): Promise<number> {
+  const text = await page.getByTestId(testId).innerText();
+  const match = text.match(/\$([\d,]+\.\d{2})/);
+  return match ? Math.round(Number(match[1].replace(/,/g, "")) * 100) : 0;
+}
+
+async function readMoneyCards(page: Page) {
+  await page.goto("/manager");
+  await expect(page.getByTestId("dashboard-ready")).toBeVisible();
+  return { billed: await usdCents(page, "billed-stat"), payout: await usdCents(page, "payout-stat") };
+}
+
+/** The total the Review Queue shows for the waiting invoice whose subject matches, in cents. */
+async function queuedTotalCents(page: Page, kind: "CLIENT_INVOICE" | "AGENT_INVOICE", clientName: string | null) {
+  const items: { kind: string; clientName: string | null; agentName: string; totalAmount: number }[] =
+    await page.evaluate(async () => (await fetch("/api/review-queue")).json());
+  const item = items.find(
+    (i) => i.kind === kind && (kind === "AGENT_INVOICE" ? i.agentName === "Jordan Ellis" : i.clientName === clientName),
+  );
+  expect(item, `a waiting ${kind}`).toBeDefined();
+  return Math.round(item!.totalAmount * 100);
+}
 
 /**
  * The Manager dashboard against a real backend + Postgres (real-manager-dashboard spec; ticket
@@ -85,5 +119,82 @@ test.describe("the Manager dashboard's identity and counts", () => {
     await expect(page.getByTestId("viewer-menu-trigger")).toHaveText("Manager");
     await page.getByTestId("viewer-menu-trigger").click();
     await expect(page.getByRole("menuitem")).toHaveText(["Change name", "Change password", "Log out"]);
+  });
+});
+
+test.describe("the Manager dashboard's money cards", () => {
+  test("Billed grows when the Agent sends a Client Invoice, not on approval; Payout grows on approval, not on send", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const clientName = `Money Dash ${RUN_ID}`;
+
+    // A Contract with a Postpaid SIM, so the Client Invoice has a non-zero total.
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const { contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    await addPostpaidSimCard(page, contractId, `+1-555-${RUN_ID.slice(-4)}`, "37.53");
+    const beforeBilled = await readMoneyCards(page);
+
+    // The Agent sends the Client Invoice: Billed grows by exactly its total.
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/client-invoices");
+    await selectContractInSwitcher(page, clientName);
+    await page.getByRole("button", { name: "Send Client Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm send" }).click();
+    await expect(page.getByText("Awaiting approval")).toBeVisible();
+    await logout(page);
+
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientTotal = await queuedTotalCents(page, "CLIENT_INVOICE", clientName);
+    expect(clientTotal).toBeGreaterThan(0);
+    const afterSend = await readMoneyCards(page);
+    expect(afterSend.billed - beforeBilled.billed).toBe(clientTotal);
+    expect(afterSend.payout).toBe(beforeBilled.payout);
+
+    // The Manager approves it: Billed is unchanged.
+    await page.goto("/manager/invoices");
+    await page.getByRole("link", { name: new RegExp(`^Review Client Invoice: ${clientName} `) }).click();
+    await page.getByRole("button", { name: "Approve" }).click();
+    await expect(page.getByText("Approved", { exact: true })).toBeVisible();
+    const afterApprove = await readMoneyCards(page);
+    expect(afterApprove.billed).toBe(afterSend.billed);
+
+    // The Agent sends their Agent Invoice: Payout is unchanged.
+    await rollSeededAgentInvoiceIntoThePast();
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/my-invoice");
+    await page.getByRole("button", { name: "Send Agent Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm send" }).click();
+    await expect(page.getByText("Awaiting approval")).toBeVisible();
+    await logout(page);
+
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const afterAgentSend = await readMoneyCards(page);
+    expect(afterAgentSend.payout).toBe(afterApprove.payout);
+
+    // The Manager overrides the Salary (a total this run owns), approves, and Payout grows by it.
+    await page.goto("/manager/invoices");
+    await page.getByRole("link", { name: /^Review Agent Invoice: Jordan Ellis, / }).click();
+    const salaryInput = page.getByLabel(/Override Salary/);
+    const overrideForm = page.locator("form").filter({ has: salaryInput });
+    await salaryInput.fill("4321.00");
+    await overrideForm.getByRole("button", { name: "Override" }).click();
+    await expect(overrideForm.getByText("Applied to this invoice only.")).toBeVisible();
+    const agentTotal = await queuedTotalCents(page, "AGENT_INVOICE", null);
+    await page.getByRole("button", { name: "Approve" }).click();
+    await expect(page.getByText("Approved", { exact: true })).toBeVisible();
+
+    const afterAgentApprove = await readMoneyCards(page);
+    expect(afterAgentApprove.payout - afterAgentSend.payout).toBe(agentTotal);
+    expect(afterAgentApprove.billed).toBe(afterApprove.billed);
+
+    // Marking it paid leaves Payout unchanged.
+    await page.goto("/manager/invoices");
+    await page.getByRole("link", { name: /^Review Agent Invoice: Jordan Ellis, / }).click();
+    await page.getByRole("button", { name: "Mark paid" }).click();
+    await expect(page.getByText("Paid", { exact: true })).toBeVisible();
+    expect((await readMoneyCards(page)).payout).toBe(afterAgentApprove.payout);
   });
 });

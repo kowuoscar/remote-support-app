@@ -210,6 +210,33 @@ test.describe("the Manager dashboard's identity and count states", () => {
     await expect(page.locator("header").first()).toContainText("manager@example.com · Manager");
   });
 
+  test("manager-money-cards-show-one-line-per-currency-with-the-reads-month", async ({ page }) => {
+    await gotoWithSession(page, "/manager", "visual-manager-session");
+
+    await expect(page.getByTestId("dashboard-ready")).toBeVisible();
+    const billed = page.getByTestId("billed-stat");
+    await expect(billed).toContainText("£2,310.00");
+    await expect(billed).toContainText("$1,284.50");
+    await expect(billed).toContainText("Sent or approved · September 2026");
+    const payout = page.getByTestId("payout-stat");
+    await expect(payout).toContainText("$2,835.99");
+    await expect(payout).toContainText("Approved or paid · September 2026");
+  });
+
+  test("empty-manager-money-cards-read-a-plain-zero", async ({ page }) => {
+    await gotoWithSession(page, "/manager", "visual-manager-empty-session");
+
+    await expect(page.getByTestId("dashboard-ready")).toBeVisible();
+    for (const [id, meta] of [
+      ["billed-stat", "Sent or approved · September 2026"],
+      ["payout-stat", "Approved or paid · September 2026"],
+    ] as const) {
+      const card = page.getByTestId(id);
+      await expect(card).toHaveText(new RegExp(`^.*0${meta}$`));
+      await expect(card).not.toContainText(/[$£€]|USD|GBP/);
+    }
+  });
+
   test("degraded-manager-shows-plain-chip-and-agents-unavailable-with-other-cards-showing", async ({ page }) => {
     await gotoWithSession(page, "/manager", "visual-manager-degraded-session");
 
@@ -219,6 +246,11 @@ test.describe("the Manager dashboard's identity and count states", () => {
     const agents = page.getByTestId("agents-stat");
     await expect(agents).toContainText("—");
     await expect(agents).toContainText("Couldn't load your Agents");
+    for (const id of ["billed-stat", "payout-stat"]) {
+      const card = page.getByTestId(id);
+      await expect(card).toContainText("—");
+      await expect(card).toContainText("Couldn't load this month's totals");
+    }
     await expect(page.getByTestId("clients-stat")).toContainText("In this tenant");
     await expect(page.getByTestId("contracts-stat")).toContainText("Client × Agent pairs");
     await expect(page.getByTestId("pending-approvals-stat")).toContainText("2");

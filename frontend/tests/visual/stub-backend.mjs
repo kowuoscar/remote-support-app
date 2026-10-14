@@ -14,7 +14,7 @@ const ROLES = {
   // username); the degraded one answers 500 on GET /api/me and GET /api/agents. Not captured as
   // goldens; both are asserted in surfaces.spec.ts.
   "visual-manager-session": { username: "manager@example.com", role: "MANAGER", name: "Yazan Abuhassan" },
-  "visual-manager-empty-session": { username: "manager@example.com", role: "MANAGER" },
+  "visual-manager-empty-session": { username: "manager@example.com", role: "MANAGER", emptyTotals: true },
   "visual-manager-degraded-session": {
     username: "manager@example.com",
     role: "MANAGER",
@@ -461,6 +461,22 @@ createServer((request, response) => {
         agentId: AGENTS[1].id,
       },
     ]);
+  }
+  // real-manager-dashboard: the Tenant's money for a fixed Billing Month — billed in two currencies
+  // (GBP then USD, as the read orders them), payout in one. The empty session has nothing counted
+  // (both lists `[]`); the degraded one answers 500.
+  if (url.pathname === "/api/tenant-totals" && request.method === "GET") {
+    if (caller.role !== "MANAGER") return send(response, 403);
+    if (caller.degraded) return send(response, 500);
+    if (caller.emptyTotals) return send(response, 200, { billingMonth: "2026-09-01", billed: [], payout: [] });
+    return send(response, 200, {
+      billingMonth: "2026-09-01",
+      billed: [
+        { currency: "GBP", amount: 2310 },
+        { currency: "USD", amount: 1284.5 },
+      ],
+      payout: [{ currency: "USD", amount: 2835.99 }],
+    });
   }
   // real-client-dashboard: the caller's own Client; any non-Tester, or an unlinked Tester, is a 404.
   if (url.pathname === "/api/me/client" && request.method === "GET") {

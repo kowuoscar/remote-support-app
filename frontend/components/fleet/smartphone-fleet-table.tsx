@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { SmartphoneModelControl } from "@/components/fleet/smartphone-model-control";
+import { SmartphoneOwnerControl } from "@/components/fleet/smartphone-owner-control";
 import { SmartphoneSerialControl } from "@/components/fleet/smartphone-serial-control";
 import { simCardNumbersInstalledIn } from "@/components/fleet/installed-in";
 import { smartphoneStatusToneByValue } from "@/lib/status";
@@ -10,8 +11,8 @@ import { SMARTPHONE_OWNER_LABEL, SMARTPHONE_STATUS_LABEL, type SimCardListItem, 
 /**
  * The Smartphone table markup shared by every Fleet view. `contractId` is the route to call for any
  * control. Serial is always shown — editable (`SmartphoneSerialControl`) only when `canEditSerial`
- * is given (Agent, Manager), otherwise plain text. Model is a correction control
- * (`SmartphoneModelControl`) only when `canCorrect` is given (Manager, Tester). Owner and the reverse "SIM Cards" lookup (`simCardNumbersInstalledIn`) are
+ * is given (Agent, Manager), otherwise plain text. Model and owner are correction controls
+ * (`SmartphoneModelControl`, `SmartphoneOwnerControl`) only when `canCorrect` is given (Manager, Tester). The reverse "SIM Cards" lookup (`simCardNumbersInstalledIn`) is
  * always shown; `changeStatus` is the one axis the three roles vary on (Agent: given; Client/
  * Manager: omitted). Extracted from the near-identical copies in agent/fleet-view.tsx,
  * client/fleet-view.tsx and manager/contract-fleet-view.tsx — same markup and classes each caller
@@ -64,7 +65,13 @@ export function SmartphoneFleetTable({
                 (phone.serial ?? "—")
               )}
             </Td>
-            <Td className="text-ink-secondary">{SMARTPHONE_OWNER_LABEL[phone.owner]}</Td>
+            <Td className="text-ink-secondary">
+              {contractId && canCorrect ? (
+                <SmartphoneOwnerControl contractId={contractId} smartphoneId={phone.id} owner={phone.owner} />
+              ) : (
+                SMARTPHONE_OWNER_LABEL[phone.owner]
+              )}
+            </Td>
             <Td className="tnum text-ink-secondary">{simCardNumbersInstalledIn(simCards, phone.id)}</Td>
             <Td>
               <Badge tone={smartphoneStatusToneByValue[phone.status]}>

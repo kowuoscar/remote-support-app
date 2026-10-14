@@ -37,6 +37,13 @@ public interface ReturnedUnitRepository extends JpaRepository<ReturnedUnit, UUID
   Optional<ReturnedUnit> findFirstBySmartphoneIdAndDispositionOrderByCreatedAtDesc(
       UUID smartphoneId, Disposition disposition);
 
+  /**
+   * Whether a Return Request in one of {@code openStatuses} names this Smartphone (an owner
+   * correction is refused while one does; correct-a-fleet-unit spec). Only Returns have rows here.
+   */
+  boolean existsBySmartphoneIdAndRequestStatusIn(
+      UUID smartphoneId, java.util.Collection<com.remotesupport.backend.domain.RequestStatus> openStatuses);
+
   Optional<ReturnedUnit> findFirstBySimCardIdAndDispositionOrderByCreatedAtDesc(
       UUID simCardId, Disposition disposition);
 }

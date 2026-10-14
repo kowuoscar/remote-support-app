@@ -239,4 +239,192 @@ class SmartphoneCorrectionApiTest extends IntegrationTest {
     return UUID.fromString(
         objectMapper.readTree(result.andReturn().getResponse().getContentAsString()).get("id").asText());
   }
+
+  // --- owner (ticket correct-a-smartphone-owner) ----------------------------------------------
+
+  private ResultActions correctOwner(UUID contract, UUID phone, String token, String owner) throws Exception {
+    MockHttpServletRequestBuilder request =
+        patch("/api/contracts/" + contract + "/smartphones/" + phone + "/owner")
+            .contentType(APPLICATION_JSON)
+            .content("{\"owner\":\"%s\"}".formatted(owner));
+    if (token != null) {
+      request.header("Authorization", "Bearer " + token);
+    }
+    return mockMvc.perform(request);
+  }
+
+  private void fleetShowsOwner(String token, UUID phone, String owner) throws Exception {
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/smartphones").header("Authorization", "Bearer " + token))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.id=='%s')].owner".formatted(phone)).value(owner));
+  }
+
+  private UUID returnOf(String token, UUID phone) throws Exception {
+    return idOf(
+        postRequest(
+                contractId,
+                token,
+                "{\"type\":\"RETURN\",\"returnedSmartphoneIds\":[\"%s\"]}".formatted(phone))
+            .andExpect(status().isCreated()));
+  }
+
+  private String clientTester() throws Exception {
+    return createTesterAndLogin(managerToken, clientId, "own." + UUID.randomUUID() + "@corr.example");
+  }
+
+  @Test
+  void aManagerAndATesterOfTheOwnClientCorrectTheOwnerInBothDirections() throws Exception {
+    fleetShowsOwner(managerToken, smartphoneId, "COMPANY");
+    correctOwner(contractId, smartphoneId, managerToken, "CLIENT")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.owner").value("CLIENT"));
+    fleetShowsOwner(managerToken, smartphoneId, "CLIENT");
+
+    String tester = clientTester();
+    correctOwner(contractId, smartphoneId, tester, "COMPANY")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.owner").value("COMPANY"));
+    fleetShowsOwner(tester, smartphoneId, "COMPANY");
+  }
+
+  @Test
+  void aTesterOfAnotherClientAndAnyAgentCannotCorrectTheOwnerAndNoTokenOrOtherTenantIsRefused() throws Exception {
+    UUID otherClient = createClient(managerToken, "Other Owner Client " + UUID.randomUUID());
+    String stranger =
+        createTesterAndLogin(managerToken, otherClient, "stranger." + UUID.randomUUID() + "@corr.example");
+
+    correctOwner(contractId, smartphoneId, stranger, "CLIENT").andExpect(status().isForbidden());
+    correctOwner(contractId, smartphoneId, agentToken(), "CLIENT").andExpect(status().isForbidden());
+    correctOwner(contractId, smartphoneId, null, "CLIENT").andExpect(status().isUnauthorized());
+    OtherTenantFixture.ContractWithSmartphone foreign = otherTenantFixture.smartphoneOnContractInAnotherTenant();
+    correctOwner(foreign.contractId(), foreign.smartphoneId(), managerToken, "CLIENT")
+        .andExpect(status().isNotFound());
+    fleetShowsOwner(managerToken, smartphoneId, "COMPANY");
+  }
+
+  @Test
+  void anOwnerChangeIsRefusedWhileAReturnNamingThePhoneIsPendingApprovalSubmittedOrInProgress() throws Exception {
+    String tester = clientTester();
+
+    // Pending Approval: a Company-owned phone's Return.
+    returnOf(tester, smartphoneId);
+    correctOwner(contractId, smartphoneId, managerToken, "CLIENT")
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("SMARTPHONE_ON_OPEN_RETURN"));
+    fleetShowsOwner(managerToken, smartphoneId, "COMPANY");
+
+    // Submitted, then In Progress: a Client-owned phone's Return.
+    UUID clientPhone = createClientOwnedSmartphone("Pixel 7");
+    UUID submitted = returnOf(tester, clientPhone);
+    correctOwner(contractId, clientPhone, tester, "COMPANY")
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("SMARTPHONE_ON_OPEN_RETURN"));
+    patchStatus(contractId, submitted, agentToken(), "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    correctOwner(contractId, clientPhone, managerToken, "COMPANY")
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("SMARTPHONE_ON_OPEN_RETURN"));
+    fleetShowsOwner(managerToken, clientPhone, "CLIENT");
+  }
+
+  @Test
+  void theOwnerCanBeCorrectedOnceTheReturnIsCancelledCompletedOrRejected() throws Exception {
+    String tester = clientTester();
+
+    UUID cancelledPhone = createSmartphone(managerToken, contractId, "Cancelled one");
+    UUID cancelled = returnOf(tester, cancelledPhone);
+    patchStatus(
+            contractId,
+            cancelled,
+            agentToken(),
+            "{\"status\":\"CANCELLED\",\"cancellationReason\":\"No longer needed\"}").andExpect(status().isOk());
+    correctOwner(contractId, cancelledPhone, managerToken, "CLIENT").andExpect(status().isOk());
+
+    UUID rejectedPhone = createSmartphone(managerToken, contractId, "Rejected one");
+    UUID rejected = returnOf(tester, rejectedPhone);
+    rejectAsManager(managerToken, rejected, "Not now");
+    correctOwner(contractId, rejectedPhone, tester, "CLIENT").andExpect(status().isOk());
+
+    UUID completedPhone = createClientOwnedSmartphone("Completed one");
+    UUID completed = returnOf(tester, completedPhone);
+    patchStatus(contractId, completed, agentToken(), "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, completed, agentToken(), "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
+    correctOwner(contractId, completedPhone, managerToken, "COMPANY").andExpect(status().isOk());
+  }
+
+  @Test
+  void aReturnRaisedAfterTheCorrectionFollowsTheCorrectedOwnersPath() throws Exception {
+    String tester = clientTester();
+    UUID toClient = createSmartphone(managerToken, contractId, "Was company");
+    correctOwner(contractId, toClient, managerToken, "CLIENT").andExpect(status().isOk());
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/requests")
+                .header("Authorization", "Bearer " + tester)
+                .contentType(APPLICATION_JSON)
+                .content("{\"type\":\"RETURN\",\"returnedSmartphoneIds\":[\"%s\"]}".formatted(toClient)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value("SUBMITTED"))
+        .andExpect(jsonPath("$.returnedUnits[0].disposition").value("POSTED_TO_CLIENT"));
+
+    UUID toCompany = createClientOwnedSmartphone("Was client");
+    correctOwner(contractId, toCompany, tester, "COMPANY").andExpect(status().isOk());
+    mockMvc
+        .perform(
+            post("/api/contracts/" + contractId + "/requests")
+                .header("Authorization", "Bearer " + tester)
+                .contentType(APPLICATION_JSON)
+                .content("{\"type\":\"RETURN\",\"returnedSmartphoneIds\":[\"%s\"]}".formatted(toCompany)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.status").value("PENDING_APPROVAL"));
+  }
+
+  @Test
+  void savingTheOwnerAlreadyHeldIsA200EvenOnAPhoneWithAnOpenReturn() throws Exception {
+    correctOwner(contractId, smartphoneId, managerToken, "COMPANY")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.owner").value("COMPANY"));
+    returnOf(clientTester(), smartphoneId);
+    correctOwner(contractId, smartphoneId, managerToken, "COMPANY").andExpect(status().isOk());
+  }
+
+  @Test
+  void anOwnerChangeLogsOneEventAndAnUnchangedOwnerLogsNone() throws Exception {
+    ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    appender.start();
+    Logger audit = (Logger) LoggerFactory.getLogger("AUDIT");
+    audit.addAppender(appender);
+    try {
+      correctOwner(contractId, smartphoneId, managerToken, "COMPANY").andExpect(status().isOk());
+      assertThat(ownerEvents(appender)).isEmpty();
+
+      correctOwner(contractId, smartphoneId, managerToken, "CLIENT").andExpect(status().isOk());
+      assertThat(ownerEvents(appender))
+          .singleElement()
+          .satisfies(
+              line ->
+                  assertThat(line)
+                      .contains("entityId=" + smartphoneId)
+                      .contains("contractId=" + contractId)
+                      .contains("oldOwner=COMPANY")
+                      .contains("newOwner=CLIENT")
+                      .contains("role=MANAGER")
+                      .contains("tenantId=" + SEEDED_TENANT_ID));
+    } finally {
+      audit.detachAppender(appender);
+    }
+  }
+
+  private static List<String> ownerEvents(ListAppender<ILoggingEvent> appender) {
+    return appender.list.stream()
+        .map(ILoggingEvent::getFormattedMessage)
+        .filter(m -> m.contains("action=smartphoneOwnerCorrected"))
+        .toList();
+  }
+
+  private UUID createClientOwnedSmartphone(String model) throws Exception {
+    UUID id = createSmartphone(managerToken, contractId, model);
+    correctOwner(contractId, id, managerToken, "CLIENT").andExpect(status().isOk());
+    return id;
+  }
 }

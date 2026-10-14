@@ -33,7 +33,7 @@ function MetaLink({ href, children }: { href: string; children: ReactNode }) {
 }
 
 function moneyMeta(lines: CurrencyAmount[] | null, rule: string, billingMonth: string | null) {
-  if (lines === null) return "Couldn’t load this month’s totals — reload to retry";
+  if (lines === null) return "Couldn’t load this month’s totals";
   return billingMonth ? `${rule} · ${formatBillingMonth(billingMonth)}` : rule;
 }
 
@@ -77,11 +77,9 @@ export function ManagerDashboardStats({
         value={pendingApprovalsCount ?? "—"}
         primary
         meta={
-          pendingApprovalsCount === null ? (
-            <MetaLink href="/manager/invoices">Couldn’t load — open Invoices</MetaLink>
-          ) : (
-            "Client + Agent Invoices awaiting review"
-          )
+          pendingApprovalsCount === null
+            ? "Couldn’t load the Review Queue"
+            : "Client + Agent Invoices awaiting review"
         }
         data-testid="pending-approvals-stat"
       />
@@ -114,39 +112,21 @@ export function ManagerDashboardStats({
         label="Clients"
         value={clientCount ?? UNAVAILABLE_FIGURE}
         primary
-        meta={
-          clientCount === null ? (
-            <MetaLink href="/manager/clients">Couldn’t load — open Clients</MetaLink>
-          ) : (
-            "In this tenant"
-          )
-        }
+        meta={clientCount === null ? "Couldn’t load your Clients" : "In this tenant"}
         data-testid="clients-stat"
       />
       <StatCard
         label="Agents"
         value={agentCount ?? UNAVAILABLE_FIGURE}
         primary
-        meta={
-          agentCount === null ? (
-            <MetaLink href="/manager/agents">Couldn’t load — open Agents</MetaLink>
-          ) : (
-            "Across all countries"
-          )
-        }
+        meta={agentCount === null ? "Couldn’t load your Agents" : "Across all countries"}
         data-testid="agents-stat"
       />
       <StatCard
         label="Contracts"
         value={contractCount ?? UNAVAILABLE_FIGURE}
         primary
-        meta={
-          contractCount === null ? (
-            <MetaLink href="/manager/contracts">Couldn’t load — open Contracts</MetaLink>
-          ) : (
-            "Client × Agent pairs"
-          )
-        }
+        meta={contractCount === null ? "Couldn’t load your Contracts" : "Client × Agent pairs"}
         data-testid="contracts-stat"
       />
     </div>

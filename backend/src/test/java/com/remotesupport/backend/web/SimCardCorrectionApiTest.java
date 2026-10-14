@@ -5,6 +5,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -14,6 +15,10 @@ import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
+import com.remotesupport.backend.domain.ClientInvoice;
+import com.remotesupport.backend.repository.ClientInvoiceRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
@@ -293,6 +299,339 @@ class SimCardCorrectionApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.basePostpaidSims[0].number").value("+1-555-0799"))
         .andExpect(jsonPath("$.basePostpaidSims[0].amount").value(18.00))
         .andExpect(jsonPath("$.baseAmount").value(18.00));
+  }
+
+  // --- Postpaid plan (ticket correct-a-postpaid-plan) -----------------------------------------
+
+  @Autowired private JdbcTemplate jdbcTemplate;
+  @Autowired private ClientInvoiceRepository clientInvoiceRepository;
+
+  @PersistenceContext private EntityManager entityManager;
+
+  /** Fixture for a SIM from before the Carrier catalog: rewrite the row, then forget the cached entity. */
+  private void rewriteSim(String assignments, UUID simId) {
+    entityManager.flush();
+    jdbcTemplate.update("UPDATE sim_cards SET " + assignments + " WHERE id = ?", simId);
+    entityManager.clear();
+  }
+
+  private record PostpaidSim(UUID simId, UUID carrierId, UUID planId) {}
+
+  private PostpaidSim addPostpaidSim(String number, String price) throws Exception {
+    UUID carrierId = createCarrierWithNoOptions(managerToken, contractId);
+    UUID planId = createPostpaidPlan(managerToken, carrierId, "Plan " + UUID.randomUUID(), price);
+    UUID sim =
+        idOf(
+            mockMvc
+                .perform(
+                    post("/api/contracts/" + contractId + "/sim-cards")
+                        .header("Authorization", "Bearer " + managerToken)
+                        .contentType(APPLICATION_JSON)
+                        .content(
+                            "{\"number\":\"%s\",\"carrierId\":\"%s\",\"flavor\":\"POSTPAID\",\"postpaidPlanId\":\"%s\"}"
+                                .formatted(number, carrierId, planId)))
+                .andExpect(status().isCreated()));
+    return new PostpaidSim(sim, carrierId, planId);
+  }
+
+  private ResultActions correctPlan(UUID contract, UUID sim, String token, UUID planId) throws Exception {
+    MockHttpServletRequestBuilder request =
+        patch("/api/contracts/" + contract + "/sim-cards/" + sim + "/postpaid-plan")
+            .contentType(APPLICATION_JSON)
+            .content(planId == null ? "{}" : "{\"postpaidPlanId\":\"%s\"}".formatted(planId));
+    if (token != null) {
+      request.header("Authorization", "Bearer " + token);
+    }
+    return mockMvc.perform(request);
+  }
+
+  private void fleetShowsPlan(UUID sim, UUID planId, String fee) throws Exception {
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/sim-cards").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.id=='%s')].postpaidPlanId".formatted(sim)).value(planId.toString()))
+        .andExpect(jsonPath("$[?(@.id=='%s')].monthlyFeeAmount".formatted(sim)).value(Double.parseDouble(fee)));
+  }
+
+  private JsonNode json(ResultActions actions) throws Exception {
+    return objectMapper.readTree(actions.andReturn().getResponse().getContentAsString());
+  }
+
+  private JsonNode agentClientInvoice() throws Exception {
+    return json(
+        mockMvc
+            .perform(
+                get("/api/contracts/" + contractId + "/client-invoice")
+                    .header("Authorization", "Bearer " + agentToken()))
+            .andExpect(status().isOk()));
+  }
+
+  private double fees() throws Exception {
+    return json(
+            mockMvc
+                .perform(
+                    get("/api/agents/" + SEEDED_AGENT_ID + "/invoice").header("Authorization", "Bearer " + agentToken()))
+                .andExpect(status().isOk()))
+        .get("localSupportFees")
+        .asDouble();
+  }
+
+  @Test
+  void aManagerAndAnyTesterOfTheClientCorrectThePlanAndTheFeeFollowsThePlansPrice() throws Exception {
+    PostpaidSim sim = addPostpaidSim("+1-555-0801", "30.00");
+    UUID cheaper = createPostpaidPlan(managerToken, sim.carrierId(), "Lite", "12.50");
+    UUID dearer = createPostpaidPlan(managerToken, sim.carrierId(), "Max", "45.00");
+
+    correctPlan(contractId, sim.simId(), managerToken, cheaper)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.postpaidPlanId").value(cheaper.toString()))
+        .andExpect(jsonPath("$.monthlyFeeAmount").value(12.50));
+    fleetShowsPlan(sim.simId(), cheaper, "12.50");
+
+    String tester = createTesterAndLogin(managerToken, clientId, "plan." + UUID.randomUUID() + "@simcorr.example");
+    correctPlan(contractId, sim.simId(), tester, dearer)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.monthlyFeeAmount").value(45.00));
+    fleetShowsPlan(sim.simId(), dearer, "45.00");
+  }
+
+  @Test
+  void aTesterOfAnotherClientAndAnyAgentAreRefusedNoTokenIs401AndAnotherTenantIs404() throws Exception {
+    PostpaidSim sim = addPostpaidSim("+1-555-0802", "30.00");
+    UUID other = createPostpaidPlan(managerToken, sim.carrierId(), "Other", "9.00");
+    UUID otherClient = createClient(managerToken, "Other Plan Client " + UUID.randomUUID());
+    String stranger = createTesterAndLogin(managerToken, otherClient, "s." + UUID.randomUUID() + "@simcorr.example");
+
+    correctPlan(contractId, sim.simId(), stranger, other).andExpect(status().isForbidden());
+    correctPlan(contractId, sim.simId(), agentToken(), other).andExpect(status().isForbidden());
+    correctPlan(contractId, sim.simId(), null, other).andExpect(status().isUnauthorized());
+    OtherTenantFixture.ContractWithSmartphone foreign = otherTenantFixture.smartphoneOnContractInAnotherTenant();
+    correctPlan(foreign.contractId(), UUID.randomUUID(), managerToken, other).andExpect(status().isNotFound());
+    fleetShowsPlan(sim.simId(), sim.planId(), "30.00");
+  }
+
+  @Test
+  void aPlanOnAPrepaidSimIsRefused() throws Exception {
+    UUID plan = createPostpaidPlan(managerToken, carrierFor(managerToken, contractId), "P", "10.00");
+    correctPlan(contractId, simCardId, managerToken, plan)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("PREPAID_HAS_NO_PLAN"));
+  }
+
+  @Test
+  void anotherCarriersPlanAnArchivedPlanAndAMissingPlanAreRefusedAndTheSimIsUnchanged() throws Exception {
+    PostpaidSim sim = addPostpaidSim("+1-555-0803", "30.00");
+    UUID foreignCarrier = createCarrierWithNoOptions(managerToken, contractId);
+    UUID foreignPlan = createPostpaidPlan(managerToken, foreignCarrier, "Foreign", "5.00");
+    UUID archived = createPostpaidPlan(managerToken, sim.carrierId(), "Legacy", "6.00");
+    mockMvc
+        .perform(
+            post("/api/carriers/" + sim.carrierId() + "/postpaid-plans/" + archived + "/archive")
+                .header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk());
+
+    correctPlan(contractId, sim.simId(), managerToken, foreignPlan)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("PLAN_NOT_ON_CARRIER"));
+    correctPlan(contractId, sim.simId(), managerToken, UUID.randomUUID())
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("PLAN_NOT_ON_CARRIER"));
+    correctPlan(contractId, sim.simId(), managerToken, null)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("PLAN_NOT_ON_CARRIER"));
+    correctPlan(contractId, sim.simId(), managerToken, archived)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("PLAN_ARCHIVED"));
+    fleetShowsPlan(sim.simId(), sim.planId(), "30.00");
+  }
+
+  @Test
+  void aSimWhoseCarrierIsArchivedOrAbsentTakesNoPlan() throws Exception {
+    PostpaidSim archivedCarrierSim = addPostpaidSim("+1-555-0804", "30.00");
+    UUID plan = createPostpaidPlan(managerToken, archivedCarrierSim.carrierId(), "Second", "8.00");
+    archiveCarrier(managerToken, archivedCarrierSim.carrierId());
+    correctPlan(contractId, archivedCarrierSim.simId(), managerToken, plan)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("CARRIER_NOT_USABLE"));
+
+    PostpaidSim noCarrierSim = addPostpaidSim("+1-555-0805", "30.00");
+    rewriteSim("carrier_id = NULL, postpaid_plan_id = NULL", noCarrierSim.simId());
+    correctPlan(contractId, noCarrierSim.simId(), managerToken, plan)
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("CARRIER_NOT_USABLE"));
+  }
+
+  @Test
+  void aPreCatalogPostpaidSimWithACarrierIsGivenAPlanAndItsFeeBecomesThePlansPrice() throws Exception {
+    PostpaidSim sim = addPostpaidSim("+1-555-0806", "30.00");
+    rewriteSim("postpaid_plan_id = NULL", sim.simId());
+    UUID newPlan = createPostpaidPlan(managerToken, sim.carrierId(), "Catalog", "21.00");
+
+    correctPlan(contractId, sim.simId(), managerToken, newPlan)
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.monthlyFeeAmount").value(21.00));
+    fleetShowsPlan(sim.simId(), newPlan, "21.00");
+  }
+
+  @Test
+  void aLaterRepricingOfThePlanLeavesTheCorrectedFeeAlone() throws Exception {
+    PostpaidSim sim = addPostpaidSim("+1-555-0807", "30.00");
+    UUID plan = createPostpaidPlan(managerToken, sim.carrierId(), "Reprice", "20.00");
+    correctPlan(contractId, sim.simId(), managerToken, plan).andExpect(status().isOk());
+
+    mockMvc
+        .perform(
+            patch("/api/carriers/" + sim.carrierId() + "/postpaid-plans/" + plan)
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("{\"name\":\"Reprice\",\"price\":99.00}"))
+        .andExpect(status().isOk());
+    fleetShowsPlan(sim.simId(), plan, "20.00");
+  }
+
+  @Test
+  void savingThePlanAlreadyHeldLogsNothingWhileAChangeLogsOneEventWithPlansAndFees() throws Exception {
+    PostpaidSim sim = addPostpaidSim("+1-555-0808", "30.00");
+    UUID plan = createPostpaidPlan(managerToken, sim.carrierId(), "Audited", "14.00");
+    ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    appender.start();
+    Logger audit = (Logger) LoggerFactory.getLogger("AUDIT");
+    audit.addAppender(appender);
+    try {
+      correctPlan(contractId, sim.simId(), managerToken, sim.planId()).andExpect(status().isOk());
+      assertThat(planCorrections(appender)).isEmpty();
+      fleetShowsPlan(sim.simId(), sim.planId(), "30.00");
+
+      correctPlan(contractId, sim.simId(), managerToken, plan).andExpect(status().isOk());
+      assertThat(planCorrections(appender))
+          .singleElement()
+          .satisfies(
+              line ->
+                  assertThat(line)
+                      .contains("entityId=" + sim.simId())
+                      .contains("contractId=" + contractId)
+                      .contains("oldPostpaidPlanId=" + sim.planId())
+                      .contains("newPostpaidPlanId=" + plan)
+                      .contains("oldMonthlyFeeAmount=30.00")
+                      .contains("newMonthlyFeeAmount=14.00")
+                      .contains("role=MANAGER")
+                      .contains("actorUserId=")
+                      .contains("tenantId=" + SEEDED_TENANT_ID));
+    } finally {
+      audit.detachAppender(appender);
+    }
+  }
+
+  private static List<String> planCorrections(ListAppender<ILoggingEvent> appender) {
+    return appender.list.stream()
+        .map(ILoggingEvent::getFormattedMessage)
+        .filter(m -> m.contains("action=simCardPostpaidPlanCorrected"))
+        .toList();
+  }
+
+  @Test
+  void aDraftClientInvoiceAndTheDraftAgentInvoiceMoveByThePriceDifference() throws Exception {
+    PostpaidSim sim = addPostpaidSim("+1-555-0810", "30.00");
+    UUID plan = createPostpaidPlan(managerToken, sim.carrierId(), "Moves", "42.00");
+    double feesBefore = fees();
+    assertThat(agentClientInvoice().get("baseAmount").asDouble()).isEqualTo(30.00);
+
+    correctPlan(contractId, sim.simId(), managerToken, plan).andExpect(status().isOk());
+
+    assertThat(agentClientInvoice().get("baseAmount").asDouble()).isEqualTo(42.00);
+    assertThat(agentClientInvoice().get("basePostpaidSims").get(0).get("amount").asDouble()).isEqualTo(42.00);
+    assertThat(fees()).isEqualTo(feesBefore + 12.00);
+  }
+
+  @Test
+  void anEarlierNeverSentDraftMovesToo() throws Exception {
+    PostpaidSim sim = addPostpaidSim("+1-555-0811", "30.00");
+    UUID plan = createPostpaidPlan(managerToken, sim.carrierId(), "Late", "35.00");
+    UUID invoiceId = UUID.fromString(agentClientInvoice().get("id").asText());
+    ClientInvoice invoice = clientInvoiceRepository.findById(invoiceId).orElseThrow();
+    invoice.setBillingMonth(invoice.getBillingMonth().minusMonths(1));
+    clientInvoiceRepository.saveAndFlush(invoice);
+
+    correctPlan(contractId, sim.simId(), managerToken, plan).andExpect(status().isOk());
+
+    mockMvc
+        .perform(get("/api/client-invoices/" + invoiceId).header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("DRAFT"))
+        .andExpect(jsonPath("$.baseAmount").value(35.00));
+  }
+
+  @Test
+  void aStoredLineDraftASentInvoiceAndASentBackInvoiceKeepTheirAmounts() throws Exception {
+    PostpaidSim stored = addPostpaidSim("+1-555-0812", "30.00");
+    UUID plan = createPostpaidPlan(managerToken, stored.carrierId(), "Ignored", "50.00");
+    mockMvc
+        .perform(
+            put("/api/contracts/" + contractId + "/client-invoice/lines")
+                .header("Authorization", "Bearer " + agentToken())
+                .contentType(APPLICATION_JSON)
+                .content(
+                    "{\"kind\":\"POSTPAID_SIM\",\"sourceId\":\"%s\",\"amount\":31.00}".formatted(stored.simId())))
+        .andExpect(status().isOk());
+
+    correctPlan(contractId, stored.simId(), managerToken, plan).andExpect(status().isOk());
+    assertThat(agentClientInvoice().get("baseAmount").asDouble()).isEqualTo(31.00);
+
+    JsonNode sent =
+        json(
+            mockMvc
+                .perform(
+                    post("/api/contracts/" + contractId + "/client-invoice/send")
+                        .header("Authorization", "Bearer " + agentToken()))
+                .andExpect(status().isOk()));
+    UUID invoiceId = UUID.fromString(sent.get("id").asText());
+    UUID other = createPostpaidPlan(managerToken, stored.carrierId(), "After send", "70.00");
+    correctPlan(contractId, stored.simId(), managerToken, other).andExpect(status().isOk());
+    assertThat(agentClientInvoice().get("baseAmount").asDouble()).isEqualTo(31.00);
+
+    mockMvc
+        .perform(
+            post("/api/client-invoices/" + invoiceId + "/send-back")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("{\"reason\":\"Check the plan\"}"))
+        .andExpect(status().isOk());
+    UUID third = createPostpaidPlan(managerToken, stored.carrierId(), "After send back", "80.00");
+    correctPlan(contractId, stored.simId(), managerToken, third).andExpect(status().isOk());
+    assertThat(agentClientInvoice().get("baseAmount").asDouble()).isEqualTo(31.00);
+  }
+
+  @Test
+  void aSentApprovedAndPaidAgentInvoiceKeepItsFeesWhenThePlanIsCorrected() throws Exception {
+    PostpaidSim sim = addPostpaidSim("+1-555-0813", "30.00");
+    UUID plan = createPostpaidPlan(managerToken, sim.carrierId(), "After agent send", "60.00");
+    UUID agentInvoiceId =
+        UUID.fromString(
+            json(
+                    mockMvc
+                        .perform(
+                            post("/api/agents/" + SEEDED_AGENT_ID + "/invoice/send")
+                                .header("Authorization", "Bearer " + agentToken()))
+                        .andExpect(status().isOk()))
+                .get("id")
+                .asText());
+    double frozen = fees();
+
+    correctPlan(contractId, sim.simId(), managerToken, plan).andExpect(status().isOk());
+    assertThat(fees()).isEqualTo(frozen);
+
+    for (String action : List.of("approve", "paid")) {
+      mockMvc
+          .perform(
+              post("/api/agent-invoices/" + agentInvoiceId + "/" + action)
+                  .header("Authorization", "Bearer " + managerToken)
+                  .contentType(APPLICATION_JSON)
+                  .content(""))
+          .andExpect(status().isOk());
+      UUID next = createPostpaidPlan(managerToken, sim.carrierId(), "After " + action, "77.00");
+      correctPlan(contractId, sim.simId(), managerToken, next).andExpect(status().isOk());
+      assertThat(fees()).isEqualTo(frozen);
+    }
   }
 
   private UUID idOf(ResultActions result) throws Exception {

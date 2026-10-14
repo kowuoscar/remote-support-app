@@ -351,7 +351,7 @@ test.describe("fleet management", () => {
     await addPrepaidSim(page, "+44 7700 900100");
 
     // Not located by its text: while editing, the number sits in a field, not in the row's name.
-    const row = page.locator("table").nth(1).locator("tbody tr").first();
+    const row = page.locator("table").filter({ hasText: "Installed in" }).locator("tbody tr").first();
     await row.getByRole("button", { name: "Edit" }).first().click();
     await row.getByLabel("SIM Card number").fill("  +44 7700 900123  ");
     await row.getByRole("button", { name: "Save" }).click();
@@ -375,7 +375,7 @@ test.describe("fleet management", () => {
     await page.goto("/client/fleet");
     await selectContractInSwitcher(page, clientName);
 
-    const row = page.locator("table").nth(1).locator("tbody tr").first();
+    const row = page.locator("table").filter({ hasText: "Installed in" }).locator("tbody tr").first();
     await row.getByRole("button", { name: "Edit" }).click();
     await row.getByLabel("SIM Card number").fill("+44 7700 900223");
     await row.getByRole("button", { name: "Save" }).click();

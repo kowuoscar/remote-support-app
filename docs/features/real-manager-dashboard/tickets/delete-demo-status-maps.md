@@ -1,7 +1,7 @@
 ---
 id: delete-demo-status-maps
 title: Delete the seven unused demo-keyed status maps from lib/status
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [enabler, frontend]
 stories: []

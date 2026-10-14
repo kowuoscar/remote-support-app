@@ -1,7 +1,7 @@
 ---
 id: tenant-totals-read
 title: A Manager can read this month's billed and payout totals per currency
-status: in-progress
+status: done
 depends_on: []
 labels: [backend]
 stories: [6, 7, 8, 9, 11, 12, 13, 14, 17, 21, 22, 27]

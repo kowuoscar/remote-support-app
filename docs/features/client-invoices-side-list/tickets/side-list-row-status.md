@@ -1,7 +1,7 @@
 ---
 id: side-list-row-status
 title: Each side-list row shows the month's invoice status
-status: ready-for-agent
+status: in-progress
 depends_on: [contract-side-list-on-desktop]
 labels: [frontend, invoicing]
 stories: [18, 27, 28]

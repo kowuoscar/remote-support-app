@@ -4,86 +4,93 @@
     {
       "id": "F1",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/fleet/sim-card-number-control.tsx:9",
       "citation": "spec.md:325 \"| `NUMBER_TOO_LONG` | \"A SIM number can be at most 64 characters.\" |\"",
       "note": "Maps NUMBER_TOO_LONG to \"A number can be at most 64 characters.\" (missing \"SIM\"); sim-card-number-control.test.tsx:73 asserts the wrong text too.",
-      "fixed_in": "16ffdbd"
+      "fixed_in": "16ffdbd",
+      "confirmed_by": "reviewer-spec (fresh, re-review)"
     },
     {
       "id": "F2",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/fleet/sim-card-number-control.tsx:84",
       "citation": "spec.md:310 \"`SimCardNumberControl`: a text `Input`, `aria-label=\"SIM number\"`, `inputMode=\"tel\"`.\"",
       "note": "Input has aria-label=\"SIM Card number\" and no inputMode=\"tel\".",
-      "fixed_in": "16ffdbd"
+      "fixed_in": "16ffdbd",
+      "confirmed_by": "reviewer-spec (fresh, re-review)"
     },
     {
       "id": "F3",
       "type": "spec-partial",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/fleet/smartphone-model-control.tsx:74",
       "citation": "spec.md:527 \"(during implementation) The correction \"Edit\" buttons carry accessible names per field (\"Edit owner\", \"Edit plan\", …) so they stay distinct inside one row.\"",
       "note": "Model and number Edit buttons (also sim-card-number-control.tsx:74) are plain \"Edit\"; on the Manager's Smartphone row the model Edit and serial Edit share one name.",
-      "fixed_in": "16ffdbd, 436393b"
+      "fixed_in": "16ffdbd, 436393b",
+      "confirmed_by": "reviewer-spec (fresh, re-review)"
     },
     {
       "id": "F4",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/dto/SmartphoneOwnerUpdateRequest.java:6",
       "citation": "spec.md:239-240 \"Bean Validation on the request DTOs checks presence.\"",
       "note": "None of the four correction DTOs has a constraint and none is @Valid; presence is checked in the services (unlisted OWNER_INVALID; missing plan id -> PLAN_NOT_ON_CARRIER). Same root as F5.",
-      "fixed_in": "f424b8b"
+      "fixed_in": "f424b8b",
+      "confirmed_by": "reviewer-spec (fresh, re-review)"
     },
     {
       "id": "F5",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/SimCardController.java:181",
       "citation": "docs/agents/coding-standards.md Backend 1: \"Controllers validate the request DTO with `@Valid` + Bean Validation annotations; a service method never re-validates what the controller boundary already checked.\"",
       "note": "No @Valid / Bean Validation on the four correction endpoints (SimCardController.java:181,198; SmartphoneController.java:184,201); services check presence (SimCardCorrectionService.java:94, SmartphoneCorrectionService.java:52,88). Coded 400s must survive (map MethodArgumentNotValidException in the per-controller handler).",
-      "fixed_in": "f424b8b"
+      "fixed_in": "f424b8b",
+      "confirmed_by": "reviewer-standards (fresh, re-review)"
     },
     {
       "id": "F6",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/test/java/com/remotesupport/backend/web/SimCardCorrectionApiTest.java:422",
       "citation": "docs/agents/coding-standards.md Backend 12: \"Table-driven tests (`@ParameterizedTest` + `@MethodSource`) for any method with more than two branch conditions, instead of copy-pasted per-case tests.\"",
       "note": "correctPostpaidPlan refusals are four copy-pasted request/expect blocks (422-446); correctNumber blank/missing/length likewise (166-191).",
-      "fixed_in": "f424b8b"
+      "fixed_in": "f424b8b",
+      "confirmed_by": "reviewer-standards (fresh, re-review)"
     },
     {
       "id": "F7",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/tests/visual/__screenshots__/client-fleet-desktop-light.png (commit 0fb79bf)",
       "citation": "docs/agents/frontend.md: \"A screenshot golden updated on its own, with no code change behind it, is drift\" / \"updated in the same commit as the code change that moved them\"",
       "note": "0fb79bf changes only the 8 Fleet goldens; the code that moved them is 2cd9b6a. History is pushed: do not rewrite; name the code change behind them (as e14310d did on real-manager-dashboard), and any recapture in this fix pass goes in the same commit as its code.",
-      "fixed_in": "c0a0b67"
+      "fixed_in": "c0a0b67",
+      "confirmed_by": "reviewer-standards (fresh, re-review)"
     },
     {
       "id": "F8",
@@ -156,74 +163,80 @@
     {
       "id": "F14",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/fleet/sim-card-number-control.tsx:73",
       "citation": "DESIGN.md Layout: \"Tables scroll horizontally on narrow viewports (`min-w-[720px]` inside an `overflow-x-auto` wrapper) rather than reflowing to cards.\"",
       "note": "On mobile the SIM number wraps to three lines (\"+1-\" / \"555-\" / \"0201\") beside Edit; same for model (smartphone-model-control.tsx:73) and plan name (sim-card-plan-control.tsx:89). Add whitespace-nowrap to the display value; recapture mobile goldens in the same commit.",
-      "fixed_in": "16ffdbd"
+      "fixed_in": "16ffdbd",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F15",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/fleet/smartphone-owner-control.tsx:77",
       "citation": "PRODUCT.md Accessibility: \"Reasonable defaults for an internal operations tool: keyboard operability, sufficient contrast, visible focus states.\"",
       "note": "Edit names don't say which unit: \"Edit owner\"/\"Edit plan\" repeat on every row, model/number are bare \"Edit\" (see F3). Keep visible \"Edit\"; accessible names with the unit, e.g. \"Edit model, {model}\", \"Edit number, {number}\", \"Edit owner of {model}\", \"Edit plan for {number}\"; update e2e locators.",
-      "fixed_in": "16ffdbd, 436393b"
+      "fixed_in": "16ffdbd, 436393b",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F16",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/fleet/smartphone-model-control.tsx:96",
       "citation": "PRODUCT.md: \"keyboard operability\"; DESIGN.md \"The Menu Returns Focus Rule … always returns focus to its trigger when it closes\" (same open/close shape)",
       "note": "All four controls drop focus to <body> on Save/Cancel, and Escape does nothing. Return focus to the Edit button on close; Escape = Cancel; one shared place (e.g. a useInlineEdit hook).",
-      "fixed_in": "16ffdbd"
+      "fixed_in": "16ffdbd",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F17",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/fleet/smartphone-model-control.tsx:100",
       "citation": "PRODUCT.md Accessibility: \"Reasonable defaults…\"",
       "note": "Model and number errors are bare spans (also sim-card-number-control.tsx:100); owner/plan use role=\"alert\" and max-w-56. Give both role=\"alert\", max-w-56, and aria-describedby from the input.",
-      "fixed_in": "16ffdbd"
+      "fixed_in": "16ffdbd",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F18",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/fleet/sim-card-number-control.tsx:91",
       "citation": "DESIGN.md \"The Tabular Everywhere Rule. Every monetary or numeric value … carries `font-variant-numeric: tabular-nums` via the shared `.tnum` utility — no exceptions\"",
       "note": "The number Input lacks tnum while the display span has it.",
-      "fixed_in": "16ffdbd"
+      "fixed_in": "16ffdbd",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F19",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/fleet/smartphone-fleet-table.tsx:56",
       "citation": "DESIGN.md \"The Reserved Indigo Rule. … never as a decorative fill, header rule, or secondary accent. Its rarity is the point…\"",
       "note": "12 indigo Edit chips on the Manager Contract golden, 9 on the Tester's, in ragged positions; they outweigh status badges. Switch correction buttons to the ghost variant (28px, always visible) or show full strength only on row hover/focus-within.",
-      "fixed_in": "16ffdbd"
+      "fixed_in": "16ffdbd",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F20",
@@ -235,6 +248,28 @@
       "where": "frontend/components/manager/contract-fleet-view.tsx:37",
       "citation": "DESIGN.md \"The Pill-Is-Primary Rule. … A screen with two pill buttons is a defect, not a variant.\"",
       "note": "Pre-existing: \"Add smartphone\" and \"Add SIM card\" are both primary pills. Not this feature's lines -> debt."
+    },
+    {
+      "id": "F21",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": true,
+      "in_changed_lines": false,
+      "where": "frontend/components/fleet/smartphone-serial-control.tsx:66",
+      "citation": "DESIGN.md \"The Reserved Indigo Rule. … never as a decorative fill … or secondary accent. Its rarity is the point\"",
+      "note": "After F19 the Manager row shows ghost Edit for model and owner but the pre-existing serial control keeps a soft-indigo row \"Edit\" chip with a bare accessible name. Fix: serial Edit to ghost with aria-label \"Edit serial, {serial}\"; recapture Manager Contract Fleet goldens in the same commit."
+    },
+    {
+      "id": "F22",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/CorrectionErrors.java:35",
+      "citation": "",
+      "note": "The correction MethodArgumentNotValidException handlers (SimCardController.java:215, SmartphoneController.java:225) also catch the controllers' older @Valid endpoints (create, status, serial, installed-in) and return a ProblemDetail body instead of Boot's /error JSON. Also raised by reviewer-spec. No frontend screen reads those bodies (checked create dialogs, serial, installed-in, status controls)."
     }
   ]
 }

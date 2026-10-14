@@ -309,38 +309,41 @@
     {
       "id": "F26",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/manager/dashboard-stats.tsx:117-150",
       "citation": "spec.md Solution, Frontend: \"A failed list read makes its count card show `—` with an sr-only \"Unavailable\" and a \"Couldn't load…\" meta (\"Couldn't load your Clients\", \"…Agents\", \"…Contracts\").\" and walkthrough step 12",
       "note": "Fix pass (c0720f9, for smell F22) changed the meta to links \"Couldn’t load — open Clients/Agents/Contracts\" with no after-review decision. human (2026-10-14): restore the spec's copy and remove the links; one more fixer pass authorised.",
-      "fixed_in": "cd089f5"
+      "fixed_in": "cd089f5",
+      "confirmed_by": "reviewer-spec (fresh, second re-review)"
     },
     {
       "id": "F27",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/manager/dashboard-stats.tsx:36",
       "citation": "spec.md Solution, Frontend: \"A failed `/api/tenant-totals` makes both money cards show `—` with \"Couldn't load this month's totals\".\"",
       "note": "moneyMeta appends \"— reload to retry\"; no after-review decision. human (2026-10-14): restore the spec's copy and remove the links; one more fixer pass authorised.",
-      "fixed_in": "cd089f5"
+      "fixed_in": "cd089f5",
+      "confirmed_by": "reviewer-spec (fresh, second re-review)"
     },
     {
       "id": "F28",
       "type": "out-of-scope",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/manager/dashboard-stats.tsx:80",
       "citation": "Hunk dashboard-stats.tsx:77-86: no source in spec",
       "note": "Pending approvals failure meta changed from \"Couldn’t load the Review Queue\" (main) to a link \"Couldn’t load — open Invoices\". human (2026-10-14): restore the spec's copy and remove the links; one more fixer pass authorised.",
-      "fixed_in": "cd089f5"
+      "fixed_in": "cd089f5",
+      "confirmed_by": "reviewer-spec (fresh, second re-review)"
     },
     {
       "id": "F29",
@@ -356,14 +359,15 @@
     {
       "id": "F30",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": true,
       "in_changed_lines": true,
       "where": "commit 6a5d74a: frontend/tests/visual/__screenshots__/*.png",
       "citation": "docs/agents/frontend.md: Visual goldens pass, or were updated in the same commit as the code change that moved them (conforming to `DESIGN.md`) or as `DESIGN.md`. / A screenshot golden updated on its own, with no code change behind it, is drift.",
       "note": "Goldens-only commit; its message blames the footer, but most non-dashboard goldens moved because c0720f9 changed the viewer chip without recapturing them. human (2026-10-14): one more fixer pass authorised.",
-      "fixed_in": "e14310d"
+      "fixed_in": "e14310d",
+      "confirmed_by": "reviewer-standards (fresh, second re-review)"
     },
     {
       "id": "F31",
@@ -379,14 +383,15 @@
     {
       "id": "F32",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/tests/visual/__screenshots__/manager-requests-desktop-{light,dark}.png",
       "citation": "docs/agents/frontend.md — Visual regression: 'A golden changes only with a code change that conforms to `DESIGN.md`, or with `DESIGN.md` itself'",
       "note": "Recaptured with no code change: only the date-driven masked 'Waiting' cell width differs. Restore both from 6a5d74a^. human (2026-10-14): one more fixer pass authorised.",
-      "fixed_in": "cf280f5"
+      "fixed_in": "cf280f5",
+      "confirmed_by": "reviewer-standards (fresh, second re-review)"
     }
   ]
 }

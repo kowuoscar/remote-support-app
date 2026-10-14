@@ -82,7 +82,7 @@ public class SimCardCorrectionService {
     return simCard;
   }
 
-  /** Trims, validates and stores the number; the number already held saves nothing and logs nothing. */
+  /** Trims, length-checks and stores the number (presence is the controller's); the number already held saves nothing and logs nothing. */
   @Transactional
   public SimCard correctNumber(
       Contract contract, UUID simCardId, String requestedNumber, AuthenticatedPrincipal principal) {
@@ -91,10 +91,7 @@ public class SimCardCorrectionService {
             .findByIdAndContractId(simCardId, contract.getId())
             .orElseThrow(() -> new NotFoundException("No SIM card with id " + simCardId));
 
-    String number = requestedNumber == null ? "" : requestedNumber.trim();
-    if (number.isEmpty()) {
-      throw new InvalidCorrectionException("NUMBER_BLANK", "Enter a number.");
-    }
+    String number = requestedNumber.trim();
     if (number.length() > NUMBER_MAX_LENGTH) {
       throw new InvalidCorrectionException(
           "NUMBER_TOO_LONG", "A number can be at most " + NUMBER_MAX_LENGTH + " characters.");

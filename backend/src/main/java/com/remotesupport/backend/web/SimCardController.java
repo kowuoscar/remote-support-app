@@ -23,6 +23,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -178,7 +179,7 @@ public class SimCardController {
   public SimCardResponse correctNumber(
       @PathVariable UUID contractId,
       @PathVariable UUID simCardId,
-      @RequestBody SimCardNumberUpdateRequest request,
+      @Valid @RequestBody SimCardNumberUpdateRequest request,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
     fleetAccessGuard.requireCanCorrect(contract, principal);
@@ -195,7 +196,7 @@ public class SimCardController {
   public SimCardResponse correctPostpaidPlan(
       @PathVariable UUID contractId,
       @PathVariable UUID simCardId,
-      @RequestBody SimCardPostpaidPlanUpdateRequest request,
+      @Valid @RequestBody SimCardPostpaidPlanUpdateRequest request,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
     fleetAccessGuard.requireCanCorrect(contract, principal);
@@ -207,8 +208,13 @@ public class SimCardController {
   /** A refused correction's 400 carries a {@code code}, so the page can show it at the field. */
   @ExceptionHandler(InvalidCorrectionException.class)
   public ResponseEntity<Map<String, String>> invalidCorrection(InvalidCorrectionException e) {
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(Map.of("code", e.getCode(), "message", e.getMessage()));
+    return CorrectionErrors.badRequest(e);
+  }
+
+  /** A correction request whose DTO fails Bean Validation: the same coded 400. */
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<?> correctionRequestInvalid(MethodArgumentNotValidException e) {
+    return CorrectionErrors.badRequest(e);
   }
 
   private Contract findContract(UUID contractId, AuthenticatedPrincipal principal) {

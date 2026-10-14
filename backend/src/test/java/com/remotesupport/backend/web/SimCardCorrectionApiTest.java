@@ -21,8 +21,13 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -163,19 +168,27 @@ class SimCardCorrectionApiTest extends IntegrationTest {
         .andExpect(status().isForbidden());
   }
 
-  @Test
-  void aBlankOrMissingNumberIsRefusedAndLeavesTheNumberUnchanged() throws Exception {
-    correct(contractId, simCardId, managerToken, "   ")
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.code").value("NUMBER_BLANK"));
+  static Stream<Arguments> blankOrMissingNumberBodies() {
+    return Stream.of(
+        Arguments.of("a blank number", "{\"number\":\"   \"}"),
+        Arguments.of("an empty number", "{\"number\":\"\"}"),
+        Arguments.of("a null number", "{\"number\":null}"),
+        Arguments.of("no number", "{}"));
+  }
+
+  @ParameterizedTest(name = "{0} is refused as NUMBER_BLANK and leaves the number unchanged")
+  @MethodSource("blankOrMissingNumberBodies")
+  void aBlankOrMissingNumberIsRefusedAndLeavesTheNumberUnchanged(String ignoredCase, String body)
+      throws Exception {
     mockMvc
         .perform(
             patch("/api/contracts/" + contractId + "/sim-cards/" + simCardId + "/number")
                 .header("Authorization", "Bearer " + managerToken)
                 .contentType(APPLICATION_JSON)
-                .content("{}"))
+                .content(body))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.code").value("NUMBER_BLANK"));
+        .andExpect(jsonPath("$.code").value("NUMBER_BLANK"))
+        .andExpect(jsonPath("$.message").value("Enter a number."));
     fleetShowsNumber(managerToken, ORIGINAL);
   }
 
@@ -418,8 +431,20 @@ class SimCardCorrectionApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.code").value("PREPAID_HAS_NO_PLAN"));
   }
 
-  @Test
-  void anotherCarriersPlanAnArchivedPlanAndAMissingPlanAreRefusedAndTheSimIsUnchanged() throws Exception {
+  private record PlanFixture(PostpaidSim sim, UUID foreignPlan, UUID archivedPlan) {}
+
+  static Stream<Arguments> refusedPlans() {
+    return Stream.of(
+        Arguments.of("another Carrier's plan", (Function<PlanFixture, UUID>) PlanFixture::foreignPlan, "PLAN_NOT_ON_CARRIER"),
+        Arguments.of("an unknown plan", (Function<PlanFixture, UUID>) f -> UUID.randomUUID(), "PLAN_NOT_ON_CARRIER"),
+        Arguments.of("no plan id", (Function<PlanFixture, UUID>) f -> null, "PLAN_NOT_ON_CARRIER"),
+        Arguments.of("an archived plan", (Function<PlanFixture, UUID>) PlanFixture::archivedPlan, "PLAN_ARCHIVED"));
+  }
+
+  @ParameterizedTest(name = "{0} is refused as {2} and the SIM is unchanged")
+  @MethodSource("refusedPlans")
+  void aRefusedPlanLeavesTheSimUnchanged(
+      String ignoredCase, Function<PlanFixture, UUID> choice, String expectedCode) throws Exception {
     PostpaidSim sim = addPostpaidSim("+1-555-0803", "30.00");
     UUID foreignCarrier = createCarrierWithNoOptions(managerToken, contractId);
     UUID foreignPlan = createPostpaidPlan(managerToken, foreignCarrier, "Foreign", "5.00");
@@ -430,18 +455,9 @@ class SimCardCorrectionApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + managerToken))
         .andExpect(status().isOk());
 
-    correctPlan(contractId, sim.simId(), managerToken, foreignPlan)
+    correctPlan(contractId, sim.simId(), managerToken, choice.apply(new PlanFixture(sim, foreignPlan, archived)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.code").value("PLAN_NOT_ON_CARRIER"));
-    correctPlan(contractId, sim.simId(), managerToken, UUID.randomUUID())
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.code").value("PLAN_NOT_ON_CARRIER"));
-    correctPlan(contractId, sim.simId(), managerToken, null)
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.code").value("PLAN_NOT_ON_CARRIER"));
-    correctPlan(contractId, sim.simId(), managerToken, archived)
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.code").value("PLAN_ARCHIVED"));
+        .andExpect(jsonPath("$.code").value(expectedCode));
     fleetShowsPlan(sim.simId(), sim.planId(), "30.00");
   }
 

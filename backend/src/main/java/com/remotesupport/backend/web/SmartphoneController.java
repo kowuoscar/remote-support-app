@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -181,7 +182,7 @@ public class SmartphoneController {
   public SmartphoneResponse correctModel(
       @PathVariable UUID contractId,
       @PathVariable UUID smartphoneId,
-      @RequestBody SmartphoneModelUpdateRequest request,
+      @Valid @RequestBody SmartphoneModelUpdateRequest request,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
     fleetAccessGuard.requireCanCorrect(contract, principal);
@@ -198,7 +199,7 @@ public class SmartphoneController {
   public SmartphoneResponse correctOwner(
       @PathVariable UUID contractId,
       @PathVariable UUID smartphoneId,
-      @RequestBody SmartphoneOwnerUpdateRequest request,
+      @Valid @RequestBody SmartphoneOwnerUpdateRequest request,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
     fleetAccessGuard.requireCanCorrect(contract, principal);
@@ -217,8 +218,13 @@ public class SmartphoneController {
   /** A refused correction's 400 carries a {@code code}, so the page can show it at the field. */
   @ExceptionHandler(InvalidCorrectionException.class)
   public ResponseEntity<Map<String, String>> invalidCorrection(InvalidCorrectionException e) {
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(Map.of("code", e.getCode(), "message", e.getMessage()));
+    return CorrectionErrors.badRequest(e);
+  }
+
+  /** A correction request whose DTO fails Bean Validation: the same coded 400. */
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<?> correctionRequestInvalid(MethodArgumentNotValidException e) {
+    return CorrectionErrors.badRequest(e);
   }
 
   private static String blankToNull(String value) {

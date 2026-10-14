@@ -15,8 +15,12 @@ import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -140,20 +144,41 @@ class SmartphoneCorrectionApiTest extends IntegrationTest {
         .andExpect(status().isForbidden());
   }
 
-  @Test
-  void aBlankOrMissingModelIsRefusedAndLeavesTheModelUnchanged() throws Exception {
-    correct(contractId, smartphoneId, managerToken, "   ")
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.code").value("MODEL_BLANK"));
+  static Stream<Arguments> blankOrMissingModelBodies() {
+    return Stream.of(
+        Arguments.of("a blank model", "{\"model\":\"   \"}"),
+        Arguments.of("an empty model", "{\"model\":\"\"}"),
+        Arguments.of("a null model", "{\"model\":null}"),
+        Arguments.of("no model", "{}"));
+  }
+
+  @ParameterizedTest(name = "{0} is refused as MODEL_BLANK and leaves the model unchanged")
+  @MethodSource("blankOrMissingModelBodies")
+  void aBlankOrMissingModelIsRefusedAndLeavesTheModelUnchanged(String ignoredCase, String body)
+      throws Exception {
     mockMvc
         .perform(
             patch("/api/contracts/" + contractId + "/smartphones/" + smartphoneId + "/model")
                 .header("Authorization", "Bearer " + managerToken)
                 .contentType(APPLICATION_JSON)
+                .content(body))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.code").value("MODEL_BLANK"))
+        .andExpect(jsonPath("$.message").value("Enter a model."));
+    fleetShowsModel(managerToken, "Pixle 8");
+  }
+
+  @Test
+  void aMissingOwnerIsRefusedAsOwnerInvalid() throws Exception {
+    mockMvc
+        .perform(
+            patch("/api/contracts/" + contractId + "/smartphones/" + smartphoneId + "/owner")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
                 .content("{}"))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.code").value("MODEL_BLANK"));
-    fleetShowsModel(managerToken, "Pixle 8");
+        .andExpect(jsonPath("$.code").value("OWNER_INVALID"))
+        .andExpect(jsonPath("$.message").value("Choose Client or Company."));
   }
 
   @Test

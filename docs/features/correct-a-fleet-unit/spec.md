@@ -525,6 +525,8 @@ or component internals.
 - **(during implementation)** A SIM whose current plan is archived opens the plan control with no plan chosen; Save stays disabled until one is picked.
 - **(during implementation)** A Tester's plan control gets no "Add one on the Carriers page" pointer, since a Tester has no Carriers page; a Carrier with no active plan gives the Tester no plan control.
 - **(during implementation)** The correction "Edit" buttons carry accessible names per field ("Edit owner", "Edit plan", …) so they stay distinct inside one row.
+- **(after review)** A `PATCH …/owner` with no `owner` is refused `400 OWNER_INVALID` ("Choose Client or Company."). Reason: the spec lists no code for a missing owner; Bean Validation on the request DTO now checks presence (Backend rule 1) and the 400 keeps its `{ "code", "message" }` shape like every other refusal. A missing plan id stays `PLAN_NOT_ON_CARRIER` and a blank number or model stays `NUMBER_BLANK` / `MODEL_BLANK`, as listed.
+- **(after review)** Each correction "Edit" button names its unit as well as its field: "Edit model, {model}", "Edit number, {number}", "Edit owner of {model}", "Edit plan for {number}"; the visible text stays "Edit". Reason: the field name alone repeats on every row, so a screen-reader user could not tell the rows apart.
 
 ## Open questions
 

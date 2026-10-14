@@ -2,7 +2,9 @@ package com.remotesupport.backend.repository;
 
 import com.remotesupport.backend.domain.Disposition;
 import com.remotesupport.backend.domain.Request;
+import com.remotesupport.backend.domain.RequestStatus;
 import com.remotesupport.backend.domain.ReturnedUnit;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,7 +44,7 @@ public interface ReturnedUnitRepository extends JpaRepository<ReturnedUnit, UUID
    * correction is refused while one does; correct-a-fleet-unit spec). Only Returns have rows here.
    */
   boolean existsBySmartphoneIdAndRequestStatusIn(
-      UUID smartphoneId, java.util.Collection<com.remotesupport.backend.domain.RequestStatus> openStatuses);
+      UUID smartphoneId, Collection<RequestStatus> openStatuses);
 
   Optional<ReturnedUnit> findFirstBySimCardIdAndDispositionOrderByCreatedAtDesc(
       UUID simCardId, Disposition disposition);

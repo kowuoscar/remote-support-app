@@ -49,9 +49,6 @@ public class SmartphoneCorrectionService {
             .findByIdAndContractId(smartphoneId, contract.getId())
             .orElseThrow(() -> new NotFoundException("No smartphone with id " + smartphoneId));
 
-    if (requestedOwner == null) {
-      throw new InvalidCorrectionException("OWNER_INVALID", "Choose Client or Company.");
-    }
     SmartphoneOwner oldOwner = smartphone.getOwner();
     if (requestedOwner == oldOwner) {
       return smartphone;
@@ -76,7 +73,7 @@ public class SmartphoneCorrectionService {
     return smartphone;
   }
 
-  /** Trims, validates and stores the model; the model already held saves nothing and logs nothing. */
+  /** Trims, length-checks and stores the model (presence is the controller's); the model already held saves nothing and logs nothing. */
   @Transactional
   public Smartphone correctModel(
       Contract contract, UUID smartphoneId, String requestedModel, AuthenticatedPrincipal principal) {
@@ -85,10 +82,7 @@ public class SmartphoneCorrectionService {
             .findByIdAndContractId(smartphoneId, contract.getId())
             .orElseThrow(() -> new NotFoundException("No smartphone with id " + smartphoneId));
 
-    String model = requestedModel == null ? "" : requestedModel.trim();
-    if (model.isEmpty()) {
-      throw new InvalidCorrectionException("MODEL_BLANK", "Enter a model.");
-    }
+    String model = requestedModel.trim();
     if (model.length() > MODEL_MAX_LENGTH) {
       throw new InvalidCorrectionException(
           "MODEL_TOO_LONG", "A model can be at most " + MODEL_MAX_LENGTH + " characters.");

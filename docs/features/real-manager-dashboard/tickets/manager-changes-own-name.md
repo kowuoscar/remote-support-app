@@ -1,7 +1,7 @@
 ---
 id: manager-changes-own-name
 title: A Manager can change their name from the account menu and see it on the chip
-status: in-progress
+status: done
 depends_on: [manager-name-api, manager-dashboard-identity-and-counts]
 labels: [frontend]
 stories: [1, 29, 30, 31, 32, 33]

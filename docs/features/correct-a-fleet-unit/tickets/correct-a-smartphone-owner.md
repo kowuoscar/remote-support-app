@@ -40,6 +40,7 @@ Cancel) and its `forwardJson` route handler. The owner decides a Return's path
 At risk: Return approval and Disposition paths; the Smartphone table. Protected by `ReturnRequestsApiTest`, `SmartphoneApiTest`.
 
 Existing tests expected to change:
+- `frontend/tests/e2e/fleet-management.spec.ts`: in the model-correction tester test (from `correct-a-smartphone-model`), `getByRole("button", { name: "Edit" }).click()` becomes `.first().click()`, because the owner "Edit owner" button also matches "Edit" by substring under strict mode; the assertion is unchanged. (Added by the orchestrator after implementation.)
 - `SmartphoneCorrectionApiTest` (created by `correct-a-smartphone-model`): gains the owner cases; every earlier method keeps passing unmodified.
 - `frontend/tests/e2e/fleet-management.spec.ts`: gains owner tests; every pre-existing test keeps passing unmodified.
 - The two Fleet-page goldens added by `correct-a-smartphone-model`: recaptured, diff limited to the owner "Edit" button.

@@ -112,7 +112,604 @@ Non-goals. Each is something a reasonable agent would otherwise build:
   (V2, and the `demo` profile) stays unnamed, and shows their login until they
   set a name (settled by the human on 2026-10-14).
 - **No name on any other Manager page's chip.** The other Manager pages keep
-  their plain "Manager" chip (see `
+  their plain "Manager" chip (settled by the human on 2026-10-14,
+  `## Decisions taken`).
+- **No name for an Agent or a Tester Login.** Their names stay on their Agent
+  and Tester records; the "Change name" item is the Manager's only.
+- **No change to the login itself.** Changing a name never changes the username,
+  the password or the session. No email change, no name history, no audit trail.
+- **No clearing a name.** Once set, a name can be corrected but not removed; a
+  blank name is refused.
+- **No count endpoint.** The three counts come from the existing list routes,
+  as the epic settles ("its counts are one list call each").
+- **No "active" filter on the counts.** A Client, an Agent or a Contract has no
+  active or archived state in the data model. Every row of the Tenant counts.
+- **No adjustment logic.** `invoice-adjustment` (draft) adds signed adjustments
+  to invoice totals. This feature defines how its figures will treat them
+  (`## Solution`). It does not depend on that feature and builds none of it.
+- **No loading skeleton or `loading.tsx` to replace the simulated one.**
+- **No fix to `maxDiffPixelRatio`** (`docs/tech-debt.md`). Changed goldens are
+  deleted before they are recaptured instead.
+- **No migration to `BillingMonth.current()`** of controllers that compute the
+  month inline (backend debt F9). The new read uses `BillingMonth.current()`.
+
+## User stories
+
+1. As a Company Manager, I want the viewer chip on my dashboard to show my name, so that I am never shown as someone else.
+2. As a Company Manager, I want the Clients card to count every Client of my Tenant, so that it matches my Clients page.
+3. As a Company Manager, I want the Agents card to count every Agent of my Tenant, so that it matches my Agents page.
+4. As a Company Manager, I want the Contracts card to count every Contract of my Tenant, so that it matches my Contracts page.
+5. As a Company Manager, I want the Clients card's caption not to call them "active", so that it doesn't claim a state the product doesn't track.
+6. As a Company Manager, I want "Billed this month" to total the Client Invoices of the current billing month that are sent or approved, so that I know what we have billed our Clients this month.
+7. As a Company Manager, I want a Client Invoice still in draft, including one I sent back, never to count as billed, so that the figure only holds statements the Agent stands behind.
+8. As a Company Manager, I want "Payout this month" to total the Agent Invoices of the current billing month that I approved or marked paid, so that I know what we owe or have paid our Agents for this month.
+9. As a Company Manager, I want an Agent Invoice that is still a draft or still awaiting my review never to count as payout, so that the figure holds only pay I have agreed to.
+10. As a Company Manager, I want each money card to say which month and which statuses it counts, so that I know what the figure means without asking.
+11. As a Company Manager, I want each invoice counted at exactly the total its own page shows, including my override on an Agent Invoice, so that the dashboard and the invoice never disagree.
+12. As a Company Manager, I want a Fee logged after an invoice was sent, or a standing-amount change, not to move a figure that counts that invoice, so that the dashboard shows what was billed and agreed, not a live estimate.
+13. As a Company Manager whose Contracts are in several currencies, I want each money card to show one total per currency, so that dollars and pounds are never added together.
+14. As a Company Manager, I want the currencies on a money card always in the same order, so that I can read the card at a glance from one day to the next.
+15. As a Company Manager, I want a money card with nothing to count yet to show a plain `0` with no currency symbol, so that I read a true zero without a currency nobody chose.
+16. As a Company Manager, I want the money figures to change when an invoice is sent, approved, sent back or marked paid, so that the page is true each time I open it.
+17. As a Company Manager, I want the money figures to count only my own Tenant's invoices, so that my view is exactly my scope.
+18. As a Company Manager, I want a figure that couldn't be loaded to show "—" with a "Couldn't load…" line on its own card, with the rest of the page still showing, so that I never mistake a failure for a real zero.
+19. As a Company Manager, I want the page to still render, with a plain "Manager" chip, when my own login can't be read, so that one failed read never hides every figure.
+20. As a Company Manager, I want my dashboard to show its figures as soon as the page loads, with no artificial delay, so that I see what is true now.
+21. As a Company Manager, I want opening my dashboard to change nothing, and never to create an invoice, so that looking is only looking.
+22. As an Agent or a Tester, I want the new Tenant-wide read refused to me, so that no one outside the Manager role sees what the company bills or pays.
+23. As someone testing the product by hand, I want every figure on the Manager dashboard to be traceable to records in the `demo` profile's database, so that I can check the page against the data.
+24. As a user of any page, I want no "Demo data — synthetic" footer anywhere, so that the app never labels true data as fake and never leaves a fake figure unlabelled.
+25. As the team, I want no fixture data compiled into the frontend and no simulated loading, so that a fabricated figure or a fake skeleton can never ship again.
+26. As the team, I want the Manager dashboard's visual goldens to render real layouts from stubbed data, with no masks, so that a golden moves only when the page does.
+27. As a Company Manager, once adjustments exist, I want an invoice's landed adjustments counted in its figure and pending ones not counted, so that the dashboard keeps agreeing with the invoice.
+28. As a Company Manager whose name was never set, I want the chip to show my login until I set one, so that the chip still names me and never someone else.
+29. As a Company Manager, I want a "Change name" item in my account menu, next to "Change password", on every page of my console, so that I can correct how the product names me without asking anyone.
+30. As a Company Manager, I want the name field to open holding my current name, and my name saved without surrounding spaces, so that I correct it rather than retype it and the chip never reads " · Manager".
+31. As a Company Manager, I want a blank or over-long name refused with a message at the field, with what I typed kept, so that I can fix it in place.
+32. As a Company Manager, I want my new name on my dashboard's chip as soon as I save, with my login, my password and my session unchanged, so that I see the correction took and still sign in exactly as before.
+33. As the team, I want only a Manager able to set a Manager name, with an Agent's or a Tester's attempt refused and no "Change name" item in their menus, so that their names stay the ones their own Agent and Tester records hold.
+
+## Solution
+
+The money definitions below are the ones the human settled on 2026-10-08
+(`## Decisions taken`). The Manager name is the human's 2026-10-14 amendment.
+
+### Where each figure comes from
+
+| On the page | Source | Notes |
+|---|---|---|
+| Viewer chip | `GET /api/me`, its `name`, else its `username` | `<name> · Manager`; `<username> · Manager` while no name is set (story 28). If the read fails, plain "Manager" (story 19) |
+| Pending approvals | `GET /api/review-queue` | unchanged |
+| Pending Requests | `GET /api/pending-requests` | unchanged |
+| Billed this month | new `GET /api/tenant-totals`, `billed` | one `Money` line per currency. Meta "Sent or approved · `<Month YYYY>`", where the month is the read's own `billingMonth` and never the wall clock |
+| Payout this month | new `GET /api/tenant-totals`, `payout` | one `Money` line per currency. Meta "Approved or paid · `<Month YYYY>`" |
+| Clients | `GET /api/clients`, its length | meta "In this tenant" (was "Active this tenant") |
+| Agents | `GET /api/agents`, its length | meta unchanged, "Across all countries" |
+| Contracts | `GET /api/contracts`, its length | meta unchanged, "Client × Agent pairs" |
+
+### The money definitions
+
+```
+billingMonth  = BillingMonth.current()           (first day of the current UTC month)
+
+Billed this month, per currency =
+  Σ total(ci)  over Client Invoices ci of the caller's Tenant
+               with ci.billingMonth = billingMonth
+               and  ci.status in {SENT, APPROVED}
+  total(ci)    = the sum of its stored Client Invoice lines (ADR 0004),
+                 the same total its own page, its PDF and the Review Queue show
+
+Payout this month, per currency =
+  Σ total(ai)  over Agent Invoices ai of the caller's Tenant
+               with ai.billingMonth = billingMonth
+               and  ai.status in {APPROVED, PAID}
+  total(ai)    = its four frozen figures (ADR 0003): Local Support Fees + Salary
+                 + Rollout Advance repayment + new advance, after any Manager override
+```
+
+- **Only frozen totals are counted.** Every counted status is past the send, so
+  every counted total is stored. A draft's live computation is never read.
+  Opening the dashboard writes nothing, and it never runs a get-or-create path.
+- **Grouped by the invoice's own `currency`.** It is copied from the Contract,
+  and the Contract's from the Agent's country. Amounts in different currencies
+  are never added together.
+- **A sent-back Client Invoice is `DRAFT`** (ADR 0005). It drops out of "Billed"
+  when it is sent back and comes back in when it is resent. That needs no
+  special case.
+- **How adjustments will count, once `invoice-adjustment` lands.** That spec
+  makes an adjustment part of an invoice's frozen figures once it *lands*. For a
+  Client Invoice it is an adjustment line. For an Agent Invoice it is a fifth
+  figure. The rule here is that each figure counts an invoice at the total its
+  own page shows. So a landed adjustment counts in the invoice it landed on,
+  signed: a credit lowers the figure and a charge raises it. A pending or
+  withdrawn adjustment never counts. A Client Invoice's adjustment lines are
+  stored lines, so the line sum includes them with no change. The Agent side
+  needs the fifth figure added to `total(ai)`. To keep that a one-place change,
+  the aggregate and the Review Queue build their Agent Invoice total from one
+  shared expression (`## Decisions taken`). Whichever feature lands second
+  updates it. This feature adds nothing for adjustments now.
+
+### Backend: the Tenant-wide aggregate
+
+A new `TenantTotalsController`, Manager-only through a `SecurityConfig` matcher
+beside `/api/review-queue`'s. It takes no parameter. The Tenant comes from the
+principal and the month from `BillingMonth.current()`.
+
+```
+GET /api/tenant-totals
+200 {
+  "billingMonth": "2026-10-01",
+  "billed": [ { "currency": "GBP", "amount": "20.00" }, { "currency": "USD", "amount": "135.99" } ],
+  "payout": [ { "currency": "USD", "amount": "2835.99" } ]
+}
+    — each list holds one entry per currency with at least one counted invoice,
+      ordered by currency code; a list with nothing counted is []
+403 — an Agent or a Tester
+401 — no token
+```
+
+- **Selection and summing live in a service** (Backend rule 2), with
+  `ClientInvoiceRepository` and `AgentInvoiceRepository` gaining one grouped
+  query each. They sum per currency in the database, in the shape of the
+  existing `findQueueRows` queries: the Client side over `ClientInvoiceLine`,
+  the Agent side over the snapshot columns. Both are filtered by Tenant,
+  `billingMonth` and a set of statuses.
+- **A new DTO** (`TenantTotalsResponse` with a `CurrencyAmount` entry). Amounts
+  are decimals serialised the way every other amount in the API is.
+- **The aggregate needs no schema change.** The existing `tenant_id` and
+  `billing_month` columns are enough at this volume. The feature's one
+  migration is the Manager name's, below.
+
+### Backend: the Manager name
+
+A **Manager name** is the name a Company Manager is known by in the product. It
+is stored on their Login (the `users` row), because a Manager has no record of
+their own: an Agent's name stays on `Agent`, a Tester's on `Tester`.
+
+- **Schema.** One additive migration at the next free Flyway version at merge
+  (V60 today; `super-admin-signs-in`, also a draft, takes "the next free at
+  merge" too, so whichever merges second takes V61): `users.name`, a nullable
+  `varchar(100)`. No data is written; every existing row, the V2 Manager's
+  included, stays `NULL`. `User` gains `name` with one write method that takes
+  an already-normalised value.
+- **One rule for a valid name**, a small value type (`ManagerName`) that every
+  path writing a name goes through: it trims surrounding whitespace, refuses an
+  empty result (`NAME_BLANK`) and refuses more than 100 characters after
+  trimming (`NAME_TOO_LONG`). Inner spacing and any script are kept as typed.
+  `create-a-tenant-with-its-first-manager` reuses it.
+- **The read.** `GET /api/me` gains `name`: the caller's stored Manager name,
+  omitted while unset, as `agentId` and `clientId` already are. It is read from
+  the `users` row on each call, not from the token, so a correction shows on the
+  next render with no new token. For an Agent or a Tester it is always omitted.
+- **The write.** A new `PUT /api/me/name`, beside `POST /api/me/password` and in
+  its shape: no id in the path, the row written is the caller's own, resolved
+  from the principal.
+
+  ```
+  PUT /api/me/name   { "name": "Yazan Abuhassan" }
+  204 — stored, trimmed
+  400 { "code": "NAME_BLANK" | "NAME_TOO_LONG" | "INVALID_REQUEST", "message": … }
+  403 — an Agent or a Tester
+  401 — no token, or a deactivated Login (the existing login-state check)
+  ```
+
+  A `SecurityConfig` matcher makes `/api/me/name` Manager-only, ahead of the
+  `/api/me/**` fall-through. The controller has its own `@ExceptionHandler`
+  for the coded `400`, as `ChangePasswordController` does (Backend rule 7). The
+  write changes only `users.name`: never the username, the password hash or
+  `deactivated_at`, and it ends no session.
+
+### Carried to `tenant-administration`
+
+This feature does not build it; the orchestrator carries it into
+`docs/roadmap/tenant-administration.md`, on
+`create-a-tenant-with-its-first-manager`:
+
+- The SuperAdmin enters the first Manager's **name** together with their email
+  when creating them (settled by the human on 2026-10-14). It is required
+  there, stored in `users.name`, and validated by the same `ManagerName` rule
+  (trimmed, non-blank, at most 100 characters). That Manager's chip then shows
+  their name from their first sign-in.
+- Any later SuperAdmin path that creates a Manager takes the name the same way.
+
+### Frontend: the page
+
+`app/manager/page.tsx` stays an async Server Component and keeps today's shape:
+each region loads alone and fails alone, and nothing throws. It reads
+`/api/me`, `/api/review-queue`, `/api/pending-requests`, `/api/tenant-totals`,
+`/api/clients`, `/api/agents` and `/api/contracts` in parallel, each through
+`backendFetchJsonOrNull`, which gives `null` on failure, logged.
+
+- **The chip** is `<name> · Manager` when `/api/me` carries a `name`,
+  `<username> · Manager` when it does not, and plain "Manager" when the read
+  fails. A long name truncates in the chip, as every label already does.
+- **No `(dashboard)` route group and no `error.tsx`.** The Agent and Client
+  dashboards throw when identity fails, because every figure on them is scoped
+  by the caller's Agent or Client. Here, no figure is scoped by `/api/me`: the
+  backend scopes every read by the token's Tenant. A failed `/api/me` only
+  costs the chip its name (story 19).
+- **Regions fail alone.** A failed list read makes its count card show `—` with
+  an sr-only "Unavailable" and a "Couldn't load…" meta ("Couldn't load your
+  Clients", "…Agents", "…Contracts"). A failed `/api/tenant-totals` makes both
+  money cards show `—` with "Couldn't load this month's totals". This is the
+  Agent grid's rendering, already used by the two pending counts.
+- **Nothing to count** (`[]`) renders a plain `0` in the card's value slot: no
+  currency symbol and no currency code, in the same type and ink as any other
+  value, `tabular-nums`, with the month meta unchanged (story 15). It is not
+  rendered through `Money`, which always carries a currency. `—` stays the only
+  rendering of a failure.
+- **Several currencies** render as a short stack of `Money` lines in the value
+  slot, one per currency, in the read's order, each `tabular-nums` through
+  `Money`. Six currencies at most can occur.
+
+### Frontend: changing the name from the account menu
+
+- **`ViewerMenu` gains an optional "Change name" item**, shown only when its
+  caller passes an `onChangeName` callback. With it the panel holds, in order,
+  "Change name", "Change password", "Log out"; arrow keys cycle all three.
+  Without it the menu is exactly today's two items, so the Agent's and the
+  Tester's menus do not change (story 33).
+- **A new `ChangeNameDialog`**, beside `ChangePasswordDialog` and built the same
+  way: opened imperatively from the menu item, mounted on first open,
+  `DialogShell`, one labelled `Input` ("Name", `autoComplete="name"`),
+  `DialogErrorAlert` for refusals, "Cancel" and "Change name" buttons. On open
+  it reads `GET /api/me` through the browser's `/api/me` proxy and prefills the
+  field with the current name, or leaves it empty when none is set or the read
+  fails. A blank field is refused in the browser before any request ("Enter
+  your name."); the backend's codes map to messages at the field
+  (`NAME_BLANK` → "Enter your name.", `NAME_TOO_LONG` → "Your name can be at
+  most 100 characters."), anything else to "Couldn't change your name. Try
+  again." What was typed is kept on every refusal. On `204` the dialog closes
+  and calls `router.refresh()`, so the dashboard's chip shows the new name at
+  once. It never signs the user out (story 32).
+- **`ViewerActions` pairs the item with the dialog** when it is told the viewer
+  can change their name, through one boolean prop passed down from
+  `SurfacePage` and `TopBar` (`viewerCanChangeName`). Every Manager page passes
+  it, so the item is on the account menu everywhere in the Manager console
+  (story 29); no Agent or Tester page does. Only the Dashboard's chip shows the
+  name; the other Manager pages keep plain "Manager" (`## Decisions taken`).
+
+### Frontend: the stat grid
+
+`ManagerDashboardStats` becomes presentational, with no `"use client"` and no
+`useSimulatedLoad`. It renders at once, still marked `data-testid="dashboard-ready"`.
+Its props become:
+
+```ts
+billedThisMonth: CurrencyAmount[] | null;   // null = unavailable, [] = plain 0
+payoutThisMonth: CurrencyAmount[] | null;
+billingMonth: string | null;                // "YYYY-MM-01" from the read, for the meta
+clientCount: number | null;
+agentCount: number | null;
+contractCount: number | null;
+```
+
+Every card gets a `data-testid` (`billed-stat`, `payout-stat`, `clients-stat`,
+`agents-stat`, `contracts-stat`), beside the two that exist.
+
+### Prefactoring and removal
+
+- **The demo-keyed status maps are deleted, not moved.** The epic expected the
+  invoice-status types in `frontend/lib/demo/types.ts` to need a new home. The
+  code shows that their only importer is `frontend/lib/status.ts`, and only for
+  seven maps nothing uses any more: `requestStatusTone`, `smartphoneStatusTone`,
+  `simStatusTone`, `clientInvoiceStatusTone`, `clientInvoiceStatusLabel`,
+  `agentInvoiceStatusTone` and `agentInvoiceStatusLabel`. Their `…ByValue`
+  replacements, keyed by the real enums in `lib/api/types`, already serve
+  every page. Deleting the seven maps frees `demo/types.ts`. This pays the
+  `frontend/lib/status.ts` entry in `docs/tech-debt.md`. The stale comments that
+  point at the deleted maps are reworded.
+- **`frontend/lib/demo/` is deleted**: `manager.ts`, `contracts.ts` and
+  `types.ts`.
+- **The demo footer goes.** `SurfacePage` loses its `demoData` prop, and
+  `DemoNote` is deleted. `demo-footer.spec.ts` becomes one assertion that
+  `/manager` shows no "Demo data" footer, or is folded into `surfaces.spec.ts`.
+- **`useSimulatedLoad` is deleted**, along with `StatCardSkeleton` if nothing
+  else renders it. Today only the Manager grid does.
+
+### Visual suite
+
+`tests/visual/stub-backend.mjs` gains, for `visual-manager-session`:
+
+- `GET /api/me`: the Manager's username and a `name` ("Yazan Abuhassan"), so the
+  goldens show a named chip.
+- `GET /api/review-queue`: two items, one Client Invoice and one Agent Invoice,
+  with `waitingSince` relative to the stub's own clock. This is the Agent
+  dashboard's settled answer to the clock debt.
+- `GET /api/agents` and `GET /api/contracts` for a Manager, if not already
+  served, reusing the stub's existing Client, Agents and Contracts.
+- `GET /api/tenant-totals`: a fixed `billingMonth`, `billed` in two currencies
+  (GBP and USD) and `payout` in one (USD).
+- `visual-manager-degraded-session`: `/api/me`, `/api/tenant-totals` and
+  `/api/agents` → `500`. This is asserted in `surfaces.spec.ts` as a non-golden
+  test, beside the Agent's and the Tester's degraded sessions.
+- `visual-manager-empty-session`: `/api/tenant-totals` returns `[]` for both
+  lists, and `/api/me` carries no `name`. This is asserted as a non-golden test
+  that both money cards read a plain `0` with no currency symbol, and that the
+  chip reads `<username> · Manager`.
+
+The `manager` surface, `viewer-menu.spec.ts` and `change-password-dialog.spec.ts`
+move from the placeholder cookie onto `visual-manager-session` and drop their
+masks. Their goldens are recaptured, deleted first: `manager-*`,
+`manager-menu-open-*` (now three items) and `change-password-dialog-open-*`. A
+new `change-name-dialog.spec.ts` captures `change-name-dialog-open-*` on the
+same session, the field prefilled from the stubbed `name`.
+
+## Design direction
+
+Conforms to `DESIGN.md`; no `DESIGN.md` change. The surface is **Operate**.
+`DESIGN.md` already settles the layout: "a responsive stat-card grid (3-column
+on Manager …) followed by a linking preview list", and each surface "leads with
+money and status (pending approvals, billed/payout totals …)". The grid keeps
+its seven cards in their order, and the Pending approvals card stays below it.
+
+Every state is built from components that already ship: `StatCard`, with the
+unavailable rendering the two pending counts already use, and `Money`, which
+already carries tabular figures and an explicit currency. A multi-currency value
+is a vertical stack of `Money` lines in the existing value slot. It is not a new
+component, and its type size is the existing primary value's. The empty `0` is
+the same primary value, in the same ink, with `tabular-nums` and no currency
+mark, exactly as the count cards render their numbers.
+
+The "Change name" item is a third `menuitem` in the existing viewer menu panel,
+styled as its two siblings. `ChangeNameDialog` follows `ChangePasswordDialog`'s
+layout: same `DialogShell`, field shape, error alert and button row, with one
+field instead of three. New and rewritten lines use the `@theme` type-scale
+tokens (`text-label-sm`, `text-label`), never `text-[12px]` / `text-[13px]`
+(Frontend rule 8, as amended). The `design` slot does not need to be engaged.
+
+## Constraints
+
+- Inherits every constraint in the `remote-support-mvp` spec: the stack, Tenant
+  scoping, and an explicit currency on every amount. A `0` with nothing to
+  count is not an amount and carries none (the human, 2026-10-14).
+- **No figure adds amounts of different currencies.** No figure is converted.
+- `GET /api/tenant-totals` acts only on the caller's own Tenant, resolved from
+  the principal. No parameter may name a Tenant, a month or a status. It is
+  Manager-only.
+- It reads frozen totals only (ADR 0003, ADR 0004). It never reads a draft's
+  live computation, never writes, and never creates an invoice.
+- Each invoice counts at the same total its own page and the Review Queue show.
+  Any change to how an invoice's total is computed, `invoice-adjustment`'s
+  included, must keep the two in agreement (`## Solution`, adjustments).
+- The month shown is the read's `billingMonth`, never the frontend's wall clock.
+- `PUT /api/me/name` writes only the caller's own `users.name`, resolved from
+  the principal; nothing in the request may name a Login. It is Manager-only.
+  It never touches the username, the password hash or `deactivated_at`, and
+  never ends a session.
+- Every write of a Manager name goes through the one `ManagerName` rule.
+- One Flyway migration: additive (`users.name`, nullable), no data written, at
+  the next free version at merge (V60 today; never a number below the latest
+  merged, since Flyway runs with `outOfOrder=false`).
+- The frontend imports nothing from `@/lib/demo`, and the directory no longer
+  exists. `DemoNote`, `demoData` and `useSimulatedLoad` no longer exist.
+- A region that fails logs the failure and renders its own "Couldn't load…"
+  state while the rest of the page works (Frontend rule 6, as amended). It never
+  renders `0`, an empty list or a fallback figure in place of a failure.
+- Visual recapture: because of `maxDiffPixelRatio`, every golden this feature
+  changes is deleted before it is recaptured. Each recaptured golden's diff
+  against `main` shows only the intended change.
+- Backend tests run under `IntegrationTest`. Mocking a repository there is
+  banned.
+- e2e and visual runs use an isolated stack on ports other than
+  3000/8080/5432, per `docs/agents/implementer-notes.md`. No test writes to the
+  user's compose stack, including `postgres-demo`. No e2e step rewrites a
+  `billing_month` in the database.
+
+## Testing decisions
+
+Tests assert external behaviour only: HTTP status and body, the rendered
+accessibility tree, and what a user sees. They never assert repository calls or
+component internals.
+
+1. **Backend: the HTTP API seam, which already exists.** `IntegrationTest` with
+   MockMvc against real Postgres. Prior art: `ReviewQueueApiTest` (Tenant-wide
+   Manager reads over both invoice kinds, Manager-only access, an older billing
+   month built through the repository), `MeClientApiTest` (frozen totals, no row
+   created by a read) and `AgentInvoiceByIdApiTest` (override and mark-paid
+   transitions). The tests cover:
+   - an empty Tenant gets the current `billingMonth` and two empty lists;
+   - a `SENT` Client Invoice and an `APPROVED` one of this month both count, at
+     the total `GET /api/client-invoices/{id}` returns;
+   - a `DRAFT`, a sent-back draft, and a `SENT` invoice of last month do not
+     count;
+   - a Fee logged after sending does not move `billed`;
+   - an Agent Invoice counts once `APPROVED` and stays counted when `PAID`, at
+     its total including a Manager override; one that is `DRAFT` or `SENT`, or
+     of last month, does not count;
+   - a USD and a GBP Contract give two entries, ordered by currency code, never
+     one sum;
+   - `OtherTenantFixture`'s invoices never count;
+   - an Agent and a Tester get `403`, and no token gets `401`;
+   - calling the read creates no `client_invoices` or `agent_invoices` row.
+2. **Backend: the Manager name, at the same HTTP seam.** A new
+   `ManagerNameApiTest`. Prior art: `ChangeOwnPasswordApiTest` (a caller-own
+   write under `/api/me` with coded `400`s), `ProtectedEndpointTest` (the
+   `/api/me` body) and `DeactivatedLoginRefusedApiTest`. It covers:
+   - `GET /api/me` for an unnamed Manager has no `name`; for an Agent and a
+     Tester it never has one;
+   - `PUT` "  Yazan Abuhassan  " gives `204`, and `GET /api/me` then returns
+     "Yazan Abuhassan", trimmed, with the same `username`;
+   - a second `PUT` replaces the name;
+   - "" and "   " give `400 NAME_BLANK`, 101 characters `400 NAME_TOO_LONG`,
+     100 characters `204`; a refused write leaves the stored name as it was;
+   - an Agent and a Tester get `403`, no token `401`, a deactivated Manager `401`;
+   - after the write, the same token still works and the old password still
+     signs in;
+   - another Manager's name, `OtherTenantFixture`'s included, is never touched.
+3. **Frontend: component tests.** Vitest and Testing Library.
+   - `ManagerDashboardStats` (the file exists,
+     `components/manager/dashboard-stats.test.tsx`, and loses its fake-timer
+     step): one currency, two currencies in the given order, `[]` rendering a
+     plain `0` with no currency symbol or code, each `null` rendering "—" with
+     its "Couldn't load…" meta, the month meta, the "In this tenant" caption,
+     and the grid rendering at once as `dashboard-ready`.
+   - `ViewerMenu` (`viewer-menu.test.tsx` exists): with `onChangeName`, three
+     items in order and arrow keys cycling all three; without it, exactly
+     today's two.
+   - `ChangeNameDialog`, a new test beside `change-password-dialog.test.tsx`,
+     its prior art: prefilled from the read, empty when unset or when the read
+     fails, a blank field refused with no request sent, each code mapped to its
+     message with the typed value kept, and success closing and refreshing with
+     no sign-out.
+4. **Frontend: Playwright e2e against the real backend**,
+   `tests/e2e/manager-dashboard.spec.ts`. Prior art:
+   `manager-invoice-review-queue.spec.ts` (sending and approving both invoice
+   kinds), `agent-dashboard.spec.ts`, `client-dashboard.spec.ts`,
+   `change-password.spec.ts` (the menu and its dialog) and `helpers.ts`. The
+   e2e database is shared across specs, so the spec asserts *differences*,
+   never absolute totals. It reads the money cards, then:
+   - has the Agent send a Client Invoice and shows "Billed" grew by exactly that
+     invoice's total in its currency;
+   - has the Manager approve it and shows "Billed" unchanged;
+   - has the Agent send their Agent Invoice and shows "Payout" unchanged;
+   - has the Manager approve it and shows "Payout" grew by its total.
+
+   It also shows the three counts equal to the lengths of the Clients, Agents
+   and Contracts lists through the API. For the name, it opens "Change name"
+   from the account menu, saves a name unique to the run, and shows the chip
+   reading `<that name> · Manager` with no sign-in in between, then reloads and
+   shows it kept. The seeded e2e Manager is left named afterwards, since a name
+   cannot be cleared; no other spec reads the dashboard chip. The unnamed
+   fallback is covered by the backend test and the empty stub session, not
+   here. Because component tests cannot render the async Server Component, its
+   failure branches are covered by the stub sessions in the visual suite.
+5. **Visual goldens: the existing backend-stubbed suite.** `/manager` moves onto
+   `visual-manager-session` with no masks, the menu golden gains its third
+   item, and the new dialog gets its golden. The degraded and empty states are
+   asserted as non-golden tests.
+6. **No new seam.** Each behaviour is tested at the highest seam that already
+   exists and can see it.
+
+## Decisions taken
+
+- **"Billed this month" counts the current billing month's Client Invoices
+  that are sent or approved; drafts never count, a sent-back one included.**
+  Reason: answered by the human on 2026-10-08, as recommended
+  (`docs/inbox/manager-dashboard-billed-this-month.md`). Sending is when a
+  Client is billed, and a draft's total is still a live estimate. "This month"
+  means the current billing month, as on the Agent's dashboard, so the figure
+  reads low early in the month until the Agents send (stories 6, 7).
+- **"Payout this month" counts the current billing month's Agent Invoices that
+  the Manager approved or marked paid.** Reason: answered by the human on
+  2026-10-08, as recommended (`docs/inbox/manager-dashboard-payout-this-month.md`).
+  That is the pay the company has agreed to; a sent invoice is still awaiting
+  review and already shows on the Pending approvals card (stories 8, 9).
+- **Amounts in different currencies are shown as one total per currency on the
+  same card, with no conversion.** Reason: answered by the human on 2026-10-08,
+  as recommended (`docs/inbox/manager-dashboard-currencies.md`). The product
+  holds no exchange rate, and a rate source is its own feature (story 13).
+- **A money card with nothing to count shows a plain `0`, with no currency
+  symbol.** Reason: answered by the human on 2026-10-14
+  (`docs/inbox/approve-real-manager-dashboard.md`), overturning the drafted
+  "None yet": the Tenant has no currency of its own, so the zero carries none.
+  "—" still means "couldn't load" (story 15).
+- **A Manager has a Manager name, the chip shows `<name> · Manager`, and a
+  Manager whose name was never set sees their login until they set it.**
+  Reason: answered by the human on 2026-10-14, overturning the drafted
+  username chip. The SuperAdmin enters it at creation (carried to
+  `tenant-administration`) and the Manager corrects it from the account menu
+  (stories 1, 28, 29).
+- **The Manager name is a nullable column on `users`, not a new Manager
+  table.** Reason: a Manager has no record but their Login, the column is
+  additive with no data written, and it is undone by dropping it. A Manager
+  table would be a second identity record for one role, with nothing else to
+  hold yet.
+- **One `ManagerName` rule: trimmed, non-blank, at most 100 characters.**
+  Reason: one place for the Manager's correction and the SuperAdmin's creation
+  to agree on. 100 is generous for a person's name and matches the column; a
+  longer limit is an `ALTER` and a constant away.
+- **A set name can be corrected but not cleared.** Reason: a blank name would
+  put " · Manager" on the chip, and nothing in the product asks to go back to
+  the login once named. Clearing can be added later without a migration.
+- **`GET /api/me` carries the name, read from the row on each call, not the
+  token.** Reason: the page already reads `/api/me` for the chip, so no new
+  read is needed, and a correction shows on the next render with no token
+  reissued. `/api/me` already omits fields that do not apply to a role.
+- **The write is `PUT /api/me/name`, Manager-only, with its own coded `400`s.**
+  Reason: it mirrors `POST /api/me/password`, the only caller-own write, in
+  path, scoping and error shape (Backend rule 7). `PUT` because it sets one
+  whole value idempotently. It is additive and consumed only by this frontend.
+- **Changing a name does not sign the user out.** Reason: unlike a password, a
+  name is not a credential, and the human asked only for a correction (story
+  32).
+- **"Change name" is the menu item's label, it sits above "Change password",
+  and it is on every Manager page's account menu.** Reason: the human placed it
+  "next to Change password" in the account menu, which is on every page; the
+  label mirrors its sibling; identity before credentials. The copy is checked
+  in walkthrough step 14.
+- **The item is opted in through one `viewerCanChangeName` prop on
+  `SurfacePage`, passed by every Manager page.** Reason: the menu is shared by
+  every console and cannot tell roles apart today; one explicit prop keeps the
+  Agent's and Tester's menus untouched and is cheap to replace with a console
+  prop later.
+- **The dialog prefills itself from `GET /api/me` on open.** Reason: only the
+  dashboard reads `/api/me` today, and the item is on every Manager page; a
+  self-contained dialog needs no page to pass the name down. A failed read
+  opens it empty rather than blocking the correction.
+- **On success the dialog calls `router.refresh()`.** Reason: the dashboard is a
+  Server Component, so a refresh is what puts the new name on the chip (story
+  32).
+- **The money figures come from one new Manager-only read,
+  `GET /api/tenant-totals`, and the counts from the three existing list
+  routes.** Reason: the epic settles the counts as "one list call each". Money
+  has no endpoint, and one read for both money figures keeps a single month
+  for both. With separate reads, a failed money read does not blank the counts.
+- **The read takes no parameter: Tenant from the principal, month from
+  `BillingMonth.current()`, statuses fixed in the service.** Reason: nothing on
+  the page chooses them, and a parameterised read would be a second history API
+  before `invoice-history` designs one. It is additive and cheap to change.
+- **The read returns its `billingMonth`, and the card's month label comes from
+  it.** Reason: the page and the figure can then never disagree about the month
+  near midnight UTC on the 1st. This follows the Agent dashboard's "never the
+  wall clock".
+- **Sums are grouped by currency in the database, in the shape of the existing
+  `findQueueRows` queries.** Reason: the invoice count is small. A grouped sum
+  avoids one line read per invoice, and the queue queries are prior art for
+  both total expressions.
+- **The Agent Invoice total is one shared expression, used by the Review Queue
+  query and the new aggregate.** Reason: `invoice-adjustment` adds a fifth
+  figure to it. One expression makes that a single edit, so the queue and the
+  dashboard cannot drift. The Client side already shares "sum of stored lines".
+- **The page does not throw on a failed `/api/me`. The chip falls back to plain
+  "Manager", and there is no `(dashboard)` route group.** Reason: unlike the
+  Agent and Client dashboards, no figure here is scoped by the caller's record.
+  The backend scopes each read by the token. The page already loads each region
+  alone. The change is cheap to undo.
+- **The Clients card's caption reads "In this tenant", not "Active this
+  tenant".** Reason: no Client has an active state to filter on. The Clients
+  page's own subtitle already says "N in this tenant". The change is copy only,
+  and walkthrough step 14 shows it.
+- **Several currencies render as stacked `Money` lines in the existing value
+  slot, ordered by currency code.** Reason: there is no new component, the
+  order is stable from day to day (story 14), and at most six lines can occur.
+  This renders the human's 2026-10-08 answer of one total per currency. The
+  layout is cheap to change.
+- **The demo-keyed status maps in `lib/status.ts` are deleted, not moved, and
+  `lib/demo/types.ts` goes with them.** Reason: the code shows nothing uses
+  them. The real-enum maps replaced each one, so there is nothing to move. This
+  pays the recorded debt.
+- **`DemoNote`, `demoData` and `useSimulatedLoad` are deleted.** Reason: their
+  last user was this page. The `real-client-dashboard` spec assigned their
+  removal here.
+- **The visual stub's Review Queue dates are relative to the stub's clock, with
+  no masks.** Reason: this is the Agent dashboard's settled answer. The page
+  renders server-side, so a browser clock cannot reach it, and masking would
+  hide real changes.
+- **No `(dashboard)` `error.tsx` and no `loading.tsx`.** Reason: no whole-page
+  failure exists to route, and the page has never needed a loading state.
+- **Code goes in the existing `web` / `repository` / `dto` / `domain` layout.**
+  Reason: Backend rule 13's transition clause, as in both sibling features.
+- **Testing: the existing HTTP seam for both reads and the name write,
+  component tests for the grid, the menu and the dialog, one e2e spec asserting
+  differences against a real backend, and the stubbed visual suite for layout
+  and failure states.** Reason: each is the highest existing seam that can see
+  its behaviour, and no seam is added. The e2e database is shared, so absolute
+  totals, and the unnamed state of its one Manager, are not stable there.
+- **`/api/tenant-totals` and `/api/me/name` are made Manager-only by
+  `SecurityConfig` matchers, beside `/api/review-queue`'s `hasRole("MANAGER")`
+  rule.** Reason: that is where the Review Queue's guard lives (verified), and
+  the change is additive.
 - **The Manager's name shows on the Dashboard's chip only; other Manager pages keep
   plain "Manager".** Reason: answered by the human on 2026-10-14, as recommended.
   It matches the Agent console, whose Dashboard alone shows the Agent's name;
@@ -131,7 +728,7 @@ the human settled on 2026-10-08.
 
 1. [agent] Sign in as the Manager (`manager@example.com`), whose name the database setup leaves unset, and open `/manager`. Show the chip "manager@example.com · Manager", and no occurrence of "Priya Ashford", "41,280", "22,940" or "Demo data" on the page. Show that the grid appears with no skeleton first. (stories: 20, 24, 28)
 2. [agent] Open the account menu and show its items "Change name", "Change password", "Log out", in that order, reachable by arrow keys. Choose "Change name" and show an empty "Name" field. Submit it blank and show "Enter your name." with no request sent; submit 101 characters and show "Your name can be at most 100 characters." with the text kept. Enter "  Yazan Abuhassan  " and save. Show the dialog closes and the chip reads "Yazan Abuhassan · Manager" with no sign-in in between, and still after a reload. Call `GET /api/me` and show `name` "Yazan Abuhassan", trimmed, and `username` unchanged. Reopen "Change name" and show the field holding "Yazan Abuhassan". Log out and sign in again with the same email and password. (stories: 1, 29, 30, 31, 32)
-3. [agent] As the Manager, open `/manager/invoices` and show "Change name" in its account menu. Sign in as Jordan and as Dana and show their menus hold only "Change password" and "Log out". Call `PUT /api/me/name` as Jordan and as Dana and show `403`, and with no token show `401`. (stories: 29, 33)
+3. [agent] As the Manager, open `/manager/invoices` and show "Change name" in its account menu and the chip reading plain "Manager". Sign in as Jordan and as Dana and show their menus hold only "Change password" and "Log out". Call `PUT /api/me/name` as Jordan and as Dana and show `403`, and with no token show `401`. (stories: 29, 33)
 4. [agent] Through the API, list `/api/clients`, `/api/agents` and `/api/contracts` as the Manager. Show the three cards equal their lengths (2, 3 and 3 in the demo story) and the Clients caption reads "In this tenant". (stories: 2, 3, 4, 5, 23)
 5. [agent] Call `GET /api/tenant-totals` as the Manager. Show `billingMonth` is this month and `billed` holds one USD entry equal to the total `GET /api/client-invoices/{id}` returns for Solstice's US Contract's invoice. Show the Solstice UK and Harbor Line drafts are not counted. Show the "Billed this month" card shows that amount with the meta "Sent or approved · <this month>". (stories: 6, 7, 10, 11, 23)
 6. [agent] Show "Payout this month" reads a plain `0`, with no currency symbol, and "Approved or paid · <this month>", although Jordan's Agent Invoice is sent. As the Manager, approve it. Reload and show "Payout" equal to that invoice's own total in USD. Mark it paid and show the figure unchanged. (stories: 8, 9, 10, 15, 16)

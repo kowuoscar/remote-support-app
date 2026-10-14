@@ -39,4 +39,15 @@ describe("SmartphoneFleetTable", () => {
     expect(screen.getAllByRole("button", { name: "Edit" })).toHaveLength(1);
     expect(screen.getByText("SN-1")).toBeInTheDocument();
   });
+
+  it("renders the owner control with canCorrect and plain text without it", () => {
+    const { rerender } = render(
+      <SmartphoneFleetTable phones={[phone]} simCards={[]} contractId="contract-1" canCorrect />,
+    );
+    expect(screen.getByRole("button", { name: "Edit owner" })).toBeInTheDocument();
+
+    rerender(<SmartphoneFleetTable phones={[phone]} simCards={[]} contractId="contract-1" />);
+    expect(screen.getByText("Company")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Edit owner" })).not.toBeInTheDocument();
+  });
 });

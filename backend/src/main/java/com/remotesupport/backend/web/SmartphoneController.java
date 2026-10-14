@@ -7,6 +7,7 @@ import com.remotesupport.backend.domain.SmartphoneStatus;
 import com.remotesupport.backend.dto.SmartphoneCreateRequest;
 import com.remotesupport.backend.dto.SmartphoneResponse;
 import com.remotesupport.backend.dto.SmartphoneModelUpdateRequest;
+import com.remotesupport.backend.dto.SmartphoneOwnerUpdateRequest;
 import com.remotesupport.backend.dto.SmartphoneSerialUpdateRequest;
 import com.remotesupport.backend.dto.SmartphoneStatusUpdateRequest;
 import com.remotesupport.backend.logging.AuditLog;
@@ -187,6 +188,30 @@ public class SmartphoneController {
 
     return SmartphoneResponse.of(
         correctionService.correctModel(contract, smartphoneId, request.model(), principal));
+  }
+
+  /**
+   * Corrects a Smartphone's owner (correct-a-fleet-unit spec); refused with a coded 409 while an
+   * open Return names the phone.
+   */
+  @PatchMapping("/{smartphoneId}/owner")
+  public SmartphoneResponse correctOwner(
+      @PathVariable UUID contractId,
+      @PathVariable UUID smartphoneId,
+      @RequestBody SmartphoneOwnerUpdateRequest request,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    Contract contract = findContract(contractId, principal);
+    fleetAccessGuard.requireCanCorrect(contract, principal);
+
+    return SmartphoneResponse.of(
+        correctionService.correctOwner(contract, smartphoneId, request.owner(), principal));
+  }
+
+  /** A correction that clashes with the unit's state: 409 with a {@code code}. */
+  @ExceptionHandler(CorrectionConflictException.class)
+  public ResponseEntity<Map<String, String>> correctionConflict(CorrectionConflictException e) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(Map.of("code", e.getCode(), "message", e.getMessage()));
   }
 
   /** A refused correction's 400 carries a {@code code}, so the page can show it at the field. */

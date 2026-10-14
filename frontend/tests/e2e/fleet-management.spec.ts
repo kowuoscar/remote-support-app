@@ -303,7 +303,7 @@ test.describe("fleet management", () => {
     await selectContractInSwitcher(page, clientName);
 
     const row = page.locator("table").first().locator("tbody tr").first();
-    await row.getByRole("button", { name: "Edit" }).click();
+    await row.getByRole("button", { name: "Edit" }).first().click();
     await row.getByLabel("Smartphone model").fill("Galaxy S24");
     await row.getByRole("button", { name: "Save" }).click();
 
@@ -334,5 +334,68 @@ test.describe("fleet management", () => {
     await expect(row.getByLabel("Smartphone model")).toHaveCount(0);
     // The model cell holds no button: only the serial control's own are in the row.
     await expect(row.getByRole("cell", { name: "Moto G" }).getByRole("button")).toHaveCount(0);
+  });
+
+  // correct-a-smartphone-owner ticket.
+  test("a manager corrects a smartphone's owner in both directions and sees it after a reload", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await createClientAndContractWithSeededAgent(page, `Owner Fix Traders ${RUN_ID}`);
+    await addSmartphone(page, "Nokia 3310");
+
+    const row = page.locator("table").first().locator("tbody tr").first();
+    await expect(row.getByRole("cell", { name: /^Company/ })).toBeVisible();
+    await row.getByRole("button", { name: "Edit owner" }).click();
+    await row.getByLabel("Owner").selectOption("CLIENT");
+    await row.getByRole("button", { name: "Save" }).click();
+    await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
+    await page.reload();
+    await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
+
+    await row.getByRole("button", { name: "Edit owner" }).click();
+    await row.getByLabel("Owner").selectOption("COMPANY");
+    await row.getByRole("button", { name: "Save" }).click();
+    await expect(row.getByRole("cell", { name: /^Company/ })).toBeVisible();
+    await page.reload();
+    await expect(row.getByRole("cell", { name: /^Company/ })).toBeVisible();
+  });
+
+  test("a tester corrects a smartphone's owner on their own client's fleet", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Tester Owner Retail ${RUN_ID}`;
+    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    await addSmartphone(page, "Fairphone 4");
+    const testerEmail = `owner.tester+${RUN_ID}@owner.example`;
+    const testerPassword = await addTester(page, clientId, testerEmail);
+
+    await logout(page);
+    await login(page, testerEmail, testerPassword);
+    await page.goto("/client/fleet");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = page.locator("table").first().locator("tbody tr").first();
+    await row.getByRole("button", { name: "Edit owner" }).click();
+    await row.getByLabel("Owner").selectOption("CLIENT");
+    await row.getByRole("button", { name: "Save" }).click();
+    await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
+
+    await page.reload();
+    await selectContractInSwitcher(page, clientName);
+    await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
+  });
+
+  test("an agent's fleet offers no owner correction", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Read Only Owner ${RUN_ID}`;
+    await createClientAndContractWithSeededAgent(page, clientName);
+    await addSmartphone(page, "Moto E");
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/fleet");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = page.getByRole("row", { name: /Moto E/ });
+    await expect(row).toBeVisible();
+    await expect(row.getByRole("button", { name: "Edit owner" })).toHaveCount(0);
   });
 });

@@ -240,6 +240,30 @@ public final class AuditLog {
   }
 
   /**
+   * A Manager or Tester correcting a Smartphone's owner (correct-a-smartphone-owner Observability).
+   * Never emitted for a save of the owner already held.
+   */
+  public static void smartphoneOwnerCorrected(
+      UUID smartphoneId,
+      UUID contractId,
+      String oldOwner,
+      String newOwner,
+      UUID actorUserId,
+      String actorRole,
+      UUID tenantId) {
+    log.info(
+        "audit action=smartphoneOwnerCorrected entity=Smartphone entityId={} contractId={} "
+            + "oldOwner={} newOwner={} actorUserId={} role={} tenantId={}",
+        smartphoneId,
+        contractId,
+        oldOwner,
+        newOwner,
+        actorUserId,
+        actorRole,
+        tenantId);
+  }
+
+  /**
    * A Manager changing an Agent's standing salary or standing Rollout Advance
    * (agent-standing-amounts-and-invoice-generation ticket Observability: "standing-amount change
    * events logged with Agent id, old/new value, effective month, actor (Manager)"). {@code

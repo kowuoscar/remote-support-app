@@ -90,7 +90,7 @@ The terminal status of a Request the Company Manager declined at approval, with 
 _Avoid_: Denied, declined.
 
 **Owner** (of a Smartphone or SIM Card):
-A Smartphone is owned either by the Client or by the company; a SIM Card is always company-owned. A Smartphone reached through a Provision or Replace Request is always company-owned. Units are part of a Contract's Fleet, never assigned to an individual Tester.
+A Smartphone is owned either by the Client or by the company; a SIM Card is always company-owned. A Smartphone reached through a Provision or Replace Request arrives company-owned, and may be corrected afterwards. The owner decides a Return's path. A Manager or a Tester of the Contract's own Client may correct it in either direction, refused (409 `SMARTPHONE_ON_OPEN_RETURN`) while a Return naming the phone is Pending Approval, Submitted or In Progress, and allowed again once that Return is Completed, Cancelled or Rejected. Units are part of a Contract's Fleet, never assigned to an individual Tester.
 
 **Correction**:
 Fixing a mistake on a unit already on a Contract's Fleet — a SIM's number, a Postpaid SIM's plan, a Smartphone's model or its owner — in place, without raising a Request. Made by the Company Manager or a Client Tester, never an Agent; refused with a clear message when it would break a rule, and audit-logged with who made it, the old value and the new value. Not a Request, and not a change of Carrier or of Postpaid/Prepaid.

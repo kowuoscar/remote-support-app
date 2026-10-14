@@ -113,12 +113,12 @@ export const ChangeNameDialog = forwardRef<ChangeNameDialogHandle>(function Chan
           <h2 id={titleId} className="text-base font-semibold text-ink">
             Change name
           </h2>
-          <p className="text-[13px] text-ink-mute">This is the name your dashboard shows next to your role.</p>
+          <p className="text-label text-ink-mute">This is the name your dashboard shows next to your role.</p>
         </div>
 
         {error ? <DialogErrorAlert message={error} /> : null}
 
-        <label className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+        <label className="flex flex-col gap-1.5 text-label font-medium text-ink-secondary">
           Name
           <Input
             type="text"

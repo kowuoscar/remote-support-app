@@ -1,7 +1,7 @@
 ---
 id: month-close-paid-pay
 type: question
-status: open
+status: answered
 blocks: [month-closes-on-the-fifth]
 created: 2026-10-08
 ---
@@ -40,3 +40,5 @@ Spec: `docs/features/month-closes-on-the-fifth/spec.md`, Open questions 1.
 The loop works on the other specs waiting for approval.
 
 ## Answer
+
+As recommended: no. The Client bill moves, the Agent pay already approved or paid stays; any amount owed goes on next month's pay as an adjustment. A paid pay invoice is closed at once. (2026-10-14)

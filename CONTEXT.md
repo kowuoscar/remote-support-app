@@ -9,8 +9,11 @@ One customer company operating this platform — the business that hires the Age
 _Avoid_: Organisation, workspace, account (this last one is the Client's word).
 
 **Login**:
-The username and password a person signs in with — a `User` row belonging to exactly one Tenant, optionally linked to an Agent or a Tester (unlinked for a Manager). Its username is unique across the whole deployment, compared case- and trim-insensitively (`globally-unique-usernames`).
+The username and password a person signs in with — a `User` row belonging to exactly one Tenant, optionally linked to an Agent or a Tester (unlinked for a Manager), and, for a Manager, an optional Manager name. Its username is unique across the whole deployment, compared case- and trim-insensitively (`globally-unique-usernames`).
 _Avoid_: Account, credentials.
+
+**Manager name**:
+The name a Company Manager is known by in the product (e.g. "Yazan Abuhassan"), shown on their viewer chip as "<name> · Manager". Stored on their Login (`users.name`), since a Manager has no record of their own; trimmed, non-blank, at most 100 characters. Optional: a Manager whose name was never set is shown by their username. Entered by the SuperAdmin when creating a Manager (`tenant-administration`), and corrected only by the Manager themselves from the account menu; never set for an Agent or a Tester, whose names live on their own records.
 
 **Deactivated Login**:
 A `User` row with `deactivated_at` set: it cannot sign in, its existing tokens are refused on the next request, and it cannot change its password. The row and everything referencing it are kept, and a password reset still works.

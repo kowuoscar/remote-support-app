@@ -1,7 +1,7 @@
 ---
 id: accept-package-layout-decision
 type: acceptance
-status: open
+status: answered
 blocks: []
 created: 2026-10-09
 ---
@@ -37,3 +37,5 @@ Nothing.
 The loop carries on with the other unblocked work.
 
 ## Answer
+
+Accept. (2026-10-14)

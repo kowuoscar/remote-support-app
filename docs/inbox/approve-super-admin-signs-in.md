@@ -1,7 +1,7 @@
 ---
 id: approve-super-admin-signs-in
 type: approval
-status: open
+status: answered
 blocks: [super-admin-signs-in]
 created: 2026-10-08
 ---
@@ -45,3 +45,11 @@ hard to undo except the Operator Tenant you chose.
 The loop moves on to the research for the package layout.
 
 ## Answer
+
+Amend: the SuperAdmin gets access to everything, in every Tenant. They can
+open and change every page of every Tenant (Manager, Agent and Client pages
+alike), as if they were a Manager of all of them. Every action is still
+recorded in the audit log under the SuperAdmin's own login. This replaces
+"They can't open any Manager, Agent or Client page" and choice 5
+("forbidden" on a Tenant's address). Choices 1–4 are approved as written.
+(2026-10-14)

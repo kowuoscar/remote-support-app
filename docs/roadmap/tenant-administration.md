@@ -44,7 +44,7 @@ The journey does not exist in `docs/journeys.md` yet and should be added as
 ## Features
 
 - [ ] `super-admin-signs-in` — a SuperAdmin signs in to a console of their own and sees the Tenants that exist, each with its Manager count; how the first SuperAdmin comes to exist, and what Tenant (if any) a SuperAdmin belongs to, are settled in its spec.
-- [ ] `create-a-tenant-with-its-first-manager` — a SuperAdmin creates a Tenant by name together with its first Manager login, whose generated password is shown once; that Manager signs in to an empty Tenant and can start working.
+- [ ] `create-a-tenant-with-its-first-manager` — a SuperAdmin creates a Tenant by name together with its first Manager login, whose name the SuperAdmin enters (required; the Manager name rule from `real-manager-dashboard`) and whose generated password is shown once; that Manager signs in to an empty Tenant and can start working.
 - [ ] `super-admin-resets-a-managers-password` — a SuperAdmin resets a locked-out Manager's password (generated, shown once), reusing the password write the Agent and Tester resets use.
 - [ ] `super-admin-deactivates-a-managers-login` — a SuperAdmin switches a Manager's login off and on, with the refusals `deactivate-a-login` built.
 

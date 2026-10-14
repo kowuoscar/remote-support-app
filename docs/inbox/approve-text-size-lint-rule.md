@@ -1,7 +1,7 @@
 ---
 id: approve-text-size-lint-rule
 type: approval
-status: open
+status: answered
 blocks: [text-size-lint-rule]
 created: 2026-10-09
 ---
@@ -48,3 +48,5 @@ for a change no user can see.
 The rest of the frontend clean-up epic waits behind this feature.
 
 ## Answer
+
+Approve. (2026-10-14)

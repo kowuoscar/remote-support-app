@@ -1,7 +1,7 @@
 ---
 id: approve-package-layout
 type: approval
-status: open
+status: answered
 blocks: [package-by-feature]
 created: 2026-10-09
 ---
@@ -67,3 +67,5 @@ doesn't start until you answer.
 The other epics continue.
 
 ## Answer
+
+Approve. (2026-10-14)

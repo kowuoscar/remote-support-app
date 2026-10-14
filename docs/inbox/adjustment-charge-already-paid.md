@@ -1,7 +1,7 @@
 ---
 id: adjustment-charge-already-paid
 type: question
-status: open
+status: answered
 blocks: [invoice-adjustment]
 created: 2026-10-08
 ---
@@ -45,3 +45,5 @@ Spec: `docs/features/invoice-adjustment/spec.md`, Open questions.
 The loop works on `month-closes-on-the-fifth`, which comes first anyway.
 
 ## Answer
+
+As recommended: the Manager picks the item from the closed month's "paid to the Agent but not billed to the Client" list; that charge bills the Client, leaves the Agent's pay alone and is marked "Already in the Agent's pay". Every other adjustment moves pay by the same amount. (2026-10-14)

@@ -1,7 +1,7 @@
 ---
 id: month-close-tester-sees-changes
 type: question
-status: open
+status: answered
 blocks: [month-closes-on-the-fifth]
 created: 2026-10-08
 ---
@@ -33,3 +33,5 @@ Spec: `docs/features/month-closes-on-the-fifth/spec.md`, Open questions 2.
 The loop works on the other specs waiting for approval.
 
 ## Answer
+
+As recommended: yes. The Tester sees the figures as they stand, with "Can still change until 5 October" while the month is open. (2026-10-14)

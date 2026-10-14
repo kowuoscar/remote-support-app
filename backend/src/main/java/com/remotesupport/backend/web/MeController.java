@@ -1,6 +1,9 @@
 package com.remotesupport.backend.web;
 
+import com.remotesupport.backend.domain.Role;
+import com.remotesupport.backend.domain.User;
 import com.remotesupport.backend.dto.MeResponse;
+import com.remotesupport.backend.repository.UserRepository;
 import com.remotesupport.backend.security.CallerIdentityResolver;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,8 +23,12 @@ public class MeController {
 
   private final CallerIdentityResolver callerIdentityResolver;
 
-  public MeController(CallerIdentityResolver callerIdentityResolver) {
+  private final UserRepository userRepository;
+
+  public MeController(
+      CallerIdentityResolver callerIdentityResolver, UserRepository userRepository) {
     this.callerIdentityResolver = callerIdentityResolver;
+    this.userRepository = userRepository;
   }
 
   @GetMapping("/me")
@@ -32,6 +39,15 @@ public class MeController {
         principal.tenantId(),
         principal.role(),
         callerIdentityResolver.resolveAgentId(principal).orElse(null),
-        callerIdentityResolver.resolveClientId(principal).orElse(null));
+        callerIdentityResolver.resolveClientId(principal).orElse(null),
+        managerName(principal));
+  }
+
+  /** The Manager name, read from the row on each call so a correction needs no new token. */
+  private String managerName(AuthenticatedPrincipal principal) {
+    if (!Role.MANAGER.name().equals(principal.role())) {
+      return null;
+    }
+    return userRepository.findById(principal.userId()).map(User::getName).orElse(null);
   }
 }

@@ -11,4 +11,10 @@ import java.util.UUID;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record MeResponse(
-    UUID userId, String username, UUID tenantId, String role, UUID agentId, UUID clientId) {}
+    UUID userId,
+    String username,
+    UUID tenantId,
+    String role,
+    UUID agentId,
+    UUID clientId,
+    String name) {}

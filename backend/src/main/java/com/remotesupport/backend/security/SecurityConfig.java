@@ -96,6 +96,10 @@ public class SecurityConfig {
                     // Manager-only ones so they win (first match wins).
                     .requestMatchers(HttpMethod.GET, "/api/contracts")
                     .authenticated()
+                    // manager-name-api: only a Manager sets a Manager name. Must precede the
+                    // `.anyRequest().authenticated()` fall-through that /api/me/** otherwise hits.
+                    .requestMatchers(HttpMethod.PUT, "/api/me/name")
+                    .hasRole("MANAGER")
                     .requestMatchers(HttpMethod.POST, "/api/contracts/*/smartphones", "/api/contracts/*/sim-cards")
                     .hasRole("MANAGER")
                     .requestMatchers("/api/contracts/*/smartphones/**", "/api/contracts/*/sim-cards/**")

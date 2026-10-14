@@ -39,7 +39,7 @@ export default async function ManagerDashboardPage() {
   ]);
 
   return (
-    <SurfacePage title="Dashboard" subtitle="Tenant-wide overview" viewerLabel={viewerLabelFor(me)} demoData>
+    <SurfacePage title="Dashboard" subtitle="Tenant-wide overview" viewerLabel={viewerLabelFor(me)} viewerCanChangeName demoData>
       <ManagerDashboardStats
         pendingApprovalsCount={reviewQueue?.length ?? null}
         pendingRequestsCount={pendingRequests?.length ?? null}

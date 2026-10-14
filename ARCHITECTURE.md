@@ -42,6 +42,8 @@ error, not a nitpick.
 - `fonts` · font assets served by the app.
 - `frontend/app/api/agents/[agentId]/login/password/route.ts` · BFF pass-through for the Manager's password reset of an Agent, forwarding `Cache-Control: no-store`.
 - `frontend/app/api/clients/[clientId]/testers/[testerId]/password/route.ts` · BFF pass-through for the Manager's password reset of a Tester, forwarding `Cache-Control: no-store`.
+- `frontend/app/api/me/route.ts` · BFF GET proxy for the caller's own read, so the browser can read the caller's own name.
+- `frontend/app/api/me/name/route.ts` · BFF PUT proxy for the caller's own-name write.
 - `frontend/app/client/(dashboard)` · the /client dashboard page and its error.tsx.
 - `frontend/app/agent/client-invoices/[invoiceId]` · the Agent's by-id Client Invoice page, guarded by `requireAgent`.
 
@@ -54,6 +56,7 @@ error, not a nitpick.
 - `agent` · components specific to the Agent Console.
 - `manager` · components specific to the Manager Console.
 - `client` · components specific to the Client Portal.
+- `frontend/components/app-shell/change-name-dialog.tsx` · the dialog behind the account menu's Change name item: edits the caller's own name, never signs out.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
 - `frontend/components/agent/agent-client-invoice-card.tsx` · the Agent's Client Invoice card.
 - `frontend/components/manager/login-activation-dialog.tsx` · the shared confirm dialog a Manager uses to deactivate or reactivate a Login.

@@ -5,7 +5,8 @@ import type { FocusEvent, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signOutAndRedirect } from "@/lib/auth/sign-out";
 
-const ITEM_COUNT = 2;
+const ITEM_CLASS =
+  "flex w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink-secondary transition-colors hover:bg-canvas-soft";
 
 /**
  * The top bar's viewer identity chip, now the trigger for this design system's first actions
@@ -16,7 +17,7 @@ const ITEM_COUNT = 2;
  * focus management, mounts its dismissal listeners unconditionally, and arrow keys do nothing in
  * it. This component owns its own behaviour instead: focus moves into the panel on open and back
  * to the trigger on close by any means (Escape, an outside pointer press, or activating an item),
- * arrow keys cycle between the two items, and every dismissal listener is bound only while the
+ * arrow keys cycle between the items, and every dismissal listener is bound only while the
  * menu is open — closed, an outside press or Escape has no effect on the page.
  *
  * "Change password" is a real `menuitem`, keyboard-reachable; activating it always closes the
@@ -30,9 +31,12 @@ const ITEM_COUNT = 2;
  */
 export function ViewerMenu({
   viewerLabel,
+  onChangeName,
   onChangePassword,
 }: {
   viewerLabel: string;
+  /** Present only for a Manager (real-manager-dashboard): adds "Change name" as the first item. */
+  onChangeName?: () => void;
   onChangePassword?: () => void;
 }) {
   const router = useRouter();
@@ -76,7 +80,8 @@ export function ViewerMenu({
       event.preventDefault();
       const current = itemRefs.current.findIndex((item) => item === document.activeElement);
       const delta = event.key === "ArrowDown" ? 1 : -1;
-      const next = (current + delta + ITEM_COUNT) % ITEM_COUNT;
+      const count = itemRefs.current.filter(Boolean).length;
+      const next = (current + delta + count) % count;
       itemRefs.current[next]?.focus();
     }
   }
@@ -87,6 +92,11 @@ export function ViewerMenu({
     if (!containerRef.current?.contains(event.relatedTarget as Node)) {
       setOpen(false);
     }
+  }
+
+  function handleChangeName() {
+    closeMenu();
+    onChangeName?.();
   }
 
   function handleChangePassword() {
@@ -123,25 +133,38 @@ export function ViewerMenu({
           onKeyDown={onPanelKeyDown}
           className="absolute right-0 z-30 mt-2 w-56 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-hairline bg-canvas-overlay py-1 shadow-elevated"
         >
+          {onChangeName ? (
+            <button
+              ref={(element) => {
+                itemRefs.current[0] = element;
+              }}
+              type="button"
+              role="menuitem"
+              onClick={handleChangeName}
+              className={ITEM_CLASS}
+            >
+              Change name
+            </button>
+          ) : null}
           <button
             ref={(element) => {
-              itemRefs.current[0] = element;
+              itemRefs.current[onChangeName ? 1 : 0] = element;
             }}
             type="button"
             role="menuitem"
             onClick={handleChangePassword}
-            className="flex w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink-secondary transition-colors hover:bg-canvas-soft"
+            className={ITEM_CLASS}
           >
             Change password
           </button>
           <button
             ref={(element) => {
-              itemRefs.current[1] = element;
+              itemRefs.current[onChangeName ? 2 : 1] = element;
             }}
             type="button"
             role="menuitem"
             onClick={handleLogout}
-            className="flex w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium text-ink-secondary transition-colors hover:bg-canvas-soft"
+            className={ITEM_CLASS}
           >
             Log out
           </button>

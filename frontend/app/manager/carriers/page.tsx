@@ -25,7 +25,7 @@ export default async function ManagerCarriersPage({
   const catalog = await loadCarrierCatalog(country);
 
   return (
-    <SurfacePage title="Carriers" subtitle="Every country's catalog" viewerLabel="Manager">
+    <SurfacePage title="Carriers" subtitle="Every country's catalog" viewerLabel="Manager" viewerCanChangeName>
       <CarriersView country={country} catalog={catalog} countryFilter />
     </SurfacePage>
   );

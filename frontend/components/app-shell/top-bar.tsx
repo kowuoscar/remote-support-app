@@ -10,12 +10,15 @@ export function TopBar({
   subtitle,
   actions,
   viewerLabel,
+  viewerCanChangeName = false,
   wrapSubtitle = false,
 }: {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
   viewerLabel: string;
+  /** True on every Manager page: the account menu then offers "Change name". */
+  viewerCanChangeName?: boolean;
   /** Lets a long subtitle wrap (and the bar grow) instead of truncating; other pages keep the fixed bar. */
   wrapSubtitle?: boolean;
 }) {
@@ -32,7 +35,7 @@ export function TopBar({
       </div>
       <div className="flex shrink-0 items-center gap-3">
         {actions}
-        <ViewerActions viewerLabel={viewerLabel} />
+        <ViewerActions viewerLabel={viewerLabel} viewerCanChangeName={viewerCanChangeName} />
         <ThemeToggle />
       </div>
     </header>

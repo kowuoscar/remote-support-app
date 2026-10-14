@@ -19,7 +19,7 @@ export default async function ManagerAgentsPage() {
   }));
 
   return (
-    <SurfacePage title="Agents" subtitle={`${rows.length} in this tenant`} viewerLabel="Manager">
+    <SurfacePage title="Agents" subtitle={`${rows.length} in this tenant`} viewerLabel="Manager" viewerCanChangeName>
       <ManagerAgentsView agents={rows} />
     </SurfacePage>
   );

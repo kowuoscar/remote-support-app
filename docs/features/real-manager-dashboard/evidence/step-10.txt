@@ -1,0 +1,17 @@
+== before
+client_invoices|9
+agent_invoices|6
+client_invoices by status|APPROVED:6, DRAFT:1, SENT:2
+agent_invoices by status|APPROVED:1, PAID:5
+checksum|3f1c4f157e39012cc7e395f41d115755
+checksum|60f9492502594c7f4a1505e2a12f7d58
+load 1 ok
+load 2 ok
+load 3 ok
+== after (3 loads, + 1 reload)
+client_invoices|9
+agent_invoices|6
+client_invoices by status|APPROVED:6, DRAFT:1, SENT:2
+agent_invoices by status|APPROVED:1, PAID:5
+checksum|3f1c4f157e39012cc7e395f41d115755
+checksum|60f9492502594c7f4a1505e2a12f7d58

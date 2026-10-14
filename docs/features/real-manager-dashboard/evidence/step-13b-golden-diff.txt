@@ -1,0 +1,16 @@
+A	change-name-dialog-open-desktop-dark.png
+A	change-name-dialog-open-desktop-light.png
+A	change-name-dialog-open-mobile-dark.png
+A	change-name-dialog-open-mobile-light.png
+M	change-password-dialog-open-desktop-dark.png
+M	change-password-dialog-open-desktop-light.png
+M	change-password-dialog-open-mobile-dark.png
+M	change-password-dialog-open-mobile-light.png
+M	manager-desktop-dark.png
+M	manager-desktop-light.png
+M	manager-menu-open-desktop-dark.png
+M	manager-menu-open-desktop-light.png
+M	manager-menu-open-mobile-dark.png
+M	manager-menu-open-mobile-light.png
+M	manager-mobile-dark.png
+M	manager-mobile-light.png

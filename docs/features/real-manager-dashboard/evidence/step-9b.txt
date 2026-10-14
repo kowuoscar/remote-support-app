@@ -1,0 +1,12 @@
+NOTE: the first attempt (without testerId) returned 400 (a proactive Fee needs testerId); retried below. Totals before the Fee:
+{"billingMonth":"2026-10-01","billed":[{"currency":"GBP","amount":20.00},{"currency":"USD","amount":135.99}],"payout":[{"currency":"GBP","amount":4920.00},{"currency":"USD","amount":2835.99}]}
+Jordan logs OTHER Fee 10.00:
+{"id":"4dfe5060-f551-4f2d-8840-1119cf2c70f4","contractId":"0656ea51-952e-4a16-a4dc-e6d2b199d5c5","requestId":"e60d36a9-775c-450a-93f1-208bda1c2106","requestType":"OTHER","feeType":"OTHER","amount":10.00,"currency":"USD","description":"Acceptance walkthrough fee","billingMonth":"2026-10-01","createdAt":"2026-10-14T13:06:41.781800Z"}
+[201]
+Fee list count:
+5
+totals after (Billed unchanged):
+{"billingMonth":"2026-10-01","billed":[{"currency":"GBP","amount":20.00},{"currency":"USD","amount":135.99}],"payout":[{"currency":"GBP","amount":4920.00},{"currency":"USD","amount":2835.99}]}
+[200]
+US invoice total now:
+SENT 135.99

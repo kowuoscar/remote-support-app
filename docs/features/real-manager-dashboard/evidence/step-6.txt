@@ -1,0 +1,21 @@
+before:
+"Pending approvals | 2 | Client + Agent Invoices awaiting review | Pending Requests | 2 | Review requests | Billed this month | $135.99 | Sent or approved · October 2026 | Payout this month | 0 | Approved or paid · October 2026 | Clients | 2 | In this tenant | Agents"
+{"billingMonth":"2026-10-01","billed":[{"currency":"USD","amount":135.99}],"payout":[]}
+[200]
+{'status': 'SENT', 'currency': 'USD', 'totalAmount': 2835.99}
+['id', 'agentId', 'billingMonth', 'status', 'currency', 'localSupportFees', 'salary', 'rolloutAdvanceRepayment', 'rolloutAdvanceNewAdvance', 'totalAmount', 'sentAt', 'approvedAt', 'paidAt']
+approve:
+55","billingMonth":"2026-10-01","status":"APPROVED","currency":"USD","localSupportFees":135.99,"salary":2700.00,"rolloutAdvanceRepayment":0.00,"rolloutAdvanceNewAdvance":0.00,"totalAmount":2835.99,"sentAt":"2026-10-14T13:00:42.474724Z","approvedAt":"2026-10-14T13:05:39.885052Z","paidAt":null}
+[200]
+
+after approve:
+{"billingMonth":"2026-10-01","billed":[{"currency":"USD","amount":135.99}],"payout":[{"currency":"USD","amount":2835.99}]}
+[200]
+"Pending approvals | 2 | Client + Agent Invoices awaiting review | Pending Requests | 2 | Review requests | Billed this month | $135.99 | Sent or approved · October 2026 | Payout this month | $2,835.99 | Approved or paid · October 2026 | Clients | 2 | In this tenant | Agents"
+mark paid:
+ceRepayment":0.00,"rolloutAdvanceNewAdvance":0.00,"totalAmount":2835.99,"sentAt":"2026-10-14T13:00:42.474724Z","approvedAt":"2026-10-14T13:05:39.885052Z","paidAt":"2026-10-14T13:05:42.220993Z"}
+[200]
+
+{"billingMonth":"2026-10-01","billed":[{"currency":"USD","amount":135.99}],"payout":[{"currency":"USD","amount":2835.99}]}
+[200]
+"Pending approvals | 1 | Client + Agent Invoices awaiting review | Pending Requests | 2 | Review requests | Billed this month | $135.99 | Sent or approved · October 2026 | Payout this month | $2,835.99 | Approved or paid · October 2026 | Clients | 2 | In this tenant | Agents"

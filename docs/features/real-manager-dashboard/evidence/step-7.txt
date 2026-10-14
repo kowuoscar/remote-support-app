@@ -1,0 +1,12 @@
+Priya sends UK invoice:
+0.00,"cancellationEffectiveDate":"2026-10-14","amount":20.00,"computedAmount":20.00,"edited":false}],"feeLines":[],"totalAmount":20.00,"files":[],"sentAt":"2026-10-14T13:05:50.743030Z","approvedAt":null,"sentBackAt":null,"sentBackReason":null}
+[200]
+
+{"billingMonth":"2026-10-01","billed":[{"currency":"GBP","amount":20.00},{"currency":"USD","amount":135.99}],"payout":[{"currency":"USD","amount":2835.99}]}
+[200]
+"2 | Review requests | Billed this month | £20.00 | $135.99 | Sent or approved · October 2026 | Payout this month | $2,835.99"
+UK invoice total:
+{'status': 'SENT', 'currency': 'GBP', 'totalAmount': 20.0}
+### Result
+[
+  "Billed this month"

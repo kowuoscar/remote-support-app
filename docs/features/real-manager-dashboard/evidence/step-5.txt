@@ -1,0 +1,10 @@
+tenant-totals:
+{"billingMonth":"2026-10-01","billed":[{"currency":"USD","amount":135.99}],"payout":[]}
+[200]
+GET /api/client-invoices/04dcc963... (Solstice US, SENT):
+{'status': 'SENT', 'currency': 'USD', 'totalAmount': 135.99, 'billingMonth': '2026-10-01'}
+Solstice UK draft 22900ce7: DRAFT GBP 20.0 ; Harbor Line draft 7b190911: DRAFT USD 0 (neither counted: totals hold only 135.99 USD)
+### Result
+[
+Billed card (step 5): 
+"Pending approvals | 2 | Client + Agent Invoices awaiting review | Pending Requests | 2 | Review requests | Billed this month | $135.99 | Sent or approved · October 2026 | Payout this month | 0 | Approved or paid · October 2026 | Clients | 2 | In this tenant | Agents"

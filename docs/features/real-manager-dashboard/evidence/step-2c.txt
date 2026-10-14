@@ -1,0 +1,14 @@
+== save padded name
+      - banner [ref=f5e49]:
+          - button "Yazan Abuhassan · Manager" [active] [ref=f5e156]
+### Result
+"{\"url\":\"http://127.0.0.1:3171/manager\",\"reqs\":[\"PUT /api/me/name\",\"PUT /api/me/name\",\"GET http://127.0.0.1:3171/manager?_rsc=BfPqwMfkU9mveOyR\",\"GET http://127.0.0.1:3171/manager/requests?_rsc=2nH9nYPpaACJwn2D\",\"GET http://127.0.0.1:3171/manager/clients?_rsc=2nH9nYPpaACJwn2D\",\"GET http://127.0.0.1:3171/manager/agents?_rsc=2nH9nYPpaACJwn2D\",\"GET http://127.0.0.1:3171/manager/contracts?_rsc=2nH9nYPpaACJwn2D\",\"GET http://127.0.0.1:3171/manager/stock?_rsc=2nH9nYPpaACJwn2D\",\"GET http://127.0.0.1:3171/manager/carriers?_rsc=2nH9nYPpaACJwn2D\",\"GET http://127.0.0.1:3171/manager/invoices?_rsc=2nH9nYPpaACJwn2D\",\"GET http://127.0.0.1:3171/manager/invoices/client/04dcc963-707e-47b6-8602-d13bc0c97998?_rsc=2nH9nYPpaACJwn2D\",\"GET http://127.0.0.1:3171/manager/invoices/agent/80bc4c8a-4d54-4c58-a875-29a3d584d137?_rsc=2nH9nYPpaACJwn2D\"]}"
+== reload
+          - button "Yazan Abuhassan · Manager" [ref=f6e56]
+== GET /api/me through the BFF (browser session) and backend (token)
+### Result
+"{\"userId\":\"22222222-2222-2222-2222-222222222222\",\"username\":\"manager@example.com\",\"tenantId\":\"11111111-1111-1111-1111-111111111111\",\"role\":\"MANAGER\",\"name\":\"Yazan Abuhassan\"}"
+{"userId":"22222222-2222-2222-2222-222222222222","username":"manager@example.com","tenantId":"11111111-1111-1111-1111-111111111111","role":"MANAGER","name":"Yazan Abuhassan"}
+[200]
+== reopen
+                - textbox "Name" [active] [ref=f6e142]: Yazan Abuhassan

@@ -1,0 +1,8 @@
+== manager invoices chip
+- Page URL: http://127.0.0.1:3171/manager/invoices
+      - banner [ref=f7e49]:
+          - button "Manager" [ref=f7e56]
+            - button "Manager" [expanded] [ref=f7e56]
+              - menuitem "Change name" [active] [ref=f7e112]
+              - menuitem "Change password" [ref=f7e113]
+              - menuitem "Log out" [ref=f7e114]

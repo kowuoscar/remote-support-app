@@ -1,0 +1,121 @@
+{
+  "feature": "real-manager-dashboard",
+  "played_at": "2026-10-14",
+  "played_on": "feature/real-manager-dashboard",
+  "environment": "Isolated stack: throwaway postgres:16 rma-accept-pg on 55471, backend on 8171 (JDK 21, demo profile), frontend prod build on 3171; stub backend 8172 + frontend 3172 for step 12; visual suite on 4173/4174. All torn down; the user's stack untouched.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1.txt",
+      "note": ""
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2a.txt",
+      "note": "101-char submit sends a PUT (server 400); only the blank submit sends none."
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3a.txt",
+      "note": ""
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4.txt",
+      "note": ""
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": ""
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": "Approve and paid via API, UI reloaded."
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": ""
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8.txt",
+      "note": ""
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9.txt",
+      "note": "Priya's Agent Invoice was DRAFT, sent first; override/approve ran before the Fee; final state matches."
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-10.txt",
+      "note": ""
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-11a.txt",
+      "note": ""
+    },
+    {
+      "step": 12,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-12-degraded.txt",
+      "note": ""
+    },
+    {
+      "step": 13,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-13a.txt",
+      "note": "Visual 94 passed, verify green; goldens modified in place, 'deleted first' not provable from history."
+    },
+    {
+      "step": 14,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 15,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 16,
+      "actor": "agent",
+      "status": "failed",
+      "evidence": "evidence/step-16.txt",
+      "note": "Spec mismatch with invoice-adjustment ('fifth figure' vs 'no new figure'); see F25."
+    }
+  ],
+  "journeys": []
+}

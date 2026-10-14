@@ -1,0 +1,77 @@
+invoice-adjustment status: not landed (draft spec only; no branch/commit on main implementing it)
+66e85f2 feat(manager-sends-a-client-invoice-back): Manager sends a sent Client Invoice back to draft with a reason
+edda8a3 feat(deactivated-login-refused): refuse a deactivated Login at sign-in, on every token request and on password change
+9b3c88f feat(store-client-invoice-lines): store a Client Invoice's own lines and backfill sent and approved invoices
+1
+32:  `month-closes-on-the-fifth`, which this spec depends on and does not
+34:  Manager records it, it lands on the **current month's** Client Invoice, and
+45:`month-closes-on-the-fifth`.
+49:  after approval records an adjustment, a credit or a charge, that lands on
+51:  `send-an-agent-invoice-back` lands too, so `docs/journeys.md` is not edited
+56:  An adjustment landing on a Contract's Client Invoice moves the Agent's
+68:- From a Client Invoice whose month is **closed** (as `month-closes-on-the-fifth`
+69:  defines it), a Manager records an **adjustment**: a credit (lowers the bill)
+72:- The adjustment **lands on the current month's Client Invoice of the same
+86:- The invoice an adjustment corrects lists it, pending, on a sent invoice
+87:  (which one) or withdrawn, so the Manager can see the correction was made.
+94:  `month-closes-on-the-fifth`'s. This spec only reads "is this invoice's month
+98:- **No reopening a closed month.** No adjustment ever lands on the invoice it
+108:- **No rule for a credit larger than the invoice it lands on** (2026-10-08;
+120:- **No editing an adjustment.** A wrong pending one is withdrawn and recorded
+129:  never sent stays pending on it.
+136:1. As a Company Manager, I want to record a credit on a closed Client Invoice I find was overbilled, with a reason, so that the Client is refunded on the current month's invoice without reopening the closed one.
+139:4. As a Company Manager, I want to enter the amount as a positive figure and choose credit or charge, so that I never have to reason about signs.
+143:8. As a Company Manager, I want an adjustment to land on the current month's Client Invoice of the same Contract, without choosing a month, so that it can never be aimed at a closed month.
+144:9. As a Company Manager, I want the invoice I corrected to list every adjustment recorded from it, its amount, reason, and whether it is pending, on a sent invoice (which one) or withdrawn, so that I can see the corr
+149:14. As a Company Manager whose page is stale (the receiving invoice was sent, or the adjustment was already withdrawn), I want a clear message telling me to refresh, so that I do not assume my action worked.
+158:23. As the company, I want every adjustment recorded and withdrawn written to the audit log (who, which, amount, without the reason's text), so that every correction can be traced.
+171:- **`month-closes-on-the-fifth`** (must be merged first). This spec needs one
+201:  amount   numeric(12,2), <> 0, signed      (credit negative, charge positive)
+205:  withdrawn_at, withdrawn_by null
+214:6th of the next, so an adjustment can never land on a closed month or on the
+220:WITHDRAWN  withdrawn_at set                                          (final)
+221:PENDING    not withdrawn; receiving invoice absent or DRAFT          (withdrawable)
+222:SENT       not withdrawn; receiving invoice SENT or APPROVED         (not withdrawable)
+225:A send-back of the receiving invoice returns its adjustments to `PENDING`
+232:  body `{ "kind": "CREDIT" | "CHARGE", "amount": "12.50", "reason": "…" }`.
+243:  Manager only. `200`; `409` coded `ADJUSTMENT_NOT_PENDING` when it is
+244:  `SENT` or `WITHDRAWN`, carried by a `Reason` enum as the other coded
+255:- `adjustments`: every non-withdrawn adjustment with this invoice's Contract
+257:  `{ id, amount, correctsBillingMonth, reason, pending }`;
+267:under `month-closes-on-the-fifth`.
+290:  `month-closes-on-the-fifth` makes a line edit move it.
+293:Client Invoice bills (ADR 0004), so a credit for an overbilled SIM line
+309:Tester). The same item cannot be charged twice while a non-withdrawn
+318:- an adjustment is the only signed amount in the billing model; Fees and
+323:- it exists only for a closed month and lands on the current month's Client
+347:  `invoiceAdjustmentWithdrawn` (ids, signed amount, receiving month, actor,
+355:  form in `SendBackClientInvoiceControl`'s shape: a Credit / Charge segmented
+362:  invoice" list: signed amount (credit with a minus), reason, state badge
+363:  (Pending on {Month}, On the {Month} invoice with a link, Withdrawn), and
+364:  **Withdraw** on pending rows.
+367:  adjustment with "Adjustment to the {Month} invoice", the reason, the signed
+368:  amount, a **Pending** badge while the invoice is a draft (not for a
+381:  Credit / Charge choice uses the existing segmented control.
+382:- Amounts use the tabular figures the invoice pages already use. A credit is
+385:- The **Pending** badge is the `warning` tone ("awaiting" in DESIGN.md); the
+386:  sent-on state and "Already in the Agent's pay" are `neutral`; **Withdrawn**
+395:- Lands after `month-closes-on-the-fifth` (merged). No dependency on
+399:- An adjustment's amount is non-zero, at most two decimals, signed only in
+401:- An adjustment is recorded only from a closed invoice and lands only on the
+403:  never changes; a withdrawn one never changes again.
+404:- `payableAmountForMonth` includes every non-withdrawn adjustment of its
+433:   `SENT`; withdraw while pending, `409 ADJUSTMENT_NOT_PENDING` once the
+434:   receiving invoice is sent, and pending again after its send-back; Tester
+439:   none. The closed-month predicate itself is `month-closes-on-the-fifth`'s to
+
+--- comparison (real-manager-dashboard/spec.md lines ~219-230 vs invoice-adjustment/spec.md) ---
+MATCH:    a landed adjustment counts in the invoice it landed on, signed (credit lowers, charge raises); only SENT/APPROVED
+          (Client) and APPROVED/PAID (Agent) invoices ever count, so a pending adjustment (which sits on a DRAFT receiving
+          invoice) never counts; withdrawn never counts; Client Invoice adjustment lines are stored lines, so the line sum needs no change.
+MISMATCH: dashboard spec says an adjustment is "a fifth figure" on an Agent Invoice and that "the Agent side needs the fifth
+          figure added to total(ai)". invoice-adjustment/spec.md says "The Agent Invoice gains no new figure": an adjustment moves
+          the Agent's Local Support Fees through ContractAmountService.payableAmountForMonth (a SENT Agent Invoice moves in the
+          record/withdraw transaction; APPROVED/PAID of an open month moves as month-closes-on-the-fifth makes a line edit move).
+          So the shared Agent Invoice total expression would need NO change when invoice-adjustment lands; the dashboard spec's
+          claim of a fifth figure is stale. (Also: that moving of an already-APPROVED/PAID Agent Invoice's local-support-fees
+          figure is a case the dashboard rule "counts at the total its own page shows" covers, but the dashboard spec does not mention it.)

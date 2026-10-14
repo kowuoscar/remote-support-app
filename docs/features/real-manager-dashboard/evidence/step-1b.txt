@@ -1,0 +1,7 @@
+## skeleton probe 2: distinct states of the stat grid while /manager loads in an iframe (2ms sampling)
+### Result
+"{\n \"sawSkeleton\": false,\n \"states\": [\n  {\n   \"ms\": 4,\n   \"s\": \"(no main yet)\"\n  },\n  {\n   \"ms\": 103,\n   \"s\": \"Pending approvals | 2 | Client + Agent Invoices awaiting review | Pending Requests | 2 | Review requests | Billed this month | $135.99 | Sent or approved · October 2026 | Payout this month | 0 | Approved or paid · October 2026 | Clients | 2 | In this tenant | Agents\"\n  }\n ]\n}"
+### Ran Playwright code
+```js
+await page.evaluate('() => new Promise(res => { const f=document.createElement("iframe"); f.style.cssText="width:1200px;height:900px"; f.src="/manager?x="+Date.now(); document.body.appendChild(f); const states=[]; let sawSkeleton=false; const t0=performance.now(); const iv=setInterval(()=>{ try{ const d=f.contentDocument; if(!d||!d.body) return; if(d.querySelector(".animate-pulse,[aria-busy=true],[class*=skeleton]")) sawSkeleton=true; const m=d.querySelector("main"); const s=m? m.innerText.split("\\n").slice(0,16).join(" | "):"(no main yet)"; if(states.length===0||states[states.length-1].s!==s) states.push({ms:Math.round(performance.now()-t0),s}); }catch(e){} if(performance.now()-t0>5000){clearInterval(iv); res(JSON.stringify({sawSkeleton,states},null,1));} },2); })');
+```

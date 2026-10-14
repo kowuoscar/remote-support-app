@@ -1,0 +1,4 @@
+- Page URL: http://127.0.0.1:3171/login
+          - heading "Sign in" [level=1] [ref=f6e162]
+- Page URL: http://127.0.0.1:3171/manager
+          - button "Yazan Abuhassan · Manager" [ref=f6e227]

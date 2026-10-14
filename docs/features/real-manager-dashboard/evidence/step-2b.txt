@@ -1,0 +1,32 @@
+== blank submit
+          - dialog [ref=f5e136]:
+            - generic [ref=f5e137]:
+              - generic [ref=f5e138]:
+                - heading "Change name" [level=2] [ref=f5e139]
+                - paragraph [ref=f5e140]: This is the name your dashboard shows next to your role.
+              - alert [ref=f5e146]:
+                - generic [ref=f5e150]: Enter your name.
+              - generic [ref=f5e141]:
+                - text: Name
+                - textbox "Name" [invalid] [ref=f5e142]
+              - generic [ref=f5e143]:
+                - button "Cancel" [ref=f5e144]
+                - button "Change name" [active] [ref=f5e145]
+### Result
+"[]"
+== 101 chars
+          - dialog [ref=f5e136]:
+            - generic [ref=f5e137]:
+              - generic [ref=f5e138]:
+                - heading "Change name" [level=2] [ref=f5e139]
+                - paragraph [ref=f5e140]: This is the name your dashboard shows next to your role.
+              - alert [ref=f5e151]:
+                - generic [ref=f5e155]: Your name can be at most 100 characters.
+              - generic [ref=f5e141]:
+                - text: Name
+                - textbox "Name" [invalid] [ref=f5e142]: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+              - generic [ref=f5e143]:
+                - button "Cancel" [ref=f5e144]
+                - button "Change name" [ref=f5e145]
+### Result
+"{\"reqs\":[\"PUT /api/me/name\"],\"valueLen\":101}"

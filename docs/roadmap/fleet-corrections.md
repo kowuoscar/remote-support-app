@@ -1,7 +1,7 @@
 ---
 id: fleet-corrections
 title: Correct a Smartphone or SIM Card already in the Fleet
-status: proposed
+status: in-progress
 journeys: [put-resources-in-the-field]
 ---
 
@@ -55,5 +55,10 @@ epic order.
 
 ## Features
 
-- [ ] `correct-a-sim-card` — a Manager or a Tester corrects a SIM Card's number and Postpaid plan.
-- [ ] `correct-a-smartphone` — a Manager or a Tester corrects a Smartphone's model and owner.
+- [ ] `correct-a-fleet-unit` — a Manager or a Tester corrects a SIM Card's number and Postpaid plan, and a Smartphone's model and owner.
+
+## Reworked
+
+The two feature lines first written (`correct-a-sim-card`,
+`correct-a-smartphone`) are one feature: the same callers, the same guard and
+the same Fleet tables, and the human wants one PR per fix (2026-10-14).

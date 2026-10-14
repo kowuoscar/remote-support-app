@@ -1,7 +1,7 @@
 ---
 id: agent-client-invoices-side-list
 title: Pick a Client's invoice from a side list, not a dropdown
-status: proposed
+status: in-progress
 journeys: [bill-the-client-for-the-month]
 ---
 

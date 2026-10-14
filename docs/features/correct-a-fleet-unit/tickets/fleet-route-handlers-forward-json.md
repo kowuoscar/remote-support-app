@@ -1,7 +1,7 @@
 ---
 id: fleet-route-handlers-forward-json
 title: Fleet status, serial and installed-in route handlers use forwardJson
-status: in-progress
+status: done
 depends_on: []
 labels: [enabler, frontend]
 stories: []

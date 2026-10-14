@@ -82,10 +82,10 @@ Goals:
 
 Non-goals. Each is something a reasonable agent would otherwise build:
 
-- **No Carrier correction and no Postpaid ↔ Prepaid flip** (open question 2).
-- **No correction by an Agent** (open question 3). The Agent's Fleet page and
+- **No Carrier correction and no Postpaid ↔ Prepaid flip** (decided by the human, 2026-10-14).
+- **No correction by an Agent** (decided by the human, 2026-10-14). The Agent's Fleet page and
   its controls stay as they are.
-- **No status control on the Manager's Contract page** (open question 1). The
+- **No status control on the Manager's Contract page** (decided by the human, 2026-10-14). The
   backend already allows a Manager to change status. This feature does not add
   the control.
 - **No new Tester power beyond the four corrections.** A Tester still cannot
@@ -231,7 +231,7 @@ The rules for each value:
   be corrected again. A Return is the only Request whose path the owner
   decides. The Provision and Replace rule that a phone reached through them is
   Company-owned is about how a unit arrives. A correction may change that
-  afterwards (open question 4).
+  afterwards (decided by the human, 2026-10-14).
 - **The same value as now** succeeds with `200`, writes nothing and logs
   nothing.
 
@@ -495,10 +495,10 @@ or component internals.
 - **Every Tester of the Client may correct, not only the Primary Contact.** Reason: CONTEXT.md says the Primary Contact is "a visible designation, not an extra permission"; the human said "Tester".
 - **Corrections are audit-logged with old value, new value, actor and role, one event per field.** Reason: the serial change sets the pattern, and a Tester's Fleet write is new. The log is internal; nobody using the product sees it.
 - **One `PATCH` per field (`/number`, `/postpaid-plan`, `/model`, `/owner`), not one general update endpoint.** Reason: it mirrors `/serial`, `/status` and `/installed-in`, gives each field its own rules and audit event, and lets each inline control call one route. It is additive.
-- **A new guard method, `requireCanCorrect`, rather than opening `requireCanChangeStatus` to Testers.** Reason: a Tester gets the four corrections and nothing else. One method per permission keeps that visible, and the Agent question (open question 3) becomes one line.
+- **A new guard method, `requireCanCorrect`, rather than opening `requireCanChangeStatus` to Testers.** Reason: a Tester gets the four corrections and nothing else. One method per permission keeps that visible, and the Agent question (decided by the human, 2026-10-14) becomes one line.
 - **A correction reaches a unit in any status, as long as it is on a Contract's Fleet.** Reason: a retired SIM still billing through its cancellation month, or a past invoice's SIM line, can carry the typo too. The route already scopes to the Fleet. A status limit is one line to add.
 - **A plan correction re-copies the new plan's price into the monthly fee.** Reason: the plan exists to set the fee (CONTEXT.md "Carrier"). A plan change that kept the old fee would fix nothing. "Never re-read" still holds for plan re-pricing.
-- **A pre-catalog Postpaid SIM that names a Carrier may be given a plan; one with no Carrier gets no plan control.** Reason: the plan must belong to the SIM's Carrier, and choosing a Carrier is open question 2.
+- **A pre-catalog Postpaid SIM that names a Carrier may be given a plan; one with no Carrier gets no plan control.** Reason: the plan must belong to the SIM's Carrier, and the Carrier is not correctable (decided by the human, 2026-10-14).
 - **The Carrier is checked only for being archived, not for being in the Contract's Country.** Reason: the SIM's Carrier is not being chosen again, and a SIM's Carrier never leaves its Country.
 - **A SIM number is not checked for duplicates.** Reason: creation does not check either, and nothing in the data model makes numbers unique. Refusing only on correction would be a rule that applies to half the paths. A uniqueness rule is its own decision about the data already stored, and is recorded in `docs/tech-debt.md` by the SIM ticket.
 - **Number and model are trimmed; their limits are the columns' (64 and 255).** Reason: a stray space would make a value that looks the same but differs. The limits need no migration.
@@ -515,13 +515,15 @@ or component internals.
 - **The PRODUCT.md edit lands in the first ticket that lets a Tester correct; the glossary changes are declared for the merger.** Reason: the line must not claim a power before the code grants it, and the merger is the one writer of `CONTEXT.md`.
 - **Code goes in the existing `web` / `dto` / `security` / `logging` layout.** Reason: Backend rule 13's transition clause; the Fleet cluster has not moved.
 - **Testing: the existing HTTP seam for every rule and every money effect, component tests for the controls and tables, e2e added to the journey's own spec, and the stubbed visual suite for layout.** Reason: each is the highest existing seam that can see its behaviour, and no seam is added.
+- **(answered by the human, 2026-10-14)** Money follows the existing rules: a plan correction moves this month's unsent Client Invoice and the draft Agent Invoice that follows it; sent or approved Client Invoices, and sent, approved or paid Agent Invoices, do not move. Corrected labels show everywhere, amounts never move.
+- **(answered by the human, 2026-10-14)** The Manager's Contract page does not gain the status control in this feature.
+- **(answered by the human, 2026-10-14)** The Carrier and Postpaid ↔ Prepaid are not correctable in this feature; a SIM on the wrong Carrier or flavor is retired and added again.
+- **(answered by the human, 2026-10-14)** The Contract's Agent does not get the four corrections; only the Manager and the Tester.
+- **(answered by the human, 2026-10-14)** A Tester may change a Smartphone's owner in both directions, every change audit-logged with who made it; refused while an open Return names the phone.
 
 ## Open questions
 
-1. **Does the Manager's Contract page gain the status control (Active, In repair, Retired) the Agent's page has?** Recommendation: no, not in this feature. *Reason:* you didn't ask for it, the journey makes keeping status the Agent's job, and you want one PR per fix. If you want it, it is a small follow-up feature: the backend already allows it, and only the control is missing on your page. (case 1)
-2. **Can the Carrier, or Postpaid ↔ Prepaid, also be corrected?** Recommendation: no, not in this feature. *Reason:* you named the number and the plan only. A Carrier change also forces a new plan and fee. A flavor flip takes a SIM into or out of the Contract's billed base amount. Until then, a SIM on the wrong Carrier or flavor is fixed the way it is today: retire it and add it again. If you say yes, it is a fifth and sixth correction in the same shape. (case 1)
-3. **Should the Contract's own Agent be able to make the same four corrections?** Recommendation: no, keep to the two roles you named. *Reason:* you asked for the Manager and the Tester. The Agent can still ask either of them. Adding the Agent later is one guard line and the controls on the Agent's Fleet page. (case 1)
-4. **A Tester may change a Company-owned Smartphone to Client-owned. A Return of it then goes back to the Client with no approval from you. Allow it?** Recommendation: yes, as you asked ("the same"), with every owner change logged with who made it. *Reason:* the most likely mistake is a Client's own phone left on the "Company" default at creation, and the Tester is the one who knows. The alternative is letting a Tester change the owner only from Client to Company, which keeps the company's phones safe but leaves that common mistake for the Manager to fix. (case 1)
+None.
 
 ## Acceptance walkthrough
 

@@ -24,15 +24,14 @@ async function readMoneyCards(page: Page) {
   return { billed: await usdCents(page, "billed-stat"), payout: await usdCents(page, "payout-stat") };
 }
 
-/** The total the Review Queue shows for the waiting invoice whose subject matches, in cents. */
-async function queuedTotalCents(page: Page, kind: "CLIENT_INVOICE" | "AGENT_INVOICE", clientName: string | null) {
-  const items: { kind: string; clientName: string | null; agentName: string; totalAmount: number }[] =
-    await page.evaluate(async () => (await fetch("/api/review-queue")).json());
-  const item = items.find(
-    (i) => i.kind === kind && (kind === "AGENT_INVOICE" ? i.agentName === "Jordan Ellis" : i.clientName === clientName),
-  );
-  expect(item, `a waiting ${kind}`).toBeDefined();
-  return Math.round(item!.totalAmount * 100);
+/** The USD total the Review Queue page shows on the row whose review link matches, in cents. */
+async function queuedTotalCents(page: Page, reviewLinkName: RegExp) {
+  await page.goto("/manager/invoices");
+  const row = page.getByRole("row").filter({ has: page.getByRole("link", { name: reviewLinkName }) });
+  await expect(row).toBeVisible();
+  const match = (await row.innerText()).match(/\$([\d,]+\.\d{2})/);
+  expect(match, "a USD total on the row").not.toBeNull();
+  return Math.round(Number(match![1].replace(/,/g, "")) * 100);
 }
 
 /**
@@ -146,7 +145,7 @@ test.describe("the Manager dashboard's money cards", () => {
     await logout(page);
 
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const clientTotal = await queuedTotalCents(page, "CLIENT_INVOICE", clientName);
+    const clientTotal = await queuedTotalCents(page, new RegExp(`^Review Client Invoice: ${clientName} `));
     expect(clientTotal).toBeGreaterThan(0);
     const afterSend = await readMoneyCards(page);
     expect(afterSend.billed - beforeBilled.billed).toBe(clientTotal);
@@ -182,7 +181,8 @@ test.describe("the Manager dashboard's money cards", () => {
     await salaryInput.fill("4321.00");
     await overrideForm.getByRole("button", { name: "Override" }).click();
     await expect(overrideForm.getByText("Applied to this invoice only.")).toBeVisible();
-    const agentTotal = await queuedTotalCents(page, "AGENT_INVOICE", null);
+    const agentTotal = await queuedTotalCents(page, /^Review Agent Invoice: Jordan Ellis, /);
+    await page.getByRole("link", { name: /^Review Agent Invoice: Jordan Ellis, / }).click();
     await page.getByRole("button", { name: "Approve" }).click();
     await expect(page.getByText("Approved", { exact: true })).toBeVisible();
 

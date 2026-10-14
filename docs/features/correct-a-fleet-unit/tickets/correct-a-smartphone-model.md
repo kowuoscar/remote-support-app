@@ -42,6 +42,7 @@ read live by Requests and returned units; recorded request models stay.
 At risk: serial and status controls on the three Fleet pages, the Tester's read-only Fleet, and `SecurityConfig` rule order. Protected by `SmartphoneApiTest`, `smartphone-serial-control.test.tsx` and the existing `fleet-management.spec.ts` tests.
 
 Existing tests expected to change:
+- `backend/src/test/java/com/remotesupport/backend/support/OtherTenantFixture.java`: gains `smartphoneOnContractInAnotherTenant()` and its record (additive support helper for the other-tenant 404 case); existing helpers unchanged. (Added by the orchestrator after the merger's test guard.)
 - `frontend/tests/e2e/fleet-management.spec.ts`: gains the model correction tests; every pre-existing test keeps passing unmodified.
 - `frontend/tests/visual/surfaces.spec.ts`: gains two surfaces, the Manager Contract Fleet (`/manager/contracts/[contractId]`) and the Tester Fleet (`/client/fleet`); every earlier surface keeps passing unmodified. Their goldens do not exist today, so they are added here (new screenshots, not recaptured). Later tickets that move them delete and recapture them.
 - `frontend/tests/visual/stub-backend.mjs`: gains the routes those two pages read; every route it already serves keeps working unmodified.

@@ -54,7 +54,6 @@ separated by ` · `.
 
 - `frontend/playwright.e2e.isolated.config.ts` · smell: Incomplete teardown · `gracefulShutdown: SIGTERM` is set on the backend `webServer` entry but not on the frontend one, so Playwright's default SIGKILL can orphan a `next start` grandchild under `sh -c "npm run build && npm run start"`; one such process was found reparented to PID 1 and killed by exact PID during this feature's merge · second-tenant-test-seam · 2026-09-21
 - `frontend/app/client/(dashboard)/page.tsx` · smell: No timeout on backend reads · 4 + 3×N reads go through `backendFetch` with no timeout; a slow backend holds the page (Frontend 15 judgement) · real-client-dashboard · 2026-10-02
-- `frontend/lib/status.ts` · smell: Dead code · `clientInvoiceStatusTone` and `clientInvoiceStatusLabel` lost their only consumer; the import from `frontend/lib/demo/types.ts` now feeds only dead code · real-client-dashboard · 2026-10-02
 - `frontend/components/client/latest-invoices-card.tsx` · smell: Contrast below AA · the dark-mode "Open Invoices" link is 3.66:1, and its target is ~18px tall on mobile (same as the Agent "Open queue" entry) · real-client-dashboard · 2026-10-02
 - `frontend/app/globals.css` · smell: Misleading name · the `text-label` tokens carry only a size and are also used for caption-like text · real-client-dashboard · 2026-10-02
 - `frontend/app/client/(dashboard)/error.tsx` · smell: No retry · `reset()` is unused; the spec's copy tells the person to reload · real-client-dashboard · 2026-10-02

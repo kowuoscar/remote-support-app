@@ -224,7 +224,7 @@ public class SecurityConfig {
                     .hasAnyRole("MANAGER", "AGENT")
                     .requestMatchers(HttpMethod.POST, "/api/client-invoices/*/files")
                     .hasAnyRole("MANAGER", "AGENT")
-                    .requestMatchers("/api/review-queue","/api/client-invoices/**", "/api/agent-invoices/**")
+                    .requestMatchers("/api/review-queue", "/api/tenant-totals", "/api/client-invoices/**", "/api/agent-invoices/**")
                     .hasRole("MANAGER")
                     // manager-approves-requests ticket: the Pending Requests list and a Request's
                     // own approve/reject are Manager-only (spec.md Constraints: "An Agent or

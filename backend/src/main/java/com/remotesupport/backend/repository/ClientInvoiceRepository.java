@@ -57,6 +57,23 @@ public interface ClientInvoiceRepository extends JpaRepository<ClientInvoice, UU
       @Param("tenantId") UUID tenantId, @Param("status") ClientInvoiceStatus status);
 
   /**
+   * The summed stored line total of a tenant's Client Invoices of one billing month in one of
+   * {@code statuses}, per currency. Meant for statuses past the send, whose lines are stored.
+   */
+  @Query(
+      """
+      select new com.remotesupport.backend.repository.CurrencyTotalRow(ci.currency, sum(l.amount))
+      from ClientInvoice ci
+      join ClientInvoiceLine l on l.clientInvoice = ci
+      where ci.tenant.id = :tenantId and ci.billingMonth = :billingMonth and ci.status in :statuses
+      group by ci.currency
+      """)
+  List<CurrencyTotalRow> sumTotalsByCurrency(
+      @Param("tenantId") UUID tenantId,
+      @Param("billingMonth") LocalDate billingMonth,
+      @Param("statuses") Collection<ClientInvoiceStatus> statuses);
+
+  /**
    * The {@code DRAFT} invoices an Agent's Contracts have had sent back, oldest send-back first, any
    * Contract and billing month. A resent invoice is {@code SENT} again, so it is no longer here.
    */

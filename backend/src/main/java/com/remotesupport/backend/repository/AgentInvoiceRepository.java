@@ -40,8 +40,10 @@ public interface AgentInvoiceRepository extends JpaRepository<AgentInvoice, UUID
       """
       select new com.remotesupport.backend.repository.AgentInvoiceQueueRow(
           ai.id, ai.status, ai.billingMonth, a.id, a.name, ai.currency,
-          ai.snapshotLocalSupportFees + ai.snapshotSalary
-              + ai.snapshotRolloutAdvanceRepayment + ai.snapshotRolloutAdvanceNewAdvance,
+          """
+          + AgentInvoiceTotal.SNAPSHOT
+          + """
+          ,
           ai.sentAt, ai.approvedAt)
       from AgentInvoice ai
       join ai.agent a
@@ -49,4 +51,24 @@ public interface AgentInvoiceRepository extends JpaRepository<AgentInvoice, UUID
       """)
   List<AgentInvoiceQueueRow> findQueueRows(
       @Param("tenantId") UUID tenantId, @Param("statuses") Collection<AgentInvoiceStatus> statuses);
+
+  /**
+   * The summed frozen total of a tenant's Agent Invoices of one billing month in one of {@code
+   * statuses}, per currency. Meant for statuses past the send, which always have a snapshot.
+   */
+  @Query(
+      """
+      select new com.remotesupport.backend.repository.CurrencyTotalRow(ai.currency, sum(
+          """
+          + AgentInvoiceTotal.SNAPSHOT
+          + """
+          ))
+      from AgentInvoice ai
+      where ai.tenant.id = :tenantId and ai.billingMonth = :billingMonth and ai.status in :statuses
+      group by ai.currency
+      """)
+  List<CurrencyTotalRow> sumTotalsByCurrency(
+      @Param("tenantId") UUID tenantId,
+      @Param("billingMonth") LocalDate billingMonth,
+      @Param("statuses") Collection<AgentInvoiceStatus> statuses);
 }

@@ -703,7 +703,8 @@ createServer((request, response) => {
     // sent-back-in-the-side-list: an earlier month's invoice of the SENT Contract, so its row reads
     // "Awaiting approval" plus the "Sent back" mark; oldest first, as the API returns them.
     const sent = INVOICE_CONTRACTS[1];
-    return send(response, 200, [
+    // The failing session leaves it out, so its failed row keeps pinning "no status badge" alone.
+    const earlier = caller.failingInvoiceContract ? [] : [
       {
         id: "99999999-0000-0000-0000-0000000000a2",
         contractId: sent.id,
@@ -714,6 +715,9 @@ createServer((request, response) => {
         sentBackAt: "2026-09-02T10:00:00Z",
         sentBackReason: "The August roaming Fee is missing its receipt.",
       },
+    ];
+    return send(response, 200, [
+      ...earlier,
       {
         id: invoice.id,
         contractId: contract.id,

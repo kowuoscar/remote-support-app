@@ -216,6 +216,30 @@ public final class AuditLog {
   }
 
   /**
+   * A Manager or Tester correcting a Smartphone's model (correct-a-fleet-unit ticket
+   * correct-a-smartphone-model Observability). Never emitted for a save of the value already held.
+   */
+  public static void smartphoneModelCorrected(
+      UUID smartphoneId,
+      UUID contractId,
+      String oldModel,
+      String newModel,
+      UUID actorUserId,
+      String actorRole,
+      UUID tenantId) {
+    log.info(
+        "audit action=smartphoneModelCorrected entity=Smartphone entityId={} contractId={} "
+            + "oldModel={} newModel={} actorUserId={} role={} tenantId={}",
+        smartphoneId,
+        contractId,
+        oldModel,
+        newModel,
+        actorUserId,
+        actorRole,
+        tenantId);
+  }
+
+  /**
    * A Manager changing an Agent's standing salary or standing Rollout Advance
    * (agent-standing-amounts-and-invoice-generation ticket Observability: "standing-amount change
    * events logged with Agent id, old/new value, effective month, actor (Manager)"). {@code

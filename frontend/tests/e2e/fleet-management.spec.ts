@@ -467,4 +467,96 @@ test.describe("fleet management", () => {
     await expect(row.getByLabel("SIM Card number")).toHaveCount(0);
     await expect(row.getByRole("cell", { name: "+44 7700 900300" }).getByRole("button")).toHaveCount(0);
   });
+
+  async function addPostpaidSim(page: Page, number: string) {
+    await page.getByRole("button", { name: "Add SIM card" }).first().click();
+    await page.getByLabel("Number").fill(number);
+    await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
+    await page.getByLabel("Flavor").selectOption("POSTPAID");
+    await page.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: "Unlimited Welcome" });
+    await page.getByRole("dialog").getByRole("button", { name: "Add SIM card" }).click();
+    await expect(page.getByRole("row", { name: new RegExp(number.replace("+", "\\+")) })).toBeVisible();
+  }
+
+  function simTable(page: Page) {
+    return page.locator("table").filter({ hasText: "Installed in" });
+  }
+
+  test("a manager corrects a Postpaid SIM's plan, sees the fee before Save and in the Monthly fee column", async ({
+    page,
+  }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await createClientAndContractWithSeededAgent(page, `Typo Plan Traders ${RUN_ID}`);
+    await addPostpaidSim(page, "+1-555-0310");
+
+    // Located by the table, not by text: the plan name leaves the row while its select is open.
+    const row = simTable(page).locator("tbody tr").first();
+    await expect(row).toContainText("$65.00");
+    await row.getByRole("button", { name: "Edit plan", exact: true }).click();
+    const picker = row.getByRole("combobox", { name: "Postpaid plan" });
+    // Only the Carrier's own active plans are offered, and the chosen one's fee shows before Save.
+    await expect(picker.locator("option")).toContainText(["Choose a plan", "Unlimited Welcome", "Unlimited Plus"]);
+    await picker.selectOption({ label: "Unlimited Plus" });
+    await expect(row).toContainText("$80.00");
+    await row.getByRole("button", { name: "Save", exact: true }).click();
+
+    await expect(row.getByRole("combobox", { name: "Postpaid plan" })).toHaveCount(0);
+    await expect(row).toContainText("Unlimited Plus");
+    await expect(row.getByRole("cell", { name: "$80.00" })).toBeVisible();
+    await page.reload();
+    await expect(simTable(page).locator("tbody tr").first()).toContainText("Unlimited Plus");
+    await expect(simTable(page).locator("tbody tr").first().getByRole("cell", { name: "$80.00" })).toBeVisible();
+  });
+
+  test("a manager's Prepaid SIM has no plan control", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await createClientAndContractWithSeededAgent(page, `No Plan Prepaid ${RUN_ID}`);
+    await addPrepaidSim(page, "+44 7700 900400");
+
+    await expect(simTable(page).locator("tbody tr").first().getByRole("button", { name: "Edit plan" })).toHaveCount(0);
+  });
+
+  test("a tester corrects a Postpaid SIM's plan on their own client's fleet", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Tester Plan Retail ${RUN_ID}`;
+    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    await addPostpaidSim(page, "+1-555-0320");
+    const testerEmail = `plan.tester+${RUN_ID}@typo.example`;
+    const testerPassword = await addTester(page, clientId, testerEmail);
+
+    await logout(page);
+    await login(page, testerEmail, testerPassword);
+    await page.goto("/client/fleet");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = simTable(page).locator("tbody tr").first();
+    await row.getByRole("button", { name: "Edit plan", exact: true }).click();
+    await row.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: "Unlimited Plus" });
+    // The Tester sees the fee the plan sets before saving, though their table has no fee column.
+    await expect(row).toContainText("$80.00");
+    await row.getByRole("button", { name: "Save", exact: true }).click();
+
+    await expect(row).toContainText("Unlimited Plus");
+    await page.reload();
+    await selectContractInSwitcher(page, clientName);
+    await expect(simTable(page).locator("tbody tr").first()).toContainText("Unlimited Plus");
+    await expect(page.getByLabel("Installed in")).toHaveCount(0);
+  });
+
+  test("an agent's fleet offers no plan correction", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Read Only Plan Fleet ${RUN_ID}`;
+    await createClientAndContractWithSeededAgent(page, clientName);
+    await addPostpaidSim(page, "+1-555-0330");
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/fleet");
+    await selectContractInSwitcher(page, clientName);
+
+    const row = page.getByRole("row", { name: /\+1-555-0330/ });
+    await expect(row).toBeVisible();
+    await expect(row).toContainText("Unlimited Welcome");
+    await expect(row.getByRole("button", { name: "Edit plan" })).toHaveCount(0);
+  });
 });

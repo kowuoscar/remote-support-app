@@ -6,9 +6,46 @@ import { SimCardNumberControl } from "@/components/fleet/sim-card-number-control
 import { SimCardCarrier } from "@/components/fleet/sim-card-carrier";
 import { SimCardInstalledInControl, type InstallableSmartphone } from "@/components/fleet/sim-card-installed-in-control";
 import { SimCardPlan } from "@/components/fleet/sim-card-plan";
+import { SimCardPlanControl } from "@/components/fleet/sim-card-plan-control";
 import { simCardStatusToneByValue } from "@/lib/status";
 import { formatLocalDate } from "@/lib/format";
-import { SIM_CARD_FLAVOR_LABEL, SIM_CARD_STATUS_LABEL, type SimCardListItem } from "@/lib/api/types";
+import {
+  SIM_CARD_FLAVOR_LABEL,
+  SIM_CARD_STATUS_LABEL,
+  type CatalogCarrierItem,
+  type SimCardListItem,
+} from "@/lib/api/types";
+
+/** The plan cell: the correction control for a Postpaid SIM on an active catalog Carrier, else text. */
+function SimCardPlanCell({
+  sim,
+  contractId,
+  carrier,
+  currency,
+  carriersHref,
+}: {
+  sim: SimCardListItem;
+  contractId: string | undefined;
+  carrier: CatalogCarrierItem | undefined;
+  currency: string;
+  carriersHref: string;
+}) {
+  // With no Carriers page to point to (a Tester), a Carrier with no active plan offers nothing.
+  const hasActivePlan = carrier?.postpaidPlans.some((plan) => plan.archivedAt === null) ?? false;
+  if (contractId && carrier && sim.flavor === "POSTPAID" && (hasActivePlan || carriersHref)) {
+    return (
+      <SimCardPlanControl
+        contractId={contractId}
+        simCardId={sim.id}
+        sim={sim}
+        carrier={carrier}
+        currency={currency}
+        carriersHref={carriersHref}
+      />
+    );
+  }
+  return <SimCardPlan sim={sim} />;
+}
 
 /**
  * The SIM Card table markup shared by every Fleet view. `showMonthlyFee` and `changeStatus` are
@@ -27,6 +64,8 @@ export function SimCardFleetTable({
   contractId,
   smartphones,
   canCorrect,
+  carriers,
+  carriersHref = "",
   changeStatus,
 }: {
   sims: SimCardListItem[];
@@ -39,6 +78,12 @@ export function SimCardFleetTable({
   /** With `contractId`, renders the number correction control (Manager, Tester); omitted for
    * plain text. Independent of the Installed-in control, which `smartphones` governs. */
   canCorrect?: boolean;
+  /** The Contract's Carrier catalog. With `canCorrect`, a Postpaid SIM whose Carrier is in it and
+   * active gets the plan correction control; every other plan cell reads as plain text. */
+  carriers?: CatalogCarrierItem[];
+  /** Where the plan picker points when a Carrier has no active plan (the Carriers page). Omitted
+   * for a Tester, who has none: a Carrier with no active plan then gets no plan control. */
+  carriersHref?: string;
   changeStatus?: (sim: SimCardListItem) => ReactNode;
 }) {
   return (
@@ -69,7 +114,13 @@ export function SimCardFleetTable({
               <SimCardCarrier sim={sim} />
             </Td>
             <Td>
-              <SimCardPlan sim={sim} />
+              <SimCardPlanCell
+                sim={sim}
+                contractId={canCorrect ? contractId : undefined}
+                carrier={carriers?.find((carrier) => carrier.id === sim.carrierId && carrier.archivedAt === null)}
+                currency={currency ?? ""}
+                carriersHref={carriersHref}
+              />
             </Td>
             <Td className="text-ink-secondary">{SIM_CARD_FLAVOR_LABEL[sim.flavor]}</Td>
             {showMonthlyFee ? (

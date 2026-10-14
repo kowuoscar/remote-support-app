@@ -1,13 +1,13 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { clientInvoiceFromByIdResponse } from "@/lib/api/client-invoice";
 import type { ClientInvoiceDetail } from "@/lib/api/types";
 import { stubFetch } from "@/tests/component/fetch";
 import { mockRouter } from "@/tests/component/next-navigation";
 import { AgentClientInvoicePageView, AgentClientInvoicesView } from "./client-invoices-view";
 
-const CONTRACT = { id: "contract-1", label: "Aurora Retail Group", currency: "USD" };
+const CONTRACT = { id: "contract-1", clientName: "Aurora Retail Group", countryLabel: "Kenya", currency: "USD" };
 
 function invoice(overrides: Partial<ClientInvoiceDetail> = {}): ClientInvoiceDetail {
   return {
@@ -65,7 +65,7 @@ describe("AgentClientInvoicesView sent back to you", () => {
       "/agent/client-invoices/invoice-9",
     );
     // the section sits above the Contract switcher
-    const switcher = screen.getByText("Aurora Retail Group");
+    const switcher = screen.getByText("Aurora Retail Group — Kenya");
     expect(region.compareDocumentPosition(switcher) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
@@ -80,6 +80,167 @@ describe("AgentClientInvoicesView sent back to you", () => {
     );
     expect(screen.getByText("Fix the base amount.")).toBeInTheDocument();
     expect(screen.getByText("Sent back")).toBeInTheDocument();
+  });
+});
+
+const BIRCH = { id: "contract-2", clientName: "Birch Telecom", countryLabel: "Kenya", currency: "USD" };
+const ZEPHYR = { id: "contract-3", clientName: "zephyr Mobile", countryLabel: "Ghana", currency: "USD" };
+
+function clientsNav() {
+  return screen.getByRole("navigation", { name: "Clients" });
+}
+
+function switcherTrigger() {
+  return document.querySelector<HTMLElement>('[aria-haspopup="listbox"]')!;
+}
+
+describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", () => {
+  const byContract = {
+    "contract-1": invoice({ id: "invoice-1", baseAmount: 11, totalAmount: 11 }),
+    "contract-2": invoice({ id: "invoice-2", contractId: "contract-2", baseAmount: 22, totalAmount: 22 }),
+    "contract-3": invoice({ id: "invoice-3", contractId: "contract-3", baseAmount: 33, totalAmount: 33 }),
+  };
+
+  it("lists one link per Contract in alphabetical order whatever order props arrive in, the switcher alike", async () => {
+    render(<AgentClientInvoicesView contracts={[ZEPHYR, BIRCH, CONTRACT]} invoicesByContract={byContract} />);
+
+    const links = within(clientsNav()).getAllByRole("link");
+    expect(links.map((l) => l.textContent)).toEqual(["Aurora Retail Group", "Birch Telecom", "zephyr Mobile"]);
+
+    await userEvent.click(switcherTrigger());
+    const options = within(screen.getByRole("listbox")).getAllByRole("option");
+    expect(options.map((o) => o.querySelector("span")?.textContent)).toEqual([
+      "Aurora Retail Group — Kenya",
+      "Birch Telecom — Kenya",
+      "zephyr Mobile — Ghana",
+    ]);
+  });
+
+  it("orders two Contracts of one Client by Country and shows the Country only on those rows", () => {
+    const twin = { id: "contract-4", clientName: "Birch Telecom", countryLabel: "Ghana", currency: "USD" };
+    render(
+      <AgentClientInvoicesView
+        contracts={[BIRCH, CONTRACT, twin]}
+        invoicesByContract={{ ...byContract, "contract-4": invoice({ contractId: "contract-4" }) }}
+      />,
+    );
+
+    const links = within(clientsNav()).getAllByRole("link");
+    expect(links.map((l) => l.textContent)).toEqual(["Aurora Retail Group", "Birch Telecom Ghana", "Birch Telecom Kenya"]);
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Ghana" })).toBeInTheDocument();
+    expect(within(links[0]).queryByText("Kenya")).not.toBeInTheDocument();
+  });
+
+  it("selects the first row on arrival and shows its invoice", () => {
+    render(<AgentClientInvoicesView contracts={[ZEPHYR, BIRCH, CONTRACT]} invoicesByContract={byContract} />);
+
+    const links = within(clientsNav()).getAllByRole("link");
+    expect(links[0]).toHaveAttribute("aria-current", "true");
+    expect(links[1]).not.toHaveAttribute("aria-current");
+    expect(screen.getAllByText("$11.00").length).toBeGreaterThan(0);
+    expect(screen.queryByText("$22.00")).not.toBeInTheDocument();
+  });
+
+  it("a click swaps the invoice in place, moves aria-current and makes no request", async () => {
+    const fetchMock = stubFetch(200, {});
+    render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
+
+    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom" }));
+
+    const links = within(clientsNav()).getAllByRole("link");
+    expect(links[1]).toHaveAttribute("aria-current", "true");
+    expect(links[0]).not.toHaveAttribute("aria-current");
+    expect(screen.getAllByText("$22.00").length).toBeGreaterThan(0);
+    expect(screen.queryByText("$11.00")).not.toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(mockRouter.push).not.toHaveBeenCalled();
+  });
+
+  it("each row's href names the Contract, so a modified click opens it", () => {
+    render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
+
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom" })).toHaveAttribute(
+      "href",
+      "/agent/client-invoices?contract=contract-2",
+    );
+  });
+
+  it("a modified click is not intercepted", async () => {
+    render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
+    const row = within(clientsNav()).getByRole("link", { name: "Birch Telecom" });
+    // jsdom does not navigate; what matters is that the view did not take the click for itself.
+    let seen: MouseEvent | null = null;
+    row.addEventListener("click", (e) => (seen = e));
+
+    const user = userEvent.setup();
+    await user.keyboard("{Control>}");
+    await user.click(row);
+    await user.keyboard("{/Control}");
+
+    expect(seen!.ctrlKey).toBe(true);
+    expect(seen!.defaultPrevented).toBe(false);
+    expect(row).not.toHaveAttribute("aria-current");
+  });
+
+  it("Enter on a focused row selects it", async () => {
+    render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
+
+    within(clientsNav()).getByRole("link", { name: "Birch Telecom" }).focus();
+    await userEvent.keyboard("{Enter}");
+
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom" })).toHaveAttribute("aria-current", "true");
+  });
+
+  it("the switcher choice moves the selected row too", async () => {
+    render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
+
+    await userEvent.click(switcherTrigger());
+    await userEvent.click(screen.getByRole("option", { name: /Birch Telecom/ }));
+
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom" })).toHaveAttribute("aria-current", "true");
+  });
+
+  it("a single Contract gives one selected row", () => {
+    render(<AgentClientInvoicesView contracts={[CONTRACT]} invoicesByContract={byContract} />);
+
+    const links = within(clientsNav()).getAllByRole("link");
+    expect(links).toHaveLength(1);
+    expect(links[0]).toHaveAttribute("aria-current", "true");
+  });
+
+  it("no Contracts: 'No contracts yet' and no Clients landmark", () => {
+    render(<AgentClientInvoicesView contracts={[]} invoicesByContract={{}} />);
+
+    expect(screen.getByText("No contracts yet")).toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Clients" })).not.toBeInTheDocument();
+  });
+
+  it("a 60-character name keeps its full name as the row's title", () => {
+    const name = "Extraordinarily Long Client Name Incorporated Holdings Group";
+    expect(name).toHaveLength(60);
+    render(
+      <AgentClientInvoicesView
+        contracts={[{ ...CONTRACT, clientName: name }]}
+        invoicesByContract={byContract}
+      />,
+    );
+
+    expect(within(clientsNav()).getByText(name)).toHaveAttribute("title", name);
+  });
+
+  it("scrolls the document to the top when the invoice area's top is above the viewport", async () => {
+    const scrollTo = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    const rect = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect");
+    render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
+
+    rect.mockReturnValue({ top: 120 } as DOMRect);
+    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom" }));
+    expect(scrollTo).not.toHaveBeenCalled();
+
+    rect.mockReturnValue({ top: -300 } as DOMRect);
+    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group" }));
+    expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 0 }));
+    rect.mockRestore();
   });
 });
 

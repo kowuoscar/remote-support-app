@@ -7,7 +7,7 @@ import {
   login,
   logout,
   rollSeededAgentInvoiceIntoThePast,
-  selectContractInSwitcher,
+  selectClientInvoiceContract,
 } from "./helpers";
 
 /**
@@ -92,7 +92,7 @@ test.describe("edit client invoice lines", () => {
     const feesBefore = await readLocalSupportFees(page);
 
     await page.goto("/agent/client-invoices");
-    await selectContractInSwitcher(page, clientName);
+    await selectClientInvoiceContract(page, clientName);
     await expect(page.getByText("You can adjust any line to what was actually billed.")).toBeVisible();
     await expect(page.getByText("$70.00", { exact: true })).toBeVisible();
 
@@ -111,7 +111,7 @@ test.describe("edit client invoice lines", () => {
     expect(await readLocalSupportFees(page)).toBeCloseTo(feesBefore + 1.4, 2);
 
     await page.goto("/agent/client-invoices");
-    await selectContractInSwitcher(page, clientName);
+    await selectClientInvoiceContract(page, clientName);
     await feeRow.getByRole("button", { name: "Reset" }).click();
     await expect(feeRow.getByText(/Edited · computed/)).toBeHidden();
     await expect(page.getByText("$76.40", { exact: true })).toBeVisible();

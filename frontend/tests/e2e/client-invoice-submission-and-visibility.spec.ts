@@ -7,6 +7,7 @@ import {
   login,
   logout,
   selectContractInSwitcher,
+  selectClientInvoiceContract,
 } from "./helpers";
 
 /**
@@ -47,7 +48,7 @@ test.describe("client invoice submission and visibility", () => {
     // Agent opens the draft (creating it as a side effect), then sends it.
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/client-invoices");
-    await selectContractInSwitcher(page, clientName);
+    await selectClientInvoiceContract(page, clientName);
     await expect(page.getByText("Draft")).toBeVisible();
 
     await page.getByRole("button", { name: "Send Client Invoice" }).click();

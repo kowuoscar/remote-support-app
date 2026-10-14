@@ -7,6 +7,7 @@ export function SurfacePage({
   subtitle,
   actions,
   viewerLabel,
+  viewerCanChangeName,
   wrapSubtitle,
   demoData = false,
   children,
@@ -15,6 +16,7 @@ export function SurfacePage({
   subtitle?: string;
   actions?: ReactNode;
   viewerLabel: string;
+  viewerCanChangeName?: boolean;
   wrapSubtitle?: boolean;
   /** Opt-in: set only by a page still showing synthetic figures; renders the "Demo data" footer. */
   demoData?: boolean;
@@ -23,7 +25,7 @@ export function SurfacePage({
   return (
     <>
       <TopBar title={title} subtitle={subtitle} actions={actions} viewerLabel={viewerLabel}
-        wrapSubtitle={wrapSubtitle}
+        viewerCanChangeName={viewerCanChangeName} wrapSubtitle={wrapSubtitle}
       />
       <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 sm:py-6" data-testid="surface-main">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">{children}</div>

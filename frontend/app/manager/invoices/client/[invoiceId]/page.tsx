@@ -36,7 +36,7 @@ export default async function ManagerClientInvoicePage({
   const subject = contract ? `${contract.clientName} — ${contract.agentName}` : "Client Invoice";
 
   return (
-    <SurfacePage title={subject} subtitle="Client Invoice" viewerLabel="Manager">
+    <SurfacePage title={subject} subtitle="Client Invoice" viewerLabel="Manager" viewerCanChangeName>
       <Breadcrumb items={[{ label: "Invoices", href: "/manager/invoices" }, { label: subject }]} />
       <ClientInvoiceDetailView invoice={invoice} />
     </SurfacePage>

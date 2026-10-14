@@ -1,7 +1,7 @@
 ---
 id: correct-a-smartphone-owner
 title: Manager and Tester correct a Smartphone's owner
-status: in-progress
+status: done
 depends_on: [correct-a-smartphone-model]
 labels: [backend, frontend, fleet]
 stories: [4, 8, 23, 24, 25, 26, 27, 28]

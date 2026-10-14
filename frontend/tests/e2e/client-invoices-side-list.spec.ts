@@ -64,13 +64,17 @@ test.describe("client invoices side list", () => {
     await alpha.click();
     await expect(page.getByRole("cell", { name: SIM_NUMBER })).toBeVisible();
 
-    // Tab and Enter: every row is reachable by keyboard and shows the focus ring.
+    // Tab and Enter: every row is reachable by keyboard and shows the focus ring (the ring is
+    // :focus-visible, so it takes a key press, not a programmatic focus after a mouse click).
     await alpha.focus();
-    await expect(alpha).toHaveCSS("outline-style", "solid");
     await page.keyboard.press("Tab");
     const next = clients.getByRole("link").nth(names.indexOf(ALPHA) + 1);
     await expect(next).toBeFocused();
     await expect(next).toHaveCSS("outline-style", "solid");
+    await page.keyboard.press("Shift+Tab");
+    await expect(alpha).toBeFocused();
+    await expect(alpha).toHaveCSS("outline-style", "solid");
+    await page.keyboard.press("Tab");
     await page.keyboard.press("Enter");
     await expect(next).toHaveAttribute("aria-current", "true");
     await alpha.click();
@@ -82,9 +86,27 @@ test.describe("client invoices side list", () => {
     ]) {
       const [opened] = await Promise.all([context.waitForEvent("page"), click()]);
       await expect(alpha).toHaveAttribute("aria-current", "true");
-      expect(opened.url()).toMatch(/\/agent\/client-invoices\?contract=.+/);
+      await expect(opened).toHaveURL(/\/agent\/client-invoices\?contract=.+/);
       await opened.close();
     }
+
+    // Scrolling (story 7, 8): in a short window the invoice is taller than the window and the
+    // column's rows overflow the column. Picking a row returns the document to the top and leaves
+    // the column's own scroll where it was.
+    await page.setViewportSize({ width: 1440, height: 200 });
+    const metrics = () =>
+      clients.evaluate((el) => ({ scrollHeight: el.scrollHeight, clientHeight: el.clientHeight, scrollTop: el.scrollTop }));
+    await expect.poll(async () => (await metrics()).clientHeight).toBeLessThan(200);
+    const sized = await metrics();
+    expect(sized.scrollHeight).toBeGreaterThan(sized.clientHeight);
+    await zulu.scrollIntoViewIfNeeded();
+    const columnScroll = (await metrics()).scrollTop;
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+    await zulu.click();
+    await expect(zulu).toHaveAttribute("aria-current", "true");
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    expect((await metrics()).scrollTop).toBe(columnScroll);
 
     // Phone: no "Clients" landmark, the switcher present and working, nothing scrolls sideways.
     await page.setViewportSize({ width: 390, height: 844 });
@@ -98,30 +120,5 @@ test.describe("client invoices side list", () => {
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth === window.innerWidth))
       .toBe(true);
-  });
-
-  test("picking a row returns the document to the top; the column keeps its own scroll", async ({ page }) => {
-    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
-    // A short window: the invoice is taller than it, and the column's rows overflow its height.
-    await page.setViewportSize({ width: 1440, height: 200 });
-    await page.goto("/agent/client-invoices");
-    const clients = page.getByRole("navigation", { name: "Clients" });
-    await expect(clients).toBeVisible();
-
-    const metrics = () =>
-      clients.evaluate((el) => ({ scrollHeight: el.scrollHeight, clientHeight: el.clientHeight, scrollTop: el.scrollTop }));
-    const before = await metrics();
-    expect(before.scrollHeight).toBeGreaterThan(before.clientHeight);
-
-    const target = clients.getByRole("link", { name: ZULU, exact: true });
-    await target.scrollIntoViewIfNeeded();
-    const columnScroll = (await metrics()).scrollTop;
-    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
-
-    await target.click();
-    await expect(target).toHaveAttribute("aria-current", "true");
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
-    expect((await metrics()).scrollTop).toBe(columnScroll);
   });
 });

@@ -42,7 +42,7 @@ test.describe("client invoices side list", () => {
     await expect(page.locator('[aria-haspopup="listbox"]')).toBeHidden();
 
     // Both rows, in alphabetical order; the first row in the column is the selected one.
-    const names = (await clients.getByRole("link").allTextContents()).map((text) => text.replace(/Draft$/, ""));
+    const names = (await clients.getByRole("link").allTextContents()).map((text) => text.replace(/\s*Draft$/, ""));
     expect(names.indexOf(ALPHA)).toBeGreaterThanOrEqual(0);
     expect(names.indexOf(ALPHA)).toBeLessThan(names.indexOf(ZULU));
     await expect(clients.getByRole("link").first()).toHaveAttribute("aria-current", "true");

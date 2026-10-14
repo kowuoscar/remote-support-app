@@ -2,12 +2,36 @@ import Link from "next/link";
 import { StatCard, UNAVAILABLE_FIGURE } from "@/components/ui/stat-card";
 import { Money } from "@/components/ui/money";
 import { IconArrowRight } from "@/components/icons";
+import type { CurrencyAmount } from "@/lib/api/types";
+import { formatBillingMonth } from "@/lib/format";
+
+/**
+ * One Money line per currency, in the read's order (never a sum); `[]` is a plain `0` with no
+ * currency mark; `null` is the unavailable figure.
+ */
+function moneyFigure(lines: CurrencyAmount[] | null) {
+  if (lines === null) return UNAVAILABLE_FIGURE;
+  if (lines.length === 0) return "0";
+  return (
+    <span className="flex flex-col">
+      {lines.map((line) => (
+        <Money key={line.currency} amount={line.amount} currency={line.currency} emphasize />
+      ))}
+    </span>
+  );
+}
+
+function moneyMeta(lines: CurrencyAmount[] | null, rule: string, billingMonth: string | null) {
+  if (lines === null) return "Couldn't load this month's totals";
+  return billingMonth ? `${rule} · ${formatBillingMonth(billingMonth)}` : rule;
+}
 
 export function ManagerDashboardStats({
   pendingApprovalsCount,
   pendingRequestsCount,
   billedThisMonth,
   payoutThisMonth,
+  billingMonth,
   clientCount,
   agentCount,
   contractCount,
@@ -22,8 +46,11 @@ export function ManagerDashboardStats({
    * stay separate stats since the Review Queue itself stays invoices-only (spec.md).
    */
   pendingRequestsCount: number | null;
-  billedThisMonth: number;
-  payoutThisMonth: number;
+  /** Per-currency totals from `GET /api/tenant-totals`: `null` = unavailable, `[]` = a plain 0. */
+  billedThisMonth: CurrencyAmount[] | null;
+  payoutThisMonth: CurrencyAmount[] | null;
+  /** "YYYY-MM-01" from the same read, for the cards' meta; never the wall clock. */
+  billingMonth: string | null;
   /** The Tenant's Client, Agent and Contract list lengths, or `null` when that list couldn't be loaded. */
   clientCount: number | null;
   agentCount: number | null;
@@ -62,15 +89,17 @@ export function ManagerDashboardStats({
       />
       <StatCard
         label="Billed this month"
-        value={<Money amount={billedThisMonth} currency="USD" emphasize />}
+        value={moneyFigure(billedThisMonth)}
         primary
-        meta="Tenant-wide, all Contracts"
+        meta={moneyMeta(billedThisMonth, "Sent or approved", billingMonth)}
+        data-testid="billed-stat"
       />
       <StatCard
         label="Payout this month"
-        value={<Money amount={payoutThisMonth} currency="USD" emphasize />}
+        value={moneyFigure(payoutThisMonth)}
         primary
-        meta="Tenant-wide, all Agents"
+        meta={moneyMeta(payoutThisMonth, "Approved or paid", billingMonth)}
+        data-testid="payout-stat"
       />
       <StatCard
         label="Clients"

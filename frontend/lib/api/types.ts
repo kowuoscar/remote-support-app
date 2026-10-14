@@ -648,3 +648,17 @@ export interface ClientInvoiceSummary {
   currency: string;
   totalAmount: number;
 }
+
+// Mirrors backend/.../dto/TenantTotalsResponse.java — the Tenant-wide money for the current Billing
+// Month (GET /api/tenant-totals). One entry per currency with at least one counted invoice, ordered
+// by currency code; `[]` means nothing counted. Amounts arrive as JSON numbers.
+export interface CurrencyAmount {
+  currency: string;
+  amount: number;
+}
+
+export interface TenantTotals {
+  billingMonth: string;
+  billed: CurrencyAmount[];
+  payout: CurrencyAmount[];
+}

@@ -46,13 +46,3 @@ export function StatCard({
     </Card>
   );
 }
-
-export function StatCardSkeleton() {
-  return (
-    <Card className="flex flex-col gap-3 p-5">
-      <div className="h-3.5 w-24 animate-pulse rounded bg-canvas-soft" />
-      <div className="h-7 w-32 animate-pulse rounded bg-canvas-soft" />
-      <div className="h-3 w-20 animate-pulse rounded bg-canvas-soft" />
-    </Card>
-  );
-}

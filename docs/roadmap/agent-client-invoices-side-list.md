@@ -54,4 +54,4 @@ testing; placed first in the epic order by the human the same day.
 
 ## Features
 
-- [ ] `client-invoices-side-list` — on desktop, the Agent picks a Contract's Client Invoice from a scrollable list of Clients beside it; a phone keeps the dropdown.
+- [x] `client-invoices-side-list` — on desktop, the Agent picks a Contract's Client Invoice from a scrollable list of Clients beside it; a phone keeps the dropdown.

@@ -15,8 +15,6 @@ separated by ` · `.
 
 - `frontend/tests/e2e/helpers.ts` · smell: Possibly flaky logout helper · in the login-lifecycle journey run the shared `logout` helper's click on the Manager's Log out failed once with "element is not stable… detached"; unexplained, not reproduced · login-lifecycle · 2026-10-06
 - `frontend/components/agent/agent-client-invoice-card.tsx` · smell: Duplicated invoice layout · the summary, Fee-lines and Carrier-files sections closely repeat `frontend/components/manager/client-invoice-detail-view.tsx`; the Manager view also re-implements the focus-on-status-change logic of `frontend/components/agent/client-invoice-status-note.tsx` · send-a-client-invoice-back · 2026-10-06
-- `frontend/app/agent/client-invoices/[invoiceId]/page.tsx` · smell: Silent degraded title · the Contracts read uses `backendFetchList`, which turns a failure into [] without logging, so the title quietly falls back to 'Client Invoice'; use `backendFetchJsonOrNull` · send-a-client-invoice-back · 2026-10-06
-- `frontend/components/agent/client-invoices-view.tsx` · smell: Long Contract names lose the country · the clamped Contract cell in the 'Sent back to you' table cuts long names before the country, with no title, and the Open link's accessible name omits the country · send-a-client-invoice-back · 2026-10-06
 - `frontend/components/ui/button.tsx` · smell: Contrast below AA in dark · the danger variant is white on #f16b7a (~2.95:1) in dark theme; app-wide and pre-existing · send-a-client-invoice-back · 2026-10-06
 - `frontend/components/agent/agent-client-invoice-card.tsx` · smell: Columns hidden on phones · at 375px the SIM and Fee tables show only their first column; Billed and Edit sit off-screen inside TableScroll with no hint (pre-existing layout, moved unchanged) · send-a-client-invoice-back · 2026-10-06
 - `frontend/components/manager/client-invoice-detail-view.tsx` · smell: Two badges for one state · the Manager's detail view still shows Draft on a sent-back invoice while the Agent card shows Sent back via `clientInvoiceBadge` in `frontend/lib/status.ts`; one helper could serve both · send-a-client-invoice-back · 2026-10-05
@@ -74,6 +72,8 @@ separated by ` · `.
 - `frontend/components/fleet/smartphone-serial-control.tsx` · smell: Inconsistent Edit · the serial Edit is still the soft-indigo row chip with a bare "Edit" name beside the ghost correction Edits (F21; make it ghost, named "Edit serial, {serial}") · correct-a-fleet-unit · 2026-10-14
 - `frontend/components/manager/contract-fleet-view.tsx` · smell: Two pills · "Add smartphone" and "Add SIM card" are both primary pills, against DESIGN.md's Pill-Is-Primary Rule (F20, pre-existing) · correct-a-fleet-unit · 2026-10-14
 - `frontend/components/fleet/smartphone-owner-control.tsx` · smell: Repeated name · "Edit owner of {model}" repeats when several phones share a model; `serial ?? model` would be unique · correct-a-fleet-unit · 2026-10-14
+- `frontend/components/agent/contract-side-list.tsx` · smell: Two looks for Sent back · a row whose own status is "Sent back" keeps the dotted badge while the extra mark has the alert icon; unifying means changing clientInvoiceBadge, which also moves the invoice card · client-invoices-side-list · 2026-10-15
+- `frontend/components/agent/contract-side-list.tsx` · smell: Unused directive · lint warns about an unused eslint-disable at line 54 · client-invoices-side-list · 2026-10-15
 
 ## backend
 

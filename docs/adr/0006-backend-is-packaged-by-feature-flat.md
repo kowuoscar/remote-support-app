@@ -1,6 +1,7 @@
 # 6. The backend is packaged by feature, flat, one package per glossary term
 
-Status: proposed
+Status: accepted
+Accepted: by the human, 2026-10-14
 Date: 2026-10-09
 Feature: package-layout-decision
 Ticket: package-layout-adr

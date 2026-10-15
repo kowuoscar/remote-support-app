@@ -1,7 +1,7 @@
 ---
 feature: package-layout-decision
 epic: package-by-feature
-status: delivered
+status: accepted
 date: 2026-10-06
 ---
 

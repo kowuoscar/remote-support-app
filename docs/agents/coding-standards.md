@@ -82,6 +82,7 @@ the `check` goal), Flyway, Testcontainers.
 13. Package by feature, not by layer (`controllers`, `services`,
     `repositories`) — a feature's files stay next to each other. **This is
     the norm for new code**, decided by the human on 2026-09-22.
+    Amended by the human on 2026-10-14, accepting ADR 0006.
     The backend does not obey it yet: it is packaged by layer (`web`,
     `repository`, `dto`, `domain`, `security`, `logging`), and moving it is
     the `package-by-feature` epic, not something a feature ticket does on the

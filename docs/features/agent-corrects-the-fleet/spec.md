@@ -1,7 +1,7 @@
 ---
 feature: agent-corrects-the-fleet
 epic: fleet-corrections
-status: delivered
+status: accepted
 date: 2026-10-15
 ---
 

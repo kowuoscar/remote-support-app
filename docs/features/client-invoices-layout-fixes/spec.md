@@ -1,7 +1,7 @@
 ---
 feature: client-invoices-layout-fixes
 epic: agent-client-invoices-side-list
-status: delivered
+status: accepted
 date: 2026-10-15
 ---
 

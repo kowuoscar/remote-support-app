@@ -705,6 +705,8 @@ tested at the highest seam that already exists and can see it.
 
 ## Decisions taken
 
+- **`fleet-side-list-and-tabs` touched two e2e reads its Regression did not name** (2026-10-16): the first Agent test's `Pixel 8` rows and the iPhone 15 serial test in `fleet-management.spec.ts` read Smartphone rows that now sit behind the Smartphones tab, so they gain a `fleetTab(page, "Smartphones")` step (and `fleetTab(page, "SIM Cards")` before the retire/reactivate step), assertions unchanged. Same reason as the Regression's own: only the selected tab's table is rendered. The two `/client/fleet` `selectContractInSwitcher` calls were dropped rather than moved, since a one-Contract Tester has no landmark and the call was a no-op.
+
 - **The ticket cut's last R6 gap was closed by the orchestrator, not escalated** (2026-10-15). The critic's second pass failed only R6 on `fleet-side-list-and-tabs` (five more e2e lines that the tabs change) and noted `surfaces.spec.ts` missing from `manager-contracts-one-page`'s Regression. Its own `would_pass` text was copied into both tickets verbatim: a list of tests declared modified, no change to scope or criteria, so it is not a spec gap worth the human's time.
 
 - **Spec approved by the human, 2026-10-15** (`docs/inbox/approve-ui-side-lists-and-tabs.md`, "ok"), accepting the seven choices listed there.

@@ -69,7 +69,7 @@ error, not a nitpick.
 - `frontend/components/app-shell/change-name-dialog.tsx` · the dialog behind the account menu's Change name item: edits the caller's own name, never signs out.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
 - `frontend/components/agent/agent-client-invoice-card.tsx` · the Agent's Client Invoice card.
-- `frontend/components/agent/contract-side-list.tsx` · the presentational "Clients" nav of Contract links on the Agent's Client Invoices page; the view owns the selection.
+- `frontend/components/ui/side-list.tsx` · the shared SideList (named nav landmark of links with name, detail, badge and mark slots) and SideListLayout (page body: column at xl, dropdown and header below xl, with lead and detailRef slots).
 - `frontend/components/agent/invoice-line-table.tsx` · the Agent Client Invoice lines as one markup: a table at xl, one-column grid rows below it, with explicit ARIA table roles; exports `LINE_AREA` for parts to name their grid area.
 - `frontend/components/manager/login-activation-dialog.tsx` · the shared confirm dialog a Manager uses to deactivate or reactivate a Login.
 - `frontend/components/manager/send-back-client-invoice-control.tsx` · inline reason form that POSTs a send-back to a given endpoint and hands the returned invoice to its caller.

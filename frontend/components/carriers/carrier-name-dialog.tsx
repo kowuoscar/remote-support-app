@@ -32,8 +32,13 @@ function errorMessage(code: string | null, status: number, name: string, country
  */
 export const CarrierNameDialog = forwardRef<
   CarrierNameDialogHandle,
-  { country: Country; countryName: string }
->(function CarrierNameDialog({ country, countryName }, ref) {
+  {
+    country: Country;
+    countryName: string;
+    /** Called with the new Carrier's id once it is created, so the page selects it. */
+    onCreated?: (id: string) => void;
+  }
+>(function CarrierNameDialog({ country, countryName, onCreated }, ref) {
   const shellRef = useRef<DialogShellHandle>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const titleId = useId();
@@ -60,6 +65,16 @@ export const CarrierNameDialog = forwardRef<
 
   function close() {
     shellRef.current?.close();
+  }
+
+  /** The created Carrier becomes the selected one: `carrier=<id>` is written before the refresh. */
+  async function selectCreated(response: Response) {
+    const created = (await response.json().catch(() => null)) as { id?: string } | null;
+    if (!created?.id) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("carrier", created.id);
+    window.history.replaceState(null, "", url);
+    onCreated?.(created.id);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -92,6 +107,8 @@ export const CarrierNameDialog = forwardRef<
         inputRef.current?.focus();
         return;
       }
+
+      if (!renaming) await selectCreated(response);
 
       setSubmitting(false);
       close();

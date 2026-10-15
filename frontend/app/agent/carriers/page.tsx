@@ -11,8 +11,14 @@ export const metadata = { title: "Carriers" };
  * The Agent's own Country's Carriers (agent-maintains-carriers ticket). The backend decides which
  * Country that is — an Agent never picks one — and says so in the catalog it returns.
  */
-export default async function AgentCarriersPage() {
+export default async function AgentCarriersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ carrier?: string | string[] }>;
+}) {
   await requireAgent();
+  const { carrier } = await searchParams;
+  const initialCarrierId = Array.isArray(carrier) ? carrier[0] : carrier;
   const [catalog, meResponse] = await Promise.all([
     loadCarrierCatalog(),
     backendFetch("/api/me").catch(() => null),
@@ -25,8 +31,9 @@ export default async function AgentCarriersPage() {
       title="Carriers"
       subtitle={catalog ? `${countryLabel(catalog.country)} catalog` : "Your country's catalog"}
       viewerLabel={`${me.username ?? "Agent"} · Agent`}
+      bleed
     >
-      <CarriersView country={country} catalog={catalog} />
+      <CarriersView country={country} catalog={catalog} initialCarrierId={initialCarrierId} />
     </SurfacePage>
   );
 }

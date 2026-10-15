@@ -78,14 +78,19 @@ exists only for a closed month, and this feature defines "closed".
 - One rule, **open or closed**, decides who may change an invoice of either
   type. An invoice is **open** until its **month close** (the start of the 6th
   of the following month), and after that for as long as it is not approved.
-  It is **closed** once it is approved and its month close has passed.
+  It is **closed** once it is approved and its month close has passed. A paid
+  Agent Invoice is closed at once, whatever the date.
 - While a Client Invoice is open, its Agent and any Manager may edit every
   line, whatever its status: draft, sent or approved. The Agent may attach
   Carrier Invoice Files to it, and the Agent may send it if it is a draft. A
   sent invoice stays sent and an approved one stays approved.
 - While a month is open, an edit to its Client Invoice moves that month's Agent
   Invoice by exactly the difference, whether the Agent Invoice is sent or
-  approved.
+  approved. Pay that is already final (an Agent Invoice marked paid, or
+  approved and closed) never moves: the Client Invoice edit is accepted, and
+  any amount owed goes on the next month's pay as an adjustment.
+- While a month is open, the Client's Tester sees its invoices' figures as they
+  stand, with "Can still change until {date}".
 - While an Agent Invoice is open, a Manager may override its Salary and new
   advance whether it is sent or approved. A Late Agent Invoice draft of an
   earlier month can still be sent by its Agent.
@@ -108,8 +113,12 @@ build.
   `invoice-adjustment`. This feature only refuses edits to a closed invoice
   and names the adjustment in the refusal message.
 - **No carry-over.** No edit ever records a pending amount for a later month
-  (the human's answer of 2026-10-08). What happens when an edit reaches pay
-  that is already final is open question 1.
+  (the human's answer of 2026-10-08). An edit that reaches pay already final
+  leaves that pay as it is. Recording the amount owed as an adjustment on the
+  next month's pay is the Manager's, through `invoice-adjustment` (the human,
+  2026-10-14).
+- **No refusing "mark paid" until the 6th.** Mark paid stays allowed whenever
+  the Agent Invoice is approved. It closes that invoice at once.
 - **No scheduler, no stored "closed" status, and no migration of the status
   enums.** Closing is a moment in time, read against the clock. No row is
   written at the close.
@@ -130,7 +139,7 @@ build.
 - **No notification**, email or count. The Late list and the flag are the
   whole signal.
 - **No per-Tenant, per-country or configurable close day.** It is the 5th,
-  for everyone. Time zone: open question 3.
+  for everyone, in UTC.
 - **No re-approval forced by an edit.** An approved invoice that is edited
   stays approved (the human: "an approved invoice stays editable until the
   5th").
@@ -158,7 +167,7 @@ build.
 13. As a Company Manager, I want my edit to move the Agent's pay exactly as the Agent's own edit would, so that the bill and the pay never disagree.
 14. As a Company Manager, I want to override the Salary or the new advance on an approved Agent Invoice while it is open, as I can on a sent one, so that a pay mistake found after approval is fixed on that month's invoice.
 15. As a Company Manager, I want to send back a sent Client Invoice until the 5th, and a Late one after it, so that I can still tell the Agent what to fix.
-16. As a Company Manager, I want to send back an approved Client Invoice until the 5th, so that I can hand an invoice I approved too soon back to the Agent with a reason. (Open question 5. This story is dropped if the answer is no.)
+16. As a Company Manager, I want to send back an approved Client Invoice until the 5th, so that I can hand an invoice I approved too soon back to the Agent with a reason.
 17. As a Company Manager, I want to approve a Late invoice after the 5th exactly as I approve any other, so that it closes.
 18. As a Company Manager, I want to see every Late invoice of both types in one place, each flagged "Late" with its month, its state and how many days late it is ("September 2026 · not sent · 5 days late"), so that I can chase what is keeping a month open.
 19. As a Company Manager, I want a Late invoice that is waiting on me in the Review Queue to carry the same Late flag there, so that I approve the oldest debts first.
@@ -166,11 +175,11 @@ build.
 21. As a Company Manager, I want every invoice detail page to say whether it is open, and until when, or closed, so that I know whether a fix is an edit or an adjustment.
 22. As a Company Manager, I want an invoice I approved that was changed afterwards (by the Agent or by me) to show "Changed after approval" with the date, so that a figure I approved never moves without my noticing.
 23. As a Company Manager, I want every edit, attach, override and send-back on a closed invoice refused for everyone, with a message saying the month is closed and that a correction is an adjustment on the current month, so that a closed month never changes.
-24. As an Agent or a Company Manager, I want an edit made at the last moment of the 5th accepted and one made at the first moment of the 6th refused, so that the deadline means exactly what it says (time zone: open question 3).
-25. As a Tester, I want an invoice that can still change to say so ("Can still change until 5 October"), and never to see edit markers or who changed what, so that a figure that moves does not surprise me (open question 2).
+24. As an Agent or a Company Manager, I want an edit made at the last moment of the 5th accepted and one made at the first moment of the 6th refused, so that the deadline means exactly what it says (in UTC).
+25. As a Tester, I want to see an open invoice's figures as they stand, with a line saying it can still change ("Can still change until 5 October") while its month is open, and never to see edit markers or who changed what, so that a figure that moves does not surprise me.
 26. As a Tester, I want to be unable to edit any invoice, so that billing stays the Agent's and the Manager's.
-27. As the company, I want an edit that comes after the Agent's pay for that month is final (marked paid, or approved and closed) to leave that pay as it is, and the Client Invoice to be changed anyway, so that money already paid never moves (open question 1).
-28. As the company, I want only invoices that exist to be flagged Late, not every Contract that had no invoice that month (open question 4).
+27. As the company, I want an edit that comes after the Agent's pay for that month is final (marked paid, or approved and closed) to leave that pay as it is, and the Client Invoice to be changed anyway, so that money already paid never moves, and any amount owed is put on the next month's pay as an adjustment.
+28. As the company, I want only invoices that exist to be flagged Late, not every Contract that had no invoice that month.
 29. As the company, I want closing to happen without any job running, so that a month cannot fail to close or close late.
 30. As the company, I want an edit and an approval of the same invoice that race each other, and an edit that races the month close, to leave one consistent state, so that no closed invoice is ever changed.
 31. As the company, I want every edit to a sent or approved invoice audited exactly as a draft edit is (who, which invoice, which line, old and new amount), and every pay movement it causes audited, so that a figure that moved after review can be traced.
@@ -187,19 +196,19 @@ types. It has no dependencies. It takes a billing month, a status family and
 the current instant.
 
 ```
-closesAt(billingMonth)   = start of day 6 of (billingMonth + 1 month), in the close zone (open question 3; UTC recommended)
+closesAt(billingMonth)   = start of day 6 of (billingMonth + 1 month), in UTC
 lastOpenDay(billingMonth) = day 5 of (billingMonth + 1 month)
 
 final(status)   = Client Invoice: APPROVED
                   Agent Invoice:  APPROVED or PAID
-open            = now < closesAt  OR  not final(status)
+open            = not final(status)  OR  (now < closesAt AND status != PAID)
 closed          = not open
 late            = now >= closesAt AND not final(status)
-daysLate        = whole days from lastOpenDay to today, in the close zone   (6th → 1, 10th → 5)
+daysLate        = whole days from lastOpenDay to today, in UTC   (6th → 1, 10th → 5)
 ```
 
-Open question 1's recommendation adds one line: a `PAID` Agent Invoice is
-also final for pay. Nothing else of the rule changes with the answer.
+A `PAID` Agent Invoice is closed at once, even before its month close (the
+human, 2026-10-14): money paid never moves.
 
 Nothing is stored. An invoice approved on 2 October closes at the start of
 6 October without any write. A Late invoice approved on 10 October is closed
@@ -234,7 +243,7 @@ feature's first ticket.
 | Edit a line (current-month route, unchanged address) | the Contract's Agent | open | open | open |
 | Attach a Carrier Invoice File | the Contract's Agent, any Manager | open | open | open |
 | Send | the Contract's Agent | open | — | — |
-| Send back | Manager | — | open | open, if open question 5 is yes |
+| Send back | Manager | — | open | open |
 | Approve | Manager | — | always (approving is what closes a Late one) | — |
 | PDF, files, read | as today | as today | as today | as today |
 
@@ -263,9 +272,9 @@ change, and the Manager reaches every Contract. `attachFile` drops its
 `APPROVED` invoice, `changedAfterApprovalAt` is set to now (a nullable column,
 overwritten by each later change). The response carries it to the Agent and
 the Manager, and it is null for a Tester. It is not cleared by anything except
-a send-back of an approved invoice (open question 5).
+a send-back of an approved invoice.
 
-**Send-back of an approved invoice (only if open question 5 is yes).**
+**Send-back of an approved invoice.**
 `ClientInvoiceStatus.canTransitionTo` gains `APPROVED → DRAFT`, taken only by
 `sendBack` and only while open. It clears `approvedAt` and
 `changedAfterApprovalAt`, and is otherwise ADR 0005's send-back unchanged:
@@ -276,7 +285,7 @@ same reason rules, nothing recomputed, no pay moved.
 | Action | Who | Draft | Sent | Approved | Paid |
 |---|---|---|---|---|---|
 | Override Salary / new advance | Manager | — (nothing frozen) | open | open | — |
-| Local Support Fees follow a Client Invoice edit | (the edit) | live read | open: moves by the difference | open: moves by the difference | never (open question 1) |
+| Local Support Fees follow a Client Invoice edit | (the edit) | live read | open: moves by the difference | open: moves by the difference | never (closed at once) |
 | Send | the Agent | open (the current month, or Late) | — | — | — |
 | Approve, mark paid | Manager | as today | as today | as today | as today |
 
@@ -296,11 +305,12 @@ The pay table, amended (it replaces ADR 0004's):
 | none, or `DRAFT` | Nothing written. It computes live. |
 | `SENT` | Moves by exactly the difference (unchanged). |
 | `APPROVED`, open | Moves by exactly the difference. **New.** |
-| `APPROVED` and closed, or `PAID` | Nothing moves (open question 1's recommendation). The Client Invoice edit is still accepted if the Client Invoice is open. |
+| `APPROVED` and closed, or `PAID` | Nothing moves (the human, 2026-10-14). The Client Invoice edit is still accepted if the Client Invoice is open. Any amount owed goes on the next month's pay as an adjustment, which the Manager records through `invoice-adjustment`. |
 
-A Client Invoice edit is possible after its month close only when the Client
-Invoice itself is Late. In that case the Agent Invoice may already be closed,
-which is the second case of open question 1.
+Pay that is final can meet an open Client Invoice in two ways: the Agent
+Invoice is marked paid before the close (it is closed at once), or the Client
+Invoice is Late after the close while the Agent Invoice was approved in time.
+Both take the last row. This feature records nothing for the amount owed.
 
 **The Agent reaches their own Agent Invoice by id.** Today
 `AgentInvoiceByIdController` is Manager-only, and the Agent reaches only the
@@ -315,7 +325,7 @@ Another Agent gets `403`, and another Tenant `404`.
 `ClientInvoiceResponse` and `AgentInvoiceResponse` gain:
 
 - `lastOpenDay` (a date, e.g. `2026-10-05`). It is given to Testers too, for
-  open question 2's note.
+  the "Can still change until" note.
 - `open` (boolean).
 - `late` (boolean) and `daysLate` (integer or null). These are null for a
   Tester.
@@ -328,8 +338,8 @@ Another Agent gets `403`, and another Tenant `404`.
 `GET /api/late-invoices`, Manager only. It returns every Late invoice of either
 type in the caller's Tenant, oldest month first, then the most days late, each
 as `{ type, id, status, billingMonth, contractId, clientName, agentId,
-agentName, currency, total, daysLate }`. Under open question 4's
-recommendation, it lists invoices that exist as rows. Its query is "billing
+agentName, currency, total, daysLate }`. It lists only invoices that exist as
+rows. Its query is "billing
 month's close has passed and status is not final", one per type. It reads
 without creating anything.
 
@@ -376,9 +386,9 @@ Agent Invoices of earlier months that are open, at most a handful, as
   `GET /api/late-invoices`, each row reading "{Month} · {not sent | sent |
   sent back} · {n} days late" with Open. It is hidden when empty. Queue rows
   that are Late carry a **Late** badge.
-- **Tester.** An invoice whose `open` is true carries a quiet line "Can still
-  change until {date}" (open question 2's recommendation). Nothing else
-  changes.
+- **Tester.** The Tester sees the figures as they stand. An invoice whose
+  `open` is true carries a quiet line "Can still change until {date}".
+  Nothing else changes.
 - **`lib/status.ts`** gains the Late badge (in the `danger` tone) and the
   open and closed labels, driven centrally, as "Sent back" was.
 - **BFF.** Pass-through proxies for the new routes, in the existing shape.
@@ -394,7 +404,8 @@ month"**, recorded with the first behaviour ticket. It records:
   its month is open, only by the Agent or a Manager, always audited, and an
   approved invoice that moves says so. From the close, a figure never moves
   again, and only an adjustment corrects it;
-- the amended pay table;
+- the amended pay table, with a paid Agent Invoice closed at once and any
+  amount owed on final pay put on the next month's pay as an adjustment;
 - the alternatives rejected: a scheduled close job (it can fail or run late,
   and it would need a stored status); a stored `CLOSED` status (that is a
   migration of both status checks for something the clock already knows);
@@ -413,8 +424,8 @@ Dated notes, each in the existing "Amended by ADR 0007: …" shape:
 - **ADR 0004**: the pay table is replaced by ADR 0007's, and `editLine` applies
   to every open invoice, not only drafts.
 - **ADR 0005**: "`approved` stays terminal" becomes "an approved invoice is
-  editable until its month close". If open question 5 is answered yes, the note
-  adds the `APPROVED → DRAFT` send-back while open.
+  editable until its month close", and the note adds the `APPROVED → DRAFT`
+  send-back while open.
 
 ### Untouched, and why that is correct
 
@@ -425,8 +436,8 @@ Dated notes, each in the existing "Amended by ADR 0007: …" shape:
   invoice is edited, because the queue sums the stored lines and the snapshot,
   as it always did.
 - **Mark paid** is allowed whenever the invoice is `APPROVED`, as today. Under
-  open question 1's recommendation it also ends any pay movement for that
-  invoice.
+  the human's answer of 2026-10-14 it also closes that invoice at once and
+  ends any pay movement for it.
 
 ## Design direction
 
@@ -454,8 +465,7 @@ backend-free goldens should not move. Any golden that moves is a finding.
 - Lands after `send-a-client-invoice-back` (merged). Lands before
   `invoice-adjustment`, which uses `MonthClose.closed`.
 - The month close is the start of the 6th of the month after the billing
-  month, in one zone for the whole deployment (UTC unless open question 3 says
-  otherwise). "Until the 5th" includes the whole of the 5th.
+  month, in UTC for the whole deployment. "Until the 5th" includes the whole of the 5th.
 - Open, closed, Late and days late are computed from the injected `Clock` on
   every read. No scheduler, no `@Scheduled`, and no stored close state.
 - One additive migration (next free version at merge): nullable
@@ -468,7 +478,7 @@ backend-free goldens should not move. Any golden that moves is a finding.
   coded-body shape as `PAST_MONTH_DRAFT_NOT_SENDABLE`.
 - From `SENT` onward a Client Invoice still reads exactly its stored lines.
   Nothing is recomputed by an edit, by the close or by a read.
-- A `PAID` Agent Invoice's figures never move.
+- A `PAID` Agent Invoice is closed at once, and its figures never move.
 - The pay movement uses the lock order Client Invoice, then Agent, then Agent
   Invoice. No Agent Invoice operation takes a Client Invoice lock.
 - A Tester response never carries `late`, `daysLate`,
@@ -518,7 +528,8 @@ internals of `MonthClose`.
      (a Late Client Invoice edited on 8 October), it does not move, and the
      Client Invoice edit is still `200`;
    - override on an `APPROVED` Agent Invoice while open (`200`), after the
-     close (`409 MONTH_CLOSED`), and on `PAID` (`409`);
+     close (`409 MONTH_CLOSED`), and on `PAID` (`409`); an Agent Invoice
+     marked paid on 3 October reads `open: false`;
    - the Agent reads and sends their own Late Agent Invoice by id; another
      Agent gets `403`; `OtherTenantFixture` gets `404` on every new route;
    - `GET /api/late-invoices`: lists one Late invoice of each type with
@@ -531,8 +542,7 @@ internals of `MonthClose`.
      sent-back rows;
    - a Tester's read carries `lastOpenDay` and `open`, with `late`,
      `daysLate` and `changedAfterApprovalAt` null;
-   - a send-back of an approved invoice while open, and after the close (only
-     if open question 5 is yes).
+   - a send-back of an approved invoice while open, and after the close.
 3. **Races at the same seam, committing.** These are an edit against an
    approve of the same invoice, and a Client Invoice edit against an Agent
    Invoice approve. Exactly one order wins, and the pay equals the billed
@@ -639,28 +649,12 @@ internals of `MonthClose`.
 - **"Until the 5th" means UTC**: September closes at 00:00 UTC on 6 October — settled by the code, since every billing month is already a UTC month (`BillingMonth`, `LocalDate.now(ZoneOffset.UTC)`); one deadline everywhere. Moved from open questions by the orchestrator, 2026-10-08.
 - **Late flags only invoices that exist** — the human's rule speaks of "an invoice still not approved"; a Contract whose Agent never opened that month's invoice has no invoice, and Contracts have no end date, so flagging them would flag inactive ones forever. Moved from open questions by the orchestrator, 2026-10-08.
 - **Until the 5th a Manager may send back an approved Client Invoice** — the human said on 2026-10-08 that until the 5th "manager can send back too" and that an approved invoice stays editable; it returns to draft with the reason and is Late if not re-approved by the 6th. Client Invoices only. Moved from open questions by the orchestrator, 2026-10-08.
+- **An edit that reaches final pay leaves the pay as it is** (by the human, 2026-10-14; `docs/inbox/month-close-paid-pay.md`): the Client bill moves, the Agent pay already approved or paid stays, and any amount owed goes on the next month's pay as an adjustment. A paid Agent Invoice is closed at once. "Mark paid" is not refused before the 6th.
+- **The Tester sees an open invoice's figures as they stand** (by the human, 2026-10-14; `docs/inbox/month-close-tester-sees-changes.md`), with "Can still change until {date}" while the month is open. The Tester's page shows only the current month, which is always open, so hiding open invoices would empty it.
 
 ## Open questions
 
-1. **When an edit reaches pay that is already final, does the pay move?**
-   Two cases. (a) You mark September's Agent Invoice paid on 3 October, and on
-   4 October the Agent raises a September Client Invoice line from $30 to
-   $45. (b) September's Client Invoice is Late, the Agent's September pay was
-   approved before the 6th, and on 10 October the Agent raises a line from
-   $30 to $45. **Recommendation:** the Client's bill changes to $45, but the
-   Agent's September pay stays as it is. If the $15 is owed, you record it as
-   an adjustment on October's pay. A paid Agent Invoice counts as closed at
-   once. *Reason:* money already paid cannot move, and after the 5th every
-   pay fix is yours by adjustment. The alternative is to refuse "mark paid"
-   until the 6th.
-2. **Does the Client's Tester see an invoice's figures change until the 5th?**
-   Today a Tester sees an invoice as soon as it is sent. Under the new rule,
-   the Agent can change a $1,200 invoice to $1,250 on 4 October, after the
-   Client has seen $1,200. **Recommendation:** yes. The Tester sees the
-   figures as they stand, with the line "Can still change until 5 October"
-   while the month is open. *Reason:* the Tester's Invoices page shows only
-   the current month, which is never closed, so hiding open invoices would
-   leave that page empty for good. The note removes the surprise.
+None
 
 ## Acceptance walkthrough
 
@@ -674,7 +668,7 @@ used in steps 11–13.
 4. [agent] Restart with the clock at `2026-11-05T23:59:59Z` and show one more edit accepted. Restart with `2026-11-06T00:00:00Z` and show the same edit, an attach and an override on the approved invoices all refused `409` with code `MONTH_CLOSED` and the message naming the adjustment. Show both invoices unchanged. Then run `MonthCloseApiTest`'s boundary cases and show them green. (stories: 23, 24, 30)
 5. [agent] Still at `2026-11-06T00:00:00Z`, show an October Client Invoice left `SENT` and an October Agent Invoice left `DRAFT` both read `late: true`, `daysLate: 1`, `open: true`. Show `GET /api/late-invoices` lists both, and the Review Queue shows the sent one flagged Late with its order unchanged. As the Agent, edit the Late Client Invoice (`200`). (stories: 15, 18, 19)
 6. [agent] Move the clock to `2026-11-10T09:00:00Z`. Show `daysLate: 5`. As the Agent, open the Late Agent Invoice by id and send it. As the Manager, approve both. Show `late: false`, `open: false`, both gone from the Late list, and every edit now `409 MONTH_CLOSED`. (stories: 11, 17, 20)
-7. [agent] With the Agent's October pay approved and closed and a second October Client Invoice still Late, edit that invoice's line +$15.00 as the Agent. Show the edit `200` and the Agent Invoice unchanged. Mark another Agent's approved, still-open Agent Invoice paid, edit one of its Client Invoice lines, and show the Agent Invoice unchanged. (stories: 27)
+7. [agent] With the Agent's October pay approved and closed and a second October Client Invoice still Late, edit that invoice's line +$15.00 as the Agent. Show the edit `200` and the Agent Invoice unchanged. Mark another Agent's approved, still-open Agent Invoice paid, show it now reads `open: false`, edit one of its open Client Invoice lines (`200`), and show the Agent Invoice unchanged. (stories: 27)
 8. [agent] In a browser at the clock `2026-11-03`, sign in as the Agent. Show "Earlier months, still open" listing October's sent and approved invoices with "Can be changed until 5 November". Open one, show the line editor and Attach file on a sent invoice and on an approved one, change a line, and show the new amount. Open the Agent's October Agent Invoice from the earlier-months strip and show the moved Local Support Fees. (stories: 6, 7, 10)
 9. [agent] In a browser at `2026-11-10`, as the Agent, show a closed approved October invoice read-only with the note "October 2026 is closed. Corrections are now made by the Manager.". Open a Late never-sent October draft, edit a line and send it. (stories: 8, 9)
 10. [agent] In a browser as the Manager, at `2026-11-10`, show the Late section reading "October 2026 · not sent · 5 days late" with Open, and the Late badge on a sent row in the Review Queue. Open a Late Client Invoice, show "Open until" replaced by Late wording and the line editor present, edit a line, and approve it. Show it leave the Late section. Open an approved invoice that was changed and show "Changed after approval on …". (stories: 12, 18, 19, 20, 21, 22)
@@ -682,10 +676,10 @@ used in steps 11–13.
 12. [agent] As another Agent, read, edit and send the first Agent's invoices by id and show `403`. On `OtherTenantFixture`'s invoices, show `404` on every new route. Show `GET /api/late-invoices` gives `403` to an Agent and a Tester. (stories: 32)
 13. [agent] With the clock override unset, run `mvn verify`, the vitest suite, typecheck, lint, the full isolated e2e suite including `month-closes-on-the-fifth.spec.ts`, and the visual suite. All are green, with existing suites unedited apart from those this spec names, and no golden moved. Show the backend logs no clock-override warning. (stories: 29, 33)
 14. [agent] Do the Agent's edit of an approved invoice and the Manager's approve of a Late invoice by keyboard alone, with a visible focus ring at each stop. Repeat at the mobile breakpoint, and show the earlier-months table, the Late section and the line editor usable within the viewport. (stories: 34)
-15. [agent] If open question 5 is answered yes, at `2026-11-03`, send back an approved October Client Invoice as the Manager. Show `DRAFT`, the reason, `approvedAt` cleared, and the Agent Invoice unchanged. Then at `2026-11-06` show the same send-back refused on a closed one. (stories: 16)
+15. [agent] At `2026-11-03`, send back an approved October Client Invoice as the Manager. Show `DRAFT`, the reason, `approvedAt` cleared, and the Agent Invoice unchanged. Then at `2026-11-06` show the same send-back refused on a closed one. (stories: 16)
 16. [human] On a real month: in the first days of the next month, change a line on an invoice you already approved, then check the Agent's pay for that month moved by the same amount and the invoice says "Changed after approval". Confirm that is how you want late corrections to look. (stories: 2, 4, 12, 22)
 17. [human] On the 6th, open the Late list and confirm the invoices it flags, and the "not sent · N days late" wording, are the ones you would chase. Confirm an approved invoice of last month now refuses changes and points you to an adjustment. (stories: 18, 23, 28)
-18. [human] Read ADR 0007 and the notes on ADR 0001, 0003, 0004 and 0005. Confirm they say what you settled: editable by the Agent and the Manager until the 5th whatever the status; an edit moves that month's pay; closed for everyone from the 6th; Late stays open and closes on approval; and paid pay never moves. (stories: 1, 2, 4, 23, 27)
+18. [human] Read ADR 0007 and the notes on ADR 0001, 0003, 0004 and 0005. Confirm they say what you settled: editable by the Agent and the Manager until the 5th whatever the status; an edit moves that month's pay; closed for everyone from the 6th; Late stays open and closes on approval; a paid pay invoice is closed at once; and final pay never moves, any amount owed going on the next month's pay as an adjustment. (stories: 1, 2, 4, 23, 27)
 
 ## Execution order
 
@@ -719,6 +713,5 @@ final slices. This is the intended order:
 8. `manager-sees-late-invoices`. Labels: `frontend`. The Late section and the
    queue badge, and carries the e2e spec. Depends on 4, 6 and 7.
 9. `tester-sees-an-invoice-can-still-change`. Labels: `frontend`. Depends on 2.
-   Its shape follows open question 2.
 10. `manager-sends-back-an-approved-client-invoice`. Labels: `backend`,
-    `frontend`. Depends on 2 and 7. Only if open question 5 is answered yes.
+    `frontend`. Depends on 2 and 7.

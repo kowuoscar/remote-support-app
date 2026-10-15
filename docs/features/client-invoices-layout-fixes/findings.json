@@ -191,7 +191,7 @@
     {
       "id": "F18",
       "type": "spec-partial",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": true,
       "in_changed_lines": true,

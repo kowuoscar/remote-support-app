@@ -345,28 +345,11 @@ returns, the rendered accessibility tree.
 - **The `PRODUCT.md` edit lands in the ticket that moves the power; the glossary changes are declared for the merger.** Reason: the line must not claim a power before the code grants it, and the merger is the one writer of `CONTEXT.md`.
 - **(settled by the human, 2026-10-15)** The Manager and the Agent correct; the Tester only views and has no Edit. The Agent corrects the same four things on their own Contracts with the predecessor's rules: audit-logged with old and new value, actor and role; owner in both directions, refused while a Return naming the phone is open; drafts move on a plan change, sent and approved invoices do not. `PRODUCT.md` and `CONTEXT.md` say so.
 
+- **(answered by the human, 2026-10-15: "both directions")** The Agent may correct a Smartphone's owner in both directions, Company to Client included, though a Client-owned phone's Return then skips the Manager's approval; every change is audit-logged with the Agent's login and role.
+
 ## Open questions
 
-1. **May the Agent change a Smartphone's owner from Company to Client?**
-   (moved here from `## Decisions taken` by the orchestrator, escalation
-   case 1.) The owner decides a Return's path: a Return of a Company-owned
-   phone waits for the Manager's approval, a Client-owned one does not
-   (`CONTEXT.md`, Pending Approval). The Agent raises Returns. An Agent who
-   switches a phone to Client-owned can therefore send it back without the
-   Manager ever approving. The Tester, a Client's person, had this right;
-   the Agent is the company's contractor, so the same "both directions" rule
-   now opens a path around the Manager's approval.
-   - **Recommendation:** the Agent corrects the owner from Client to Company
-     only; Company to Client stays with the Manager. The Agent's owner
-     control then offers only "Company" on a Client-owned phone and shows the
-     owner as text on a Company-owned one. Reason: the approval exists
-     because a Company-owned phone is the company's money; the person it
-     checks should not be able to lift it.
-   - **Alternative:** both directions, as settled (each change is
-     audit-logged with the Agent's login).
-   - **Blocks:** ticket `move-corrections-to-the-agent`.
-
-2. **Does the older serial Edit become the quiet button now?** (moved here
+1. **Does the older serial Edit become the quiet button now?** (moved here
    from `## Decisions taken` by the orchestrator: the human sent F21 to debt
    at the last merge gate on 2026-10-14, so reversing it is theirs.) On the
    Agent's Fleet rows the serial Edit is the coloured chip while the four new

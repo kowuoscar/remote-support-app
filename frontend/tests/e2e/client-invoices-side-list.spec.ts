@@ -240,6 +240,50 @@ test.describe("client invoices side list", () => {
   });
 });
 
+test.describe("client invoices side list row layout", () => {
+  test("name left and badge right on one line; a 60-character name is cut, the row stays one line (side-list-row-one-line)", async ({ page }) => {
+    const longName = `Sidelong ${RUN_ID} `.padEnd(60, "x");
+    expect(longName).toHaveLength(60);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await createClientAndContractWithSeededAgent(page, longName);
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/agent/client-invoices");
+    const clients = page.getByRole("navigation", { name: "Clients" });
+    await expect.poll(async () => (await clients.boundingBox())?.width).toBe(256);
+
+    const rows = clients.getByRole("link");
+    const count = await rows.count();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+      const row = rows.nth(i);
+      const nameBox = await row.locator("span[title]").boundingBox();
+      const badgeBox = await row.getByText(/^(Draft|Awaiting approval|Approved|Sent back)$/).first().boundingBox();
+      const rowBox = await row.boundingBox();
+      // Name and badge share a line; the name is on the left, the badge inside the right inset.
+      expect(nameBox!.y).toBeLessThan(badgeBox!.y + badgeBox!.height);
+      expect(badgeBox!.y).toBeLessThan(nameBox!.y + nameBox!.height);
+      expect(badgeBox!.x).toBeGreaterThanOrEqual(nameBox!.x + nameBox!.width);
+      expect(badgeBox!.x + badgeBox!.width).toBeLessThanOrEqual(rowBox!.x + rowBox!.width - 8);
+    }
+
+    const longRow = clients.getByRole("link", { name: `${longName} Draft`, exact: true });
+    const longNameEl = longRow.locator("span[title]");
+    await expect(longNameEl).toHaveAttribute("title", longName);
+    expect(await longNameEl.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+    const longBox = await longRow.boundingBox();
+    const nameBox = await longNameEl.boundingBox();
+    const badgeBox = await longRow.getByText("Draft", { exact: true }).boundingBox();
+    // One line high: the badge's line plus the row's vertical padding (py-2), no more.
+    expect(longBox!.height).toBeLessThanOrEqual(badgeBox!.height + 16 + 1);
+    expect(nameBox!.height).toBeLessThanOrEqual(badgeBox!.height);
+    expect(badgeBox!.x + badgeBox!.width).toBeLessThanOrEqual(longBox!.x + longBox!.width - 8);
+    expect(badgeBox!.x).toBeGreaterThanOrEqual(longBox!.x);
+  });
+});
+
 test.describe("client invoices side list row status", () => {
   test("each row reads Draft on arrival (side-list-row-status)", async ({ page }) => {
     const first = `Sidestatus Alpha ${RUN_ID}`;

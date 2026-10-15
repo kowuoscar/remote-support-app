@@ -32,6 +32,16 @@ const ROLES = {
     invoices: true,
     failingInvoiceContract: "22222222-0000-0000-0000-0000000000d2",
   },
+  // side-list-row-one-line: the same failing invoice, but the earlier sent-back invoice of that
+  // Contract stays listed, so its row carries the "Sent back" mark with no status badge.
+  "visual-agent-invoice-failed-marked-session": {
+    username: "agent@example.com",
+    role: "AGENT",
+    country: "UNITED_STATES",
+    invoices: true,
+    failingInvoiceContract: "22222222-0000-0000-0000-0000000000d2",
+    keepSentBackMark: true,
+  },
   // real-agent-dashboard: an Agent login that is linked to no Agent record (GET /api/me/agent is
   // 404), and one whose identity read fails outright (500). Not captured as goldens; the
   // not-linked and page-level failure states are asserted in surfaces.spec.ts.
@@ -716,7 +726,7 @@ createServer((request, response) => {
     // "Awaiting approval" plus the "Sent back" mark; oldest first, as the API returns them.
     const sent = INVOICE_CONTRACTS[1];
     // The failing session leaves it out, so its failed row keeps pinning "no status badge" alone.
-    const earlier = caller.failingInvoiceContract ? [] : [
+    const earlier = caller.failingInvoiceContract && !caller.keepSentBackMark ? [] : [
       {
         id: "99999999-0000-0000-0000-0000000000a2",
         contractId: sent.id,

@@ -1,0 +1,4 @@
+1280px Postpaid SIM Cards: {"scrollWidth":720,"clientWidth":692,"wrapperRight":1235,"elementsPastWrapperEdge":["TH:Billed right=1262","P:Edited · computed $65.00 right=1246","P:Edited · computed $80.00 right=1246"]}
+1280px Fee lines: {"scrollWidth":720,"clientWidth":692,"wrapperRight":1235,"elementsPastWrapperEdge":["TH:Billed right=1262","P:Edited · computed $30.00 right=1246"]}
+1440px Postpaid SIM Cards: {"scrollWidth":852,"clientWidth":852,"wrapperRight":1395,"elementsPastWrapperEdge":[]}
+1440px Fee lines: {"scrollWidth":852,"clientWidth":852,"wrapperRight":1395,"elementsPastWrapperEdge":[]}

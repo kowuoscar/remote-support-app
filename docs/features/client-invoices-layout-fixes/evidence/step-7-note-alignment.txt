@@ -1,0 +1,35 @@
+1279px
+  {"text":"Edited · computed $65.00","textAlign":"right","textLeft":942,"textRight":1090,"firstColumnLeft":302,"rowRight":1233}
+  {"text":"Edited · computed $80.00","textAlign":"right","textLeft":942,"textRight":1090,"firstColumnLeft":302,"rowRight":1233}
+  {"text":"Cancelled Oct 15, 2026 — still billed th","textAlign":"start","textLeft":302,"textRight":621,"firstColumnLeft":302,"rowRight":1233}
+  {"text":"Logged Oct 15","textAlign":"start","textLeft":302,"textRight":384,"firstColumnLeft":302,"rowRight":1233}
+  {"text":"Logged Oct 15","textAlign":"start","textLeft":302,"textRight":384,"firstColumnLeft":302,"rowRight":1233}
+  {"text":"Edited · computed $30.00","textAlign":"right","textLeft":942,"textRight":1090,"firstColumnLeft":302,"rowRight":1233}
+1024px
+  {"text":"Edited · computed $65.00","textAlign":"right","textLeft":687,"textRight":835,"firstColumnLeft":302,"rowRight":978}
+  {"text":"Edited · computed $80.00","textAlign":"right","textLeft":687,"textRight":835,"firstColumnLeft":302,"rowRight":978}
+  {"text":"Cancelled Oct 15, 2026 — still billed th","textAlign":"start","textLeft":302,"textRight":621,"firstColumnLeft":302,"rowRight":978}
+  {"text":"Logged Oct 15","textAlign":"start","textLeft":302,"textRight":384,"firstColumnLeft":302,"rowRight":978}
+  {"text":"Logged Oct 15","textAlign":"start","textLeft":302,"textRight":384,"firstColumnLeft":302,"rowRight":978}
+  {"text":"Edited · computed $30.00","textAlign":"right","textLeft":687,"textRight":835,"firstColumnLeft":302,"rowRight":978}
+768px
+  {"text":"Edited · computed $65.00","textAlign":"right","textLeft":558,"textRight":706,"firstColumnLeft":302,"rowRight":722}
+  {"text":"Edited · computed $80.00","textAlign":"right","textLeft":558,"textRight":706,"firstColumnLeft":302,"rowRight":722}
+  {"text":"Cancelled Oct 15, 2026 — still billed th","textAlign":"start","textLeft":302,"textRight":621,"firstColumnLeft":302,"rowRight":722}
+  {"text":"Logged Oct 15","textAlign":"start","textLeft":302,"textRight":384,"firstColumnLeft":302,"rowRight":722}
+  {"text":"Logged Oct 15","textAlign":"start","textLeft":302,"textRight":384,"firstColumnLeft":302,"rowRight":722}
+  {"text":"Edited · computed $30.00","textAlign":"right","textLeft":558,"textRight":706,"firstColumnLeft":302,"rowRight":722}
+390px
+  {"text":"Edited · computed $65.00","textAlign":"right","textLeft":188,"textRight":336,"firstColumnLeft":54,"rowRight":352}
+  {"text":"Edited · computed $80.00","textAlign":"right","textLeft":188,"textRight":336,"firstColumnLeft":54,"rowRight":352}
+  {"text":"Cancelled Oct 15, 2026 — still billed th","textAlign":"start","textLeft":54,"textRight":263,"firstColumnLeft":54,"rowRight":352}
+  {"text":"Logged Oct 15","textAlign":"start","textLeft":54,"textRight":136,"firstColumnLeft":54,"rowRight":352}
+  {"text":"Logged Oct 15","textAlign":"start","textLeft":54,"textRight":136,"firstColumnLeft":54,"rowRight":352}
+  {"text":"Edited · computed $30.00","textAlign":"right","textLeft":188,"textRight":336,"firstColumnLeft":54,"rowRight":352}
+375px
+  {"text":"Edited · computed $65.00","textAlign":"right","textLeft":173,"textRight":321,"firstColumnLeft":54,"rowRight":337}
+  {"text":"Edited · computed $80.00","textAlign":"right","textLeft":173,"textRight":321,"firstColumnLeft":54,"rowRight":337}
+  {"text":"Cancelled Oct 15, 2026 — still billed th","textAlign":"start","textLeft":54,"textRight":229,"firstColumnLeft":54,"rowRight":337}
+  {"text":"Logged Oct 15","textAlign":"start","textLeft":54,"textRight":136,"firstColumnLeft":54,"rowRight":337}
+  {"text":"Logged Oct 15","textAlign":"start","textLeft":54,"textRight":136,"firstColumnLeft":54,"rowRight":337}
+  {"text":"Edited · computed $30.00","textAlign":"right","textLeft":173,"textRight":321,"firstColumnLeft":54,"rowRight":337}

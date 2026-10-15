@@ -1,0 +1,2 @@
+1440px: screenshots byte-identical=true (main 103001 B, branch 103001 B); aria snapshots identical=true
+375px: screenshots byte-identical=true (main 77307 B, branch 77307 B); aria snapshots identical=true

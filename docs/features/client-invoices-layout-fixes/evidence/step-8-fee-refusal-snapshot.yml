@@ -1,0 +1,11 @@
+- row "Topup Logged Oct 15 Billed amount for Topup Fee, Oct 15 (USD) abc Save Cancel":
+  - cell "Topup"
+  - cell
+  - cell "Logged Oct 15"
+  - cell "Billed amount for Topup Fee, Oct 15 (USD) abc Save Cancel":
+    - text: Billed amount for Topup Fee, Oct 15 (USD)
+    - textbox "Billed amount for Topup Fee, Oct 15 (USD)" [invalid]: abc
+    - button "Save"
+    - button "Cancel"
+    - alert: Enter an amount of zero or more, with at most two decimals.
+    - status

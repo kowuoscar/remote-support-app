@@ -1,0 +1,8 @@
+- row "+1-555-0102 $31.40 Edit Reset Edited · computed $80.00":
+  - cell "+1-555-0102"
+  - cell "$31.40 Edit Reset Edited · computed $80.00":
+    - text: $31.40
+    - button "Edit"
+    - button "Reset"
+    - paragraph: Edited · computed $80.00
+    - status: SIM +1-555-0102 saved.

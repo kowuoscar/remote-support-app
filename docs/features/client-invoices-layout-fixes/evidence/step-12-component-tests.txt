@@ -1,0 +1,10 @@
+
+ RUN  v4.1.11 /Users/oscar/myspace/projects/remote-support-app/frontend
+
+Not implemented: navigation to another Document
+
+ Test Files  2 passed (2)
+      Tests  78 passed (78)
+   Start at  16:00:54
+   Duration  1.76s (transform 182ms, setup 322ms, import 250ms, tests 1.38s, environment 1.06s)
+

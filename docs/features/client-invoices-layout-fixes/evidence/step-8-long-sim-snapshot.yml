@@ -1,0 +1,6 @@
+- row "+441234567890123456789012345678901234567890123456789012345678901 Cancelled Oct 15, 2026 — still billed through this month $60.00 Edit":
+  - cell "+441234567890123456789012345678901234567890123456789012345678901 Cancelled Oct 15, 2026 — still billed through this month"
+  - cell "$60.00 Edit":
+    - text: $60.00
+    - button "Edit"
+    - status

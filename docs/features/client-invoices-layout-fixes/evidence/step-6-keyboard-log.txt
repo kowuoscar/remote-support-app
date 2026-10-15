@@ -1,0 +1,12 @@
+Tab presses from "Attach carrier invoice file" to reach SIM +1-555-0102 Edit: 4
+stop 1: Edit focused by Tab: {"tag":"BUTTON","name":"Edit","type":"button","focusVisible":true,"outline":"solid 2px rgb(69, 80, 106)","boxShadow":"none"}
+stop 2: editor opened, field focused: {"tag":"INPUT","name":"","type":null,"focusVisible":true,"outline":"solid 2px rgb(11, 18, 32)","boxShadow":"none"}
+field {"x":998.4375,"y":386.421875,"width":112,"height":28} save {"x":1116.4375,"y":386.421875,"width":55.296875,"height":28} cancel {"x":1177.734375,"y":386.421875,"width":68.265625,"height":28} cell {"x":942.8125,"y":373.921875,"width":319.1875,"height":53}
+refusal: "amount must not be negative" box {"x":1059.78125,"y":420.421875,"width":186.21875,"height":17.140625} fieldBox {"x":998.4375,"y":386.421875,"width":112,"height":28} fieldValue=-5
+stop 3: after refused -5, focus in field: {"tag":"INPUT","name":"","type":null,"focusVisible":true,"outline":"solid 2px rgb(83, 58, 253)","boxShadow":"none"}
+stop 4: after Escape, focus back on Edit: {"tag":"BUTTON","name":"Edit","type":"button","focusVisible":true,"outline":"solid 2px rgb(69, 80, 106)","boxShadow":"none"}
+stop 5: after save, focus on Edit: {"tag":"BUTTON","name":"Edit","type":"button","focusVisible":true,"outline":"solid 2px rgb(83, 58, 253)","boxShadow":"none"}
+saved row: +1-555-0102 $31.40 Edit Reset Edited · computed $80.00 SIM +1-555-0102 saved.
+fleet url: http://127.0.0.1:13000/agent/fleet
+fleet SIM edit buttons: Edit | Edit | Retire
+fleet editor open: field {"x":281,"y":658.40625,"width":26,"height":36}; buttons [{"t":"Save","l":null,"box":{"x":313,"y":662.40625,"width":54.4375,"height":28,"top":662.40625,"right":367.4375,"bottom":690.40625,"left":313}},{"t":"Cancel","l":null,"box":{"x":373.4375,"y":662.40625,"width":67.609375,"height":28,"top":662.40625,"right":441.046875,"bottom":690.40625,"left":373.4375}},{"t":"Edit","l":"Edit plan for +1-555-0102","box":{"x":661.203125,"y":662.40625,"width":47.578125,"height":28,"top":662.40625,"right":708.78125,"bottom":690.40625,"left":661.203125}},{"t":"Retire","l":null,"box":{"x":1201.15625,"y":662.40625,"width":60,"height":28,"top":662.40625,"right":1261.15625,"bottom":690.40625,"left":1201.15625}}]

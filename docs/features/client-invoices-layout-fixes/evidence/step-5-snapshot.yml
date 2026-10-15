@@ -1,0 +1,54 @@
+# Postpaid SIM Cards
+- table:
+  - rowgroup:
+    - row "Number Billed":
+      - columnheader "Number"
+      - columnheader "Billed"
+  - rowgroup:
+    - row "+1-555-0101 $70.50 Edit Reset Edited · computed $65.00":
+      - cell "+1-555-0101"
+      - cell "$70.50 Edit Reset Edited · computed $65.00":
+        - text: $70.50
+        - button "Edit"
+        - button "Reset"
+        - paragraph: Edited · computed $65.00
+        - status
+    - row "+1-555-0102 $80.00 Edit":
+      - cell "+1-555-0102"
+      - cell "$80.00 Edit":
+        - text: $80.00
+        - button "Edit"
+        - status
+    - row "+1-555-0103 Cancelled Oct 15, 2026 — still billed through this month $60.00 Edit":
+      - cell "+1-555-0103 Cancelled Oct 15, 2026 — still billed through this month"
+      - cell "$60.00 Edit":
+        - text: $60.00
+        - button "Edit"
+        - status
+# Fee lines
+- table:
+  - rowgroup:
+    - row "Type Description Logged Billed":
+      - columnheader "Type"
+      - columnheader "Description"
+      - columnheader "Logged"
+      - columnheader "Billed"
+  - rowgroup:
+    - row "Topup Topup 25 GB data for the pilot handsets Oct 15 $45.00 Edit":
+      - cell "Topup"
+      - cell "Topup 25 GB data for the pilot handsets"
+      - cell "Oct 15"
+      - cell "$45.00 Edit":
+        - text: $45.00
+        - button "Edit"
+        - status
+    - row "Topup — Oct 15 $27.25 Edit Reset Edited · computed $30.00":
+      - cell "Topup"
+      - cell "—"
+      - cell "Oct 15"
+      - cell "$27.25 Edit Reset Edited · computed $30.00":
+        - text: $27.25
+        - button "Edit"
+        - button "Reset"
+        - paragraph: Edited · computed $30.00
+        - status

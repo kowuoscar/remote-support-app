@@ -1,0 +1,54 @@
+- main:
+  - navigation "Breadcrumb":
+    - link "Client Invoices":
+      - /url: /agent/client-invoices?contract=c0f29613-df02-4ad0-94fa-472c7e38cef7
+    - text: Solstice Retail Group — United States · September 2026
+  - region "Sent back by the Manager on Oct 15, 2026":
+    - heading "Sent back by the Manager on Oct 15, 2026" [level=2]
+    - paragraph: Please recheck the September SIM fees against the carrier invoice.
+    - paragraph: Correct what is needed, then send it again.
+  - paragraph: September 2026
+  - text: Sent back
+  - paragraph: This Contract’s postpaid base amount plus that month’s Fees — open to your corrections
+  - button "Attach carrier invoice"
+  - button "Attach carrier invoice file"
+  - button "Send Client Invoice"
+  - term: Base amount
+  - definition: $65.99
+  - term: Fees this month
+  - definition: $18.00
+  - term: Total
+  - definition: $83.99
+  - paragraph: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+  - heading "Postpaid SIM Cards" [level=3]
+  - table:
+    - rowgroup:
+      - row "Number Billed":
+        - columnheader "Number"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "+1-202-555-0102 $65.99 Edit":
+        - cell "+1-202-555-0102"
+        - cell "$65.99 Edit":
+          - text: $65.99
+          - button "Edit"
+          - status
+  - heading "Fee lines" [level=3]
+  - table:
+    - rowgroup:
+      - row "Type Description Logged Billed":
+        - columnheader "Type"
+        - columnheader "Description"
+        - columnheader "Logged"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "Other On-site device check Sep 4 $18.00 Edit":
+        - cell "Other"
+        - cell "On-site device check"
+        - cell "Sep 4"
+        - cell "$18.00 Edit":
+          - text: $18.00
+          - button "Edit"
+          - status
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached yet.

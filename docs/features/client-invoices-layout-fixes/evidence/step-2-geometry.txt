@@ -1,0 +1,37 @@
+{
+  "info": {
+    "text": "Extraordinarily Long Client Name Holdings International Ltd.",
+    "title": "Extraordinarily Long Client Name Holdings International Ltd.",
+    "scrollW": 404,
+    "clientW": 136,
+    "overflow": "ellipsis"
+  },
+  "nameBox": {
+    "x": 264,
+    "y": 158.5,
+    "width": 136.296875,
+    "height": 20
+  },
+  "badgeBox": {
+    "x": 408.296875,
+    "y": 155.5,
+    "width": 62.703125,
+    "height": 26
+  },
+  "rowBox": {
+    "x": 252,
+    "y": 147.5,
+    "width": 231,
+    "height": 42
+  },
+  "navBox": {
+    "x": 240,
+    "y": 56,
+    "width": 256,
+    "height": 844
+  },
+  "badgeText": "Draft",
+  "rowHeight": 42,
+  "badgeInsideRow": true,
+  "overlap": 20
+}

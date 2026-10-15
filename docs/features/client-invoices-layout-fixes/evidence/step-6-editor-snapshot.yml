@@ -1,0 +1,8 @@
+- row "+1-555-0102 Billed amount for SIM +1-555-0102 (USD) 80.00 Save Cancel":
+  - cell "+1-555-0102"
+  - cell "Billed amount for SIM +1-555-0102 (USD) 80.00 Save Cancel":
+    - text: Billed amount for SIM +1-555-0102 (USD)
+    - textbox "Billed amount for SIM +1-555-0102 (USD)": "80.00"
+    - button "Save"
+    - button "Cancel"
+    - status

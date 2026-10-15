@@ -1,0 +1,17 @@
+- row "+1-555-0102 Save Cancel Verizon Unlimited Plus Edit plan for +1-555-0102 Postpaid $80.00 Active Not installed Retire":
+  - cell "+1-555-0102 Save Cancel":
+    - textbox "SIM number": +1-555-0102
+    - button "Save"
+    - button "Cancel"
+  - cell "Verizon"
+  - cell "Unlimited Plus Edit plan for +1-555-0102":
+    - text: Unlimited Plus
+    - button "Edit plan for +1-555-0102": Edit
+  - cell "Postpaid"
+  - cell "$80.00"
+  - cell "Active"
+  - cell "Not installed":
+    - combobox "Installed in":
+      - option "Not installed" [selected]
+  - cell "Retire":
+    - button "Retire"

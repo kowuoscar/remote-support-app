@@ -1,0 +1,58 @@
+$ git log --oneline --stat main..HEAD -- DESIGN.md frontend/components frontend/tests/visual/__screenshots__
+== 273fb13 feat(invoice-lines-layout): lay out invoice lines inline at xl and as one-column rows below
+DESIGN.md
+frontend/components/agent/agent-client-invoice-card.tsx
+frontend/components/agent/client-invoices-view.test.tsx
+frontend/components/agent/edit-client-invoice-line-control.test.tsx
+frontend/components/agent/edit-client-invoice-line-control.tsx
+frontend/components/agent/invoice-line-table.tsx
+frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-dark.png
+frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-light.png
+frontend/tests/visual/__screenshots__/agent-client-invoices-mobile-dark.png
+frontend/tests/visual/__screenshots__/agent-client-invoices-mobile-light.png
+== 54a4450 feat(side-list-row-one-line): lay each side list row out as one line, name left and status right
+DESIGN.md
+frontend/components/agent/contract-side-list.tsx
+frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-dark.png
+frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-light.png
+
+$ git diff main -- DESIGN.md
+diff --git a/DESIGN.md b/DESIGN.md
+index 132e9e5..19f05a3 100644
+--- a/DESIGN.md
++++ b/DESIGN.md
+@@ -163,7 +163,7 @@ A restrained palette: two neutral scales (canvas, ink) carry nearly everything;
+ 
+ Shared three-surface app shell: a fixed 240px left nav rail (`NavRail`, same width/styling/active-state treatment on all three surfaces, only the item list changes per role) and a sticky 56px top bar (title, viewer identity chip, theme toggle). The chip is the trigger for the viewer's actions **Menu** (self-service-password-change spec): Change password and Log out live inside it, and no standalone log-out control sits beside it. Below the `md` breakpoint the rail becomes an off-canvas drawer (fixed, translated off-screen, slid in over a `bg-ink/40` backdrop via a mobile-nav toggle in the top bar) rather than collapsing to icons-only. At `md`+ the rail is `sticky`/full-viewport-height with no internal scroll container, so the document — not an inner `<main>` — scrolls, keeping the rail and top bar in view. The one inner scroll container is the Agent's Client Invoices **Contract side list** (below); the document still scrolls the invoice area beside it.
+ 
+-Dashboards use a responsive stat-card grid (3-column on Manager, up to 4 on Agent, 2 on Client — count follows the surface's own metrics, not a fixed template) followed by a linking preview list into the relevant full table. Tables scroll horizontally on narrow viewports (`min-w-[720px]` inside an `overflow-x-auto` wrapper) rather than reflowing to cards.
++Dashboards use a responsive stat-card grid (3-column on Manager, up to 4 on Agent, 2 on Client — count follows the surface's own metrics, not a fixed template) followed by a linking preview list into the relevant full table. Tables scroll horizontally on narrow viewports (`min-w-[720px]` inside an `overflow-x-auto` wrapper) rather than reflowing to cards — except the Agent's Client Invoice lines (Postpaid SIM Cards, Fee lines), which below `xl` reflow to a one-column list of rows (what and amount, then details and actions), keeping their table semantics (client-invoices-layout-fixes spec).
+ 
+ Spacing runs a tight, consistent rhythm: `4/8/12/16/20px` steps. Stat cards and cards use `20px` (p-5) internal padding; table cells use `16px`/`10px` (px-4/py-2.5–3); nav items use `12px`/`8px` (px-3/py-2); button height is `36px` (md) or `28px` (sm, row actions).
+ 
+@@ -196,6 +196,7 @@ Two radius steps carry the whole system: `8px` (`rounded-lg`, Tailwind) for ever
+ - **Ghost:** transparent, `text-ink-secondary`, hover fills `canvas-soft` and darkens text to `ink`.
+ - **Danger:** `bg-danger`, white text, brightness-shift on hover/active.
+ - **Row** (inline record actions): soft-indigo tone (`primary-soft-bg`/`primary-soft-text`) at the 8px control radius — indigo used here as a low-emphasis tint, not the reserved primary-action pill.
++- **Inline corrections** (Fleet units, Client Invoice lines): the value with a `ghost` `sm` Edit beside it. Editing is the field, a `row` Save and a `ghost` Cancel on one line, with the refusal below.
+ 
+ ### Badges
+ - **Style:** pill-shaped (`rounded-full`), small dot + label, `px-2.5 py-0.5`, `text-xs font-medium`. Six tones map 1:1 to semantic colors (`success`/`warning`/`danger`/`info`/`neutral`/`primary`), driven centrally by `lib/status.ts`'s status→tone maps (Request, Smartphone, SIM, Client Invoice, Agent Invoice statuses) so status color is never chosen ad hoc per screen.
+@@ -224,7 +225,7 @@ A dropdown — explicitly never a tab set — that scopes Requests/Fleet and, be
+ A column of the Agent's Contracts, by Client name, beside the invoice on the Agent's Client Invoices page at `xl` (1280px) and wider only (client-invoices-side-list spec). It exists there, and nowhere else, because that page is a monthly task done Contract after Contract, where seeing every Client at once beats a dropdown; below `xl` the rail plus the column would leave the invoice under 720px, so the Contract Switcher stays. The page's other consumers (Requests, Fleet, the Tester's pages) keep the Switcher at every width, and the side list is not a shared shell component.
+ - **Shape:** `nav` landmark "Clients" with a small `text-label` / `ink-mute` heading, one link per Contract in alphabetical order (Client name, then Country). A plain click swaps the invoice in place; a modified click opens the link's `href`.
+ - **Column:** 256px wide, flush against the rail, `canvas` (not the rail's `canvas-soft`) with one `hairline` right border and no shadow. Sticky directly under the 56px top bar, as tall as the viewport minus that bar, scrolling on its own.
+-- **Row:** `px-3 py-2`, 8px radius, `text-sm font-medium`, `ink-secondary` at rest and `canvas-soft` on hover. The name takes the row's full width, wraps to at most two lines (clamped, full name in `title`) so it never widens the column; below it a meta line (wrapping, never widening the column) holds the Country (`text-label-sm`, `ink-mute`) only when two of the Agent's Contracts share a Client name, then the month's Client Invoice status as the existing `Badge` of `clientInvoiceBadge` (Draft, Awaiting approval, Approved, Sent back — the same label and tone as the invoice card), on every row except one whose invoice failed to load, which shows no badge. After the badge, a Contract the Agent's "Sent back to you" list holds an invoice of (any billing month) carries a second, warning-toned `Badge` reading "Sent back", with `IconAlertTriangle` (`h-3 w-3`) in place of the dot: the mark that tells the Agent who needs correcting. Never twice: a row whose own badge already reads "Sent back" (this month's invoice was sent back) shows no mark; a row whose invoice failed to load shows the mark alone. The mark is the same label and tone as the badge (differing only in the icon), so the two never sit side by side. Rows keep their rhythm whatever their height.
++- **Row:** `px-3 py-2`, 8px radius, `text-sm font-medium`, `ink-secondary` at rest and `canvas-soft` on hover. A two-column grid (name, then badges): the name is on the left of line 1 on one line, cut with "…" when too long (full name in `title`), so it never widens the column; the month's Client Invoice status as the existing `Badge` of `clientInvoiceBadge` (Draft, Awaiting approval, Approved, Sent back — the same label and tone as the invoice card) sits on the right of the same line, at least 8px from the name and never shrinking, on every row except one whose invoice failed to load, which shows no badge. A second line appears only when there is something for it: the Country (`text-label-sm`, `ink-mute`, under the name) when two of the Agent's Contracts share a Client name, and, under the status and right-aligned with it, a second, warning-toned `Badge` reading "Sent back" with `IconAlertTriangle` (`h-3 w-3`) in place of the dot, on a Contract the Agent's "Sent back to you" list holds an invoice of (any billing month): the mark that tells the Agent who needs correcting. Never twice: a row whose own badge already reads "Sent back" shows no mark; a row whose invoice failed to load shows the mark alone, on line 1 in the status's place. The accessible name order is unchanged (name, Country, status, mark): the grid places the parts, the DOM order does not move.
+ - **Selected row:** `aria-current="true"` and the soft-indigo tone (`primary-soft-bg` / `primary-soft-text`), the same "current selection" role as the rail's active item and the Switcher's selected option.
+ 
+ ### Menu
+
+== hunks of DESIGN.md in 54a4450
+@@ -227 +227 @@ A column of the Agent's Contracts, by Client name, beside the invoice on the Age
++- **Row:** `px-3 py-2`, 8px radius, `text-sm font-medium`, `ink-secondary` at rest and `canvas-soft` on hover
+== hunks of DESIGN.md in 273fb13
+@@ -166 +166 @@ Shared three-surface app shell: a fixed 240px left nav rail (`NavRail`, same wid
+@@ -198,0 +199 @@ Two radius steps carry the whole system: `8px` (`rounded-lg`, Tailwind) for ever
++Dashboards use a responsive stat-card grid (3-column on Manager, up to 4 on Agent, 2 on Client — count follow
++- **Inline corrections** (Fleet units, Client Invoice lines): the value with a `ghost` `sm` Edit beside it. E

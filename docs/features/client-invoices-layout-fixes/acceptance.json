@@ -1,0 +1,106 @@
+{
+  "feature": "client-invoices-layout-fixes",
+  "played_at": "2026-10-15",
+  "played_on": "feature/client-invoices-layout-fixes @ 1ab4041",
+  "environment": "Isolated: Postgres container rsa-acc-pg on 15432, backend demo profile on 18080, frontend next start on 13000; a main build on 13001 for step 11; all torn down; rsa-prod untouched",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1-geometry.txt",
+      "note": ""
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2-geometry.txt",
+      "note": ""
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3-geometry.json",
+      "note": ""
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4-mark-geometry.json",
+      "note": "Name cut hard with two badges ('Solstic…'), full name in title."
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5-geometry.json",
+      "note": "Amount and Edit on one line, amounts aligned at 1280; but the line table scrolls sideways at exactly 1280 (692px wrapper vs 720px minimum), clipping the notes and Cancel (F17)."
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6-keyboard-log.txt",
+      "note": ""
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "failed",
+      "evidence": "evidence/step-7-geometry.json",
+      "note": "Edited note right-aligned at all five widths instead of left (F15, same cause as F1); everything else passed, no sideways scroll."
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8-log.txt",
+      "note": ""
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9-log.jsonl",
+      "note": ""
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-10-chromium-1440.yml",
+      "note": ""
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-11-compare.txt",
+      "note": ""
+    },
+    {
+      "step": 12,
+      "actor": "agent",
+      "status": "failed",
+      "evidence": "evidence/step-12-design-diff.txt",
+      "note": "DESIGN.md diff, visual suite 114/114 with only the four goldens, component tests passed; verify not finished (runner out of turns) (F16)."
+    },
+    {
+      "step": 13,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 14,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    }
+  ]
+}

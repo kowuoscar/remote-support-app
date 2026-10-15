@@ -1,0 +1,34 @@
+- main:
+  - navigation "Breadcrumb":
+    - link "Invoices":
+      - /url: /manager/invoices
+    - text: Aurora Acc — Jordan Ellis
+  - heading "October 2026" [level=2]
+  - text: Awaiting approval
+  - paragraph: Base amount and Fee lines are locked to what the Agent sent
+  - paragraph: Sent Oct 15, 2026
+  - link "Download PDF":
+    - /url: /api/client-invoices/28dfe082-6bd1-46fb-9498-7e5455680768/pdf
+  - button "Send back"
+  - button "Approve"
+  - term: Base amount
+  - definition: $161.90
+  - term: Fees
+  - definition: $75.00
+  - term: Total
+  - definition: $236.90
+  - heading "Postpaid SIM Cards" [level=3]
+  - list "Postpaid SIM Cards":
+    - listitem:
+      - text: +1-555-0101 $70.50
+      - paragraph: Edited · computed $65.00
+    - listitem:
+      - text: +1-555-0102 $31.40
+      - paragraph: Edited · computed $80.00
+    - listitem: +441234567890123456789012345678901234567890123456789012345678901 Cancelled Oct 15, 2026 — still billed through this month $60.00
+  - heading "Fee lines" [level=3]
+  - list:
+    - listitem: Topup — Topup 25 GB data for the pilot handsets $45.00
+    - listitem: Topup $30.00
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached.

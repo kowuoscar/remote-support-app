@@ -631,23 +631,11 @@ tested at the highest seam that can see it.
 - **Three tickets in a line, not in parallel.** Reason: all three move the
   same four goldens, and the second and third edit the same control.
 
+- **(answered by the human, 2026-10-15: "ok")** When a row has both its month's status and the "Sent back" mark, the status stays on the name's line, on the right, and the mark goes on a second line, right-aligned under it. Reason: every row's status sits in the same place down the column and the name keeps some room.
+
 ## Open questions
 
-1. **When a side list row has both its month's status (e.g. "Awaiting
-   approval") and the "Sent back" mark, where does the mark go?** In the
-   256px column, both chips together take about 250px of the row's 208px
-   before the name gets any space. Your rule "chip on the same line" cannot
-   hold for both chips at once.
-   - **Recommendation:** the status stays on the name's line, on the right.
-     The "Sent back" mark goes on a second line, right-aligned under it.
-     Every row's status then sits in the same place down the column, and the
-     name keeps some room on line 1.
-   - **Alternatives:** the mark on line 1 and the status on line 2, which
-     puts urgency first but breaks the status column; or an icon-only
-     triangle mark beside the status, which is compact but leaves the name
-     nearly no room beside "Awaiting approval".
-   - **How you'll check it:** walkthrough step 4.
-   - **Blocks:** ticket `side-list-row-one-line` only.
+None.
 
 ## Acceptance walkthrough
 

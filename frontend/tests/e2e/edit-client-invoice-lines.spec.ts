@@ -2,12 +2,14 @@ import { test, expect, type Locator, type Page } from "@playwright/test";
 import {
   SEEDED_USERS,
   addPostpaidSimCard,
+  addTester,
   addTesterAndSubmitRequestAsAgent,
   createClientAndContractWithSeededAgent,
   login,
   logout,
   rollSeededAgentInvoiceIntoThePast,
   selectClientInvoiceContract,
+  selectContractInSwitcher,
 } from "./helpers";
 
 /**
@@ -148,5 +150,147 @@ test.describe("edit client invoice lines", () => {
     await page.setViewportSize({ width: 375, height: 800 });
     await expect(managerSimRow.getByText("Edited · computed $25.00")).toBeInViewport({ ratio: 1 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+  // invoice-lines-layout: where things sit at 1280 (a table) and below it (one-column rows), and
+  // that nothing scrolls sideways, with a 64-character SIM number and a 500-character Fee description.
+  test("lines-lay-out-inline-at-1280-and-as-one-column-rows-below-it", async ({ page }) => {
+    test.setTimeout(240_000);
+    await rollSeededAgentInvoiceIntoThePast();
+
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Laid Out Lines Client ${RUN_ID}`;
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const shortNumber = `+1-555-${RUN_ID.slice(-4)}`;
+    const longNumber = `+${RUN_ID.replace(/\D/g, "")}${"7".repeat(64)}`.slice(0, 64);
+    await addPostpaidSimCard(page, contractId, shortNumber, "25.00");
+    await addPostpaidSimCard(page, contractId, longNumber, "25.00");
+    const testerEmail = `layout.lines+${RUN_ID}@aurora.example`;
+    const testerPassword = await addTester(page, clientId, testerEmail);
+    expect(testerPassword).not.toBe("");
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/requests");
+    await selectContractInSwitcher(page, clientName);
+    await page.getByRole("button", { name: "Log a fee" }).click();
+    const dialog = page.locator("dialog[open]");
+    await dialog.getByLabel("Tester").selectOption({ label: testerEmail });
+    await dialog.getByLabel("Fee type").selectOption({ label: "Other" });
+    await dialog.getByLabel(/Amount/).fill("12.00");
+    const longDescription = `Replaced the battery ${"and checked the screen ".repeat(22)}`.slice(0, 500);
+    await dialog.getByLabel("Description").fill(longDescription);
+    await dialog.getByRole("button", { name: "Log fee" }).click();
+    await expect(page.getByRole("row", { name: /Other/ })).toContainText("Completed");
+
+    const invoiceId = await page.evaluate(async (id) => {
+      const response = await fetch(`/api/contracts/${id}/client-invoice`);
+      return ((await response.json()) as { id: string }).id;
+    }, contractId);
+    const invoiceUrl = `/agent/client-invoices?contract=${contractId}`;
+    const byIdUrl = `/agent/client-invoices/${invoiceId}`;
+
+    const box = async (locator: Locator) => (await locator.boundingBox())!;
+    const sameLine = (a: { y: number; height: number }, b: { y: number; height: number }) =>
+      a.y < b.y + b.height && b.y < a.y + a.height;
+    const noSidewaysScroll = () =>
+      page.evaluate(() => {
+        const lists = [...document.querySelectorAll('[role="table"]')].map((table) => table.parentElement!);
+        return (
+          document.documentElement.scrollWidth === window.innerWidth &&
+          lists.length === 2 &&
+          lists.every((list) => list.scrollWidth === list.clientWidth)
+        );
+      });
+
+    // 1280: the amount and Edit share a line, the note sits under them, the amounts line up.
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(invoiceUrl);
+    const simRow = page.getByRole("row", { name: new RegExp(shortNumber.replace("+", "\\+")) });
+    const longRow = page.getByRole("row", { name: new RegExp(longNumber.slice(0, 20).replace("+", "\\+")) });
+    const feeRow = page.getByRole("row", { name: /Other/ });
+    await editLine(page, simRow, "31.40");
+    const amount = simRow.getByText("$31.40", { exact: true });
+    const amountBox = await box(amount);
+    expect(sameLine(amountBox, await box(simRow.getByRole("button", { name: "Edit" })))).toBe(true);
+    expect(sameLine(amountBox, await box(simRow.getByRole("button", { name: "Reset" })))).toBe(true);
+    const note = await box(simRow.getByText(/Edited · computed/));
+    expect(note.y).toBeGreaterThanOrEqual(amountBox.y + amountBox.height - 1);
+    const rightEdges = await Promise.all(
+      [amount, longRow.getByText("$25.00", { exact: true }), feeRow.getByText("$12.00", { exact: true })].map(
+        async (locator) => {
+          const b = await box(locator);
+          return Math.round(b.x + b.width);
+        },
+      ),
+    );
+    expect(new Set(rightEdges).size).toBe(1);
+
+    // Editing: the field, Save and Cancel on one line, the refusal below; Escape and Cancel return to Edit.
+    await longRow.getByRole("button", { name: "Edit" }).click();
+    const field = page.getByRole("textbox", { name: /Billed amount for/ });
+    await expect(field).toBeFocused();
+    const fieldBox = await box(field);
+    const saveBox = await box(page.getByRole("button", { name: "Save" }));
+    const cancelBox = await box(page.getByRole("button", { name: "Cancel" }));
+    expect(sameLine(fieldBox, saveBox) && sameLine(saveBox, cancelBox)).toBe(true);
+    expect(saveBox.x).toBeLessThan(cancelBox.x);
+    expect(fieldBox.height).toBeLessThanOrEqual(30);
+    await field.fill("-5");
+    await page.getByRole("button", { name: "Save" }).click();
+    const alert = page.getByRole("alert");
+    await expect(alert).toBeVisible();
+    expect((await box(alert)).y).toBeGreaterThanOrEqual(fieldBox.y + fieldBox.height - 1);
+    await expect(field).toHaveValue("-5");
+    await expect(field).toBeFocused();
+    await page.keyboard.press("Escape");
+    await expect(longRow.getByRole("button", { name: "Edit" })).toBeFocused();
+    await longRow.getByRole("button", { name: "Edit" }).click();
+    await page.getByRole("button", { name: "Cancel" }).click();
+    await expect(longRow.getByRole("button", { name: "Edit" })).toBeFocused();
+
+    // Below 1280: nothing scrolls sideways on either page, long values included.
+    for (const width of [1279, 1024, 768, 390, 375]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const url of [invoiceUrl, byIdUrl]) {
+        await page.goto(url);
+        await expect(page.getByRole("button", { name: "Edit" }).first()).toBeInViewport({ ratio: 1 });
+        expect(await noSidewaysScroll(), `${url} at ${width}`).toBe(true);
+      }
+    }
+
+    // 390: what and amount share line 1, the long values wrap inside their rows, an edit and a Reset work.
+    await page.setViewportSize({ width: 390, height: 900 });
+    await page.goto(invoiceUrl);
+    const phoneSim = page.getByRole("row", { name: new RegExp(shortNumber.replace("+", "\\+")) });
+    const phoneLong = page.getByRole("row", { name: new RegExp(longNumber.slice(0, 20).replace("+", "\\+")) });
+    const phoneFee = page.getByRole("row", { name: /Other/ });
+    expect(sameLine(await box(phoneSim.getByText(shortNumber, { exact: true })), await box(phoneSim.getByText("$31.40", { exact: true })))).toBe(true);
+    expect(sameLine(await box(phoneFee.getByText("Other", { exact: true })), await box(phoneFee.getByText("$12.00", { exact: true })))).toBe(true);
+    for (const row of [phoneSim, phoneLong, phoneFee]) {
+      await row.getByRole("button", { name: "Edit" }).scrollIntoViewIfNeeded();
+      await expect(row.getByRole("button", { name: "Edit" })).toBeInViewport({ ratio: 1 });
+    }
+    const longBox = await box(phoneLong);
+    const longAmount = await box(phoneLong.getByText("$25.00", { exact: true }));
+    expect(longAmount.x + longAmount.width).toBeLessThanOrEqual(longBox.x + longBox.width);
+    await expect(phoneLong.getByText("$25.00", { exact: true })).toBeInViewport({ ratio: 1 });
+    expect((await box(phoneLong.getByText(longNumber, { exact: true }))).height).toBeGreaterThan(30);
+    const description = await box(phoneFee.getByText(longDescription, { exact: true }));
+    const feeBox = await box(phoneFee);
+    expect(description.x + description.width).toBeLessThanOrEqual(feeBox.x + feeBox.width);
+
+    await editLine(page, phoneFee, "9.50");
+    await expect(phoneFee.getByText("$9.50", { exact: true })).toBeVisible();
+    await phoneFee.getByRole("button", { name: "Reset" }).click();
+    await expect(phoneFee.getByText(/Edited · computed/)).toBeHidden();
+    await expect(phoneFee.getByText("$12.00", { exact: true })).toBeVisible();
+    expect(await noSidewaysScroll()).toBe(true);
+
+    // 390 after send: no Edit or Reset, the note stays.
+    await page.getByRole("button", { name: "Send Client Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm send" }).click();
+    await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
+    await expect(page.getByRole("button", { name: /^(Edit|Reset)$/ })).toHaveCount(0);
+    await expect(phoneSim.getByText("Edited · computed $25.00")).toBeVisible();
+    expect(await noSidewaysScroll()).toBe(true);
   });
 });

@@ -163,7 +163,7 @@ A restrained palette: two neutral scales (canvas, ink) carry nearly everything; 
 
 Shared three-surface app shell: a fixed 240px left nav rail (`NavRail`, same width/styling/active-state treatment on all three surfaces, only the item list changes per role) and a sticky 56px top bar (title, viewer identity chip, theme toggle). The chip is the trigger for the viewer's actions **Menu** (self-service-password-change spec): Change password and Log out live inside it, and no standalone log-out control sits beside it. Below the `md` breakpoint the rail becomes an off-canvas drawer (fixed, translated off-screen, slid in over a `bg-ink/40` backdrop via a mobile-nav toggle in the top bar) rather than collapsing to icons-only. At `md`+ the rail is `sticky`/full-viewport-height with no internal scroll container, so the document — not an inner `<main>` — scrolls, keeping the rail and top bar in view. The one inner scroll container is the Agent's Client Invoices **Contract side list** (below); the document still scrolls the invoice area beside it.
 
-Dashboards use a responsive stat-card grid (3-column on Manager, up to 4 on Agent, 2 on Client — count follows the surface's own metrics, not a fixed template) followed by a linking preview list into the relevant full table. Tables scroll horizontally on narrow viewports (`min-w-[720px]` inside an `overflow-x-auto` wrapper) rather than reflowing to cards.
+Dashboards use a responsive stat-card grid (3-column on Manager, up to 4 on Agent, 2 on Client — count follows the surface's own metrics, not a fixed template) followed by a linking preview list into the relevant full table. Tables scroll horizontally on narrow viewports (`min-w-[720px]` inside an `overflow-x-auto` wrapper) rather than reflowing to cards — except the Agent's Client Invoice lines (Postpaid SIM Cards, Fee lines), which below `xl` reflow to a one-column list of rows (what and amount, then details and actions), keeping their table semantics (client-invoices-layout-fixes spec).
 
 Spacing runs a tight, consistent rhythm: `4/8/12/16/20px` steps. Stat cards and cards use `20px` (p-5) internal padding; table cells use `16px`/`10px` (px-4/py-2.5–3); nav items use `12px`/`8px` (px-3/py-2); button height is `36px` (md) or `28px` (sm, row actions).
 
@@ -196,6 +196,7 @@ Two radius steps carry the whole system: `8px` (`rounded-lg`, Tailwind) for ever
 - **Ghost:** transparent, `text-ink-secondary`, hover fills `canvas-soft` and darkens text to `ink`.
 - **Danger:** `bg-danger`, white text, brightness-shift on hover/active.
 - **Row** (inline record actions): soft-indigo tone (`primary-soft-bg`/`primary-soft-text`) at the 8px control radius — indigo used here as a low-emphasis tint, not the reserved primary-action pill.
+- **Inline corrections** (Fleet units, Client Invoice lines): the value with a `ghost` `sm` Edit beside it. Editing is the field, a `row` Save and a `ghost` Cancel on one line, with the refusal below.
 
 ### Badges
 - **Style:** pill-shaped (`rounded-full`), small dot + label, `px-2.5 py-0.5`, `text-xs font-medium`. Six tones map 1:1 to semantic colors (`success`/`warning`/`danger`/`info`/`neutral`/`primary`), driven centrally by `lib/status.ts`'s status→tone maps (Request, Smartphone, SIM, Client Invoice, Agent Invoice statuses) so status color is never chosen ad hoc per screen.

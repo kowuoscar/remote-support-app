@@ -507,6 +507,16 @@ export interface ClientInvoiceBaseSimLine {
   amount?: number;
   computedAmount?: number | null;
   edited?: boolean | null;
+  // The SIM's Carrier's current name (still its name once archived), or null for a SIM with none.
+  // Always sent; optional only so older fixtures stay valid, as `amount` is.
+  carrierName?: string | null;
+}
+
+/** What an invoice SIM line is: "{Carrier} · Postpaid", or "Postpaid" for a SIM with no Carrier. */
+export function simLineKind(line: Pick<ClientInvoiceBaseSimLine, "carrierName">): string {
+  return line.carrierName
+    ? `${line.carrierName} · ${SIM_CARD_FLAVOR_LABEL.POSTPAID}`
+    : SIM_CARD_FLAVOR_LABEL.POSTPAID;
 }
 
 // Mirrors backend/.../dto/ClientInvoiceFeeLineResponse.java — a Fee as the invoice bills it:
@@ -524,9 +534,10 @@ export type EditableClientInvoiceLineKind = "POSTPAID_SIM" | "FEE";
 // (client-invoice-generation ticket); from SENT onward they are read from the frozen snapshot
 // instead (client-invoice-submission-and-visibility ticket) — the shape is identical either way,
 // only where the backend sourced the numbers changes. sentAt/approvedAt are null until each
-// transition happens. basePostpaidSims is the live breakdown behind baseAmount — present only
-// while DRAFT, null from SENT onward since there is no frozen per-unit breakdown to serve (ADR
-// 0001; cancelled-sim-billed-through-its-month ticket).
+// transition happens. basePostpaidSims is the breakdown behind baseAmount — served whenever the
+// base amount is per SIM, at any status; omitted only for an invoice holding a backfilled
+// BASE_AMOUNT line, which has no per-unit breakdown (ADR 0001; cancelled-sim-billed-through-its-month
+// ticket).
 export interface ClientInvoiceDetail {
   id: string;
   contractId: string;

@@ -12,7 +12,7 @@ const NUMBER_MESSAGES: Record<string, string> = {
 
 /**
  * Corrects a SIM Card's number from the Fleet page (correct-a-fleet-unit spec): the Manager and
- * the Client's Testers. Same inline edit-toggle shape as `SmartphoneSerialControl`, no dialog.
+ * the Contract's Agent. Same inline edit-toggle shape as `SmartphoneSerialControl`, no dialog.
  * Trims before sending, refuses a blank value without a request, and keeps what was typed when
  * the backend refuses.
  */

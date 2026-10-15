@@ -289,34 +289,6 @@ test.describe("fleet management", () => {
     await expect(page.getByLabel("Change smartphone status")).toHaveCount(0);
   });
 
-  test("a tester corrects a smartphone's model on their own client's fleet", async ({ page }) => {
-    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const clientName = `Tester Typo Retail ${RUN_ID}`;
-    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
-    await addSmartphone(page, "Galxy S24");
-    const testerEmail = `typo.tester+${RUN_ID}@typo.example`;
-    const testerPassword = await addTester(page, clientId, testerEmail);
-
-    await logout(page);
-    await login(page, testerEmail, testerPassword);
-    await page.goto("/client/fleet");
-    await selectContractInSwitcher(page, clientName);
-
-    const row = page.locator("table").first().locator("tbody tr").first();
-    await row.getByRole("button", { name: "Edit model, Galxy S24", exact: true }).click();
-    await row.getByLabel("Smartphone model").fill("Galaxy S24");
-    await row.getByRole("button", { name: "Save" }).click();
-
-    await expect(page.getByRole("row", { name: /Galaxy S24/ })).toBeVisible();
-    await page.reload();
-    await selectContractInSwitcher(page, clientName);
-    await expect(page.getByRole("row", { name: /Galaxy S24/ })).toBeVisible();
-    // The Tester's Fleet shows no serial or status control.
-    await expect(page.getByLabel("Smartphone serial")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /^Edit serial/ })).toHaveCount(0);
-    await expect(page.getByLabel("Change smartphone status")).toHaveCount(0);
-  });
-
   test("an agent corrects a smartphone's model on their own contract and sees it after a reload", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     // Not "Agent …": the Contract form's getByLabel("Agent") also matches a Client name containing it.
@@ -365,30 +337,6 @@ test.describe("fleet management", () => {
     await expect(row.getByRole("cell", { name: /^Company/ })).toBeVisible();
   });
 
-  test("a tester corrects a smartphone's owner on their own client's fleet", async ({ page }) => {
-    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const clientName = `Tester Owner Retail ${RUN_ID}`;
-    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
-    await addSmartphone(page, "Fairphone 4");
-    const testerEmail = `owner.tester+${RUN_ID}@owner.example`;
-    const testerPassword = await addTester(page, clientId, testerEmail);
-
-    await logout(page);
-    await login(page, testerEmail, testerPassword);
-    await page.goto("/client/fleet");
-    await selectContractInSwitcher(page, clientName);
-
-    const row = page.locator("table").first().locator("tbody tr").first();
-    await row.getByRole("button", { name: "Edit owner of Fairphone 4", exact: true }).click();
-    await row.getByLabel("Owner").selectOption("CLIENT");
-    await row.getByRole("button", { name: "Save" }).click();
-    await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
-
-    await page.reload();
-    await selectContractInSwitcher(page, clientName);
-    await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
-  });
-
   test("an agent corrects a smartphone's owner on their own contract and sees it after a reload", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Own Owner Fleet ${RUN_ID}`;
@@ -435,32 +383,6 @@ test.describe("fleet management", () => {
     await page.reload();
     await expect(page.getByRole("row", { name: /\+44 7700 900123/ })).toBeVisible();
     await expect(page.getByRole("cell", { name: /900100/ })).toHaveCount(0);
-  });
-
-  test("a tester corrects a SIM card's number on their own client's fleet", async ({ page }) => {
-    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const clientName = `Tester Number Retail ${RUN_ID}`;
-    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
-    await addPrepaidSim(page, "+44 7700 900200");
-    const testerEmail = `number.tester+${RUN_ID}@typo.example`;
-    const testerPassword = await addTester(page, clientId, testerEmail);
-
-    await logout(page);
-    await login(page, testerEmail, testerPassword);
-    await page.goto("/client/fleet");
-    await selectContractInSwitcher(page, clientName);
-
-    const row = page.locator("table").filter({ hasText: "Installed in" }).locator("tbody tr").first();
-    await row.getByRole("button", { name: "Edit number, +44 7700 900200", exact: true }).click();
-    await row.getByLabel("SIM number").fill("+44 7700 900223");
-    await row.getByRole("button", { name: "Save" }).click();
-
-    await expect(page.getByRole("row", { name: /\+44 7700 900223/ })).toBeVisible();
-    await page.reload();
-    await selectContractInSwitcher(page, clientName);
-    await expect(page.getByRole("row", { name: /\+44 7700 900223/ })).toBeVisible();
-    // The Tester still gets no Installed-in or status control.
-    await expect(page.getByLabel("Installed in")).toHaveCount(0);
   });
 
   test("an agent corrects a SIM card's number on their own contract and sees it after a reload", async ({ page }) => {
@@ -534,31 +456,80 @@ test.describe("fleet management", () => {
     await expect(simTable(page).locator("tbody tr").first().getByRole("button", { name: /^Edit plan/ })).toHaveCount(0);
   });
 
-  test("a tester corrects a Postpaid SIM's plan on their own client's fleet", async ({ page }) => {
+  // tester-fleet-read-only ticket: a Tester only views their Client's Fleet. A second Contract of the
+  // same Client (same Agent, so the switcher labels match) proves the view holds on every Contract.
+  async function addSecondContract(page: Page, clientName: string, firstContractId: string): Promise<string> {
+    await page.goto("/manager/contracts");
+    await page.getByRole("button", { name: "Add contract" }).first().click();
+    await page.getByLabel("Client").selectOption({ label: clientName });
+    await page.getByLabel("Agent").selectOption({ label: "Jordan Ellis · USD" });
+    await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
+    const links = page.locator('a[href^="/manager/contracts/"]').filter({ hasText: clientName });
+    await expect(links).toHaveCount(2);
+    const hrefs = await links.evaluateAll((anchors) => anchors.map((a) => a.getAttribute("href")!));
+    const second = hrefs.find((href) => !href.endsWith(`/${firstContractId}`))!;
+    await page.goto(second);
+    await expect(page).toHaveURL(/\/manager\/contracts\/.+/);
+    return page.url().split("/").pop()!;
+  }
+
+  async function showContractOfTester(page: Page, index: number) {
+    await page.locator('[aria-haspopup="listbox"]').click();
+    await page.getByRole("option").nth(index).click();
+  }
+
+  test("a tester sees the four values of the smartphones with no Edit", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const clientName = `Tester Plan Retail ${RUN_ID}`;
-    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
-    await addPostpaidSim(page, "+1-555-0320");
-    const testerEmail = `plan.tester+${RUN_ID}@typo.example`;
+    const clientName = `Tester Phones Retail ${RUN_ID}`;
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    await addSmartphone(page, "Galxy S24");
+    await addSecondContract(page, clientName, contractId);
+    await addSmartphone(page, "Fairphone 4");
+    const testerEmail = `phones.tester+${RUN_ID}@typo.example`;
     const testerPassword = await addTester(page, clientId, testerEmail);
 
     await logout(page);
     await login(page, testerEmail, testerPassword);
     await page.goto("/client/fleet");
-    await selectContractInSwitcher(page, clientName);
 
-    const row = simTable(page).locator("tbody tr").first();
-    await row.getByRole("button", { name: "Edit plan for +1-555-0320", exact: true }).click();
-    await row.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: "Unlimited Plus" });
-    // The Tester sees the fee the plan sets before saving, though their table has no fee column.
-    await expect(row).toContainText("$80.00");
-    await row.getByRole("button", { name: "Save", exact: true }).click();
+    const seen: string[] = [];
+    for (const index of [0, 1]) {
+      await showContractOfTester(page, index);
+      const row = page.locator("table").first().locator("tbody tr").first();
+      await expect(row.getByRole("cell", { name: /^Company/ })).toBeVisible();
+      seen.push((await row.getByRole("cell").first().innerText()).trim());
+      await expect(page.getByRole("button", { name: /^Edit / })).toHaveCount(0);
+      await expect(page.getByLabel("Smartphone model")).toHaveCount(0);
+      await expect(page.getByLabel("Owner")).toHaveCount(0);
+      await expect(page.getByLabel("Change smartphone status")).toHaveCount(0);
+    }
+    expect(seen.sort()).toEqual(["Fairphone 4", "Galxy S24"]);
+  });
 
-    await expect(row).toContainText("Unlimited Plus");
-    await page.reload();
-    await selectContractInSwitcher(page, clientName);
-    await expect(simTable(page).locator("tbody tr").first()).toContainText("Unlimited Plus");
-    await expect(page.getByLabel("Installed in")).toHaveCount(0);
+  test("a tester sees the four values of the SIM cards with no Edit", async ({ page }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Tester Sims Retail ${RUN_ID}`;
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    await addPostpaidSim(page, "+1-555-0320");
+    await addSecondContract(page, clientName, contractId);
+    await addPostpaidSim(page, "+1-555-0321");
+    const testerEmail = `sims.tester+${RUN_ID}@typo.example`;
+    const testerPassword = await addTester(page, clientId, testerEmail);
+
+    await logout(page);
+    await login(page, testerEmail, testerPassword);
+    await page.goto("/client/fleet");
+
+    for (const index of [0, 1]) {
+      await showContractOfTester(page, index);
+      const row = simTable(page).locator("tbody tr").first();
+      await expect(row).toContainText(/\+1-555-032[01]/);
+      await expect(row).toContainText("Unlimited Welcome");
+      await expect(page.getByRole("button", { name: /^Edit / })).toHaveCount(0);
+      await expect(page.getByLabel("SIM number")).toHaveCount(0);
+      await expect(page.getByRole("combobox", { name: "Postpaid plan" })).toHaveCount(0);
+      await expect(page.getByLabel("Installed in")).toHaveCount(0);
+    }
   });
 
   test("an agent corrects a Postpaid SIM's plan on their own contract and sees the Monthly fee after a reload", async ({

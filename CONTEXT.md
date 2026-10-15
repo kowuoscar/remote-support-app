@@ -47,7 +47,7 @@ The company whose Testers receive local support. The MVP serves a single Client.
 _Avoid_: Customer, account.
 
 **Tester**:
-An individual user belonging to a Client, with their own login, who submits task requests and views the fleet assigned to them. May also make a Correction to a unit on any Contract of their own Client's Fleet: a SIM's number, a Postpaid SIM's plan, a Smartphone's model or its owner — not its serial, and never a Carrier.
+An individual user belonging to a Client, with their own login, who submits task requests and views their Client's Fleet, Contracts and Invoices. Corrects nothing: the four Fleet corrections are refused with 403.
 _Avoid_: End user, client user.
 
 **Primary Contact**:
@@ -90,10 +90,10 @@ The terminal status of a Request the Company Manager declined at approval, with 
 _Avoid_: Denied, declined.
 
 **Owner** (of a Smartphone or SIM Card):
-A Smartphone is owned either by the Client or by the company; a SIM Card is always company-owned. A Smartphone reached through a Provision or Replace Request arrives company-owned, and may be corrected afterwards. The owner decides a Return's path. A Manager, the Contract's own Agent, or a Tester of the Contract's own Client may correct it in either direction, refused (409 `SMARTPHONE_ON_OPEN_RETURN`) while a Return naming the phone is Pending Approval, Submitted or In Progress, and allowed again once that Return is Completed, Cancelled or Rejected. Units are part of a Contract's Fleet, never assigned to an individual Tester.
+A Smartphone is owned either by the Client or by the company; a SIM Card is always company-owned. A Smartphone reached through a Provision or Replace Request arrives company-owned, and may be corrected afterwards. The owner decides a Return's path. A Manager or the Contract's own Agent may correct it in either direction (a Tester only views it), refused (409 `SMARTPHONE_ON_OPEN_RETURN`) while a Return naming the phone is Pending Approval, Submitted or In Progress, and allowed again once that Return is Completed, Cancelled or Rejected. Units are part of a Contract's Fleet, never assigned to an individual Tester.
 
 **Correction**:
-Fixing a mistake on a unit already on a Contract's Fleet — a SIM's number, a Postpaid SIM's plan, a Smartphone's model or its owner — in place, without raising a Request. Made by the Company Manager on any Contract of the Tenant, by the Contract's own Agent, or by a Client Tester; audit-logged with role `MANAGER`, `AGENT` or the Tester's role, and a no-op logs nothing; refused with a clear message when it would break a rule, and audit-logged with who made it, the old value and the new value. Not a Request, and not a change of Carrier or of Postpaid/Prepaid.
+Fixing a mistake on a unit already on a Contract's Fleet — a SIM's number, a Postpaid SIM's plan, a Smartphone's model or its owner — in place, without raising a Request. Made by the Company Manager on any Contract of the Tenant, or by the Contract's own Agent, never by a Tester; audit-logged with role `MANAGER` or `AGENT`, and a no-op logs nothing; refused with a clear message when it would break a rule, and audit-logged with who made it, the old value and the new value. Not a Request, and not a change of Carrier or of Postpaid/Prepaid.
 
 **Installed in** (of a SIM Card):
 The Smartphone a SIM Card currently sits in, if any. A Smartphone holds at most two SIM Cards. A SIM Swap Request moves one SIM into another Smartphone, or exchanges the SIMs of two Smartphones.

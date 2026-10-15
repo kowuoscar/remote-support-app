@@ -50,10 +50,10 @@ function SimCardPlanCell({
 
 /**
  * The SIM Card table markup shared by every Fleet view. `showMonthlyFee` and `changeStatus` are
- * the axes the three roles vary on (Agent: both; Client: neither; Manager: monthly fee only).
+ * the axes the three roles vary on (Agent: both; Tester: neither; Manager: monthly fee only).
  * The number is a correction control (`SimCardNumberControl`) only when `canCorrect` is given
  * (Manager, Agent). "Installed in" is always shown — editable (`SimCardInstalledInControl`) when `contractId` and
- * `smartphones` are given (Agent, Manager), otherwise plain text (Client, read-only). Extracted
+ * `smartphones` are given (Agent, Manager), otherwise plain text (Tester, read-only). Extracted
  * from the near-identical copies in agent/fleet-view.tsx, client/fleet-view.tsx and
  * manager/contract-fleet-view.tsx — same markup and classes each caller had inline, so rendering
  * is unchanged.
@@ -73,7 +73,7 @@ export function SimCardFleetTable({
   currency?: string;
   showMonthlyFee?: boolean;
   /** Present together with `smartphones` to render an editable Installed-in control (Agent,
-   * Manager); omitted for read-only (Client). */
+   * Manager); omitted for read-only (Tester). */
   contractId?: string;
   smartphones?: InstallableSmartphone[];
   /** With `contractId`, renders the number correction control (Manager, Agent); omitted for

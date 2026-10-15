@@ -118,16 +118,13 @@ class SimCardCorrectionApiTest extends IntegrationTest {
   }
 
   @Test
-  void anyTesterOfTheContractsClientCorrectsTheNumberPrimaryContactOrNot() throws Exception {
+  void aTesterOfTheContractsClientIsRefusedTheNumberPrimaryContactOrNotAndItIsUnchanged() throws Exception {
     String plain = createTesterAndLogin(managerToken, clientId, "plain." + UUID.randomUUID() + "@simcorr.example");
-    correct(contractId, simCardId, plain, "+1 111")
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.number").value("+1 111"));
-    fleetShowsNumber(plain, "+1 111");
+    correct(contractId, simCardId, plain, "+1 111").andExpect(status().isForbidden());
 
     String primary = primaryContactToken();
-    correct(contractId, simCardId, primary, "+1 222").andExpect(status().isOk());
-    fleetShowsNumber(primary, "+1 222");
+    correct(contractId, simCardId, primary, "+1 222").andExpect(status().isForbidden());
+    fleetShowsNumber(managerToken, ORIGINAL);
   }
 
   @Test
@@ -463,7 +460,7 @@ class SimCardCorrectionApiTest extends IntegrationTest {
   }
 
   @Test
-  void aManagerAndAnyTesterOfTheClientCorrectThePlanAndTheFeeFollowsThePlansPrice() throws Exception {
+  void aManagerCorrectsThePlanAndATesterOfTheClientIsRefusedAndTheFeeFollowsThePlansPrice() throws Exception {
     PostpaidSim sim = addPostpaidSim("+1-555-0801", "30.00");
     UUID cheaper = createPostpaidPlan(managerToken, sim.carrierId(), "Lite", "12.50");
     UUID dearer = createPostpaidPlan(managerToken, sim.carrierId(), "Max", "45.00");
@@ -475,10 +472,8 @@ class SimCardCorrectionApiTest extends IntegrationTest {
     fleetShowsPlan(sim.simId(), cheaper, "12.50");
 
     String tester = createTesterAndLogin(managerToken, clientId, "plan." + UUID.randomUUID() + "@simcorr.example");
-    correctPlan(contractId, sim.simId(), tester, dearer)
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.monthlyFeeAmount").value(45.00));
-    fleetShowsPlan(sim.simId(), dearer, "45.00");
+    correctPlan(contractId, sim.simId(), tester, dearer).andExpect(status().isForbidden());
+    fleetShowsPlan(sim.simId(), cheaper, "12.50");
   }
 
   @Test

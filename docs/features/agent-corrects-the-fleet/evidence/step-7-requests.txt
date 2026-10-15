@@ -1,0 +1,6 @@
+### Result
+28. [PATCH] http://localhost:13000/api/contracts/83b00324-ca56-45f5-87b6-82151d43ed05/sim-cards/c43adb60-4029-4539-bb11-d573792c7ec0/number => [400] Bad Request
+29. [PATCH] http://localhost:13000/api/contracts/83b00324-ca56-45f5-87b6-82151d43ed05/smartphones/7e12d5ab-a1bc-408a-b6e4-26327d400e42/model => [400] Bad Request
+30. [PATCH] http://localhost:13000/api/contracts/83b00324-ca56-45f5-87b6-82151d43ed05/sim-cards/c43adb60-4029-4539-bb11-d573792c7ec0/number => [200] OK
+
+Note: 14 static requests not shown, run with --static option to see them.

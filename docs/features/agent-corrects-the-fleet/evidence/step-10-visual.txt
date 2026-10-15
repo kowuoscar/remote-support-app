@@ -1,0 +1,147 @@
+
+> frontend@0.1.0 test:visual
+> playwright test
+
+
+Running 111 tests using 4 workers
+
+[WebServer] GET /api/agents/a0000000-0000-0000-0000-000000000001/invoice: load failed with status 500
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-000000000002/requests: load failed with status 500
+  ✓    2 tests/visual/agent-dashboard-requests.spec.ts:25:7 › the Agent dashboard's Request regions › degraded-requests-show-unavailable-never-a-dropped-contract-count (576ms)
+  ✓    3 tests/visual/agent-dashboard-requests.spec.ts:9:7 › the Agent dashboard's Request regions › healthy-agent-counts-open-requests-and-lists-the-five-newest (603ms)
+  ✓    1 tests/visual/change-name-dialog.spec.ts:43:9 › change-name dialog — open — desktop — dark (1.0s)
+  ✓    4 tests/visual/change-name-dialog.spec.ts:43:9 › change-name dialog — open — desktop — light (1.0s)
+  ✓    5 tests/visual/change-name-dialog.spec.ts:43:9 › change-name dialog — open — mobile — light (574ms)
+  ✓    6 tests/visual/change-name-dialog.spec.ts:43:9 › change-name dialog — open — mobile — dark (563ms)
+  ✓    8 tests/visual/change-password-dialog.spec.ts:42:9 › change-password dialog — open — desktop — dark (494ms)
+  ✓    7 tests/visual/change-password-dialog.spec.ts:42:9 › change-password dialog — open — desktop — light (596ms)
+  ✓   10 tests/visual/change-password-dialog.spec.ts:42:9 › change-password dialog — open — mobile — dark (429ms)
+  ✓    9 tests/visual/change-password-dialog.spec.ts:42:9 › change-password dialog — open — mobile — light (475ms)
+[WebServer] GET /api/me/client/latest-client-invoices: load failed with status 500
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-0000000000b2/sim-cards: load failed with status 500
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-0000000000b2/requests: load failed with status 500
+  ✓   11 tests/visual/client-dashboard-invoices.spec.ts:9:7 › the Client dashboard's Latest Client Invoice card › healthy-tester-rows-show-month-status-and-currency-total (167ms)
+[WebServer] GET /api/contracts: load failed with status 500
+  ✓   13 tests/visual/client-dashboard-invoices.spec.ts:27:7 › the Client dashboard's Latest Client Invoice card › open-invoices-link-goes-to-client-invoices (202ms)
+  ✓   14 tests/visual/client-dashboard-invoices.spec.ts:48:7 › the Client dashboard's Latest Client Invoice card › contract-list-failure-shows-invoice-card-unavailable (186ms)
+  ✓   12 tests/visual/client-dashboard-invoices.spec.ts:35:7 › the Client dashboard's Latest Client Invoice card › degraded-tester-shows-invoices-unavailable-with-the-rest-of-the-page-intact (232ms)
+[WebServer] GET /api/me/client/latest-client-invoices: load failed with status 500
+  ✓   15 tests/visual/client-dashboard-regions.spec.ts:9:7 › the Client dashboard's stat regions › healthy-tester-counts-active-fleet-and-open-requests (210ms)
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-0000000000b2/sim-cards: load failed with status 500
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-0000000000b2/requests: load failed with status 500
+[WebServer] GET /api/contracts: load failed with status 500
+  ✓   17 tests/visual/client-dashboard-regions.spec.ts:37:7 › the Client dashboard's stat regions › contract-list-failure-shows-both-stats-unavailable-never-zero (234ms)
+  ✓   16 tests/visual/client-dashboard-regions.spec.ts:23:7 › the Client dashboard's stat regions › degraded-tester-shows-unavailable-never-zero (258ms)
+  ✓   18 tests/visual/deactivate-login-dialog.spec.ts:29:9 › deactivate-login dialog — confirm — desktop — light (528ms)
+  ✓   19 tests/visual/deactivate-login-dialog.spec.ts:38:9 › reactivate-login dialog — confirm — desktop — light (652ms)
+  ✓   20 tests/visual/deactivate-login-dialog.spec.ts:29:9 › deactivate-login dialog — confirm — desktop — dark (557ms)
+  ✓   21 tests/visual/deactivate-login-dialog.spec.ts:38:9 › reactivate-login dialog — confirm — desktop — dark (556ms)
+  ✓   22 tests/visual/deactivate-login-dialog.spec.ts:29:9 › deactivate-login dialog — confirm — mobile — light (344ms)
+  ✓   23 tests/visual/deactivate-login-dialog.spec.ts:38:9 › reactivate-login dialog — confirm — mobile — light (342ms)
+  ✓   25 tests/visual/deactivate-login-dialog.spec.ts:38:9 › reactivate-login dialog — confirm — mobile — dark (406ms)
+  ✓   24 tests/visual/deactivate-login-dialog.spec.ts:29:9 › deactivate-login dialog — confirm — mobile — dark (421ms)
+  ✓   26 tests/visual/deactivate-tester-login-dialog.spec.ts:30:9 › deactivate-tester-login dialog — confirm — desktop — light (652ms)
+  ✓   27 tests/visual/deactivate-tester-login-dialog.spec.ts:42:9 › reactivate-tester-login dialog — confirm — desktop — light (562ms)
+  ✓   29 tests/visual/deactivate-tester-login-dialog.spec.ts:42:9 › reactivate-tester-login dialog — confirm — desktop — dark (535ms)
+  ✓   28 tests/visual/deactivate-tester-login-dialog.spec.ts:30:9 › deactivate-tester-login dialog — confirm — desktop — dark (544ms)
+  ✓   30 tests/visual/deactivate-tester-login-dialog.spec.ts:30:9 › deactivate-tester-login dialog — confirm — mobile — light (329ms)
+  ✓   31 tests/visual/deactivate-tester-login-dialog.spec.ts:42:9 › reactivate-tester-login dialog — confirm — mobile — light (337ms)
+  ✓   34 tests/visual/demo-footer.spec.ts:5:5 › manager-dashboard-shows-no-demo-footer (184ms)
+  ✓   33 tests/visual/deactivate-tester-login-dialog.spec.ts:42:9 › reactivate-tester-login dialog — confirm — mobile — dark (377ms)
+  ✓   32 tests/visual/deactivate-tester-login-dialog.spec.ts:30:9 › deactivate-tester-login dialog — confirm — mobile — dark (430ms)
+  ✓   35 tests/visual/reset-password-dialog.spec.ts:28:9 › reset-password dialog — confirm — desktop — light (428ms)
+  ✓   36 tests/visual/reset-password-dialog.spec.ts:37:9 › reset-password dialog — reveal — desktop — light (678ms)
+  ✓   37 tests/visual/reset-password-dialog.spec.ts:28:9 › reset-password dialog — confirm — desktop — dark (612ms)
+  ✓   38 tests/visual/reset-password-dialog.spec.ts:37:9 › reset-password dialog — reveal — desktop — dark (717ms)
+  ✓   39 tests/visual/reset-password-dialog.spec.ts:28:9 › reset-password dialog — confirm — mobile — light (459ms)
+  ✓   40 tests/visual/reset-password-dialog.spec.ts:28:9 › reset-password dialog — confirm — mobile — dark (372ms)
+  ✓   41 tests/visual/reset-password-dialog.spec.ts:37:9 › reset-password dialog — reveal — mobile — light (451ms)
+  ✓   42 tests/visual/reset-password-dialog.spec.ts:37:9 › reset-password dialog — reveal — mobile — dark (426ms)
+  ✓   43 tests/visual/reset-tester-password-dialog.spec.ts:20:9 › reset-tester-password dialog — confirm — desktop — light (550ms)
+  ✓   44 tests/visual/reset-tester-password-dialog.spec.ts:20:9 › reset-tester-password dialog — confirm — desktop — dark (468ms)
+  ✓   45 tests/visual/reset-tester-password-dialog.spec.ts:20:9 › reset-tester-password dialog — confirm — mobile — light (442ms)
+  ✓   46 tests/visual/reset-tester-password-dialog.spec.ts:20:9 › reset-tester-password dialog — confirm — mobile — dark (392ms)
+  ✓   47 tests/visual/surfaces.spec.ts:131:11 › manager — desktop — light (321ms)
+  ✓   49 tests/visual/surfaces.spec.ts:131:11 › manager — mobile — light (290ms)
+  ✓   48 tests/visual/surfaces.spec.ts:131:11 › manager — desktop — dark (355ms)
+  ✓   50 tests/visual/surfaces.spec.ts:131:11 › manager — mobile — dark (329ms)
+  ✓   51 tests/visual/surfaces.spec.ts:131:11 › agent — desktop — light (336ms)
+  ✓   53 tests/visual/surfaces.spec.ts:131:11 › agent — mobile — light (242ms)
+  ✓   52 tests/visual/surfaces.spec.ts:131:11 › agent — desktop — dark (274ms)
+  ✓   54 tests/visual/surfaces.spec.ts:131:11 › agent — mobile — dark (318ms)
+  ✓   55 tests/visual/surfaces.spec.ts:131:11 › client — desktop — light (306ms)
+  ✓   57 tests/visual/surfaces.spec.ts:131:11 › client — mobile — light (222ms)
+  ✓   56 tests/visual/surfaces.spec.ts:131:11 › client — desktop — dark (337ms)
+  ✓   58 tests/visual/surfaces.spec.ts:131:11 › client — mobile — dark (255ms)
+  ✓   59 tests/visual/surfaces.spec.ts:131:11 › agent-carriers — desktop — light (321ms)
+  ✓   60 tests/visual/surfaces.spec.ts:131:11 › agent-carriers — desktop — dark (309ms)
+  ✓   62 tests/visual/surfaces.spec.ts:131:11 › agent-carriers — mobile — dark (268ms)
+  ✓   61 tests/visual/surfaces.spec.ts:131:11 › agent-carriers — mobile — light (360ms)
+  ✓   64 tests/visual/surfaces.spec.ts:131:11 › manager-carriers — desktop — light (354ms)
+  ✓   63 tests/visual/surfaces.spec.ts:131:11 › manager-carriers — desktop — dark (370ms)
+  ✓   65 tests/visual/surfaces.spec.ts:131:11 › manager-carriers — mobile — light (369ms)
+  ✓   66 tests/visual/surfaces.spec.ts:131:11 › manager-carriers — mobile — dark (350ms)
+  ✓   67 tests/visual/surfaces.spec.ts:131:11 › manager-requests — desktop — light (313ms)
+  ✓   68 tests/visual/surfaces.spec.ts:131:11 › manager-requests — desktop — dark (315ms)
+  ✓   69 tests/visual/surfaces.spec.ts:131:11 › manager-requests — mobile — light (267ms)
+  ✓   70 tests/visual/surfaces.spec.ts:131:11 › manager-requests — mobile — dark (265ms)
+  ✓   71 tests/visual/surfaces.spec.ts:131:11 › agent-stock — desktop — light (293ms)
+  ✓   72 tests/visual/surfaces.spec.ts:131:11 › agent-stock — desktop — dark (289ms)
+  ✓   73 tests/visual/surfaces.spec.ts:131:11 › agent-stock — mobile — light (262ms)
+  ✓   74 tests/visual/surfaces.spec.ts:131:11 › agent-stock — mobile — dark (265ms)
+  ✓   78 tests/visual/surfaces.spec.ts:131:11 › agent-client-invoices — mobile — dark (271ms)
+  ✓   75 tests/visual/surfaces.spec.ts:131:11 › agent-client-invoices — desktop — light (343ms)
+  ✓   76 tests/visual/surfaces.spec.ts:131:11 › agent-client-invoices — desktop — dark (354ms)
+  ✓   77 tests/visual/surfaces.spec.ts:131:11 › agent-client-invoices — mobile — light (335ms)
+  ✓   81 tests/visual/surfaces.spec.ts:131:11 › manager-stock — mobile — light (285ms)
+  ✓   80 tests/visual/surfaces.spec.ts:131:11 › manager-stock — desktop — dark (348ms)
+  ✓   82 tests/visual/surfaces.spec.ts:131:11 › manager-stock — mobile — dark (293ms)
+  ✓   79 tests/visual/surfaces.spec.ts:131:11 › manager-stock — desktop — light (360ms)
+  ✓   85 tests/visual/surfaces.spec.ts:131:11 › manager-contract-fleet — mobile — light (277ms)
+  ✓   83 tests/visual/surfaces.spec.ts:131:11 › manager-contract-fleet — desktop — light (354ms)
+  ✓   84 tests/visual/surfaces.spec.ts:131:11 › manager-contract-fleet — desktop — dark (371ms)
+  ✓   86 tests/visual/surfaces.spec.ts:131:11 › manager-contract-fleet — mobile — dark (352ms)
+  ✓   87 tests/visual/surfaces.spec.ts:131:11 › client-fleet — desktop — light (292ms)
+  ✓   88 tests/visual/surfaces.spec.ts:131:11 › client-fleet — desktop — dark (330ms)
+  ✓   90 tests/visual/surfaces.spec.ts:131:11 › client-fleet — mobile — dark (318ms)
+  ✓   89 tests/visual/surfaces.spec.ts:131:11 › client-fleet — mobile — light (331ms)
+  ✓   91 tests/visual/surfaces.spec.ts:131:11 › agent-fleet — desktop — light (343ms)
+  ✓   93 tests/visual/surfaces.spec.ts:131:11 › agent-fleet — mobile — light (297ms)
+  ✓   94 tests/visual/surfaces.spec.ts:131:11 › agent-fleet — mobile — dark (293ms)
+  ✓   92 tests/visual/surfaces.spec.ts:131:11 › agent-fleet — desktop — dark (381ms)
+[WebServer] ⨯ Error: Agent dashboard: GET /api/me/agent failed with status 500
+[WebServer]     at r (.next/server/chunks/ssr/[root-of-the-server]__0qzwkwp._.js:1:1932)
+[WebServer]     at async v (.next/server/chunks/ssr/[root-of-the-server]__0qzwkwp._.js:1:4121) {
+[WebServer]   digest: '3041403717'
+[WebServer] }
+[WebServer] GET /api/agents/a0000000-0000-0000-0000-000000000001/invoice: load failed with status 500
+[WebServer] GET /api/contracts/22222222-0000-0000-0000-000000000002/requests: load failed with status 500
+  ✓   95 tests/visual/surfaces.spec.ts:148:7 › the Agent dashboard's identity states › unlinked-agent-shows-not-linked-message (217ms)
+  ✓   97 tests/visual/surfaces.spec.ts:155:7 › the Agent dashboard's identity states › failing-identity-shows-page-level-message (210ms)
+  ✓   96 tests/visual/surfaces.spec.ts:163:7 › the Agent dashboard's identity states › degraded-invoice-shows-both-invoice-cards-unavailable (219ms)
+  ✓   98 tests/visual/surfaces.spec.ts:181:7 › the Client dashboard's identity states › tester-header-and-chip-name-their-own-client-and-login (196ms)
+[WebServer] Client dashboard: GET /api/me/client failed with status 500
+[WebServer] ⨯ Error: Client dashboard: GET /api/me/client failed with status 500
+[WebServer]     at r (.next/server/chunks/ssr/[root-of-the-server]__1d1dkv0._.js:1:3235)
+[WebServer]     at async w (.next/server/chunks/ssr/[root-of-the-server]__1d1dkv0._.js:1:3694) {
+[WebServer]   digest: '4268299266'
+[WebServer] }
+  ✓   99 tests/visual/surfaces.spec.ts:191:7 › the Client dashboard's identity states › tester-header-keeps-the-full-client-name-at-390px (178ms)
+  ✓  100 tests/visual/surfaces.spec.ts:198:7 › the Client dashboard's identity states › unlinked-tester-shows-not-linked-message (186ms)
+  ✓  101 tests/visual/surfaces.spec.ts:208:7 › the Client dashboard's identity states › failing-identity-shows-the-single-dashboard-error (192ms)
+  ✓  102 tests/visual/surfaces.spec.ts:221:7 › the Manager dashboard's identity and count states › named-manager-chip-and-counts-come-from-the-backend (198ms)
+[WebServer] Dashboard: GET /api/me: load failed with status 500
+[WebServer] Dashboard: GET /api/tenant-totals: load failed with status 500
+[WebServer] Dashboard: GET /api/agents: load failed with status 500
+  ✓  103 tests/visual/surfaces.spec.ts:233:7 › the Manager dashboard's identity and count states › unnamed-manager-chip-reads-the-username (252ms)
+  ✓  104 tests/visual/surfaces.spec.ts:240:7 › the Manager dashboard's identity and count states › manager-money-cards-show-one-line-per-currency-with-the-reads-month (256ms)
+  ✓  105 tests/visual/surfaces.spec.ts:253:7 › the Manager dashboard's identity and count states › empty-manager-money-cards-read-a-plain-zero (252ms)
+  ✓  106 tests/visual/surfaces.spec.ts:267:7 › the Manager dashboard's identity and count states › degraded-manager-shows-plain-chip-and-agents-unavailable-with-other-cards-showing (261ms)
+  ✓  107 tests/visual/surfaces.spec.ts:292:7 › the Agent Client Invoices page when one invoice fails to load › failed-row-has-no-badge-and-explains-when-selected (406ms)
+  ✓  108 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — desktop — light (406ms)
+  ✓  110 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — mobile — light (424ms)
+  ✓  109 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — desktop — dark (462ms)
+  ✓  111 tests/visual/viewer-menu.spec.ts:43:9 › manager top bar — menu open — mobile — dark (248ms)
+
+  111 passed (16.6s)
+exit=0

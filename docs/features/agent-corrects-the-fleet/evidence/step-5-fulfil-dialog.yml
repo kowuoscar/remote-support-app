@@ -1,0 +1,145 @@
+- generic [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - complementary [ref=f5e3]:
+      - generic [ref=f5e4]:
+        - generic [ref=f5e5]: "N"
+        - generic [ref=f5e6]:
+          - paragraph [ref=f5e7]: Northwind Field Services
+          - paragraph [ref=f5e8]: Agent Console
+      - navigation [ref=f5e9]:
+        - link "Dashboard" [ref=f5e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f5e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f5e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f5e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f5e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f5e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f5e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f5e43]:
+      - banner [ref=f5e44]:
+        - generic [ref=f5e46]:
+          - heading "Requests" [level=1] [ref=f5e47]
+          - paragraph [ref=f5e48]: Scoped to one Contract at a time
+        - generic [ref=f5e49]:
+          - button "agent@example.com · Agent" [ref=f5e51]:
+            - generic [ref=f5e52]: agent@example.com
+            - generic [ref=f5e53]: · Agent
+          - button "Switch to dark theme" [ref=f5e54]
+      - main [ref=f5e58]:
+        - generic [ref=f5e60]:
+          - generic [ref=f5e61]:
+            - generic [ref=f5e62]:
+              - button "Solstice Retail Group — United States" [ref=f5e64]
+              - tablist "Filter by status" [ref=f5e73]:
+                - tab "All" [selected] [ref=f5e74]
+                - tab "Pending Approval" [ref=f5e75]
+                - tab "Submitted" [ref=f5e76]
+                - tab "In Progress" [ref=f5e77]
+                - tab "Completed" [ref=f5e78]
+                - tab "Cancelled" [ref=f5e79]
+                - tab "Rejected" [ref=f5e80]
+            - generic [ref=f5e81]:
+              - button "Log a request" [ref=f5e82]
+              - button "Log a fee" [ref=f5e85]
+          - table [ref=f5e92]:
+            - rowgroup [ref=f5e93]:
+              - row [ref=f5e94]:
+                - columnheader "Type" [ref=f5e95]
+                - columnheader "Raised by" [ref=f5e96]
+                - columnheader "Status" [ref=f5e97]
+                - columnheader "Created" [ref=f5e98]
+                - columnheader "Actions" [ref=f5e99]
+            - rowgroup [ref=f5e100]:
+              - row [ref=f5e181]:
+                - 'cell "Provision Smartphone Requested: Motorola Edge" [ref=f5e102]':
+                  - text: Provision Smartphone
+                  - generic [ref=f5e103]: "Requested: Motorola Edge"
+                - cell "dana.whitfield@solsticeretail.example" [ref=f5e104]
+                - cell "In Progress" [ref=f5e105]
+                - cell "today" [ref=f5e108]
+                - cell [ref=f5e182]:
+                  - generic [ref=f5e183]:
+                    - generic [ref=f5e184]:
+                      - text: Fee amount (USD)
+                      - spinbutton "Fee amount (USD)" [active] [ref=f5e185]
+                    - generic [ref=f5e186]:
+                      - text: Description (optional)
+                      - textbox "Description (optional)" [ref=f5e187]
+                    - paragraph [ref=f5e188]: Adds Motorola Edge to the Fleet, company-owned. Set its serial later from the Fleet page.
+                    - generic [ref=f5e189]:
+                      - text: From my Stock (optional)
+                      - combobox "From my Stock (optional)" [ref=f5e190]:
+                        - option "None — add a new Smartphone" [selected]
+                        - option "Old Field Phone — OFP-0099"
+                    - generic [ref=f5e191]:
+                      - button "Mark Completed" [ref=f5e192]
+                      - button "Back" [ref=f5e193]
+              - row [ref=f5e114]:
+                - cell "Other Cracked screen replacement on-site" [ref=f5e115]:
+                  - text: Other
+                  - generic [ref=f5e116]: Cracked screen replacement on-site
+                - cell "dana.whitfield@solsticeretail.example" [ref=f5e117]
+                - cell "Completed" [ref=f5e118]
+                - cell "today" [ref=f5e121]
+                - cell "No further changes" [ref=f5e122]
+              - row [ref=f5e123]:
+                - cell "SIM Swap SIM +1-202-555-0103 into OnePlus 10; SIM +1-202-555-0104 into iPhone 13" [ref=f5e124]:
+                  - text: SIM Swap
+                  - generic [ref=f5e125]: SIM +1-202-555-0103 into OnePlus 10; SIM +1-202-555-0104 into iPhone 13
+                - cell "dana.whitfield@solsticeretail.example" [ref=f5e126]
+                - cell "Completed" [ref=f5e127]
+                - cell "today" [ref=f5e130]
+                - cell "No further changes" [ref=f5e131]
+              - row [ref=f5e132]:
+                - 'cell "Topup SIM Card: +1-202-555-0101 · Prepaid Refill 25" [ref=f5e133]':
+                  - text: Topup
+                  - generic [ref=f5e134]: "SIM Card: +1-202-555-0101 · Prepaid Refill 25"
+                - cell "dana.whitfield@solsticeretail.example" [ref=f5e135]
+                - cell "Completed" [ref=f5e136]
+                - cell "today" [ref=f5e139]
+                - cell "No further changes" [ref=f5e140]
+              - row [ref=f5e141]:
+                - 'cell "Reboot Smartphone: Pixel 8 Pro" [ref=f5e142]':
+                  - text: Reboot
+                  - generic [ref=f5e143]: "Smartphone: Pixel 8 Pro"
+                - cell "dana.whitfield@solsticeretail.example" [ref=f5e144]
+                - cell "Cancelled Tester no longer needs support this week" [ref=f5e145]:
+                  - generic [ref=f5e146]: Cancelled
+                  - generic [ref=f5e148]: Tester no longer needs support this week
+                - cell "today" [ref=f5e149]
+                - cell "No further changes" [ref=f5e150]
+              - row [ref=f5e151]:
+                - 'cell "Reboot Smartphone: Pixel 8 Pro" [ref=f5e152]':
+                  - text: Reboot
+                  - generic [ref=f5e153]: "Smartphone: Pixel 8 Pro"
+                - cell "dana.whitfield@solsticeretail.example" [ref=f5e154]
+                - cell "Completed" [ref=f5e155]
+                - cell "today" [ref=f5e158]
+                - cell "No further changes" [ref=f5e159]
+              - row [ref=f5e160]:
+                - cell "Other On-site device check" [ref=f5e161]:
+                  - text: Other
+                  - generic [ref=f5e162]: On-site device check
+                - cell "dana.whitfield@solsticeretail.example Logged by agent@example.com" [ref=f5e163]:
+                  - text: dana.whitfield@solsticeretail.example
+                  - generic [ref=f5e164]: Logged by agent@example.com
+                - cell "Completed" [ref=f5e165]
+                - cell "1 month ago" [ref=f5e168]
+                - cell "No further changes" [ref=f5e169]
+              - row [ref=f5e170]:
+                - cell "Other On-site device check" [ref=f5e171]:
+                  - text: Other
+                  - generic [ref=f5e172]: On-site device check
+                - cell "dana.whitfield@solsticeretail.example Logged by agent@example.com" [ref=f5e173]:
+                  - text: dana.whitfield@solsticeretail.example
+                  - generic [ref=f5e174]: Logged by agent@example.com
+                - cell "Completed" [ref=f5e175]
+                - cell "2 months ago" [ref=f5e178]
+                - cell "No further changes" [ref=f5e179]
+  - alert [ref=f5e180]

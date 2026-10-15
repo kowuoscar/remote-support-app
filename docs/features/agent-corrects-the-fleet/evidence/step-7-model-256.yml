@@ -1,0 +1,268 @@
+- generic [active] [ref=f8e1]:
+  - generic [ref=f8e2]:
+    - complementary [ref=f8e3]:
+      - generic [ref=f8e4]:
+        - generic [ref=f8e5]: "N"
+        - generic [ref=f8e6]:
+          - paragraph [ref=f8e7]: Northwind Field Services
+          - paragraph [ref=f8e8]: Agent Console
+      - navigation [ref=f8e9]:
+        - link "Dashboard" [ref=f8e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f8e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f8e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f8e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f8e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f8e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f8e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f8e43]:
+      - banner [ref=f8e44]:
+        - generic [ref=f8e46]:
+          - heading "Fleet" [level=1] [ref=f8e47]
+          - paragraph [ref=f8e48]: Scoped to one Contract at a time
+        - generic [ref=f8e49]:
+          - button "agent@example.com · Agent" [ref=f8e51]:
+            - generic [ref=f8e52]: agent@example.com
+            - generic [ref=f8e53]: · Agent
+          - button "Switch to dark theme" [ref=f8e54]
+      - main [ref=f8e58]:
+        - generic [ref=f8e60]:
+          - button "Solstice Retail Group — United States" [ref=f8e62]
+          - generic [ref=f8e71]:
+            - generic [ref=f8e72]:
+              - heading "Smartphones" [level=2] [ref=f8e75]
+              - generic [ref=f8e76]: "5"
+            - table [ref=f8e78]:
+              - rowgroup [ref=f8e79]:
+                - row [ref=f8e80]:
+                  - columnheader "Model" [ref=f8e81]
+                  - columnheader "Serial" [ref=f8e82]
+                  - columnheader "Owner" [ref=f8e83]
+                  - columnheader "SIM Cards" [ref=f8e84]
+                  - columnheader "Status" [ref=f8e85]
+                  - columnheader "Change status" [ref=f8e86]
+              - rowgroup [ref=f8e87]:
+                - row [ref=f8e342]:
+                  - cell [ref=f8e343]:
+                    - generic [ref=f8e334]:
+                      - generic [ref=f8e335]:
+                        - textbox "Smartphone model" [invalid] [ref=f8e336]: mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                        - button "Save" [ref=f8e337]
+                        - button "Cancel" [ref=f8e338]
+                      - alert [ref=f8e344]: A model can be at most 255 characters.
+                  - cell "— Edit serial, iPhone 13" [ref=f8e93]:
+                    - generic [ref=f8e94]:
+                      - generic [ref=f8e95]: —
+                      - button "Edit serial, iPhone 13" [ref=f8e96]: Edit
+                  - cell "Client Edit owner of iPhone 13" [ref=f8e97]:
+                    - generic [ref=f8e98]:
+                      - generic [ref=f8e99]: Client
+                      - button "Edit owner of iPhone 13" [ref=f8e100]: Edit
+                  - cell "+1-202-555-0104" [ref=f8e101]
+                  - cell "Active" [ref=f8e102]
+                  - cell [ref=f8e105]:
+                    - combobox "Change smartphone status" [ref=f8e107]:
+                      - option "Change status…" [selected]
+                      - option "In Repair"
+                      - option "Retired"
+                - row [ref=f8e108]:
+                  - cell "Pixel 8 Pro Edit model, Pixel 8 Pro" [ref=f8e109]:
+                    - generic [ref=f8e110]:
+                      - generic [ref=f8e111]: Pixel 8 Pro
+                      - button "Edit model, Pixel 8 Pro" [ref=f8e112]: Edit
+                  - cell "PX7-88210 Edit serial, PX7-88210" [ref=f8e113]:
+                    - generic [ref=f8e114]:
+                      - generic [ref=f8e115]: PX7-88210
+                      - button "Edit serial, PX7-88210" [ref=f8e116]: Edit
+                  - cell "Client Edit owner of Pixel 8 Pro" [ref=f8e117]:
+                    - generic [ref=f8e118]:
+                      - generic [ref=f8e119]: Client
+                      - button "Edit owner of Pixel 8 Pro" [ref=f8e120]: Edit
+                  - cell "+1-202-555-0101, +1-202-555-0102" [ref=f8e121]
+                  - cell "Active" [ref=f8e122]
+                  - cell [ref=f8e125]:
+                    - combobox "Change smartphone status" [ref=f8e127]:
+                      - option "Change status…" [selected]
+                      - option "In Repair"
+                      - option "Retired"
+                - row [ref=f8e128]:
+                  - cell "Galaxy A14 Edit model, Galaxy A14" [ref=f8e129]:
+                    - generic [ref=f8e130]:
+                      - generic [ref=f8e131]: Galaxy A14
+                      - button "Edit model, Galaxy A14" [ref=f8e132]: Edit
+                  - cell "GA14-55021 Edit serial, GA14-55021" [ref=f8e133]:
+                    - generic [ref=f8e134]:
+                      - generic [ref=f8e135]: GA14-55021
+                      - button "Edit serial, GA14-55021" [ref=f8e136]: Edit
+                  - cell "Company Edit owner of Galaxy A14" [ref=f8e137]:
+                    - generic [ref=f8e138]:
+                      - generic [ref=f8e139]: Company
+                      - button "Edit owner of Galaxy A14" [ref=f8e140]: Edit
+                  - cell "—" [ref=f8e141]
+                  - cell "In Repair" [ref=f8e142]
+                  - cell [ref=f8e145]:
+                    - combobox "Change smartphone status" [ref=f8e147]:
+                      - option "Change status…" [selected]
+                      - option "Active"
+                      - option "Retired"
+                - row [ref=f8e148]:
+                  - cell "OnePlus 10 Edit model, OnePlus 10" [ref=f8e149]:
+                    - generic [ref=f8e150]:
+                      - generic [ref=f8e151]: OnePlus 10
+                      - button "Edit model, OnePlus 10" [ref=f8e152]: Edit
+                  - cell "OP10-33087 Edit serial, OP10-33087" [ref=f8e153]:
+                    - generic [ref=f8e154]:
+                      - generic [ref=f8e155]: OP10-33087
+                      - button "Edit serial, OP10-33087" [ref=f8e156]: Edit
+                  - cell "Company Edit owner of OnePlus 10" [ref=f8e157]:
+                    - generic [ref=f8e158]:
+                      - generic [ref=f8e159]: Company
+                      - button "Edit owner of OnePlus 10" [ref=f8e160]: Edit
+                  - cell "+1-202-555-0103" [ref=f8e161]
+                  - cell "Active" [ref=f8e162]
+                  - cell [ref=f8e165]:
+                    - combobox "Change smartphone status" [ref=f8e167]:
+                      - option "Change status…" [selected]
+                      - option "In Repair"
+                      - option "Retired"
+                - row [ref=f8e168]:
+                  - cell "Moto Edge 40 Edit model, Moto Edge 40" [ref=f8e169]:
+                    - generic [ref=f8e170]:
+                      - generic [ref=f8e171]: Moto Edge 40
+                      - button "Edit model, Moto Edge 40" [ref=f8e172]: Edit
+                  - cell "— Edit serial, Moto Edge 40" [ref=f8e173]:
+                    - generic [ref=f8e174]:
+                      - generic [ref=f8e175]: —
+                      - button "Edit serial, Moto Edge 40" [ref=f8e176]: Edit
+                  - cell "Company Edit owner of Moto Edge 40" [ref=f8e177]:
+                    - generic [ref=f8e178]:
+                      - generic [ref=f8e179]: Company
+                      - button "Edit owner of Moto Edge 40" [ref=f8e180]: Edit
+                  - cell "—" [ref=f8e181]
+                  - cell "Active" [ref=f8e182]
+                  - cell [ref=f8e185]:
+                    - combobox "Change smartphone status" [ref=f8e187]:
+                      - option "Change status…" [selected]
+                      - option "In Repair"
+                      - option "Retired"
+          - generic [ref=f8e188]:
+            - generic [ref=f8e189]:
+              - heading "SIM Cards" [level=2] [ref=f8e193]
+              - generic [ref=f8e194]: "5"
+            - table [ref=f8e196]:
+              - rowgroup [ref=f8e197]:
+                - row [ref=f8e198]:
+                  - columnheader "Number" [ref=f8e199]
+                  - columnheader "Carrier" [ref=f8e200]
+                  - columnheader "Plan" [ref=f8e201]
+                  - columnheader "Flavor" [ref=f8e202]
+                  - columnheader "Monthly fee" [ref=f8e203]
+                  - columnheader "Status" [ref=f8e204]
+                  - columnheader "Installed in" [ref=f8e205]
+                  - columnheader "Change status" [ref=f8e206]
+              - rowgroup [ref=f8e207]:
+                - row [ref=f8e208]:
+                  - cell "+1-202-555-0101 Edit number, +1-202-555-0101" [ref=f8e209]:
+                    - generic [ref=f8e210]:
+                      - generic [ref=f8e211]: +1-202-555-0101
+                      - button "Edit number, +1-202-555-0101" [ref=f8e212]: Edit
+                  - cell "AT&T" [ref=f8e213]
+                  - cell "—" [ref=f8e216]
+                  - cell "Prepaid" [ref=f8e217]
+                  - cell "—" [ref=f8e218]
+                  - cell "Active" [ref=f8e219]
+                  - cell [ref=f8e222]:
+                    - combobox "Installed in" [ref=f8e224]:
+                      - option "Not installed"
+                      - option "iPhone 13"
+                      - option "Pixel 8 Pro — PX7-88210" [selected]
+                      - option "OnePlus 10 — OP10-33087"
+                      - option "Moto Edge 40"
+                  - cell [ref=f8e225]:
+                    - button "Retire" [ref=f8e227]
+                - row [ref=f8e228]:
+                  - cell "+1-202-555-0102 Edit number, +1-202-555-0102" [ref=f8e229]:
+                    - generic [ref=f8e230]:
+                      - generic [ref=f8e231]: +1-202-555-0102
+                      - button "Edit number, +1-202-555-0102" [ref=f8e232]: Edit
+                  - cell "AT&T" [ref=f8e233]
+                  - cell "Unlimited Premium Edit plan for +1-202-555-0102" [ref=f8e236]:
+                    - generic [ref=f8e237]:
+                      - generic [ref=f8e238]: Unlimited Premium
+                      - button "Edit plan for +1-202-555-0102" [ref=f8e241]: Edit
+                  - cell "Postpaid" [ref=f8e242]
+                  - cell "$85.99" [ref=f8e243]
+                  - cell "Active" [ref=f8e244]
+                  - cell [ref=f8e247]:
+                    - combobox "Installed in" [ref=f8e249]:
+                      - option "Not installed"
+                      - option "iPhone 13"
+                      - option "Pixel 8 Pro — PX7-88210" [selected]
+                      - option "OnePlus 10 — OP10-33087"
+                      - option "Moto Edge 40"
+                  - cell [ref=f8e250]:
+                    - button "Retire" [ref=f8e252]
+                - row [ref=f8e253]:
+                  - cell "+1-202-555-0103 Edit number, +1-202-555-0103" [ref=f8e254]:
+                    - generic [ref=f8e255]:
+                      - generic [ref=f8e256]: +1-202-555-0103
+                      - button "Edit number, +1-202-555-0103" [ref=f8e257]: Edit
+                  - cell "T-Mobile" [ref=f8e258]
+                  - cell "—" [ref=f8e261]
+                  - cell "Prepaid" [ref=f8e262]
+                  - cell "—" [ref=f8e263]
+                  - cell "Active" [ref=f8e264]
+                  - cell [ref=f8e267]:
+                    - combobox "Installed in" [ref=f8e269]:
+                      - option "Not installed"
+                      - option "iPhone 13"
+                      - option "Pixel 8 Pro — PX7-88210"
+                      - option "OnePlus 10 — OP10-33087" [selected]
+                      - option "Moto Edge 40"
+                  - cell [ref=f8e270]:
+                    - button "Retire" [ref=f8e272]
+                - row [ref=f8e273]:
+                  - cell "+1-202-555-0104 Edit number, +1-202-555-0104" [ref=f8e274]:
+                    - generic [ref=f8e275]:
+                      - generic [ref=f8e276]: +1-202-555-0104
+                      - button "Edit number, +1-202-555-0104" [ref=f8e277]: Edit
+                  - cell "T-Mobile" [ref=f8e278]
+                  - cell "—" [ref=f8e281]
+                  - cell "Prepaid" [ref=f8e282]
+                  - cell "—" [ref=f8e283]
+                  - cell "Active" [ref=f8e284]
+                  - cell [ref=f8e287]:
+                    - combobox "Installed in" [ref=f8e289]:
+                      - option "Not installed"
+                      - option "iPhone 13" [selected]
+                      - option "Pixel 8 Pro — PX7-88210"
+                      - option "OnePlus 10 — OP10-33087"
+                      - option "Moto Edge 40"
+                  - cell [ref=f8e290]:
+                    - button "Retire" [ref=f8e292]
+                - row [ref=f8e327]:
+                  - cell "+1-202-555-0105 Edit number, +1-202-555-0105" [ref=f8e328]:
+                    - generic [ref=f8e329]:
+                      - generic [ref=f8e330]: +1-202-555-0105
+                      - button "Edit number, +1-202-555-0105" [ref=f8e331]: Edit
+                  - cell "Verizon" [ref=f8e298]
+                  - cell "—" [ref=f8e301]
+                  - cell "Prepaid" [ref=f8e302]
+                  - cell "—" [ref=f8e303]
+                  - cell "Active" [ref=f8e304]
+                  - cell [ref=f8e307]:
+                    - combobox "Installed in" [ref=f8e309]:
+                      - option "Not installed" [selected]
+                      - option "iPhone 13"
+                      - option "Pixel 8 Pro — PX7-88210"
+                      - option "OnePlus 10 — OP10-33087"
+                      - option "Moto Edge 40"
+                  - cell [ref=f8e310]:
+                    - button "Retire" [ref=f8e312]
+  - alert [ref=f8e313]

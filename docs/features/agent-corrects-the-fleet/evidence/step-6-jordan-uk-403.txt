@@ -1,0 +1,10 @@
+PATCH smartphones/883128c8-ab70-42e8-843a-d32cdcae0218/model {"model":"X"}
+{"timestamp":"2026-10-15T10:15:58.783+00:00","status":403,"error":"Forbidden","path":"/api/contracts/9e3da231-0be1-46cc-8c49-16ca0060c682/smartphones/883128c8-ab70-42e8-843a-d32cdcae0218/model"} [403]
+PATCH smartphones/883128c8-ab70-42e8-843a-d32cdcae0218/owner {"owner":"CLIENT"}
+{"timestamp":"2026-10-15T10:15:58.802+00:00","status":403,"error":"Forbidden","path":"/api/contracts/9e3da231-0be1-46cc-8c49-16ca0060c682/smartphones/883128c8-ab70-42e8-843a-d32cdcae0218/owner"} [403]
+PATCH sim-cards/806af2c0-5894-4e1c-ae1e-37fdf3750d50/number {"number":"+44
+{"timestamp":"2026-10-15T10:15:58.833+00:00","status":400,"error":"Bad Request","path":"/api/contracts/9e3da231-0be1-46cc-8c49-16ca0060c682/sim-cards/806af2c0-5894-4e1c-ae1e-37fdf3750d50/number"} [400]
+PATCH sim-cards/806af2c0-5894-4e1c-ae1e-37fdf3750d50/postpaid-plan {"postpaidPlanId":"23603468-9ed5-4415-be72-2c5692d7ab01"}
+{"timestamp":"2026-10-15T10:15:58.849+00:00","status":403,"error":"Forbidden","path":"/api/contracts/9e3da231-0be1-46cc-8c49-16ca0060c682/sim-cards/806af2c0-5894-4e1c-ae1e-37fdf3750d50/postpaid-plan"} [403]
+PATCH sim-cards/806af2c0-5894-4e1c-ae1e-37fdf3750d50/number (retry, intact body)
+{"timestamp":"2026-10-15T10:16:02.914+00:00","status":403,"error":"Forbidden","path":"/api/contracts/9e3da231-0be1-46cc-8c49-16ca0060c682/sim-cards/806af2c0-5894-4e1c-ae1e-37fdf3750d50/number"} [403]

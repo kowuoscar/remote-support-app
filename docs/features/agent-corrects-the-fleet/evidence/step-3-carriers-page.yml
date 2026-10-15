@@ -1,0 +1,113 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e2]:
+    - complementary [ref=f4e3]:
+      - generic [ref=f4e4]:
+        - generic [ref=f4e5]: "N"
+        - generic [ref=f4e6]:
+          - paragraph [ref=f4e7]: Northwind Field Services
+          - paragraph [ref=f4e8]: Agent Console
+      - navigation [ref=f4e9]:
+        - link "Dashboard" [ref=f4e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f4e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f4e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f4e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f4e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f4e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f4e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f4e43]:
+      - banner [ref=f4e44]:
+        - generic [ref=f4e46]:
+          - heading "Carriers" [level=1] [ref=f4e47]
+          - paragraph [ref=f4e48]: United Kingdom catalog
+        - generic [ref=f4e49]:
+          - button "priya.shah@example.com · Agent" [ref=f4e51]:
+            - generic [ref=f4e52]: priya.shah@example.com
+            - generic [ref=f4e53]: · Agent
+          - button "Switch to dark theme" [ref=f4e54]
+      - main [ref=f4e58]:
+        - generic [ref=f4e60]:
+          - generic [ref=f4e61]:
+            - generic [ref=f4e63]:
+              - checkbox "Show archived (3)" [ref=f4e64]
+              - text: Show archived
+              - generic [ref=f4e65]: (3)
+            - generic [ref=f4e66]:
+              - generic [ref=f4e67]: 2 active
+              - button "Add carrier" [ref=f4e68]
+          - generic [ref=f4e71]:
+            - generic [ref=f4e72]:
+              - heading "United Kingdom" [level=2] [ref=f4e73]
+              - paragraph [ref=f4e74]: Prices in GBP · shared by every agent in United Kingdom
+            - list "Carriers" [ref=f4e75]:
+              - listitem [ref=f4e76]:
+                - generic [ref=f4e77]:
+                  - heading "EE" [level=3] [ref=f4e86]
+                  - generic [ref=f4e87]:
+                    - button "Rename EE" [ref=f4e88]: Rename
+                    - button "Archive EE" [ref=f4e89]: Archive
+                - generic [ref=f4e90]:
+                  - region [ref=f4e91]:
+                    - generic [ref=f4e92]:
+                      - heading "Topup options" [level=4] [ref=f4e93]
+                      - button "Add a topup option to EE" [ref=f4e94]: Add
+                    - list "EE topup options" [ref=f4e97]:
+                      - listitem [ref=f4e98]:
+                        - generic [ref=f4e99]: Boost 10
+                        - generic [ref=f4e100]: £10.00
+                        - generic [ref=f4e101]:
+                          - button "Edit Boost 10" [ref=f4e102]: Edit
+                          - button "Archive Boost 10" [ref=f4e103]: Archive
+                  - region [ref=f4e104]:
+                    - generic [ref=f4e105]:
+                      - heading "Postpaid plans" [level=4] [ref=f4e106]
+                      - button "Add a postpaid plan to EE" [ref=f4e107]: Add
+                    - list "EE postpaid plans" [ref=f4e110]:
+                      - listitem [ref=f4e111]:
+                        - generic [ref=f4e112]: Flex 20
+                        - generic [ref=f4e113]: £20.00/mo
+                        - generic [ref=f4e114]:
+                          - button "Edit Flex 20" [ref=f4e115]: Edit
+                          - button "Archive Flex 20" [ref=f4e116]: Archive
+                      - listitem [ref=f4e117]:
+                        - generic [ref=f4e118]: Flex 30
+                        - generic [ref=f4e119]: £30.00/mo
+                        - generic [ref=f4e120]:
+                          - button "Edit Flex 30" [ref=f4e121]: Edit
+                          - button "Archive Flex 30" [ref=f4e122]: Archive
+              - listitem [ref=f4e123]:
+                - generic [ref=f4e124]:
+                  - heading "O2" [level=3] [ref=f4e133]
+                  - generic [ref=f4e134]:
+                    - button "Rename O2" [ref=f4e135]: Rename
+                    - button "Archive O2" [ref=f4e136]: Archive
+                - generic [ref=f4e137]:
+                  - region [ref=f4e138]:
+                    - generic [ref=f4e139]:
+                      - heading "Topup options" [level=4] [ref=f4e140]
+                      - button "Add a topup option to O2" [ref=f4e141]: Add
+                    - list "O2 topup options" [ref=f4e144]:
+                      - listitem [ref=f4e145]:
+                        - generic [ref=f4e146]: Data Topup
+                        - generic [ref=f4e147]: £8.00
+                        - generic [ref=f4e148]:
+                          - button "Edit Data Topup" [ref=f4e149]: Edit
+                          - button "Archive Data Topup" [ref=f4e150]: Archive
+                  - region [ref=f4e151]:
+                    - generic [ref=f4e152]:
+                      - heading "Postpaid plans" [level=4] [ref=f4e153]
+                      - button "Add a postpaid plan to O2" [ref=f4e154]: Add
+                    - list "O2 postpaid plans" [ref=f4e157]:
+                      - listitem [ref=f4e158]:
+                        - generic [ref=f4e159]: Essential
+                        - generic [ref=f4e160]: £18.00/mo
+                        - generic [ref=f4e161]:
+                          - button "Edit Essential" [ref=f4e162]: Edit
+                          - button "Archive Essential" [ref=f4e163]: Archive
+  - alert [ref=f4e164]

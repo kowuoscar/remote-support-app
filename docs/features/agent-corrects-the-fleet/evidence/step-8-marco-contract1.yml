@@ -1,0 +1,125 @@
+- generic [ref=e1]:
+  - alert [ref=e25]: Fleet · Remote Support Platform
+  - generic [ref=e26]:
+    - complementary [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]: "N"
+        - generic [ref=e30]:
+          - paragraph [ref=e31]: Northwind Field Services
+          - paragraph [ref=e32]: Client Portal
+      - navigation [ref=e33]:
+        - link "Dashboard" [ref=e34] [cursor=pointer]:
+          - /url: /client
+        - link "Fleet" [active] [ref=e40] [cursor=pointer]:
+          - /url: /client/fleet
+        - link "Requests" [ref=e43] [cursor=pointer]:
+          - /url: /client/requests
+        - link "Invoices" [ref=e47] [cursor=pointer]:
+          - /url: /client/invoices
+    - generic [ref=e52]:
+      - banner [ref=e103]:
+        - generic [ref=e105]:
+          - heading "Fleet" [level=1] [ref=e106]
+          - paragraph [ref=e107]: Loaded per Contract
+        - generic [ref=e108]:
+          - button "marco.diaz@solsticeretail.example · Tester" [ref=e110]:
+            - generic [ref=e111]: marco.diaz@solsticeretail.example
+            - generic [ref=e112]: · Tester
+          - button "Switch to dark theme" [ref=e113]
+      - main [ref=e117]:
+        - generic [ref=e119]:
+          - generic [ref=e120]:
+            - button "Solstice Retail Group — United States" [ref=e122]
+            - button "Submit Request" [ref=e131]
+          - generic [ref=e132]:
+            - generic [ref=e133]:
+              - heading "Smartphones" [level=2] [ref=e136]
+              - generic [ref=e137]: "5"
+            - table [ref=e139]:
+              - rowgroup [ref=e140]:
+                - row [ref=e141]:
+                  - columnheader "Model" [ref=e142]
+                  - columnheader "Serial" [ref=e143]
+                  - columnheader "Owner" [ref=e144]
+                  - columnheader "SIM Cards" [ref=e145]
+                  - columnheader "Status" [ref=e146]
+              - rowgroup [ref=e147]:
+                - row [ref=e148]:
+                  - cell "iPhone 13" [ref=e149]
+                  - cell "—" [ref=e150]
+                  - cell "Client" [ref=e151]
+                  - cell "+1-202-555-0104" [ref=e152]
+                  - cell "Active" [ref=e153]
+                - row [ref=e156]:
+                  - cell "Pixel 8 Pro" [ref=e157]
+                  - cell "PX7-88210" [ref=e158]
+                  - cell "Client" [ref=e159]
+                  - cell "+1-202-555-0101, +1-202-555-0102" [ref=e160]
+                  - cell "Active" [ref=e161]
+                - row [ref=e164]:
+                  - cell "Galaxy A14" [ref=e165]
+                  - cell "GA14-55021" [ref=e166]
+                  - cell "Company" [ref=e167]
+                  - cell "—" [ref=e168]
+                  - cell "In Repair" [ref=e169]
+                - row [ref=e172]:
+                  - cell "OnePlus 10" [ref=e173]
+                  - cell "OP10-33087" [ref=e174]
+                  - cell "Company" [ref=e175]
+                  - cell "+1-202-555-0103" [ref=e176]
+                  - cell "Active" [ref=e177]
+                - row [ref=e180]:
+                  - cell "Moto Edge 40" [ref=e181]
+                  - cell "—" [ref=e182]
+                  - cell "Company" [ref=e183]
+                  - cell "—" [ref=e184]
+                  - cell "Active" [ref=e185]
+          - generic [ref=e188]:
+            - generic [ref=e189]:
+              - heading "SIM Cards" [level=2] [ref=e193]
+              - generic [ref=e194]: "5"
+            - table [ref=e196]:
+              - rowgroup [ref=e197]:
+                - row [ref=e198]:
+                  - columnheader "Number" [ref=e199]
+                  - columnheader "Carrier" [ref=e200]
+                  - columnheader "Plan" [ref=e201]
+                  - columnheader "Flavor" [ref=e202]
+                  - columnheader "Status" [ref=e203]
+                  - columnheader "Installed in" [ref=e204]
+              - rowgroup [ref=e205]:
+                - row [ref=e206]:
+                  - cell "+1-202-555-0101" [ref=e207]
+                  - cell "AT&T" [ref=e208]
+                  - cell "—" [ref=e211]
+                  - cell "Prepaid" [ref=e212]
+                  - cell "Active" [ref=e213]
+                  - cell "Pixel 8 Pro" [ref=e216]
+                - row [ref=e217]:
+                  - cell "+1-202-555-0102" [ref=e218]
+                  - cell "AT&T" [ref=e219]
+                  - cell "Unlimited Premium" [ref=e222]
+                  - cell "Postpaid" [ref=e225]
+                  - cell "Active" [ref=e226]
+                  - cell "Pixel 8 Pro" [ref=e229]
+                - row [ref=e230]:
+                  - cell "+1-202-555-0103" [ref=e231]
+                  - cell "T-Mobile" [ref=e232]
+                  - cell "—" [ref=e235]
+                  - cell "Prepaid" [ref=e236]
+                  - cell "Active" [ref=e237]
+                  - cell "OnePlus 10" [ref=e240]
+                - row [ref=e241]:
+                  - cell "+1-202-555-0104" [ref=e242]
+                  - cell "T-Mobile" [ref=e243]
+                  - cell "—" [ref=e246]
+                  - cell "Prepaid" [ref=e247]
+                  - cell "Active" [ref=e248]
+                  - cell "iPhone 13" [ref=e251]
+                - row [ref=e252]:
+                  - cell "+1-202-555-0105" [ref=e253]
+                  - cell "Verizon" [ref=e254]
+                  - cell "—" [ref=e257]
+                  - cell "Prepaid" [ref=e258]
+                  - cell "Active" [ref=e259]
+                  - cell "—" [ref=e262]

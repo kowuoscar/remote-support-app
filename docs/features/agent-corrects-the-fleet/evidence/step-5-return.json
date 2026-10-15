@@ -1,0 +1,19 @@
+{
+    "id": "6fc42189-f41b-4565-a343-2163854e7156",
+    "contractId": "83b00324-ca56-45f5-87b6-82151d43ed05",
+    "type": "RETURN",
+    "status": "SUBMITTED",
+    "raisedByTesterId": "c23ae5b1-8e61-4ef2-b840-6380104046b2",
+    "raisedByUsername": "dana.whitfield@solsticeretail.example",
+    "agentAuthored": false,
+    "loggedByUsername": "dana.whitfield@solsticeretail.example",
+    "createdAt": "2026-10-15T10:15:37.463944094Z",
+    "returnedUnits": [
+        {
+            "id": "c5d47485-0674-4657-b6f0-bf2e94b6aed0",
+            "smartphoneId": "27b9cec8-46b4-4926-bf61-e69b67a5e496",
+            "smartphoneModel": "Pixel 8 Pro",
+            "disposition": "POSTED_TO_CLIENT"
+        }
+    ]
+}

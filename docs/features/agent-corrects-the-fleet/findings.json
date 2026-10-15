@@ -1,0 +1,71 @@
+{
+  "feature": "agent-corrects-the-fleet",
+  "findings": [
+    {
+      "id": "F1",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/SimCardCorrectionApiTest.java:165",
+      "citation": "methods/code-review/SKILL.md smell baseline: Duplicated Code",
+      "note": "possible Duplicated Code: returnToAgentStock and SmartphoneCorrectionApiTest.smartphoneInAgentStock (line 143) run the same Return-to-stock steps; extract one helper onto IntegrationTest."
+    },
+    {
+      "id": "F2",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/SmartphoneCorrectionApiTest.java:115",
+      "citation": "methods/code-review/SKILL.md smell baseline: Duplicated Code",
+      "note": "possible Duplicated Code: the other-Agent's-Contract setup repeated 4 times and more ListAppender attach/detach copies in the new audit tests; extract otherAgentsContract() and an audit-capture helper."
+    },
+    {
+      "id": "F3",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "CONTEXT.md:32",
+      "citation": "",
+      "note": "The Correction entry says 'audit-logged' twice in one sentence; merge the two clauses."
+    },
+    {
+      "id": "F4",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/fleet/smartphone-serial-control.tsx:68",
+      "citation": "web-design-guidelines: Specific button labels",
+      "note": "A phone with no serial lost its visible 'Set serial' label: it now shows '\u2014 Edit', named 'Edit serial, {model}', which repeats across same-model phones."
+    },
+    {
+      "id": "F5",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/fleet/smartphone-serial-control.tsx:69",
+      "citation": "web-design-guidelines: Focus States / Forms",
+      "note": "The serial Edit looks like the correction Edits but does not use useInlineEdit: no focus return after Save/Cancel, no Escape, error not linked by aria-describedby."
+    },
+    {
+      "id": "F6",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": false,
+      "where": "frontend/components/fleet/smartphone-serial-control.tsx:86",
+      "citation": "docs/agents/coding-standards.md rule 8",
+      "note": "Pre-existing: text-[12px]/text-[11px] on the serial input and error, placeholder without ellipsis."
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+- generic [active] [ref=f7e1]:
+  - generic [ref=f7e2]:
+    - complementary [ref=f7e3]:
+      - generic [ref=f7e4]:
+        - generic [ref=f7e5]: "N"
+        - generic [ref=f7e6]:
+          - paragraph [ref=f7e7]: Northwind Field Services
+          - paragraph [ref=f7e8]: Agent Console
+      - navigation [ref=f7e9]:
+        - link "Dashboard" [ref=f7e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f7e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f7e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f7e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f7e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f7e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f7e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f7e43]:
+      - banner [ref=f7e44]:
+        - generic [ref=f7e46]:
+          - heading "Fleet" [level=1] [ref=f7e47]
+          - paragraph [ref=f7e48]: Scoped to one Contract at a time
+        - generic [ref=f7e49]:
+          - button "agent@example.com · Agent" [ref=f7e51]:
+            - generic [ref=f7e52]: agent@example.com
+            - generic [ref=f7e53]: · Agent
+          - button "Switch to dark theme" [ref=f7e54]
+      - main [ref=f7e58]:
+        - generic [ref=f7e60]:
+          - button "Harbor Line Logistics — United States" [ref=f7e321]
+          - generic [ref=f7e71]:
+            - generic [ref=f7e72]:
+              - heading "Smartphones" [level=2] [ref=f7e75]
+              - generic [ref=f7e76]: "2"
+            - table [ref=f7e78]:
+              - rowgroup [ref=f7e79]:
+                - row [ref=f7e80]:
+                  - columnheader "Model" [ref=f7e81]
+                  - columnheader "Serial" [ref=f7e82]
+                  - columnheader "Owner" [ref=f7e83]
+                  - columnheader "SIM Cards" [ref=f7e84]
+                  - columnheader "Status" [ref=f7e85]
+                  - columnheader "Change status" [ref=f7e86]
+              - rowgroup [ref=f7e87]:
+                - row [ref=f7e322]:
+                  - cell "iPhone 13 mini Edit model, iPhone 13 mini" [ref=f7e323]:
+                    - generic [ref=f7e324]:
+                      - generic [ref=f7e325]: iPhone 13 mini
+                      - button "Edit model, iPhone 13 mini" [ref=f7e326]: Edit
+                  - cell "IP13M-9021 Edit serial, IP13M-9021" [ref=f7e327]:
+                    - generic [ref=f7e328]:
+                      - generic [ref=f7e329]: IP13M-9021
+                      - button "Edit serial, IP13M-9021" [ref=f7e330]: Edit
+                  - cell "Client Edit owner of iPhone 13 mini" [ref=f7e331]:
+                    - generic [ref=f7e332]:
+                      - generic [ref=f7e333]: Client
+                      - button "Edit owner of iPhone 13 mini" [ref=f7e334]: Edit
+                  - cell "+1-303-555-0201" [ref=f7e335]
+                  - cell "Active" [ref=f7e336]
+                  - cell [ref=f7e339]:
+                    - combobox "Change smartphone status" [ref=f7e341]:
+                      - option "Change status…" [selected]
+                      - option "In Repair"
+                      - option "Retired"
+                - row [ref=f7e409]:
+                  - cell "Spare Android Edit model, Spare Android" [ref=f7e343]:
+                    - generic [ref=f7e344]:
+                      - generic [ref=f7e345]: Spare Android
+                      - button "Edit model, Spare Android" [ref=f7e346]: Edit
+                  - cell "SPARE-2270 Edit serial, SPARE-2270" [ref=f7e347]:
+                    - generic [ref=f7e348]:
+                      - generic [ref=f7e349]: SPARE-2270
+                      - button "Edit serial, SPARE-2270" [ref=f7e350]: Edit
+                  - cell [ref=f7e410]:
+                    - generic [ref=f7e404]:
+                      - generic [ref=f7e405]:
+                        - combobox "Owner" [ref=f7e406]:
+                          - option "Choose an owner" [disabled]
+                          - option "Client" [selected]
+                          - option "Company"
+                        - button "Save" [ref=f7e407]
+                        - button "Cancel" [ref=f7e408]
+                      - alert [ref=f7e411]: This smartphone is on an open Return. Change its owner once the Return is done.
+                  - cell "+1-303-555-0202" [ref=f7e355]
+                  - cell "Active" [ref=f7e356]
+                  - cell [ref=f7e359]:
+                    - combobox "Change smartphone status" [ref=f7e361]:
+                      - option "Change status…" [selected]
+                      - option "In Repair"
+                      - option "Retired"
+          - generic [ref=f7e188]:
+            - generic [ref=f7e189]:
+              - heading "SIM Cards" [level=2] [ref=f7e193]
+              - generic [ref=f7e194]: "2"
+            - table [ref=f7e196]:
+              - rowgroup [ref=f7e197]:
+                - row [ref=f7e198]:
+                  - columnheader "Number" [ref=f7e199]
+                  - columnheader "Carrier" [ref=f7e200]
+                  - columnheader "Plan" [ref=f7e201]
+                  - columnheader "Flavor" [ref=f7e202]
+                  - columnheader "Monthly fee" [ref=f7e203]
+                  - columnheader "Status" [ref=f7e204]
+                  - columnheader "Installed in" [ref=f7e205]
+                  - columnheader "Change status" [ref=f7e206]
+              - rowgroup [ref=f7e207]:
+                - row [ref=f7e362]:
+                  - cell "+1-303-555-0201 Edit number, +1-303-555-0201" [ref=f7e363]:
+                    - generic [ref=f7e364]:
+                      - generic [ref=f7e365]: +1-303-555-0201
+                      - button "Edit number, +1-303-555-0201" [ref=f7e366]: Edit
+                  - cell "T-Mobile" [ref=f7e367]
+                  - cell "—" [ref=f7e370]
+                  - cell "Prepaid" [ref=f7e371]
+                  - cell "—" [ref=f7e372]
+                  - cell "Active" [ref=f7e373]
+                  - cell [ref=f7e376]:
+                    - combobox "Installed in" [ref=f7e378]:
+                      - option "Not installed"
+                      - option "iPhone 13 mini — IP13M-9021" [selected]
+                      - option "Spare Android — SPARE-2270"
+                  - cell [ref=f7e379]:
+                    - button "Retire" [ref=f7e381]
+                - row [ref=f7e382]:
+                  - cell "+1-303-555-0202 Edit number, +1-303-555-0202" [ref=f7e383]:
+                    - generic [ref=f7e384]:
+                      - generic [ref=f7e385]: +1-303-555-0202
+                      - button "Edit number, +1-303-555-0202" [ref=f7e386]: Edit
+                  - cell "Verizon" [ref=f7e387]
+                  - cell "—" [ref=f7e390]
+                  - cell "Prepaid" [ref=f7e391]
+                  - cell "—" [ref=f7e392]
+                  - cell "Active" [ref=f7e393]
+                  - cell [ref=f7e396]:
+                    - combobox "Installed in" [ref=f7e398]:
+                      - option "Not installed"
+                      - option "iPhone 13 mini — IP13M-9021"
+                      - option "Spare Android — SPARE-2270" [selected]
+                  - cell [ref=f7e399]:
+                    - button "Retire" [ref=f7e401]
+  - alert [ref=f7e313]

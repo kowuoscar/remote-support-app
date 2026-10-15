@@ -36,8 +36,8 @@
       "step": 5,
       "actor": "agent",
       "status": "passed",
-      "evidence": "evidence/step-5-geometry.json",
-      "note": "Amount and Edit on one line, amounts aligned at 1280; but the line table scrolls sideways at exactly 1280 (692px wrapper vs 720px minimum), clipping the notes and Cancel (F17)."
+      "evidence": "evidence/step-5-replay-geometry.json",
+      "note": "Replayed after the fix: at 1280 and 1366 line-list scrollWidth == clientWidth (692/692, 778/778), nothing clipped, editor on one line inside the table."
     },
     {
       "step": 6,
@@ -49,9 +49,9 @@
     {
       "step": 7,
       "actor": "agent",
-      "status": "failed",
-      "evidence": "evidence/step-7-geometry.json",
-      "note": "Edited note right-aligned at all five widths instead of left (F15, same cause as F1); everything else passed, no sideways scroll."
+      "status": "passed",
+      "evidence": "evidence/step-7-replay-geometry.json",
+      "note": "Replayed after the fix: note left-aligned at all five widths, Edit/Reset on the right; no sideways scroll; 10/10 locators in viewport."
     },
     {
       "step": 8,
@@ -84,9 +84,9 @@
     {
       "step": 12,
       "actor": "agent",
-      "status": "failed",
-      "evidence": "evidence/step-12-design-diff.txt",
-      "note": "DESIGN.md diff, visual suite 114/114 with only the four goldens, component tests passed; verify not finished (runner out of turns) (F16)."
+      "status": "passed",
+      "evidence": "evidence/step-12-replay-verify.txt",
+      "note": "Replayed after the fix: verify exit 0 on the first run (vitest 494, e2e 106 in 4.9m). DESIGN.md diff and visual suite (114/114, four goldens) from the first play."
     },
     {
       "step": 13,

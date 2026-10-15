@@ -1,0 +1,1252 @@
+{
+ "1280": {
+  "closed": {
+   "doc": {
+    "sw": 1280,
+    "iw": 1280
+   },
+   "lists": [
+    {
+     "name": "Postpaid SIM Cards",
+     "tableSw": 692,
+     "tableCw": 692,
+     "chain": [
+      {
+       "tag": "TABLE",
+       "sw": 692,
+       "cw": 692,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 692,
+       "cw": 692,
+       "ox": "auto"
+      },
+      {
+       "tag": "DIV",
+       "sw": 694,
+       "cw": 694,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 734,
+       "cw": 734,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 736,
+       "cw": 736,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 736,
+       "cw": 736,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 784,
+       "cw": 784,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 1040,
+       "cw": 1040,
+       "ox": "visible"
+      }
+     ],
+     "tableRight": 1234,
+     "clipped": [],
+     "headers": [
+      "Number@906",
+      "Billed@1234"
+     ]
+    },
+    {
+     "name": "Fee lines",
+     "tableSw": 692,
+     "tableCw": 692,
+     "chain": [
+      {
+       "tag": "TABLE",
+       "sw": 692,
+       "cw": 692,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 692,
+       "cw": 692,
+       "ox": "auto"
+      },
+      {
+       "tag": "DIV",
+       "sw": 694,
+       "cw": 694,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 734,
+       "cw": 734,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 736,
+       "cw": 736,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 736,
+       "cw": 736,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 784,
+       "cw": 784,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 1040,
+       "cw": 1040,
+       "ox": "visible"
+      }
+     ],
+     "tableRight": 1234,
+     "clipped": [],
+     "headers": [
+      "Type@614",
+      "Description@860",
+      "Logged@943",
+      "Billed@1234"
+     ]
+    }
+   ],
+   "notes": [],
+   "rows": [
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0101\t | $70.50 | Edit | Reset |  | Edited · computed $65.00",
+     "amt": [
+      {
+       "t": "$70.50",
+       "x": 1033,
+       "r": 1082,
+       "y": 500,
+       "b": 520
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1090,
+       "r": 1138,
+       "y": 496,
+       "b": 524
+      },
+      {
+       "t": "Reset",
+       "x": 1146,
+       "r": 1205,
+       "y": 496,
+       "b": 524
+      }
+     ],
+     "note": {
+      "t": "Edited · computed $65.00",
+      "align": "right",
+      "x": 934,
+      "r": 1082,
+      "y": 528,
+      "b": 545,
+      "firstColLeft": 542,
+      "rowRight": 1234
+     },
+     "rowL": 542,
+     "rowR": 1234
+    },
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0102\t | $31.40 | Edit | Reset |  | Edited · computed $80.00",
+     "amt": [
+      {
+       "t": "$31.40",
+       "x": 1033,
+       "r": 1082,
+       "y": 574,
+       "b": 594
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1090,
+       "r": 1138,
+       "y": 570,
+       "b": 598
+      },
+      {
+       "t": "Reset",
+       "x": 1146,
+       "r": 1205,
+       "y": 570,
+       "b": 598
+      }
+     ],
+     "note": {
+      "t": "Edited · computed $80.00",
+      "align": "right",
+      "x": 934,
+      "r": 1082,
+      "y": 602,
+      "b": 619,
+      "firstColLeft": 542,
+      "rowRight": 1234
+     },
+     "rowL": 542,
+     "rowR": 1234
+    },
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0103 | Cancelled Oct 15, 2026 — still billed through this month | \t | $60.00 | Edit",
+     "amt": [
+      {
+       "t": "$60.00",
+       "x": 1033,
+       "r": 1082,
+       "y": 655,
+       "b": 675
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1090,
+       "r": 1138,
+       "y": 651,
+       "b": 679
+      }
+     ],
+     "note": null,
+     "rowL": 542,
+     "rowR": 1234
+    },
+    {
+     "list": "Fee lines",
+     "text": "Topup\tTopup 25 GB data for the pilot handsets\tOct 15\t | $45.00 | Edit",
+     "amt": [
+      {
+       "t": "$45.00",
+       "x": 1033,
+       "r": 1082,
+       "y": 811,
+       "b": 831
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1090,
+       "r": 1138,
+       "y": 807,
+       "b": 835
+      }
+     ],
+     "note": null,
+     "rowL": 542,
+     "rowR": 1234
+    },
+    {
+     "list": "Fee lines",
+     "text": "Topup\t—\tOct 15\t | $40.00 | Edit | Reset |  | Edited · computed $30.00",
+     "amt": [
+      {
+       "t": "$40.00",
+       "x": 1033,
+       "r": 1082,
+       "y": 870,
+       "b": 890
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1090,
+       "r": 1138,
+       "y": 866,
+       "b": 894
+      },
+      {
+       "t": "Reset",
+       "x": 1146,
+       "r": 1205,
+       "y": 866,
+       "b": 894
+      }
+     ],
+     "note": {
+      "t": "Edited · computed $30.00",
+      "align": "right",
+      "x": 959,
+      "r": 1082,
+      "y": 898,
+      "b": 932,
+      "firstColLeft": 542,
+      "rowRight": 1234
+     },
+     "rowL": 542,
+     "rowR": 1234
+    }
+   ]
+  },
+  "inViewport": {
+   "ok": 10,
+   "fails": []
+  },
+  "editorOpen": {
+   "doc": {
+    "sw": 1280,
+    "iw": 1280
+   },
+   "lists": [
+    {
+     "name": "Postpaid SIM Cards",
+     "tableSw": 692,
+     "tableCw": 692,
+     "chain": [
+      {
+       "tag": "TABLE",
+       "sw": 692,
+       "cw": 692,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 692,
+       "cw": 692,
+       "ox": "auto"
+      },
+      {
+       "tag": "DIV",
+       "sw": 694,
+       "cw": 694,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 734,
+       "cw": 734,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 736,
+       "cw": 736,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 736,
+       "cw": 736,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 784,
+       "cw": 784,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 1040,
+       "cw": 1040,
+       "ox": "visible"
+      }
+     ],
+     "tableRight": 1234,
+     "clipped": [],
+     "headers": [
+      "Number@906",
+      "Billed@1234"
+     ]
+    },
+    {
+     "name": "Fee lines",
+     "tableSw": 692,
+     "tableCw": 692,
+     "chain": [
+      {
+       "tag": "TABLE",
+       "sw": 692,
+       "cw": 692,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 692,
+       "cw": 692,
+       "ox": "auto"
+      },
+      {
+       "tag": "DIV",
+       "sw": 694,
+       "cw": 694,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 734,
+       "cw": 734,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 736,
+       "cw": 736,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 736,
+       "cw": 736,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 784,
+       "cw": 784,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 1040,
+       "cw": 1040,
+       "ox": "visible"
+      }
+     ],
+     "tableRight": 1234,
+     "clipped": [],
+     "headers": [
+      "Type@614",
+      "Description@860",
+      "Logged@943",
+      "Billed@1234"
+     ]
+    }
+   ],
+   "notes": [],
+   "rows": [
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0101\t | $70.50 | Edit | Reset |  | Edited · computed $65.00",
+     "amt": [
+      {
+       "t": "$70.50",
+       "x": 1033,
+       "r": 1082,
+       "y": 356,
+       "b": 376
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1090,
+       "r": 1138,
+       "y": 352,
+       "b": 380
+      },
+      {
+       "t": "Reset",
+       "x": 1146,
+       "r": 1205,
+       "y": 352,
+       "b": 380
+      }
+     ],
+     "note": {
+      "t": "Edited · computed $65.00",
+      "align": "right",
+      "x": 934,
+      "r": 1082,
+      "y": 384,
+      "b": 401,
+      "firstColLeft": 542,
+      "rowRight": 1234
+     },
+     "rowL": 542,
+     "rowR": 1234
+    },
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0102\t | Billed amount for SIM +1-555-0102 (USD) | Save | Cancel",
+     "amt": [],
+     "btns": [
+      {
+       "t": "Save",
+       "x": 1088,
+       "r": 1144,
+       "y": 426,
+       "b": 454
+      },
+      {
+       "t": "Cancel",
+       "x": 1150,
+       "r": 1218,
+       "y": 426,
+       "b": 454
+      }
+     ],
+     "note": null,
+     "rowL": 542,
+     "rowR": 1234
+    },
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0103 | Cancelled Oct 15, 2026 — still billed through this month | \t | $60.00 | Edit",
+     "amt": [
+      {
+       "t": "$60.00",
+       "x": 1033,
+       "r": 1082,
+       "y": 490,
+       "b": 510
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1090,
+       "r": 1138,
+       "y": 486,
+       "b": 514
+      }
+     ],
+     "note": null,
+     "rowL": 542,
+     "rowR": 1234
+    },
+    {
+     "list": "Fee lines",
+     "text": "Topup\tTopup 25 GB data for the pilot handsets\tOct 15\t | $45.00 | Edit",
+     "amt": [
+      {
+       "t": "$45.00",
+       "x": 1033,
+       "r": 1082,
+       "y": 646,
+       "b": 666
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1090,
+       "r": 1138,
+       "y": 642,
+       "b": 670
+      }
+     ],
+     "note": null,
+     "rowL": 542,
+     "rowR": 1234
+    },
+    {
+     "list": "Fee lines",
+     "text": "Topup\t—\tOct 15\t | $40.00 | Edit | Reset |  | Edited · computed $30.00",
+     "amt": [
+      {
+       "t": "$40.00",
+       "x": 1033,
+       "r": 1082,
+       "y": 705,
+       "b": 725
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1090,
+       "r": 1138,
+       "y": 701,
+       "b": 729
+      },
+      {
+       "t": "Reset",
+       "x": 1146,
+       "r": 1205,
+       "y": 701,
+       "b": 729
+      }
+     ],
+     "note": {
+      "t": "Edited · computed $30.00",
+      "align": "right",
+      "x": 959,
+      "r": 1082,
+      "y": 733,
+      "b": 767,
+      "firstColLeft": 542,
+      "rowRight": 1234
+     },
+     "rowL": 542,
+     "rowR": 1234
+    }
+   ]
+  },
+  "editor": {
+   "field": {
+    "x": 970,
+    "r": 1082,
+    "y": 426,
+    "b": 454
+   },
+   "save": {
+    "x": 1088,
+    "r": 1144,
+    "y": 426,
+    "b": 454
+   },
+   "cancel": {
+    "x": 1150,
+    "r": 1218,
+    "y": 426,
+    "b": 454
+   }
+  }
+ },
+ "1366": {
+  "closed": {
+   "doc": {
+    "sw": 1366,
+    "iw": 1366
+   },
+   "lists": [
+    {
+     "name": "Postpaid SIM Cards",
+     "tableSw": 778,
+     "tableCw": 778,
+     "chain": [
+      {
+       "tag": "TABLE",
+       "sw": 778,
+       "cw": 778,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 778,
+       "cw": 778,
+       "ox": "auto"
+      },
+      {
+       "tag": "DIV",
+       "sw": 780,
+       "cw": 780,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 820,
+       "cw": 820,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 822,
+       "cw": 822,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 822,
+       "cw": 822,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 870,
+       "cw": 870,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 1126,
+       "cw": 1126,
+       "ox": "visible"
+      }
+     ],
+     "tableRight": 1320,
+     "clipped": [],
+     "headers": [
+      "Number@951",
+      "Billed@1320"
+     ]
+    },
+    {
+     "name": "Fee lines",
+     "tableSw": 778,
+     "tableCw": 778,
+     "chain": [
+      {
+       "tag": "TABLE",
+       "sw": 778,
+       "cw": 778,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 778,
+       "cw": 778,
+       "ox": "auto"
+      },
+      {
+       "tag": "DIV",
+       "sw": 780,
+       "cw": 780,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 820,
+       "cw": 820,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 822,
+       "cw": 822,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 822,
+       "cw": 822,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 870,
+       "cw": 870,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 1126,
+       "cw": 1126,
+       "ox": "visible"
+      }
+     ],
+     "tableRight": 1320,
+     "clipped": [],
+     "headers": [
+      "Type@617",
+      "Description@917",
+      "Logged@1001",
+      "Billed@1320"
+     ]
+    }
+   ],
+   "notes": [],
+   "rows": [
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0101\t | $70.50 | Edit | Reset |  | Edited · computed $65.00",
+     "amt": [
+      {
+       "t": "$70.50",
+       "x": 1119,
+       "r": 1168,
+       "y": 435,
+       "b": 455
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1176,
+       "r": 1224,
+       "y": 431,
+       "b": 459
+      },
+      {
+       "t": "Reset",
+       "x": 1232,
+       "r": 1291,
+       "y": 431,
+       "b": 459
+      }
+     ],
+     "note": {
+      "t": "Edited · computed $65.00",
+      "align": "right",
+      "x": 1020,
+      "r": 1168,
+      "y": 463,
+      "b": 480,
+      "firstColLeft": 542,
+      "rowRight": 1320
+     },
+     "rowL": 542,
+     "rowR": 1320
+    },
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0102\t | $31.40 | Edit | Reset |  | Edited · computed $80.00",
+     "amt": [
+      {
+       "t": "$31.40",
+       "x": 1119,
+       "r": 1168,
+       "y": 509,
+       "b": 529
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1176,
+       "r": 1224,
+       "y": 505,
+       "b": 533
+      },
+      {
+       "t": "Reset",
+       "x": 1232,
+       "r": 1291,
+       "y": 505,
+       "b": 533
+      }
+     ],
+     "note": {
+      "t": "Edited · computed $80.00",
+      "align": "right",
+      "x": 1020,
+      "r": 1168,
+      "y": 537,
+      "b": 554,
+      "firstColLeft": 542,
+      "rowRight": 1320
+     },
+     "rowL": 542,
+     "rowR": 1320
+    },
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0103 | Cancelled Oct 15, 2026 — still billed through this month | \t | $60.00 | Edit",
+     "amt": [
+      {
+       "t": "$60.00",
+       "x": 1119,
+       "r": 1168,
+       "y": 589,
+       "b": 609
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1176,
+       "r": 1224,
+       "y": 585,
+       "b": 613
+      }
+     ],
+     "note": null,
+     "rowL": 542,
+     "rowR": 1320
+    },
+    {
+     "list": "Fee lines",
+     "text": "Topup\tTopup 25 GB data for the pilot handsets\tOct 15\t | $45.00 | Edit",
+     "amt": [
+      {
+       "t": "$45.00",
+       "x": 1119,
+       "r": 1168,
+       "y": 740,
+       "b": 760
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1176,
+       "r": 1224,
+       "y": 736,
+       "b": 764
+      }
+     ],
+     "note": null,
+     "rowL": 542,
+     "rowR": 1320
+    },
+    {
+     "list": "Fee lines",
+     "text": "Topup\t—\tOct 15\t | $40.00 | Edit | Reset |  | Edited · computed $30.00",
+     "amt": [
+      {
+       "t": "$40.00",
+       "x": 1119,
+       "r": 1168,
+       "y": 793,
+       "b": 813
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1176,
+       "r": 1224,
+       "y": 789,
+       "b": 817
+      },
+      {
+       "t": "Reset",
+       "x": 1232,
+       "r": 1291,
+       "y": 789,
+       "b": 817
+      }
+     ],
+     "note": {
+      "t": "Edited · computed $30.00",
+      "align": "right",
+      "x": 1020,
+      "r": 1168,
+      "y": 821,
+      "b": 838,
+      "firstColLeft": 542,
+      "rowRight": 1320
+     },
+     "rowL": 542,
+     "rowR": 1320
+    }
+   ]
+  },
+  "inViewport": {
+   "ok": 10,
+   "fails": []
+  },
+  "editorOpen": {
+   "doc": {
+    "sw": 1366,
+    "iw": 1366
+   },
+   "lists": [
+    {
+     "name": "Postpaid SIM Cards",
+     "tableSw": 778,
+     "tableCw": 778,
+     "chain": [
+      {
+       "tag": "TABLE",
+       "sw": 778,
+       "cw": 778,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 778,
+       "cw": 778,
+       "ox": "auto"
+      },
+      {
+       "tag": "DIV",
+       "sw": 780,
+       "cw": 780,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 820,
+       "cw": 820,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 822,
+       "cw": 822,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 822,
+       "cw": 822,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 870,
+       "cw": 870,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 1126,
+       "cw": 1126,
+       "ox": "visible"
+      }
+     ],
+     "tableRight": 1320,
+     "clipped": [],
+     "headers": [
+      "Number@951",
+      "Billed@1320"
+     ]
+    },
+    {
+     "name": "Fee lines",
+     "tableSw": 778,
+     "tableCw": 778,
+     "chain": [
+      {
+       "tag": "TABLE",
+       "sw": 778,
+       "cw": 778,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 778,
+       "cw": 778,
+       "ox": "auto"
+      },
+      {
+       "tag": "DIV",
+       "sw": 780,
+       "cw": 780,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 820,
+       "cw": 820,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 822,
+       "cw": 822,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 822,
+       "cw": 822,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 870,
+       "cw": 870,
+       "ox": "visible"
+      },
+      {
+       "tag": "DIV",
+       "sw": 1126,
+       "cw": 1126,
+       "ox": "visible"
+      }
+     ],
+     "tableRight": 1320,
+     "clipped": [],
+     "headers": [
+      "Type@617",
+      "Description@917",
+      "Logged@1001",
+      "Billed@1320"
+     ]
+    }
+   ],
+   "notes": [],
+   "rows": [
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0101\t | $70.50 | Edit | Reset |  | Edited · computed $65.00",
+     "amt": [
+      {
+       "t": "$70.50",
+       "x": 1119,
+       "r": 1168,
+       "y": 385,
+       "b": 405
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1176,
+       "r": 1224,
+       "y": 381,
+       "b": 409
+      },
+      {
+       "t": "Reset",
+       "x": 1232,
+       "r": 1291,
+       "y": 381,
+       "b": 409
+      }
+     ],
+     "note": {
+      "t": "Edited · computed $65.00",
+      "align": "right",
+      "x": 1020,
+      "r": 1168,
+      "y": 413,
+      "b": 430,
+      "firstColLeft": 542,
+      "rowRight": 1320
+     },
+     "rowL": 542,
+     "rowR": 1320
+    },
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0102\t | Billed amount for SIM +1-555-0102 (USD) | Save | Cancel",
+     "amt": [],
+     "btns": [
+      {
+       "t": "Save",
+       "x": 1174,
+       "r": 1230,
+       "y": 455,
+       "b": 483
+      },
+      {
+       "t": "Cancel",
+       "x": 1236,
+       "r": 1304,
+       "y": 455,
+       "b": 483
+      }
+     ],
+     "note": null,
+     "rowL": 542,
+     "rowR": 1320
+    },
+    {
+     "list": "Postpaid SIM Cards",
+     "text": "+1-555-0103 | Cancelled Oct 15, 2026 — still billed through this month | \t | $60.00 | Edit",
+     "amt": [
+      {
+       "t": "$60.00",
+       "x": 1119,
+       "r": 1168,
+       "y": 518,
+       "b": 538
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1176,
+       "r": 1224,
+       "y": 514,
+       "b": 542
+      }
+     ],
+     "note": null,
+     "rowL": 542,
+     "rowR": 1320
+    },
+    {
+     "list": "Fee lines",
+     "text": "Topup\tTopup 25 GB data for the pilot handsets\tOct 15\t | $45.00 | Edit",
+     "amt": [
+      {
+       "t": "$45.00",
+       "x": 1119,
+       "r": 1168,
+       "y": 669,
+       "b": 689
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1176,
+       "r": 1224,
+       "y": 665,
+       "b": 693
+      }
+     ],
+     "note": null,
+     "rowL": 542,
+     "rowR": 1320
+    },
+    {
+     "list": "Fee lines",
+     "text": "Topup\t—\tOct 15\t | $40.00 | Edit | Reset |  | Edited · computed $30.00",
+     "amt": [
+      {
+       "t": "$40.00",
+       "x": 1119,
+       "r": 1168,
+       "y": 722,
+       "b": 742
+      }
+     ],
+     "btns": [
+      {
+       "t": "Edit",
+       "x": 1176,
+       "r": 1224,
+       "y": 718,
+       "b": 746
+      },
+      {
+       "t": "Reset",
+       "x": 1232,
+       "r": 1291,
+       "y": 718,
+       "b": 746
+      }
+     ],
+     "note": {
+      "t": "Edited · computed $30.00",
+      "align": "right",
+      "x": 1020,
+      "r": 1168,
+      "y": 750,
+      "b": 767,
+      "firstColLeft": 542,
+      "rowRight": 1320
+     },
+     "rowL": 542,
+     "rowR": 1320
+    }
+   ]
+  },
+  "editor": {
+   "field": {
+    "x": 1056,
+    "r": 1168,
+    "y": 455,
+    "b": 483
+   },
+   "save": {
+    "x": 1174,
+    "r": 1230,
+    "y": 455,
+    "b": 483
+   },
+   "cancel": {
+    "x": 1236,
+    "r": 1304,
+    "y": 455,
+    "b": 483
+   }
+  }
+ }
+}

@@ -1,0 +1,42 @@
+verify: mvn verify && npm run lint && build && tsc && npm test && test:e2e:isolated; JAVA_HOME=openjdk@21; tip 8a62a02
+16:27:51.472 WARN  [:] c.r.backend.web.AuthController - login failed username=deact-agent-c41d56b6-a3e3-4fb4-893d-4de17ee01ae7@agents.example
+16:27:51.549 WARN  [:] c.r.backend.web.AuthController - login failed username=deact-agent-c41d56b6-a3e3-4fb4-893d-4de17ee01ae7@agents.example
+16:27:51.856 WARN  [:] c.r.backend.web.AuthController - login failed username=deact-tester-95a16c81-4e04-4ac0-9e06-bf4d6a8df5a3@example.com
+16:27:51.932 WARN  [:] c.r.backend.web.AuthController - login failed username=deact-tester-95a16c81-4e04-4ac0-9e06-bf4d6a8df5a3@example.com
+16:27:57.539 WARN  [:] c.r.backend.web.AuthController - login failed username=activation-984f9f64-e2bb-4ca8-994b-e7855f0bb150@testers.example
+16:28:40.190 WARN  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.remotesupport.backend.dto.AgentCreatedResponse> com.remotesupport.backend.web.AgentController.create(com.remotesupport.backend.dto.AgentCreateRequest,com.remotesupport.backend.security.JwtService$AuthenticatedPrincipal): [Field error in object 'agentCreateRequest' on field 'salaryAmount': rejected value [-1.00]; codes [DecimalMin.agentCreateRequest.salaryAmount,DecimalMin.salaryAmount,DecimalMin.java.math.BigDecimal,DecimalMin]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [agentCreateRequest.salaryAmount,salaryAmount]; arguments []; default message [salaryAmount],true,0.0]; default message [must be greater than or equal to 0.0]] ]
+16:28:41.569 WARN  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [0] in public org.springframework.http.ResponseEntity<com.remotesupport.backend.dto.AgentCreatedResponse> com.remotesupport.backend.web.AgentController.create(com.remotesupport.backend.dto.AgentCreateRequest,com.remotesupport.backend.security.JwtService$AuthenticatedPrincipal): [Field error in object 'agentCreateRequest' on field 'username': rejected value [null]; codes [NotBlank.agentCreateRequest.username,NotBlank.username,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [agentCreateRequest.username,username]; arguments []; default message [username]]; default message [must not be blank]] ]
+16:28:50.743 WARN  [11111111-1111-1111-1111-111111111111:22222222-2222-2222-2222-222222222222] o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.bind.MethodArgumentNotValidException: Validation failed for argument [1] in public org.springframework.http.ResponseEntity<com.remotesupport.backend.dto.AgentCreatedResponse> com.remotesupport.backend.web.AgentController.createLogin(java.util.UUID,com.remotesupport.backend.dto.AgentLoginCreateRequest,com.remotesupport.backend.security.JwtService$AuthenticatedPrincipal): [Field error in object 'agentLoginCreateRequest' on field 'username': rejected value [null]; codes [NotBlank.agentLoginCreateRequest.username,NotBlank.username,NotBlank.java.lang.String,NotBlank]; arguments [org.springframework.context.support.DefaultMessageSourceResolvable: codes [agentLoginCreateRequest.username,username]; arguments []; default message [username]]; default message [must not be blank]] ]
+16:29:05.301 ERROR [:] o.f.core.internal.command.DbMigrate - Migration of schema "public" to version "55 - add global username index" failed! Changes successfully rolled back.
+[INFO] Tests run: 787, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+ Test Files  69 passed (69)
+      Tests  494 passed (494)
+  106 passed (4.9m)
+EXIT=0
+
+  ✓   97 tests/e2e/manager-resets-a-password.spec.ts:192:7 › manager resets a Tester's password › a Tester whose reveal was closed with Escape without copying can still be reset and sign in (2.5s)
+  ✓   98 tests/e2e/manager-resets-a-password.spec.ts:216:7 › manager resets a Tester's password › the Tester reset response is never cacheable (2.1s)
+  ✓   99 tests/e2e/manager-resets-a-password.spec.ts:230:7 › manager resets a Tester's password › the reset opens, confirms, copies and closes by keyboard, then opens and closes with Escape (2.2s)
+  ✓  100 tests/e2e/manager-resets-a-password.spec.ts:264:7 › manager resets a Tester's password › at the mobile breakpoint the action is reachable and the dialog stays inside the viewport (2.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3054102308'
+[WebServer] }
+  ✓  101 tests/e2e/return-client-owned-smartphones.spec.ts:28:7 › return client-owned smartphones › a tester returns a client-owned smartphone, the agent completes it, and the fleet shows it retired with its sim card uninstalled (5.4s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3054102308'
+[WebServer] }
+  ✓  102 tests/e2e/send-a-client-invoice-back.spec.ts:25:7 › send a client invoice back › manager-sends-back-agent-corrects-and-resends-manager-approves (9.8s)
+[WebServer] ⨯ Error: The destination stream closed early.
+[WebServer]     at ignore-listed frames {
+[WebServer]   digest: '3054102308'
+[WebServer] }
+  ✓  103 tests/e2e/sim-swap-moves.spec.ts:26:7 › sim swap moves › a tester submits an exchange between two smartphones, the agent completes it, and both fleet rows swap (6.3s)
+  ✓  104 tests/e2e/tester-request-submission.spec.ts:53:7 › tester request submission › a tester submits every request type, another tester at the same client sees them, and the agent sees them filtered by contract (5.9s)
+  ✓  105 tests/e2e/tester-request-submission.spec.ts:102:7 › tester request submission › a tester from a different client and an agent on a different contract are both rejected (4.3s)
+  ✓  106 tests/e2e/topup-fee-from-option.spec.ts:14:7 › topup fee from a topup option › an agent logs a topup fee by picking an option and adjusting the amount (4.0s)
+
+  106 passed (4.9m)
+EXIT=0

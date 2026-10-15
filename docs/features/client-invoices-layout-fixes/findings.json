@@ -4,7 +4,7 @@
     {
       "id": "F1",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
@@ -15,7 +15,7 @@
     {
       "id": "F2",
       "type": "spec-partial",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
@@ -26,7 +26,7 @@
     {
       "id": "F3",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
@@ -59,7 +59,7 @@
     {
       "id": "F6",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
@@ -103,7 +103,7 @@
     {
       "id": "F10",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
@@ -158,7 +158,7 @@
     {
       "id": "F15",
       "type": "acceptance-failed",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "acceptance-runner",
       "after_review": false,
       "in_changed_lines": true,
@@ -169,7 +169,7 @@
     {
       "id": "F16",
       "type": "acceptance-failed",
-      "state": "open",
+      "state": "confirmed",
       "raised_by": "acceptance-runner",
       "after_review": false,
       "in_changed_lines": false,
@@ -180,13 +180,24 @@
     {
       "id": "F17",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "acceptance-runner",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/invoice-line-table.tsx:45",
       "citation": "spec.md Solution: \"Nothing on the page scrolls sideways\"; story 6 (amount and Edit on one line in the Billed column); Solution Width: \"The 720px minimum comes back at `xl`, where the invoice area is at least 736px wide.\"",
       "note": "At exactly 1280x800 the line-table wrapper is 692px wide against the 720px minimum, so it scrolls sideways and clips the Billed header, the 'Edited · computed' notes and the editor's Cancel (evidence/step-5-overflow-1280-vs-1440.txt). The spec's 736px premise is false at 1280. Orchestrator's decision (a how): drop the 720px minimum at xl for these two tables too, so they fit their wrapper at every width; record it as an (after review) decision; check 1280 and 1366."
+    },
+    {
+      "id": "F18",
+      "type": "spec-partial",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "DESIGN.md:166",
+      "citation": "spec.md story 21: \"As the team, I want `DESIGN.md` to state where invoice lines reflow below 1280px, how a side list row is laid out, and that invoice line actions follow the Fleet correction controls, so that the written rules stay true.\"",
+      "note": "The F17 fix (no 720px minimum at xl either) leaves DESIGN.md:166 implying the Client Invoice lines keep min-w-[720px] at xl; add a clause that these two line tables carry no 720px minimum at any width."
     }
   ]
 }

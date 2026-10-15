@@ -4,26 +4,28 @@
     {
       "id": "F1",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/contract-side-list.tsx:96",
       "citation": "DESIGN.md:134 \"Warning …: In Progress, Awaiting approval, In Repair.\" and the amendment DESIGN.md:227 \"a second, warning-toned `Badge` reading \"Sent back\": the mark that tells the Agent who needs correcting.\"",
       "note": "The \"Sent back\" mark and \"Awaiting approval\" are identical amber pills, so the mark that says 'this needs you' reads like 'nothing to do'. Keep the label and tone; give the mark the existing IconAlertTriangle (h-3 w-3) in place of the dot, and amend DESIGN.md:134/:227 to name it.",
-      "fixed_in": "4fe9c35"
+      "fixed_in": "4fe9c35",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F2",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/ui/contract-switcher.tsx:53",
       "citation": "DESIGN.md:227 \"(clamped, full name in `title`)\"; PRODUCT.md Accessibility \"Reasonable defaults…\"",
       "note": "The truncated single-Contract chip gives no way to read the full name. Add title={current?.label} to the span or chip div (no pixels change).",
-      "fixed_in": "f9aba4b"
+      "fixed_in": "f9aba4b",
+      "confirmed_by": "design-audit (fresh, re-review)"
     },
     {
       "id": "F3",

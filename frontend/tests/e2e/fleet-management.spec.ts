@@ -216,6 +216,11 @@ test.describe("fleet management", () => {
     await simRow
       .getByLabel("Installed in")
       .selectOption({ label: `iPhone 14 — SN-install-${RUN_ID}` });
+    // Wait for the refreshed row before switching tabs: a tab click writes the address while the
+    // refresh is in flight, and the refresh result can be dropped by that write.
+    await expect(simRow.getByLabel("Installed in").locator("option:checked")).toHaveText(
+      `iPhone 14 — SN-install-${RUN_ID}`,
+    );
 
     // Scoped to the Smartphones table specifically: the SIM Cards table's own row for this SIM
     // now also contains "iPhone 14" text (its "Installed in" control's selected option), so an

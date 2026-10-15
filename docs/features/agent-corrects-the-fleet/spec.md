@@ -347,19 +347,11 @@ returns, the rendered accessibility tree.
 
 - **(answered by the human, 2026-10-15: "both directions")** The Agent may correct a Smartphone's owner in both directions, Company to Client included, though a Client-owned phone's Return then skips the Manager's approval; every change is audit-logged with the Agent's login and role.
 
+- **(answered by the human, 2026-10-15: "ok")** The serial Edit becomes the `ghost` variant named "Edit serial, {serial}", as a prefactor ticket `serial-edit-matches-corrections`, paying debt F21. Reason: this feature puts the chip and the ghost Edits on the same row for the first time.
+
 ## Open questions
 
-1. **Does the older serial Edit become the quiet button now?** (moved here
-   from `## Decisions taken` by the orchestrator: the human sent F21 to debt
-   at the last merge gate on 2026-10-14, so reversing it is theirs.) On the
-   Agent's Fleet rows the serial Edit is the coloured chip while the four new
-   correction Edits beside it are quiet.
-   - **Recommendation:** yes, as a small first ticket
-     (`serial-edit-matches-corrections`): the serial Edit becomes the
-     `ghost` variant named "Edit serial, {serial}". Reason: this feature puts
-     both looks on the same row for the first time.
-   - **Alternative:** keep it on the debt list; the ticket is dropped.
-   - **Blocks:** ticket `serial-edit-matches-corrections`.
+None.
 
 ## Acceptance walkthrough
 

@@ -11,6 +11,8 @@ import {
   login,
   logout,
   selectContractInSwitcher,
+  fleetTab,
+  selectInSideList,
   simCardsTable,
   submitRequestAsTester,
 } from "./helpers";
@@ -37,7 +39,7 @@ async function completeAndGoToFleet(page: Page, row: Locator, clientName: string
   await expect(row).toContainText("Completed");
 
   await page.goto("/agent/fleet");
-  await selectContractInSwitcher(page, clientName);
+  await selectInSideList(page, "Clients", clientName);
 }
 
 /** POSTs a Fee for `requestId` and returns the response status — used to probe the 400 boundary. */
@@ -211,6 +213,7 @@ test.describe("fee logging and provisioning", () => {
 
     // Regression (fleet-management): the Fleet view shows the new unit, and the older one
     // untouched — Provision no longer retires anything.
+    await fleetTab(page, "Smartphones");
     await expect(page.getByRole("row", { name: new RegExp(oldSerial) })).toContainText("Active");
     await expect(page.getByRole("row", { name: "iPhone 15" })).toContainText("Active");
   });

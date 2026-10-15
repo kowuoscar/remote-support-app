@@ -1,66 +1,116 @@
 "use client";
 
-import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
+import { useMemo } from "react";
+import { ContractSwitcher } from "@/components/ui/contract-switcher";
+import { SideList, SideListLayout } from "@/components/ui/side-list";
 import { SubmitRequestDialog } from "@/components/client/submit-request-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
-import { FleetTableCard } from "@/components/fleet/fleet-table-card";
+import { FleetTabsCard } from "@/components/fleet/fleet-tabs-card";
 import { SmartphoneFleetTable } from "@/components/fleet/smartphone-fleet-table";
 import { SimCardFleetTable } from "@/components/fleet/sim-card-fleet-table";
-import { useContractScopedFleet } from "@/components/fleet/use-contract-scoped-fleet";
-import { IconContracts, IconSim, IconSmartphone } from "@/components/icons";
+import {
+  countryRows,
+  sortByCountry,
+  useContractScopedFleet,
+  type FleetContract,
+} from "@/components/fleet/use-contract-scoped-fleet";
+import { IconContracts } from "@/components/icons";
+import { PAGE_PADDING, PAGE_WIDTH } from "@/components/app-shell/surface-page";
 import { type SimCardListItem, type SmartphoneListItem } from "@/lib/api/types";
 
+const FLEET_PATH = "/client/fleet";
+
+/**
+ * The Tester's Fleet (side-lists-and-tabs spec, "Fleet"). With several Contracts, a "Contracts"
+ * side list by Country (a dropdown below `xl`); with one, no column and today's chip above the tabs.
+ * "Submit request" stays at the right of the detail area's first row either way.
+ */
 export function ClientFleetView({
   smartphones,
   simCards,
   contracts,
+  initialContractId,
+  initialTab,
 }: {
   smartphones: SmartphoneListItem[];
   simCards: SimCardListItem[];
-  contracts: ContractOption[];
+  contracts: FleetContract[];
+  /** The page's `contract` search parameter, unvalidated: used only when it names one of `contracts`. */
+  initialContractId?: string;
+  /** The page's `tab` search parameter, unvalidated. */
+  initialTab?: string;
 }) {
-  const { contractId, setContractId, phones, sims } = useContractScopedFleet(contracts, smartphones, simCards);
+  const ordered = useMemo(() => sortByCountry(contracts), [contracts]);
+  const { contractId, select, detailRef, tab, selectTab, hrefFor, phones, sims } = useContractScopedFleet(
+    ordered,
+    smartphones,
+    simCards,
+    initialContractId,
+    initialTab,
+  );
 
-  if (contracts.length === 0) {
+  if (ordered.length === 0) {
     return (
-      <EmptyState
-        icon={<IconContracts className="h-5 w-5" />}
-        title="No contracts yet"
-        description="Once your company has a contract in place, its fleet of smartphones and SIM cards shows up here."
-      />
+      <div className={PAGE_PADDING}>
+        <div className={PAGE_WIDTH}>
+          <EmptyState
+            icon={<IconContracts className="h-5 w-5" />}
+            title="No contracts yet"
+            description="Once your company has a contract in place, its fleet of smartphones and SIM cards shows up here."
+          />
+        </div>
+      </div>
     );
   }
 
+  const several = ordered.length > 1;
+
   return (
-    <div className="flex flex-col gap-5">
+    <SideListLayout
+      list={
+        several ? (
+          <SideList
+            label="Contracts"
+            items={countryRows(ordered)}
+            selectedId={contractId}
+            hrefFor={(id) => hrefFor(FLEET_PATH, id)}
+            onSelect={select}
+          />
+        ) : null
+      }
+      // The switcher (or, with one Contract, the static chip) shares the first row with "Submit
+      // request", so the button stays at the top at every width; at `xl` the column replaces the switcher.
+      dropdown={null}
+      detailRef={detailRef}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <ContractSwitcher contracts={contracts} value={contractId} onChange={setContractId} />
-        <SubmitRequestDialog contracts={contracts} />
+        {/* min-w-0 / max-w-full: a long Client name is cut inside the row, never widening the page. */}
+        <div className={several ? "min-w-0 max-w-full xl:hidden" : "min-w-0 max-w-full"}>
+          <ContractSwitcher contracts={ordered} value={contractId} onChange={select} />
+        </div>
+        <div className="ml-auto">
+          <SubmitRequestDialog contracts={ordered} />
+        </div>
       </div>
 
-      <FleetTableCard
-        icon={<IconSmartphone className="h-4 w-4 text-ink-mute" />}
-        title="Smartphones"
-        count={phones.length}
-        isEmpty={phones.length === 0}
-        emptyIcon={<IconSmartphone className="h-5 w-5" />}
-        emptyTitle="No smartphones on this contract yet"
-        emptyDescription="Your Agent provisions smartphones onto this contract's fleet."
-      >
-        <SmartphoneFleetTable phones={phones} simCards={sims} />
-      </FleetTableCard>
-
-      <FleetTableCard
-        icon={<IconSim className="h-4 w-4 text-ink-mute" />}
-        title="SIM Cards"
-        count={sims.length}
-        isEmpty={sims.length === 0}
-        emptyIcon={<IconSim className="h-5 w-5" />}
-        emptyTitle="No SIM cards on this contract yet"
-        emptyDescription="Your Agent provisions SIM cards onto this contract's fleet."
-      >
-        <SimCardFleetTable sims={sims} currency={contracts.find((contract) => contract.id === contractId)?.currency} />
-      </FleetTableCard>
-    </div>
+      <FleetTabsCard
+        tab={tab}
+        onTab={selectTab}
+        simCards={{
+          count: sims.length,
+          emptyTitle: "No SIM cards on this contract yet",
+          emptyDescription: "Your Agent provisions SIM cards onto this contract's fleet.",
+          table: (
+            <SimCardFleetTable sims={sims} currency={ordered.find((contract) => contract.id === contractId)?.currency} />
+          ),
+        }}
+        smartphones={{
+          count: phones.length,
+          emptyTitle: "No smartphones on this contract yet",
+          emptyDescription: "Your Agent provisions smartphones onto this contract's fleet.",
+          table: <SmartphoneFleetTable phones={phones} simCards={sims} />,
+        }}
+      />
+    </SideListLayout>
   );
 }

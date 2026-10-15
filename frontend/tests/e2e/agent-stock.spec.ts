@@ -11,6 +11,7 @@ import {
   logout,
   pendingRequestRow,
   selectContractInSwitcher,
+  selectInSideList,
   submitRequestAsTester,
 } from "./helpers";
 
@@ -72,7 +73,7 @@ test.describe("agent stock", () => {
     // The Fleet loses it entirely (ticket AC: "appears on no Fleet") — API-level, mirroring
     // return-client-owned-smartphones.spec.ts's own precedent.
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
     const smartphones = await fetchSmartphones(page, contractId);
     expect(smartphones.some((phone) => phone.serial === serial)).toBe(false);
 
@@ -154,7 +155,7 @@ test.describe("agent stock", () => {
     // The Fleet gains the Stock Smartphone, Active, at its original serial (ticket AC: "the unit
     // leaves the Stock page and appears in the Fleet") — API-level, mirroring the precedent above.
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
     const smartphones = await fetchSmartphones(page, contractId);
     const fulfilled = smartphones.find((phone) => phone.serial === serial);
     expect(fulfilled?.status).toBe("ACTIVE");

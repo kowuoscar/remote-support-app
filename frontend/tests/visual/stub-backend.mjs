@@ -433,7 +433,13 @@ const TESTER_SIM_CARDS = [
   [0, "+1-555-0203", "RETIRED"],
   [1, "+44-7700-900201", "ACTIVE"],
   [1, "+44-7700-900202", "RETIRED"],
+  // A 60-character Plan name (side-lists-and-tabs spec): the Fleet cuts it with "…". Retired so no
+  // dashboard count moves, and on the Tester's second Contract, which the Manager's Contract
+  // goldens never show.
+  [1, "+44-7700-900203", "RETIRED", "POSTPAID"],
 ];
+
+const LONG_PLAN_NAME = "Unlimited Premium Postpaid Plan with Roaming and 5G Datapack";
 
 // [contract index, type, status, age in ms]
 const TESTER_REQUESTS = [
@@ -478,7 +484,7 @@ function testerSimCards(contractIndex) {
       carrierName: "AT&T",
       carrierArchived: false,
       postpaidPlanId: plan.id,
-      postpaidPlanName: plan.name,
+      postpaidPlanName: contractIndex === 1 ? LONG_PLAN_NAME : plan.name,
       postpaidPlanArchived: false,
       monthlyFeeAmount: plan.price,
     };

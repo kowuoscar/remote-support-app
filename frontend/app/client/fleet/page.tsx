@@ -16,8 +16,14 @@ export const metadata = { title: "Fleet" };
  * their Client's Fleet, loaded per Contract"). GET /api/contracts already scopes to the caller's
  * own Client's Contracts (fleet-management ticket).
  */
-export default async function ClientFleetPage() {
+export default async function ClientFleetPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ contract?: string | string[]; tab?: string | string[] }>;
+}) {
   await requireTester();
+  const { contract, tab } = await searchParams;
+  const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
   const [contracts, meResponse] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),
@@ -39,6 +45,7 @@ export default async function ClientFleetPage() {
       title="Fleet"
       subtitle="Loaded per Contract"
       viewerLabel={`${me.username ?? "Tester"} · Tester`}
+      bleed
     >
       <ClientFleetView
         smartphones={fleets.flatMap((fleet) => fleet.smartphones)}
@@ -48,7 +55,11 @@ export default async function ClientFleetPage() {
           label: `${c.clientName} — ${countryLabel(c.country)}`,
           meta: countryLabel(c.country),
           currency: c.currency,
+          clientName: c.clientName,
+          countryLabel: countryLabel(c.country),
         }))}
+        initialContractId={first(contract)}
+        initialTab={first(tab)}
       />
     </SurfacePage>
   );

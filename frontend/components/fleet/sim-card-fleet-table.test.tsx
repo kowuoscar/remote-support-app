@@ -131,4 +131,31 @@ describe("SimCardFleetTable", () => {
       expect(screen.getByText("Welcome")).toBeInTheDocument();
     });
   });
+
+  describe("long names", () => {
+    const longPlan = "P".repeat(60);
+    const longCarrier = "C".repeat(60);
+    const long = {
+      ...sim,
+      flavor: "POSTPAID",
+      monthlyFeeAmount: 65,
+      carrierName: longCarrier,
+      postpaidPlanName: longPlan,
+    } as SimCardListItem;
+
+    it("renders a 60-character Plan name and Carrier name whole in their title", () => {
+      render(<SimCardFleetTable sims={[long]} contractId="contract-1" />);
+      expect(screen.getByTitle(longPlan)).toHaveTextContent(longPlan);
+      expect(screen.getByTitle(longCarrier)).toHaveTextContent(longCarrier);
+    });
+
+    it("keeps the Archived badge after the name", () => {
+      const archived = { ...long, postpaidPlanArchived: true, carrierArchived: true } as SimCardListItem;
+      render(<SimCardFleetTable sims={[archived]} contractId="contract-1" />);
+      const planCell = screen.getByTitle(longPlan).closest("td");
+      const carrierCell = screen.getByTitle(longCarrier).closest("td");
+      expect(planCell?.textContent).toBe(`${longPlan}Archived`);
+      expect(carrierCell?.textContent).toBe(`${longCarrier}Archived`);
+    });
+  });
 });

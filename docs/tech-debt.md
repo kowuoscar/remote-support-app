@@ -73,6 +73,10 @@ separated by ` · `.
 - `frontend/components/fleet/smartphone-owner-control.tsx` · smell: Repeated name · "Edit owner of {model}" repeats when several phones share a model; `serial ?? model` would be unique · correct-a-fleet-unit · 2026-10-14
 - `frontend/components/agent/contract-side-list.tsx` · smell: Two looks for Sent back · a row whose own status is "Sent back" keeps the dotted badge while the extra mark has the alert icon; unifying means changing clientInvoiceBadge, which also moves the invoice card · client-invoices-side-list · 2026-10-15
 - `frontend/components/agent/contract-side-list.tsx` · smell: Unused directive · lint warns about an unused eslint-disable at line 54 · client-invoices-side-list · 2026-10-15
+- `frontend/components/fleet/smartphone-serial-control.tsx` · smell: Lost visible label · a phone with no serial now shows "— Edit" instead of "Set serial", named "Edit serial, {model}", which repeats across same-model phones (F4) · agent-corrects-the-fleet · 2026-10-15
+- `frontend/components/fleet/smartphone-serial-control.tsx` · smell: Inline edit not shared · the serial Edit looks like the correction Edits but does not use useInlineEdit: no focus return after Save/Cancel, no Escape, error not linked by aria-describedby (F5) · agent-corrects-the-fleet · 2026-10-15
+- `frontend/components/fleet/smartphone-serial-control.tsx` · smell: Off-scale text size · pre-existing text-[12px]/text-[11px] on the serial input and error, placeholder without ellipsis (F6) · agent-corrects-the-fleet · 2026-10-15
+- `CONTEXT.md` · smell: Repeated clause · the Correction entry says "audit-logged" twice in one sentence (F3) · agent-corrects-the-fleet · 2026-10-15
 
 ## backend
 
@@ -97,3 +101,5 @@ separated by ` · `.
 - `backend/src/main/java/com/remotesupport/backend/web/SmartphoneCorrectionService.java` · smell: Duplicated Code · trim/length and find/no-op/save/audit mirror SimCardCorrectionService (F10) · correct-a-fleet-unit · 2026-10-14
 - `backend/src/main/java/com/remotesupport/backend/web/InvalidCorrectionException.java` · smell: Primitive Obsession · three exceptions each carry a bare String code mirrored in the frontend message maps (F11) · correct-a-fleet-unit · 2026-10-14
 - `backend/src/main/java/com/remotesupport/backend/web/SimCardCorrectionService.java` · smell: Middle Man · catches UnusablePlanException only to rethrow it as InvalidCorrectionException (F12) · correct-a-fleet-unit · 2026-10-14
+- `backend/src/test/java/com/remotesupport/backend/web/SimCardCorrectionApiTest.java` · smell: Duplicated Code · returnToAgentStock and SmartphoneCorrectionApiTest.smartphoneInAgentStock run the same Return-to-stock steps; one helper on IntegrationTest (F1) · agent-corrects-the-fleet · 2026-10-15
+- `backend/src/test/java/com/remotesupport/backend/web/SmartphoneCorrectionApiTest.java` · smell: Duplicated Code · the other-Agent's-Contract setup is repeated 4 times, and the audit tests copy the ListAppender attach/detach; extract otherAgentsContract() and an audit-capture helper (F2) · agent-corrects-the-fleet · 2026-10-15

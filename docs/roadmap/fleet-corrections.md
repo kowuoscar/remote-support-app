@@ -55,7 +55,7 @@ testing; placed first in the epic order by the human the same day.
 ## Features
 
 - [x] `correct-a-fleet-unit` — a Manager or a Tester corrects a SIM Card's number and Postpaid plan, and a Smartphone's model and owner.
-- [ ] `agent-corrects-the-fleet` — the corrections move from the Tester to the Agent: an Agent corrects the four things on their own Contracts' Fleet; a Tester only sees them (acceptance feedback, 2026-10-15).
+- [x] `agent-corrects-the-fleet` — the corrections move from the Tester to the Agent: an Agent corrects the four things on their own Contracts' Fleet; a Tester only sees them (acceptance feedback, 2026-10-15).
 
 ## Reworked
 

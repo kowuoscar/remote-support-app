@@ -55,3 +55,4 @@ testing; placed first in the epic order by the human the same day.
 ## Features
 
 - [x] `client-invoices-side-list` — on desktop, the Agent picks a Contract's Client Invoice from a scrollable list of Clients beside it; a phone keeps the dropdown.
+- [ ] `client-invoices-layout-fixes` — the side list row's status on the name's line; an invoice line's amount and actions on one line on desktop; one-column invoice lines below 1280px, no sideways scroll (acceptance feedback, 2026-10-15).

@@ -1,7 +1,7 @@
 ---
 id: invoice-sim-line-carrier
 title: Show the Carrier and type on every Postpaid SIM line of a Client Invoice
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [backend, frontend]
 stories: [1, 2, 3, 4, 5, 6]

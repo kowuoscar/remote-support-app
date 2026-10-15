@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { EditedLineNote } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
 import { IconAlertTriangle } from "@/components/icons";
+import { LINE_AREA } from "@/components/agent/invoice-line-table";
 import { useAnnouncement } from "@/components/ui/use-announcement";
 import type { EditableClientInvoiceLineKind } from "@/lib/api/types";
 
@@ -34,10 +35,10 @@ function Spinner() {
 
 /**
  * The amount cell of one editable line (a Postpaid SIM or a Fee) on a draft Client Invoice
- * (edit-client-invoice-lines ticket): the billed amount, with an Edit row action that opens an
- * inline amount field (Save, Cancel — no dialog, copied from the Manager's
- * AgentInvoiceOverrideControl), and, once the line differs from its computed amount, the
- * "Edited · computed {amount}" note with a Reset row action. Reset is saving the computed amount.
+ * (edit-client-invoice-lines ticket): the billed amount with a quiet Edit beside it, which opens an
+ * inline amount field (Save, Cancel on one line, the refusal below — the Fleet correction
+ * controls' layout, no dialog), and, once the line differs from its computed amount, a Reset
+ * beside Edit and the "Edited · computed {amount}" note under them. Reset is saving the computed amount.
  * The line is addressed by its kind and source id (the SIM Card or the Fee), the way the backend
  * does; after a save the page refreshes so the base amount, Fees total and total follow.
  */
@@ -140,75 +141,91 @@ export function EditClientInvoiceLineControl({
   const busyClass = pending ? "cursor-not-allowed opacity-50" : undefined;
 
   const errorNote = error ? (
-    <p id={errorId} role="alert" className="flex items-start gap-1.5 text-label-sm text-danger">
+    <p
+      id={errorId}
+      role="alert"
+      className={`flex items-start gap-1.5 text-label-sm text-danger xl:max-w-72 xl:self-end ${LINE_AREA.error}`}
+    >
       <IconAlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" />
       {error}
     </p>
   ) : null;
 
+  // Below `xl` the control's wrappers are `display: contents`, so its parts are grid items of the
+  // line's row and name their own area (invoice-line-table); at `xl` they stack in the Billed cell.
   return (
-    <div className="relative flex flex-col items-end gap-1.5">
+    <div className="max-xl:contents xl:flex xl:flex-col xl:items-end xl:gap-1">
       {editing ? (
-        <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="flex flex-col items-end gap-2">
+        <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="max-xl:contents xl:flex xl:flex-col xl:gap-1.5">
           <label htmlFor={inputId} className="sr-only">
             Billed amount for {label} ({currency})
           </label>
-          <div className="w-28">
-            <Input
-              ref={field}
-              id={inputId}
-              name="amount"
-              autoFocus
-              autoComplete="off"
-              inputMode="decimal"
-              value={value}
-              onChange={(event) => setValue(event.target.value)}
-              readOnly={pending}
-              aria-busy={pending || undefined}
-              aria-describedby={error ? errorId : undefined}
-              invalid={Boolean(error)}
-              className="tnum text-right"
-            />
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={close}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="secondary" size="sm" {...busyProps} className={busyClass}>
+          <div className={`flex items-center gap-1.5 xl:justify-end ${LINE_AREA.editor}`}>
+            <div className="w-28 max-xl:w-auto max-xl:min-w-0 max-xl:flex-1">
+              <Input
+                ref={field}
+                id={inputId}
+                name="amount"
+                autoFocus
+                autoComplete="off"
+                inputMode="decimal"
+                value={value}
+                onChange={(event) => setValue(event.target.value)}
+                readOnly={pending}
+                aria-busy={pending || undefined}
+                aria-describedby={error ? errorId : undefined}
+                invalid={Boolean(error)}
+                // `h-7!`: Input's own `h-9` is joined, not merged, and comes later in the cascade.
+                className="tnum h-7! text-right text-label-sm"
+              />
+            </div>
+            <Button type="submit" variant="row" size="sm" {...busyProps} className={busyClass}>
               {pending ? <Spinner /> : null}
               Save
+            </Button>
+            <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={close}>
+              Cancel
             </Button>
           </div>
           {errorNote}
         </form>
       ) : (
         <>
-          <Money amount={amount} currency={currency} />
-          {/* Names the line for the buttons' description without entering the cell's own name. */}
-          <span id={labelId} hidden>
-            {label}
-          </span>
-          {edited ? <EditedLineNote computedAmount={computedAmount} currency={currency} /> : null}
-          <div className="flex items-center gap-1.5">
-            <Button ref={editButton} type="button" variant="row" size="sm" aria-describedby={labelId} onClick={open}>
-              Edit
-            </Button>
-            {edited ? (
-              <Button
-                ref={resetButton}
-                type="button"
-                variant="ghost"
-                size="sm"
-                {...busyProps}
-                className={busyClass}
-                aria-describedby={error ? `${labelId} ${errorId}` : labelId}
-                onClick={() => !pending && void save(computedAmount.toFixed(2), `${label} reset to its computed amount.`, "reset")}
-              >
-                {pending ? <Spinner /> : null}
-                Reset
+          <div className="max-xl:contents xl:flex xl:items-center xl:justify-end xl:gap-2">
+            <Money amount={amount} currency={currency} className={LINE_AREA.amount} />
+            {/* Names the line for the buttons' description without entering the cell's own name. */}
+            <span id={labelId} hidden>
+              {label}
+            </span>
+            {/* One width on every row at `xl` (w-32), so the amounts' right edges line up down the column. */}
+            <div className={`flex items-center gap-2 xl:w-32 ${LINE_AREA.actions}`}>
+              <Button ref={editButton} type="button" variant="ghost" size="sm" aria-describedby={labelId} onClick={open}>
+                Edit
               </Button>
-            ) : null}
+              {edited ? (
+                <Button
+                  ref={resetButton}
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  {...busyProps}
+                  className={busyClass}
+                  aria-describedby={error ? `${labelId} ${errorId}` : labelId}
+                  onClick={() =>
+                    !pending && void save(computedAmount.toFixed(2), `${label} reset to its computed amount.`, "reset")
+                  }
+                >
+                  {pending ? <Spinner /> : null}
+                  Reset
+                </Button>
+              ) : null}
+            </div>
           </div>
+          {edited ? (
+            <div className={LINE_AREA.edited}>
+              <EditedLineNote computedAmount={computedAmount} currency={currency} />
+            </div>
+          ) : null}
           {errorNote}
         </>
       )}

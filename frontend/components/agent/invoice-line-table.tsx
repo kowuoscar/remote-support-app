@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
-import { TableScroll } from "@/components/ui/table";
+import { Tbody, Td, Th, Thead, TableScroll, Tr } from "@/components/ui/table";
 
 /*
  * The Agent's Client Invoice lines (Postpaid SIM Cards, Fee lines) as ONE markup that is a table at
  * `xl` (1280px) and the one-column rows of the confirmed mockup below it (client-invoices-layout-
- * fixes spec). The shared `Table` is not used because it carries a 720px minimum that cannot be
- * lifted below `xl` (`cn` is a plain join, so a later class would not win). Every element carries an
+ * fixes spec). The shared `Thead`, `Th`, `Tbody`, `Tr` and `Td` are used; the shared `Table` is not,
+ * because it carries a 720px minimum that cannot be lifted (`cn` is a plain join, so a later class
+ * would not win) and the lines must fit their wrapper at every width. Every element carries an
  * explicit ARIA table role, so restyling it (grid, contents) can never strip the table semantics.
  *
  * Below `xl` each row is a two-column grid, `minmax(0,1fr) auto`, laid out by named areas. The cells
@@ -19,12 +20,28 @@ export const LINE_AREA = {
   what: "max-xl:[grid-area:what]",
   amount: "max-xl:[grid-area:amount] max-xl:justify-self-end max-xl:whitespace-nowrap",
   note: "max-xl:[grid-area:note] max-xl:mt-1",
-  edited: "max-xl:[grid-area:edited] max-xl:mt-0.5",
-  actions: "max-xl:[grid-area:actions] max-xl:mt-1.5 max-xl:self-end max-xl:justify-self-end",
+  // Left-aligned below `xl`: the Billed cell is right-aligned and `display: contents` keeps passing that on.
+  edited: "max-xl:[grid-area:edited] max-xl:mt-0.5 max-xl:text-left",
+  // `-mr-3` cancels the ghost buttons' `px-3`, so their labels end on the amount's right edge;
+  // `-mb-1.5` centres them on the last details line (a 28px button against a 16px line).
+  actions: "max-xl:[grid-area:actions] max-xl:-mr-3 max-xl:-mb-1.5 max-xl:mt-1.5 max-xl:self-end max-xl:justify-self-end",
   editor: "max-xl:[grid-area:editor] max-xl:mt-2",
-  error: "max-xl:[grid-area:error] max-xl:mt-1",
+  error: "max-xl:[grid-area:error] max-xl:mt-1 max-xl:text-left",
   desc: "max-xl:[grid-area:desc] max-xl:mt-2",
 } as const;
+
+/** The wrapper of an amount and its note: a column at `xl`, `display: contents` below it. */
+export const LINE_WRAPPER = "max-xl:contents xl:flex xl:flex-col xl:items-end xl:gap-1";
+
+/**
+ * At `xl` the editing control reserves one width for Edit and Reset (`w-32`) beside the amount, so
+ * the amounts line up down the column. The "Edited · computed" note and the Billed header are
+ * inset by that slot and its 8px gap (8.5rem; the header adds its own 1rem padding) so that they
+ * end on the amount's right edge too.
+ */
+export const ACTIONS_SLOT = "xl:w-32";
+export const ACTIONS_NOTE_INSET = "xl:pr-34";
+const ACTIONS_HEADER_INSET = "xl:pr-38";
 
 const ROW_GRID = "max-xl:grid max-xl:grid-cols-[minmax(0,1fr)_auto] max-xl:gap-x-3 max-xl:px-4 max-xl:py-3";
 // The actions area spans the two detail lines and aligns to the last one.
@@ -38,29 +55,38 @@ const ROW_AREAS_EDITED_NARROW =
 const ROW_AREAS_EDITING =
   "max-xl:[&:has(form)]:[grid-template-areas:'what_what'_'editor_editor'_'error_error'_'note_note'_'desc_desc']";
 
-export function LineTable({ columns, children }: { columns: { label: string; align?: "right" }[]; children: ReactNode }) {
+export function LineTable({
+  columns,
+  withActions = false,
+  children,
+}: {
+  columns: { label: string; align?: "right" }[];
+  /** The Billed cells carry Edit/Reset beside the amount (a draft), so a right-aligned header ends on the amount. */
+  withActions?: boolean;
+  children: ReactNode;
+}) {
   return (
     // `relative` bounds the visually hidden header row, which would otherwise widen the page.
     <TableScroll className="@container relative">
-      <table role="table" className="block w-full border-collapse text-sm xl:table xl:min-w-[720px]">
-        <thead role="rowgroup" className="bg-canvas-soft max-xl:sr-only">
+      <table role="table" className="block w-full border-collapse text-sm xl:table">
+        <Thead role="rowgroup" className="max-xl:sr-only">
           <tr role="row">
             {columns.map((column) => (
-              <th
+              <Th
                 key={column.label}
                 role="columnheader"
-                className={`border-b border-hairline px-4 py-2.5 text-label-sm font-medium uppercase tracking-wide text-ink-mute ${
-                  column.align === "right" ? "text-right" : "text-left"
-                }`}
+                className={
+                  column.align === "right" ? `text-right ${withActions ? ACTIONS_HEADER_INSET : ""}` : undefined
+                }
               >
                 {column.label}
-              </th>
+              </Th>
             ))}
           </tr>
-        </thead>
-        <tbody role="rowgroup" className="block divide-y divide-hairline xl:table-row-group">
+        </Thead>
+        <Tbody role="rowgroup" className="max-xl:block xl:table-row-group">
           {children}
-        </tbody>
+        </Tbody>
       </table>
     </TableScroll>
   );
@@ -68,19 +94,19 @@ export function LineTable({ columns, children }: { columns: { label: string; ali
 
 export function LineRow({ edited, children }: { edited: boolean; children: ReactNode }) {
   return (
-    <tr
+    <Tr
       role="row"
-      className={`transition-colors hover:bg-canvas-soft/70 ${ROW_GRID} ${ROW_AREAS} ${edited ? ROW_AREAS_EDITED_NARROW : ""} ${ROW_AREAS_EDITING}`}
+      className={`${ROW_GRID} ${ROW_AREAS} ${edited ? ROW_AREAS_EDITED_NARROW : ""} ${ROW_AREAS_EDITING}`}
     >
       {children}
-    </tr>
+    </Tr>
   );
 }
 
 export function LineCell({ className = "", children }: { className?: string; children: ReactNode }) {
   return (
-    <td role="cell" className={`text-ink max-xl:contents xl:px-4 xl:py-3 xl:align-middle ${className}`}>
+    <Td role="cell" className={`max-xl:contents ${className}`}>
       {children}
-    </td>
+    </Td>
   );
 }

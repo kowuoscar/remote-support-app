@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { EditedLineNote } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
 import { IconAlertTriangle } from "@/components/icons";
-import { LINE_AREA } from "@/components/agent/invoice-line-table";
+import { ACTIONS_NOTE_INSET, ACTIONS_SLOT, LINE_AREA, LINE_WRAPPER } from "@/components/agent/invoice-line-table";
 import { useAnnouncement } from "@/components/ui/use-announcement";
 import type { EditableClientInvoiceLineKind } from "@/lib/api/types";
 
@@ -154,7 +154,7 @@ export function EditClientInvoiceLineControl({
   // Below `xl` the control's wrappers are `display: contents`, so its parts are grid items of the
   // line's row and name their own area (invoice-line-table); at `xl` they stack in the Billed cell.
   return (
-    <div className="max-xl:contents xl:flex xl:flex-col xl:items-end xl:gap-1">
+    <div className={LINE_WRAPPER}>
       {editing ? (
         <form onSubmit={handleSubmit} onKeyDown={handleKeyDown} className="max-xl:contents xl:flex xl:flex-col xl:gap-1.5">
           <label htmlFor={inputId} className="sr-only">
@@ -198,7 +198,7 @@ export function EditClientInvoiceLineControl({
               {label}
             </span>
             {/* One width on every row at `xl` (w-32), so the amounts' right edges line up down the column. */}
-            <div className={`flex items-center gap-2 xl:w-32 ${LINE_AREA.actions}`}>
+            <div className={`flex items-center gap-2 ${ACTIONS_SLOT} ${LINE_AREA.actions}`}>
               <Button ref={editButton} type="button" variant="ghost" size="sm" aria-describedby={labelId} onClick={open}>
                 Edit
               </Button>
@@ -222,7 +222,7 @@ export function EditClientInvoiceLineControl({
             </div>
           </div>
           {edited ? (
-            <div className={LINE_AREA.edited}>
+            <div className={`${LINE_AREA.edited} ${ACTIONS_NOTE_INSET}`}>
               <EditedLineNote computedAmount={computedAmount} currency={currency} />
             </div>
           ) : null}

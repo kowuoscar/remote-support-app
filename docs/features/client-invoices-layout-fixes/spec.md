@@ -632,6 +632,19 @@ tested at the highest seam that can see it.
   same four goldens, and the second and third edit the same control.
 
 - **(answered by the human, 2026-10-15: "ok")** When a row has both its month's status and the "Sent back" mark, the status stays on the name's line, on the right, and the mark goes on a second line, right-aligned under it. Reason: every row's status sits in the same place down the column and the name keeps some room.
+- **(after review) The line tables are `invoice-line-table.tsx`, built from the
+  shared `Thead`, `Th`, `Tbody`, `Tr` and `Td`, not the shared `Table`.**
+  Reason: `Table` bakes in `min-w-[720px]`, and `cn` is a plain join, so a
+  later class cannot lift it reliably; the lines must fit their wrapper at
+  every width (next entry). The `table` element is therefore written out, with
+  its explicit ARIA roles; `TableScroll` is shared too. This deviates from
+  "built from the shared table parts" only for that one element.
+- **(after review) The 720px minimum does not come back at `xl`; the two line
+  tables fit their wrapper at every width.** Reason: the spec's premise that
+  the invoice area is at least 736px wide at `xl` is false at exactly 1280px,
+  where the wrapper is 692px: the table scrolled sideways and clipped the
+  Billed header, the notes and Cancel. With no minimum the columns fit at 1280
+  and 1366 (checked by the e2e, `scrollWidth == clientWidth`).
 
 ## Open questions
 

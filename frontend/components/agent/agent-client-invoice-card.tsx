@@ -5,7 +5,7 @@ import { Money } from "@/components/ui/money";
 import { IconDownload, IconPaperclip } from "@/components/icons";
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
 import { EditClientInvoiceLineControl } from "@/components/agent/edit-client-invoice-line-control";
-import { LINE_AREA, LineCell, LineRow, LineTable } from "@/components/agent/invoice-line-table";
+import { LINE_AREA, LINE_WRAPPER, LineCell, LineRow, LineTable } from "@/components/agent/invoice-line-table";
 import { SendClientInvoiceControl } from "@/components/agent/send-client-invoice-control";
 import { ClientInvoiceStatusNote } from "@/components/agent/client-invoice-status-note";
 import { clientInvoiceBadge } from "@/lib/status";
@@ -77,7 +77,7 @@ function LineAmount({
   edited: boolean | null | undefined;
   currency: string;
 }) {
-  const isEdited = Boolean(edited) && computedAmount != null;
+  const isEdited = isEditedLine({ edited, computedAmount });
   if (editable) {
     return (
       <EditClientInvoiceLineControl
@@ -95,11 +95,11 @@ function LineAmount({
   // Composed here rather than through `BilledAmount` (which the Manager's view shares) so that below
   // `xl` the note can move into the row's own details area.
   return (
-    <div className="max-xl:contents xl:flex xl:flex-col xl:items-end xl:gap-1">
+    <div className={LINE_WRAPPER}>
       <Money amount={amount} currency={currency} className={LINE_AREA.amount} />
       {isEdited ? (
         <div className={LINE_AREA.edited}>
-          <EditedLineNote computedAmount={computedAmount} currency={currency} />
+          <EditedLineNote computedAmount={computedAmount ?? amount} currency={currency} />
         </div>
       ) : null}
     </div>
@@ -203,11 +203,11 @@ export function AgentClientInvoiceCard({
       {invoice.basePostpaidSims && invoice.basePostpaidSims.length > 0 ? (
         <div>
           <h3 className="mb-2 text-label font-medium text-ink-secondary">Postpaid SIM Cards</h3>
-          <LineTable columns={[{ label: "Number" }, { label: "Billed", align: "right" }]}>
+          <LineTable columns={[{ label: "Number" }, { label: "Billed", align: "right" }]} withActions={editable}>
             {invoice.basePostpaidSims.map((sim) => (
               <LineRow key={sim.simCardId} edited={isEditedLine(sim)}>
                 <LineCell className="tnum font-medium">
-                  <span className={`[overflow-wrap:anywhere] ${LINE_AREA.what}`}>{sim.number}</span>
+                  <span className={`wrap-anywhere ${LINE_AREA.what}`}>{sim.number}</span>
                   {sim.cancellationEffectiveDate ? (
                     <span className={`mt-1 block text-label-sm font-normal text-ink-mute ${LINE_AREA.note}`}>
                       Cancelled {formatLocalDate(sim.cancellationEffectiveDate)} — still billed through this month
@@ -248,17 +248,20 @@ export function AgentClientInvoiceCard({
               { label: "Logged" },
               { label: "Billed", align: "right" },
             ]}
+            withActions={editable}
           >
             {invoice.feeLines.map((fee, index) => (
               <LineRow key={fee.id} edited={isEditedLine(fee)}>
                 <LineCell className="font-medium">
-                  <span className={`[overflow-wrap:anywhere] ${LINE_AREA.what}`}>{FEE_TYPE_LABEL[fee.feeType]}</span>
+                  <span className={`wrap-anywhere ${LINE_AREA.what}`}>{FEE_TYPE_LABEL[fee.feeType]}</span>
                 </LineCell>
                 <LineCell className="text-ink-secondary">
-                  {/* The dash is for the table's Description column; below `xl` a missing description leaves no line. */}
-                  <span className={`[overflow-wrap:anywhere] ${LINE_AREA.desc}`}>
-                    {fee.description ?? <span className="max-xl:hidden">—</span>}
-                  </span>
+                  {/* The dash is for the table's Description column; below `xl` a missing description has no area at all. */}
+                  {fee.description ? (
+                    <span className={`wrap-anywhere ${LINE_AREA.desc}`}>{fee.description}</span>
+                  ) : (
+                    <span className="max-xl:hidden">—</span>
+                  )}
                 </LineCell>
                 <LineCell className="whitespace-nowrap text-ink-mute max-xl:text-label-sm">
                   {/* The column header names the date at `xl`; below it the headers are hidden, so the row says "Logged". */}

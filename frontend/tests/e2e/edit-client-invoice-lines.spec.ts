@@ -12,6 +12,10 @@ import {
   selectContractInSwitcher,
 } from "./helpers";
 
+/** The table row of the SIM Card with this number (its first 20 characters, when long). */
+const rowByNumber = (page: Page, number: string) =>
+  page.getByRole("row", { name: new RegExp(number.slice(0, 20).replace("+", "\\+")) });
+
 /**
  * An Agent edits the amounts a draft Client Invoice bills, and resets one (edit-client-invoice-
  * lines ticket `agent-edits-lines-on-the-client-invoice-page`, user stories 2-6, 11, 14), driven
@@ -204,8 +208,8 @@ test.describe("edit client invoice lines", () => {
     // 1280: the amount and Edit share a line, the note sits under them, the amounts line up.
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(invoiceUrl);
-    const simRow = page.getByRole("row", { name: new RegExp(shortNumber.replace("+", "\\+")) });
-    const longRow = page.getByRole("row", { name: new RegExp(longNumber.slice(0, 20).replace("+", "\\+")) });
+    const simRow = rowByNumber(page, shortNumber);
+    const longRow = rowByNumber(page, longNumber);
     const feeRow = page.getByRole("row", { name: /Other/ });
     await editLine(page, simRow, "31.40");
     const amount = simRow.getByText("$31.40", { exact: true });
@@ -247,6 +251,14 @@ test.describe("edit client invoice lines", () => {
     await page.getByRole("button", { name: "Cancel" }).click();
     await expect(longRow.getByRole("button", { name: "Edit" })).toBeFocused();
 
+    // At 1280 and 1366 the line lists fit their wrapper (nothing clipped), edited note included.
+    for (const width of [1280, 1366]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(invoiceUrl);
+      await expect(simRow.getByText(/Edited · computed/)).toBeVisible();
+      expect(await noSidewaysScroll(), `invoice at ${width}`).toBe(true);
+    }
+
     // Below 1280: nothing scrolls sideways on either page, long values included.
     for (const width of [1279, 1024, 768, 390, 375]) {
       await page.setViewportSize({ width, height: 900 });
@@ -260,8 +272,8 @@ test.describe("edit client invoice lines", () => {
     // 390: what and amount share line 1, the long values wrap inside their rows, an edit and a Reset work.
     await page.setViewportSize({ width: 390, height: 900 });
     await page.goto(invoiceUrl);
-    const phoneSim = page.getByRole("row", { name: new RegExp(shortNumber.replace("+", "\\+")) });
-    const phoneLong = page.getByRole("row", { name: new RegExp(longNumber.slice(0, 20).replace("+", "\\+")) });
+    const phoneSim = rowByNumber(page, shortNumber);
+    const phoneLong = rowByNumber(page, longNumber);
     const phoneFee = page.getByRole("row", { name: /Other/ });
     expect(sameLine(await box(phoneSim.getByText(shortNumber, { exact: true })), await box(phoneSim.getByText("$31.40", { exact: true })))).toBe(true);
     expect(sameLine(await box(phoneFee.getByText("Other", { exact: true })), await box(phoneFee.getByText("$12.00", { exact: true })))).toBe(true);
@@ -269,6 +281,18 @@ test.describe("edit client invoice lines", () => {
       await row.getByRole("button", { name: "Edit" }).scrollIntoViewIfNeeded();
       await expect(row.getByRole("button", { name: "Edit" })).toBeInViewport({ ratio: 1 });
     }
+    // The edited note sits on the left, under the number, not flush right (the Billed cell is right-aligned).
+    const phoneNumber = await box(phoneSim.getByText(shortNumber, { exact: true }));
+    expect(Math.abs((await box(phoneSim.getByText(/Edited · computed/))).x - phoneNumber.x)).toBeLessThanOrEqual(1);
+    // A refusal that wraps sits on the left too.
+    await phoneLong.getByRole("button", { name: "Edit" }).click();
+    await page.getByRole("textbox", { name: /Billed amount for/ }).fill("-5");
+    await page.getByRole("button", { name: "Save" }).click();
+    const refusal = phoneLong.getByRole("alert");
+    await expect(refusal).toBeVisible();
+    const longNumberBox = await box(phoneLong.getByText(longNumber, { exact: true }));
+    expect(Math.abs((await box(refusal)).x - longNumberBox.x)).toBeLessThanOrEqual(1);
+    await page.getByRole("button", { name: "Cancel" }).click();
     const longBox = await box(phoneLong);
     const longAmount = await box(phoneLong.getByText("$25.00", { exact: true }));
     expect(longAmount.x + longAmount.width).toBeLessThanOrEqual(longBox.x + longBox.width);

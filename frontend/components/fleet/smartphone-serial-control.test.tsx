@@ -10,25 +10,25 @@ describe("SmartphoneSerialControl", () => {
     mockRouter.refresh.mockReset();
   });
 
-  it("shows '—' and a 'Set serial' action when there is none yet", () => {
-    render(<SmartphoneSerialControl contractId="contract-1" smartphoneId="phone-1" serial={null} />);
+  it("shows '—' and an 'Edit serial' action named by the model when there is none yet", () => {
+    render(<SmartphoneSerialControl contractId="contract-1" smartphoneId="phone-1" model="Pixel 8" serial={null} />);
 
     expect(screen.getByText("—")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Set serial" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit serial, Pixel 8" })).toBeInTheDocument();
   });
 
-  it("shows the current serial and an 'Edit' action when one is set", () => {
-    render(<SmartphoneSerialControl contractId="contract-1" smartphoneId="phone-1" serial="SN-1" />);
+  it("shows the current serial and an 'Edit serial' action when one is set", () => {
+    render(<SmartphoneSerialControl contractId="contract-1" smartphoneId="phone-1" model="Pixel 8" serial="SN-123" />);
 
-    expect(screen.getByText("SN-1")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
+    expect(screen.getByText("SN-123")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Edit serial, SN-123" })).toBeInTheDocument();
   });
 
   it("sets the serial, then refreshes", async () => {
     const { fetchMock, respond } = stubPendingFetch();
-    render(<SmartphoneSerialControl contractId="contract-1" smartphoneId="phone-1" serial={null} />);
+    render(<SmartphoneSerialControl contractId="contract-1" smartphoneId="phone-1" model="Pixel 8" serial={null} />);
 
-    await userEvent.click(screen.getByRole("button", { name: "Set serial" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit serial, Pixel 8" }));
     await userEvent.type(screen.getByLabelText("Smartphone serial"), "SN-NEW-1");
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
@@ -43,9 +43,9 @@ describe("SmartphoneSerialControl", () => {
 
   it("shows an inline error and lets the caller retry on failure", async () => {
     stubFetch(500);
-    render(<SmartphoneSerialControl contractId="contract-1" smartphoneId="phone-1" serial="SN-1" />);
+    render(<SmartphoneSerialControl contractId="contract-1" smartphoneId="phone-1" model="Pixel 8" serial="SN-123" />);
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit serial, SN-123" }));
     await userEvent.click(screen.getByRole("button", { name: "Save" }));
 
     expect(await screen.findByText(/Couldn.t update\. Try again\./)).toBeInTheDocument();
@@ -53,13 +53,13 @@ describe("SmartphoneSerialControl", () => {
   });
 
   it("cancels back to the read-only view without saving", async () => {
-    render(<SmartphoneSerialControl contractId="contract-1" smartphoneId="phone-1" serial="SN-1" />);
+    render(<SmartphoneSerialControl contractId="contract-1" smartphoneId="phone-1" model="Pixel 8" serial="SN-123" />);
 
-    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Edit serial, SN-123" }));
     await userEvent.clear(screen.getByLabelText("Smartphone serial"));
     await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
 
-    expect(screen.getByText("SN-1")).toBeInTheDocument();
+    expect(screen.getByText("SN-123")).toBeInTheDocument();
     expect(screen.queryByLabelText("Smartphone serial")).not.toBeInTheDocument();
   });
 });

@@ -14,10 +14,12 @@ import { Input } from "@/components/ui/input";
 export function SmartphoneSerialControl({
   contractId,
   smartphoneId,
+  model,
   serial,
 }: {
   contractId: string;
   smartphoneId: string;
+  model: string;
   serial: string | null;
 }) {
   const router = useRouter();
@@ -63,8 +65,8 @@ export function SmartphoneSerialControl({
     return (
       <div className="flex items-center gap-2">
         <span className="tnum text-ink-secondary">{serial ?? "—"}</span>
-        <Button variant="row" size="sm" onClick={startEditing}>
-          {serial ? "Edit" : "Set serial"}
+        <Button variant="ghost" size="sm" aria-label={`Edit serial, ${serial ?? model}`} onClick={startEditing}>
+          Edit
         </Button>
       </div>
     );

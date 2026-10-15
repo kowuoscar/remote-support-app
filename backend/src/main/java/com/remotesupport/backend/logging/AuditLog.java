@@ -216,7 +216,7 @@ public final class AuditLog {
   }
 
   /**
-   * A Manager or Tester correcting a Smartphone's model (correct-a-fleet-unit ticket
+   * A Manager or Agent correcting a Smartphone's model (correct-a-fleet-unit ticket
    * correct-a-smartphone-model Observability). Never emitted for a save of the value already held.
    */
   public static void smartphoneModelCorrected(
@@ -240,7 +240,7 @@ public final class AuditLog {
   }
 
   /**
-   * A Manager or Tester correcting a Smartphone's owner (correct-a-smartphone-owner Observability).
+   * A Manager or Agent correcting a Smartphone's owner (correct-a-smartphone-owner Observability).
    * Never emitted for a save of the owner already held.
    */
   public static void smartphoneOwnerCorrected(
@@ -264,7 +264,7 @@ public final class AuditLog {
   }
 
   /**
-   * A Manager or Tester correcting a SIM Card's number (correct-a-fleet-unit ticket
+   * A Manager or Agent correcting a SIM Card's number (correct-a-fleet-unit ticket
    * correct-a-sim-card-number Observability). Never emitted for a save of the value already held.
    */
   public static void simCardNumberCorrected(
@@ -288,7 +288,7 @@ public final class AuditLog {
   }
 
   /**
-   * A Manager or Tester correcting a Postpaid SIM Card's plan, which re-copies the plan's price
+   * A Manager or Agent correcting a Postpaid SIM Card's plan, which re-copies the plan's price
    * into its monthly fee (correct-a-fleet-unit ticket correct-a-postpaid-plan Observability).
    * Never emitted for a save of the plan already held.
    */

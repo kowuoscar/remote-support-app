@@ -15,7 +15,7 @@ Next.js (App Router) frontend consuming a Spring Boot 3 / Java 21 REST API backe
 Three roles sharing one tenant:
 
 - **Company Manager** — configures Clients, Agents, Contracts and Fleets; approves both invoice types; sets each Agent's standing salary and Rollout Advance.
-- **Local Support Agent** — executes support Requests, logs Fees, keeps Fleet status accurate, assembles both monthly invoice types for their own Contracts.
+- **Local Support Agent** — executes support Requests, logs Fees, keeps Fleet status accurate and corrects a mistyped SIM number, a SIM's Postpaid plan, a Smartphone's model or its owner on their own Contracts, assembles both monthly invoice types for their own Contracts.
 - **Client Tester** — an individual login belonging to a Client company; submits support Requests, views their Client's Fleet, Contracts and Invoices, and corrects a mistyped SIM number, a SIM's Postpaid plan, a Smartphone's model or its owner.
 
 A fourth role, SuperAdmin, exists in the auth model but has no dedicated screens this iteration.

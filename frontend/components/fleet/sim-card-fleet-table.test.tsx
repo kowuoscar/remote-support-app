@@ -1,6 +1,6 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import type { CatalogCarrierItem, SimCardListItem } from "@/lib/api/types";
+import type { CatalogCarrierItem, SimCardListItem, SmartphoneListItem } from "@/lib/api/types";
 import { SimCardFleetTable } from "./sim-card-fleet-table";
 
 const sim = {
@@ -24,12 +24,29 @@ describe("SimCardFleetTable", () => {
     expect(screen.queryByRole("button", { name: "Edit number, +44 7700 900100" })).not.toBeInTheDocument();
   });
 
-  it("leaves Installed in plain text for a canCorrect table without smartphones (Tester)", () => {
+  it("leaves Installed in plain text for a canCorrect table without smartphones", () => {
     render(<SimCardFleetTable sims={[sim]} contractId="contract-1" canCorrect />);
 
     // Only the number control offers Edit; Installed in stays read-only text.
     expect(screen.getAllByRole("button", { name: /^Edit/ })).toHaveLength(1);
     expect(screen.getByText("Pixel 8")).toBeInTheDocument();
+  });
+
+  it("renders the number control, Installed in and the status control in one row (the Agent)", () => {
+    render(
+      <SimCardFleetTable
+        sims={[sim]}
+        contractId="contract-1"
+        canCorrect
+        smartphones={[{ id: "phone-1", model: "Pixel 8" } as SmartphoneListItem]}
+        changeStatus={() => <button type="button">Change status</button>}
+      />,
+    );
+
+    const row = screen.getByRole("row", { name: /\+44 7700 900100/ });
+    expect(within(row).getByRole("button", { name: "Edit number, +44 7700 900100" })).toBeInTheDocument();
+    expect(within(row).getByRole("button", { name: "Change status" })).toBeInTheDocument();
+    expect(within(row).getByRole("combobox")).toBeInTheDocument();
   });
 
   describe("plan control", () => {
@@ -68,6 +85,22 @@ describe("SimCardFleetTable", () => {
       renderTable([postpaid], [verizon]);
 
       expect(screen.getByRole("button", { name: "Edit plan for +44 7700 900100" })).toBeInTheDocument();
+    });
+
+    it("points to the Carriers page for a Postpaid SIM whose Carrier has no active plan (the Agent)", () => {
+      render(
+        <SimCardFleetTable
+          sims={[postpaid]}
+          contractId="contract-1"
+          currency="USD"
+          canCorrect
+          carriers={[{ ...verizon, postpaidPlans: [] }]}
+          carriersHref="/agent/carriers"
+        />,
+      );
+
+      fireEvent.click(screen.getByRole("button", { name: "Edit plan for +44 7700 900100" }));
+      expect(screen.getByRole("link", { name: /Carriers page/ })).toHaveAttribute("href", "/agent/carriers");
     });
 
     it("offers no plan control on a Prepaid SIM", () => {

@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import java.util.List;
@@ -106,14 +108,67 @@ class SmartphoneCorrectionApiTest extends IntegrationTest {
   }
 
   @Test
-  void aTesterOfAnotherClientAndAnyAgentAreRefused() throws Exception {
+  void aTesterOfAnotherClientIsRefusedAndAnAgentOnAnotherAgentsContractToo() throws Exception {
     UUID otherClient = createClient(managerToken, "Other Corrections Client " + UUID.randomUUID());
     String stranger =
         createTesterAndLogin(managerToken, otherClient, "stranger." + UUID.randomUUID() + "@corr.example");
 
     correct(contractId, smartphoneId, stranger, "Hacked").andExpect(status().isForbidden());
-    correct(contractId, smartphoneId, agentToken(), "Hacked").andExpect(status().isForbidden());
+    UUID otherContract =
+        createContract(managerToken, clientId, createAgent(managerToken, "Other Agent", Country.FRANCE));
+    UUID otherPhone = createSmartphone(managerToken, otherContract, "Not yours");
+    correct(otherContract, otherPhone, agentToken(), "Hacked").andExpect(status().isForbidden());
     fleetShowsModel(managerToken, "Pixle 8");
+  }
+
+  @Test
+  void theContractsOwnAgentCorrectsTheModelAndTheFleetShowsIt() throws Exception {
+    correct(contractId, smartphoneId, agentToken(), " Pixel 8 Pro ")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.model").value("Pixel 8 Pro"));
+
+    fleetShowsModel(agentToken(), "Pixel 8 Pro");
+  }
+
+  @Test
+  void aUnitInTheAgentsOwnStockSentUnderTheirContractsPathIs404AndUnchanged() throws Exception {
+    UUID inStock = smartphoneInAgentStock();
+
+    correct(contractId, inStock, agentToken(), "Hacked").andExpect(status().isNotFound());
+    correctOwner(contractId, inStock, agentToken(), "CLIENT").andExpect(status().isNotFound());
+    mockMvc
+        .perform(get("/api/stock").header("Authorization", "Bearer " + agentToken()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.id=='%s')].model".formatted(inStock)).value("Stocked"));
+  }
+
+  /** A Company phone returned, approved as kept in stock and completed: now in the Agent's stock. */
+  private UUID smartphoneInAgentStock() throws Exception {
+    UUID phone = createSmartphone(managerToken, contractId, "Stocked");
+    JsonNode body =
+        objectMapper.readTree(
+            postRequest(
+                    contractId,
+                    clientTester(),
+                    "{\"type\":\"RETURN\",\"returnedSmartphoneIds\":[\"%s\"]}".formatted(phone))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
+    UUID returnId = UUID.fromString(body.get("id").asText());
+    String unitId = body.get("returnedUnits").get(0).get("id").asText();
+    mockMvc
+        .perform(
+            post("/api/requests/" + returnId + "/approve")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content(
+                    "{\"dispositions\":[{\"returnedUnitId\":\"%s\",\"disposition\":\"KEPT_IN_STOCK\"}]}"
+                        .formatted(unitId)))
+        .andExpect(status().isOk());
+    patchStatus(contractId, returnId, agentToken(), "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, returnId, agentToken(), "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
+    return phone;
   }
 
   @Test
@@ -314,13 +369,17 @@ class SmartphoneCorrectionApiTest extends IntegrationTest {
   }
 
   @Test
-  void aTesterOfAnotherClientAndAnyAgentCannotCorrectTheOwnerAndNoTokenOrOtherTenantIsRefused() throws Exception {
+  void aTesterOfAnotherClientAndAnAgentOfAnotherContractCannotCorrectTheOwnerAndNoTokenOrOtherTenantIsRefused()
+      throws Exception {
     UUID otherClient = createClient(managerToken, "Other Owner Client " + UUID.randomUUID());
     String stranger =
         createTesterAndLogin(managerToken, otherClient, "stranger." + UUID.randomUUID() + "@corr.example");
 
     correctOwner(contractId, smartphoneId, stranger, "CLIENT").andExpect(status().isForbidden());
-    correctOwner(contractId, smartphoneId, agentToken(), "CLIENT").andExpect(status().isForbidden());
+    UUID otherContract =
+        createContract(managerToken, clientId, createAgent(managerToken, "Other Agent", Country.FRANCE));
+    UUID otherPhone = createSmartphone(managerToken, otherContract, "Not yours");
+    correctOwner(otherContract, otherPhone, agentToken(), "CLIENT").andExpect(status().isForbidden());
     correctOwner(contractId, smartphoneId, null, "CLIENT").andExpect(status().isUnauthorized());
     OtherTenantFixture.ContractWithSmartphone foreign = otherTenantFixture.smartphoneOnContractInAnotherTenant();
     correctOwner(foreign.contractId(), foreign.smartphoneId(), managerToken, "CLIENT")
@@ -375,6 +434,58 @@ class SmartphoneCorrectionApiTest extends IntegrationTest {
     patchStatus(contractId, completed, agentToken(), "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
     patchStatus(contractId, completed, agentToken(), "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
     correctOwner(contractId, completedPhone, managerToken, "COMPANY").andExpect(status().isOk());
+  }
+
+  @Test
+  void theContractsOwnAgentCorrectsTheOwnerButNotWhileAReturnNamesThePhone() throws Exception {
+    correctOwner(contractId, smartphoneId, agentToken(), "CLIENT")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.owner").value("CLIENT"));
+    fleetShowsOwner(agentToken(), smartphoneId, "CLIENT");
+
+    UUID company = createSmartphone(managerToken, contractId, "Company one");
+    returnOf(clientTester(), company);
+    correctOwner(contractId, company, agentToken(), "CLIENT")
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("SMARTPHONE_ON_OPEN_RETURN"));
+    fleetShowsOwner(managerToken, company, "COMPANY");
+  }
+
+  @Test
+  void anAgentsCorrectionsLogOneEventEachWithRoleAgentAndANoOpLogsNone() throws Exception {
+    ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    appender.start();
+    Logger audit = (Logger) LoggerFactory.getLogger("AUDIT");
+    audit.addAppender(appender);
+    try {
+      correct(contractId, smartphoneId, agentToken(), "Pixle 8").andExpect(status().isOk());
+      correctOwner(contractId, smartphoneId, agentToken(), "COMPANY").andExpect(status().isOk());
+      assertThat(corrections(appender)).isEmpty();
+      assertThat(ownerEvents(appender)).isEmpty();
+
+      correct(contractId, smartphoneId, agentToken(), "Pixel 8").andExpect(status().isOk());
+      correctOwner(contractId, smartphoneId, agentToken(), "CLIENT").andExpect(status().isOk());
+      assertThat(corrections(appender))
+          .singleElement()
+          .satisfies(
+              line ->
+                  assertThat(line)
+                      .contains("contractId=" + contractId)
+                      .contains("entityId=" + smartphoneId)
+                      .contains("oldModel=Pixle 8")
+                      .contains("newModel=Pixel 8")
+                      .contains("role=AGENT"));
+      assertThat(ownerEvents(appender))
+          .singleElement()
+          .satisfies(
+              line ->
+                  assertThat(line)
+                      .contains("oldOwner=COMPANY")
+                      .contains("newOwner=CLIENT")
+                      .contains("role=AGENT"));
+    } finally {
+      audit.detachAppender(appender);
+    }
   }
 
   @Test

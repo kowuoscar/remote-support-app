@@ -75,6 +75,7 @@ error, not a nitpick.
 - `frontend/components/manager/login-activation-dialog.tsx` · the shared confirm dialog a Manager uses to deactivate or reactivate a Login.
 - `frontend/components/manager/send-back-client-invoice-control.tsx` · inline reason form that POSTs a send-back to a given endpoint and hands the returned invoice to its caller.
 - `frontend/components/fleet/fleet-tabs-card.tsx` · the Fleet card whose header row is the "Fleet" tablist (SIM Cards, Smartphones) with per-tab action and empty state, and the `?tab=` parser; used by the Agent and Tester Fleet.
+- `frontend/components/manager/contracts-view.tsx` · the Manager's one-page Contracts view: Clients side list, Agent select, invoice summary and tabbed Fleet; a pick is router.replace in a transition.
 - `frontend/components/fleet/smartphone-model-control.tsx` · the inline control that corrects a Smartphone's model.
 - `frontend/components/fleet/smartphone-owner-control.tsx` · the inline control that corrects a Smartphone's owner.
 - `frontend/components/fleet/sim-card-number-control.tsx` · the inline control that corrects a SIM Card's number.
@@ -89,6 +90,7 @@ error, not a nitpick.
 - `api` · typed callers for the BFF routes.
 - `auth` · session and token handling.
 - `demo` · demo data generation for development and the visual goldens.
+- `frontend/lib/manager-contracts.ts` · groups the Manager's Contracts by Client and resolves the selected Contract from `?contract=`.
 - `frontend/lib/api/client-invoice.ts` · the Agent's by-id Client Invoice read.
 
 ## Dependency direction

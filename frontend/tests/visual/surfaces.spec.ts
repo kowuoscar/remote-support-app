@@ -13,7 +13,7 @@ interface Surface {
     | "agent-stock"
     | "agent-client-invoices"
     | "manager-stock"
-    | "manager-contract-fleet"
+    | "manager-contracts"
     | "client-fleet"
     | "agent-fleet";
   path: string;
@@ -63,8 +63,8 @@ const surfaces: Surface[] = [
   // correct-a-smartphone-model ticket: the Fleet pages whose Smartphone rows carry the model
   // "Edit" button — the Manager's Contract Fleet and the Tester's Fleet (stub fixture Fleets).
   {
-    slug: "manager-contract-fleet",
-    path: "/manager/contracts/22222222-0000-0000-0000-000000000001",
+    slug: "manager-contracts",
+    path: "/manager/contracts?contract=22222222-0000-0000-0000-000000000001",
     session: "visual-manager-session",
     ready: "stock",
   },

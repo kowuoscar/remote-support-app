@@ -108,7 +108,7 @@ test.describe.serial("a Tester's dashboard follows the Contract's invoice", () =
 
   test("manager-approves-and-row-reads-approved", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    await page.goto(`/manager/contracts/${contractId}`);
+    await page.goto(`/manager/contracts?contract=${contractId}`);
     await page.getByRole("region", { name: "Client Invoice" }).getByRole("link", { name: "Open invoice" }).click();
     const [approveResponse] = await Promise.all([
       page.waitForResponse(

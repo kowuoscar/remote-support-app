@@ -36,7 +36,7 @@ test.describe("client invoice submission and visibility", () => {
 
     // The Contract page summarises its current-month invoice; "Open invoice" works even for a
     // draft, landing on a read-only detail page.
-    await page.goto(`/manager/contracts/${contractId}`);
+    await page.goto(`/manager/contracts?contract=${contractId}`);
     const draftSummary = page.getByRole("region", { name: "Client Invoice" });
     await expect(draftSummary.getByText("Draft")).toBeVisible();
     await draftSummary.getByRole("link", { name: "Open invoice" }).click();
@@ -92,7 +92,7 @@ test.describe("client invoice submission and visibility", () => {
     // Manager opens it from the Contract page's summary — which offers no approve action of its
     // own — and approves it on the invoice's detail page.
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    await page.goto(`/manager/contracts/${contractId}`);
+    await page.goto(`/manager/contracts?contract=${contractId}`);
     const summary = page.getByRole("region", { name: "Client Invoice" });
     await expect(summary.getByText("Awaiting approval")).toBeVisible();
     await expect(page.getByRole("button", { name: "Approve" })).toHaveCount(0);
@@ -116,7 +116,7 @@ test.describe("client invoice submission and visibility", () => {
     await expect(page.getByRole("button", { name: "Approve" })).toHaveCount(0);
 
     // The Contract page's summary reflects the approval and still links to the same invoice.
-    await page.goto(`/manager/contracts/${contractId}`);
+    await page.goto(`/manager/contracts?contract=${contractId}`);
     await expect(summary.getByText("Approved", { exact: true })).toBeVisible();
     await summary.getByRole("link", { name: "Open invoice" }).click();
     await expect(page).toHaveURL(detailUrl);

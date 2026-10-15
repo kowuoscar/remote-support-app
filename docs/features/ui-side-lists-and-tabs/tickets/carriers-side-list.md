@@ -1,7 +1,7 @@
 ---
 id: carriers-side-list
 title: Browse a Country's Carriers through a shared side list on both Carriers pages
-status: in-progress
+status: done
 depends_on: []
 labels: [frontend]
 stories: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 44, 45, 46, 47]

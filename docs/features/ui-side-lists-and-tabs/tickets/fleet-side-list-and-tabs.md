@@ -1,7 +1,7 @@
 ---
 id: fleet-side-list-and-tabs
 title: Browse the Fleet through a Clients side list and SIM Cards and Smartphones tabs
-status: ready-for-agent
+status: in-progress
 depends_on: [carriers-side-list]
 labels: [frontend]
 stories: [17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 48]

@@ -113,7 +113,7 @@ export function AgentClientInvoiceCard({
   const feeLabelList = feeLabels(invoice.feeLines);
 
   return (
-    <Card className="flex flex-col gap-6 p-5">
+    <Card className="flex flex-col gap-6 p-5" data-testid="client-invoice-card">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">

@@ -10,6 +10,7 @@ import {
   logout,
   pendingRequestRow,
   selectContractInSwitcher,
+  selectClientInvoiceContract,
   submitRequestAsTester,
 } from "./helpers";
 
@@ -98,7 +99,7 @@ test.describe("cancelled sim billed through its month", () => {
     // Card, marked with its cancellation date, and its fee is still in the base amount — a
     // cancellation date of "today" is always on or after this month's first day.
     await page.goto("/agent/client-invoices");
-    await selectContractInSwitcher(page, clientName);
+    await selectClientInvoiceContract(page, clientName);
 
     await expect(page.getByRole("heading", { name: "Postpaid SIM Cards" })).toBeVisible();
     const simRow = page.getByRole("row", { name: new RegExp(number.replace(/\+/g, "\\+")) });

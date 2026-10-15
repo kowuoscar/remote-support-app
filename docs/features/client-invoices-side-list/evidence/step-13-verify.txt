@@ -1,0 +1,14 @@
+verify: mvn -f backend/pom.xml verify && (cd frontend && npm run lint && npm run build && npx tsc --noEmit && npm test && npm run test:e2e:isolated)  [run in detached worktree, JDK 21, my demo stack stopped first]
+[INFO] Tests run: 779, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+  55:5  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+✖ 1 problem (0 errors, 1 warning)
+ Test Files  69 passed (69)
+      Tests  484 passed (484)
+  ✓   27 tests/e2e/client-invoices-side-list.spec.ts:22:7 › client invoices side list › a desktop Agent picks an invoice from the column; a phone keeps the switcher (3.1s)
+  ✓   28 tests/e2e/client-invoices-side-list.spec.ts:124:7 › client invoices side list › the selected Client is kept in the address: reload, unknown id, scrolled into view, Back (10.3s)
+  ✓   29 tests/e2e/client-invoices-side-list.spec.ts:196:7 › client invoices side list › Open on a sent-back invoice, then the breadcrumb, returns with that Client selected (3.9s)
+  ✓   30 tests/e2e/client-invoices-side-list.spec.ts:244:7 › client invoices side list row status › each row reads Draft on arrival (side-list-row-status) (2.0s)
+  ✓   31 tests/e2e/client-invoices-side-list.spec.ts:265:7 › client invoices side list sent back › a Manager send-back reads once on the row with the list first; a resend clears both (4.2s)
+  106 passed (4.8m)
+VERIFY_EXIT 0

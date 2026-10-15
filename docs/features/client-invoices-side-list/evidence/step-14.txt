@@ -1,0 +1,4 @@
+count before Jordan opens page (fresh Contract created via Manager list only (not opened by Manager), earlier rows exist from a prior visit): 10
+count after first view: 11
+clicked through 4 rows; count after: 11
+unchanged by clicks: true; added by first view: 1

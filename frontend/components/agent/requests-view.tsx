@@ -71,7 +71,7 @@ export function AgentRequestsView({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-3">
           <ContractSwitcher contracts={contracts} value={contractId} onChange={setContractId} />
           <StatusFilterTabs status={status} onChange={setStatus} />
         </div>

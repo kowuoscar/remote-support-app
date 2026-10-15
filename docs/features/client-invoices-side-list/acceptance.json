@@ -1,0 +1,120 @@
+{
+  "feature": "client-invoices-side-list",
+  "played_at": "2026-10-15",
+  "played_on": "feature/client-invoices-side-list",
+  "environment": "Detached worktree at 5232442; throwaway postgres:16-alpine on 55432, backend demo profile on 18080 (JDK 21), frontend on 13000; stub backend 14174 + frontend 13001 for step 8. All torn down; rsa-prod untouched.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1.txt",
+      "note": ""
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2.txt",
+      "note": ""
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3.txt",
+      "note": "Document scroll shown at 1440x300; at 900 the invoice doesn't scroll the document."
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4.txt",
+      "note": ""
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": "The Manager form accepts a duplicate Client name, so the refusal fallback was not needed."
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": ""
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": ""
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8.txt",
+      "note": "Stub backend with the two visual sessions."
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9.txt",
+      "note": ""
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-10.txt",
+      "note": "No Client rename UI; the 60-character name was set with SQL on the throwaway DB."
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-11.txt",
+      "note": ""
+    },
+    {
+      "step": 12,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-12.txt",
+      "note": ""
+    },
+    {
+      "step": 13,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-13.txt",
+      "note": ""
+    },
+    {
+      "step": 14,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-14.txt",
+      "note": "Counted on a never-opened Contract, since an earlier exploratory visit had created rows."
+    },
+    {
+      "step": 15,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 16,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 ---
 id: sent-back-in-the-side-list
 title: The side list marks a Client with a sent-back invoice
-status: ready-for-agent
+status: done
 depends_on: [side-list-row-status, selected-client-in-the-address]
 labels: [frontend, invoicing]
 stories: [13, 14, 15, 24]
@@ -38,6 +38,8 @@ text. Satisfies the frontend DoD in `docs/agents/frontend.md`.
 At risk: the sent-back table's Open link, whose accessible name changes. Guards, both unmodified: `rows-show-contract-month-date-reason-and-open-link` (`client-invoices-view.test.tsx` line 49, matching `/Open.*Birch Telecom.*July 2026/`) and `send-a-client-invoice-back.spec.ts` line 96 (`/^Open /`). Also at risk: the goldens from `side-list-row-status`.
 
 Existing tests expected to change: the `agent-client-invoices-*` goldens are recaptured (reason: the earlier-month fixture adds a mark), and `stub-backend.mjs` gains one fixture; `client-invoices-view.test.tsx` and `client-invoices-side-list.spec.ts` gain cases. Every pre-existing case keeps passing unmodified, and no other golden changes.
+
+Also `frontend/tests/e2e/helpers.ts`: `clientInvoiceRowName` (used by `selectClientInvoiceContract`) allows an optional trailing " Sent back", since a row can now read "<Client> Awaiting approval Sent back"; every caller's assertions are unchanged. (Added by the orchestrator after implementation.)
 
 ## Observability
 

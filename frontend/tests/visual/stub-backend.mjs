@@ -21,6 +21,17 @@ const ROLES = {
     name: "Yazan Abuhassan",
     degraded: true,
   },
+  // side-list-row-status: an Agent with four Contracts and one Client Invoice of each state, for the
+  // Client Invoices page's goldens. A token of its own, because the Agent dashboard's goldens read the
+  // two-Contract list below. The second token's Birch Telecom (UK) invoice read answers 500.
+  "visual-agent-invoices-session": { username: "agent@example.com", role: "AGENT", country: "UNITED_STATES", invoices: true },
+  "visual-agent-invoice-failing-session": {
+    username: "agent@example.com",
+    role: "AGENT",
+    country: "UNITED_STATES",
+    invoices: true,
+    failingInvoiceContract: "22222222-0000-0000-0000-0000000000d2",
+  },
   // real-agent-dashboard: an Agent login that is linked to no Agent record (GET /api/me/agent is
   // 404), and one whose identity read fails outright (500). Not captured as goldens; the
   // not-linked and page-level failure states are asserted in surfaces.spec.ts.
@@ -278,6 +289,47 @@ const AGENT_CONTRACTS = [
     currency: "USD",
   },
 ];
+
+// side-list-row-status: the Client Invoices page's four Contracts (two share a Client name, so the
+// side list shows their Country) and each one's current-month invoice, with fixed dates so the
+// goldens never follow the clock: a Draft, a SENT, an APPROVED and a Draft the Manager sent back.
+const INVOICE_CONTRACTS = [
+  ["d1", "Aurora Retail Group", "UNITED_STATES", "USD"],
+  ["d2", "Birch Telecom", "UNITED_KINGDOM", "GBP"],
+  ["d3", "Birch Telecom", "MEXICO", "MXN"],
+  ["d4", "Cedar Mobile", "SPAIN", "EUR"],
+].map(([key, clientName, country, currency], index) => ({
+  id: `22222222-0000-0000-0000-0000000000${key}`,
+  clientId: `55555555-0000-0000-0000-0000000000${key}`,
+  clientName,
+  agentId: AGENTS[0].id,
+  agentName: AGENTS[0].name,
+  country,
+  currency,
+  index,
+}));
+const INVOICE_STATES = [
+  { status: "DRAFT" },
+  { status: "SENT", sentAt: "2026-09-10T10:00:00Z" },
+  { status: "APPROVED", sentAt: "2026-09-10T10:00:00Z", approvedAt: "2026-09-11T10:00:00Z" },
+  { status: "DRAFT", sentBackAt: "2026-09-12T10:00:00Z", sentBackReason: "The roaming Fee is missing its receipt." },
+];
+function clientInvoiceFor(contract) {
+  return {
+    id: `99999999-0000-0000-0000-0000000000${contract.id.slice(-2)}`,
+    contractId: contract.id,
+    billingMonth: "2026-09-01",
+    currency: contract.currency,
+    baseAmount: 120 + contract.index * 10,
+    basePostpaidSims: [],
+    feeLines: [],
+    totalAmount: 120 + contract.index * 10,
+    files: [],
+    sentAt: null,
+    approvedAt: null,
+    ...INVOICE_STATES[contract.index],
+  };
+}
 
 // [contract index, type, status, raisedByUsername, age in ms]. Ages carry an extra couple of hours
 // so the elapsed whole-day count stays put however long a render takes.
@@ -596,6 +648,7 @@ createServer((request, response) => {
     return known ? send(response, 200, { password: RESET_PASSWORD }) : send(response, 404);
   }
   if (url.pathname === "/api/contracts" && request.method === "GET") {
+    if (caller.invoices) return send(response, 200, INVOICE_CONTRACTS);
     if (caller.role === "TESTER") {
       return caller.contractsFailing ? send(response, 500) : send(response, 200, TESTER_CONTRACTS);
     }
@@ -635,6 +688,47 @@ createServer((request, response) => {
       return send(response, 200, rows ? testerSmartphones(0).map((phone) => ({ ...phone, contractId: AGENT_CONTRACTS[0].id })) : []);
     }
     return send(response, 200, rows ? testerSimCards(0).map((sim) => ({ ...sim, contractId: AGENT_CONTRACTS[0].id })) : []);
+  }
+  // side-list-row-status: each Contract's current-month Client Invoice, and the Agent's sent-back list.
+  const clientInvoiceMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/client-invoice$/);
+  if (clientInvoiceMatch && request.method === "GET" && caller.invoices) {
+    const contract = INVOICE_CONTRACTS.find((candidate) => candidate.id === clientInvoiceMatch[1]);
+    if (!contract) return send(response, 404);
+    if (caller.failingInvoiceContract === contract.id) return send(response, 500);
+    return send(response, 200, clientInvoiceFor(contract));
+  }
+  if (url.pathname === "/api/client-invoices/sent-back" && request.method === "GET" && caller.invoices) {
+    const contract = INVOICE_CONTRACTS[3];
+    const invoice = clientInvoiceFor(contract);
+    // sent-back-in-the-side-list: an earlier month's invoice of the SENT Contract, so its row reads
+    // "Awaiting approval" plus the "Sent back" mark; oldest first, as the API returns them.
+    const sent = INVOICE_CONTRACTS[1];
+    // The failing session leaves it out, so its failed row keeps pinning "no status badge" alone.
+    const earlier = caller.failingInvoiceContract ? [] : [
+      {
+        id: "99999999-0000-0000-0000-0000000000a2",
+        contractId: sent.id,
+        clientName: sent.clientName,
+        country: sent.country,
+        billingMonth: "2026-08-01",
+        currency: sent.currency,
+        sentBackAt: "2026-09-02T10:00:00Z",
+        sentBackReason: "The August roaming Fee is missing its receipt.",
+      },
+    ];
+    return send(response, 200, [
+      ...earlier,
+      {
+        id: invoice.id,
+        contractId: contract.id,
+        clientName: contract.clientName,
+        country: contract.country,
+        billingMonth: invoice.billingMonth,
+        currency: contract.currency,
+        sentBackAt: invoice.sentBackAt,
+        sentBackReason: invoice.sentBackReason,
+      },
+    ]);
   }
   const requestsMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/requests$/);
   if (requestsMatch && request.method === "GET") {

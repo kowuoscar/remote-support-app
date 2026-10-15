@@ -1,0 +1,12 @@
+== visual suite (npm run test:visual, worktree of feature branch) ==
+107
+
+  107 passed (15.8s)
+EXIT 0
+4
+  ✓   77 tests/visual/surfaces.spec.ts:127:11 › agent-client-invoices — mobile — light (262ms)
+  ✓   76 tests/visual/surfaces.spec.ts:127:11 › agent-client-invoices — desktop — dark (312ms)
+  ✓   75 tests/visual/surfaces.spec.ts:127:11 › agent-client-invoices — desktop — light (346ms)
+  ✓   78 tests/visual/surfaces.spec.ts:127:11 › agent-client-invoices — mobile — dark (428ms)
+== git status in worktree after run (golden changes) ==
+(empty = no golden modified or added)

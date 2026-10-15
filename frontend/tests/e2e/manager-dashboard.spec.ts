@@ -6,7 +6,7 @@ import {
   login,
   logout,
   readRevealedPasswordAndClose,
-  selectContractInSwitcher,
+  selectClientInvoiceContract,
 } from "./helpers";
 
 const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
@@ -154,10 +154,10 @@ test.describe("the Manager dashboard's money cards", () => {
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/client-invoices");
-    await selectContractInSwitcher(page, clientName);
+    await selectClientInvoiceContract(page, clientName);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
-    await expect(page.getByText("Awaiting approval")).toBeVisible();
+    await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
     await logout(page);
 
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);

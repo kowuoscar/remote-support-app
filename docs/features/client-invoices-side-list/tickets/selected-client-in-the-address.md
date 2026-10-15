@@ -1,7 +1,7 @@
 ---
 id: selected-client-in-the-address
 title: The selected Client is kept in the page address
-status: ready-for-agent
+status: done
 depends_on: [contract-side-list-on-desktop]
 labels: [frontend, invoicing]
 stories: [10, 11, 12, 20]

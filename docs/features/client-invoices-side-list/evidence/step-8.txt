@@ -1,0 +1,32 @@
+== session visual-agent-invoices-session ==
+rows: ["Aurora Retail Group | Draft","Birch Telecom | Mexico | Approved","Birch Telecom | United Kingdom | Awaiting approval | Sent back","Cedar Mobile | Sent back"]
+current row: "Aurora Retail Group\nDraft"
+invoice area (selected): Aurora Retail Group — United StatesSeptember 2026DraftThis Contract’s postpaid base amount plus this month’s Fees — still being assembledAttach carrier invoiceS
+'Sent sent-back' region: "Sent back to you\nCONTRACT\tBILLING MONTH\tSENT BACK\tREASON\t\nACTION\n\n\nBirch Telecom — United Kingdom\n\tAugust 2026\tSep 2, 2026\t\n\nThe August roaming Fee is missing its receipt.\n\n\tOpen\n\n\nCedar Mobile — Spain\n\tSeptember 2026\tSep 12, 2026\t\n\nThe roaming Fee is missing its receipt.\n\n\tOpen"
+--- nav aria snapshot ---
+- navigation "Clients":
+  - heading "Clients" [level=2]
+  - list:
+    - listitem:
+      - link "Aurora Retail Group Draft":
+        - /url: /agent/client-invoices?contract=22222222-0000-0000-0000-0000000000d1
+    - listitem:
+      - link "Birch Telecom Mexico Approved":
+        - /url: /agent/client-invoices?contract=22222222-0000-0000-0000-0000000000d3
+    - listitem:
+      - link "Birch Telecom United Kingdom Awaiting approval Sent back":
+        - /url: /agent/client-invoices?contract=22222222-0000-0000-0000-0000000000d2
+    - listitem:
+      - link "Cedar Mobile Sent back":
+        - /url: /agent/client-invoices?contract=22222222-0000-0000-0000-0000000000d4
+  select row 0: Aurora Retail Group | Draft -> invoice area: Aurora Retail Group — United StatesSeptember 2026DraftThis Contract’s postpaid base amount plus this month’s Fees — still being assembledAttach carrier invoiceS
+  select row 1: Birch Telecom | Mexico | Approved -> invoice area: Birch Telecom — MexicoSeptember 2026ApprovedSent to the Manager and Client — numbers are locked to what was sentSent Sep 10, 2026 · Approved Sep 11, 2026Downloa
+  select row 2: Birch Telecom | United Kingdom | Awaiting approval | Sent back -> invoice area: Birch Telecom — United KingdomSeptember 2026Awaiting approvalSent to the Manager and Client — numbers are locked to what was sentSent Sep 10, 2026Download PDFBa
+  select row 3: Cedar Mobile | Sent back -> invoice area: Cedar Mobile — SpainSeptember 2026Sent backThis Contract’s postpaid base amount plus this month’s Fees — still being assembledAttach carrier invoiceSend Client 
+== session visual-agent-invoice-failing-session (Birch Telecom invoice answers 500) ==
+rows: ["Aurora Retail Group | Draft","Birch Telecom | Mexico | Approved","Birch Telecom | United Kingdom","Cedar Mobile | Sent back"]
+  select row 0: Aurora Retail Group | Draft -> Aurora Retail Group — United StatesSeptember 2026DraftThis Contract’s postpaid base amount plus this month’s Fees — still being as
+  select row 1: Birch Telecom | Mexico | Approved -> Birch Telecom — MexicoSeptember 2026ApprovedSent to the Manager and Client — numbers are locked to what was sentSent Sep 10, 2026 
+  select row 2: Birch Telecom | United Kingdom -> Birch Telecom — United KingdomCouldn't load this Contract's Client InvoicePick another Client or reload the page to try again.
+  select row 3: Cedar Mobile | Sent back -> Cedar Mobile — SpainSeptember 2026Sent backThis Contract’s postpaid base amount plus this month’s Fees — still being assembledAtta
+'Couldn't load this Contract's Client Invoice' count: 0 / straight apostrophe: 0

@@ -11,6 +11,7 @@ interface Surface {
     | "manager-carriers"
     | "manager-requests"
     | "agent-stock"
+    | "agent-client-invoices"
     | "manager-stock"
     | "manager-contract-fleet"
     | "client-fleet";
@@ -48,6 +49,15 @@ const surfaces: Surface[] = [
   // backed by tests/visual/stub-backend.mjs's fixture units — both non-empty, so both tables
   // (Smartphones, SIM Cards) and the Manager's own Agent column are covered.
   { slug: "agent-stock", path: "/agent/stock", session: "visual-agent-session", ready: "stock" },
+  // side-list-row-status ticket: the Agent's Client Invoices page, four Contracts (two sharing a Client
+  // name) showing Draft, Awaiting approval, Approved and Sent back. Its own session token, because the
+  // Agent dashboard's goldens read the stub's two-Contract list.
+  {
+    slug: "agent-client-invoices",
+    path: "/agent/client-invoices",
+    session: "visual-agent-invoices-session",
+    ready: "invoices",
+  },
   { slug: "manager-stock", path: "/manager/stock", session: "visual-manager-session", ready: "stock" },
   // correct-a-smartphone-model ticket: the Fleet pages whose Smartphone rows carry the model
   // "Edit" button — the Manager's Contract Fleet and the Tester's Fleet (stub fixture Fleets).
@@ -85,6 +95,8 @@ async function gotoAndSettle(page: Page, surface: Surface) {
     await page.getByRole("list", { name: "Carriers" }).waitFor({ state: "visible" });
   } else if (surface.ready === "requests") {
     await page.getByRole("table").waitFor({ state: "visible" });
+  } else if (surface.ready === "invoices") {
+    await page.getByTestId("client-invoice-card").waitFor({ state: "visible" });
   } else if (surface.ready === "stock") {
     // Two tables (Smartphones, SIM Cards) render on this page — .first() avoids a strict-mode
     // violation from a bare getByRole("table").
@@ -266,5 +278,27 @@ test.describe("the Manager dashboard's identity and count states", () => {
     await expect(page.getByTestId("contracts-stat")).toContainText("Client × Agent pairs");
     await expect(page.getByTestId("pending-approvals-stat")).toContainText("2");
     await expect(page.getByTestId("pending-requests-stat")).toContainText("2");
+  });
+});
+
+// side-list-row-status: the stub answers 500 on the Birch Telecom (United Kingdom) invoice for this
+// session. Not captured as a golden; the row stays listed with no status badge and selecting it
+// explains, while another row still opens its invoice.
+test.describe("the Agent Client Invoices page when one invoice fails to load", () => {
+  test("failed-row-has-no-badge-and-explains-when-selected", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await gotoWithSession(page, "/agent/client-invoices", "visual-agent-invoice-failing-session");
+    const clients = page.getByRole("navigation", { name: "Clients" });
+
+    const failed = clients.getByRole("link", { name: "Birch Telecom United Kingdom", exact: true });
+    await expect(failed).toBeVisible();
+    await expect(clients.getByRole("link", { name: "Birch Telecom Mexico Approved", exact: true })).toBeVisible();
+
+    await failed.click();
+    await expect(page.getByText("Couldn't load this Contract's Client Invoice")).toBeVisible();
+    await expect(page.getByText("Pick another Client or reload the page to try again.")).toBeVisible();
+
+    await clients.getByRole("link", { name: "Aurora Retail Group Draft", exact: true }).click();
+    await expect(page.getByTestId("client-invoice-card").getByText("Draft")).toBeVisible();
   });
 });

@@ -5,7 +5,7 @@ import {
   login,
   logout,
   rollSeededAgentInvoiceIntoThePast,
-  selectContractInSwitcher,
+  selectClientInvoiceContract,
 } from "./helpers";
 
 /**
@@ -22,10 +22,10 @@ const SEEDED_AGENT_NAME = "Jordan Ellis";
 async function sendClientInvoiceAsAgent(page: Page, clientName: string) {
   await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
   await page.goto("/agent/client-invoices");
-  await selectContractInSwitcher(page, clientName);
+  await selectClientInvoiceContract(page, clientName);
   await page.getByRole("button", { name: "Send Client Invoice" }).click();
   await page.getByRole("button", { name: "Confirm send" }).click();
-  await expect(page.getByText("Awaiting approval")).toBeVisible();
+  await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
   await logout(page);
 }
 
@@ -71,10 +71,10 @@ test.describe("manager invoice review queue", () => {
     // The Agent sends this Contract's Client Invoice.
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/client-invoices");
-    await selectContractInSwitcher(page, clientName);
+    await selectClientInvoiceContract(page, clientName);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
-    await expect(page.getByText("Awaiting approval")).toBeVisible();
+    await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
     await logout(page);
 
     // The Manager finds it in the Review Queue and opens its detail page.

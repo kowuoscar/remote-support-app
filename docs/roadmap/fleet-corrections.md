@@ -54,7 +54,7 @@ testing; placed first in the epic order by the human the same day.
 
 ## Features
 
-- [ ] `correct-a-fleet-unit` — a Manager or a Tester corrects a SIM Card's number and Postpaid plan, and a Smartphone's model and owner.
+- [x] `correct-a-fleet-unit` — a Manager or a Tester corrects a SIM Card's number and Postpaid plan, and a Smartphone's model and owner.
 
 ## Reworked
 

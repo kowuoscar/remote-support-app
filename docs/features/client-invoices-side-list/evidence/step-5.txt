@@ -1,0 +1,9 @@
+dialog still open: false
+dialog text: null
+alerts: [""]
+rows named Harbor Line Logistics in Clients table: 2
+DB: clients named Harbor Line Logistics: 2
+newest duplicate client id: 560bf816-8258-440e-9f18-a90eba917c73
+contract created; contracts for that client: 1
+all rows (lines per row): [["Accept Fresh 1792023342081","Draft"],["Accept Fresh 1792023357655","Draft"],["Accept Twelve 01","Draft"],["Accept Twelve 02","Draft"],["Accept Twelve 03","Draft"],["Accept Twelve 04","Draft"],["Accept Twelve 05","Draft"],["Accept Twelve 06","Draft"],["Accept Twelve 07","Draft"],["Accept Twelve 08","Draft"],["Accept Twelve 09","Draft"],["Accept Twelve 10","Draft"],["Accept Twelve 11","Draft"],["Accept Twelve 12","Draft"],["Harbor Line Logistics","United States","Draft"],["Harbor Line Logistics","United States","Draft"],["Solstice Retail Group","Awaiting approval"]]
+rows with a Country line: [["Harbor Line Logistics","United States","Draft"],["Harbor Line Logistics","United States","Draft"]]

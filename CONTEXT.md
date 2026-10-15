@@ -135,6 +135,9 @@ A Manager's `sent` → `draft` transition of a Client Invoice with a required re
 **Open to its Agent**:
 A Client Invoice draft that is sent back or of the current billing month (UTC). The one predicate in `ClientInvoiceService` gating every Agent write by id; a draft not open to its Agent (a past month never sent) is refused 409 `PAST_MONTH_DRAFT_NOT_SENDABLE`.
 
+**Contract side list**:
+At xl and wider on the Agent's Client Invoices page only, a 256px sticky "Clients" column of Contract links that replaces the Contract Switcher and swaps the invoice in place. Narrower than xl the Contract Switcher stays.
+
 **Payable amount** (of a Contract for a month):
 What a Contract adds to the Agent's Local Support Fees: every line its Client Invoice bills at its billed amount, plus anything of that month the invoice does not bill at its computed amount; with no Client Invoice, the computation.
 

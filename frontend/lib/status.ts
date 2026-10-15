@@ -47,6 +47,13 @@ export const clientInvoiceStatusLabelByValue: Record<ClientInvoiceStatusValue, s
   APPROVED: "Approved",
 };
 
+/** The badge of a draft the Manager sent back: derived display state, one label and tone everywhere. */
+export const sentBackBadge: { label: string; tone: Tone } = { label: "Sent back", tone: "warning" };
+
+export function isSentBackBadge(badge: { label: string } | null | undefined): boolean {
+  return badge?.label === sentBackBadge.label;
+}
+
 /**
  * What a Client Invoice's status badge shows. A draft the Manager sent back is still `DRAFT` in the
  * backend; "Sent back" is a derived display state (send-a-client-invoice-back spec, Badge), so it
@@ -57,7 +64,7 @@ export function clientInvoiceBadge(invoice: { status: ClientInvoiceStatusValue; 
   tone: Tone;
 } {
   if (invoice.status === "DRAFT" && invoice.sentBackAt) {
-    return { label: "Sent back", tone: "warning" };
+    return sentBackBadge;
   }
   return {
     label: clientInvoiceStatusLabelByValue[invoice.status],

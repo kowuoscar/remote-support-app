@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SEEDED_USERS, addSimCard, createContractWithTester, login, logout, selectContractInSwitcher } from "./helpers";
+import { SEEDED_USERS, addSimCard, createContractWithTester, login, logout, selectContractInSwitcher, selectClientInvoiceContract } from "./helpers";
 
 /**
  * An Agent logs a Topup Fee from a Topup Option (carrier-catalog spec; topup-fee-from-option
@@ -46,7 +46,7 @@ test.describe("topup fee from a topup option", () => {
 
     // The Fee shows the adjusted amount, not the Option's price.
     await page.goto("/agent/client-invoices");
-    await selectContractInSwitcher(page, clientName);
+    await selectClientInvoiceContract(page, clientName);
     await expect(page.getByRole("cell", { name: "Topup" })).toBeVisible();
     await expect(page.getByText("$27.50", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("$25.00", { exact: true })).toHaveCount(0);

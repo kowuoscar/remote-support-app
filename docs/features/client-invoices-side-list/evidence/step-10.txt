@@ -1,0 +1,20 @@
+== (re-run with distinguishable pick: Solstice, Awaiting approval) ==
+== 1279x800 ==
+Clients landmark count: 0 (visible: false)
+vertical order (y): {"region":80,"switcher":233,"invoiceCard":287} region<switcher<invoice: true
+picked a Client in the switcher; url: http://127.0.0.1:13000/agent/client-invoices?contract=7cc51a0b-c659-4db6-a619-925b421d6772; invoice swapped: true; invoice card has "Awaiting approval": true; card text: "October 2026  Awaiting approval  Sent to the Manager and Cli"
+after reload url: http://127.0.0.1:13000/agent/client-invoices?contract=7cc51a0b-c659-4db6-a619-925b421d6772; invoice header: "October 2026"; switcher text: "Solstice Retail Group — United States"
+scrollWidth 1279 vs innerWidth 1279
+== (re-run with distinguishable pick: Solstice, Awaiting approval) ==
+== 390x844 ==
+Clients landmark count: 0 (visible: false)
+vertical order (y): {"region":76,"switcher":258,"invoiceCard":312} region<switcher<invoice: true
+picked a Client in the switcher; url: http://127.0.0.1:13000/agent/client-invoices?contract=7cc51a0b-c659-4db6-a619-925b421d6772; invoice swapped: true; invoice card has "Awaiting approval": true; card text: "October 2026  Awaiting approval  Sent to the Manager and Cli"
+after reload url: http://127.0.0.1:13000/agent/client-invoices?contract=7cc51a0b-c659-4db6-a619-925b421d6772; invoice header: "October 2026"; switcher text: "Solstice Retail Group — United States"
+scrollWidth 390 vs innerWidth 390
+== 1280x800 == Clients landmark visible: true; switcher visible: false
+== Priya at 390x844 ==
+NOTE: the app has no Client rename UI/API (no PUT/PATCH on /api/clients); the Client was renamed with SQL UPDATE on the isolated database. Name length 60
+Clients landmark count: 0
+chip: {"tag":"SPAN","text":"Priya Longname Holdings International Services Group Ltd.xxx","textOverflow":"clip","overflow":"hidden","whiteSpace":"normal","clientWidth":0,"scrollWidth":0,"truncated":false,"title":"Priya Longname Holdings International Services Group Ltd.xxx"}
+document scrollWidth 390 vs innerWidth 390

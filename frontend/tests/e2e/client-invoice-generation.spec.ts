@@ -5,7 +5,7 @@ import {
   addTesterAndSubmitRequestAsAgent,
   createClientAndContractWithSeededAgent,
   login,
-  selectContractInSwitcher,
+  selectClientInvoiceContract,
 } from "./helpers";
 
 /**
@@ -52,9 +52,9 @@ test.describe("client invoice generation", () => {
     // effect (client-invoice-generation ticket's get-or-create mechanic) — there's no separate
     // "create" step to perform first.
     await page.goto("/agent/client-invoices");
-    await selectContractInSwitcher(page, clientName);
+    await selectClientInvoiceContract(page, clientName);
 
-    await expect(page.getByText("Draft")).toBeVisible();
+    await expect(page.getByTestId("client-invoice-card").getByText("Draft")).toBeVisible();
     // Base amount: the one currently-Active Postpaid SIM's monthly fee. Fees this month: the
     // Topup fee just logged. Total: the sum of both — all three "at a glance" per the ticket's AC.
     await expect(page.getByText("Base amount", { exact: true })).toBeVisible();

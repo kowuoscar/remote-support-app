@@ -8,7 +8,7 @@ import {
   createContractWithTester,
   login,
   logout,
-  selectContractInSwitcher,
+  selectClientInvoiceContract,
   submitRequestAsTester,
 } from "./helpers";
 
@@ -89,7 +89,7 @@ test.describe.serial("a Tester's dashboard follows the Contract's invoice", () =
   test("agent-sends-invoice-and-row-reads-awaiting-approval-with-total", async ({ page }) => {
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/client-invoices");
-    await selectContractInSwitcher(page, clientName);
+    await selectClientInvoiceContract(page, clientName);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     const [sendResponse] = await Promise.all([
       page.waitForResponse((resp) => resp.url().includes("/api/client-invoices/") && resp.url().includes("/send") && resp.request().method() === "POST"),

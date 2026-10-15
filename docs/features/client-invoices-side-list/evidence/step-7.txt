@@ -1,0 +1,8 @@
+Open -> own page url: http://127.0.0.1:13000/agent/client-invoices/67d93cd5-9b1b-4466-87ba-67f5b331dbc2
+heading(s): ["Accept Twelve 01 — United States","Sent back by the Manager on Oct 15, 2026","Fee lines","Carrier invoice files"]
+breadcrumb links: ["Client Invoices\nAccept Twelve 01 — United States · October 2026"]
+after breadcrumb: url http://127.0.0.1:13000/agent/client-invoices?contract=6f5e71d1-4a83-4b68-85a1-fb42d03c4abf; current row: "Accept Twelve 01\nSent back"
+after resend: row text "Accept Twelve 01\nAwaiting approval"; contains 'Sent back': false
+'Sent back to you' region count: 0
+any row with 'Sent back': false
+same Client selected: true; url http://127.0.0.1:13000/agent/client-invoices?contract=6f5e71d1-4a83-4b68-85a1-fb42d03c4abf

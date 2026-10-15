@@ -39,6 +39,8 @@ At risk: the sent-back table's Open link, whose accessible name changes. Guards,
 
 Existing tests expected to change: the `agent-client-invoices-*` goldens are recaptured (reason: the earlier-month fixture adds a mark), and `stub-backend.mjs` gains one fixture; `client-invoices-view.test.tsx` and `client-invoices-side-list.spec.ts` gain cases. Every pre-existing case keeps passing unmodified, and no other golden changes.
 
+Also `frontend/tests/e2e/helpers.ts`: `clientInvoiceRowName` (used by `selectClientInvoiceContract`) allows an optional trailing " Sent back", since a row can now read "<Client> Awaiting approval Sent back"; every caller's assertions are unchanged. (Added by the orchestrator after implementation.)
+
 ## Observability
 
 N/A — presentation of data the page already reads; no backend change.

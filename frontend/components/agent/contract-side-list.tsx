@@ -12,6 +12,8 @@ export type SideListContract = {
   countryLabel: string;
   /** `clientInvoiceBadge` of the Contract's current-month invoice; null when that invoice failed to load. */
   status: { label: string; tone: Tone } | null;
+  /** The extra "Sent back" mark: the list holds a sent-back invoice of this Contract and `status` does not already say so. */
+  sentBackMark: boolean;
 };
 
 /**
@@ -85,11 +87,13 @@ export function ContractSideList({
                   {contract.clientName}
                 </span>
                 {" "}
-                {shared || contract.status ? (
+                {shared || contract.status || contract.sentBackMark ? (
                   <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     {shared ? <span className="text-label-sm text-ink-mute">{contract.countryLabel}</span> : null}
-                    {shared && contract.status ? " " : null}
+                    {shared && (contract.status || contract.sentBackMark) ? " " : null}
                     {contract.status ? <Badge tone={contract.status.tone}>{contract.status.label}</Badge> : null}
+                    {contract.status && contract.sentBackMark ? " " : null}
+                    {contract.sentBackMark ? <Badge tone="warning">Sent back</Badge> : null}
                   </span>
                 ) : null}
               </Link>

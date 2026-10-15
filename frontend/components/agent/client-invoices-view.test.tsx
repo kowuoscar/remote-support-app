@@ -770,3 +770,98 @@ describe("AgentClientInvoicesView side list row status (side-list-row-status)", 
     expect(screen.getAllByText("$11.00").length).toBeGreaterThan(0);
   });
 });
+
+describe("AgentClientInvoicesView side list Sent back mark (sent-back-in-the-side-list)", () => {
+  const B = { id: "contract-2", clientName: "Birch Telecom", countryLabel: "Kenya", currency: "USD" };
+  const Z = { id: "contract-3", clientName: "Zephyr Mobile", countryLabel: "Ghana", currency: "USD" };
+  const sentBackOf = (contractId: string, id = "invoice-9") => ({ ...SENT_BACK_ROW, id, contractId, country: "UNITED_KINGDOM" });
+  const sentInvoice = (contractId: string) =>
+    invoice({ contractId, status: "SENT", sentAt: "2026-09-10T10:00:00Z" });
+  const rowNames = () => within(clientsNav()).getAllByRole("link").map((link) => link.textContent?.trim());
+
+  it("an earlier-month sent-back invoice gives the month's status plus the mark; other rows show none", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, B, Z]}
+        invoicesByContract={{
+          "contract-1": invoice(),
+          "contract-2": sentInvoice("contract-2"),
+          "contract-3": invoice({ contractId: "contract-3" }),
+        }}
+        sentBack={[sentBackOf("contract-2")]}
+      />,
+    );
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Awaiting approval Sent back" })).toBeInTheDocument();
+    expect(within(clientsNav()).getAllByText("Sent back")).toHaveLength(1);
+    expect(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft" })).toBeInTheDocument();
+    expect(within(clientsNav()).getByRole("link", { name: "Zephyr Mobile Draft" })).toBeInTheDocument();
+  });
+
+  it("a this-month sent-back draft that is also in the list reads Sent back once", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT]}
+        invoicesByContract={{ "contract-1": invoice({ sentBackAt: "2026-09-03T10:00:00Z", sentBackReason: "Fix it." }) }}
+        sentBack={[sentBackOf("contract-1", "invoice-1")]}
+      />,
+    );
+    expect(within(clientsNav()).getAllByText("Sent back")).toHaveLength(1);
+    expect(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Sent back" })).toBeInTheDocument();
+  });
+
+  it("with no sent-back list, a this-month sent-back draft still reads Sent back once and no row has a mark", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, B]}
+        invoicesByContract={{
+          "contract-1": invoice({ sentBackAt: "2026-09-03T10:00:00Z" }),
+          "contract-2": sentInvoice("contract-2"),
+        }}
+        sentBack={[]}
+      />,
+    );
+    expect(within(clientsNav()).getAllByText("Sent back")).toHaveLength(1);
+    expect(rowNames()).toEqual(["Aurora Retail Group Sent back", "Birch Telecom Awaiting approval"]);
+  });
+
+  it("a failed-load row with an invoice in the list shows the mark alone", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, B]}
+        invoicesByContract={{ "contract-1": invoice(), "contract-2": null }}
+        sentBack={[sentBackOf("contract-2")]}
+      />,
+    );
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Sent back" })).toBeInTheDocument();
+    expect(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft" })).toBeInTheDocument();
+  });
+
+  it("the Sent back to you region precedes the invoice whichever row is selected", async () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, B]}
+        invoicesByContract={{ "contract-1": invoice(), "contract-2": sentInvoice("contract-2") }}
+        sentBack={[sentBackOf("contract-2")]}
+      />,
+    );
+    for (const name of [/^Aurora Retail Group/, /^Birch Telecom/]) {
+      await userEvent.click(within(clientsNav()).getByRole("link", { name }));
+      const region = screen.getByRole("region", { name: "Sent back to you" });
+      const card = screen.getByTestId("client-invoice-card");
+      expect(region.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+  });
+
+  it("the Contract cell titles the full Client — Country and the Open link names the Country and month", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, B]}
+        invoicesByContract={{ "contract-1": invoice(), "contract-2": invoice({ contractId: "contract-2" }) }}
+        sentBack={[sentBackOf("contract-2")]}
+      />,
+    );
+    const region = screen.getByRole("region", { name: "Sent back to you" });
+    expect(within(region).getByTitle("Birch Telecom — United Kingdom")).toBeInTheDocument();
+    expect(within(region).getByRole("link", { name: "Open Birch Telecom — United Kingdom, July 2026" })).toBeInTheDocument();
+  });
+});

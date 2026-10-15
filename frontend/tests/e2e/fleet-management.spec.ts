@@ -34,7 +34,7 @@ test.describe("fleet management", () => {
 
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
     await page.getByLabel("Model", { exact: true }).fill("iPhone 14");
-    await page.getByLabel("Serial").fill(`SN-${RUN_ID}`);
+    await page.getByRole("dialog").getByLabel("Serial").fill(`SN-${RUN_ID}`);
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
     await expect(page.getByRole("cell").filter({ hasText: "iPhone 14" })).toBeVisible();
     await expect(page.getByRole("row", { name: /iPhone 14/ })).toContainText("Active");
@@ -62,7 +62,7 @@ test.describe("fleet management", () => {
 
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
     await page.getByLabel("Model", { exact: true }).fill("Pixel 8");
-    await page.getByLabel("Serial").fill(`SN-agent-${RUN_ID}`);
+    await page.getByRole("dialog").getByLabel("Serial").fill(`SN-agent-${RUN_ID}`);
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
     await expect(page.getByRole("cell").filter({ hasText: "Pixel 8" })).toBeVisible();
 
@@ -161,12 +161,12 @@ test.describe("fleet management", () => {
 
     const agentRow = page.getByRole("row", { name: /iPhone 15/ });
     await expect(agentRow).toBeVisible();
-    await agentRow.getByRole("button", { name: "Set serial" }).click();
+    await agentRow.getByRole("button", { name: "Edit serial, iPhone 15" }).click();
     await agentRow.getByLabel("Smartphone serial").fill(`SN-SET-${RUN_ID}`);
     await agentRow.getByRole("button", { name: "Save" }).click();
 
     await expect(agentRow).toContainText(`SN-SET-${RUN_ID}`);
-    await expect(agentRow.getByRole("button", { name: "Edit" })).toBeVisible();
+    await expect(agentRow.getByRole("button", { name: `Edit serial, SN-SET-${RUN_ID}` })).toBeVisible();
   });
 
   test("an agent installs a SIM card into a smartphone from the fleet page and the tester's fleet shows it", async ({
@@ -178,7 +178,7 @@ test.describe("fleet management", () => {
 
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
     await page.getByLabel("Model", { exact: true }).fill("iPhone 14");
-    await page.getByLabel("Serial").fill(`SN-install-${RUN_ID}`);
+    await page.getByRole("dialog").getByLabel("Serial").fill(`SN-install-${RUN_ID}`);
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
     await expect(page.getByRole("cell").filter({ hasText: "iPhone 14" })).toBeVisible();
 
@@ -313,7 +313,7 @@ test.describe("fleet management", () => {
     await expect(page.getByRole("row", { name: /Galaxy S24/ })).toBeVisible();
     // The Tester's Fleet shows no serial or status control.
     await expect(page.getByLabel("Smartphone serial")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Set serial" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^Edit serial/ })).toHaveCount(0);
     await expect(page.getByLabel("Change smartphone status")).toHaveCount(0);
   });
 
@@ -333,7 +333,7 @@ test.describe("fleet management", () => {
     await expect(row).toBeVisible();
     await expect(row.getByLabel("Smartphone model")).toHaveCount(0);
     // The model cell holds no button: only the serial control's own are in the row.
-    await expect(row.getByRole("cell", { name: "Moto G" }).getByRole("button")).toHaveCount(0);
+    await expect(row.getByRole("cell", { name: "Moto G", exact: true }).getByRole("button")).toHaveCount(0);
   });
 
   // correct-a-smartphone-owner ticket.

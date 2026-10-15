@@ -60,7 +60,7 @@ export function SmartphoneFleetTable({
             </Td>
             <Td className={contractId && canEditSerial ? undefined : "tnum text-ink-secondary"}>
               {contractId && canEditSerial ? (
-                <SmartphoneSerialControl contractId={contractId} smartphoneId={phone.id} serial={phone.serial} />
+                <SmartphoneSerialControl contractId={contractId} smartphoneId={phone.id} model={phone.model} serial={phone.serial} />
               ) : (
                 (phone.serial ?? "—")
               )}

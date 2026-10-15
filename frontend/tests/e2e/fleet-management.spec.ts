@@ -320,7 +320,7 @@ test.describe("fleet management", () => {
   test("an agent corrects a smartphone's model on their own contract and sees it after a reload", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     // Not "Agent …": the Contract form's getByLabel("Agent") also matches a Client name containing it.
-    const clientName = `Agent Model Fleet ${RUN_ID}`;
+    const clientName = `Own Model Fleet ${RUN_ID}`;
     await createClientAndContractWithSeededAgent(page, clientName);
     await addSmartphone(page, "Moto G");
 
@@ -391,7 +391,7 @@ test.describe("fleet management", () => {
 
   test("an agent corrects a smartphone's owner on their own contract and sees it after a reload", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const clientName = `Agent Owner Fleet ${RUN_ID}`;
+    const clientName = `Own Owner Fleet ${RUN_ID}`;
     await createClientAndContractWithSeededAgent(page, clientName);
     await addSmartphone(page, "Moto E");
 
@@ -465,7 +465,7 @@ test.describe("fleet management", () => {
 
   test("an agent corrects a SIM card's number on their own contract and sees it after a reload", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const clientName = `Agent Number Fleet ${RUN_ID}`;
+    const clientName = `Own Number Fleet ${RUN_ID}`;
     await createClientAndContractWithSeededAgent(page, clientName);
     await addPrepaidSim(page, "+44 7700 900300");
 
@@ -565,7 +565,7 @@ test.describe("fleet management", () => {
     page,
   }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const clientName = `Agent Plan Fleet ${RUN_ID}`;
+    const clientName = `Own Plan Fleet ${RUN_ID}`;
     await createClientAndContractWithSeededAgent(page, clientName);
     await addPostpaidSim(page, "+1-555-0330");
 

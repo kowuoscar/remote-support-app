@@ -50,7 +50,9 @@ export function ContractSwitcher({
     return (
       <div className="inline-flex max-w-full items-center gap-2 rounded-lg border border-hairline bg-canvas-soft px-3 py-2 text-sm text-ink-secondary">
         <IconContracts className="h-4 w-4 shrink-0 text-ink-mute" />
-        <span className="truncate">{current?.label ?? "No contract"}</span>
+        <span className="truncate" title={current?.label}>
+          {current?.label ?? "No contract"}
+        </span>
       </div>
     );
   }

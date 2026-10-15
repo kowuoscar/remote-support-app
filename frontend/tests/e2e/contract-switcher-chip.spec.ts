@@ -52,6 +52,8 @@ test.describe("contract switcher chip", () => {
     // Truncated: the label's text is wider than the box that shows it, and ends in an ellipsis.
     await expect.poll(() => chip.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
     await expect(chip).toHaveCSS("text-overflow", "ellipsis");
+    // The full name stays readable on hover.
+    await expect(chip).toHaveAttribute("title", new RegExp(clientName));
     await expect
       .poll(() => page.evaluate(() => document.documentElement.scrollWidth === window.innerWidth))
       .toBe(true);

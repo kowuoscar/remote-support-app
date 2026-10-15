@@ -13,7 +13,7 @@ const OWNER_MESSAGES: Record<string, string> = {
 
 /**
  * Corrects a Smartphone's owner from the Fleet page (correct-a-fleet-unit spec): the Manager and
- * the Client's Testers. The edit-toggle shape of `SmartphoneModelControl` around a two-option
+ * the Contract's Agent. The edit-toggle shape of `SmartphoneModelControl` around a two-option
  * select; a misclick on an immediate-apply select would change a Return's path, so Save commits.
  * Enter on the select saves, as it does in a text field.
  */

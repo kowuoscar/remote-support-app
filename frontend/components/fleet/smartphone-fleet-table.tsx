@@ -13,7 +13,7 @@ import { SMARTPHONE_OWNER_LABEL, SMARTPHONE_STATUS_LABEL, type SimCardListItem, 
  * control. Serial is always shown — editable (`SmartphoneSerialControl`) only when `canEditSerial`
  * is given (Agent, Manager), otherwise plain text. Model and owner are correction controls
  * (`SmartphoneModelControl`, `SmartphoneOwnerControl`) only when `canCorrect` is given (Manager, Agent). The reverse "SIM Cards" lookup (`simCardNumbersInstalledIn`) is
- * always shown; `changeStatus` is the one axis the three roles vary on (Agent: given; Client/
+ * always shown; `changeStatus` is the one axis the three roles vary on (Agent: given; Tester/
  * Manager: omitted). Extracted from the near-identical copies in agent/fleet-view.tsx,
  * client/fleet-view.tsx and manager/contract-fleet-view.tsx — same markup and classes each caller
  * had inline, so rendering is unchanged.

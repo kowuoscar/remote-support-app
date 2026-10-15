@@ -95,16 +95,13 @@ class SmartphoneCorrectionApiTest extends IntegrationTest {
   }
 
   @Test
-  void anyTesterOfTheContractsClientCorrectsTheModelPrimaryContactOrNot() throws Exception {
+  void aTesterOfTheContractsClientIsRefusedTheModelPrimaryContactOrNotAndItIsUnchanged() throws Exception {
     String plain = createTesterAndLogin(managerToken, clientId, "plain." + UUID.randomUUID() + "@corr.example");
-    correct(contractId, smartphoneId, plain, "Pixel 8")
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.model").value("Pixel 8"));
-    fleetShowsModel(plain, "Pixel 8");
+    correct(contractId, smartphoneId, plain, "Pixel 8").andExpect(status().isForbidden());
 
     String primary = primaryContactToken();
-    correct(contractId, smartphoneId, primary, "Pixel 9").andExpect(status().isOk());
-    fleetShowsModel(primary, "Pixel 9");
+    correct(contractId, smartphoneId, primary, "Pixel 9").andExpect(status().isForbidden());
+    fleetShowsModel(managerToken, "Pixle 8");
   }
 
   @Test
@@ -354,7 +351,7 @@ class SmartphoneCorrectionApiTest extends IntegrationTest {
   }
 
   @Test
-  void aManagerAndATesterOfTheOwnClientCorrectTheOwnerInBothDirections() throws Exception {
+  void aManagerCorrectsTheOwnerInBothDirectionsAndATesterOfTheOwnClientIsRefused() throws Exception {
     fleetShowsOwner(managerToken, smartphoneId, "COMPANY");
     correctOwner(contractId, smartphoneId, managerToken, "CLIENT")
         .andExpect(status().isOk())
@@ -362,10 +359,8 @@ class SmartphoneCorrectionApiTest extends IntegrationTest {
     fleetShowsOwner(managerToken, smartphoneId, "CLIENT");
 
     String tester = clientTester();
-    correctOwner(contractId, smartphoneId, tester, "COMPANY")
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.owner").value("COMPANY"));
-    fleetShowsOwner(tester, smartphoneId, "COMPANY");
+    correctOwner(contractId, smartphoneId, tester, "COMPANY").andExpect(status().isForbidden());
+    fleetShowsOwner(managerToken, smartphoneId, "CLIENT");
   }
 
   @Test
@@ -401,7 +396,7 @@ class SmartphoneCorrectionApiTest extends IntegrationTest {
     // Submitted, then In Progress: a Client-owned phone's Return.
     UUID clientPhone = createClientOwnedSmartphone("Pixel 7");
     UUID submitted = returnOf(tester, clientPhone);
-    correctOwner(contractId, clientPhone, tester, "COMPANY")
+    correctOwner(contractId, clientPhone, managerToken, "COMPANY")
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.code").value("SMARTPHONE_ON_OPEN_RETURN"));
     patchStatus(contractId, submitted, agentToken(), "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
@@ -427,7 +422,7 @@ class SmartphoneCorrectionApiTest extends IntegrationTest {
     UUID rejectedPhone = createSmartphone(managerToken, contractId, "Rejected one");
     UUID rejected = returnOf(tester, rejectedPhone);
     rejectAsManager(managerToken, rejected, "Not now");
-    correctOwner(contractId, rejectedPhone, tester, "CLIENT").andExpect(status().isOk());
+    correctOwner(contractId, rejectedPhone, managerToken, "CLIENT").andExpect(status().isOk());
 
     UUID completedPhone = createClientOwnedSmartphone("Completed one");
     UUID completed = returnOf(tester, completedPhone);
@@ -504,7 +499,7 @@ class SmartphoneCorrectionApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.returnedUnits[0].disposition").value("POSTED_TO_CLIENT"));
 
     UUID toCompany = createClientOwnedSmartphone("Was client");
-    correctOwner(contractId, toCompany, tester, "COMPANY").andExpect(status().isOk());
+    correctOwner(contractId, toCompany, managerToken, "COMPANY").andExpect(status().isOk());
     mockMvc
         .perform(
             post("/api/contracts/" + contractId + "/requests")

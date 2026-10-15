@@ -8,19 +8,16 @@ import { SmartphoneFleetTable } from "@/components/fleet/smartphone-fleet-table"
 import { SimCardFleetTable } from "@/components/fleet/sim-card-fleet-table";
 import { useContractScopedFleet } from "@/components/fleet/use-contract-scoped-fleet";
 import { IconContracts, IconSim, IconSmartphone } from "@/components/icons";
-import { type CatalogCarrierItem, type SimCardListItem, type SmartphoneListItem } from "@/lib/api/types";
+import { type SimCardListItem, type SmartphoneListItem } from "@/lib/api/types";
 
 export function ClientFleetView({
   smartphones,
   simCards,
   contracts,
-  carriersByContract,
 }: {
   smartphones: SmartphoneListItem[];
   simCards: SimCardListItem[];
   contracts: ContractOption[];
-  /** Each Contract's active Carrier catalog (`GET /api/contracts/{id}/carriers`), for the plan correction. */
-  carriersByContract: Record<string, CatalogCarrierItem[]>;
 }) {
   const { contractId, setContractId, phones, sims } = useContractScopedFleet(contracts, smartphones, simCards);
 
@@ -50,7 +47,7 @@ export function ClientFleetView({
         emptyTitle="No smartphones on this contract yet"
         emptyDescription="Your Agent provisions smartphones onto this contract's fleet."
       >
-        <SmartphoneFleetTable phones={phones} simCards={sims} contractId={contractId} canCorrect />
+        <SmartphoneFleetTable phones={phones} simCards={sims} />
       </FleetTableCard>
 
       <FleetTableCard
@@ -62,13 +59,7 @@ export function ClientFleetView({
         emptyTitle="No SIM cards on this contract yet"
         emptyDescription="Your Agent provisions SIM cards onto this contract's fleet."
       >
-        <SimCardFleetTable
-          sims={sims}
-          contractId={contractId}
-          currency={contracts.find((contract) => contract.id === contractId)?.currency}
-          canCorrect
-          carriers={carriersByContract[contractId]}
-        />
+        <SimCardFleetTable sims={sims} currency={contracts.find((contract) => contract.id === contractId)?.currency} />
       </FleetTableCard>
     </div>
   );

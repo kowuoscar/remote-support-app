@@ -139,7 +139,7 @@ export async function addSmartphone(
   await page.goto(`/manager/contracts/${contractId}`);
   await page.getByRole("button", { name: "Add smartphone" }).first().click();
   await page.getByLabel("Model", { exact: true }).fill(model);
-  await page.getByLabel("Serial").fill(serial);
+  await page.getByRole("dialog").getByLabel("Serial").fill(serial);
   if (owner) {
     await page.getByRole("dialog").getByLabel("Owner").selectOption({ label: owner });
   }

@@ -705,6 +705,8 @@ tested at the highest seam that already exists and can see it.
 
 ## Decisions taken
 
+- **The ticket cut's last R6 gap was closed by the orchestrator, not escalated** (2026-10-15). The critic's second pass failed only R6 on `fleet-side-list-and-tabs` (five more e2e lines that the tabs change) and noted `surfaces.spec.ts` missing from `manager-contracts-one-page`'s Regression. Its own `would_pass` text was copied into both tickets verbatim: a list of tests declared modified, no change to scope or criteria, so it is not a spec gap worth the human's time.
+
 - **Spec approved by the human, 2026-10-15** (`docs/inbox/approve-ui-side-lists-and-tabs.md`, "ok"), accepting the seven choices listed there.
 
 - **The side list becomes one shared component (`SideList` and
@@ -917,11 +919,18 @@ backend's Agent invoices session if the demo data has no pre-catalog SIM.
 
 ## Execution order
 
-Four tickets, landed as one PR. The first is independent. The other three
-are in a line: each builds on the shared component the one before it
-introduces.
+Four tickets, landed as one PR. `invoice-sim-line-carrier` and
+`carriers-side-list` are independent and run in parallel. The other two are
+real gates: `fleet-side-list-and-tabs` needs the shared side list from
+`carriers-side-list`, and `manager-contracts-one-page` needs the `Tabs` and
+`FleetTabsCard` from `fleet-side-list-and-tabs`. Goldens: `invoice-sim-line-carrier`
+recaptures `agent-client-invoices-*`; `carriers-side-list` recaptures the
+Carriers goldens (and leaves `agent-client-invoices-*` untouched);
+`fleet-side-list-and-tabs` recaptures `agent-fleet-*` and `client-fleet-*` only (the Manager page stays on `FleetTableCard` until the last ticket); `manager-contracts-one-page` renames and recaptures
+`manager-contract-fleet-*` as `manager-contracts-*`, so it follows
+`fleet-side-list-and-tabs`.
 
 1. `invoice-sim-line-carrier`: `carrierName` on `ClientInvoiceBaseSimLineResponse`, the corrected `basePostpaidSims` Javadoc and frontend comment, the `simLineKind` formatter, and the Carrier and type on the Agent card's and the Manager detail view's SIM lines. Includes the `ClientInvoiceApiTest` cases, the two component cases, the `client-invoice-submission-and-visibility` step, the stub's `carrierName`, and the recaptured `agent-client-invoices-*` goldens. Labels: backend, frontend. No dependency. (stories: 1, 2, 3, 4, 5, 6)
-2. `carriers-side-list`: the shared `SideList` and `SideListLayout`, Client Invoices moved onto them pixel-identically (its tests unedited), and `ContractSwitcher`'s `icon` prop. Then both Carriers pages on the side list: archived Carriers last and badged, the `header` slot, the per-Carrier "Show archived", `?carrier=`, the new Carrier selected after it is added, the Country change, and the empty and failed states. Includes the `DESIGN.md` Layout, Contract Switcher, Side list and Do's amendments; the declared **Side list** term; `carriers-view.test.tsx`; `selectInSideList`, with `selectClientInvoiceContract` on it; the `carrier-catalog` steps and the `addPostpaidPlanToVerizon` helper; and the recaptured Carriers goldens. Labels: frontend. No dependency. (stories: 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 44, 45, 46, 47)
-3. `fleet-side-list-and-tabs`: the shared `Tabs` and `FleetTabsCard`. The Agent's Fleet gets the "Clients" side list; the Tester's Fleet gets the "Contracts" side list only with several Contracts. `?contract=` and `?tab=`, the Plan and Carrier name cap with `title`, and the Manager detail page moved onto `FleetTabsCard` so it keeps building. Includes the `DESIGN.md` Tabs and Tables amendments, the fleet view tests, the table cases, `fleetTab` and `simCardsTable`, the Fleet call sites moved to `selectInSideList`, the `fleet-management` steps, the stub's long Plan name, and the recaptured `agent-fleet-*` and `client-fleet-*` goldens. Labels: frontend. Depends on `carriers-side-list`. (stories: 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 48)
-4. `manager-contracts-one-page`: `/manager/contracts` as one side-list page. It reads only the selected Contract, swaps by `router.replace`, and lists Clients holding a Contract. It has "New Contract" above the column, the Agent `select`, the heading, Country and currency, the summary and the tabbed Fleet, with `secondary` add buttons (the "Two pills" debt). It keeps "{n} in this tenant", selects the new Contract after creation, and redirects `/manager/contracts/{id}`. Includes the Manager view test, the helpers (`createContractForClient`, `createUnrelatedContract`, the `add*`/`installSimCard` addresses), the moved `goto` call sites, the `manager-entity-setup` steps, the stub's Manager invoice, and the renamed `manager-contracts-*` goldens. Labels: frontend. Depends on `fleet-side-list-and-tabs`. (stories: 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 48)
+2. `carriers-side-list`: the shared `SideList` and `SideListLayout`, Client Invoices moved onto them pixel-identically (its tests unedited), and `ContractSwitcher`'s `icon` prop. Then both Carriers pages on the side list. Includes the `DESIGN.md` Layout, Contract Switcher, Side list and Do's amendments; the declared **Side list** term; `carriers-view.test.tsx`; `selectInSideList`; the `carrier-catalog` steps and the `addPostpaidPlanToVerizon` helper; and the recaptured Carriers goldens. Labels: frontend. No dependency. (stories: 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 44, 45, 46, 47)
+3. `fleet-side-list-and-tabs`: the shared `Tabs` and `FleetTabsCard`, the Agent's "Clients" and the Tester's "Contracts" side lists, `?contract=` and `?tab=`, the Plan and Carrier name cap, with the Manager detail page left on `FleetTableCard`. Includes the `DESIGN.md` Tabs and Tables amendments, the fleet view tests, `fleetTab`, the Fleet call sites on `selectInSideList`, the `fleet-management` steps, the stub's long Plan name, and the recaptured `agent-fleet-*`, `client-fleet-*` goldens. Labels: frontend. Depends on `carriers-side-list`. (stories: 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 48)
+4. `manager-contracts-one-page`: `/manager/contracts` as one side-list page reading only the selected Contract, with the Agent select, the summary, the tabbed Fleet, the redirect of `/manager/contracts/{id}`, the Manager page moved onto `FleetTabsCard`, and the "Two pills" debt paid. Includes the Manager view test, the helpers and moved `goto` call sites, the `manager-entity-setup` steps, the stub's Manager invoice, and the renamed `manager-contracts-*` goldens. Labels: frontend. Depends on `fleet-side-list-and-tabs`. (stories: 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 48)

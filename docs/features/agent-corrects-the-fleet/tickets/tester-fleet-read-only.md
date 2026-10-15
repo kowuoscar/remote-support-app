@@ -1,7 +1,7 @@
 ---
 id: tester-fleet-read-only
 title: Make the Tester's Fleet a read-only view
-status: ready-for-agent
+status: in-progress
 depends_on: [agent-corrects-own-fleet]
 labels: [backend, frontend, fleet]
 stories: [22, 23, 24, 26, 28]

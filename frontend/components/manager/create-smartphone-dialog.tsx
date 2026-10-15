@@ -68,7 +68,7 @@ export function CreateSmartphoneDialog({ contractId }: { contractId: string }) {
 
   return (
     <>
-      <Button variant="primary" onClick={open}>
+      <Button variant="secondary" size="sm" onClick={open}>
         <IconPlus className="h-4 w-4" />
         Add smartphone
       </Button>

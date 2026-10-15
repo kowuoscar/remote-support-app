@@ -57,9 +57,12 @@ export function CreateContractDialog({
         return;
       }
 
+      // The created Contract is selected at once; its Client then appears in the page's column.
+      const created = (await response.json().catch(() => null)) as { id?: string } | null;
       setSubmitting(false);
       close();
-      router.refresh();
+      if (created?.id) router.replace(`/manager/contracts?contract=${created.id}`, { scroll: false });
+      else router.refresh();
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
       setSubmitting(false);
@@ -70,7 +73,7 @@ export function CreateContractDialog({
     <>
       <Button variant="primary" onClick={open}>
         <IconPlus className="h-4 w-4" />
-        Add contract
+        New Contract
       </Button>
       <dialog
         ref={dialogRef}

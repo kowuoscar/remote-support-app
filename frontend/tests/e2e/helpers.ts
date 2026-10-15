@@ -55,14 +55,27 @@ async function createClient(page: Page, clientName: string): Promise<string> {
   return clientHref!.split("/").pop()!;
 }
 
-/** Creates a Contract linking an existing Client (by name) to the seeded Agent. */
-async function createContractForClient(page: Page, clientName: string): Promise<void> {
+/**
+ * Clicks "New Contract" on the Manager's Contracts page and creates a Contract linking an existing
+ * Client (by name) to an Agent (by its option label). The selects are scoped to the dialog because the
+ * page has its own "Agent" select. The page then selects the new Contract: returns its id, read from
+ * `?contract=`.
+ */
+export async function createContractViaDialog(page: Page, clientName: string, agentLabel: string): Promise<string> {
   await page.goto("/manager/contracts");
-  await page.getByRole("button", { name: "Add contract" }).first().click();
-  await page.getByLabel("Client").selectOption({ label: clientName });
-  await page.getByLabel("Agent").selectOption({ label: SEEDED_AGENT_LABEL });
-  await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
-  await expect(page.getByRole("row", { name: new RegExp(clientName) })).toBeVisible();
+  await page.getByRole("button", { name: "New Contract" }).first().click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel("Client").selectOption({ label: clientName });
+  await dialog.getByLabel("Agent").selectOption({ label: agentLabel });
+  await dialog.getByRole("button", { name: "Add contract" }).click();
+  await expect(page).toHaveURL(/[?&]contract=/);
+  await expect(page.getByRole("heading", { level: 2, name: clientName })).toBeVisible();
+  return new URL(page.url()).searchParams.get("contract")!;
+}
+
+/** Creates a Contract linking an existing Client (by name) to the seeded Agent. Returns its id. */
+async function createContractForClient(page: Page, clientName: string): Promise<string> {
+  return createContractViaDialog(page, clientName, SEEDED_AGENT_LABEL);
 }
 
 /** Creates a fresh Client, then a Contract linking it to the seeded Agent. Returns both ids. */
@@ -71,11 +84,7 @@ export async function createClientAndContractWithSeededAgent(
   clientName: string,
 ): Promise<{ clientId: string; contractId: string }> {
   const clientId = await createClient(page, clientName);
-  await createContractForClient(page, clientName);
-
-  await page.getByRole("link", { name: clientName }).click();
-  await expect(page).toHaveURL(/\/manager\/contracts\/.+/);
-  const contractId = page.url().split("/").pop()!;
+  const contractId = await createContractForClient(page, clientName);
 
   return { clientId, contractId };
 }
@@ -136,7 +145,7 @@ export async function addSmartphone(
   serial: string,
   owner?: "Client" | "Company",
 ) {
-  await page.goto(`/manager/contracts/${contractId}`);
+  await page.goto(`/manager/contracts?contract=${contractId}&tab=smartphones`);
   await page.getByRole("button", { name: "Add smartphone" }).first().click();
   await page.getByLabel("Model", { exact: true }).fill(model);
   await page.getByRole("dialog").getByLabel("Serial").fill(serial);
@@ -163,7 +172,7 @@ export async function addSimCard(
   flavor: "PREPAID" | "POSTPAID" = "PREPAID",
   planLabel?: string,
 ) {
-  await page.goto(`/manager/contracts/${contractId}`);
+  await page.goto(`/manager/contracts?contract=${contractId}`);
   await page.getByRole("button", { name: "Add SIM card" }).first().click();
   await page.getByLabel("Number", { exact: true }).fill(number);
   await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: carrierLabel });
@@ -260,14 +269,10 @@ export async function addFleetForRebootAndTopup(
 /**
  * Scopes to the SIM Cards table specifically — a Smartphone's own row also shows an installed SIM's
  * number, in its own "SIM Cards" column (sim-installed-in-smartphone ticket). On the Fleet tabs
- * (Agent, Tester) it is the table in the SIM Cards panel; the Manager's Contract page, which has no
- * tabs yet, is read by its "SIM Cards" heading.
+ * (Agent, Tester, Manager) it is the table in the SIM Cards panel.
  */
 export function simCardsTable(page: Page) {
-  return page
-    .getByRole("tabpanel", { name: /^SIM Cards/ })
-    .locator("table")
-    .or(page.getByRole("heading", { name: "SIM Cards" }).locator("xpath=following::table[1]"));
+  return page.getByRole("tabpanel", { name: /^SIM Cards/ }).locator("table");
 }
 
 /** Selects a Fleet tab ("SIM Cards" or "Smartphones") and returns its panel; only the selected panel is rendered. */
@@ -278,7 +283,7 @@ export async function fleetTab(page: Page, name: "SIM Cards" | "Smartphones") {
 
 /** Sets a SIM Card's Installed-in Smartphone from the Manager's Contract Fleet view. */
 export async function installSimCard(page: Page, contractId: string, number: string, smartphoneOptionLabel: string) {
-  await page.goto(`/manager/contracts/${contractId}`);
+  await page.goto(`/manager/contracts?contract=${contractId}`);
   const row = simCardsTable(page).getByRole("row", { name: new RegExp(number.replace(/\+/g, "\\+")) });
   await row.getByLabel("Installed in").selectOption({ label: smartphoneOptionLabel });
   await expect(row.getByLabel("Installed in")).not.toHaveValue("");
@@ -316,14 +321,7 @@ export async function createUnrelatedContract(
   await readRevealedPasswordAndClose(page);
   await expect(page.getByRole("row", { name: new RegExp(otherAgentName) })).toBeVisible();
 
-  await page.goto("/manager/contracts");
-  await page.getByRole("button", { name: "Add contract" }).first().click();
-  await page.getByLabel("Client").selectOption({ label: otherClientName });
-  await page.getByLabel("Agent").selectOption({ label: `${otherAgentName} · PHP` });
-  await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
-  await page.getByRole("link", { name: otherClientName }).click();
-  await expect(page).toHaveURL(/\/manager\/contracts\/.+/);
-  const contractId = page.url().split("/").pop()!;
+  const contractId = await createContractViaDialog(page, otherClientName, `${otherAgentName} · PHP`);
 
   return { clientId, contractId };
 }
@@ -355,7 +353,7 @@ export async function addPostpaidSimCard(page: Page, contractId: string, number:
     `Test plan ${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`,
     monthlyFee,
   );
-  await page.goto(`/manager/contracts/${contractId}`);
+  await page.goto(`/manager/contracts?contract=${contractId}`);
   await page.getByRole("button", { name: "Add SIM card" }).first().click();
   await page.getByLabel("Number", { exact: true }).fill(number);
   await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });

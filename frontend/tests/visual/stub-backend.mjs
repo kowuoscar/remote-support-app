@@ -708,7 +708,7 @@ createServer((request, response) => {
   }
   // correct-a-smartphone-model ticket: the Manager's Contract page reads one Contract's Fleet. It
   // reuses the Agent's first Contract and the Tester fixtures' Smartphone and SIM Card rows, so the
-  // golden shows the Edit buttons on a mixed-status Fleet. Its client-invoice read stays a 404.
+  // golden shows the Edit buttons on a mixed-status Fleet. Its first Contract has a Client Invoice (below).
   const managerFleetMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/(smartphones|sim-cards)$/);
   if (managerFleetMatch && request.method === "GET" && caller.role === "MANAGER") {
     if (!AGENT_CONTRACTS.some((contract) => contract.id === managerFleetMatch[1])) return send(response, 404);
@@ -729,6 +729,14 @@ createServer((request, response) => {
     if (contractIndex !== 0) return send(response, 200, []);
     const rows = agentFleetMatch[2] === "smartphones" ? testerSmartphones(0) : testerSimCards(0);
     return send(response, 200, rows.map((row) => ({ ...row, contractId })));
+  }
+  // manager-contracts-one-page: the Manager's Contracts page reads the selected Contract's current-month
+  // Client Invoice; the first Contract carries the same draft the Agent's first Client Invoice does.
+  const managerInvoiceMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/client-invoice$/);
+  if (managerInvoiceMatch && request.method === "GET" && caller.role === "MANAGER") {
+    return managerInvoiceMatch[1] === AGENT_CONTRACTS[0].id
+      ? send(response, 200, clientInvoiceFor({ ...AGENT_CONTRACTS[0], index: 0 }))
+      : send(response, 404);
   }
   // side-list-row-status: each Contract's current-month Client Invoice, and the Agent's sent-back list.
   const clientInvoiceMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/client-invoice$/);

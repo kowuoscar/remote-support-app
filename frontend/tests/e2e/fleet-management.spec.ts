@@ -5,6 +5,7 @@ import {
   addSimCard,
   addTester,
   createClientAndContractWithSeededAgent,
+  createContractViaDialog,
   createUnrelatedContract,
   login,
   logout,
@@ -35,6 +36,7 @@ test.describe("fleet management", () => {
     const clientName = `Aurora Retail Group ${RUN_ID}`;
     await createClientAndContractWithSeededAgent(page, clientName);
 
+    await fleetTab(page, "Smartphones");
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
     await page.getByLabel("Model", { exact: true }).fill("iPhone 14");
     await page.getByRole("dialog").getByLabel("Serial").fill(`SN-${RUN_ID}`);
@@ -42,6 +44,7 @@ test.describe("fleet management", () => {
     await expect(page.getByRole("cell").filter({ hasText: "iPhone 14" })).toBeVisible();
     await expect(page.getByRole("row", { name: /iPhone 14/ })).toContainText("Active");
 
+    await fleetTab(page, "SIM Cards");
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
     await page.getByLabel("Number", { exact: true }).fill(`+1-555-${RUN_ID}`);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
@@ -63,12 +66,14 @@ test.describe("fleet management", () => {
     const clientName = `Meridian Logistics ${RUN_ID}`;
     await createClientAndContractWithSeededAgent(page, clientName);
 
+    await fleetTab(page, "Smartphones");
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
     await page.getByLabel("Model", { exact: true }).fill("Pixel 8");
     await page.getByRole("dialog").getByLabel("Serial").fill(`SN-agent-${RUN_ID}`);
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
     await expect(page.getByRole("cell").filter({ hasText: "Pixel 8" })).toBeVisible();
 
+    await fleetTab(page, "SIM Cards");
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
     await page.getByLabel("Number", { exact: true }).fill(`+1-555-agent-${RUN_ID}`);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
@@ -123,6 +128,7 @@ test.describe("fleet management", () => {
     const clientName = `Kessler & Vance LLP ${RUN_ID}`;
     const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
 
+    await fleetTab(page, "SIM Cards");
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
     await page.getByLabel("Number", { exact: true }).fill(`+34-91-${RUN_ID}`);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
@@ -148,6 +154,7 @@ test.describe("fleet management", () => {
     const clientName = `Harbor & Finch Realty ${RUN_ID}`;
     await createClientAndContractWithSeededAgent(page, clientName);
 
+    await fleetTab(page, "Smartphones");
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
     await page.getByLabel("Model", { exact: true }).fill("iPhone 15");
     await page.getByRole("dialog").getByLabel("Owner").selectOption("CLIENT");
@@ -181,12 +188,14 @@ test.describe("fleet management", () => {
     const clientName = `Solene Cosmetics ${RUN_ID}`;
     const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
 
+    await fleetTab(page, "Smartphones");
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
     await page.getByLabel("Model", { exact: true }).fill("iPhone 14");
     await page.getByRole("dialog").getByLabel("Serial").fill(`SN-install-${RUN_ID}`);
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
     await expect(page.getByRole("cell").filter({ hasText: "iPhone 14" })).toBeVisible();
 
+    await fleetTab(page, "SIM Cards");
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
     await page.getByLabel("Number", { exact: true }).fill(`+1-555-install-${RUN_ID}`);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
@@ -268,6 +277,7 @@ test.describe("fleet management", () => {
 
   // correct-a-smartphone-model ticket: each test creates its own unit and Client.
   async function addSmartphone(page: Page, model: string) {
+    await fleetTab(page, "Smartphones");
     await page.getByRole("button", { name: "Add smartphone" }).first().click();
     await page.getByLabel("Model", { exact: true }).fill(model);
     await page.getByRole("dialog").getByRole("button", { name: "Add smartphone" }).click();
@@ -364,6 +374,7 @@ test.describe("fleet management", () => {
   });
 
   async function addPrepaidSim(page: Page, number: string) {
+    await fleetTab(page, "SIM Cards");
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
     await page.getByLabel("Number", { exact: true }).fill(number);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
@@ -413,6 +424,7 @@ test.describe("fleet management", () => {
   });
 
   async function addPostpaidSim(page: Page, number: string) {
+    await fleetTab(page, "SIM Cards");
     await page.getByRole("button", { name: "Add SIM card" }).first().click();
     await page.getByLabel("Number", { exact: true }).fill(number);
     await page.getByRole("combobox", { name: "Carrier" }).selectOption({ label: "Verizon" });
@@ -462,19 +474,8 @@ test.describe("fleet management", () => {
 
   // tester-fleet-read-only ticket: a Tester only views their Client's Fleet. A second Contract of the
   // same Client (same Agent, so the switcher labels match) proves the view holds on every Contract.
-  async function addSecondContract(page: Page, clientName: string, firstContractId: string): Promise<string> {
-    await page.goto("/manager/contracts");
-    await page.getByRole("button", { name: "Add contract" }).first().click();
-    await page.getByLabel("Client").selectOption({ label: clientName });
-    await page.getByLabel("Agent").selectOption({ label: "Jordan Ellis · USD" });
-    await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
-    const links = page.locator('a[href^="/manager/contracts/"]').filter({ hasText: clientName });
-    await expect(links).toHaveCount(2);
-    const hrefs = await links.evaluateAll((anchors) => anchors.map((a) => a.getAttribute("href")!));
-    const second = hrefs.find((href) => !href.endsWith(`/${firstContractId}`))!;
-    await page.goto(second);
-    await expect(page).toHaveURL(/\/manager\/contracts\/.+/);
-    return page.url().split("/").pop()!;
+  async function addSecondContract(page: Page, clientName: string): Promise<string> {
+    return createContractViaDialog(page, clientName, "Jordan Ellis · USD");
   }
 
   async function showContractOfTester(page: Page, index: number) {
@@ -484,9 +485,9 @@ test.describe("fleet management", () => {
   test("a tester sees the four values of the smartphones with no Edit", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Tester Phones Retail ${RUN_ID}`;
-    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
     await addSmartphone(page, "Galxy S24");
-    await addSecondContract(page, clientName, contractId);
+    await addSecondContract(page, clientName);
     await addSmartphone(page, "Fairphone 4");
     const testerEmail = `phones.tester+${RUN_ID}@typo.example`;
     const testerPassword = await addTester(page, clientId, testerEmail);
@@ -512,9 +513,9 @@ test.describe("fleet management", () => {
   test("a tester sees the four values of the SIM cards with no Edit", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Tester Sims Retail ${RUN_ID}`;
-    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
     await addPostpaidSim(page, "+1-555-0320");
-    await addSecondContract(page, clientName, contractId);
+    await addSecondContract(page, clientName);
     await addPostpaidSim(page, "+1-555-0321");
     const testerEmail = `sims.tester+${RUN_ID}@typo.example`;
     const testerPassword = await addTester(page, clientId, testerEmail);
@@ -644,8 +645,8 @@ test.describe("fleet management", () => {
   }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Tester Side List ${RUN_ID}`;
-    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
-    await addSecondContract(page, clientName, contractId);
+    const { clientId } = await createClientAndContractWithSeededAgent(page, clientName);
+    await addSecondContract(page, clientName);
     const testerEmail = `side.list.tester+${RUN_ID}@typo.example`;
     const testerPassword = await addTester(page, clientId, testerEmail);
 

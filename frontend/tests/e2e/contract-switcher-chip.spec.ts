@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { login, logout, readRevealedPasswordAndClose, SEEDED_USERS } from "./helpers";
+import { createContractViaDialog, login, logout, readRevealedPasswordAndClose, SEEDED_USERS } from "./helpers";
 
 /**
  * The single-Contract chip of the Contract Switcher truncates a long Client name instead of
@@ -35,12 +35,7 @@ test.describe("contract switcher chip", () => {
     await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
     const agentPassword = await readRevealedPasswordAndClose(page);
 
-    await page.goto("/manager/contracts");
-    await page.getByRole("button", { name: "Add contract" }).first().click();
-    await page.getByLabel("Client").selectOption({ label: clientName });
-    await page.getByLabel("Agent").selectOption({ label: `${agentName} · EUR` });
-    await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
-    await expect(page.getByRole("row", { name: new RegExp(clientName) })).toBeVisible();
+    await createContractViaDialog(page, clientName, `${agentName} · EUR`);
 
     await logout(page);
     await login(page, agentEmail, agentPassword);

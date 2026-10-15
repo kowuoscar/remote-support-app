@@ -1,99 +1,213 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { SearchInput } from "@/components/ui/search-input";
+import { useMemo, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { ContractSwitcher } from "@/components/ui/contract-switcher";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
-import { IconContracts, IconSearch } from "@/components/icons";
+import { SideList, SideListLayout } from "@/components/ui/side-list";
+import { FleetTabsCard, fleetTabFromParam, type FleetTabId } from "@/components/fleet/fleet-tabs-card";
+import { SmartphoneFleetTable } from "@/components/fleet/smartphone-fleet-table";
+import { SimCardFleetTable } from "@/components/fleet/sim-card-fleet-table";
+import { IconClients, IconContracts } from "@/components/icons";
 import { CreateContractDialog } from "@/components/manager/create-contract-dialog";
-import type { AgentListItem, ClientListItem } from "@/lib/api/types";
+import { CreateSimCardDialog } from "@/components/manager/create-sim-card-dialog";
+import { CreateSmartphoneDialog } from "@/components/manager/create-smartphone-dialog";
+import { InvoiceSummaryCard } from "@/components/manager/invoice-summary-card";
+import {
+  countryLabel,
+  type AgentListItem,
+  type CatalogCarrierItem,
+  type ClientInvoiceDetail,
+  type ClientListItem,
+  type ContractListItem,
+  type SimCardListItem,
+  type SmartphoneListItem,
+} from "@/lib/api/types";
+import { groupByClient } from "@/lib/manager-contracts";
 
-export interface ContractRow {
-  id: string;
-  clientName: string;
-  agentName: string;
-  country: string;
-  currency: string;
+const PATH = "/manager/contracts";
+
+/** What the server reads for the one selected Contract: its Fleet, current-month invoice and Country's Carriers. */
+export type SelectedContract = {
+  contract: ContractListItem;
+  smartphones: SmartphoneListItem[];
+  simCards: SimCardListItem[];
+  /** Null when the invoice read failed: the summary is then absent. */
+  invoice: ClientInvoiceDetail | null;
+  carriers: CatalogCarrierItem[];
+};
+
+/** The address for a Contract (keeping the open tab, which SIM Cards leaves out as its default). */
+function addressFor(contractId: string, tab: FleetTabId): string {
+  const query = new URLSearchParams({ contract: contractId });
+  if (tab === "smartphones") query.set("tab", "smartphones");
+  return `${PATH}?${query.toString()}`;
 }
 
+/**
+ * The Manager's Contracts, on one page (side-lists-and-tabs spec, "The Manager's Contracts: one
+ * page"): a "Clients" side list (a dropdown below `xl`) of the Clients that hold a Contract, beside
+ * the selected Contract: the Client's name, an Agent select over that Client's Contracts, the
+ * current-month invoice summary and the tabbed Fleet. A pick is a `router.replace` to `?contract=`
+ * in a transition, so the server renders that Contract only; meanwhile the area keeps its content,
+ * `aria-busy`. The open tab is local state written to the address with the History API.
+ */
 export function ManagerContractsView({
   contracts,
   clients,
   agents,
+  selected,
+  initialTab,
 }: {
-  contracts: ContractRow[];
+  contracts: ContractListItem[];
   clients: ClientListItem[];
   agents: AgentListItem[];
+  /** Null exactly when there are no Contracts. */
+  selected: SelectedContract | null;
+  /** The page's `tab` search parameter, unvalidated. */
+  initialTab?: string;
 }) {
-  const [query, setQuery] = useState("");
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [tab, setTab] = useState<FleetTabId>(() => fleetTabFromParam(initialTab));
+  const detailRef = useRef<HTMLDivElement>(null);
+  const groups = useMemo(() => groupByClient(contracts), [contracts]);
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return contracts;
-    return contracts.filter(
-      (c) =>
-        c.clientName.toLowerCase().includes(q) ||
-        c.agentName.toLowerCase().includes(q) ||
-        c.country.toLowerCase().includes(q),
-    );
-  }, [contracts, query]);
+  const newContract = <CreateContractDialog clients={clients} agents={agents} />;
 
-  return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <SearchInput value={query} onChange={setQuery} placeholder="Search client, agent or country…" />
-        <div className="flex items-center gap-3">
-          <span className="shrink-0 text-[13px] text-ink-mute">
-            {filtered.length} of {contracts.length}
-          </span>
-          <CreateContractDialog clients={clients} agents={agents} />
-        </div>
-      </div>
-
-      {contracts.length === 0 ? (
+  if (!selected) {
+    return (
+      <SideListLayout list={null} dropdown={null} header={newContract}>
         <EmptyState
           icon={<IconContracts className="h-5 w-5" />}
           title="No contracts yet"
           description="Add a contract to link one client to one agent — its currency is copied from the agent automatically."
         />
-      ) : filtered.length === 0 ? (
-        <EmptyState
-          icon={<IconSearch className="h-5 w-5" />}
-          title={`No contracts match “${query}”`}
-          description="Try a different client, agent or country, or clear the search to see every contract in the tenant."
+      </SideListLayout>
+    );
+  }
+
+  const { contract, smartphones, simCards, invoice, carriers } = selected;
+  const group = groups.find((g) => g.clientId === contract.clientId);
+  const siblings = group?.contracts ?? [contract];
+  // A Client's row stands for its first Contract by Agent name.
+  const rowIdOf = (clientId: string) => groups.find((g) => g.clientId === clientId)?.contracts[0]?.id ?? "";
+  const selectedRowId = rowIdOf(contract.clientId);
+  const carriersHref = `/manager/carriers?country=${contract.country}`;
+
+  function pick(id: string) {
+    // Async, so the area stays busy until the navigation settles (React 19 holds an async transition open).
+    startTransition(async () => {
+      await router.replace(addressFor(id, tab), { scroll: false });
+    });
+    // The document scrolls the page; return to the area's top when it would start off-screen.
+    if (detailRef.current && detailRef.current.getBoundingClientRect().top < 0) {
+      window.scrollTo({ top: 0 });
+    }
+  }
+
+  function selectTab(next: FleetTabId) {
+    setTab(next);
+    const url = new URL(window.location.href);
+    if (next === "smartphones") url.searchParams.set("tab", "smartphones");
+    else url.searchParams.delete("tab");
+    // A null state keeps Next's router in step, so a later refresh keeps the query.
+    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+  }
+
+  return (
+    <SideListLayout
+      header={newContract}
+      list={
+        <SideList
+          label="Clients"
+          items={groups.map((g) => ({ id: g.contracts[0].id, name: g.clientName }))}
+          selectedId={selectedRowId}
+          hrefFor={(id) => addressFor(id, tab).replace(PATH, "")}
+          onSelect={pick}
         />
-      ) : (
-        <TableScroll>
-          <Table>
-            <Thead>
-              <Tr>
-                <Th>Client</Th>
-                <Th>Agent</Th>
-                <Th>Country</Th>
-                <Th className="text-right">Currency</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {filtered.map((contract) => (
-                <Tr key={contract.id}>
-                  <Td className="font-medium text-ink">
-                    <Link
-                      href={`/manager/contracts/${contract.id}`}
-                      className="hover:text-primary hover:underline"
-                    >
-                      {contract.clientName}
-                    </Link>
-                  </Td>
-                  <Td className="text-ink-secondary">{contract.agentName}</Td>
-                  <Td className="text-ink-secondary">{contract.country}</Td>
-                  <Td className="tnum text-right text-ink-secondary">{contract.currency}</Td>
-                </Tr>
+      }
+      dropdown={
+        <ContractSwitcher
+          contracts={groups.map((g) => ({ id: g.contracts[0].id, label: g.clientName }))}
+          value={selectedRowId}
+          onChange={pick}
+          icon={IconClients}
+        />
+      }
+      detailRef={detailRef}
+    >
+      <div aria-busy={pending} className="flex flex-col gap-5 transition-opacity aria-busy:opacity-70">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h2 className="min-w-0 truncate text-lg font-semibold text-ink" title={contract.clientName}>
+            {contract.clientName}
+          </h2>
+          <label className="flex items-center gap-2 text-label font-medium text-ink-secondary">
+            Agent
+            <select
+              value={contract.id}
+              onChange={(event) => pick(event.target.value)}
+              className="h-9 max-w-56 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
+            >
+              {siblings.map((sibling) => (
+                <option key={sibling.id} value={sibling.id}>
+                  {sibling.agentName}
+                </option>
               ))}
-            </Tbody>
-          </Table>
-        </TableScroll>
-      )}
-    </div>
+            </select>
+          </label>
+          <p className="text-label text-ink-mute">
+            {countryLabel(contract.country)} · {contract.currency}
+          </p>
+        </div>
+
+        {invoice ? <InvoiceSummaryCard kind="CLIENT_INVOICE" invoice={invoice} /> : null}
+
+        <FleetTabsCard
+          tab={tab}
+          onTab={selectTab}
+          simCards={{
+            count: simCards.length,
+            emptyTitle: "No SIM cards yet",
+            emptyDescription: "Add this contract's first SIM card — Postpaid needs a plan, Prepaid doesn't.",
+            action: (
+              <CreateSimCardDialog
+                contractId={contract.id}
+                currency={contract.currency}
+                carriers={carriers}
+                carriersHref={carriersHref}
+              />
+            ),
+            table: (
+              <SimCardFleetTable
+                sims={simCards}
+                currency={contract.currency}
+                showMonthlyFee
+                contractId={contract.id}
+                smartphones={smartphones}
+                canCorrect
+                carriers={carriers}
+                carriersHref={carriersHref}
+              />
+            ),
+          }}
+          smartphones={{
+            count: smartphones.length,
+            emptyTitle: "No smartphones yet",
+            emptyDescription: "Add this contract's first smartphone — it starts Active.",
+            action: <CreateSmartphoneDialog contractId={contract.id} />,
+            table: (
+              <SmartphoneFleetTable
+                phones={smartphones}
+                simCards={simCards}
+                contractId={contract.id}
+                canEditSerial
+                canCorrect
+              />
+            ),
+          }}
+        />
+      </div>
+    </SideListLayout>
   );
 }

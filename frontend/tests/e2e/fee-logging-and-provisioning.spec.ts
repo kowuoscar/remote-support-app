@@ -377,7 +377,7 @@ test.describe("fee logging and provisioning", () => {
 
     // Install the old SIM Card into the Smartphone from the Fleet page, so completion has a slot
     // to hand over.
-    await page.goto("/manager/contracts/" + contractId);
+    await page.goto("/manager/contracts?contract=" + contractId);
     const simRow = page.getByRole("row", { name: new RegExp(oldNumber.replace(/\+/g, "\\+")) });
     await simRow.getByLabel("Installed in").selectOption({ label: `Pixel 8 — ${serial}` });
     await expect(simRow.getByLabel("Installed in")).not.toHaveValue("");

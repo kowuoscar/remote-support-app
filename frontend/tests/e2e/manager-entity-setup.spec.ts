@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { logout, readRevealedPasswordAndClose } from "./helpers";
+import { createContractViaDialog, logout, readRevealedPasswordAndClose, selectInSideList } from "./helpers";
 
 /**
  * Manager entity setup (manager-entity-setup ticket), driven against a real backend + Postgres
@@ -61,16 +61,61 @@ test.describe("manager entity setup", () => {
     await expect(page.getByRole("row", { name: new RegExp(agentName) })).toBeVisible();
     await expect(page.getByRole("row", { name: new RegExp(agentName) })).toContainText("EUR");
 
-    // Create a Contract linking them — currency copied from the Agent.
-    await page.goto("/manager/contracts");
-    await page.getByRole("button", { name: "Add contract" }).first().click();
-    await page.getByLabel("Client").selectOption({ label: clientName });
-    await page.getByLabel("Agent").selectOption({ label: `${agentName} · EUR` });
-    await page.getByRole("dialog").getByRole("button", { name: "Add contract" }).click();
-    const contractRow = page.getByRole("row", { name: new RegExp(clientName) });
-    await expect(contractRow).toBeVisible();
-    await expect(contractRow).toContainText(agentName);
-    await expect(contractRow).toContainText("EUR");
+    // Create a Contract linking them — currency copied from the Agent. The one page selects it.
+    const firstContractId = await createContractViaDialog(page, clientName, `${agentName} · EUR`);
+    await expect(page.getByRole("navigation", { name: "Clients" }).getByRole("link", { name: clientName })).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+    await expect(page.getByRole("heading", { level: 2, name: clientName })).toBeVisible();
+    // The Agent select is shown even for one Agent.
+    const agentSelect = page.getByRole("combobox", { name: "Agent", exact: true });
+    await expect(agentSelect.locator("option")).toHaveText([agentName]);
+    await expect(page.getByText("France · EUR")).toBeVisible();
+
+    // The subtitle still counts Contracts.
+    await expect(page.getByText(/\d+ in this tenant/)).toBeVisible();
+
+    // A second Contract of the same Client, with the seeded Agent: the Agent select switches between them,
+    // and the Fleet reads of the Contract not selected are never requested by the browser.
+    const fleetReads: string[] = [];
+    page.on("request", (request) => {
+      if (/\/api\/contracts\/[^/]+\/(smartphones|sim-cards)/.test(request.url())) fleetReads.push(request.url());
+    });
+    const secondContractId = await createContractViaDialog(page, clientName, "Jordan Ellis · USD");
+    await expect(agentSelect.locator("option")).toHaveText([agentName, "Jordan Ellis"]);
+    await expect(agentSelect).toHaveValue(secondContractId);
+    await expect(page.getByText("United States · USD")).toBeVisible();
+
+    await agentSelect.selectOption({ label: agentName });
+    await expect(page).toHaveURL(new RegExp(`[?&]contract=${firstContractId}`));
+    await expect(page.getByText("France · EUR")).toBeVisible();
+    await expect(agentSelect).toHaveValue(firstContractId);
+    await page.reload();
+    await expect(agentSelect).toHaveValue(firstContractId);
+
+    // The Client's row stands for its first Agent by name, even after the other Agent was selected.
+    await agentSelect.selectOption({ label: "Jordan Ellis" });
+    await expect(page).toHaveURL(new RegExp(`[?&]contract=${secondContractId}`));
+    await selectInSideList(page, "Clients", clientName);
+    await expect(page).toHaveURL(new RegExp(`[?&]contract=${firstContractId}`));
+    await expect(agentSelect).toHaveValue(firstContractId);
+    expect(fleetReads.filter((url) => url.includes(secondContractId) || url.includes(firstContractId))).toEqual([]);
+
+    // The old Contract page lands on the one page with that Contract selected.
+    await page.goto(`/manager/contracts/${secondContractId}`);
+    await expect(page).toHaveURL(new RegExp(`/manager/contracts\\?contract=${secondContractId}$`));
+    await expect(agentSelect).toHaveValue(secondContractId);
+
+    // At 390px the Clients dropdown replaces the column, with no sideways scroll.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.getByRole("navigation", { name: "Clients" })).toBeHidden();
+    await expect(page.getByRole("button", { name: "New Contract" }).first()).toBeVisible();
+    await expect(page.locator('[aria-haspopup="listbox"]')).toBeVisible();
+    await expect(agentSelect).toBeVisible();
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollWidth === window.innerWidth))
+      .toBe(true);
 
     // The shown password is the one that works: the new Agent signs in with it.
     await logout(page);

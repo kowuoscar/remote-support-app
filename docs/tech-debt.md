@@ -74,6 +74,8 @@ separated by ` · `.
 - `frontend/components/fleet/smartphone-serial-control.tsx` · smell: Inline edit not shared · the serial Edit looks like the correction Edits but does not use useInlineEdit: no focus return after Save/Cancel, no Escape, error not linked by aria-describedby (F5) · agent-corrects-the-fleet · 2026-10-15
 - `frontend/components/fleet/smartphone-serial-control.tsx` · smell: Off-scale text size · pre-existing text-[12px]/text-[11px] on the serial input and error, placeholder without ellipsis (F6) · agent-corrects-the-fleet · 2026-10-15
 - `CONTEXT.md` · smell: Repeated clause · the Correction entry says "audit-logged" twice in one sentence (F3) · agent-corrects-the-fleet · 2026-10-15
+- `frontend/components/agent/contract-side-list.tsx` · smell: Name cut hard · a row with two badges or a Country collision cuts the Client name to a few letters ('Solstic…', 'Birch T…'); the full name is only in `title` (hover), so touch and keyboard users never see it (F12) · client-invoices-layout-fixes · 2026-10-15
+- `frontend/components/agent/edit-client-invoice-line-control.tsx` · smell: iOS zoom on focus · the auto-focused amount field is 12px (text-label-sm); iOS Safari zooms a focused input under 16px; the Fleet correction fields share it, so fix them together (e.g. max-xl:text-base) (F13) · client-invoices-layout-fixes · 2026-10-15
 
 ## backend
 

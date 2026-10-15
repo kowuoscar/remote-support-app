@@ -1,7 +1,7 @@
 ---
 id: invoice-lines-layout
 title: Lay out the invoice lines with inline actions at xl and one-column rows below
-status: in-progress
+status: done
 depends_on: [side-list-row-one-line]
 labels: [frontend]
 stories: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]

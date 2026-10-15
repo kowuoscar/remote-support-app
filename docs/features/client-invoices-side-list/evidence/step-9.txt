@@ -1,0 +1,32 @@
+Priya rows: 1 -> "Solstice Retail Group | Draft"; aria-current=true
+Manager created Agent 'Nocontract Agent' with login nocontract+1792023592080@agents.example and no Contract
+'No contracts yet' count: 1; Clients landmark count: 0; Contract Switcher visible: false
+--- snapshot ---
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Client Invoices" [level=1]
+  - paragraph: One per Contract per month
+  - button "nocontract+1792023592080@agents.example · Agent"
+  - button "Switch to dark theme"
+- main:
+  - paragraph: No contracts yet
+  - paragraph: Once a manager creates a contract for you, its monthly Client Invoice shows up here.
+- alert

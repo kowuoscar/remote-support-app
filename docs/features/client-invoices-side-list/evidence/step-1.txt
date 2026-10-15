@@ -1,0 +1,69 @@
+viewport 1440x900; url http://127.0.0.1:13000/agent/client-invoices
+rail (complementary) visible: true; banner visible: true
+rows (name + badge): ["Accept Fresh 1792023342081\nDraft","Accept Fresh 1792023357655\nDraft","Harbor Line Logistics\nDraft","Solstice Retail Group\nAwaiting approval"]
+first link aria-current: true
+other links aria-current: ["true",null,null,null]
+Contract Switcher (aria-haspopup=listbox) in DOM: 1, visible: false
+--- accessibility snapshot (first row selected) ---
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Client Invoices" [level=1]
+  - paragraph: One per Contract per month
+  - button "agent@example.com · Agent"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Accept Fresh 1792023342081 Draft":
+          - /url: /agent/client-invoices?contract=0752a1f9-af4a-4b14-9a5f-1cbd04e9b3f4
+      - listitem:
+        - link "Accept Fresh 1792023357655 Draft":
+          - /url: /agent/client-invoices?contract=e128b284-e1cd-4002-b1b2-87bb1f99350d
+      - listitem:
+        - link "Harbor Line Logistics Draft":
+          - /url: /agent/client-invoices?contract=95f71152-07de-4d5f-b0ee-74aba0ad18ca
+      - listitem:
+        - link "Solstice Retail Group Awaiting approval":
+          - /url: /agent/client-invoices?contract=7cc51a0b-c659-4db6-a619-925b421d6772
+  - paragraph: October 2026
+  - text: Draft
+  - paragraph: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+  - button "Attach carrier invoice"
+  - button "Attach carrier invoice file"
+  - button "Send Client Invoice"
+  - term: Base amount
+  - definition: $0.00
+  - term: Fees this month
+  - definition: $0.00
+  - term: Total
+  - definition: $0.00
+  - paragraph: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees logged against this Contract yet this month.
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached yet.
+- alert
+row 0 "Accept Fresh 1792023342081 | Draft" -> invoice area first lines (month, badge): ["Accept Fresh 1792023342081 — United StatesOctober 2026DraftThis Contract’s postpaid base amount plus this month’s Fees — still being assembledAttach carrier invoiceSend Client InvoiceBase amount$0.00Fees this month$0.00Total$0.00You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.Fee linesNo Fees logged against this Contract yet this month.Carrier invoice filesNo carrier invoice files attached yet."]; aria-current=true
+row 1 "Accept Fresh 1792023357655 | Draft" -> invoice area first lines (month, badge): ["Accept Fresh 1792023357655 — United StatesOctober 2026DraftThis Contract’s postpaid base amount plus this month’s Fees — still being assembledAttach carrier invoiceSend Client InvoiceBase amount$0.00Fees this month$0.00Total$0.00You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.Fee linesNo Fees logged against this Contract yet this month.Carrier invoice filesNo carrier invoice files attached yet."]; aria-current=true
+row 2 "Harbor Line Logistics | Draft" -> invoice area first lines (month, badge): ["Harbor Line Logistics — United StatesOctober 2026DraftThis Contract’s postpaid base amount plus this month’s Fees — still being assembledAttach carrier invoiceSend Client InvoiceBase amount$0.00Fees this month$0.00Total$0.00You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.Fee linesNo Fees logged against this Contract yet this month.Carrier invoice filesNo carrier invoice files attached yet."]; aria-current=true
+row 3 "Solstice Retail Group | Awaiting approval" -> invoice area first lines (month, badge): ["Solstice Retail Group — United StatesOctober 2026Awaiting approvalSent to the Manager and Client — numbers are locked to what was sentSent Oct 15, 2026Download PDFBase amount$65.99Fees this month$70.00Total$135.99Postpaid SIM CardsNumberBilled+1-202-555-0102$65.99Fee linesTypeDescriptionLoggedBilledTopup—Oct 15$25.00Other—Oct 15$45.00Carrier invoice filesNo carrier invoice files attached yet."]; aria-current=true

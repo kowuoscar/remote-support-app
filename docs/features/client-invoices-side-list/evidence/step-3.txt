@@ -1,0 +1,9 @@
+rows: 16
+column metrics @1440x900: {"scrollHeight":1152,"clientHeight":844,"scrollTop":0}
+frame before: {"rail":[0,0],"banner":[0,240],"scrollY":0,"docH":900,"winH":900}
+column metrics @1440x300: {"scrollHeight":1152,"clientHeight":244,"scrollTop":0}
+after scrolling document to bottom: {"rail":[0,0],"banner":[0,240],"scrollY":315,"docH":615,"winH":300}
+column box (viewport coords): {"x":240,"y":56,"width":256,"height":244}; column visible in viewport: true
+column scrolled to last row; scrollTop=908; last row: Solstice Retail Group | Awaiting approval
+document scrollY before click 315, after click 0; column scrollTop before 908, after 908
+last row aria-current: true; frame: {"rail":[0,0],"banner":[0,240],"scrollY":0,"docH":759,"winH":300}

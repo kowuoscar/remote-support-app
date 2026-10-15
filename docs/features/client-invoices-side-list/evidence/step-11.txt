@@ -1,0 +1,18 @@
+Tab sequence from top bar (theme toggle focused first): ["Accept Fresh 1792023342081 | Draft","Accept Fresh 1792023357655 | Draft","Accept Twelve 01 | Awaiting approval","Accept Twelve 02 | Sent back","Accept Twelve 03 | Draft","Accept Twelve 04 | Draft","Accept Twelve 05 | Draft","Accept Twelve 06 | Draft","Accept Twelve 07 | Draft","Accept Twelve 08 | Draft","Accept Twelve 09 | Draft","Accept Twelve 10 | Draft","Accept Twelve 11 | Draft","Accept Twelve 12 | Draft","Harbor Line Logistics | United States | Draft","Harbor Line Logistics | United States | Draft","Priya Longname Holdings International Services Group Ltd.xxx | Awaitin","Zeta Longname Holdings International Services Group Ltd.xxxx | Draft"]
+focused element outline-style: solid 2px rgb(69, 80, 106)
+after Enter: url http://127.0.0.1:13000/agent/client-invoices?contract=a85385cc-a9a8-403a-84e5-cb2d1a73918e; row aria-current: true
+invoice header: "Clients Accept Fresh 1792023342081 Draft Accept Fresh 1792023357655 Draft Accept Twelve 01"
+--- column aria snapshot, last rows ---
+      - link "Harbor Line Logistics United States Draft":
+        - /url: /agent/client-invoices?contract=8e615728-ab0e-4eb3-9e26-a46d6d02c59e
+    - listitem:
+      - link "Priya Longname Holdings International Services Group Ltd.xxx Awaiting approval":
+        - /url: /agent/client-invoices?contract=7cc51a0b-c659-4db6-a619-925b421d6772
+    - listitem:
+      - link "Zeta Longname Holdings International Services Group Ltd.xxxx Draft":
+        - /url: /agent/client-invoices?contract=a85385cc-a9a8-403a-84e5-cb2d1a73918e
+row outerHTML: <a class="flex flex-col gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors text-ink-secondary hover:bg-canvas-soft" href="/agent/client-invoices?contract=a85385cc-a9a8-403a-84e5-cb2d1a73918e"><span class="line-clamp-2 min-w-0 break-words" title="Zeta Longname Holdings International Services Group Ltd.xxxx">Zeta Longname Holdings International Services Group Ltd.xxxx</span> <span class="flex flex-wrap items-center gap-x-2 gap-y-1"><span class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium leading-5 bg-canvas-soft text-ink-secondary border border-hairline"><span class="h-1.5 w-1.5 shrink-0 rounded-full bg-ink-mute"></sp
+row geometry: {"nameHeight":40,"lineHeight":20,"nameLines":2,"nameBottom":1322,"badgeTop":1326,"badgeBelowName":true,"badgeFullyInsideRow":true,"badgeText":"Draft","nameTitle":"Zeta Longname Holdings International Services Group Ltd.xxxx","nameTitleHolder":"name"}
+column width: 256
+link accessible name: "Zeta Longname Holdings International Services Group Ltd.xxxx Draft"
+getByRole link name 'Zeta…xxxx Draft' exact matches: 1

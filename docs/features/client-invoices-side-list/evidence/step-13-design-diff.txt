@@ -1,0 +1,111 @@
+== commits touching DESIGN.md ==
+f944f6b feat(sent-back-in-the-side-list): mark a Client with a sent-back invoice in the side list
+7e85062 feat(side-list-row-status): each side-list row shows the month's invoice status
+8fd72f1 feat(contract-side-list-on-desktop): Agent picks a Client's invoice from a side list at xl
+
+== layout commit 8fd72f1 files ==
+feat(contract-side-list-on-desktop): Agent picks a Client's invoice from a side list at xl
+
+ DESIGN.md                                          |  13 +-
+ frontend/app/agent/client-invoices/page.tsx        |   5 +-
+ .../components/agent/client-invoices-view.test.tsx | 167 ++++++++++++++++++++-
+ frontend/components/agent/client-invoices-view.tsx | 114 ++++++++++----
+ frontend/components/agent/contract-side-list.tsx   |  82 ++++++++++
+ frontend/components/app-shell/surface-page.tsx     |  15 +-
+ .../cancelled-sim-billed-through-its-month.spec.ts |   3 +-
+ frontend/tests/e2e/client-dashboard.spec.ts        |   4 +-
+ .../tests/e2e/client-invoice-generation.spec.ts    |   4 +-
+ ...lient-invoice-submission-and-visibility.spec.ts |   3 +-
+ .../tests/e2e/client-invoices-side-list.spec.ts    | 127 ++++++++++++++++
+ .../tests/e2e/edit-client-invoice-lines.spec.ts    |   6 +-
+ frontend/tests/e2e/helpers.ts                      |   9 ++
+ frontend/tests/e2e/manager-dashboard.spec.ts       |   4 +-
+ .../tests/e2e/manager-invoice-review-queue.spec.ts |   6 +-
+ .../tests/e2e/send-a-client-invoice-back.spec.ts   |   3 +-
+ frontend/tests/e2e/topup-fee-from-option.spec.ts   |   4 +-
+ 17 files changed, 515 insertions(+), 54 deletions(-)
+
+== golden changes vs merge-base (name-status) ==
+A	frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-dark.png
+A	frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-light.png
+A	frontend/tests/visual/__screenshots__/agent-client-invoices-mobile-dark.png
+A	frontend/tests/visual/__screenshots__/agent-client-invoices-mobile-light.png
+
+== DESIGN.md diff 8fd72f1 ==
+commit 8fd72f128bd61f25bc7b53516e6c399cc1f50391
+Author: kowuoscar <kowuoscar@gmail.com>
+Date:   Wed Oct 14 23:52:14 2026 +0200
+
+    feat(contract-side-list-on-desktop): Agent picks a Client's invoice from a side list at xl
+    
+    Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+
+diff --git a/DESIGN.md b/DESIGN.md
+index ee91b8c..82f0672 100644
+--- a/DESIGN.md
++++ b/DESIGN.md
+@@ -161,7 +161,7 @@ A restrained palette: two neutral scales (canvas, ink) carry nearly everything;
+ 
+ ## Layout
+ 
+-Shared three-surface app shell: a fixed 240px left nav rail (`NavRail`, same width/styling/active-state treatment on all three surfaces, only the item list changes per role) and a sticky 56px top bar (title, viewer identity chip, theme toggle). The chip is the trigger for the viewer's actions **Menu** (self-service-password-change spec): Change password and Log out live inside it, and no standalone log-out control sits beside it. Below the `md` breakpoint the rail becomes an off-canvas drawer (fixed, translated off-screen, slid in over a `bg-ink/40` backdrop via a mobile-nav toggle in the top bar) rather than collapsing to icons-only. At `md`+ the rail is `sticky`/full-viewport-height with no internal scroll container, so the document — not an inner `<main>` — scrolls, keeping the rail and top bar in view.
++Shared three-surface app shell: a fixed 240px left nav rail (`NavRail`, same width/styling/active-state treatment on all three surfaces, only the item list changes per role) and a sticky 56px top bar (title, viewer identity chip, theme toggle). The chip is the trigger for the viewer's actions **Menu** (self-service-password-change spec): Change password and Log out live inside it, and no standalone log-out control sits beside it. Below the `md` breakpoint the rail becomes an off-canvas drawer (fixed, translated off-screen, slid in over a `bg-ink/40` backdrop via a mobile-nav toggle in the top bar) rather than collapsing to icons-only. At `md`+ the rail is `sticky`/full-viewport-height with no internal scroll container, so the document — not an inner `<main>` — scrolls, keeping the rail and top bar in view. The one inner scroll container is the Agent's Client Invoices **Contract side list** (below); the document still scrolls the invoice area beside it.
+ 
+ Dashboards use a responsive stat-card grid (3-column on Manager, up to 4 on Agent, 2 on Client — count follows the surface's own metrics, not a fixed template) followed by a linking preview list into the relevant full table. Tables scroll horizontally on narrow viewports (`min-w-[720px]` inside an `overflow-x-auto` wrapper) rather than reflowing to cards.
+ 
+@@ -218,7 +218,14 @@ The success step of every dialog that generates a password (`GeneratedPasswordRe
+ - **Item list, per role** (carrier-catalog ticket `agent-maintains-carriers`; manager-approves-requests ticket adds Manager's own Requests item; agent-stock ticket adds both Consoles' Stock item): Agent Console — Dashboard, Requests, Fleet, Stock, Carriers, Client Invoices, My Invoice; Manager Console — Dashboard, Requests, Clients, Agents, Contracts, Stock, Carriers, Invoices; Client Portal unchanged (no Carriers or Stock access).
+ 
+ ### Contract Switcher (signature component)
+-A dropdown — explicitly never a tab set — that scopes Requests/Fleet/Client Invoices (Agent Console) or the dashboard and lists (Client Portal, multi-Contract Clients) to one Contract at a time. Collapses to a static, non-interactive hairline chip when the viewer holds only one Contract. Open state is an `Panel`-style listbox (12px radius, `shadow-elevated`) with the current selection marked by the soft-indigo tone, matching nav's active-state language.
++A dropdown — explicitly never a tab set — that scopes Requests/Fleet and, below `xl` (1280px), Client Invoices (Agent Console), or the dashboard and lists (Client Portal, multi-Contract Clients) to one Contract at a time. At `xl` and wider the Client Invoices page uses the Contract side list instead (see below). Collapses to a static, non-interactive hairline chip when the viewer holds only one Contract. Open state is an `Panel`-style listbox (12px radius, `shadow-elevated`) with the current selection marked by the soft-indigo tone, matching nav's active-state language.
++
++### Contract side list
++A column of the Agent's Contracts, by Client name, beside the invoice on the Agent's Client Invoices page at `xl` (1280px) and wider only (client-invoices-side-list spec). It exists there, and nowhere else, because that page is a monthly task done Contract after Contract, where seeing every Client at once beats a dropdown; below `xl` the rail plus the column would leave the invoice under 720px, so the Contract Switcher stays. The page's other consumers (Requests, Fleet, the Tester's pages) keep the Switcher at every width, and the side list is not a shared shell component.
++- **Shape:** `nav` landmark "Clients" with a small `text-label` / `ink-mute` heading, one link per Contract in alphabetical order (Client name, then Country). A plain click swaps the invoice in place; a modified click opens the link's `href`.
++- **Column:** 256px wide, flush against the rail, `canvas` (not the rail's `canvas-soft`) with one `hairline` right border and no shadow. Sticky directly under the 56px top bar, as tall as the viewport minus that bar, scrolling on its own.
++- **Row:** `px-3 py-2`, 8px radius, `text-sm font-medium`, `ink-secondary` at rest and `canvas-soft` on hover. The name takes the row's full width, wraps to at most two lines (clamped, full name in `title`) so it never widens the column; below it a meta line holds the Country (`text-label-sm`, `ink-mute`) only when two of the Agent's Contracts share a Client name. Rows keep their rhythm whatever their height.
++- **Selected row:** `aria-current="true"` and the soft-indigo tone (`primary-soft-bg` / `primary-soft-text`), the same "current selection" role as the rail's active item and the Switcher's selected option.
+ 
+ ### Menu
+ The system's first actions menu (self-service-password-change spec, `viewer-chip-menu` ticket): a trigger-plus-panel pattern that runs an action rather than scoping data — the distinction from Contract Switcher above, which the two must never converge on. Today's one instance is the top bar's viewer identity chip, holding *Change password* and *Log out*.
+@@ -235,7 +242,7 @@ The system's first actions menu (self-service-password-change spec, `viewer-chip
+ - **Do** apply `.tnum` tabular figures to every monetary and numeric display value.
+ - **Do** use the 8px control radius for every button, input, and row element except the single primary pill action.
+ - **Do** keep the nav rail width, item styling, and active-state treatment identical across Manager, Agent and Client surfaces — only the item list changes per role.
+-- **Do** use a dropdown, never a tab set, when a screen needs Contract-scoping (Agent, Client with multiple Contracts).
++- **Do** use a dropdown, never a tab set, when a screen needs Contract-scoping (Agent, Client with multiple Contracts) — except the Agent's Client Invoices page at `xl` and wider, which lists the Contracts in a Contract side list (client-invoices-side-list spec).
+ - **Do** keep shadow confined to the overlay layer (dialogs, open dropdown panels); cards and table rows stay flat.
+ 
+ ### Don't:
+== DESIGN.md diffs of later commits ==
+7e85062
+
+diff --git a/DESIGN.md b/DESIGN.md
+index 82f0672..b540697 100644
+--- a/DESIGN.md
++++ b/DESIGN.md
+@@ -224,7 +224,7 @@ A dropdown — explicitly never a tab set — that scopes Requests/Fleet and, be
+ A column of the Agent's Contracts, by Client name, beside the invoice on the Agent's Client Invoices page at `xl` (1280px) and wider only (client-invoices-side-list spec). It exists there, and nowhere else, because that page is a monthly task done Contract after Contract, where seeing every Client at once beats a dropdown; below `xl` the rail plus the column would leave the invoice under 720px, so the Contract Switcher stays. The page's other consumers (Requests, Fleet, the Tester's pages) keep the Switcher at every width, and the side list is not a shared shell component.
+ - **Shape:** `nav` landmark "Clients" with a small `text-label` / `ink-mute` heading, one link per Contract in alphabetical order (Client name, then Country). A plain click swaps the invoice in place; a modified click opens the link's `href`.
+ - **Column:** 256px wide, flush against the rail, `canvas` (not the rail's `canvas-soft`) with one `hairline` right border and no shadow. Sticky directly under the 56px top bar, as tall as the viewport minus that bar, scrolling on its own.
+-- **Row:** `px-3 py-2`, 8px radius, `text-sm font-medium`, `ink-secondary` at rest and `canvas-soft` on hover. The name takes the row's full width, wraps to at most two lines (clamped, full name in `title`) so it never widens the column; below it a meta line holds the Country (`text-label-sm`, `ink-mute`) only when two of the Agent's Contracts share a Client name. Rows keep their rhythm whatever their height.
++- **Row:** `px-3 py-2`, 8px radius, `text-sm font-medium`, `ink-secondary` at rest and `canvas-soft` on hover. The name takes the row's full width, wraps to at most two lines (clamped, full name in `title`) so it never widens the column; below it a meta line (wrapping, never widening the column) holds the Country (`text-label-sm`, `ink-mute`) only when two of the Agent's Contracts share a Client name, then the month's Client Invoice status as the existing `Badge` of `clientInvoiceBadge` (Draft, Awaiting approval, Approved, Sent back — the same label and tone as the invoice card), on every row except one whose invoice failed to load, which shows no badge. Rows keep their rhythm whatever their height.
+ - **Selected row:** `aria-current="true"` and the soft-indigo tone (`primary-soft-bg` / `primary-soft-text`), the same "current selection" role as the rail's active item and the Switcher's selected option.
+ 
+ ### Menu
+f944f6b
+
+diff --git a/DESIGN.md b/DESIGN.md
+index b540697..08afc08 100644
+--- a/DESIGN.md
++++ b/DESIGN.md
+@@ -224,7 +224,7 @@ A dropdown — explicitly never a tab set — that scopes Requests/Fleet and, be
+ A column of the Agent's Contracts, by Client name, beside the invoice on the Agent's Client Invoices page at `xl` (1280px) and wider only (client-invoices-side-list spec). It exists there, and nowhere else, because that page is a monthly task done Contract after Contract, where seeing every Client at once beats a dropdown; below `xl` the rail plus the column would leave the invoice under 720px, so the Contract Switcher stays. The page's other consumers (Requests, Fleet, the Tester's pages) keep the Switcher at every width, and the side list is not a shared shell component.
+ - **Shape:** `nav` landmark "Clients" with a small `text-label` / `ink-mute` heading, one link per Contract in alphabetical order (Client name, then Country). A plain click swaps the invoice in place; a modified click opens the link's `href`.
+ - **Column:** 256px wide, flush against the rail, `canvas` (not the rail's `canvas-soft`) with one `hairline` right border and no shadow. Sticky directly under the 56px top bar, as tall as the viewport minus that bar, scrolling on its own.
+-- **Row:** `px-3 py-2`, 8px radius, `text-sm font-medium`, `ink-secondary` at rest and `canvas-soft` on hover. The name takes the row's full width, wraps to at most two lines (clamped, full name in `title`) so it never widens the column; below it a meta line (wrapping, never widening the column) holds the Country (`text-label-sm`, `ink-mute`) only when two of the Agent's Contracts share a Client name, then the month's Client Invoice status as the existing `Badge` of `clientInvoiceBadge` (Draft, Awaiting approval, Approved, Sent back — the same label and tone as the invoice card), on every row except one whose invoice failed to load, which shows no badge. Rows keep their rhythm whatever their height.
++- **Row:** `px-3 py-2`, 8px radius, `text-sm font-medium`, `ink-secondary` at rest and `canvas-soft` on hover. The name takes the row's full width, wraps to at most two lines (clamped, full name in `title`) so it never widens the column; below it a meta line (wrapping, never widening the column) holds the Country (`text-label-sm`, `ink-mute`) only when two of the Agent's Contracts share a Client name, then the month's Client Invoice status as the existing `Badge` of `clientInvoiceBadge` (Draft, Awaiting approval, Approved, Sent back — the same label and tone as the invoice card), on every row except one whose invoice failed to load, which shows no badge. After the badge, a Contract the Agent's "Sent back to you" list holds an invoice of (any billing month) carries a second, warning-toned `Badge` reading "Sent back": the mark that tells the Agent who needs correcting. Never twice: a row whose own badge already reads "Sent back" (this month's invoice was sent back) shows no mark; a row whose invoice failed to load shows the mark alone. The mark is the same label and tone as the badge, so the two never sit side by side. Rows keep their rhythm whatever their height.
+ - **Selected row:** `aria-current="true"` and the soft-indigo tone (`primary-soft-bg` / `primary-soft-text`), the same "current selection" role as the rail's active item and the Switcher's selected option.
+ 
+ ### Menu

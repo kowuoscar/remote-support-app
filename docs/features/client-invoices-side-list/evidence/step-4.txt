@@ -1,0 +1,5 @@
+Priya's contract id(s): 588fe20f-797b-487f-8111-b2e96c9e5f74
+Priya's contract id: url http://127.0.0.1:13000/agent/client-invoices?contract=588fe20f-797b-487f-8111-b2e96c9e5f74; current rows: ["Accept Fresh 1792023342081"]; first row is current: true; alerts(non-empty): []; "Couldn't load" present: 0
+contract=nonsense: url http://127.0.0.1:13000/agent/client-invoices?contract=nonsense; current rows: ["Accept Fresh 1792023342081"]; first row is current: true; alerts(non-empty): []; "Couldn't load" present: 0
+contract=<last row id>: url http://127.0.0.1:13000/agent/client-invoices?contract=7cc51a0b-c659-4db6-a619-925b421d6772; current rows: ["Solstice Retail Group"]; first row is current: null; alerts(non-empty): []; "Couldn't load" present: 0
+last row scrolled into view in column: {"rowTop":436,"rowBottom":500,"colTop":56,"colBottom":500,"colScrollTop":688,"inside":true}

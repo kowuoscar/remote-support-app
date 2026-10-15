@@ -1,0 +1,8 @@
+clicked row 2: Accept Fresh 1792023357655 href /agent/client-invoices?contract=e128b284-e1cd-4002-b1b2-87bb1f99350d
+url now: http://127.0.0.1:13000/agent/client-invoices?contract=e128b284-e1cd-4002-b1b2-87bb1f99350d
+row 2 aria-current: true; row 1 aria-current: null
+invoice area: Accept Fresh 1792023357655 — United StatesOctober 2026DraftThis Contra
+document/api/rsc requests during click: []
+history.length before/after: 4 / 4
+after reload url: http://127.0.0.1:13000/agent/client-invoices?contract=e128b284-e1cd-4002-b1b2-87bb1f99350d; row 2 current: true; invoice area: Accept Fresh 1792023357655 — United StatesOctober 2026DraftThis Contra
+after Back once url: http://127.0.0.1:13000/agent (left client-invoices page: true)

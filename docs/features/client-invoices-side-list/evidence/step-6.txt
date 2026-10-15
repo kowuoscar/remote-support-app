@@ -1,0 +1,37 @@
+after Jordan sends: row accessible name/text: "Accept Twelve 01 | Awaiting approval"; accessible name via role: Accept Twelve 01
+Awaiting approval
+row badge reads Awaiting approval: true
+Manager sent it back with reason
+sent-back Client selected (Accept Twelve 01): {"firstChildLabel":null,"firstChildHeading":"Clients","regionIsFirstInWideArea":false}; region visible: true
+region y=80, invoice card y=374.78125 (region above invoice: true)
+another Client selected (Accept Twelve 02): {"firstChildLabel":null,"firstChildHeading":"Clients","regionIsFirstInWideArea":false}; region visible: true
+other selected: region y=80, card y=262.28125, above: true
+rows containing 'Sent back' (text, occurrences): [["Accept Twelve 01 | Sent back",1]]
+Sent-back row accessible text: "Accept Twelve 01\nSent back"
+region table cells: ["Accept Twelve 01 — United States","October 2026","Oct 15, 2026","The base amount is wrong, please recheck it.","Open"]
+title attributes in region: [["SPAN","Accept Twelve 01 — United States","Accept Twelve 01 — United States"],["P","The base amount is wrong, please recheck it.","The base amount is wrong, please recheck it."]]
+hovered Contract cell; its title (full): "Accept Twelve 01 — United States"
+Open link accessible names: ["Open Accept Twelve 01 — United States, October 2026"]
+--- region aria snapshot ---
+- region "Sent back to you":
+  - heading "Sent back to you" [level=2]
+  - table:
+    - rowgroup:
+      - row "Contract Billing month Sent back Reason Action":
+        - columnheader "Contract"
+        - columnheader "Billing month"
+        - columnheader "Sent back"
+        - columnheader "Reason"
+        - columnheader "Action"
+    - rowgroup:
+      - row "Accept Twelve 01 — United States October 2026 Oct 15, 2026 The base amount is wrong, please recheck it. Open Accept Twelve 01 — United States, October 2026":
+        - cell "Accept Twelve 01 — United States"
+        - cell "October 2026"
+        - cell "Oct 15, 2026"
+        - cell "The base amount is wrong, please recheck it.":
+          - paragraph: The base amount is wrong, please recheck it.
+        - cell "Open Accept Twelve 01 — United States, October 2026":
+          - link "Open Accept Twelve 01 — United States, October 2026":
+            - /url: /agent/client-invoices/67d93cd5-9b1b-4466-87ba-67f5b331dbc2
+            - text: Open
+region is first child of its container (first thing in invoice area): true; container siblings: SECTION, DIV, client-invoice-card

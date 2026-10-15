@@ -172,8 +172,8 @@ public class SimCardController {
   }
 
   /**
-   * Corrects a SIM Card's number (correct-a-fleet-unit spec): the Manager, or a Tester of the
-   * Contract's own Client, through {@link FleetAccessGuard#requireCanCorrect}.
+   * Corrects a SIM Card's number (correct-a-fleet-unit spec): the Manager, or the Contract's own Agent, through
+   * {@link FleetAccessGuard#requireCanCorrect}.
    */
   @PatchMapping("/{simCardId}/number")
   public SimCardResponse correctNumber(
@@ -190,7 +190,7 @@ public class SimCardController {
 
   /**
    * Corrects a Postpaid SIM Card's plan and re-copies the plan's price into its monthly fee
-   * (correct-a-fleet-unit spec): the Manager, or a Tester of the Contract's own Client.
+   * (correct-a-fleet-unit spec): the Manager, or the Contract's own Agent.
    */
   @PatchMapping("/{simCardId}/postpaid-plan")
   public SimCardResponse correctPostpaidPlan(

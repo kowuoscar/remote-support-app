@@ -30,7 +30,7 @@ function SimCardPlanCell({
   currency: string;
   carriersHref: string;
 }) {
-  // With no Carriers page to point to (a Tester), a Carrier with no active plan offers nothing.
+  // With no Carriers page to point to, a Carrier with no active plan offers nothing.
   const hasActivePlan = carrier?.postpaidPlans.some((plan) => plan.archivedAt === null) ?? false;
   if (contractId && carrier && sim.flavor === "POSTPAID" && (hasActivePlan || carriersHref)) {
     return (
@@ -52,7 +52,7 @@ function SimCardPlanCell({
  * The SIM Card table markup shared by every Fleet view. `showMonthlyFee` and `changeStatus` are
  * the axes the three roles vary on (Agent: both; Client: neither; Manager: monthly fee only).
  * The number is a correction control (`SimCardNumberControl`) only when `canCorrect` is given
- * (Manager, Tester). "Installed in" is always shown — editable (`SimCardInstalledInControl`) when `contractId` and
+ * (Manager, Agent). "Installed in" is always shown — editable (`SimCardInstalledInControl`) when `contractId` and
  * `smartphones` are given (Agent, Manager), otherwise plain text (Client, read-only). Extracted
  * from the near-identical copies in agent/fleet-view.tsx, client/fleet-view.tsx and
  * manager/contract-fleet-view.tsx — same markup and classes each caller had inline, so rendering
@@ -76,14 +76,14 @@ export function SimCardFleetTable({
    * Manager); omitted for read-only (Client). */
   contractId?: string;
   smartphones?: InstallableSmartphone[];
-  /** With `contractId`, renders the number correction control (Manager, Tester); omitted for
+  /** With `contractId`, renders the number correction control (Manager, Agent); omitted for
    * plain text. Independent of the Installed-in control, which `smartphones` governs. */
   canCorrect?: boolean;
   /** The Contract's Carrier catalog. With `canCorrect`, a Postpaid SIM whose Carrier is in it and
    * active gets the plan correction control; every other plan cell reads as plain text. */
   carriers?: CatalogCarrierItem[];
   /** Where the plan picker points when a Carrier has no active plan (the Carriers page). Omitted
-   * for a Tester, who has none: a Carrier with no active plan then gets no plan control. */
+   * for a caller with none: a Carrier with no active plan then gets no plan control. */
   carriersHref?: string;
   changeStatus?: (sim: SimCardListItem) => ReactNode;
 }) {

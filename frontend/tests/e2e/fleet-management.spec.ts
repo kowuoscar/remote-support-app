@@ -317,10 +317,10 @@ test.describe("fleet management", () => {
     await expect(page.getByLabel("Change smartphone status")).toHaveCount(0);
   });
 
-  test("an agent's fleet offers no model correction", async ({ page }) => {
+  test("an agent corrects a smartphone's model on their own contract and sees it after a reload", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     // Not "Agent …": the Contract form's getByLabel("Agent") also matches a Client name containing it.
-    const clientName = `Read Only Fleet ${RUN_ID}`;
+    const clientName = `Own Model Fleet ${RUN_ID}`;
     await createClientAndContractWithSeededAgent(page, clientName);
     await addSmartphone(page, "Moto G");
 
@@ -329,11 +329,17 @@ test.describe("fleet management", () => {
     await page.goto("/agent/fleet");
     await selectContractInSwitcher(page, clientName);
 
-    const row = page.getByRole("row", { name: /Moto G/ });
-    await expect(row).toBeVisible();
-    await expect(row.getByLabel("Smartphone model")).toHaveCount(0);
-    // The model cell holds no button: only the serial control's own are in the row.
-    await expect(row.getByRole("cell", { name: "Moto G", exact: true }).getByRole("button")).toHaveCount(0);
+    const row = page.locator("table").first().locator("tbody tr").first();
+    await row.getByRole("button", { name: "Edit model, Moto G", exact: true }).click();
+    await row.getByLabel("Smartphone model").fill("Moto G Power");
+    await row.getByRole("button", { name: "Save" }).click();
+
+    await expect(page.getByRole("row", { name: /Moto G Power/ })).toBeVisible();
+    await page.reload();
+    await selectContractInSwitcher(page, clientName);
+    await expect(page.getByRole("row", { name: /Moto G Power/ })).toBeVisible();
+    // The status, serial and Installed-in controls stay beside the corrections.
+    await expect(page.getByRole("button", { name: /^Edit serial/ })).toHaveCount(1);
   });
 
   // correct-a-smartphone-owner ticket.
@@ -383,9 +389,9 @@ test.describe("fleet management", () => {
     await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
   });
 
-  test("an agent's fleet offers no owner correction", async ({ page }) => {
+  test("an agent corrects a smartphone's owner on their own contract and sees it after a reload", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const clientName = `Read Only Owner ${RUN_ID}`;
+    const clientName = `Own Owner Fleet ${RUN_ID}`;
     await createClientAndContractWithSeededAgent(page, clientName);
     await addSmartphone(page, "Moto E");
 
@@ -394,9 +400,15 @@ test.describe("fleet management", () => {
     await page.goto("/agent/fleet");
     await selectContractInSwitcher(page, clientName);
 
-    const row = page.getByRole("row", { name: /Moto E/ });
-    await expect(row).toBeVisible();
-    await expect(row.getByRole("button", { name: /^Edit owner/ })).toHaveCount(0);
+    const row = page.locator("table").first().locator("tbody tr").first();
+    await row.getByRole("button", { name: "Edit owner of Moto E", exact: true }).click();
+    await row.getByLabel("Owner").selectOption("CLIENT");
+    await row.getByRole("button", { name: "Save" }).click();
+    await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
+
+    await page.reload();
+    await selectContractInSwitcher(page, clientName);
+    await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
   });
 
   async function addPrepaidSim(page: Page, number: string) {
@@ -451,9 +463,9 @@ test.describe("fleet management", () => {
     await expect(page.getByLabel("Installed in")).toHaveCount(0);
   });
 
-  test("an agent's fleet offers no SIM number correction", async ({ page }) => {
+  test("an agent corrects a SIM card's number on their own contract and sees it after a reload", async ({ page }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const clientName = `Read Only Sim Fleet ${RUN_ID}`;
+    const clientName = `Own Number Fleet ${RUN_ID}`;
     await createClientAndContractWithSeededAgent(page, clientName);
     await addPrepaidSim(page, "+44 7700 900300");
 
@@ -462,10 +474,16 @@ test.describe("fleet management", () => {
     await page.goto("/agent/fleet");
     await selectContractInSwitcher(page, clientName);
 
-    const row = page.getByRole("row", { name: /\+44 7700 900300/ });
-    await expect(row).toBeVisible();
-    await expect(row.getByLabel("SIM number")).toHaveCount(0);
-    await expect(row.getByRole("cell", { name: "+44 7700 900300" }).getByRole("button")).toHaveCount(0);
+    const row = page.locator("table").filter({ hasText: "Installed in" }).locator("tbody tr").first();
+    await row.getByRole("button", { name: "Edit number, +44 7700 900300", exact: true }).click();
+    await row.getByLabel("SIM number").fill("+44 7700 900323");
+    await row.getByRole("button", { name: "Save" }).click();
+
+    await expect(page.getByRole("row", { name: /\+44 7700 900323/ })).toBeVisible();
+    await page.reload();
+    await selectContractInSwitcher(page, clientName);
+    await expect(page.getByRole("row", { name: /\+44 7700 900323/ })).toBeVisible();
+    await expect(page.getByLabel("Installed in")).toHaveCount(1);
   });
 
   async function addPostpaidSim(page: Page, number: string) {
@@ -543,9 +561,11 @@ test.describe("fleet management", () => {
     await expect(page.getByLabel("Installed in")).toHaveCount(0);
   });
 
-  test("an agent's fleet offers no plan correction", async ({ page }) => {
+  test("an agent corrects a Postpaid SIM's plan on their own contract and sees the Monthly fee after a reload", async ({
+    page,
+  }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
-    const clientName = `Read Only Plan Fleet ${RUN_ID}`;
+    const clientName = `Own Plan Fleet ${RUN_ID}`;
     await createClientAndContractWithSeededAgent(page, clientName);
     await addPostpaidSim(page, "+1-555-0330");
 
@@ -554,9 +574,23 @@ test.describe("fleet management", () => {
     await page.goto("/agent/fleet");
     await selectContractInSwitcher(page, clientName);
 
-    const row = page.getByRole("row", { name: /\+1-555-0330/ });
-    await expect(row).toBeVisible();
-    await expect(row).toContainText("Unlimited Welcome");
-    await expect(row.getByRole("button", { name: /^Edit plan/ })).toHaveCount(0);
+    const row = simTable(page).locator("tbody tr").first();
+    await expect(row).toContainText("$65.00");
+    await row.getByRole("button", { name: "Edit plan for +1-555-0330", exact: true }).click();
+    await row.getByRole("combobox", { name: "Postpaid plan" }).selectOption({ label: "Unlimited Plus" });
+    await expect(row).toContainText("$80.00");
+    await row.getByRole("button", { name: "Save", exact: true }).click();
+
+    await expect(row).toContainText("Unlimited Plus");
+    await expect(row.getByRole("cell", { name: "$80.00" })).toBeVisible();
+    await page.reload();
+    await selectContractInSwitcher(page, clientName);
+    await expect(simTable(page).locator("tbody tr").first()).toContainText("Unlimited Plus");
+    await expect(simTable(page).locator("tbody tr").first().getByRole("cell", { name: "$80.00" })).toBeVisible();
+
+    // The widest tables in the product still scroll sideways on a phone rather than reflow.
+    await page.setViewportSize({ width: 375, height: 800 });
+    const scroller = simTable(page).locator("xpath=ancestor::div[contains(@class, 'overflow-x-auto')][1]");
+    expect(await scroller.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
   });
 });

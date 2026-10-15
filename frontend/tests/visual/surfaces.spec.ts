@@ -14,7 +14,8 @@ interface Surface {
     | "agent-client-invoices"
     | "manager-stock"
     | "manager-contract-fleet"
-    | "client-fleet";
+    | "client-fleet"
+    | "agent-fleet";
   path: string;
   // The placeholder session token; the Carriers pages' tokens tell tests/visual/stub-backend.mjs
   // which role is asking, every other surface's token is unknown to it (see that file).
@@ -68,6 +69,9 @@ const surfaces: Surface[] = [
     ready: "stock",
   },
   { slug: "client-fleet", path: "/client/fleet", session: "visual-tester-session", ready: "stock" },
+  // agent-corrects-own-fleet ticket: the Agent's Fleet, the widest tables in the product (status,
+  // serial, Installed in, Monthly fee and the four correction Edits), on the stub's fixture Fleet.
+  { slug: "agent-fleet", path: "/agent/fleet", session: "visual-agent-session", ready: "stock" },
 ];
 
 const breakpoints = [

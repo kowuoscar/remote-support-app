@@ -7,17 +7,20 @@ import { SmartphoneFleetTable } from "@/components/fleet/smartphone-fleet-table"
 import { SimCardFleetTable } from "@/components/fleet/sim-card-fleet-table";
 import { useContractScopedFleet } from "@/components/fleet/use-contract-scoped-fleet";
 import { IconContracts, IconSim, IconSmartphone } from "@/components/icons";
-import { type SimCardListItem, type SmartphoneListItem } from "@/lib/api/types";
+import { type CatalogCarrierItem, type SimCardListItem, type SmartphoneListItem } from "@/lib/api/types";
 import { SimCardStatusControl, SmartphoneStatusControl } from "@/components/agent/fleet-status-controls";
 
 export function AgentFleetView({
   smartphones,
   simCards,
   contracts,
+  carriers,
 }: {
   smartphones: SmartphoneListItem[];
   simCards: SimCardListItem[];
   contracts: ContractOption[];
+  /** The Agent's own Country's active Carriers with their Postpaid Plans: serves every Contract. */
+  carriers: CatalogCarrierItem[];
 }) {
   const { contractId, setContractId, phones, sims } = useContractScopedFleet(contracts, smartphones, simCards);
   const currency = contracts.find((c) => c.id === contractId)?.currency ?? "";
@@ -50,6 +53,7 @@ export function AgentFleetView({
           simCards={sims}
           contractId={contractId}
           canEditSerial
+          canCorrect
           changeStatus={(phone) => (
             <SmartphoneStatusControl contractId={contractId} smartphoneId={phone.id} status={phone.status} />
           )}
@@ -69,6 +73,9 @@ export function AgentFleetView({
           sims={sims}
           currency={currency}
           showMonthlyFee
+          canCorrect
+          carriers={carriers}
+          carriersHref="/agent/carriers"
           contractId={contractId}
           smartphones={phones}
           changeStatus={(sim) => (

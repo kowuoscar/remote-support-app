@@ -96,7 +96,8 @@ async function gotoAndSettle(page: Page, surface: Surface) {
   ]);
   await page.goto(surface.path);
   if (surface.ready === "carriers") {
-    await page.getByRole("list", { name: "Carriers" }).waitFor({ state: "visible" });
+    // Attached, not visible: below xl the column is hidden and the Carrier dropdown stands in for it.
+    await page.getByRole("navigation", { name: "Carriers", includeHidden: true }).waitFor({ state: "attached" });
   } else if (surface.ready === "requests") {
     await page.getByRole("table").waitFor({ state: "visible" });
   } else if (surface.ready === "invoices") {

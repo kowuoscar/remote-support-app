@@ -322,12 +322,9 @@ export async function createUnrelatedContract(
  */
 export async function addPostpaidPlanToVerizon(page: Page, planName: string, monthlyPrice: string) {
   await page.goto("/manager/carriers?country=UNITED_STATES");
-  const verizon = page
-    .getByRole("list", { name: "Carriers" })
-    .getByRole("listitem")
-    .filter({ has: page.getByText("Verizon", { exact: true }) })
-    .first();
-  await verizon.getByRole("button", { name: "Add a postpaid plan to Verizon" }).click();
+  // Offers are shown for the selected Carrier only: pick Verizon in the side list first.
+  await selectInSideList(page, "Carriers", "Verizon");
+  await page.getByRole("button", { name: "Add a postpaid plan to Verizon" }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Name").fill(planName);
   await dialog.getByLabel("Monthly price (USD)").fill(monthlyPrice);
@@ -401,13 +398,26 @@ function clientInvoiceRowName(clientName: string): RegExp {
 }
 
 /**
+ * Picks a row of a side list: clicks the link inside the navigation landmark named `list` ("Clients",
+ * "Carriers", "Contracts"), shown at 1280px and wider, the default e2e viewport. A string `rowName` is
+ * the row's name, matched exactly whatever badge text follows it; a RegExp matches the row's whole
+ * accessible name. The phone path is the dropdown; see `selectContractInSwitcher`.
+ */
+export async function selectInSideList(page: Page, list: string, rowName: string | RegExp) {
+  const nav = page.getByRole("navigation", { name: list, exact: true });
+  const row =
+    typeof rowName === "string"
+      ? nav.getByRole("link").filter({ has: page.getByText(rowName, { exact: true }) })
+      : nav.getByRole("link", { name: rowName });
+  await row.click();
+}
+
+/**
  * Opens the Contract of `clientName` on the Agent's Client Invoices page, from its side list: clicks the
- * link named by the Client (and its status label) within the "Clients" navigation landmark (shown at
- * 1280px and wider, the default e2e viewport). The Contract Switcher is the phone path; see
- * `selectContractInSwitcher`.
+ * link named by the Client (and its status label) within the "Clients" navigation landmark.
  */
 export async function selectClientInvoiceContract(page: Page, clientName: string) {
-  await page.getByRole("navigation", { name: "Clients" }).getByRole("link", { name: clientInvoiceRowName(clientName) }).click();
+  await selectInSideList(page, "Clients", clientInvoiceRowName(clientName));
 }
 
 /**

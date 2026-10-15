@@ -18,15 +18,24 @@ function parseCountry(value: string | string[] | undefined): Country {
 export default async function ManagerCarriersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ country?: string | string[] }>;
+  searchParams: Promise<{ country?: string | string[]; carrier?: string | string[] }>;
 }) {
   await requireManager();
-  const country = parseCountry((await searchParams).country);
+  const params = await searchParams;
+  const country = parseCountry(params.country);
+  const initialCarrierId = Array.isArray(params.carrier) ? params.carrier[0] : params.carrier;
   const catalog = await loadCarrierCatalog(country);
 
   return (
-    <SurfacePage title="Carriers" subtitle="Every country's catalog" viewerLabel="Manager">
-      <CarriersView country={country} catalog={catalog} countryFilter />
+    <SurfacePage title="Carriers" subtitle="Every country's catalog" viewerLabel="Manager" bleed>
+      {/* Keyed by Country: a new Country opens on its own first Carrier, not on a stale selection. */}
+      <CarriersView
+        key={country}
+        country={country}
+        catalog={catalog}
+        countryFilter
+        initialCarrierId={initialCarrierId}
+      />
     </SurfacePage>
   );
 }

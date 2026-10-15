@@ -1,7 +1,7 @@
 ---
 feature: ui-side-lists-and-tabs
 epic: side-lists-and-tabs
-status: draft
+status: approved
 date: 2026-10-15
 ---
 
@@ -704,6 +704,8 @@ tested at the highest seam that already exists and can see it.
    the `verify` gate (debt), so the merger runs the visual suite.
 
 ## Decisions taken
+
+- **Spec approved by the human, 2026-10-15** (`docs/inbox/approve-ui-side-lists-and-tabs.md`, "ok"), accepting the seven choices listed there.
 
 - **The side list becomes one shared component (`SideList` and
   `SideListLayout`), with `ContractSideList` removed and Client Invoices

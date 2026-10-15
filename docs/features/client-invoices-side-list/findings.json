@@ -4,79 +4,86 @@
     {
       "id": "F1",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/contract-side-list.tsx:96",
       "citation": "DESIGN.md:134 \"Warning …: In Progress, Awaiting approval, In Repair.\" and the amendment DESIGN.md:227 \"a second, warning-toned `Badge` reading \"Sent back\": the mark that tells the Agent who needs correcting.\"",
-      "note": "The \"Sent back\" mark and \"Awaiting approval\" are identical amber pills, so the mark that says 'this needs you' reads like 'nothing to do'. Keep the label and tone; give the mark the existing IconAlertTriangle (h-3 w-3) in place of the dot, and amend DESIGN.md:134/:227 to name it."
+      "note": "The \"Sent back\" mark and \"Awaiting approval\" are identical amber pills, so the mark that says 'this needs you' reads like 'nothing to do'. Keep the label and tone; give the mark the existing IconAlertTriangle (h-3 w-3) in place of the dot, and amend DESIGN.md:134/:227 to name it.",
+      "fixed_in": "4fe9c35"
     },
     {
       "id": "F2",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/ui/contract-switcher.tsx:53",
       "citation": "DESIGN.md:227 \"(clamped, full name in `title`)\"; PRODUCT.md Accessibility \"Reasonable defaults…\"",
-      "note": "The truncated single-Contract chip gives no way to read the full name. Add title={current?.label} to the span or chip div (no pixels change)."
+      "note": "The truncated single-Contract chip gives no way to read the full name. Add title={current?.label} to the span or chip div (no pixels change).",
+      "fixed_in": "f9aba4b"
     },
     {
       "id": "F3",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/client-invoices-view.tsx:28",
       "citation": "",
-      "note": "possible Duplicated Code: PAGE_PADDING/PAGE_WIDTH copy SurfacePage's class strings (surface-page.tsx:32-33); share one constant or wrapper."
+      "note": "possible Duplicated Code: PAGE_PADDING/PAGE_WIDTH copy SurfacePage's class strings (surface-page.tsx:32-33); share one constant or wrapper.",
+      "fixed_in": "4fe9c35"
     },
     {
       "id": "F4",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/client-invoices-view.tsx:112",
       "citation": "",
-      "note": "possible Primitive Obsession: 'never twice' compares the display label (status?.label !== \"Sent back\"), and contract-side-list.tsx:96 re-types the label/tone clientInvoiceBadge (lib/status.ts:60) owns; expose a sent-back predicate/badge from lib/status."
+      "note": "possible Primitive Obsession: 'never twice' compares the display label (status?.label !== \"Sent back\"), and contract-side-list.tsx:96 re-types the label/tone clientInvoiceBadge (lib/status.ts:60) owns; expose a sent-back predicate/badge from lib/status.",
+      "fixed_in": "4fe9c35"
     },
     {
       "id": "F5",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/contract-side-list.tsx:8",
       "citation": "",
-      "note": "possible Data Clumps: SideListContract re-declares id/clientName/countryLabel of ClientInvoicesContract; derive it with Pick<…>."
+      "note": "possible Data Clumps: SideListContract re-declares id/clientName/countryLabel of ClientInvoicesContract; derive it with Pick<…>.",
+      "fixed_in": "4fe9c35"
     },
     {
       "id": "F6",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/tests/visual/surfaces.spec.ts:295",
       "citation": "",
-      "note": "brittle locator: failed.locator(\"span.rounded-full\") ties the no-badge check to a CSS class; the exact accessible-name assertion already covers it."
+      "note": "brittle locator: failed.locator(\"span.rounded-full\") ties the no-badge check to a CSS class; the exact accessible-name assertion already covers it.",
+      "fixed_in": "4fe9c35"
     },
     {
       "id": "F7",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/tests/visual/surfaces.spec.ts:58",
       "citation": "",
-      "note": "Goldens use a new visual-agent-invoices-session, not visual-agent-session as Testing decisions 3 says, so the Agent dashboard goldens stay put. Record as a '(after review)' Decisions taken entry."
+      "note": "Goldens use a new visual-agent-invoices-session, not visual-agent-session as Testing decisions 3 says, so the Agent dashboard goldens stay put. Record as a '(after review)' Decisions taken entry.",
+      "fixed_in": "4fe9c35"
     },
     {
       "id": "F8",

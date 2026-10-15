@@ -50,6 +50,8 @@ test.describe("client invoice submission and visibility", () => {
     await page.goto("/agent/client-invoices");
     await selectClientInvoiceContract(page, clientName);
     await expect(page.getByTestId("client-invoice-card").getByText("Draft")).toBeVisible();
+    // The SIM line reads its number, then the Carrier and the flavor.
+    await expect(page.getByTestId("client-invoice-card").getByText("Verizon · Postpaid")).toBeVisible();
 
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     const [sendResponse] = await Promise.all([
@@ -97,6 +99,7 @@ test.describe("client invoice submission and visibility", () => {
     await summary.getByRole("link", { name: "Open invoice" }).click();
     await expect(page).toHaveURL(/\/manager\/invoices\/client\/.+/);
     const detailUrl = page.url();
+    await expect(page.getByRole("list", { name: "Postpaid SIM Cards" }).getByText("Verizon · Postpaid")).toBeVisible();
 
     const [approveResponse] = await Promise.all([
       page.waitForResponse(

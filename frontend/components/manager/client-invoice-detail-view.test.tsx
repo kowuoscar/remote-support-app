@@ -160,6 +160,29 @@ describe("ClientInvoiceDetailView", () => {
       expect(within(rows[1]).getByText("$20.00")).toBeInTheDocument();
     });
 
+    it("reads the number followed by 'Carrier · Postpaid', or 'Postpaid' alone, with no badge for an archived Carrier", () => {
+      render(
+        <ClientInvoiceDetailView
+          invoice={invoice({
+            basePostpaidSims: [
+              { simCardId: "s1", number: "+1-555-0401", monthlyFeeAmount: 20, cancellationEffectiveDate: "2026-08-10", amount: 20, carrierName: "Old Carrier" },
+              { simCardId: "s2", number: "+1-555-0402", monthlyFeeAmount: 20, cancellationEffectiveDate: null, amount: 20, carrierName: "Verizon" },
+              { simCardId: "s3", number: "+1-555-0403", monthlyFeeAmount: 20, cancellationEffectiveDate: null, amount: 20, carrierName: null },
+            ],
+          })}
+        />,
+      );
+
+      const rows = within(screen.getByRole("list", { name: "Postpaid SIM Cards" })).getAllByRole("listitem");
+      expect(within(rows[0]).getByText("Old Carrier · Postpaid")).toBeInTheDocument();
+      expect(within(rows[0]).queryByText(/Archived/i)).not.toBeInTheDocument();
+      const kind = within(rows[0]).getByText(/· Postpaid/);
+      const note = within(rows[0]).getByText(/Cancelled/);
+      expect(kind.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(within(rows[1]).getByText("Verizon · Postpaid")).toBeInTheDocument();
+      expect(within(rows[2]).getByText("Postpaid")).toBeInTheDocument();
+    });
+
     it("edited-line-shows-computed-amount-marker", () => {
       render(
         <ClientInvoiceDetailView

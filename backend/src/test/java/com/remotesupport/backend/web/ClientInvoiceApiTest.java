@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.remotesupport.backend.domain.Fee;
+import com.remotesupport.backend.domain.SimCard;
+import com.remotesupport.backend.repository.SimCardRepository;
 import com.remotesupport.backend.repository.FeeRepository;
 import com.remotesupport.backend.support.IntegrationTest;
 import java.nio.charset.StandardCharsets;
@@ -33,6 +35,27 @@ import org.springframework.test.web.servlet.MvcResult;
 class ClientInvoiceApiTest extends IntegrationTest {
 
   @Autowired private FeeRepository feeRepository;
+  @Autowired private SimCardRepository simCardRepository;
+
+  /** A Postpaid SIM on the given Carrier, with a Plan of it at {@code price}. */
+  private UUID addPostpaidSimOnCarrier(
+      String managerToken, UUID contractId, UUID carrierId, String number, String price) throws Exception {
+    UUID planId = createPostpaidPlan(managerToken, carrierId, "Plan " + UUID.randomUUID(), price);
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contractId + "/sim-cards")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                        {"number":"%s","carrierId":"%s","flavor":"POSTPAID","postpaidPlanId":"%s"}
+                        """
+                            .formatted(number, carrierId, planId)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
 
   private UUID addSimCard(
       String managerToken, UUID contractId, String number, String flavor, String monthlyFeeAmount) throws Exception {
@@ -239,6 +262,85 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.basePostpaidSims.length()").value(1))
         .andExpect(jsonPath("$.basePostpaidSims[0].simCardId").value(simCardId.toString()))
         .andExpect(jsonPath("$.basePostpaidSims[0].cancellationEffectiveDate").doesNotExist());
+  }
+
+  // --- ui-side-lists-and-tabs: the Carrier on each Postpaid SIM line ------------------------------
+
+  @Test
+  void aDraftsPostpaidSimLineCarriesItsCarriersName() throws Exception {
+    String managerToken = managerToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Carrier Line Draft"), SEEDED_AGENT_ID);
+    addPostpaidSimOnCarrier(managerToken, contractId, SEEDED_US_CARRIER_ID, "+1-555-0301", "12.00");
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.basePostpaidSims[0].carrierName").value("Verizon"));
+  }
+
+  @Test
+  void aSentInvoicesStoredPostpaidSimLineCarriesItsCarriersName() throws Exception {
+    String managerToken = managerToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Carrier Line Sent"), SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    addPostpaidSimOnCarrier(managerToken, contractId, SEEDED_US_CARRIER_ID, "+1-555-0302", "12.00");
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"))
+        .andExpect(jsonPath("$.basePostpaidSims[0].carrierName").value("Verizon"));
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(jsonPath("$.basePostpaidSims[0].carrierName").value("Verizon"));
+  }
+
+  @Test
+  void aPostpaidSimLineStillCarriesTheNameOfACarrierArchivedAfterwards() throws Exception {
+    String managerToken = managerToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Carrier Line Archived"), SEEDED_AGENT_ID);
+    String name = "Sprint " + UUID.randomUUID();
+    UUID carrierId = createCarrier(managerToken, contractCountry(managerToken, contractId), name);
+    addPostpaidSimOnCarrier(managerToken, contractId, carrierId, "+1-555-0303", "12.00");
+    archiveCarrier(managerToken, carrierId);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.basePostpaidSims[0].carrierName").value(name));
+  }
+
+  @Test
+  void aPostpaidSimWithNoCarrierServesCarrierNameNullAndTheTestersReadCarriesTheField() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Carrier Line None");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken = createTesterAndLogin(managerToken, clientId, "no.carrier@example.com");
+    UUID simId = addPostpaidSimOnCarrier(managerToken, contractId, SEEDED_US_CARRIER_ID, "+1-555-0304", "12.00");
+    SimCard sim = simCardRepository.findById(simId).orElseThrow();
+    sim.setCarrier(null);
+    simCardRepository.saveAndFlush(sim);
+
+    // A Tester sees an invoice only once it is sent.
+    String agentToken = agentToken();
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    for (String token : new String[] {agentToken, testerToken}) {
+      MvcResult result =
+          mockMvc
+              .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + token))
+              .andExpect(status().isOk())
+              .andReturn();
+      assertThat(objectMapper.readTree(result.getResponse().getContentAsString()).get("basePostpaidSims").get(0).has("carrierName"))
+          .isTrue();
+      assertThat(
+              objectMapper.readTree(result.getResponse().getContentAsString()).get("basePostpaidSims").get(0).get("carrierName").isNull())
+          .isTrue();
+    }
   }
 
   @Test

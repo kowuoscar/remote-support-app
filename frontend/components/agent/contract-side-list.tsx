@@ -3,13 +3,12 @@
 import { useEffect, useRef, type MouseEvent } from "react";
 import Link from "next/link";
 import { Badge, type Tone } from "@/components/ui/badge";
+import { IconAlertTriangle } from "@/components/icons";
+import type { ClientInvoicesContract } from "@/components/agent/client-invoices-view";
 import { cn } from "@/lib/cn";
+import { sentBackBadge } from "@/lib/status";
 
-export type SideListContract = {
-  id: string;
-  clientName: string;
-  /** "Kenya", from `countryLabel(country)`. */
-  countryLabel: string;
+export type SideListContract = Pick<ClientInvoicesContract, "id" | "clientName" | "countryLabel"> & {
   /** `clientInvoiceBadge` of the Contract's current-month invoice; null when that invoice failed to load. */
   status: { label: string; tone: Tone } | null;
   /** The extra "Sent back" mark: the list holds a sent-back invoice of this Contract and `status` does not already say so. */
@@ -93,7 +92,12 @@ export function ContractSideList({
                     {shared && (contract.status || contract.sentBackMark) ? " " : null}
                     {contract.status ? <Badge tone={contract.status.tone}>{contract.status.label}</Badge> : null}
                     {contract.status && contract.sentBackMark ? " " : null}
-                    {contract.sentBackMark ? <Badge tone="warning">Sent back</Badge> : null}
+                    {contract.sentBackMark ? (
+                      <Badge tone={sentBackBadge.tone} dot={false}>
+                        <IconAlertTriangle className="h-3 w-3 shrink-0" />
+                        {sentBackBadge.label}
+                      </Badge>
+                    ) : null}
                   </span>
                 ) : null}
               </Link>

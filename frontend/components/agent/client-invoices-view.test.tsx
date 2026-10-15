@@ -797,6 +797,21 @@ describe("AgentClientInvoicesView side list Sent back mark (sent-back-in-the-sid
     expect(within(clientsNav()).getByRole("link", { name: "Zephyr Mobile Draft" })).toBeInTheDocument();
   });
 
+  it("the mark carries the alert-triangle icon, not the status dot, so it differs from an Awaiting approval badge", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, B]}
+        invoicesByContract={{ "contract-1": invoice(), "contract-2": sentInvoice("contract-2") }}
+        sentBack={[sentBackOf("contract-2")]}
+      />,
+    );
+    const mark = within(clientsNav()).getByText("Sent back");
+    expect(mark.querySelector("svg")).not.toBeNull();
+    expect(mark.querySelector(".rounded-full")).toBeNull();
+    const awaiting = within(clientsNav()).getByText("Awaiting approval");
+    expect(awaiting.querySelector("svg")).toBeNull();
+  });
+
   it("a this-month sent-back draft that is also in the list reads Sent back once", () => {
     render(
       <AgentClientInvoicesView

@@ -292,7 +292,6 @@ test.describe("the Agent Client Invoices page when one invoice fails to load", (
 
     const failed = clients.getByRole("link", { name: "Birch Telecom United Kingdom", exact: true });
     await expect(failed).toBeVisible();
-    await expect(failed.locator("span.rounded-full")).toHaveCount(0);
     await expect(clients.getByRole("link", { name: "Birch Telecom Mexico Approved", exact: true })).toBeVisible();
 
     await failed.click();

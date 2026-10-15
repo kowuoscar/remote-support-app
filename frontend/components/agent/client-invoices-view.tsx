@@ -5,12 +5,13 @@ import Link from "next/link";
 import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
 import { ContractSideList } from "@/components/agent/contract-side-list";
 import { cn } from "@/lib/cn";
-import { clientInvoiceBadge } from "@/lib/status";
+import { clientInvoiceBadge, isSentBackBadge } from "@/lib/status";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconAlertTriangle, IconArrowRight, IconInvoices } from "@/components/icons";
 import { Card } from "@/components/ui/card";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { AgentClientInvoiceCard } from "@/components/agent/agent-client-invoice-card";
+import { PAGE_PADDING, PAGE_WIDTH } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { formatBillingMonth, formatDate } from "@/lib/format";
 import { countryLabel, type ClientInvoiceDetail, type SentBackClientInvoice } from "@/lib/api/types";
@@ -24,9 +25,6 @@ export type ClientInvoicesContract = {
   currency: string;
 };
 
-// The shell's usual padding and width cap (SurfacePage), applied here because the page is `bleed`.
-const PAGE_PADDING = "min-w-0 px-4 py-5 sm:px-6 sm:py-6";
-const PAGE_WIDTH = "mx-auto flex w-full max-w-6xl flex-col gap-6";
 
 /** Column order: Client name, then Country, locale-aware and case-insensitive. */
 function sortContracts(contracts: ClientInvoicesContract[]): ClientInvoicesContract[] {
@@ -109,7 +107,7 @@ export function AgentClientInvoicesView({
           const status = current ? clientInvoiceBadge(current) : null;
           // The extra mark: a sent-back invoice of any month is in the list, and the row's own badge
           // does not already say so (never twice).
-          const sentBackMark = sentBackContracts.has(c.id) && status?.label !== "Sent back";
+          const sentBackMark = sentBackContracts.has(c.id) && !isSentBackBadge(status);
           return { ...c, status, sentBackMark };
         })}
         selectedId={contractId}

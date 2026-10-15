@@ -377,6 +377,14 @@ engaged: the world is set, and this is one new component inside it.
 
 - Inherits every constraint in the `remote-support-mvp` spec. No backend, API,
   schema or migration change.
+- **(after review) The side list's "Sent back" mark carries `IconAlertTriangle`
+  (`h-3 w-3`) in place of the status dot.** Reason: the mark and "Awaiting
+  approval" were identical amber pills, so "this needs you" read like "nothing
+  to do". Label and tone are unchanged; DESIGN.md names the icon.
+- **(after review) The Agent Client Invoices goldens run on their own
+  `visual-agent-invoices-session`, not `visual-agent-session`.** Reason: the
+  stub gives that session the multi-Contract fixture the side list needs, so
+  the Agent dashboard goldens, which share `visual-agent-session`, stay put.
 - **The breakpoint is `xl`, 1280px.** At 1280px and wider the side list shows
   and the Contract Switcher is hidden. Below 1280px the reverse. At any width
   exactly one of the two is displayed, so exactly one is in the accessibility

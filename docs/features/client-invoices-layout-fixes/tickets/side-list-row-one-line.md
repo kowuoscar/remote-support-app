@@ -1,7 +1,7 @@
 ---
 id: side-list-row-one-line
 title: Lay each side list row out as one line, name left and status right
-status: in-progress
+status: done
 depends_on: []
 labels: [frontend]
 stories: [1, 2, 3, 4, 5]

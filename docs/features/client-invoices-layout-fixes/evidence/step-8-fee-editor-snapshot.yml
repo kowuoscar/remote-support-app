@@ -1,0 +1,10 @@
+- row "Topup Logged Oct 15 Billed amount for Topup Fee, Oct 15 (USD) 30.00 Save Cancel":
+  - cell "Topup"
+  - cell
+  - cell "Logged Oct 15"
+  - cell "Billed amount for Topup Fee, Oct 15 (USD) 30.00 Save Cancel":
+    - text: Billed amount for Topup Fee, Oct 15 (USD)
+    - textbox "Billed amount for Topup Fee, Oct 15 (USD)": "30.00"
+    - button "Save"
+    - button "Cancel"
+    - status

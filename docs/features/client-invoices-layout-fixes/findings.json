@@ -1,0 +1,203 @@
+{
+  "feature": "client-invoices-layout-fixes",
+  "findings": [
+    {
+      "id": "F1",
+      "type": "spec-wrong",
+      "state": "confirmed",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:217",
+      "citation": "spec.md story 10: \"below, the line's details on the left (a cancellation note, the \\\"Edited · computed\\\" note) and Edit, and Reset when edited, on the right\"; story 11",
+      "note": "Below xl the Billed cell is display:contents but its text-right is inherited, so the 'Edited · computed' note (LINE_AREA.edited, edit-client-invoice-line-control.tsx:225, card :101) renders right-aligned, not on the left; same at :270 for Fees. A wrapping refusal below xl likely right-aligns too; check it."
+    },
+    {
+      "id": "F2",
+      "type": "spec-partial",
+      "state": "confirmed",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "docs/tech-debt.md:73",
+      "citation": "spec.md Decisions taken: \"Debt paid: \\\"Columns hidden on phones\\\", \\\"Bare field on mobile\\\" (by layout) and \\\"Unused directive\\\".\"",
+      "note": "The 'Unused directive' entry for contract-side-list.tsx is still in docs/tech-debt.md though the directive was removed and lint is clean."
+    },
+    {
+      "id": "F3",
+      "type": "spec-wrong",
+      "state": "confirmed",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/invoice-line-table.tsx:1",
+      "citation": "spec.md Solution, Where it lives: \"The responsive line structure is local to `AgentClientInvoiceCard`, built from the shared table parts plus class and role overrides.\"",
+      "note": "New module hand-rolls table/thead/th/tbody/tr/td; only TableScroll is shared. Orchestrator's decision (a how): keep the module and record the deviation and its reason as an (after review) entry in the spec's ## Decisions taken; use the shared Thead/Th/Tbody/Tr/Td where cn's plain join allows, otherwise say why in the entry."
+    },
+    {
+      "id": "F4",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:210",
+      "citation": "spec.md Constraints: \"An arbitrary value carries its reason in a comment.\"",
+      "note": "[overflow-wrap:anywhere] x3 with no comment where the spec named break-words; xl:min-w-[720px] at invoice-line-table.tsx:45 is not covered by the header comment (grid templates only)."
+    },
+    {
+      "id": "F5",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:259",
+      "citation": "",
+      "note": "A Fee with no description still renders an empty desc grid item with max-xl:mt-2, adding ~8px blank space at the row bottom below xl; leave the area out."
+    },
+    {
+      "id": "F6",
+      "type": "rule-violated",
+      "state": "confirmed",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:210",
+      "citation": "docs/agents/coding-standards.md: Frontend 8 — \"an arbitrary value (`w-[123px]`) needs a comment saying why it isn't a token.\"",
+      "note": "[overflow-wrap:anywhere] at :210, :255, :259 with no comment; Tailwind 4.3.3 has the wrap-anywhere utility: use it."
+    },
+    {
+      "id": "F7",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:41",
+      "citation": "",
+      "note": "possible Duplicated Code: isEditedLine repeats LineAmount's `Boolean(edited) && computedAmount != null` (:80); have LineAmount call isEditedLine."
+    },
+    {
+      "id": "F8",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:157",
+      "citation": "",
+      "note": "possible Duplicated Code: wrapper class `max-xl:contents xl:flex xl:flex-col xl:items-end xl:gap-1` also at agent-client-invoice-card.tsx:98; make it a constant next to LINE_AREA."
+    },
+    {
+      "id": "F9",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/tests/e2e/edit-client-invoice-lines.spec.ts:207",
+      "citation": "",
+      "note": "possible Duplicated Code: `new RegExp(x.replace(\"+\", \"\\\\+\"))` row lookup at 207, 208, 263, 264 (and 101); extract a rowByNumber helper."
+    },
+    {
+      "id": "F10",
+      "type": "design-guideline",
+      "state": "confirmed",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:217",
+      "citation": "spec.md ## Problem, confirmed phone mockup ('Edited · computed £25.00' left in the details); story 10",
+      "note": "Same cause as F1, seen in the mobile goldens: the edited note sits flush right under the amount; the Fee 'Other' row splits its details across both sides. Fix: max-xl:text-left on LINE_AREA.edited."
+    },
+    {
+      "id": "F11",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:201",
+      "citation": "",
+      "note": "At 1440 the BILLED header, the amounts, the buttons and the note sit on three different right edges (fixed 128px actions slot); right-align the header over the amount track or align the note to the amount."
+    },
+    {
+      "id": "F12",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/contract-side-list.tsx:86",
+      "citation": "",
+      "note": "A row with two badges or a collision cuts the name hard ('Birch T…', 'Solstic…'); full name only in title (hover). Matches the spec; flagged to the human walkthrough."
+    },
+    {
+      "id": "F13",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/edit-client-invoice-line-control.tsx:179",
+      "citation": "",
+      "note": "The auto-focused amount field is 12px (text-label-sm); iOS Safari zooms a focused input under 16px, forcing a pan. Fleet controls share it; max-xl:text-base on correction fields, or debt."
+    },
+    {
+      "id": "F14",
+      "type": "smell",
+      "state": "fixed",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/invoice-line-table.tsx:23",
+      "citation": "",
+      "note": "At 390 the ghost sm buttons' px-3 puts the labels ~12px in from the amount's right edge (ragged right column), and self-end sits them ~6px below the 'Logged' line; -mr-3 on the actions group and centring on the last details line."
+    },
+    {
+      "id": "F15",
+      "type": "acceptance-failed",
+      "state": "confirmed",
+      "raised_by": "acceptance-runner",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:217",
+      "citation": "spec.md ## Acceptance walkthrough step 7: \"the cancellation note or edited note on the left with Edit (and Reset) on the right below\"",
+      "note": "At 1279, 1024, 768, 390 and 375 the 'Edited · computed' note is text-align right (evidence/step-7-note-alignment.txt). Same cause as F1."
+    },
+    {
+      "id": "F16",
+      "type": "acceptance-failed",
+      "state": "confirmed",
+      "raised_by": "acceptance-runner",
+      "after_review": false,
+      "in_changed_lines": false,
+      "where": "docs/agents/sdlc.json",
+      "citation": "spec.md ## Acceptance walkthrough step 12 (run `verify` green)",
+      "note": "The runner ran out of turns while mvn verify was running and killed it; DESIGN.md diff, visual suite 114/114 (only the four goldens) and component tests passed. Replay: run verify."
+    },
+    {
+      "id": "F17",
+      "type": "spec-wrong",
+      "state": "confirmed",
+      "raised_by": "acceptance-runner",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/invoice-line-table.tsx:45",
+      "citation": "spec.md Solution: \"Nothing on the page scrolls sideways\"; story 6 (amount and Edit on one line in the Billed column); Solution Width: \"The 720px minimum comes back at `xl`, where the invoice area is at least 736px wide.\"",
+      "note": "At exactly 1280x800 the line-table wrapper is 692px wide against the 720px minimum, so it scrolls sideways and clips the Billed header, the 'Edited · computed' notes and the editor's Cancel (evidence/step-5-overflow-1280-vs-1440.txt). The spec's 736px premise is false at 1280. Orchestrator's decision (a how): drop the 720px minimum at xl for these two tables too, so they fit their wrapper at every width; record it as an (after review) decision; check 1280 and 1366."
+    },
+    {
+      "id": "F18",
+      "type": "spec-partial",
+      "state": "confirmed",
+      "raised_by": "reviewer-spec",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "DESIGN.md:166",
+      "citation": "spec.md story 21: \"As the team, I want `DESIGN.md` to state where invoice lines reflow below 1280px, how a side list row is laid out, and that invoice line actions follow the Fleet correction controls, so that the written rules stay true.\"",
+      "note": "The F17 fix (no 720px minimum at xl either) leaves DESIGN.md:166 implying the Client Invoice lines keep min-w-[720px] at xl; add a clause that these two line tables carry no 720px minimum at any width."
+    }
+  ]
+}

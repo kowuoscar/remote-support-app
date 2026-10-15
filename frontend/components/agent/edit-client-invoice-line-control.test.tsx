@@ -221,4 +221,37 @@ describe("EditClientInvoiceLineControl", () => {
     const alert = await screen.findByRole("alert");
     expect(screen.getByRole("button", { name: "Reset" }).getAttribute("aria-describedby")).toContain(alert.id);
   });
+
+  it("inline-layout: the editing controls come in order field, Save, Cancel, then the refusal", async () => {
+    stubFetch(400, { message: "amount must not be negative" });
+    renderControl();
+
+    await userEvent.click(screen.getByRole("button", { name: "Edit" }));
+    await userEvent.click(screen.getByRole("button", { name: "Save" }));
+    const alert = await screen.findByRole("alert");
+
+    const field = amountField();
+    const save = screen.getByRole("button", { name: "Save" });
+    const cancel = screen.getByRole("button", { name: "Cancel" });
+    expect(field.closest("form")).toContainElement(alert);
+    expect(follows(field, save)).toBe(true);
+    expect(follows(save, cancel)).toBe(true);
+    expect(follows(cancel, alert)).toBe(true);
+  });
+
+  it("inline-layout: the display state reads the amount, Edit, Reset, then the note", () => {
+    renderControl({ amount: 31.4, computedAmount: 25, edited: true });
+
+    const amount = screen.getByText("$31.40");
+    const edit = screen.getByRole("button", { name: "Edit" });
+    const reset = screen.getByRole("button", { name: "Reset" });
+    const note = screen.getByText(/Edited · computed/);
+    expect(follows(amount, edit)).toBe(true);
+    expect(follows(edit, reset)).toBe(true);
+    expect(follows(reset, note)).toBe(true);
+  });
 });
+
+function follows(a: Node, b: Node) {
+  return Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+}

@@ -1,0 +1,8 @@
+- row "Topup Logged Oct 15 $30.00 Edit":
+  - cell "Topup"
+  - cell
+  - cell "Logged Oct 15"
+  - cell "$30.00 Edit":
+    - text: $30.00
+    - button "Edit"
+    - status: Topup Fee, Oct 15 reset to its computed amount.

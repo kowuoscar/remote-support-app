@@ -1,0 +1,145 @@
+[
+  {
+    "row": "Aurora Acc | Draft",
+    "rowHeight": 42,
+    "children": [
+      {
+        "text": "Aurora Acc",
+        "box": {
+          "x": 264,
+          "y": 114.5,
+          "width": 136.296875,
+          "height": 20
+        }
+      },
+      {
+        "text": "Draft",
+        "box": {
+          "x": 408.296875,
+          "y": 111.5,
+          "width": 62.703125,
+          "height": 26
+        }
+      }
+    ],
+    "distinctChildTops": 2
+  },
+  {
+    "row": "Extraordinarily Long Client Name Holdings International Ltd. | Draft",
+    "rowHeight": 42,
+    "children": [
+      {
+        "text": "Extraordinarily Long Client Name Holdings International Ltd.",
+        "box": {
+          "x": 264,
+          "y": 158.5,
+          "width": 136.296875,
+          "height": 20
+        }
+      },
+      {
+        "text": "Draft",
+        "box": {
+          "x": 408.296875,
+          "y": 155.5,
+          "width": 62.703125,
+          "height": 26
+        }
+      }
+    ],
+    "distinctChildTops": 2
+  },
+  {
+    "row": "Harbor Line Logistics | United States | Draft",
+    "rowHeight": 63.140625,
+    "children": [
+      {
+        "text": "Harbor Line Logistics",
+        "box": {
+          "x": 264,
+          "y": 202.5,
+          "width": 136.296875,
+          "height": 20
+        }
+      },
+      {
+        "text": "United States",
+        "box": {
+          "x": 264,
+          "y": 229.5,
+          "width": 136.296875,
+          "height": 17.140625
+        }
+      },
+      {
+        "text": "Draft",
+        "box": {
+          "x": 408.296875,
+          "y": 199.5,
+          "width": 62.703125,
+          "height": 26
+        }
+      }
+    ],
+    "distinctChildTops": 3
+  },
+  {
+    "row": "Harbor Line Logistics | United States | Draft",
+    "rowHeight": 63.140625,
+    "children": [
+      {
+        "text": "Harbor Line Logistics",
+        "box": {
+          "x": 264,
+          "y": 267.640625,
+          "width": 136.296875,
+          "height": 20
+        }
+      },
+      {
+        "text": "United States",
+        "box": {
+          "x": 264,
+          "y": 294.640625,
+          "width": 136.296875,
+          "height": 17.140625
+        }
+      },
+      {
+        "text": "Draft",
+        "box": {
+          "x": 408.296875,
+          "y": 264.640625,
+          "width": 62.703125,
+          "height": 26
+        }
+      }
+    ],
+    "distinctChildTops": 3
+  },
+  {
+    "row": "Solstice Retail Group | Awaiting approval",
+    "rowHeight": 40,
+    "children": [
+      {
+        "text": "Solstice Retail Group",
+        "box": {
+          "x": 264,
+          "y": 331.78125,
+          "width": 62.9375,
+          "height": 20
+        }
+      },
+      {
+        "text": "Awaiting approval",
+        "box": {
+          "x": 334.9375,
+          "y": 329.78125,
+          "width": 136.0625,
+          "height": 24
+        }
+      }
+    ],
+    "distinctChildTops": 2
+  }
+]

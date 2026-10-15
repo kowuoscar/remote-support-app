@@ -34,7 +34,9 @@ one Agent, and an Agent gets a login at the moment they are created. Proof:
 
 A Manager builds a Contract's Fleet of Smartphones and SIM Cards, and an
 Agent keeps it accurate — changing a status, installing a SIM Card into a
-Smartphone, setting a serial. A Tester sees their own Client's Fleet. Proof:
+Smartphone, setting a serial, and correcting a mistyped SIM number, a SIM's
+Postpaid plan, a Smartphone's model or its owner. The Manager corrects the
+same four on any Contract. A Tester sees their own Client's Fleet. Proof:
 `frontend/tests/e2e/fleet-management.spec.ts`.
 
 ### Maintain the Carrier catalog — exists

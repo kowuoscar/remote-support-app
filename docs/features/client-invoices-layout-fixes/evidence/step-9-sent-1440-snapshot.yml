@@ -1,0 +1,103 @@
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Aurora Acc Awaiting approval":
+          - /url: /agent/client-invoices?contract=f4cb7a63-62b4-4db1-a0d9-2a267cf2130f
+      - listitem:
+        - link "Extraordinarily Long Client Name Holdings International Ltd. Draft":
+          - /url: /agent/client-invoices?contract=a4b469e8-3405-43f5-a77c-85c4408ebbfb
+      - listitem:
+        - link "Harbor Line Logistics United States Sent back":
+          - /url: /agent/client-invoices?contract=c9af2593-42c0-4cad-81f0-5b6c46b7af3c
+      - listitem:
+        - link "Harbor Line Logistics United States Draft":
+          - /url: /agent/client-invoices?contract=c38985a6-28e3-4575-adae-8b69a90f9626
+      - listitem:
+        - link "Solstice Retail Group Awaiting approval Sent back":
+          - /url: /agent/client-invoices?contract=c0f29613-df02-4ad0-94fa-472c7e38cef7
+  - region "Sent back to you":
+    - heading "Sent back to you" [level=2]
+    - table:
+      - rowgroup:
+        - row "Contract Billing month Sent back Reason Action":
+          - columnheader "Contract"
+          - columnheader "Billing month"
+          - columnheader "Sent back"
+          - columnheader "Reason"
+          - columnheader "Action"
+      - rowgroup:
+        - row "Solstice Retail Group — United States September 2026 Oct 15, 2026 Please recheck the September SIM fees against the carrier invoice. Open Solstice Retail Group — United States, September 2026":
+          - cell "Solstice Retail Group — United States"
+          - cell "September 2026"
+          - cell "Oct 15, 2026"
+          - cell "Please recheck the September SIM fees against the carrier invoice.":
+            - paragraph: Please recheck the September SIM fees against the carrier invoice.
+          - cell "Open Solstice Retail Group — United States, September 2026":
+            - link "Open Solstice Retail Group — United States, September 2026":
+              - /url: /agent/client-invoices/054f1fc5-d118-4462-a989-a0b07b5d4771
+              - text: Open
+        - row "Harbor Line Logistics — United States October 2026 Oct 15, 2026 This month's totals do not match the carrier invoice. Open Harbor Line Logistics — United States, October 2026":
+          - cell "Harbor Line Logistics — United States"
+          - cell "October 2026"
+          - cell "Oct 15, 2026"
+          - cell "This month's totals do not match the carrier invoice.":
+            - paragraph: This month's totals do not match the carrier invoice.
+          - cell "Open Harbor Line Logistics — United States, October 2026":
+            - link "Open Harbor Line Logistics — United States, October 2026":
+              - /url: /agent/client-invoices/da18bc2a-b956-4aaf-8535-40ad0a90e7ed
+              - text: Open
+  - paragraph: October 2026
+  - text: Awaiting approval
+  - paragraph: Sent to the Manager and Client — numbers are locked to what was sent
+  - paragraph: Sent Oct 15, 2026
+  - link "Download PDF":
+    - /url: /api/contracts/f4cb7a63-62b4-4db1-a0d9-2a267cf2130f/client-invoice/pdf
+  - term: Base amount
+  - definition: $161.90
+  - term: Fees this month
+  - definition: $75.00
+  - term: Total
+  - definition: $236.90
+  - heading "Postpaid SIM Cards" [level=3]
+  - table:
+    - rowgroup:
+      - row "Number Billed":
+        - columnheader "Number"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "+1-555-0101 $70.50 Edited · computed $65.00":
+        - cell "+1-555-0101"
+        - cell "$70.50 Edited · computed $65.00":
+          - text: $70.50
+          - paragraph: Edited · computed $65.00
+      - row "+1-555-0102 $31.40 Edited · computed $80.00":
+        - cell "+1-555-0102"
+        - cell "$31.40 Edited · computed $80.00":
+          - text: $31.40
+          - paragraph: Edited · computed $80.00
+      - row "+441234567890123456789012345678901234567890123456789012345678901 Cancelled Oct 15, 2026 — still billed through this month $60.00":
+        - cell "+441234567890123456789012345678901234567890123456789012345678901 Cancelled Oct 15, 2026 — still billed through this month"
+        - cell "$60.00"
+  - heading "Fee lines" [level=3]
+  - table:
+    - rowgroup:
+      - row "Type Description Logged Billed":
+        - columnheader "Type"
+        - columnheader "Description"
+        - columnheader "Logged"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "Topup Topup 25 GB data for the pilot handsets Oct 15 $45.00":
+        - cell "Topup"
+        - cell "Topup 25 GB data for the pilot handsets"
+        - cell "Oct 15"
+        - cell "$45.00"
+      - row "Topup — Oct 15 $30.00":
+        - cell "Topup"
+        - cell "—"
+        - cell "Oct 15"
+        - cell "$30.00"
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached yet.

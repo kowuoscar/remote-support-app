@@ -1,0 +1,68 @@
+- main:
+  - button "Aurora Acc — United States"
+  - heading "Smartphones" [level=2]
+  - text: "0"
+  - paragraph: No smartphones on this contract yet
+  - paragraph: A manager provisions smartphones onto this contract's fleet.
+  - heading "SIM Cards" [level=2]
+  - text: "3"
+  - table:
+    - rowgroup:
+      - row "Number Carrier Plan Flavor Monthly fee Status Installed in Change status":
+        - columnheader "Number"
+        - columnheader "Carrier"
+        - columnheader "Plan"
+        - columnheader "Flavor"
+        - columnheader "Monthly fee"
+        - columnheader "Status"
+        - columnheader "Installed in"
+        - columnheader "Change status"
+    - rowgroup:
+      - row "+1-555-0101 Edit number, +1-555-0101 Verizon Unlimited Welcome Edit plan for +1-555-0101 Postpaid $65.00 Active Not installed Retire":
+        - cell "+1-555-0101 Edit number, +1-555-0101":
+          - text: +1-555-0101
+          - button "Edit number, +1-555-0101": Edit
+        - cell "Verizon"
+        - cell "Unlimited Welcome Edit plan for +1-555-0101":
+          - text: Unlimited Welcome
+          - button "Edit plan for +1-555-0101": Edit
+        - cell "Postpaid"
+        - cell "$65.00"
+        - cell "Active"
+        - cell "Not installed":
+          - combobox "Installed in":
+            - option "Not installed" [selected]
+        - cell "Retire":
+          - button "Retire"
+      - row "+1-555-0102 Edit number, +1-555-0102 Verizon Unlimited Plus Edit plan for +1-555-0102 Postpaid $80.00 Active Not installed Retire":
+        - cell "+1-555-0102 Edit number, +1-555-0102":
+          - text: +1-555-0102
+          - button "Edit number, +1-555-0102": Edit
+        - cell "Verizon"
+        - cell "Unlimited Plus Edit plan for +1-555-0102":
+          - text: Unlimited Plus
+          - button "Edit plan for +1-555-0102": Edit
+        - cell "Postpaid"
+        - cell "$80.00"
+        - cell "Active"
+        - cell "Not installed":
+          - combobox "Installed in":
+            - option "Not installed" [selected]
+        - cell "Retire":
+          - button "Retire"
+      - row "+1-555-0103 Edit number, +1-555-0103 T-Mobile Essentials Edit plan for +1-555-0103 Postpaid $60.00 Active Cancelled Oct 15, 2026 Not installed Retire":
+        - cell "+1-555-0103 Edit number, +1-555-0103":
+          - text: +1-555-0103
+          - button "Edit number, +1-555-0103": Edit
+        - cell "T-Mobile"
+        - cell "Essentials Edit plan for +1-555-0103":
+          - text: Essentials
+          - button "Edit plan for +1-555-0103": Edit
+        - cell "Postpaid"
+        - cell "$60.00"
+        - cell "Active Cancelled Oct 15, 2026"
+        - cell "Not installed":
+          - combobox "Installed in":
+            - option "Not installed" [selected]
+        - cell "Retire":
+          - button "Retire"

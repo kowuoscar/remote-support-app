@@ -632,6 +632,19 @@ tested at the highest seam that can see it.
   same four goldens, and the second and third edit the same control.
 
 - **(answered by the human, 2026-10-15: "ok")** When a row has both its month's status and the "Sent back" mark, the status stays on the name's line, on the right, and the mark goes on a second line, right-aligned under it. Reason: every row's status sits in the same place down the column and the name keeps some room.
+- **(after review) The line tables are `invoice-line-table.tsx`, built from the
+  shared `Thead`, `Th`, `Tbody`, `Tr` and `Td`, not the shared `Table`.**
+  Reason: `Table` bakes in `min-w-[720px]`, and `cn` is a plain join, so a
+  later class cannot lift it reliably; the lines must fit their wrapper at
+  every width (next entry). The `table` element is therefore written out, with
+  its explicit ARIA roles; `TableScroll` is shared too. This deviates from
+  "built from the shared table parts" only for that one element.
+- **(after review) The 720px minimum does not come back at `xl`; the two line
+  tables fit their wrapper at every width.** Reason: the spec's premise that
+  the invoice area is at least 736px wide at `xl` is false at exactly 1280px,
+  where the wrapper is 692px: the table scrolled sideways and clipped the
+  Billed header, the notes and Cancel. With no minimum the columns fit at 1280
+  and 1366 (checked by the e2e, `scrollWidth == clientWidth`).
 
 ## Open questions
 
@@ -675,9 +688,10 @@ on their phone.
 
 ## Execution order
 
-Three tickets, in a line: each moves the same four goldens, and the second and
-third edit the same control.
+Two tickets, in a line: both move the desktop goldens. The second was first
+cut as two (`invoice-line-actions-inline`, then
+`invoice-lines-one-column-below-xl`) and merged into one by the human's
+choice on 2026-10-15: small follow-ups are one ticket with one verify.
 
 1. `side-list-row-one-line`: the side list row is laid out as one line (name left, cut with "…", `title` full; status right), with a second line for the Country on a collision and for the mark per open question 1. Accessible names are unchanged. Includes the `DESIGN.md` Row bullet amendment, the "Unused directive" fix, the `client-invoices-side-list.spec.ts` geometry steps, and the recaptured desktop goldens. Labels: frontend. No dependency. (stories: 1, 2, 3, 4, 5)
-2. `invoice-line-actions-inline`: at `xl`, the line amount control in the Fleet correction language. The amount and ghost Edit (and Reset) are on one line, the note under them, aligned amounts; the editor's field, `row` Save and ghost Cancel are on one line, the refusal below. Includes the `DESIGN.md` Buttons sentence, the stub's draft lines for Aurora, the component cases on order and the read-only note, the `edit-client-invoice-lines.spec.ts` steps at 1280, and the recaptured desktop goldens. Labels: frontend. Depends on `side-list-row-one-line`. (stories: 6, 7, 8, 9, 14, 15, 16, 18)
-3. `invoice-lines-one-column-below-xl`: below `xl`, the Postpaid SIM Cards and Fee lines reflow as one markup into the mockup's rows (what and amount; details and actions; description), with editing laid out per the mockup. Explicit table roles, no 720px minimum below `xl`, "Logged" and "—" per width, nothing scrolling sideways on either Agent invoice page. Includes the `DESIGN.md` Layout amendment, the "Columns hidden on phones" and "Bare field on mobile" debt, the component one-markup cases, the `edit-client-invoice-lines.spec.ts` steps at 390, and the recaptured mobile goldens. Labels: frontend. Depends on `invoice-line-actions-inline`. (stories: 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22)
+2. `invoice-lines-layout`: at `xl`, the line amount control in the Fleet correction language. The amount and ghost Edit (and Reset) sit on one line with the note under them, and amounts line up. The editor's field, `row` Save and ghost Cancel sit on one line, with the refusal below. Below `xl`, the Postpaid SIM Cards and Fee lines reflow as one markup into the mockup's rows: what and amount; details and actions; description. Editing follows the mockup. Explicit table roles, no 720px minimum below `xl`, "Logged" and "—" per width, and nothing scrolling sideways on either Agent invoice page. Includes the `DESIGN.md` Buttons sentence and Layout amendment, the stub's draft lines for Aurora, the "Columns hidden on phones" and "Bare field on mobile" debt, the component cases, the `edit-client-invoice-lines.spec.ts` steps at 1280 and 390, and the four recaptured `agent-client-invoices-*` goldens. Labels: frontend. Depends on `side-list-row-one-line`. (stories: 6–22)

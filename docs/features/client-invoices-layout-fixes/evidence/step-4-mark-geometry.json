@@ -1,0 +1,161 @@
+[
+  {
+    "ariaName": "Aurora Acc Draft",
+    "row": {
+      "x": 252,
+      "y": 104,
+      "right": 483,
+      "h": 42
+    },
+    "children": [
+      {
+        "text": "Aurora Acc",
+        "x": 264,
+        "y": 115,
+        "w": 136,
+        "h": 20,
+        "right": 400
+      },
+      {
+        "text": "Draft",
+        "x": 408,
+        "y": 112,
+        "w": 63,
+        "h": 26,
+        "right": 471
+      }
+    ]
+  },
+  {
+    "ariaName": "Extraordinarily Long Client Name Holdings International Ltd. Draft",
+    "row": {
+      "x": 252,
+      "y": 148,
+      "right": 483,
+      "h": 42
+    },
+    "children": [
+      {
+        "text": "Extraordinarily Long Client Name Holdings International Ltd.",
+        "x": 264,
+        "y": 159,
+        "w": 136,
+        "h": 20,
+        "right": 400
+      },
+      {
+        "text": "Draft",
+        "x": 408,
+        "y": 156,
+        "w": 63,
+        "h": 26,
+        "right": 471
+      }
+    ]
+  },
+  {
+    "ariaName": "Harbor Line Logistics United States Awaiting approval",
+    "row": {
+      "x": 252,
+      "y": 192,
+      "right": 483,
+      "h": 61
+    },
+    "children": [
+      {
+        "text": "Harbor Line Logistics",
+        "x": 264,
+        "y": 202,
+        "w": 63,
+        "h": 20,
+        "right": 327
+      },
+      {
+        "text": "United States",
+        "x": 264,
+        "y": 228,
+        "w": 63,
+        "h": 17,
+        "right": 327
+      },
+      {
+        "text": "Awaiting approval",
+        "x": 335,
+        "y": 200,
+        "w": 136,
+        "h": 24,
+        "right": 471
+      }
+    ]
+  },
+  {
+    "ariaName": "Harbor Line Logistics United States Draft",
+    "row": {
+      "x": 252,
+      "y": 255,
+      "right": 483,
+      "h": 63
+    },
+    "children": [
+      {
+        "text": "Harbor Line Logistics",
+        "x": 264,
+        "y": 266,
+        "w": 136,
+        "h": 20,
+        "right": 400
+      },
+      {
+        "text": "United States",
+        "x": 264,
+        "y": 293,
+        "w": 136,
+        "h": 17,
+        "right": 400
+      },
+      {
+        "text": "Draft",
+        "x": 408,
+        "y": 263,
+        "w": 63,
+        "h": 26,
+        "right": 471
+      }
+    ]
+  },
+  {
+    "ariaName": "Solstice Retail Group Awaiting approval Sent back",
+    "row": {
+      "x": 252,
+      "y": 320,
+      "right": 483,
+      "h": 68
+    },
+    "children": [
+      {
+        "text": "Solstice Retail Group",
+        "x": 264,
+        "y": 330,
+        "w": 63,
+        "h": 20,
+        "right": 327
+      },
+      {
+        "text": "Awaiting approval",
+        "x": 335,
+        "y": 328,
+        "w": 136,
+        "h": 24,
+        "right": 471
+      },
+      {
+        "text": "Sent back",
+        "x": 375,
+        "y": 356,
+        "w": 96,
+        "h": 24,
+        "right": 471
+      }
+    ]
+  }
+]

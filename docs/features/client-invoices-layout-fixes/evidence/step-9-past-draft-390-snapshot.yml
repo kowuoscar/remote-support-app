@@ -1,0 +1,28 @@
+- main:
+  - navigation "Breadcrumb":
+    - link "Client Invoices":
+      - /url: /agent/client-invoices?contract=c0f29613-df02-4ad0-94fa-472c7e38cef7
+    - text: Solstice Retail Group — United States · July 2026
+  - paragraph: July 2026
+  - text: Draft
+  - paragraph: This month has ended and the invoice was never sent — it is shown as it stands and is closed to changes
+  - term: Base amount
+  - definition: $65.99
+  - term: Fees this month
+  - definition: $0.00
+  - term: Total
+  - definition: $65.99
+  - heading "Postpaid SIM Cards" [level=3]
+  - table:
+    - rowgroup:
+      - row "Number Billed":
+        - columnheader "Number"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "+1-202-555-0102 $65.99":
+        - cell "+1-202-555-0102"
+        - cell "$65.99"
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees logged against this Contract yet this month.
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached yet.

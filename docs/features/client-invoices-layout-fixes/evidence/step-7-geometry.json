@@ -1,0 +1,1375 @@
+{
+ "fails": [],
+ "all": [
+  {
+   "width": 1279,
+   "height": 800,
+   "doc": {
+    "scrollWidth": 1279,
+    "innerWidth": 1279
+   },
+   "lists": [
+    {
+     "name": "Postpaid SIM Cards",
+     "table": {
+      "sw": 947,
+      "cw": 947
+     },
+     "wrapper": {
+      "sw": 947,
+      "cw": 947
+     }
+    },
+    {
+     "name": "Fee lines",
+     "table": {
+      "sw": 947,
+      "cw": 947
+     },
+     "wrapper": {
+      "sw": 947,
+      "cw": 947
+     }
+    }
+   ],
+   "rows": [
+    {
+     "kind": "SIM",
+     "text": "+1-555-0101 $70.50 Edit Reset Edited · computed $65.00",
+     "row": {
+      "x": 286,
+      "y": 645,
+      "r": 1233,
+      "b": 724
+     },
+     "amount": {
+      "x": 1168,
+      "y": 657,
+      "r": 1217,
+      "b": 677
+     },
+     "edit": {
+      "x": 1102,
+      "y": 683,
+      "r": 1150,
+      "b": 711
+     },
+     "reset": {
+      "x": 1158,
+      "y": 683,
+      "r": 1217,
+      "b": 711
+     },
+     "what": {
+      "x": 302,
+      "y": 657,
+      "r": 1090,
+      "b": 677
+     },
+     "note": {
+      "x": 302,
+      "y": 694,
+      "r": 1090,
+      "b": 711
+     },
+     "noteText": "Edited · computed $65.00",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": true
+    },
+    {
+     "kind": "SIM",
+     "text": "+1-555-0102 $31.40 Edit Reset Edited · computed $80.00",
+     "row": {
+      "x": 286,
+      "y": 721,
+      "r": 1233,
+      "b": 800
+     },
+     "amount": {
+      "x": 1168,
+      "y": 733,
+      "r": 1217,
+      "b": 753
+     },
+     "edit": {
+      "x": 1102,
+      "y": 759,
+      "r": 1150,
+      "b": 787
+     },
+     "reset": {
+      "x": 1158,
+      "y": 759,
+      "r": 1217,
+      "b": 787
+     },
+     "what": {
+      "x": 302,
+      "y": 733,
+      "r": 1090,
+      "b": 753
+     },
+     "note": {
+      "x": 302,
+      "y": 770,
+      "r": 1090,
+      "b": 787
+     },
+     "noteText": "Edited · computed $80.00",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": true
+    },
+    {
+     "kind": "SIM",
+     "text": "+1-555-0103 Cancelled Oct 15, 2026 — still billed through this month $60.00 Edit",
+     "row": {
+      "x": 286,
+      "y": 361,
+      "r": 1233,
+      "b": 439
+     },
+     "amount": {
+      "x": 1168,
+      "y": 373,
+      "r": 1217,
+      "b": 393
+     },
+     "edit": {
+      "x": 1169,
+      "y": 399,
+      "r": 1217,
+      "b": 427
+     },
+     "what": {
+      "x": 302,
+      "y": 373,
+      "r": 1156,
+      "b": 393
+     },
+     "note": {
+      "x": 302,
+      "y": 397,
+      "r": 1156,
+      "b": 414
+     },
+     "noteText": "Cancelled Oct 15, 2026 — still billed through this month",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": true
+    },
+    {
+     "kind": "Fee",
+     "text": "Topup Topup 25 GB data for the pilot handsets Logged Oct 15 $45.00 Edit",
+     "row": {
+      "x": 286,
+      "y": 493,
+      "r": 1233,
+      "b": 600
+     },
+     "amount": {
+      "x": 1168,
+      "y": 505,
+      "r": 1217,
+      "b": 525
+     },
+     "edit": {
+      "x": 1169,
+      "y": 531,
+      "r": 1217,
+      "b": 559
+     },
+     "what": {
+      "x": 302,
+      "y": 505,
+      "r": 1156,
+      "b": 525
+     },
+     "logged": {
+      "x": 302,
+      "y": 530,
+      "r": 348,
+      "b": 545,
+      "text": "Logged "
+     },
+     "desc": {
+      "x": 302,
+      "y": 567,
+      "r": 1217,
+      "b": 587
+     },
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": null,
+     "noteSameLineAsEdit": null,
+     "loggedSameLineAsEdit": true,
+     "descBelowLogged": true
+    },
+    {
+     "kind": "Fee",
+     "text": "Topup Logged Oct 15 $27.25 Edit Reset Edited · computed $30.00",
+     "row": {
+      "x": 286,
+      "y": 600,
+      "r": 1233,
+      "b": 692
+     },
+     "amount": {
+      "x": 1168,
+      "y": 612,
+      "r": 1217,
+      "b": 632
+     },
+     "edit": {
+      "x": 1102,
+      "y": 644,
+      "r": 1150,
+      "b": 672
+     },
+     "reset": {
+      "x": 1158,
+      "y": 644,
+      "r": 1217,
+      "b": 672
+     },
+     "what": {
+      "x": 302,
+      "y": 612,
+      "r": 1090,
+      "b": 632
+     },
+     "note": {
+      "x": 302,
+      "y": 655,
+      "r": 1090,
+      "b": 672
+     },
+     "noteText": "Edited · computed $30.00",
+     "logged": {
+      "x": 302,
+      "y": 637,
+      "r": 348,
+      "b": 652,
+      "text": "Logged "
+     },
+     "hasDash": true,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": true,
+     "loggedSameLineAsEdit": true,
+     "descBelowLogged": null
+    }
+   ]
+  },
+  {
+   "width": 1024,
+   "height": 768,
+   "doc": {
+    "scrollWidth": 1024,
+    "innerWidth": 1024
+   },
+   "lists": [
+    {
+     "name": "Postpaid SIM Cards",
+     "table": {
+      "sw": 692,
+      "cw": 692
+     },
+     "wrapper": {
+      "sw": 692,
+      "cw": 692
+     }
+    },
+    {
+     "name": "Fee lines",
+     "table": {
+      "sw": 692,
+      "cw": 692
+     },
+     "wrapper": {
+      "sw": 692,
+      "cw": 692
+     }
+    }
+   ],
+   "rows": [
+    {
+     "kind": "SIM",
+     "text": "+1-555-0101 $70.50 Edit Reset Edited · computed $65.00",
+     "row": {
+      "x": 286,
+      "y": 689,
+      "r": 978,
+      "b": 768
+     },
+     "amount": {
+      "x": 913,
+      "y": 701,
+      "r": 962,
+      "b": 721
+     },
+     "edit": {
+      "x": 847,
+      "y": 727,
+      "r": 895,
+      "b": 755
+     },
+     "reset": {
+      "x": 903,
+      "y": 727,
+      "r": 962,
+      "b": 755
+     },
+     "what": {
+      "x": 302,
+      "y": 701,
+      "r": 835,
+      "b": 721
+     },
+     "note": {
+      "x": 302,
+      "y": 738,
+      "r": 835,
+      "b": 755
+     },
+     "noteText": "Edited · computed $65.00",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": true
+    },
+    {
+     "kind": "SIM",
+     "text": "+1-555-0102 $31.40 Edit Reset Edited · computed $80.00",
+     "row": {
+      "x": 286,
+      "y": 344,
+      "r": 978,
+      "b": 423
+     },
+     "amount": {
+      "x": 913,
+      "y": 356,
+      "r": 962,
+      "b": 376
+     },
+     "edit": {
+      "x": 847,
+      "y": 382,
+      "r": 895,
+      "b": 410
+     },
+     "reset": {
+      "x": 903,
+      "y": 382,
+      "r": 962,
+      "b": 410
+     },
+     "what": {
+      "x": 302,
+      "y": 356,
+      "r": 835,
+      "b": 376
+     },
+     "note": {
+      "x": 302,
+      "y": 393,
+      "r": 835,
+      "b": 410
+     },
+     "noteText": "Edited · computed $80.00",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": true
+    },
+    {
+     "kind": "SIM",
+     "text": "+1-555-0103 Cancelled Oct 15, 2026 — still billed through this month $60.00 Edit",
+     "row": {
+      "x": 286,
+      "y": 423,
+      "r": 978,
+      "b": 501
+     },
+     "amount": {
+      "x": 913,
+      "y": 435,
+      "r": 962,
+      "b": 455
+     },
+     "edit": {
+      "x": 914,
+      "y": 461,
+      "r": 962,
+      "b": 489
+     },
+     "what": {
+      "x": 302,
+      "y": 435,
+      "r": 901,
+      "b": 455
+     },
+     "note": {
+      "x": 302,
+      "y": 459,
+      "r": 901,
+      "b": 476
+     },
+     "noteText": "Cancelled Oct 15, 2026 — still billed through this month",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": true
+    },
+    {
+     "kind": "Fee",
+     "text": "Topup Topup 25 GB data for the pilot handsets Logged Oct 15 $45.00 Edit",
+     "row": {
+      "x": 286,
+      "y": 555,
+      "r": 978,
+      "b": 662
+     },
+     "amount": {
+      "x": 913,
+      "y": 567,
+      "r": 962,
+      "b": 587
+     },
+     "edit": {
+      "x": 914,
+      "y": 593,
+      "r": 962,
+      "b": 621
+     },
+     "what": {
+      "x": 302,
+      "y": 567,
+      "r": 901,
+      "b": 587
+     },
+     "logged": {
+      "x": 302,
+      "y": 592,
+      "r": 348,
+      "b": 607,
+      "text": "Logged "
+     },
+     "desc": {
+      "x": 302,
+      "y": 629,
+      "r": 962,
+      "b": 649
+     },
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": null,
+     "noteSameLineAsEdit": null,
+     "loggedSameLineAsEdit": true,
+     "descBelowLogged": true
+    },
+    {
+     "kind": "Fee",
+     "text": "Topup Logged Oct 15 $27.25 Edit Reset Edited · computed $30.00",
+     "row": {
+      "x": 286,
+      "y": 662,
+      "r": 978,
+      "b": 754
+     },
+     "amount": {
+      "x": 913,
+      "y": 674,
+      "r": 962,
+      "b": 694
+     },
+     "edit": {
+      "x": 847,
+      "y": 706,
+      "r": 895,
+      "b": 734
+     },
+     "reset": {
+      "x": 903,
+      "y": 706,
+      "r": 962,
+      "b": 734
+     },
+     "what": {
+      "x": 302,
+      "y": 674,
+      "r": 835,
+      "b": 694
+     },
+     "note": {
+      "x": 302,
+      "y": 717,
+      "r": 835,
+      "b": 734
+     },
+     "noteText": "Edited · computed $30.00",
+     "logged": {
+      "x": 302,
+      "y": 699,
+      "r": 348,
+      "b": 714,
+      "text": "Logged "
+     },
+     "hasDash": true,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": true,
+     "loggedSameLineAsEdit": true,
+     "descBelowLogged": null
+    }
+   ]
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "doc": {
+    "scrollWidth": 768,
+    "innerWidth": 768
+   },
+   "lists": [
+    {
+     "name": "Postpaid SIM Cards",
+     "table": {
+      "sw": 436,
+      "cw": 436
+     },
+     "wrapper": {
+      "sw": 436,
+      "cw": 436
+     }
+    },
+    {
+     "name": "Fee lines",
+     "table": {
+      "sw": 436,
+      "cw": 436
+     },
+     "wrapper": {
+      "sw": 436,
+      "cw": 436
+     }
+    }
+   ],
+   "rows": [
+    {
+     "kind": "SIM",
+     "text": "+1-555-0101 $70.50 Edit Reset Edited · computed $65.00",
+     "row": {
+      "x": 286,
+      "y": 750,
+      "r": 722,
+      "b": 848
+     },
+     "amount": {
+      "x": 657,
+      "y": 762,
+      "r": 706,
+      "b": 782
+     },
+     "edit": {
+      "x": 591,
+      "y": 807,
+      "r": 639,
+      "b": 835
+     },
+     "reset": {
+      "x": 647,
+      "y": 807,
+      "r": 706,
+      "b": 835
+     },
+     "what": {
+      "x": 302,
+      "y": 762,
+      "r": 645,
+      "b": 782
+     },
+     "note": {
+      "x": 302,
+      "y": 784,
+      "r": 706,
+      "b": 801
+     },
+     "noteText": "Edited · computed $65.00",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": false
+    },
+    {
+     "kind": "SIM",
+     "text": "+1-555-0102 $31.40 Edit Reset Edited · computed $80.00",
+     "row": {
+      "x": 286,
+      "y": 848,
+      "r": 722,
+      "b": 946
+     },
+     "amount": {
+      "x": 657,
+      "y": 860,
+      "r": 706,
+      "b": 880
+     },
+     "edit": {
+      "x": 591,
+      "y": 905,
+      "r": 639,
+      "b": 933
+     },
+     "reset": {
+      "x": 647,
+      "y": 905,
+      "r": 706,
+      "b": 933
+     },
+     "what": {
+      "x": 302,
+      "y": 860,
+      "r": 645,
+      "b": 880
+     },
+     "note": {
+      "x": 302,
+      "y": 882,
+      "r": 706,
+      "b": 899
+     },
+     "noteText": "Edited · computed $80.00",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": false
+    },
+    {
+     "kind": "SIM",
+     "text": "+1-555-0103 Cancelled Oct 15, 2026 — still billed through this month $60.00 Edit",
+     "row": {
+      "x": 286,
+      "y": 946,
+      "r": 722,
+      "b": 1024
+     },
+     "amount": {
+      "x": 657,
+      "y": 958,
+      "r": 706,
+      "b": 978
+     },
+     "edit": {
+      "x": 658,
+      "y": 984,
+      "r": 706,
+      "b": 1012
+     },
+     "what": {
+      "x": 302,
+      "y": 958,
+      "r": 645,
+      "b": 978
+     },
+     "note": {
+      "x": 302,
+      "y": 982,
+      "r": 645,
+      "b": 999
+     },
+     "noteText": "Cancelled Oct 15, 2026 — still billed through this month",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": true
+    },
+    {
+     "kind": "Fee",
+     "text": "Topup Topup 25 GB data for the pilot handsets Logged Oct 15 $45.00 Edit",
+     "row": {
+      "x": 286,
+      "y": 623,
+      "r": 722,
+      "b": 730
+     },
+     "amount": {
+      "x": 657,
+      "y": 635,
+      "r": 706,
+      "b": 655
+     },
+     "edit": {
+      "x": 658,
+      "y": 661,
+      "r": 706,
+      "b": 689
+     },
+     "what": {
+      "x": 302,
+      "y": 635,
+      "r": 645,
+      "b": 655
+     },
+     "logged": {
+      "x": 302,
+      "y": 660,
+      "r": 348,
+      "b": 675,
+      "text": "Logged "
+     },
+     "desc": {
+      "x": 302,
+      "y": 697,
+      "r": 706,
+      "b": 717
+     },
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": null,
+     "noteSameLineAsEdit": null,
+     "loggedSameLineAsEdit": true,
+     "descBelowLogged": true
+    },
+    {
+     "kind": "Fee",
+     "text": "Topup Logged Oct 15 $27.25 Edit Reset Edited · computed $30.00",
+     "row": {
+      "x": 286,
+      "y": 730,
+      "r": 722,
+      "b": 857
+     },
+     "amount": {
+      "x": 657,
+      "y": 742,
+      "r": 706,
+      "b": 762
+     },
+     "edit": {
+      "x": 591,
+      "y": 809,
+      "r": 639,
+      "b": 837
+     },
+     "reset": {
+      "x": 647,
+      "y": 809,
+      "r": 706,
+      "b": 837
+     },
+     "what": {
+      "x": 302,
+      "y": 742,
+      "r": 645,
+      "b": 762
+     },
+     "note": {
+      "x": 302,
+      "y": 786,
+      "r": 706,
+      "b": 803
+     },
+     "noteText": "Edited · computed $30.00",
+     "logged": {
+      "x": 302,
+      "y": 767,
+      "r": 348,
+      "b": 782,
+      "text": "Logged "
+     },
+     "hasDash": true,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": false,
+     "loggedSameLineAsEdit": false,
+     "descBelowLogged": null
+    }
+   ]
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "doc": {
+    "scrollWidth": 390,
+    "innerWidth": 390
+   },
+   "lists": [
+    {
+     "name": "Postpaid SIM Cards",
+     "table": {
+      "sw": 314,
+      "cw": 314
+     },
+     "wrapper": {
+      "sw": 314,
+      "cw": 314
+     }
+    },
+    {
+     "name": "Fee lines",
+     "table": {
+      "sw": 314,
+      "cw": 314
+     },
+     "wrapper": {
+      "sw": 314,
+      "cw": 314
+     }
+    }
+   ],
+   "rows": [
+    {
+     "kind": "SIM",
+     "text": "+1-555-0101 $70.50 Edit Reset Edited · computed $65.00",
+     "row": {
+      "x": 38,
+      "y": 746,
+      "r": 352,
+      "b": 844
+     },
+     "amount": {
+      "x": 287,
+      "y": 758,
+      "r": 336,
+      "b": 778
+     },
+     "edit": {
+      "x": 221,
+      "y": 803,
+      "r": 269,
+      "b": 831
+     },
+     "reset": {
+      "x": 277,
+      "y": 803,
+      "r": 336,
+      "b": 831
+     },
+     "what": {
+      "x": 54,
+      "y": 758,
+      "r": 275,
+      "b": 778
+     },
+     "note": {
+      "x": 54,
+      "y": 780,
+      "r": 336,
+      "b": 797
+     },
+     "noteText": "Edited · computed $65.00",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": false
+    },
+    {
+     "kind": "SIM",
+     "text": "+1-555-0102 $31.40 Edit Reset Edited · computed $80.00",
+     "row": {
+      "x": 38,
+      "y": 373,
+      "r": 352,
+      "b": 471
+     },
+     "amount": {
+      "x": 287,
+      "y": 385,
+      "r": 336,
+      "b": 405
+     },
+     "edit": {
+      "x": 221,
+      "y": 430,
+      "r": 269,
+      "b": 458
+     },
+     "reset": {
+      "x": 277,
+      "y": 430,
+      "r": 336,
+      "b": 458
+     },
+     "what": {
+      "x": 54,
+      "y": 385,
+      "r": 275,
+      "b": 405
+     },
+     "note": {
+      "x": 54,
+      "y": 407,
+      "r": 336,
+      "b": 424
+     },
+     "noteText": "Edited · computed $80.00",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": false
+    },
+    {
+     "kind": "SIM",
+     "text": "+1-555-0103 Cancelled Oct 15, 2026 — still billed through this month $60.00 Edit",
+     "row": {
+      "x": 38,
+      "y": 471,
+      "r": 352,
+      "b": 554
+     },
+     "amount": {
+      "x": 287,
+      "y": 483,
+      "r": 336,
+      "b": 503
+     },
+     "edit": {
+      "x": 288,
+      "y": 514,
+      "r": 336,
+      "b": 542
+     },
+     "what": {
+      "x": 54,
+      "y": 483,
+      "r": 275,
+      "b": 503
+     },
+     "note": {
+      "x": 54,
+      "y": 507,
+      "r": 275,
+      "b": 542
+     },
+     "noteText": "Cancelled Oct 15, 2026 — still billed through this month",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": true
+    },
+    {
+     "kind": "Fee",
+     "text": "Topup Topup 25 GB data for the pilot handsets Logged Oct 15 $45.00 Edit",
+     "row": {
+      "x": 38,
+      "y": 607,
+      "r": 352,
+      "b": 714
+     },
+     "amount": {
+      "x": 287,
+      "y": 619,
+      "r": 336,
+      "b": 639
+     },
+     "edit": {
+      "x": 288,
+      "y": 645,
+      "r": 336,
+      "b": 673
+     },
+     "what": {
+      "x": 54,
+      "y": 619,
+      "r": 275,
+      "b": 639
+     },
+     "logged": {
+      "x": 54,
+      "y": 644,
+      "r": 100,
+      "b": 659,
+      "text": "Logged "
+     },
+     "desc": {
+      "x": 54,
+      "y": 681,
+      "r": 336,
+      "b": 701
+     },
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": null,
+     "noteSameLineAsEdit": null,
+     "loggedSameLineAsEdit": true,
+     "descBelowLogged": true
+    },
+    {
+     "kind": "Fee",
+     "text": "Topup Logged Oct 15 $27.25 Edit Reset Edited · computed $30.00",
+     "row": {
+      "x": 38,
+      "y": 714,
+      "r": 352,
+      "b": 840
+     },
+     "amount": {
+      "x": 287,
+      "y": 726,
+      "r": 336,
+      "b": 746
+     },
+     "edit": {
+      "x": 221,
+      "y": 792,
+      "r": 269,
+      "b": 820
+     },
+     "reset": {
+      "x": 277,
+      "y": 792,
+      "r": 336,
+      "b": 820
+     },
+     "what": {
+      "x": 54,
+      "y": 726,
+      "r": 275,
+      "b": 746
+     },
+     "note": {
+      "x": 54,
+      "y": 769,
+      "r": 336,
+      "b": 786
+     },
+     "noteText": "Edited · computed $30.00",
+     "logged": {
+      "x": 54,
+      "y": 751,
+      "r": 100,
+      "b": 766,
+      "text": "Logged "
+     },
+     "hasDash": true,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": false,
+     "loggedSameLineAsEdit": false,
+     "descBelowLogged": null
+    }
+   ]
+  },
+  {
+   "width": 375,
+   "height": 800,
+   "doc": {
+    "scrollWidth": 375,
+    "innerWidth": 375
+   },
+   "lists": [
+    {
+     "name": "Postpaid SIM Cards",
+     "table": {
+      "sw": 299,
+      "cw": 299
+     },
+     "wrapper": {
+      "sw": 299,
+      "cw": 299
+     }
+    },
+    {
+     "name": "Fee lines",
+     "table": {
+      "sw": 299,
+      "cw": 299
+     },
+     "wrapper": {
+      "sw": 299,
+      "cw": 299
+     }
+    }
+   ],
+   "rows": [
+    {
+     "kind": "SIM",
+     "text": "+1-555-0101 $70.50 Edit Reset Edited · computed $65.00",
+     "row": {
+      "x": 38,
+      "y": 351,
+      "r": 337,
+      "b": 449
+     },
+     "amount": {
+      "x": 272,
+      "y": 363,
+      "r": 321,
+      "b": 383
+     },
+     "edit": {
+      "x": 206,
+      "y": 408,
+      "r": 254,
+      "b": 436
+     },
+     "reset": {
+      "x": 262,
+      "y": 408,
+      "r": 321,
+      "b": 436
+     },
+     "what": {
+      "x": 54,
+      "y": 363,
+      "r": 260,
+      "b": 383
+     },
+     "note": {
+      "x": 54,
+      "y": 385,
+      "r": 321,
+      "b": 402
+     },
+     "noteText": "Edited · computed $65.00",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": false
+    },
+    {
+     "kind": "SIM",
+     "text": "+1-555-0102 $31.40 Edit Reset Edited · computed $80.00",
+     "row": {
+      "x": 38,
+      "y": 449,
+      "r": 337,
+      "b": 547
+     },
+     "amount": {
+      "x": 272,
+      "y": 461,
+      "r": 321,
+      "b": 481
+     },
+     "edit": {
+      "x": 206,
+      "y": 506,
+      "r": 254,
+      "b": 534
+     },
+     "reset": {
+      "x": 262,
+      "y": 506,
+      "r": 321,
+      "b": 534
+     },
+     "what": {
+      "x": 54,
+      "y": 461,
+      "r": 260,
+      "b": 481
+     },
+     "note": {
+      "x": 54,
+      "y": 483,
+      "r": 321,
+      "b": 500
+     },
+     "noteText": "Edited · computed $80.00",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": false
+    },
+    {
+     "kind": "SIM",
+     "text": "+1-555-0103 Cancelled Oct 15, 2026 — still billed through this month $60.00 Edit",
+     "row": {
+      "x": 38,
+      "y": 547,
+      "r": 337,
+      "b": 630
+     },
+     "amount": {
+      "x": 272,
+      "y": 559,
+      "r": 321,
+      "b": 579
+     },
+     "edit": {
+      "x": 273,
+      "y": 590,
+      "r": 321,
+      "b": 618
+     },
+     "what": {
+      "x": 54,
+      "y": 559,
+      "r": 260,
+      "b": 579
+     },
+     "note": {
+      "x": 54,
+      "y": 583,
+      "r": 260,
+      "b": 618
+     },
+     "noteText": "Cancelled Oct 15, 2026 — still billed through this month",
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": true
+    },
+    {
+     "kind": "Fee",
+     "text": "Topup Topup 25 GB data for the pilot handsets Logged Oct 15 $45.00 Edit",
+     "row": {
+      "x": 38,
+      "y": 683,
+      "r": 337,
+      "b": 790
+     },
+     "amount": {
+      "x": 272,
+      "y": 695,
+      "r": 321,
+      "b": 715
+     },
+     "edit": {
+      "x": 273,
+      "y": 721,
+      "r": 321,
+      "b": 749
+     },
+     "what": {
+      "x": 54,
+      "y": 695,
+      "r": 260,
+      "b": 715
+     },
+     "logged": {
+      "x": 54,
+      "y": 720,
+      "r": 100,
+      "b": 735,
+      "text": "Logged "
+     },
+     "desc": {
+      "x": 54,
+      "y": 757,
+      "r": 321,
+      "b": 777
+     },
+     "hasDash": false,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": null,
+     "noteSameLineAsEdit": null,
+     "loggedSameLineAsEdit": true,
+     "descBelowLogged": true
+    },
+    {
+     "kind": "Fee",
+     "text": "Topup Logged Oct 15 $27.25 Edit Reset Edited · computed $30.00",
+     "row": {
+      "x": 38,
+      "y": 674,
+      "r": 337,
+      "b": 800
+     },
+     "amount": {
+      "x": 272,
+      "y": 686,
+      "r": 321,
+      "b": 706
+     },
+     "edit": {
+      "x": 206,
+      "y": 752,
+      "r": 254,
+      "b": 780
+     },
+     "reset": {
+      "x": 262,
+      "y": 752,
+      "r": 321,
+      "b": 780
+     },
+     "what": {
+      "x": 54,
+      "y": 686,
+      "r": 260,
+      "b": 706
+     },
+     "note": {
+      "x": 54,
+      "y": 729,
+      "r": 321,
+      "b": 746
+     },
+     "noteText": "Edited · computed $30.00",
+     "logged": {
+      "x": 54,
+      "y": 711,
+      "r": 100,
+      "b": 726,
+      "text": "Logged "
+     },
+     "hasDash": true,
+     "line1": true,
+     "editBelowAmount": true,
+     "editRight": true,
+     "noteLeft": true,
+     "noteSameLineAsEdit": false,
+     "loggedSameLineAsEdit": false,
+     "descBelowLogged": null
+    }
+   ]
+  }
+ ]
+}

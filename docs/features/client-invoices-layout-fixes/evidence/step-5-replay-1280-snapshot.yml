@@ -1,0 +1,84 @@
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Aurora Acc Draft":
+          - /url: /agent/client-invoices?contract=523c7a20-1293-4374-a76e-b851819fed56
+      - listitem:
+        - link "Harbor Line Logistics Draft":
+          - /url: /agent/client-invoices?contract=09f15ac3-fb58-40d0-9a70-fd1a319b2cb6
+      - listitem:
+        - link "Solstice Retail Group Awaiting approval":
+          - /url: /agent/client-invoices?contract=d1b10114-579f-4ff1-9e80-8e07c4e61311
+  - paragraph: October 2026
+  - text: Draft
+  - paragraph: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+  - button "Attach carrier invoice"
+  - button "Attach carrier invoice file"
+  - button "Send Client Invoice"
+  - term: Base amount
+  - definition: $161.90
+  - term: Fees this month
+  - definition: $85.00
+  - term: Total
+  - definition: $246.90
+  - paragraph: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+  - heading "Postpaid SIM Cards" [level=3]
+  - table:
+    - rowgroup:
+      - row "Number Billed":
+        - columnheader "Number"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "+1-555-0101 $70.50 Edit Reset Edited · computed $65.00":
+        - cell "+1-555-0101"
+        - cell "$70.50 Edit Reset Edited · computed $65.00":
+          - text: $70.50
+          - button "Edit"
+          - button "Reset"
+          - paragraph: Edited · computed $65.00
+          - status
+      - row "+1-555-0102 $31.40 Edit Reset Edited · computed $80.00":
+        - cell "+1-555-0102"
+        - cell "$31.40 Edit Reset Edited · computed $80.00":
+          - text: $31.40
+          - button "Edit"
+          - button "Reset"
+          - paragraph: Edited · computed $80.00
+          - status
+      - row "+1-555-0103 Cancelled Oct 15, 2026 — still billed through this month $60.00 Edit":
+        - cell "+1-555-0103 Cancelled Oct 15, 2026 — still billed through this month"
+        - cell "$60.00 Edit":
+          - text: $60.00
+          - button "Edit"
+          - status
+  - heading "Fee lines" [level=3]
+  - table:
+    - rowgroup:
+      - row "Type Description Logged Billed":
+        - columnheader "Type"
+        - columnheader "Description"
+        - columnheader "Logged"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "Topup Topup 25 GB data for the pilot handsets Oct 15 $45.00 Edit":
+        - cell "Topup"
+        - cell "Topup 25 GB data for the pilot handsets"
+        - cell "Oct 15"
+        - cell "$45.00 Edit":
+          - text: $45.00
+          - button "Edit"
+          - status
+      - row "Topup — Oct 15 $40.00 Edit Reset Edited · computed $30.00":
+        - cell "Topup"
+        - cell "—"
+        - cell "Oct 15"
+        - cell "$40.00 Edit Reset Edited · computed $30.00":
+          - text: $40.00
+          - button "Edit"
+          - button "Reset"
+          - paragraph: Edited · computed $30.00
+          - status
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached yet.

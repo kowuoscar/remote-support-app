@@ -1,0 +1,8 @@
+before: Topup Logged Oct 15 $30.00 Edit
+editor: type {"x":54,"y":607,"r":336,"b":627} field {"x":54,"y":635,"r":200,"b":663} save {"x":206,"y":635,"r":262,"b":663} cancel {"x":268,"y":635,"r":336,"b":663} row {"x":38,"y":595,"r":352,"b":704}
+refusal "Enter an amount of zero or more, with at most two decimals." box {"x":54,"y":667,"r":336,"b":701} fieldBox {"x":54,"y":635,"r":200,"b":663} value="abc"
+after save: row "Topup Logged Oct 15 $33.10 Edit Reset Edited · computed $30.00 Topup Fee, Oct 15 saved." logged {"x":54,"y":632,"r":100,"b":647} note {"x":54,"y":650,"r":336,"b":667}
+after reset: row "Topup Logged Oct 15 $30.00 Edit Topup Fee, Oct 15 reset to its computed amount."
+manager corrected SIM +1-555-0103 to +441234567890123456789012345678901234567890123456789012345678901
+long SIM row: number {"x":54,"y":364,"r":275,"b":424} (~3 lines) amount {"x":287,"y":364,"r":336,"b":424} row {"x":38,"y":352,"r":352,"b":475} doc {"sw":390,"iw":390} amountText $60.00
+SIM list wrapper {"sw":314,"cw":314}

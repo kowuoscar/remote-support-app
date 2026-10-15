@@ -880,3 +880,123 @@ describe("AgentClientInvoicesView side list Sent back mark (sent-back-in-the-sid
     expect(within(region).getByRole("link", { name: "Open Birch Telecom — United Kingdom, July 2026" })).toBeInTheDocument();
   });
 });
+
+describe("AgentClientInvoicesView invoice lines (invoice-lines-layout)", () => {
+  const SIM = {
+    simCardId: "sim-1",
+    number: "+44 7700 900123",
+    monthlyFeeAmount: 25,
+    cancellationEffectiveDate: null,
+    amount: 25,
+    computedAmount: 25,
+    edited: false,
+  };
+  const EDITED_SIM = { ...SIM, simCardId: "sim-2", number: "+44 7700 900456", amount: 30, edited: true };
+  const CANCELLED_SIM = {
+    ...SIM,
+    simCardId: "sim-3",
+    number: "+44 7700 900789",
+    cancellationEffectiveDate: "2026-09-03",
+  };
+  const FEE = {
+    id: "fee-1",
+    contractId: "contract-1",
+    requestId: "request-1",
+    requestType: "TOPUP" as const,
+    feeType: "TOPUP" as const,
+    amount: 10,
+    currency: "USD",
+    description: "Customer asked for extra data",
+    billingMonth: "2026-09-01",
+    createdAt: "2026-09-12T10:00:00Z",
+    computedAmount: 10,
+    edited: false,
+  };
+  const EDITED_FEE = {
+    ...FEE,
+    id: "fee-2",
+    feeType: "OTHER" as const,
+    description: null,
+    amount: 8,
+    computedAmount: 12,
+    edited: true,
+    createdAt: "2026-09-14T10:00:00Z",
+  };
+  const LINES: Partial<ClientInvoiceDetail> = {
+    baseAmount: 80,
+    totalAmount: 98,
+    basePostpaidSims: [SIM, EDITED_SIM, CANCELLED_SIM],
+    feeLines: [FEE, EDITED_FEE],
+  };
+
+  function draft(overrides: Partial<ClientInvoiceDetail> = {}) {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT]}
+        invoicesByContract={{ "contract-1": invoice({ ...LINES, ...overrides }) }}
+      />,
+    );
+  }
+
+  it("one markup: a table per list, one row per line plus a header row, each amount and note once", () => {
+    draft();
+
+    const [sims, fees] = screen.getAllByRole("table");
+    expect(screen.getAllByRole("table")).toHaveLength(2);
+    expect(within(sims).getAllByRole("row")).toHaveLength(1 + 3);
+    expect(within(fees).getAllByRole("row")).toHaveLength(1 + 2);
+    expect(within(sims).getAllByRole("columnheader").map((h) => h.textContent)).toEqual(["Number", "Billed"]);
+    expect(within(fees).getAllByRole("columnheader").map((h) => h.textContent)).toEqual([
+      "Type",
+      "Description",
+      "Logged",
+      "Billed",
+    ]);
+    const editedSim = within(sims).getByRole("row", { name: /900456/ });
+    expect(within(editedSim).getAllByText("$30.00")).toHaveLength(1);
+    expect(within(editedSim).getAllByRole("cell").length).toBeGreaterThan(0);
+    expect(within(editedSim).getByRole("button", { name: "Reset" })).toBeInTheDocument();
+    expect(screen.getAllByText(/Edited · computed/)).toHaveLength(2);
+    // the plain and cancelled SIMs each bill $25.00, and the edited SIM shows it once, in its note
+    expect(within(sims).getAllByText("$25.00")).toHaveLength(3);
+    expect(within(editedSim).getAllByText("$25.00")).toHaveLength(1);
+    expect(within(editedSim).getByText(/Edited · computed/)).toHaveTextContent("Edited · computed $25.00");
+  });
+
+  it("a Fee row says Logged with its date; a Fee with no description has no description text beyond the desktop dash", () => {
+    draft();
+
+    const withDescription = screen.getByRole("row", { name: /Topup/ });
+    expect(within(withDescription).getByText(/Logged/)).toBeInTheDocument();
+    expect(within(withDescription).getByText("Sep 12")).toBeInTheDocument();
+    expect(within(withDescription).getByText("Customer asked for extra data")).toBeInTheDocument();
+
+    const without = screen.getByRole("row", { name: /Other/ });
+    expect(within(without).getByText(/Logged/)).toBeInTheDocument();
+    expect(within(without).queryAllByText("—").length).toBeLessThanOrEqual(1);
+    expect(without).not.toHaveTextContent(/Customer asked/);
+  });
+
+  it("a sent invoice keeps each edited line's note and has no button in any line row", () => {
+    draft({ status: "SENT", sentAt: "2026-09-10T10:00:00Z" });
+
+    for (const row of screen.getAllByRole("row")) {
+      expect(within(row).queryByRole("button")).not.toBeInTheDocument();
+    }
+    expect(screen.getAllByText(/Edited · computed/)).toHaveLength(2);
+  });
+
+  it("a closed past-month draft keeps each edited line's note and has no button in any line row", () => {
+    render(
+      <AgentClientInvoicePageView
+        invoice={invoice({ ...LINES, billingMonth: "2026-08-01" })}
+        currentBillingMonth="2026-10-01"
+      />,
+    );
+
+    for (const row of screen.getAllByRole("row")) {
+      expect(within(row).queryByRole("button")).not.toBeInTheDocument();
+    }
+    expect(screen.getAllByText(/Edited · computed/)).toHaveLength(2);
+  });
+});

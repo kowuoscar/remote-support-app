@@ -1,0 +1,106 @@
+{
+  "feature": "client-invoices-layout-fixes",
+  "played_at": "2026-10-15",
+  "played_on": "feature/client-invoices-layout-fixes @ 1ab4041",
+  "environment": "Isolated: Postgres container rsa-acc-pg on 15432, backend demo profile on 18080, frontend next start on 13000; a main build on 13001 for step 11; all torn down; rsa-prod untouched",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1-geometry.txt",
+      "note": ""
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2-geometry.txt",
+      "note": ""
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3-geometry.json",
+      "note": ""
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4-mark-geometry.json",
+      "note": "Name cut hard with two badges ('Solstic…'), full name in title."
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5-replay-geometry.json",
+      "note": "Replayed after the fix: at 1280 and 1366 line-list scrollWidth == clientWidth (692/692, 778/778), nothing clipped, editor on one line inside the table."
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6-keyboard-log.txt",
+      "note": ""
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7-replay-geometry.json",
+      "note": "Replayed after the fix: note left-aligned at all five widths, Edit/Reset on the right; no sideways scroll; 10/10 locators in viewport."
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8-log.txt",
+      "note": ""
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9-log.jsonl",
+      "note": ""
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-10-chromium-1440.yml",
+      "note": ""
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-11-compare.txt",
+      "note": ""
+    },
+    {
+      "step": 12,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-12-replay-verify.txt",
+      "note": "Replayed after the fix: verify exit 0 on the first run (vitest 494, e2e 106 in 4.9m). DESIGN.md diff and visual suite (114/114, four goldens) from the first play."
+    },
+    {
+      "step": 13,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 14,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    }
+  ]
+}

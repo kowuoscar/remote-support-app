@@ -1,0 +1,100 @@
+1440px chromium: {
+ "buttons": [
+  {
+   "name": "Edit",
+   "insideRow": true,
+   "rowTable": "table",
+   "describedBy": "SIM +1-555-0201"
+  },
+  {
+   "name": "Reset",
+   "insideRow": true,
+   "rowTable": "table",
+   "describedBy": "SIM +1-555-0201"
+  },
+  {
+   "name": "Edit",
+   "insideRow": true,
+   "rowTable": "table",
+   "describedBy": "SIM +1-555-0202"
+  },
+  {
+   "name": "Edit",
+   "insideRow": true,
+   "rowTable": "table",
+   "describedBy": "Topup Fee, Oct 15 — Topup 25 GB data for the pilot handsets"
+  },
+  {
+   "name": "Reset",
+   "insideRow": true,
+   "rowTable": "table",
+   "describedBy": "Topup Fee, Oct 15 — Topup 25 GB data for the pilot handsets"
+  }
+ ],
+ "duplicates": [
+  "$70.50: 1",
+  "$80.00: 1",
+  "$40.00: 1",
+  "$65.00: 1",
+  "$45.00: 1",
+  "Edited · computed $65.00: 1",
+  "Edited · computed $45.00: 1",
+  "+1-555-0201: 2",
+  "+1-555-0202: 2",
+  "Topup 25 GB data for the pilot handsets: 2"
+ ],
+ "rowCount": [
+  2,
+  1
+ ]
+}
+390px chromium: {
+ "buttons": [
+  {
+   "name": "Edit",
+   "insideRow": true,
+   "rowTable": "table",
+   "describedBy": "SIM +1-555-0201"
+  },
+  {
+   "name": "Reset",
+   "insideRow": true,
+   "rowTable": "table",
+   "describedBy": "SIM +1-555-0201"
+  },
+  {
+   "name": "Edit",
+   "insideRow": true,
+   "rowTable": "table",
+   "describedBy": "SIM +1-555-0202"
+  },
+  {
+   "name": "Edit",
+   "insideRow": true,
+   "rowTable": "table",
+   "describedBy": "Topup Fee, Oct 15 — Topup 25 GB data for the pilot handsets"
+  },
+  {
+   "name": "Reset",
+   "insideRow": true,
+   "rowTable": "table",
+   "describedBy": "Topup Fee, Oct 15 — Topup 25 GB data for the pilot handsets"
+  }
+ ],
+ "duplicates": [
+  "$70.50: 1",
+  "$80.00: 1",
+  "$40.00: 1",
+  "$65.00: 1",
+  "$45.00: 1",
+  "Edited · computed $65.00: 1",
+  "Edited · computed $45.00: 1",
+  "+1-555-0201: 2",
+  "+1-555-0202: 2",
+  "Topup 25 GB data for the pilot handsets: 2"
+ ],
+ "rowCount": [
+  2,
+  1
+ ]
+}

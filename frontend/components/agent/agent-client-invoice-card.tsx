@@ -1,11 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { BilledAmount } from "@/components/ui/billed-amount";
+import { EditedLineNote } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
-import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { IconDownload, IconPaperclip } from "@/components/icons";
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
 import { EditClientInvoiceLineControl } from "@/components/agent/edit-client-invoice-line-control";
+import { LINE_AREA, LINE_WRAPPER, LineCell, LineRow, LineTable } from "@/components/agent/invoice-line-table";
 import { SendClientInvoiceControl } from "@/components/agent/send-client-invoice-control";
 import { ClientInvoiceStatusNote } from "@/components/agent/client-invoice-status-note";
 import { clientInvoiceBadge } from "@/lib/status";
@@ -35,6 +35,11 @@ function feeLabels(fees: ClientInvoiceDetail["feeLines"]): string[] {
     seen.set(label, ordinal);
     return `${label} (${ordinal} of ${total})`;
   });
+}
+
+/** Whether a line shows the "Edited · computed" note (and, on a draft, Reset). */
+function isEditedLine(line: { edited?: boolean | null; computedAmount?: number | null }): boolean {
+  return Boolean(line.edited) && line.computedAmount != null;
 }
 
 function billingMonthLabel(billingMonth: string): string {
@@ -72,7 +77,7 @@ function LineAmount({
   edited: boolean | null | undefined;
   currency: string;
 }) {
-  const isEdited = Boolean(edited) && computedAmount != null;
+  const isEdited = isEditedLine({ edited, computedAmount });
   if (editable) {
     return (
       <EditClientInvoiceLineControl
@@ -87,7 +92,18 @@ function LineAmount({
       />
     );
   }
-  return <BilledAmount amount={amount} computedAmount={computedAmount} edited={isEdited} currency={currency} />;
+  // Composed here rather than through `BilledAmount` (which the Manager's view shares) so that below
+  // `xl` the note can move into the row's own details area.
+  return (
+    <div className={LINE_WRAPPER}>
+      <Money amount={amount} currency={currency} className={LINE_AREA.amount} />
+      {isEdited ? (
+        <div className={LINE_AREA.edited}>
+          <EditedLineNote computedAmount={computedAmount ?? amount} currency={currency} />
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 /**
@@ -187,45 +203,34 @@ export function AgentClientInvoiceCard({
       {invoice.basePostpaidSims && invoice.basePostpaidSims.length > 0 ? (
         <div>
           <h3 className="mb-2 text-label font-medium text-ink-secondary">Postpaid SIM Cards</h3>
-          <TableScroll>
-            <Table>
-              <Thead>
-                <Tr>
-                  <Th>Number</Th>
-                  <Th className="text-right">Billed</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {invoice.basePostpaidSims.map((sim) => (
-                  <Tr key={sim.simCardId}>
-                    <Td className="tnum font-medium text-ink">
-                      {sim.number}
-                      {sim.cancellationEffectiveDate ? (
-                        <span className="mt-1 block text-label-sm font-normal text-ink-mute">
-                          Cancelled {formatLocalDate(sim.cancellationEffectiveDate)} — still billed through this
-                          month
-                        </span>
-                      ) : null}
-                    </Td>
-                    <Td className="text-right">
-                      {/* An edited line bills its own amount, not the SIM's monthly fee. Older fixtures omit `amount`. */}
-                      <LineAmount
-                        editable={editable}
-                        invoiceId={invoice.id}
-                        kind="POSTPAID_SIM"
-                        sourceId={sim.simCardId}
-                        label={`SIM ${sim.number}`}
-                        amount={sim.amount ?? sim.monthlyFeeAmount}
-                        computedAmount={sim.computedAmount}
-                        edited={sim.edited}
-                        currency={invoice.currency}
-                      />
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </TableScroll>
+          <LineTable columns={[{ label: "Number" }, { label: "Billed", align: "right" }]} withActions={editable}>
+            {invoice.basePostpaidSims.map((sim) => (
+              <LineRow key={sim.simCardId} edited={isEditedLine(sim)}>
+                <LineCell className="tnum font-medium">
+                  <span className={`wrap-anywhere ${LINE_AREA.what}`}>{sim.number}</span>
+                  {sim.cancellationEffectiveDate ? (
+                    <span className={`mt-1 block text-label-sm font-normal text-ink-mute ${LINE_AREA.note}`}>
+                      Cancelled {formatLocalDate(sim.cancellationEffectiveDate)} — still billed through this month
+                    </span>
+                  ) : null}
+                </LineCell>
+                <LineCell className="text-right">
+                  {/* An edited line bills its own amount, not the SIM's monthly fee. Older fixtures omit `amount`. */}
+                  <LineAmount
+                    editable={editable}
+                    invoiceId={invoice.id}
+                    kind="POSTPAID_SIM"
+                    sourceId={sim.simCardId}
+                    label={`SIM ${sim.number}`}
+                    amount={sim.amount ?? sim.monthlyFeeAmount}
+                    computedAmount={sim.computedAmount}
+                    edited={sim.edited}
+                    currency={invoice.currency}
+                  />
+                </LineCell>
+              </LineRow>
+            ))}
+          </LineTable>
         </div>
       ) : null}
 
@@ -236,40 +241,51 @@ export function AgentClientInvoiceCard({
             No Fees logged against this Contract yet this month.
           </p>
         ) : (
-          <TableScroll>
-            <Table>
-              <Thead>
-                <Tr>
-                  <Th>Type</Th>
-                  <Th>Description</Th>
-                  <Th>Logged</Th>
-                  <Th className="text-right">Billed</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {invoice.feeLines.map((fee, index) => (
-                  <Tr key={fee.id}>
-                    <Td className="font-medium text-ink">{FEE_TYPE_LABEL[fee.feeType]}</Td>
-                    <Td className="text-ink-secondary">{fee.description ?? "—"}</Td>
-                    <Td className="whitespace-nowrap text-ink-mute">{formatDateShort(fee.createdAt)}</Td>
-                    <Td className="text-right">
-                      <LineAmount
-                        editable={editable}
-                        invoiceId={invoice.id}
-                        kind="FEE"
-                        sourceId={fee.id}
-                        label={feeLabelList[index]}
-                        amount={fee.amount}
-                        computedAmount={fee.computedAmount}
-                        edited={fee.edited}
-                        currency={fee.currency}
-                      />
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-          </TableScroll>
+          <LineTable
+            columns={[
+              { label: "Type" },
+              { label: "Description" },
+              { label: "Logged" },
+              { label: "Billed", align: "right" },
+            ]}
+            withActions={editable}
+          >
+            {invoice.feeLines.map((fee, index) => (
+              <LineRow key={fee.id} edited={isEditedLine(fee)}>
+                <LineCell className="font-medium">
+                  <span className={`wrap-anywhere ${LINE_AREA.what}`}>{FEE_TYPE_LABEL[fee.feeType]}</span>
+                </LineCell>
+                <LineCell className="text-ink-secondary">
+                  {/* The dash is for the table's Description column; below `xl` a missing description has no area at all. */}
+                  {fee.description ? (
+                    <span className={`wrap-anywhere ${LINE_AREA.desc}`}>{fee.description}</span>
+                  ) : (
+                    <span className="max-xl:hidden">—</span>
+                  )}
+                </LineCell>
+                <LineCell className="whitespace-nowrap text-ink-mute max-xl:text-label-sm">
+                  {/* The column header names the date at `xl`; below it the headers are hidden, so the row says "Logged". */}
+                  <span className={LINE_AREA.note}>
+                    <span className="xl:hidden">Logged </span>
+                    {formatDateShort(fee.createdAt)}
+                  </span>
+                </LineCell>
+                <LineCell className="text-right">
+                  <LineAmount
+                    editable={editable}
+                    invoiceId={invoice.id}
+                    kind="FEE"
+                    sourceId={fee.id}
+                    label={feeLabelList[index]}
+                    amount={fee.amount}
+                    computedAmount={fee.computedAmount}
+                    edited={fee.edited}
+                    currency={fee.currency}
+                  />
+                </LineCell>
+              </LineRow>
+            ))}
+          </LineTable>
         )}
       </div>
 

@@ -51,7 +51,6 @@ export function ContractSideList({
     if (rowBox.bottom > navBox.bottom) nav.scrollTop += rowBox.bottom - navBox.bottom;
     else if (rowBox.top < navBox.top) nav.scrollTop -= navBox.top - rowBox.top;
     // Arrival only: a later pick is of a row the Agent can already see.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function onClick(event: MouseEvent<HTMLAnchorElement>, id: string) {
@@ -78,27 +77,44 @@ export function ContractSideList({
                 aria-current={selected ? "true" : undefined}
                 onClick={(event) => onClick(event, contract.id)}
                 className={cn(
-                  "flex flex-col gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  // Two columns: the name takes the free width, the badges size to themselves. DOM order
+                  // stays name, Country, status, mark (the link's accessible name); the grid places them.
+                  "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   selected ? "bg-primary-soft-bg text-primary-soft-text" : "text-ink-secondary hover:bg-canvas-soft",
                 )}
               >
-                <span className="line-clamp-2 min-w-0 break-words" title={contract.clientName}>
+                <span className="col-start-1 row-start-1 truncate" title={contract.clientName}>
                   {contract.clientName}
                 </span>
-                {" "}
-                {shared || contract.status || contract.sentBackMark ? (
-                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    {shared ? <span className="text-label-sm text-ink-mute">{contract.countryLabel}</span> : null}
-                    {shared && (contract.status || contract.sentBackMark) ? " " : null}
-                    {contract.status ? <Badge tone={contract.status.tone}>{contract.status.label}</Badge> : null}
-                    {contract.status && contract.sentBackMark ? " " : null}
-                    {contract.sentBackMark ? (
-                      <Badge tone={sentBackBadge.tone} dot={false}>
-                        <IconAlertTriangle className="h-3 w-3 shrink-0" />
-                        {sentBackBadge.label}
-                      </Badge>
-                    ) : null}
-                  </span>
+                {shared ? (
+                  <>
+                    {" "}
+                    <span className="col-start-1 row-start-2 truncate text-label-sm text-ink-mute">
+                      {contract.countryLabel}
+                    </span>
+                  </>
+                ) : null}
+                {contract.status ? (
+                  <>
+                    {" "}
+                    <Badge tone={contract.status.tone} className="col-start-2 row-start-1 justify-self-end">
+                      {contract.status.label}
+                    </Badge>
+                  </>
+                ) : null}
+                {contract.sentBackMark ? (
+                  <>
+                    {" "}
+                    <Badge
+                      tone={sentBackBadge.tone}
+                      dot={false}
+                      // Under the status when there is one; in its place on line 1 when there is none.
+                      className={cn("col-start-2 justify-self-end", contract.status ? "row-start-2" : "row-start-1")}
+                    >
+                      <IconAlertTriangle className="h-3 w-3 shrink-0" />
+                      {sentBackBadge.label}
+                    </Badge>
+                  </>
                 ) : null}
               </Link>
             </li>

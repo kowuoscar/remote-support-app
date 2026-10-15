@@ -32,6 +32,16 @@ const ROLES = {
     invoices: true,
     failingInvoiceContract: "22222222-0000-0000-0000-0000000000d2",
   },
+  // side-list-row-one-line: the same failing invoice, but the earlier sent-back invoice of that
+  // Contract stays listed, so its row carries the "Sent back" mark with no status badge.
+  "visual-agent-invoice-failed-marked-session": {
+    username: "agent@example.com",
+    role: "AGENT",
+    country: "UNITED_STATES",
+    invoices: true,
+    failingInvoiceContract: "22222222-0000-0000-0000-0000000000d2",
+    keepSentBackMark: true,
+  },
   // real-agent-dashboard: an Agent login that is linked to no Agent record (GET /api/me/agent is
   // 404), and one whose identity read fails outright (500). Not captured as goldens; the
   // not-linked and page-level failure states are asserted in surfaces.spec.ts.
@@ -314,16 +324,29 @@ const INVOICE_STATES = [
   { status: "APPROVED", sentAt: "2026-09-10T10:00:00Z", approvedAt: "2026-09-11T10:00:00Z" },
   { status: "DRAFT", sentBackAt: "2026-09-12T10:00:00Z", sentBackReason: "The roaming Fee is missing its receipt." },
 ];
+// invoice-lines-layout: the first Contract's draft (Aurora, the page's first selection) carries the
+// five line shapes the Agent's Client Invoice lays out: a plain, an edited and a cancelled Postpaid
+// SIM, a Fee with a description and an edited Fee with none. Base 25 + 30 + 25 = 80, Fees 10 + 8 = 18.
+const SIM_LINES = [
+  { simCardId: "66666666-0000-0000-0000-0000000000a1", number: "+44 7700 900123", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 25, computedAmount: 25, edited: false },
+  { simCardId: "66666666-0000-0000-0000-0000000000a2", number: "+44 7700 900456", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 30, computedAmount: 25, edited: true },
+  { simCardId: "66666666-0000-0000-0000-0000000000a3", number: "+44 7700 900789", monthlyFeeAmount: 25, cancellationEffectiveDate: "2026-09-03", amount: 25, computedAmount: 25, edited: false },
+];
+const FEE_LINES = [
+  { id: "77777777-0000-0000-0000-0000000000a1", contractId: "22222222-0000-0000-0000-0000000000d1", requestId: "88888888-0000-0000-0000-0000000000a1", requestType: "TOPUP", feeType: "TOPUP", amount: 10, currency: "USD", description: "Customer asked for extra data", billingMonth: "2026-09-01", createdAt: "2026-09-12T10:00:00Z", computedAmount: 10, edited: false },
+  { id: "77777777-0000-0000-0000-0000000000a2", contractId: "22222222-0000-0000-0000-0000000000d1", requestId: "88888888-0000-0000-0000-0000000000a2", requestType: "TOPUP", feeType: "OTHER", amount: 8, currency: "USD", description: null, billingMonth: "2026-09-01", createdAt: "2026-09-14T10:00:00Z", computedAmount: 12, edited: true },
+];
 function clientInvoiceFor(contract) {
+  const withLines = contract.index === 0;
   return {
     id: `99999999-0000-0000-0000-0000000000${contract.id.slice(-2)}`,
     contractId: contract.id,
     billingMonth: "2026-09-01",
     currency: contract.currency,
-    baseAmount: 120 + contract.index * 10,
-    basePostpaidSims: [],
-    feeLines: [],
-    totalAmount: 120 + contract.index * 10,
+    baseAmount: withLines ? 80 : 120 + contract.index * 10,
+    basePostpaidSims: withLines ? SIM_LINES : [],
+    feeLines: withLines ? FEE_LINES : [],
+    totalAmount: withLines ? 98 : 120 + contract.index * 10,
     files: [],
     sentAt: null,
     approvedAt: null,
@@ -716,7 +739,7 @@ createServer((request, response) => {
     // "Awaiting approval" plus the "Sent back" mark; oldest first, as the API returns them.
     const sent = INVOICE_CONTRACTS[1];
     // The failing session leaves it out, so its failed row keeps pinning "no status badge" alone.
-    const earlier = caller.failingInvoiceContract ? [] : [
+    const earlier = caller.failingInvoiceContract && !caller.keepSentBackMark ? [] : [
       {
         id: "99999999-0000-0000-0000-0000000000a2",
         contractId: sent.id,

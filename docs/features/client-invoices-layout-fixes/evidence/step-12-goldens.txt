@@ -1,0 +1,8 @@
+$ git diff main --name-status -- frontend/tests/visual/__screenshots__
+M	frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-dark.png
+M	frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-light.png
+M	frontend/tests/visual/__screenshots__/agent-client-invoices-mobile-dark.png
+M	frontend/tests/visual/__screenshots__/agent-client-invoices-mobile-light.png
+
+$ git status --short after full visual run (nothing outside evidence = no golden rewritten)
+(end)

@@ -1,0 +1,29 @@
+$ git diff main --stat -- frontend/components/manager/client-invoice-detail-view.tsx frontend/components/ui/billed-amount.tsx
+(no output = no change; exit 0)
+
+$ git diff main --name-only (whole branch)
+ARCHITECTURE.md
+DESIGN.md
+docs/features/client-invoices-layout-fixes/spec.md
+docs/features/client-invoices-layout-fixes/tickets/invoice-line-actions-inline.md
+docs/features/client-invoices-layout-fixes/tickets/invoice-lines-layout.md
+docs/features/client-invoices-layout-fixes/tickets/invoice-lines-one-column-below-xl.md
+docs/features/client-invoices-layout-fixes/tickets/side-list-row-one-line.md
+docs/tech-debt.md
+frontend/components/agent/agent-client-invoice-card.tsx
+frontend/components/agent/client-invoices-view.test.tsx
+frontend/components/agent/contract-side-list.tsx
+frontend/components/agent/edit-client-invoice-line-control.test.tsx
+frontend/components/agent/edit-client-invoice-line-control.tsx
+frontend/components/agent/invoice-line-table.tsx
+frontend/tests/e2e/client-invoices-side-list.spec.ts
+frontend/tests/e2e/edit-client-invoice-lines.spec.ts
+frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-dark.png
+frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-light.png
+frontend/tests/visual/__screenshots__/agent-client-invoices-mobile-dark.png
+frontend/tests/visual/__screenshots__/agent-client-invoices-mobile-light.png
+frontend/tests/visual/client-invoices-side-list-rows.spec.ts
+frontend/tests/visual/stub-backend.mjs
+
+$ grep -n BilledAmount frontend/components/agent/agent-client-invoice-card.tsx (only mention is non-import?)
+95:  // Composed here rather than through `BilledAmount` (which the Manager's view shares) so that below

@@ -1,0 +1,169 @@
+{
+  "Postpaid SIM Cards": {
+    "headers": [
+      "NUMBER",
+      "BILLED"
+    ],
+    "rows": [
+      {
+        "row": "+1-555-0101 $70.50 Edit Reset Edited · computed $65.00",
+        "amount": "$70.50",
+        "amountBox": {
+          "x": 1060.9375,
+          "y": 730.28125,
+          "width": 49.0625,
+          "height": 20
+        },
+        "editBox": {
+          "x": 1118,
+          "y": 726.28125,
+          "width": 47.578125,
+          "height": 28
+        },
+        "resetBox": {
+          "x": 1173.578125,
+          "y": 726.28125,
+          "width": 58.9375,
+          "height": 28
+        },
+        "noteBox": {
+          "x": 1097.59375,
+          "y": 758.28125,
+          "width": 148.40625,
+          "height": 17.140625
+        },
+        "amountEditSameLine": true,
+        "resetSameLine": true,
+        "orderOk": true,
+        "noteBelow": true,
+        "noteText": "Edited · computed $65.00",
+        "amountRight": 1110
+      },
+      {
+        "row": "+1-555-0102 $80.00 Edit",
+        "amount": "$80.00",
+        "amountBox": {
+          "x": 1060.9375,
+          "y": 804.421875,
+          "width": 49.0625,
+          "height": 20
+        },
+        "editBox": {
+          "x": 1118,
+          "y": 800.421875,
+          "width": 47.578125,
+          "height": 28
+        },
+        "resetBox": null,
+        "noteBox": null,
+        "amountEditSameLine": true,
+        "resetSameLine": null,
+        "orderOk": true,
+        "noteBelow": null,
+        "noteText": null,
+        "amountRight": 1110
+      },
+      {
+        "row": "+1-555-0103 Cancelled Oct 15, 2026 — still billed through this month $60.00 Edit",
+        "amount": "$60.00",
+        "amountBox": {
+          "x": 1060.9375,
+          "y": 863.984375,
+          "width": 49.0625,
+          "height": 20
+        },
+        "editBox": {
+          "x": 1118,
+          "y": 859.984375,
+          "width": 47.578125,
+          "height": 28
+        },
+        "resetBox": null,
+        "noteBox": null,
+        "amountEditSameLine": true,
+        "resetSameLine": null,
+        "orderOk": true,
+        "noteBelow": null,
+        "noteText": null,
+        "amountRight": 1110
+      }
+    ],
+    "amountRightEdges": [
+      1110,
+      1110,
+      1110
+    ]
+  },
+  "Fee lines": {
+    "headers": [
+      "TYPE",
+      "DESCRIPTION",
+      "LOGGED",
+      "BILLED"
+    ],
+    "rows": [
+      {
+        "row": "Topup Topup 25 GB data for the pilot handsets Oct 15 $45.00 Edit",
+        "amount": "$45.00",
+        "amountBox": {
+          "x": 1060.9375,
+          "y": 1014.203125,
+          "width": 49.0625,
+          "height": 20
+        },
+        "editBox": {
+          "x": 1118,
+          "y": 1010.203125,
+          "width": 47.578125,
+          "height": 28
+        },
+        "resetBox": null,
+        "noteBox": null,
+        "amountEditSameLine": true,
+        "resetSameLine": null,
+        "orderOk": true,
+        "noteBelow": null,
+        "noteText": null,
+        "amountRight": 1110
+      },
+      {
+        "row": "Topup — Oct 15 $27.25 Edit Reset Edited · computed $30.00",
+        "amount": "$27.25",
+        "amountBox": {
+          "x": 1060.9375,
+          "y": 1067.203125,
+          "width": 49.0625,
+          "height": 20
+        },
+        "editBox": {
+          "x": 1118,
+          "y": 1063.203125,
+          "width": 47.578125,
+          "height": 28
+        },
+        "resetBox": {
+          "x": 1173.578125,
+          "y": 1063.203125,
+          "width": 58.9375,
+          "height": 28
+        },
+        "noteBox": {
+          "x": 1097.59375,
+          "y": 1095.203125,
+          "width": 148.40625,
+          "height": 17.140625
+        },
+        "amountEditSameLine": true,
+        "resetSameLine": true,
+        "orderOk": true,
+        "noteBelow": true,
+        "noteText": "Edited · computed $30.00",
+        "amountRight": 1110
+      }
+    ],
+    "amountRightEdges": [
+      1110,
+      1110
+    ]
+  }
+}

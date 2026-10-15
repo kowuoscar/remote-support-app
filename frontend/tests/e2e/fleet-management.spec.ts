@@ -1,13 +1,16 @@
 import { test, expect, type Page } from "@playwright/test";
 import {
   SEEDED_USERS,
+  addPostpaidPlanToVerizon,
+  addSimCard,
   addTester,
   createClientAndContractWithSeededAgent,
   createUnrelatedContract,
   login,
   logout,
   readRevealedPasswordAndClose,
-  selectContractInSwitcher,
+  fleetTab,
+  selectInSideList,
 } from "./helpers";
 
 /**
@@ -78,8 +81,9 @@ test.describe("fleet management", () => {
     await expect(page).toHaveURL(/\/agent$/);
 
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
 
+    await fleetTab(page, "Smartphones");
     await expect(page.getByRole("row", { name: /Pixel 8/ })).toBeVisible();
     await expect(page.getByRole("row", { name: /Pixel 8/ })).toContainText("Active");
 
@@ -101,6 +105,7 @@ test.describe("fleet management", () => {
     await expect(smartphoneStatusSelect).toBeEnabled();
 
     // Same regression check for the SIM Card toggle button: retire, then reactivate.
+    await fleetTab(page, "SIM Cards");
     const simCardRow = page.getByRole("row", { name: new RegExp(`\\+1-555-agent-${RUN_ID}`) });
     await expect(simCardRow).toContainText("Active");
 
@@ -133,7 +138,6 @@ test.describe("fleet management", () => {
     await expect(page).toHaveURL(/\/client$/);
 
     await page.goto("/client/fleet");
-    await selectContractInSwitcher(page, clientName);
     await expect(page.getByRole("cell").filter({ hasText: `+34-91-${RUN_ID}` })).toBeVisible();
   });
 
@@ -157,8 +161,9 @@ test.describe("fleet management", () => {
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
 
+    await fleetTab(page, "Smartphones");
     const agentRow = page.getByRole("row", { name: /iPhone 15/ });
     await expect(agentRow).toBeVisible();
     await agentRow.getByRole("button", { name: "Edit serial, iPhone 15" }).click();
@@ -195,7 +200,7 @@ test.describe("fleet management", () => {
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
 
     const simRow = page.getByRole("row", { name: new RegExp(`\\+1-555-install-${RUN_ID}`) });
     await expect(simRow).toBeVisible();
@@ -206,19 +211,18 @@ test.describe("fleet management", () => {
     // Scoped to the Smartphones table specifically: the SIM Cards table's own row for this SIM
     // now also contains "iPhone 14" text (its "Installed in" control's selected option), so an
     // unscoped role query would match both rows.
-    const smartphonesTable = page.locator("table").first();
+    const smartphonesTable = (await fleetTab(page, "Smartphones")).locator("table");
     const smartphoneRow = smartphonesTable.getByRole("row", { name: /iPhone 14/ });
     await expect(smartphoneRow).toContainText(`+1-555-install-${RUN_ID}`);
 
     await logout(page);
     await login(page, testerEmail, testerPassword);
     await page.goto("/client/fleet");
-    await selectContractInSwitcher(page, clientName);
 
     // Scoped to the SIM Cards table: the Smartphones table's own row for this Smartphone now also
     // contains the SIM Card's number (its "SIM Cards" column), so an unscoped role query would
     // match both rows.
-    const simCardsTable = page.locator("table").nth(1);
+    const simCardsTable = (await fleetTab(page, "SIM Cards")).locator("table");
     await expect(
       simCardsTable.getByRole("row", { name: new RegExp(`\\+1-555-install-${RUN_ID}`) }),
     ).toContainText("iPhone 14");
@@ -299,16 +303,16 @@ test.describe("fleet management", () => {
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
 
-    const row = page.locator("table").first().locator("tbody tr").first();
+    const row = (await fleetTab(page, "Smartphones")).locator("table").locator("tbody tr").first();
     await row.getByRole("button", { name: "Edit model, Moto G", exact: true }).click();
     await row.getByLabel("Smartphone model").fill("Moto G Power");
     await row.getByRole("button", { name: "Save" }).click();
 
     await expect(page.getByRole("row", { name: /Moto G Power/ })).toBeVisible();
     await page.reload();
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
     await expect(page.getByRole("row", { name: /Moto G Power/ })).toBeVisible();
     // The status, serial and Installed-in controls stay beside the corrections.
     await expect(page.getByRole("button", { name: /^Edit serial/ })).toHaveCount(1);
@@ -346,16 +350,16 @@ test.describe("fleet management", () => {
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
 
-    const row = page.locator("table").first().locator("tbody tr").first();
+    const row = (await fleetTab(page, "Smartphones")).locator("table").locator("tbody tr").first();
     await row.getByRole("button", { name: "Edit owner of Moto E", exact: true }).click();
     await row.getByLabel("Owner").selectOption("CLIENT");
     await row.getByRole("button", { name: "Save" }).click();
     await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
 
     await page.reload();
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
     await expect(row.getByRole("cell", { name: /^Client/ })).toBeVisible();
   });
 
@@ -394,7 +398,7 @@ test.describe("fleet management", () => {
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
 
     const row = page.locator("table").filter({ hasText: "Installed in" }).locator("tbody tr").first();
     await row.getByRole("button", { name: "Edit number, +44 7700 900300", exact: true }).click();
@@ -403,7 +407,7 @@ test.describe("fleet management", () => {
 
     await expect(page.getByRole("row", { name: /\+44 7700 900323/ })).toBeVisible();
     await page.reload();
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
     await expect(page.getByRole("row", { name: /\+44 7700 900323/ })).toBeVisible();
     await expect(page.getByLabel("Installed in")).toHaveCount(1);
   });
@@ -474,8 +478,7 @@ test.describe("fleet management", () => {
   }
 
   async function showContractOfTester(page: Page, index: number) {
-    await page.locator('[aria-haspopup="listbox"]').click();
-    await page.getByRole("option").nth(index).click();
+    await page.getByRole("navigation", { name: "Contracts" }).getByRole("link").nth(index).click();
   }
 
   test("a tester sees the four values of the smartphones with no Edit", async ({ page }) => {
@@ -495,7 +498,7 @@ test.describe("fleet management", () => {
     const seen: string[] = [];
     for (const index of [0, 1]) {
       await showContractOfTester(page, index);
-      const row = page.locator("table").first().locator("tbody tr").first();
+      const row = (await fleetTab(page, "Smartphones")).locator("table").locator("tbody tr").first();
       await expect(row.getByRole("cell", { name: /^Company/ })).toBeVisible();
       seen.push((await row.getByRole("cell").first().innerText()).trim());
       await expect(page.getByRole("button", { name: /^Edit / })).toHaveCount(0);
@@ -543,7 +546,7 @@ test.describe("fleet management", () => {
     await logout(page);
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
 
     const row = simTable(page).locator("tbody tr").first();
     await expect(row).toContainText("$65.00");
@@ -555,7 +558,7 @@ test.describe("fleet management", () => {
     await expect(row).toContainText("Unlimited Plus");
     await expect(row.getByRole("cell", { name: "$80.00" })).toBeVisible();
     await page.reload();
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
     await expect(simTable(page).locator("tbody tr").first()).toContainText("Unlimited Plus");
     await expect(simTable(page).locator("tbody tr").first().getByRole("cell", { name: "$80.00" })).toBeVisible();
 
@@ -563,5 +566,107 @@ test.describe("fleet management", () => {
     await page.setViewportSize({ width: 375, height: 800 });
     const scroller = simTable(page).locator("xpath=ancestor::div[contains(@class, 'overflow-x-auto')][1]");
     expect(await scroller.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+  });
+
+  // ui-side-lists-and-tabs: the Agent's "Clients" side list, the Fleet tabs and the cut Plan name.
+  test("the Agent browses Clients in a side list and the Fleet through tabs kept in the address", async ({ page }) => {
+    test.setTimeout(120_000);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const alpha = `Fleet Alpha ${RUN_ID}`;
+    const beta = `Fleet Beta ${RUN_ID}`;
+    const { contractId: alphaId } = await createClientAndContractWithSeededAgent(page, alpha);
+    await addSmartphone(page, "Alpha Phone");
+    const { contractId: betaId } = await createClientAndContractWithSeededAgent(page, beta);
+    await addSmartphone(page, "Beta Phone");
+    // A 60-character Plan name: the Carrier's catalog takes it, the Fleet cuts it.
+    const longPlan = `Long-${RUN_ID}-`.padEnd(60, "x");
+    expect(longPlan).toHaveLength(60);
+    await addPostpaidPlanToVerizon(page, longPlan, "70.00");
+    await addSimCard(page, alphaId, `+1-555-long-${RUN_ID}`, "Verizon", "POSTPAID", longPlan);
+
+    await logout(page);
+    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    await page.goto("/agent/fleet");
+
+    // The side list: Alpha sorts before Beta; the Switcher is not displayed at 1280.
+    const clients = page.getByRole("navigation", { name: "Clients" });
+    await expect(clients).toBeVisible();
+    await expect(page.locator('[aria-haspopup="listbox"]')).toBeHidden();
+    await selectInSideList(page, "Clients", alpha);
+    await expect(clients.getByRole("link", { name: alpha })).toHaveAttribute("aria-current", "true");
+    await expect(page).toHaveURL(new RegExp(`\\?contract=${alphaId}$`));
+
+    // A long Plan name is cut with "…", the full name in its title, and the page does not widen.
+    const planName = page.getByTitle(longPlan);
+    await expect(planName).toBeVisible();
+    expect(await planName.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
+    await expect(planName).toHaveCSS("text-overflow", "ellipsis");
+
+    // Tabs by keyboard: Tab reaches the selected tab; Right selects Smartphones with focus following.
+    const simsTab = page.getByRole("tab", { name: /^SIM Cards/ });
+    const phonesTab = page.getByRole("tab", { name: /^Smartphones/ });
+    await expect(simsTab).toHaveAttribute("aria-selected", "true");
+    await simsTab.focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(phonesTab).toHaveAttribute("aria-selected", "true");
+    await expect(phonesTab).toBeFocused();
+    await expect(page).toHaveURL(/\?contract=.+&tab=smartphones$/);
+    await expect(page.getByRole("row", { name: /Alpha Phone/ })).toBeVisible();
+    await page.keyboard.press("ArrowRight");
+    await expect(simsTab).toBeFocused();
+    await page.keyboard.press("End");
+    await expect(phonesTab).toBeFocused();
+
+    // The tab is kept across a Client pick and a reload.
+    await selectInSideList(page, "Clients", beta);
+    await expect(phonesTab).toHaveAttribute("aria-selected", "true");
+    await expect(page.getByRole("row", { name: /Beta Phone/ })).toBeVisible();
+    await expect(page).toHaveURL(new RegExp(`contract=${betaId}`));
+    await page.reload();
+    await expect(clients.getByRole("link", { name: beta })).toHaveAttribute("aria-current", "true");
+    await expect(page.getByRole("tab", { name: /^Smartphones/ })).toHaveAttribute("aria-selected", "true");
+
+    // A Contract that is not the Agent's opens on the first Client, silently.
+    await page.goto("/agent/fleet?contract=00000000-0000-0000-0000-000000000000");
+    await expect(clients.getByRole("link").first()).toHaveAttribute("aria-current", "true");
+
+    // Phone: the Switcher replaces the column and nothing scrolls sideways.
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(clients).toBeHidden();
+    await expect(page.locator('[aria-haspopup="listbox"]')).toBeVisible();
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollWidth === window.innerWidth))
+      .toBe(true);
+  });
+
+  test("a Tester with two Contracts gets a Contracts side list, with Submit Request kept at the top", async ({
+    page,
+  }) => {
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const clientName = `Tester Side List ${RUN_ID}`;
+    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    await addSecondContract(page, clientName, contractId);
+    const testerEmail = `side.list.tester+${RUN_ID}@typo.example`;
+    const testerPassword = await addTester(page, clientId, testerEmail);
+
+    await logout(page);
+    await login(page, testerEmail, testerPassword);
+    await page.goto("/client/fleet");
+
+    const contracts = page.getByRole("navigation", { name: "Contracts" });
+    await expect(contracts.getByRole("link")).toHaveCount(2);
+    await expect(contracts.getByRole("link").first()).toHaveAttribute("aria-current", "true");
+    await expect(page.getByRole("button", { name: "Submit Request" })).toBeVisible();
+    await contracts.getByRole("link").nth(1).click();
+    await expect(contracts.getByRole("link").nth(1)).toHaveAttribute("aria-current", "true");
+    await expect(page).toHaveURL(/\/client\/fleet\?contract=.+/);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(contracts).toBeHidden();
+    await expect(page.locator('[aria-haspopup="listbox"]')).toBeVisible();
+    await expect(page.getByRole("button", { name: "Submit Request" })).toBeVisible();
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.scrollWidth === window.innerWidth))
+      .toBe(true);
   });
 });

@@ -257,10 +257,23 @@ export async function addFleetForRebootAndTopup(
   return { smartphoneOptionLabel: `Pixel 9 — ${serial}`, simCardOptionLabel: `${number} — Verizon` };
 }
 
-/** Scopes to the SIM Cards table specifically — a Smartphone's own row also shows an installed
- * SIM's number, in its own "SIM Cards" column (sim-installed-in-smartphone ticket). */
+/**
+ * Scopes to the SIM Cards table specifically — a Smartphone's own row also shows an installed SIM's
+ * number, in its own "SIM Cards" column (sim-installed-in-smartphone ticket). On the Fleet tabs
+ * (Agent, Tester) it is the table in the SIM Cards panel; the Manager's Contract page, which has no
+ * tabs yet, is read by its "SIM Cards" heading.
+ */
 export function simCardsTable(page: Page) {
-  return page.getByRole("heading", { name: "SIM Cards" }).locator("xpath=following::table[1]");
+  return page
+    .getByRole("tabpanel", { name: /^SIM Cards/ })
+    .locator("table")
+    .or(page.getByRole("heading", { name: "SIM Cards" }).locator("xpath=following::table[1]"));
+}
+
+/** Selects a Fleet tab ("SIM Cards" or "Smartphones") and returns its panel; only the selected panel is rendered. */
+export async function fleetTab(page: Page, name: "SIM Cards" | "Smartphones") {
+  await page.getByRole("tablist", { name: "Fleet" }).getByRole("tab", { name: new RegExp(`^${name}`) }).click();
+  return page.getByRole("tabpanel", { name: new RegExp(`^${name}`) });
 }
 
 /** Sets a SIM Card's Installed-in Smartphone from the Manager's Contract Fleet view. */

@@ -7,6 +7,7 @@ import {
   logout,
   pendingRequestRow,
   selectContractInSwitcher,
+  selectInSideList,
   submitRequestAsTester,
 } from "./helpers";
 
@@ -96,7 +97,7 @@ test.describe("manager approves requests", () => {
     await expect(agentRow).toContainText("Completed");
 
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
     await expect(page.getByRole("row", { name: new RegExp(number.replace(/\+/g, "\\+")) })).toContainText(
       "Verizon",
     );

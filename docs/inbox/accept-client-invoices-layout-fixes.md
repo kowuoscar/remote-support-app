@@ -1,7 +1,7 @@
 ---
 id: accept-client-invoices-layout-fixes
 type: acceptance
-status: open
+status: answered
 blocks: []
 created: 2026-10-15
 ---
@@ -47,3 +47,5 @@ Three acceptances are pending, which is the limit, so no new feature starts.
 The delivery speed-ups you agreed to come next.
 
 ## Answer
+
+Accept. (2026-10-15)

@@ -1,7 +1,7 @@
 ---
 id: accept-real-manager-dashboard
 type: acceptance
-status: open
+status: answered
 blocks: []
 created: 2026-10-14
 ---
@@ -39,3 +39,5 @@ Nothing.
 Implementation is paused at your request.
 
 ## Answer
+
+Accept. (2026-10-15)

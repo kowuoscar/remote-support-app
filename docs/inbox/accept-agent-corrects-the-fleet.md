@@ -1,7 +1,7 @@
 ---
 id: accept-agent-corrects-the-fleet
 type: acceptance
-status: open
+status: answered
 blocks: []
 created: 2026-10-15
 ---
@@ -39,3 +39,5 @@ Nothing.
 `client-invoices-layout-fixes` is built next.
 
 ## Answer
+
+Accept. (2026-10-15)

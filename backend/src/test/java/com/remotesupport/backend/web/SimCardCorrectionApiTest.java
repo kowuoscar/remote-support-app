@@ -13,6 +13,7 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import com.remotesupport.backend.domain.ClientInvoice;
@@ -117,27 +118,96 @@ class SimCardCorrectionApiTest extends IntegrationTest {
   }
 
   @Test
-  void anyTesterOfTheContractsClientCorrectsTheNumberPrimaryContactOrNot() throws Exception {
+  void aTesterOfTheContractsClientIsRefusedTheNumberPrimaryContactOrNotAndItIsUnchanged() throws Exception {
     String plain = createTesterAndLogin(managerToken, clientId, "plain." + UUID.randomUUID() + "@simcorr.example");
-    correct(contractId, simCardId, plain, "+1 111")
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.number").value("+1 111"));
-    fleetShowsNumber(plain, "+1 111");
+    correct(contractId, simCardId, plain, "+1 111").andExpect(status().isForbidden());
 
     String primary = primaryContactToken();
-    correct(contractId, simCardId, primary, "+1 222").andExpect(status().isOk());
-    fleetShowsNumber(primary, "+1 222");
+    correct(contractId, simCardId, primary, "+1 222").andExpect(status().isForbidden());
+    fleetShowsNumber(managerToken, ORIGINAL);
   }
 
   @Test
-  void aTesterOfAnotherClientAndAnyAgentAreRefused() throws Exception {
+  void aTesterOfAnotherClientIsRefusedAndAnAgentOnAnotherAgentsContractToo() throws Exception {
     UUID otherClient = createClient(managerToken, "Other Sim Corrections Client " + UUID.randomUUID());
     String stranger =
         createTesterAndLogin(managerToken, otherClient, "stranger." + UUID.randomUUID() + "@simcorr.example");
 
     correct(contractId, simCardId, stranger, "Hacked").andExpect(status().isForbidden());
-    correct(contractId, simCardId, agentToken(), "Hacked").andExpect(status().isForbidden());
+    UUID otherContract =
+        createContract(managerToken, clientId, createAgent(managerToken, "Other Agent", Country.FRANCE));
+    UUID otherSim = createTopupTargetSimCard(managerToken, otherContract);
+    correct(otherContract, otherSim, agentToken(), "Hacked").andExpect(status().isForbidden());
     fleetShowsNumber(managerToken, ORIGINAL);
+  }
+
+  @Test
+  void theContractsOwnAgentCorrectsTheNumberAndTheFleetShowsIt() throws Exception {
+    correct(contractId, simCardId, agentToken(), " +44 7700 900777 ")
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.number").value("+44 7700 900777"));
+
+    fleetShowsNumber(agentToken(), "+44 7700 900777");
+  }
+
+  @Test
+  void aSimInTheAgentsOwnStockSentUnderTheirContractsPathIs404AndUnchanged() throws Exception {
+    UUID inStock = addPrepaidSim("+44 7700 900555");
+    returnToAgentStock(inStock);
+
+    correct(contractId, inStock, agentToken(), "Hacked").andExpect(status().isNotFound());
+    mockMvc
+        .perform(get("/api/stock").header("Authorization", "Bearer " + agentToken()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[?(@.id=='%s')].number".formatted(inStock)).value("+44 7700 900555"));
+  }
+
+  private void returnToAgentStock(UUID sim) throws Exception {
+    String tester = createTesterAndLogin(managerToken, clientId, "stock." + UUID.randomUUID() + "@simcorr.example");
+    JsonNode body =
+        objectMapper.readTree(
+            postRequest(contractId, tester, "{\"type\":\"RETURN\",\"returnedSimCardIds\":[\"%s\"]}".formatted(sim))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString());
+    UUID returnId = UUID.fromString(body.get("id").asText());
+    String unitId = body.get("returnedUnits").get(0).get("id").asText();
+    mockMvc
+        .perform(
+            post("/api/requests/" + returnId + "/approve")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content(
+                    "{\"dispositions\":[{\"returnedUnitId\":\"%s\",\"disposition\":\"KEPT_IN_STOCK\"}]}"
+                        .formatted(unitId)))
+        .andExpect(status().isOk());
+    patchStatus(contractId, returnId, agentToken(), "{\"status\":\"IN_PROGRESS\"}").andExpect(status().isOk());
+    patchStatus(contractId, returnId, agentToken(), "{\"status\":\"COMPLETED\"}").andExpect(status().isOk());
+  }
+
+  @Test
+  void anAgentsNumberCorrectionLogsOneEventWithRoleAgentAndANoOpLogsNone() throws Exception {
+    ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    appender.start();
+    Logger audit = (Logger) LoggerFactory.getLogger("AUDIT");
+    audit.addAppender(appender);
+    try {
+      correct(contractId, simCardId, agentToken(), ORIGINAL).andExpect(status().isOk());
+      assertThat(corrections(appender)).isEmpty();
+
+      correct(contractId, simCardId, agentToken(), "+44 7700 900888").andExpect(status().isOk());
+      assertThat(corrections(appender))
+          .singleElement()
+          .satisfies(
+              line ->
+                  assertThat(line)
+                      .contains("entityId=" + simCardId)
+                      .contains("contractId=" + contractId)
+                      .contains("role=AGENT"));
+    } finally {
+      audit.detachAppender(appender);
+    }
   }
 
   @Test
@@ -390,7 +460,7 @@ class SimCardCorrectionApiTest extends IntegrationTest {
   }
 
   @Test
-  void aManagerAndAnyTesterOfTheClientCorrectThePlanAndTheFeeFollowsThePlansPrice() throws Exception {
+  void aManagerCorrectsThePlanAndATesterOfTheClientIsRefusedAndTheFeeFollowsThePlansPrice() throws Exception {
     PostpaidSim sim = addPostpaidSim("+1-555-0801", "30.00");
     UUID cheaper = createPostpaidPlan(managerToken, sim.carrierId(), "Lite", "12.50");
     UUID dearer = createPostpaidPlan(managerToken, sim.carrierId(), "Max", "45.00");
@@ -402,21 +472,23 @@ class SimCardCorrectionApiTest extends IntegrationTest {
     fleetShowsPlan(sim.simId(), cheaper, "12.50");
 
     String tester = createTesterAndLogin(managerToken, clientId, "plan." + UUID.randomUUID() + "@simcorr.example");
-    correctPlan(contractId, sim.simId(), tester, dearer)
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.monthlyFeeAmount").value(45.00));
-    fleetShowsPlan(sim.simId(), dearer, "45.00");
+    correctPlan(contractId, sim.simId(), tester, dearer).andExpect(status().isForbidden());
+    fleetShowsPlan(sim.simId(), cheaper, "12.50");
   }
 
   @Test
-  void aTesterOfAnotherClientAndAnyAgentAreRefusedNoTokenIs401AndAnotherTenantIs404() throws Exception {
+  void aTesterOfAnotherClientAndAnAgentOfAnotherContractAreRefusedNoTokenIs401AndAnotherTenantIs404()
+      throws Exception {
     PostpaidSim sim = addPostpaidSim("+1-555-0802", "30.00");
     UUID other = createPostpaidPlan(managerToken, sim.carrierId(), "Other", "9.00");
     UUID otherClient = createClient(managerToken, "Other Plan Client " + UUID.randomUUID());
     String stranger = createTesterAndLogin(managerToken, otherClient, "s." + UUID.randomUUID() + "@simcorr.example");
 
     correctPlan(contractId, sim.simId(), stranger, other).andExpect(status().isForbidden());
-    correctPlan(contractId, sim.simId(), agentToken(), other).andExpect(status().isForbidden());
+    UUID otherContract =
+        createContract(managerToken, clientId, createAgent(managerToken, "Other Agent", Country.FRANCE));
+    UUID otherSim = createTopupTargetSimCard(managerToken, otherContract);
+    correctPlan(otherContract, otherSim, agentToken(), other).andExpect(status().isForbidden());
     correctPlan(contractId, sim.simId(), null, other).andExpect(status().isUnauthorized());
     OtherTenantFixture.ContractWithSmartphone foreign = otherTenantFixture.smartphoneOnContractInAnotherTenant();
     correctPlan(foreign.contractId(), UUID.randomUUID(), managerToken, other).andExpect(status().isNotFound());
@@ -556,6 +628,30 @@ class SimCardCorrectionApiTest extends IntegrationTest {
 
     assertThat(agentClientInvoice().get("baseAmount").asDouble()).isEqualTo(42.00);
     assertThat(agentClientInvoice().get("basePostpaidSims").get(0).get("amount").asDouble()).isEqualTo(42.00);
+    assertThat(fees()).isEqualTo(feesBefore + 12.00);
+  }
+
+  @Test
+  void anAgentsPlanCorrectionMovesTheDraftsLogsRoleAgentAndShowsInTheFleet() throws Exception {
+    PostpaidSim sim = addPostpaidSim("+1-555-0812", "30.00");
+    UUID plan = createPostpaidPlan(managerToken, sim.carrierId(), "Agent picks", "42.00");
+    double feesBefore = fees();
+    ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    appender.start();
+    Logger audit = (Logger) LoggerFactory.getLogger("AUDIT");
+    audit.addAppender(appender);
+    try {
+      correctPlan(contractId, sim.simId(), agentToken(), plan)
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.monthlyFeeAmount").value(42.00));
+      correctPlan(contractId, sim.simId(), agentToken(), plan).andExpect(status().isOk());
+      assertThat(planCorrections(appender)).singleElement().satisfies(line -> assertThat(line).contains("role=AGENT"));
+    } finally {
+      audit.detachAppender(appender);
+    }
+
+    fleetShowsPlan(sim.simId(), plan, "42.00");
+    assertThat(agentClientInvoice().get("baseAmount").asDouble()).isEqualTo(42.00);
     assertThat(fees()).isEqualTo(feesBefore + 12.00);
   }
 

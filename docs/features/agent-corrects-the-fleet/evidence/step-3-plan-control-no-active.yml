@@ -1,0 +1,218 @@
+- generic [active] [ref=f9e1]:
+  - generic [ref=f9e2]:
+    - complementary [ref=f9e3]:
+      - generic [ref=f9e4]:
+        - generic [ref=f9e5]: "N"
+        - generic [ref=f9e6]:
+          - paragraph [ref=f9e7]: Northwind Field Services
+          - paragraph [ref=f9e8]: Agent Console
+      - navigation [ref=f9e9]:
+        - link "Dashboard" [ref=f9e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f9e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f9e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f9e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f9e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f9e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f9e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f9e43]:
+      - banner [ref=f9e44]:
+        - generic [ref=f9e46]:
+          - heading "Fleet" [level=1] [ref=f9e47]
+          - paragraph [ref=f9e48]: Scoped to one Contract at a time
+        - generic [ref=f9e49]:
+          - button "priya.shah@example.com · Agent" [ref=f9e51]:
+            - generic [ref=f9e52]: priya.shah@example.com
+            - generic [ref=f9e53]: · Agent
+          - button "Switch to dark theme" [ref=f9e54]
+      - main [ref=f9e58]:
+        - generic [ref=f9e60]:
+          - generic "Solstice Retail Group — United Kingdom" [ref=f9e66]
+          - generic [ref=f9e67]:
+            - generic [ref=f9e68]:
+              - heading "Smartphones" [level=2] [ref=f9e71]
+              - generic [ref=f9e72]: "5"
+            - table [ref=f9e74]:
+              - rowgroup [ref=f9e75]:
+                - row [ref=f9e76]:
+                  - columnheader "Model" [ref=f9e77]
+                  - columnheader "Serial" [ref=f9e78]
+                  - columnheader "Owner" [ref=f9e79]
+                  - columnheader "SIM Cards" [ref=f9e80]
+                  - columnheader "Status" [ref=f9e81]
+                  - columnheader "Change status" [ref=f9e82]
+              - rowgroup [ref=f9e83]:
+                - row [ref=f9e84]:
+                  - cell "iPhone 14 Edit model, iPhone 14" [ref=f9e85]:
+                    - generic [ref=f9e86]:
+                      - generic [ref=f9e87]: iPhone 14
+                      - button "Edit model, iPhone 14" [ref=f9e88]: Edit
+                  - cell "IP14-UK-2201 Edit serial, IP14-UK-2201" [ref=f9e89]:
+                    - generic [ref=f9e90]:
+                      - generic [ref=f9e91]: IP14-UK-2201
+                      - button "Edit serial, IP14-UK-2201" [ref=f9e92]: Edit
+                  - cell "Company Edit owner of iPhone 14" [ref=f9e93]:
+                    - generic [ref=f9e94]:
+                      - generic [ref=f9e95]: Company
+                      - button "Edit owner of iPhone 14" [ref=f9e96]: Edit
+                  - cell "+44 7700 900123" [ref=f9e97]
+                  - cell "Active" [ref=f9e98]
+                  - cell [ref=f9e101]:
+                    - combobox "Change smartphone status" [ref=f9e103]:
+                      - option "Change status…" [selected]
+                      - option "In Repair"
+                      - option "Retired"
+                - row [ref=f9e104]:
+                  - cell "Moto G Power Edit model, Moto G Power" [ref=f9e105]:
+                    - generic [ref=f9e106]:
+                      - generic [ref=f9e107]: Moto G Power
+                      - button "Edit model, Moto G Power" [ref=f9e108]: Edit
+                  - cell "MGP-UK-1180 Edit serial, MGP-UK-1180" [ref=f9e109]:
+                    - generic [ref=f9e110]:
+                      - generic [ref=f9e111]: MGP-UK-1180
+                      - button "Edit serial, MGP-UK-1180" [ref=f9e112]: Edit
+                  - cell "Client Edit owner of Moto G Power" [ref=f9e113]:
+                    - generic [ref=f9e114]:
+                      - generic [ref=f9e115]: Client
+                      - button "Edit owner of Moto G Power" [ref=f9e116]: Edit
+                  - cell "—" [ref=f9e117]
+                  - cell "Retired" [ref=f9e118]
+                  - cell "No further changes" [ref=f9e121]
+                - row [ref=f9e122]:
+                  - cell "iPhone SE Spare Edit model, iPhone SE Spare" [ref=f9e123]:
+                    - generic [ref=f9e124]:
+                      - generic [ref=f9e125]: iPhone SE Spare
+                      - button "Edit model, iPhone SE Spare" [ref=f9e126]: Edit
+                  - cell "SE-UK-4471 Edit serial, SE-UK-4471" [ref=f9e127]:
+                    - generic [ref=f9e128]:
+                      - generic [ref=f9e129]: SE-UK-4471
+                      - button "Edit serial, SE-UK-4471" [ref=f9e130]: Edit
+                  - cell "Company Edit owner of iPhone SE Spare" [ref=f9e131]:
+                    - generic [ref=f9e132]:
+                      - generic [ref=f9e133]: Company
+                      - button "Edit owner of iPhone SE Spare" [ref=f9e134]: Edit
+                  - cell "—" [ref=f9e135]
+                  - cell "Retired" [ref=f9e136]
+                  - cell "No further changes" [ref=f9e139]
+                - row [ref=f9e140]:
+                  - cell "iPhone 12 Edit model, iPhone 12" [ref=f9e141]:
+                    - generic [ref=f9e142]:
+                      - generic [ref=f9e143]: iPhone 12
+                      - button "Edit model, iPhone 12" [ref=f9e144]: Edit
+                  - cell "IP12-UK-0092 Edit serial, IP12-UK-0092" [ref=f9e145]:
+                    - generic [ref=f9e146]:
+                      - generic [ref=f9e147]: IP12-UK-0092
+                      - button "Edit serial, IP12-UK-0092" [ref=f9e148]: Edit
+                  - cell "Company Edit owner of iPhone 12" [ref=f9e149]:
+                    - generic [ref=f9e150]:
+                      - generic [ref=f9e151]: Company
+                      - button "Edit owner of iPhone 12" [ref=f9e152]: Edit
+                  - cell "—" [ref=f9e153]
+                  - cell "Retired" [ref=f9e154]
+                  - cell "No further changes" [ref=f9e157]
+                - row [ref=f9e158]:
+                  - cell "iPhone 12 Edit model, iPhone 12" [ref=f9e159]:
+                    - generic [ref=f9e160]:
+                      - generic [ref=f9e161]: iPhone 12
+                      - button "Edit model, iPhone 12" [ref=f9e162]: Edit
+                  - cell "— Edit serial, iPhone 12" [ref=f9e163]:
+                    - generic [ref=f9e164]:
+                      - generic [ref=f9e165]: —
+                      - button "Edit serial, iPhone 12" [ref=f9e166]: Edit
+                  - cell "Company Edit owner of iPhone 12" [ref=f9e167]:
+                    - generic [ref=f9e168]:
+                      - generic [ref=f9e169]: Company
+                      - button "Edit owner of iPhone 12" [ref=f9e170]: Edit
+                  - cell "+44-7700-900103" [ref=f9e171]
+                  - cell "Active" [ref=f9e172]
+                  - cell [ref=f9e175]:
+                    - combobox "Change smartphone status" [ref=f9e177]:
+                      - option "Change status…" [selected]
+                      - option "In Repair"
+                      - option "Retired"
+          - generic [ref=f9e178]:
+            - generic [ref=f9e179]:
+              - heading "SIM Cards" [level=2] [ref=f9e183]
+              - generic [ref=f9e184]: "3"
+            - table [ref=f9e186]:
+              - rowgroup [ref=f9e187]:
+                - row [ref=f9e188]:
+                  - columnheader "Number" [ref=f9e189]
+                  - columnheader "Carrier" [ref=f9e190]
+                  - columnheader "Plan" [ref=f9e191]
+                  - columnheader "Flavor" [ref=f9e192]
+                  - columnheader "Monthly fee" [ref=f9e193]
+                  - columnheader "Status" [ref=f9e194]
+                  - columnheader "Installed in" [ref=f9e195]
+                  - columnheader "Change status" [ref=f9e196]
+              - rowgroup [ref=f9e197]:
+                - row [ref=f9e267]:
+                  - cell "+44-7700-900101 Edit number, +44-7700-900101" [ref=f9e199]:
+                    - generic [ref=f9e200]:
+                      - generic [ref=f9e201]: +44-7700-900101
+                      - button "Edit number, +44-7700-900101" [ref=f9e202]: Edit
+                  - cell "EE" [ref=f9e203]
+                  - cell [ref=f9e268]:
+                    - generic [ref=f9e269]:
+                      - generic [ref=f9e270]:
+                        - text: Postpaid plan
+                        - paragraph [ref=f9e271]:
+                          - text: No active plan for this carrier yet.
+                          - link "Add one on the Carriers page" [ref=f9e272] [cursor=pointer]:
+                            - /url: /agent/carriers
+                      - generic [ref=f9e273]:
+                        - button "Save" [disabled] [ref=f9e274]
+                        - button "Cancel" [ref=f9e275]
+                  - cell "Postpaid" [ref=f9e214]
+                  - cell "£30.00" [ref=f9e215]
+                  - cell "Retired Cancelled Oct 15, 2026" [ref=f9e216]:
+                    - generic [ref=f9e217]: Retired
+                    - generic [ref=f9e219]: Cancelled Oct 15, 2026
+                  - cell [ref=f9e220]:
+                    - combobox "Installed in" [ref=f9e222]:
+                      - option "Not installed" [selected]
+                      - option "iPhone 14 — IP14-UK-2201"
+                      - option "iPhone 12"
+                  - cell [ref=f9e223]:
+                    - button "Reactivate" [ref=f9e225]
+                - row [ref=f9e226]:
+                  - cell "+44 7700 900123 Edit number, +44 7700 900123" [ref=f9e227]:
+                    - generic [ref=f9e228]:
+                      - generic [ref=f9e229]: +44 7700 900123
+                      - button "Edit number, +44 7700 900123" [ref=f9e230]: Edit
+                  - cell "O2" [ref=f9e231]
+                  - cell "—" [ref=f9e234]
+                  - cell "Prepaid" [ref=f9e235]
+                  - cell "—" [ref=f9e236]
+                  - cell "Active" [ref=f9e237]
+                  - cell [ref=f9e240]:
+                    - combobox "Installed in" [ref=f9e242]:
+                      - option "Not installed"
+                      - option "iPhone 14 — IP14-UK-2201" [selected]
+                      - option "iPhone 12"
+                  - cell [ref=f9e243]:
+                    - button "Retire" [ref=f9e245]
+                - row [ref=f9e246]:
+                  - cell "+44-7700-900103 Edit number, +44-7700-900103" [ref=f9e247]:
+                    - generic [ref=f9e248]:
+                      - generic [ref=f9e249]: +44-7700-900103
+                      - button "Edit number, +44-7700-900103" [ref=f9e250]: Edit
+                  - cell "EE" [ref=f9e251]
+                  - cell "—" [ref=f9e254]
+                  - cell "Prepaid" [ref=f9e255]
+                  - cell "—" [ref=f9e256]
+                  - cell "Active" [ref=f9e257]
+                  - cell [ref=f9e260]:
+                    - combobox "Installed in" [ref=f9e262]:
+                      - option "Not installed"
+                      - option "iPhone 14 — IP14-UK-2201"
+                      - option "iPhone 12" [selected]
+                  - cell [ref=f9e263]:
+                    - button "Retire" [ref=f9e265]
+  - alert [ref=f9e266]

@@ -689,6 +689,18 @@ createServer((request, response) => {
     }
     return send(response, 200, rows ? testerSimCards(0).map((sim) => ({ ...sim, contractId: AGENT_CONTRACTS[0].id })) : []);
   }
+  // agent-corrects-own-fleet ticket: the Agent's Fleet page reads each of their Contracts' Fleet.
+  // The first Contract carries the Tester fixtures' Smartphone and SIM Card rows, the second none,
+  // so the golden shows the status, serial, Installed-in and correction controls side by side.
+  const agentFleetMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/(smartphones|sim-cards)$/);
+  if (agentFleetMatch && request.method === "GET" && caller.role === "AGENT") {
+    const contractIndex = AGENT_CONTRACTS.findIndex((contract) => contract.id === agentFleetMatch[1]);
+    if (contractIndex === -1) return send(response, 403);
+    const contractId = AGENT_CONTRACTS[contractIndex].id;
+    if (contractIndex !== 0) return send(response, 200, []);
+    const rows = agentFleetMatch[2] === "smartphones" ? testerSmartphones(0) : testerSimCards(0);
+    return send(response, 200, rows.map((row) => ({ ...row, contractId })));
+  }
   // side-list-row-status: each Contract's current-month Client Invoice, and the Agent's sent-back list.
   const clientInvoiceMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/client-invoice$/);
   if (clientInvoiceMatch && request.method === "GET" && caller.invoices) {

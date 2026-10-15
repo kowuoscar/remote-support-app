@@ -175,8 +175,8 @@ public class SmartphoneController {
   }
 
   /**
-   * Corrects a Smartphone's model (correct-a-fleet-unit spec): the Manager, or a Tester of the
-   * Contract's own Client, through {@link FleetAccessGuard#requireCanCorrect}.
+   * Corrects a Smartphone's model (correct-a-fleet-unit spec): the Manager, or the Contract's own Agent,
+   * through {@link FleetAccessGuard#requireCanCorrect}.
    */
   @PatchMapping("/{smartphoneId}/model")
   public SmartphoneResponse correctModel(

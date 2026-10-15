@@ -1,7 +1,7 @@
 ---
 id: serial-edit-matches-corrections
 title: Make the serial Edit look and read like the correction Edits
-status: ready-for-agent
+status: done
 depends_on: []
 labels: [enabler, frontend, fleet]
 stories: [27]

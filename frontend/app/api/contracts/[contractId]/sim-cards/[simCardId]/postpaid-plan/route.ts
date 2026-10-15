@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { backendFetch } from "@/lib/api/backend";
 import { forwardJson } from "@/lib/api/forward-json";
 
-/** BFF proxy for a Manager or Tester correcting a Postpaid SIM Card's plan (and so its monthly fee). */
+/** BFF proxy for a Manager or Agent correcting a Postpaid SIM Card's plan (and so its monthly fee). */
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ contractId: string; simCardId: string }> },

@@ -1,0 +1,101 @@
+- generic [active] [ref=f8e1]:
+  - generic [ref=f8e2]:
+    - complementary [ref=f8e3]:
+      - generic [ref=f8e4]:
+        - generic [ref=f8e5]: "N"
+        - generic [ref=f8e6]:
+          - paragraph [ref=f8e7]: Northwind Field Services
+          - paragraph [ref=f8e8]: Agent Console
+      - navigation [ref=f8e9]:
+        - link "Dashboard" [ref=f8e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f8e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f8e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f8e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f8e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f8e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f8e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f8e43]:
+      - banner [ref=f8e44]:
+        - generic [ref=f8e46]:
+          - heading "Carriers" [level=1] [ref=f8e47]
+          - paragraph [ref=f8e48]: United Kingdom catalog
+        - generic [ref=f8e49]:
+          - button "priya.shah@example.com · Agent" [ref=f8e51]:
+            - generic [ref=f8e52]: priya.shah@example.com
+            - generic [ref=f8e53]: · Agent
+          - button "Switch to dark theme" [ref=f8e54]
+      - main [ref=f8e58]:
+        - generic [ref=f8e60]:
+          - generic [ref=f8e61]:
+            - generic [ref=f8e63]:
+              - checkbox "Show archived (5)" [ref=f8e167]
+              - text: Show archived
+              - generic [ref=f8e65]: (5)
+            - generic [ref=f8e66]:
+              - generic [ref=f8e67]: 2 active
+              - button "Add carrier" [ref=f8e68]
+          - generic [ref=f8e71]:
+            - generic [ref=f8e72]:
+              - heading "United Kingdom" [level=2] [ref=f8e73]
+              - paragraph [ref=f8e74]: Prices in GBP · shared by every agent in United Kingdom
+            - list "Carriers" [ref=f8e75]:
+              - listitem [ref=f8e76]:
+                - generic [ref=f8e77]:
+                  - heading "EE" [level=3] [ref=f8e86]
+                  - generic [ref=f8e87]:
+                    - button "Rename EE" [ref=f8e88]: Rename
+                    - button "Archive EE" [ref=f8e89]: Archive
+                - generic [ref=f8e90]:
+                  - region [ref=f8e91]:
+                    - generic [ref=f8e92]:
+                      - heading "Topup options" [level=4] [ref=f8e93]
+                      - button "Add a topup option to EE" [ref=f8e94]: Add
+                    - list "EE topup options" [ref=f8e97]:
+                      - listitem [ref=f8e98]:
+                        - generic [ref=f8e99]: Boost 10
+                        - generic [ref=f8e100]: £10.00
+                        - generic [ref=f8e101]:
+                          - button "Edit Boost 10" [ref=f8e102]: Edit
+                          - button "Archive Boost 10" [ref=f8e103]: Archive
+                  - region [ref=f8e104]:
+                    - generic [ref=f8e105]:
+                      - heading "Postpaid plans" [level=4] [ref=f8e106]
+                      - button "Add a postpaid plan to EE" [ref=f8e107]: Add
+                    - paragraph [ref=f8e168]: No postpaid plans yet.
+              - listitem [ref=f8e117]:
+                - generic [ref=f8e118]:
+                  - heading "O2" [level=3] [ref=f8e127]
+                  - generic [ref=f8e128]:
+                    - button "Rename O2" [ref=f8e129]: Rename
+                    - button "Archive O2" [ref=f8e130]: Archive
+                - generic [ref=f8e131]:
+                  - region [ref=f8e132]:
+                    - generic [ref=f8e133]:
+                      - heading "Topup options" [level=4] [ref=f8e134]
+                      - button "Add a topup option to O2" [ref=f8e135]: Add
+                    - list "O2 topup options" [ref=f8e138]:
+                      - listitem [ref=f8e139]:
+                        - generic [ref=f8e140]: Data Topup
+                        - generic [ref=f8e141]: £8.00
+                        - generic [ref=f8e142]:
+                          - button "Edit Data Topup" [ref=f8e143]: Edit
+                          - button "Archive Data Topup" [ref=f8e144]: Archive
+                  - region [ref=f8e145]:
+                    - generic [ref=f8e146]:
+                      - heading "Postpaid plans" [level=4] [ref=f8e147]
+                      - button "Add a postpaid plan to O2" [ref=f8e148]: Add
+                    - list "O2 postpaid plans" [ref=f8e151]:
+                      - listitem [ref=f8e152]:
+                        - generic [ref=f8e153]: Essential
+                        - generic [ref=f8e154]: £18.00/mo
+                        - generic [ref=f8e155]:
+                          - button "Edit Essential" [ref=f8e156]: Edit
+                          - button "Archive Essential" [ref=f8e157]: Archive
+  - alert [ref=f8e158]

@@ -1,0 +1,8 @@
+smartphones:
+7e12d5ab-a1bc-408a-b6e4-26327d400e42 iPhone 13 CLIENT
+27b9cec8-46b4-4926-bf61-e69b67a5e496 Pixel 8 Pro CLIENT
+69db82a4-b07c-4e80-af91-34f72cb8121c Galaxy A14 COMPANY
+93742655-345a-424d-900d-5feb8e344007 OnePlus 10 COMPANY
+538e51b3-b6dc-4257-800a-2ed3ebbd1abd Moto Edge 40 COMPANY
+provision request:
+COMPLETED requestedModel= Motorola Edge

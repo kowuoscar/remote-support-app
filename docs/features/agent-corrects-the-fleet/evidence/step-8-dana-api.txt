@@ -1,0 +1,21 @@
+PATCH smartphones/27b9cec8-46b4-4926-bf61-e69b67a5e496/model {"model":"Hack"}
+[403]
+PATCH smartphones/27b9cec8-46b4-4926-bf61-e69b67a5e496/owner {"owner":"COMPANY"}
+[403]
+PATCH sim-cards/c040f6df-af67-467b-8438-0ccb0105b53e/number {"number":"+1-HACK"}
+[403]
+PATCH sim-cards/c040f6df-af67-467b-8438-0ccb0105b53e/postpaid-plan {"postpaidPlanId":"e0000000-0000-0000-0000-000000000001"}
+[403]
+PATCH smartphones/27b9cec8-46b4-4926-bf61-e69b67a5e496/status {"status":"IN_REPAIR"}
+[403]
+PATCH smartphones/27b9cec8-46b4-4926-bf61-e69b67a5e496/serial {"serial":"HACK1"}
+[403]
+PATCH sim-cards/c040f6df-af67-467b-8438-0ccb0105b53e/status {"status":"RETIRED"}
+[403]
+PATCH sim-cards/c040f6df-af67-467b-8438-0ccb0105b53e/installed-in {"smartphoneId":null}
+[403]
+no token:
+PATCH model no token [401]
+after read (Dana):
+{'id': '27b9cec8-46b4-4926-bf61-e69b67a5e496', 'contractId': '83b00324-ca56-45f5-87b6-82151d43ed05', 'model': 'Pixel 8 Pro', 'serial': 'PX7-88210', 'owner': 'CLIENT', 'status': 'ACTIVE'}
+{'id': 'c040f6df-af67-467b-8438-0ccb0105b53e', 'contractId': '83b00324-ca56-45f5-87b6-82151d43ed05', 'number': '+1-202-555-0102', 'carrierId': 'c0000000-0000-0000-0000-000000000001', 'carrierName': 'AT&T', 'carrierArchived': False, 'flavor': 'POSTPAID', 'postpaidPlanId': 'e0000000-0000-0000-0000-000000000002', 'postpaidPlanName': 'Unlimited Premium', 'postpaidPlanArchived': False, 'monthlyFeeAmount': 85.99, 'status': 'ACTIVE', 'installedInSmartphoneId': '27b9cec8-46b4-4926-bf61-e69b67a5e496', 'installedInSmartphoneModel': 'Pixel 8 Pro'}

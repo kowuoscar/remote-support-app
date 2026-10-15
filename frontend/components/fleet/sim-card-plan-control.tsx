@@ -17,7 +17,7 @@ const PLAN_MESSAGES: Record<string, string> = {
 
 /**
  * Corrects a Postpaid SIM Card's plan from the Fleet page (correct-a-fleet-unit spec): the Manager
- * and the Client's Testers. The edit-toggle shape of `SimCardNumberControl` around the
+ * and the Contract's Agent. The edit-toggle shape of `SimCardNumberControl` around the
  * `PostpaidPlanPicker`, which shows the chosen plan's monthly fee before Save — the plan sets the
  * fee, so a misclick would move money. Only the SIM's own active Carrier's active plans are
  * offered; the table renders this control only for such a SIM. Enter on the select saves.

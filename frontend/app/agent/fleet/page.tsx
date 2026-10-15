@@ -7,6 +7,7 @@ import {
   type SimCardListItem,
   type SmartphoneListItem,
 } from "@/lib/api/types";
+import { loadActiveCarriers } from "@/lib/api/carriers";
 import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "Fleet" };
@@ -16,13 +17,16 @@ export const metadata = { title: "Fleet" };
  * Fleet of their own Contracts, filtered by Contract"). GET /api/contracts already scopes to the
  * caller's own Contracts (fleet-management ticket); every Contract's Fleet is fetched up front
  * (typically few Contracts per Agent) so the Contract switcher stays a client-side, no-refetch
- * interaction like the design-system ticket's demo version.
+ * interaction like the design-system ticket's demo version. The Carrier catalog is read once
+ * (agent-corrects-the-fleet spec): every Contract of an Agent is in the Agent's Country, so one
+ * list serves the whole switcher and the plan correction.
  */
 export default async function AgentFleetPage() {
   await requireAgent();
-  const [contracts, meResponse] = await Promise.all([
+  const [contracts, meResponse, carriers] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),
+    loadActiveCarriers(),
   ]);
   const me = meResponse.ok ? ((await meResponse.json()) as { username?: string }) : {};
 
@@ -45,6 +49,7 @@ export default async function AgentFleetPage() {
       <AgentFleetView
         smartphones={fleets.flatMap((fleet) => fleet.smartphones)}
         simCards={fleets.flatMap((fleet) => fleet.simCards)}
+        carriers={carriers}
         contracts={contracts.map((c) => ({
           id: c.id,
           label: `${c.clientName} — ${countryLabel(c.country)}`,

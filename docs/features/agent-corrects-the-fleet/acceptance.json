@@ -1,0 +1,99 @@
+{
+  "feature": "agent-corrects-the-fleet",
+  "played_at": "2026-10-15",
+  "played_on": "feature/agent-corrects-the-fleet",
+  "environment": "Own compose project rsa-acc (postgres-demo, backend demo profile on 18080, frontend 13000) built from the feature branch; torn down; rsa-prod untouched.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1-after-reload.yml",
+      "note": "Number saved and kept after reload; Installed-in change worked; plan Edit on Postpaid only."
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2-plan-control-open.yml",
+      "note": "Only active EE plans offered (Flex 30 added via API as prep); fee \u00a330.00 on pick; Client Invoice base and Agent Local Support Fees 20 to 30."
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3-plan-control-no-active.yml",
+      "note": "'Add one on the Carriers page' links to /agent/carriers. No plan restore exists, so two new plans were added instead."
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4-client-invoice-after.json",
+      "note": "Sent invoice total and line amounts unchanged, Agent Invoice identical; API monthlyFeeAmount reads the live SIM fee by design while amount stays."
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5-recorded-model.txt",
+      "note": "Pixel 8 Pro / Client kept after reload and shown on Requests; a Provision Request's requestedModel unchanged after rename; Dana's Return (via API) SUBMITTED, POSTED_TO_CLIENT."
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6-open-return-refused.yml",
+      "note": "Open-Return message shown, owner unchanged; Jordan's PATCHes on the UK Contract 403."
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7-requests.txt",
+      "note": "Field validation messages, Cancel, unchanged save (no audit), backend-down message 'Couldn\u2019t update. Try again.' with the row unchanged."
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8-dana-api.txt",
+      "note": "Dana and Marco see plain text on both Contracts; Dana 403 on the four corrections and on status/serial/installed-in; no token 401."
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9-audit-lines.txt",
+      "note": "One audit line per changed field with role AGENT or MANAGER; none for the unchanged save; serial Edit ghost, 'Edit serial, {serial}'."
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-10-verify.txt",
+      "note": "Keyboard at 1280 and 375 with visible focus; PRODUCT.md amended; only the three expected goldens changed; visual 111 passed; verify exit 0, 104 e2e."
+    },
+    {
+      "step": 11,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 12,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    },
+    {
+      "step": 13,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    }
+  ]
+}

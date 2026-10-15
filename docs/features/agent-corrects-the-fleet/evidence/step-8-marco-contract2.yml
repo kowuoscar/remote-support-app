@@ -1,0 +1,116 @@
+- generic [active] [ref=e1]:
+  - alert [ref=e25]: Fleet · Remote Support Platform
+  - generic [ref=e26]:
+    - complementary [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]: "N"
+        - generic [ref=e30]:
+          - paragraph [ref=e31]: Northwind Field Services
+          - paragraph [ref=e32]: Client Portal
+      - navigation [ref=e33]:
+        - link "Dashboard" [ref=e34] [cursor=pointer]:
+          - /url: /client
+        - link "Fleet" [ref=e40] [cursor=pointer]:
+          - /url: /client/fleet
+        - link "Requests" [ref=e43] [cursor=pointer]:
+          - /url: /client/requests
+        - link "Invoices" [ref=e47] [cursor=pointer]:
+          - /url: /client/invoices
+    - generic [ref=e52]:
+      - banner [ref=e103]:
+        - generic [ref=e105]:
+          - heading "Fleet" [level=1] [ref=e106]
+          - paragraph [ref=e107]: Loaded per Contract
+        - generic [ref=e108]:
+          - button "marco.diaz@solsticeretail.example · Tester" [ref=e110]:
+            - generic [ref=e111]: marco.diaz@solsticeretail.example
+            - generic [ref=e112]: · Tester
+          - button "Switch to dark theme" [ref=e113]
+      - main [ref=e117]:
+        - generic [ref=e119]:
+          - generic [ref=e120]:
+            - button "Solstice Retail Group — United Kingdom" [ref=e270]
+            - button "Submit Request" [ref=e131]
+          - generic [ref=e132]:
+            - generic [ref=e133]:
+              - heading "Smartphones" [level=2] [ref=e136]
+              - generic [ref=e137]: "5"
+            - table [ref=e139]:
+              - rowgroup [ref=e140]:
+                - row [ref=e141]:
+                  - columnheader "Model" [ref=e142]
+                  - columnheader "Serial" [ref=e143]
+                  - columnheader "Owner" [ref=e144]
+                  - columnheader "SIM Cards" [ref=e145]
+                  - columnheader "Status" [ref=e146]
+              - rowgroup [ref=e147]:
+                - row [ref=e271]:
+                  - cell "iPhone 14" [ref=e272]
+                  - cell "IP14-UK-2201" [ref=e273]
+                  - cell "Company" [ref=e274]
+                  - cell "+44 7700 900123" [ref=e275]
+                  - cell "Active" [ref=e276]
+                - row [ref=e279]:
+                  - cell "Moto G Power" [ref=e280]
+                  - cell "MGP-UK-1180" [ref=e281]
+                  - cell "Client" [ref=e282]
+                  - cell "—" [ref=e283]
+                  - cell "Retired" [ref=e284]
+                - row [ref=e287]:
+                  - cell "iPhone SE Spare" [ref=e288]
+                  - cell "SE-UK-4471" [ref=e289]
+                  - cell "Company" [ref=e290]
+                  - cell "—" [ref=e291]
+                  - cell "Retired" [ref=e292]
+                - row [ref=e295]:
+                  - cell "iPhone 12" [ref=e296]
+                  - cell "IP12-UK-0092" [ref=e297]
+                  - cell "Company" [ref=e298]
+                  - cell "—" [ref=e299]
+                  - cell "Retired" [ref=e300]
+                - row [ref=e303]:
+                  - cell "iPhone 12" [ref=e304]
+                  - cell "—" [ref=e305]
+                  - cell "Company" [ref=e306]
+                  - cell "+44-7700-900103" [ref=e307]
+                  - cell "Active" [ref=e308]
+          - generic [ref=e188]:
+            - generic [ref=e189]:
+              - heading "SIM Cards" [level=2] [ref=e193]
+              - generic [ref=e194]: "3"
+            - table [ref=e196]:
+              - rowgroup [ref=e197]:
+                - row [ref=e198]:
+                  - columnheader "Number" [ref=e199]
+                  - columnheader "Carrier" [ref=e200]
+                  - columnheader "Plan" [ref=e201]
+                  - columnheader "Flavor" [ref=e202]
+                  - columnheader "Status" [ref=e203]
+                  - columnheader "Installed in" [ref=e204]
+              - rowgroup [ref=e205]:
+                - row [ref=e311]:
+                  - cell "+44-7700-900101" [ref=e312]
+                  - cell "EE" [ref=e313]
+                  - cell "Flex 30 Archived" [ref=e316]:
+                    - generic [ref=e317]:
+                      - generic [ref=e318]: Flex 30
+                      - generic [ref=e319]: Archived
+                  - cell "Postpaid" [ref=e321]
+                  - cell "Retired Cancelled Oct 15, 2026" [ref=e322]:
+                    - generic [ref=e323]: Retired
+                    - generic [ref=e325]: Cancelled Oct 15, 2026
+                  - cell "—" [ref=e326]
+                - row [ref=e327]:
+                  - cell "+44 7700 900123" [ref=e328]
+                  - cell "O2" [ref=e329]
+                  - cell "—" [ref=e332]
+                  - cell "Prepaid" [ref=e333]
+                  - cell "Active" [ref=e334]
+                  - cell "iPhone 14" [ref=e337]
+                - row [ref=e338]:
+                  - cell "+44-7700-900103" [ref=e339]
+                  - cell "EE" [ref=e340]
+                  - cell "—" [ref=e343]
+                  - cell "Prepaid" [ref=e344]
+                  - cell "Active" [ref=e345]
+                  - cell "iPhone 12" [ref=e348]

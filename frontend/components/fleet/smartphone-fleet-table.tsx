@@ -12,8 +12,8 @@ import { SMARTPHONE_OWNER_LABEL, SMARTPHONE_STATUS_LABEL, type SimCardListItem, 
  * The Smartphone table markup shared by every Fleet view. `contractId` is the route to call for any
  * control. Serial is always shown — editable (`SmartphoneSerialControl`) only when `canEditSerial`
  * is given (Agent, Manager), otherwise plain text. Model and owner are correction controls
- * (`SmartphoneModelControl`, `SmartphoneOwnerControl`) only when `canCorrect` is given (Manager, Tester). The reverse "SIM Cards" lookup (`simCardNumbersInstalledIn`) is
- * always shown; `changeStatus` is the one axis the three roles vary on (Agent: given; Client/
+ * (`SmartphoneModelControl`, `SmartphoneOwnerControl`) only when `canCorrect` is given (Manager, Agent). The reverse "SIM Cards" lookup (`simCardNumbersInstalledIn`) is
+ * always shown; `changeStatus` is the one axis the three roles vary on (Agent: given; Tester/
  * Manager: omitted). Extracted from the near-identical copies in agent/fleet-view.tsx,
  * client/fleet-view.tsx and manager/contract-fleet-view.tsx — same markup and classes each caller
  * had inline, so rendering is unchanged.
@@ -32,7 +32,7 @@ export function SmartphoneFleetTable({
   contractId?: string;
   /** Renders the editable serial control (Agent, Manager); omitted for a read-only serial. */
   canEditSerial?: boolean;
-  /** Renders the correction controls (Manager, Tester); omitted for plain text. */
+  /** Renders the correction controls (Manager, Agent); omitted for plain text. */
   canCorrect?: boolean;
   changeStatus?: (phone: SmartphoneListItem) => ReactNode;
 }) {
@@ -60,7 +60,7 @@ export function SmartphoneFleetTable({
             </Td>
             <Td className={contractId && canEditSerial ? undefined : "tnum text-ink-secondary"}>
               {contractId && canEditSerial ? (
-                <SmartphoneSerialControl contractId={contractId} smartphoneId={phone.id} serial={phone.serial} />
+                <SmartphoneSerialControl contractId={contractId} smartphoneId={phone.id} model={phone.model} serial={phone.serial} />
               ) : (
                 (phone.serial ?? "—")
               )}

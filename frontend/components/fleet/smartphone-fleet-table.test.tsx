@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { SmartphoneListItem } from "@/lib/api/types";
 import { SmartphoneFleetTable } from "./smartphone-fleet-table";
@@ -32,7 +32,7 @@ describe("SmartphoneFleetTable", () => {
     expect(screen.getByText("SN-1")).toBeInTheDocument();
   });
 
-  it("shows no serial control for a canCorrect-only table", () => {
+  it("shows no serial control for a canCorrect table without canEditSerial", () => {
     render(<SmartphoneFleetTable phones={[phone]} simCards={[]} contractId="contract-1" canCorrect />);
 
     // The model and owner controls offer Edit; the serial is plain text.
@@ -41,6 +41,27 @@ describe("SmartphoneFleetTable", () => {
       "Edit owner of Pixel 8",
     ]);
     expect(screen.getByText("SN-1")).toBeInTheDocument();
+  });
+
+  it("renders every control in one row for canCorrect with canEditSerial and changeStatus (the Agent)", () => {
+    render(
+      <SmartphoneFleetTable
+        phones={[phone]}
+        simCards={[]}
+        contractId="contract-1"
+        canEditSerial
+        canCorrect
+        changeStatus={() => <button type="button">Change status</button>}
+      />,
+    );
+
+    const row = screen.getByRole("row", { name: /Pixel 8/ });
+    const names = within(row)
+      .getAllByRole("button")
+      .map((b) => b.getAttribute("aria-label") ?? b.textContent);
+    expect(names).toEqual(
+      expect.arrayContaining(["Edit model, Pixel 8", "Edit owner of Pixel 8", "Edit serial, SN-1", "Change status"]),
+    );
   });
 
   it("renders the owner control with canCorrect and plain text without it", () => {

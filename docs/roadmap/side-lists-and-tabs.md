@@ -62,4 +62,4 @@ both.
 
 ## Features
 
-- [ ] `ui-side-lists-and-tabs` — the five changes above: Carrier and type on invoice SIM lines; Carriers side list (Agent and Manager); Fleet side list and SIM Cards | Smartphones tabs (Agent, Tester when several Contracts); Plan names cut with "…"; the Manager's Contracts page as one side-list page with an Agent dropdown, invoice summary and tabbed fleet.
+- [x] `ui-side-lists-and-tabs` — the five changes above: Carrier and type on invoice SIM lines; Carriers side list (Agent and Manager); Fleet side list and SIM Cards | Smartphones tabs (Agent, Tester when several Contracts); Plan names cut with "…"; the Manager's Contracts page as one side-list page with an Agent dropdown, invoice summary and tabbed fleet.

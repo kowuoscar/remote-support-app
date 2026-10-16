@@ -35,3 +35,4 @@ after the two epics raised that way, by the human on 2026-10-15.
 Proposed, waiting for the human to place or drop:
 
 - `login-onboarding` — change a login's email, force a password change on first sign-in; invitation emails need a mail service decision first. Promoted from `login-lifecycle`'s `## Later` (2026-10-06).
+- `carrier-invoices-per-sim` — the Agent attaches one Carrier invoice per Postpaid SIM through a form, with a computed name, and cannot send the Client Invoice without them; files in S3-compatible storage (MinIO), deleted 30 days after approval. Raised while testing (2026-10-16).

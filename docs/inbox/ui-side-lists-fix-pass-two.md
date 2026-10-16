@@ -1,7 +1,7 @@
 ---
 id: ui-side-lists-fix-pass-two
 type: question
-status: open
+status: answered
 blocks: [ui-side-lists-and-tabs]
 created: 2026-10-16
 ---
@@ -39,3 +39,5 @@ row is right whatever the page refresh does.
 Nothing else runs.
 
 ## Answer
+
+Ok (the human, 2026-10-16): run one more fix pass, as recommended.

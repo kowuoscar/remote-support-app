@@ -1,0 +1,111 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Fleet" [level=1]
+  - paragraph: Scoped to one Contract at a time
+  - button "agent@example.com · Agent"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Harbor Line Logistics":
+          - /url: /agent/fleet?contract=0421c32d-2eba-4423-b3e2-5aefd2b34ab3
+      - listitem:
+        - link "Race Alpha":
+          - /url: /agent/fleet?contract=919494ca-593d-43ce-ae24-7935a0be8665
+      - listitem:
+        - link "Race Beta":
+          - /url: /agent/fleet?contract=3756fc25-c84d-4da0-b89c-a888bee88e3b
+      - listitem:
+        - link "Solstice Retail Group":
+          - /url: /agent/fleet?contract=63736ebc-5154-4405-9739-aedf5d0fd648
+  - tablist "Fleet":
+    - tab "SIM Cards 3" [selected]
+    - tab "Smartphones 0"
+  - tabpanel "SIM Cards 3":
+    - table:
+      - rowgroup:
+        - row "Number Carrier Plan Flavor Monthly fee Status Installed in":
+          - columnheader "Number"
+          - columnheader "Carrier"
+          - columnheader "Plan"
+          - columnheader "Flavor"
+          - columnheader "Monthly fee"
+          - columnheader "Status"
+          - columnheader "Installed in"
+      - rowgroup:
+        - row "+1-555-0801 Edit number, +1-555-0801 Verizon Postpaid plan Unlimited Welcome Monthly fee $65.00 Save Cancel Postpaid $65.00 Active Retire Not installed":
+          - cell "+1-555-0801 Edit number, +1-555-0801":
+            - text: +1-555-0801
+            - button "Edit number, +1-555-0801": Edit
+          - cell "Verizon"
+          - cell "Postpaid plan Unlimited Welcome Monthly fee $65.00 Save Cancel":
+            - text: Postpaid plan
+            - combobox "Postpaid plan":
+              - option "Choose a plan" [disabled]
+              - option "Unlimited Welcome" [selected]
+              - option "Unlimited Plus"
+              - option "Unlimited Global Enterprise Roaming Plus Priority Data Packs"
+            - paragraph: Monthly fee $65.00
+            - button "Save"
+            - button "Cancel"
+          - cell "Postpaid"
+          - cell "$65.00"
+          - cell "Active Retire":
+            - text: Active
+            - button "Retire"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+        - row "+1-555-0802 Edit number, +1-555-0802 Verizon Unlimited Plus Edit plan for +1-555-0802 Postpaid $80.00 Active Retire Not installed":
+          - cell "+1-555-0802 Edit number, +1-555-0802":
+            - text: +1-555-0802
+            - button "Edit number, +1-555-0802": Edit
+          - cell "Verizon"
+          - cell "Unlimited Plus Edit plan for +1-555-0802":
+            - text: Unlimited Plus
+            - button "Edit plan for +1-555-0802": Edit
+          - cell "Postpaid"
+          - cell "$80.00"
+          - cell "Active Retire":
+            - text: Active
+            - button "Retire"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+        - row "+1-555-0803 Edit number, +1-555-0803 Verizon Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit plan for +1-555-0803 Postpaid $99.00 Active Retire Not installed":
+          - cell "+1-555-0803 Edit number, +1-555-0803":
+            - text: +1-555-0803
+            - button "Edit number, +1-555-0803": Edit
+          - cell "Verizon"
+          - cell "Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit plan for +1-555-0803":
+            - text: Unlimited Global Enterprise Roaming Plus Priority Data Packs
+            - button "Edit plan for +1-555-0803": Edit
+          - cell "Postpaid"
+          - cell "$99.00"
+          - cell "Active Retire":
+            - text: Active
+            - button "Retire"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+- alert

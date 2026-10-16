@@ -1,0 +1,212 @@
+[
+ {
+  "role": "agent",
+  "run": 1,
+  "name": "Acc Carrier agent 1 11669",
+  "immediately": {
+   "ms": 47,
+   "inSideList": false,
+   "linkCurrent": null,
+   "urlHasCarrierId": false,
+   "url": "",
+   "detailHeadingShowsIt": false,
+   "dialogClosed": false
+  },
+  "after1s": {
+   "ms": 1013,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "carrier=ae321786-fdbb-4b47-853e-3f149897fe3d",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "after3s": {
+   "ms": 3011,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "carrier=ae321786-fdbb-4b47-853e-3f149897fe3d",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "okImmediately": false,
+  "ok1s": true,
+  "ok3s": true
+ },
+ {
+  "role": "agent",
+  "run": 2,
+  "name": "Acc Carrier agent 2 14724",
+  "immediately": {
+   "ms": 45,
+   "inSideList": false,
+   "linkCurrent": null,
+   "urlHasCarrierId": false,
+   "url": "carrier=ae321786-fdbb-4b47-853e-3f149897fe3d",
+   "detailHeadingShowsIt": false,
+   "dialogClosed": false
+  },
+  "after1s": {
+   "ms": 1038,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "carrier=4c612b5c-95e6-46f4-b671-273be78df9cd",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "after3s": {
+   "ms": 3014,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "carrier=4c612b5c-95e6-46f4-b671-273be78df9cd",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "okImmediately": false,
+  "ok1s": true,
+  "ok3s": true
+ },
+ {
+  "role": "agent",
+  "run": 3,
+  "name": "Acc Carrier agent 3 17761",
+  "immediately": {
+   "ms": 46,
+   "inSideList": false,
+   "linkCurrent": null,
+   "urlHasCarrierId": false,
+   "url": "carrier=4c612b5c-95e6-46f4-b671-273be78df9cd",
+   "detailHeadingShowsIt": false,
+   "dialogClosed": false
+  },
+  "after1s": {
+   "ms": 1011,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "carrier=54b066e9-69fb-4a09-817d-9baa6f1aa9dc",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "after3s": {
+   "ms": 3009,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "carrier=54b066e9-69fb-4a09-817d-9baa6f1aa9dc",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "okImmediately": false,
+  "ok1s": true,
+  "ok3s": true
+ },
+ {
+  "role": "manager",
+  "run": 1,
+  "name": "Acc Carrier manager 1 21349",
+  "immediately": {
+   "ms": 44,
+   "inSideList": false,
+   "linkCurrent": null,
+   "urlHasCarrierId": false,
+   "url": "country=UNITED_STATES",
+   "detailHeadingShowsIt": false,
+   "dialogClosed": false
+  },
+  "after1s": {
+   "ms": 1016,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "country=UNITED_STATES&carrier=6f3f8ae8-bed7-4cdc-90d8-3d33d0ec543c",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "after3s": {
+   "ms": 3021,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "country=UNITED_STATES&carrier=6f3f8ae8-bed7-4cdc-90d8-3d33d0ec543c",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "okImmediately": false,
+  "ok1s": true,
+  "ok3s": true
+ },
+ {
+  "role": "manager",
+  "run": 2,
+  "name": "Acc Carrier manager 2 24408",
+  "immediately": {
+   "ms": 65,
+   "inSideList": false,
+   "linkCurrent": null,
+   "urlHasCarrierId": false,
+   "url": "country=UNITED_STATES&carrier=6f3f8ae8-bed7-4cdc-90d8-3d33d0ec543c",
+   "detailHeadingShowsIt": false,
+   "dialogClosed": false
+  },
+  "after1s": {
+   "ms": 1038,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "country=UNITED_STATES&carrier=e149e2c0-45af-42af-b57e-c741acae5189",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "after3s": {
+   "ms": 3006,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "country=UNITED_STATES&carrier=e149e2c0-45af-42af-b57e-c741acae5189",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "okImmediately": false,
+  "ok1s": true,
+  "ok3s": true
+ },
+ {
+  "role": "manager",
+  "run": 3,
+  "name": "Acc Carrier manager 3 27448",
+  "immediately": {
+   "ms": 49,
+   "inSideList": false,
+   "linkCurrent": null,
+   "urlHasCarrierId": false,
+   "url": "country=UNITED_STATES&carrier=e149e2c0-45af-42af-b57e-c741acae5189",
+   "detailHeadingShowsIt": false,
+   "dialogClosed": false
+  },
+  "after1s": {
+   "ms": 1019,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "country=UNITED_STATES&carrier=5fb00f4f-b329-499d-b144-5327efe0d562",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "after3s": {
+   "ms": 3019,
+   "inSideList": true,
+   "linkCurrent": "true",
+   "urlHasCarrierId": true,
+   "url": "country=UNITED_STATES&carrier=5fb00f4f-b329-499d-b144-5327efe0d562",
+   "detailHeadingShowsIt": true,
+   "dialogClosed": true
+  },
+  "okImmediately": false,
+  "ok1s": true,
+  "ok3s": true
+ }
+]

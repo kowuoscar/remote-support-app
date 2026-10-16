@@ -1,7 +1,7 @@
 {
  "feature": "ui-side-lists-and-tabs",
  "played_at": "2026-10-16",
- "played_on": "feature/ui-side-lists-and-tabs @ da7ff6e+f03adbd",
+ "played_on": "feature/ui-side-lists-and-tabs @ b41d272 (step 3 replayed)",
  "environment": "Isolated: postgres:16-alpine rsa-accept-pg on 55432, backend demo profile on 18080 (second no-profile backend on 18082 for the empty tenant), next dev on 13000, logging proxy 18081, visual stub 14174; all torn down; rsa-prod untouched",
  "steps": [
   {
@@ -21,9 +21,9 @@
   {
    "step": 3,
    "actor": "agent",
-   "status": "failed",
-   "evidence": "evidence/step-3-replay-race.json",
-   "note": "Replayed after the fix pass on next start (7a12398). Layout passes (wrapper scrollWidth == clientWidth at 1280 and 1440 on both tabs with a 60-char plan; evidence/step-3-replay-widths.json). Race still fails: correct a plan then switch tab and back, stale old plan at once, 1s and 3s in 6/6 runs; Client pick 5/6 stale at 3s; server holds the new plan. Edit mode widens the SIM table and scrolls at 1280/1440 (not judged)."
+   "status": "passed",
+   "evidence": "evidence/step-3-replay2-race.json",
+   "note": "Replayed after the second fix pass on next build+start (b41d272). Flow (step-3-replay2-flow.json): tab/arrow/address, Client pick with no request, reload keeps both, plan corrected and SIM retired and reactivated, persisted after reload. Race (step-3-replay2-race.json, step-3-replay2-convergence.json): save then Smartphones then SIM Cards 6/6 and save then other Client and back 6/6 show the saved plan at 1s and 3s and the server agrees; read at ~125ms after Save the row still shows the old plan in 12/12 (the write/refresh is in flight) and converges in 103-191ms; controls 2/2 correct immediately, 1s, 3s. Layout A (step-3-replay2-layout.json): 1280 table 734 and 1440 table 894, wrapper scrollWidth == clientWidth, no sideways scroll; Retire under the badge; 60-char plan cut with ellipsis, title is the full name, short names uncut; 390: wrapper scrolls inside (720 in 356), page scrollWidth 390, numbers one line (nowrap). Edit mode (plan or number) does not change the table width at any viewport. Minor: Installed-in select is clipped ('Not i') at 1280."
   },
   {
    "step": 4,

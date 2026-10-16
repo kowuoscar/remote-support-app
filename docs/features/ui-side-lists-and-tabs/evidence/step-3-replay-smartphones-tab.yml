@@ -1,0 +1,82 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Fleet" [level=1]
+  - paragraph: Scoped to one Contract at a time
+  - button "agent@example.com · Agent"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Harbor Line Logistics":
+          - /url: /agent/fleet?contract=c1b05979-7cbd-47ff-9a53-7615890f81ab&tab=smartphones
+      - listitem:
+        - link "Solstice Retail Group":
+          - /url: /agent/fleet?contract=6d055278-02b1-4d8b-bf75-0ae066037466&tab=smartphones
+  - tablist "Fleet":
+    - tab "SIM Cards 4"
+    - tab "Smartphones 2" [selected]
+  - tabpanel "Smartphones 2":
+    - table:
+      - rowgroup:
+        - row "Model Serial Owner SIM Cards Status":
+          - columnheader "Model"
+          - columnheader "Serial"
+          - columnheader "Owner"
+          - columnheader "SIM Cards"
+          - columnheader "Status"
+      - rowgroup:
+        - row "iPhone 13 mini Edit model, iPhone 13 mini IP13M-9021 Edit serial, IP13M-9021 Client Edit owner of iPhone 13 mini +1-303-555-0201 Active Change status…":
+          - cell "iPhone 13 mini Edit model, iPhone 13 mini":
+            - text: iPhone 13 mini
+            - button "Edit model, iPhone 13 mini": Edit
+          - cell "IP13M-9021 Edit serial, IP13M-9021":
+            - text: IP13M-9021
+            - button "Edit serial, IP13M-9021": Edit
+          - cell "Client Edit owner of iPhone 13 mini":
+            - text: Client
+            - button "Edit owner of iPhone 13 mini": Edit
+          - cell "+1-303-555-0201"
+          - cell "Active Change status…":
+            - text: Active
+            - combobox "Change smartphone status":
+              - option "Change status…" [selected]
+              - option "In Repair"
+              - option "Retired"
+        - row "Spare Android Edit model, Spare Android SPARE-2270 Edit serial, SPARE-2270 Company Edit owner of Spare Android +1-303-555-0202 Active Change status…":
+          - cell "Spare Android Edit model, Spare Android":
+            - text: Spare Android
+            - button "Edit model, Spare Android": Edit
+          - cell "SPARE-2270 Edit serial, SPARE-2270":
+            - text: SPARE-2270
+            - button "Edit serial, SPARE-2270": Edit
+          - cell "Company Edit owner of Spare Android":
+            - text: Company
+            - button "Edit owner of Spare Android": Edit
+          - cell "+1-303-555-0202"
+          - cell "Active Change status…":
+            - text: Active
+            - combobox "Change smartphone status":
+              - option "Change status…" [selected]
+              - option "In Repair"
+              - option "Retired"
+- alert

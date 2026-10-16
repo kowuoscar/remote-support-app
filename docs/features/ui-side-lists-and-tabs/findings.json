@@ -4,7 +4,7 @@
   {
    "id": "F1",
    "type": "spec-wrong",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-spec",
    "after_review": false,
    "in_changed_lines": true,
@@ -15,7 +15,7 @@
   {
    "id": "F2",
    "type": "spec-wrong",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-spec",
    "after_review": false,
    "in_changed_lines": true,
@@ -26,7 +26,7 @@
   {
    "id": "F3",
    "type": "spec-wrong",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-spec",
    "after_review": false,
    "in_changed_lines": true,
@@ -37,7 +37,7 @@
   {
    "id": "F4",
    "type": "spec-partial",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-spec",
    "after_review": false,
    "in_changed_lines": true,
@@ -59,7 +59,7 @@
   {
    "id": "F6",
    "type": "rule-violated",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-standards",
    "after_review": false,
    "in_changed_lines": true,
@@ -70,7 +70,7 @@
   {
    "id": "F7",
    "type": "rule-violated",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-standards",
    "after_review": false,
    "in_changed_lines": true,
@@ -81,7 +81,7 @@
   {
    "id": "F8",
    "type": "rule-violated",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "reviewer-standards",
    "after_review": false,
    "in_changed_lines": true,
@@ -169,7 +169,7 @@
   {
    "id": "F16",
    "type": "design-guideline",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "design-audit",
    "after_review": false,
    "in_changed_lines": true,
@@ -191,7 +191,7 @@
   {
    "id": "F18",
    "type": "design-guideline",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "design-audit",
    "after_review": false,
    "in_changed_lines": true,
@@ -202,7 +202,7 @@
   {
    "id": "F19",
    "type": "design-guideline",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "design-audit",
    "after_review": false,
    "in_changed_lines": true,
@@ -213,7 +213,7 @@
   {
    "id": "F20",
    "type": "design-guideline",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "design-audit",
    "after_review": false,
    "in_changed_lines": true,
@@ -224,7 +224,7 @@
   {
    "id": "F21",
    "type": "design-guideline",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "design-audit",
    "after_review": false,
    "in_changed_lines": true,
@@ -235,7 +235,7 @@
   {
    "id": "F22",
    "type": "acceptance-failed",
-   "state": "fixed",
+   "state": "confirmed",
    "raised_by": "acceptance-runner",
    "after_review": false,
    "in_changed_lines": true,
@@ -246,13 +246,101 @@
   {
    "id": "F23",
    "type": "acceptance-failed",
-   "state": "fixed",
+   "state": "open",
    "raised_by": "acceptance-runner",
    "after_review": false,
    "in_changed_lines": true,
    "where": "walkthrough step 3",
    "citation": "Step 3: \"on the SIM Cards tab, correct a SIM's plan and change a status, and show both work\"; story 23",
-   "note": "Correct a plan, click Smartphones, back to SIM Cards: old plan shown; run 1 stale 2.5s+ until reload, runs 2-3 self-corrected after ~2.5s. Same root as the spec reviewer's refresh-race finding. Evidence: evidence/step-3-race.json."
+   "note": "Correct a plan, click Smartphones, back to SIM Cards: old plan shown; run 1 stale 2.5s+ until reload, runs 2-3 self-corrected after ~2.5s. Same root as the spec reviewer's refresh-race finding. Evidence: evidence/step-3-race.json. Replay after the fix pass (evidence/step-3-replay-race.json): still stale in 6/6 tab runs and 5/6 Client runs at 3s on next start."
+  },
+  {
+   "id": "F24",
+   "type": "rule-violated",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": true,
+   "in_changed_lines": true,
+   "where": "frontend/components/fleet/sim-card-fleet-table.tsx:141",
+   "citation": "docs/agents/coding-standards.md (Frontend 8): The two small type sizes are the tokens `text-label-sm` and `text-label`: a new or changed line uses them, never `text-[12px]`/`text-[13px]`",
+   "note": "The fix pass moved the 'Cancelled …' span into the new Status-cell wrapper and kept text-[12px]; use text-label-sm."
+  },
+  {
+   "id": "F25",
+   "type": "rule-violated",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": true,
+   "in_changed_lines": true,
+   "where": "frontend/components/fleet/sim-card-installed-in-control.tsx:78",
+   "citation": "docs/agents/coding-standards.md (Frontend 8): The two small type sizes are the tokens `text-label-sm` and `text-label`: a new or changed line uses them, never `text-[12px]`/`text-[13px]`",
+   "note": "The fix pass edited this class line (added w-full max-w-32) and kept text-[12px]; use text-label-sm."
+  },
+  {
+   "id": "F26",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": true,
+   "in_changed_lines": true,
+   "where": "frontend/lib/selection-address.ts:22",
+   "citation": "",
+   "note": "Possible Global Data: `let lastRefreshAt` is module-level state shared by every hook instance and test; a ref or small context would scope it."
+  },
+  {
+   "id": "F27",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": true,
+   "in_changed_lines": true,
+   "where": "frontend/components/ui/table.tsx:14-15",
+   "citation": "",
+   "note": "Misleading comment: says 12px cell padding, but px-2.5 is 10px."
+  },
+  {
+   "id": "F28",
+   "type": "design-guideline",
+   "state": "open",
+   "raised_by": "design-audit",
+   "after_review": true,
+   "in_changed_lines": true,
+   "where": "frontend/components/ui/table.tsx:23",
+   "citation": "DESIGN.md Layout (line 166): 'below xl, with no column, it scrolls as any table does'",
+   "note": "Table dense removes min-w-[720px] at every viewport. Below xl Fleet tables squeeze: client-fleet-mobile-* numbers break at hyphens into three lines; agent-fleet-mobile-* Edit drops under number and plan. Read-only number cell (sim-card-fleet-table.tsx:106) lacks whitespace-nowrap. Fix: 'min-w-[720px] xl:min-w-0' in the dense branch and whitespace-nowrap on the read-only number."
+  },
+  {
+   "id": "F29",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "design-audit",
+   "after_review": true,
+   "in_changed_lines": true,
+   "where": "frontend/components/fleet/sim-card-plan.tsx:19",
+   "citation": "",
+   "note": "Fixed 120px cap cuts names that have room (Tester view 'Unlimited Premi…' with ~70px empty); truncate to the column width instead."
+  },
+  {
+   "id": "F30",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "design-audit",
+   "after_review": true,
+   "in_changed_lines": true,
+   "where": "frontend/components/ui/table.tsx:15",
+   "citation": "",
+   "note": "Padding described three ways (comment 12px, code 10px, DESIGN.md Layout 10px; Spacing line omits dense)."
+  },
+  {
+   "id": "F31",
+   "type": "spec-wrong",
+   "state": "open",
+   "raised_by": "reviewer-spec",
+   "after_review": true,
+   "in_changed_lines": true,
+   "where": "frontend/components/ui/table.tsx:13-28; frontend/components/fleet/sim-card-plan.tsx:19; frontend/components/fleet/sim-card-fleet-table.tsx:91-147; frontend/components/fleet/smartphone-fleet-table.tsx:40-83; DESIGN.md:166",
+   "citation": "Non-goals: \"Fleet tables keep their 720px minimum and their sideways scroll.\" / Solution: \"SimCardPlan and SimCardCarrier cap the name at max-w-48 (192px).\" / Decisions taken: \"The Plan and Carrier cap is 192px (max-w-48), with the full name in title.\"",
+   "note": "The fix pass gave the Fleet tables Table dense (no 720px minimum, 10px padding), dropped the 'Change status' column (action under the badge in the Status cell) and cut the cap to 120px, with no (after review) decision. Root cause: the spec's premise that 736px fits the 720px minimum was false (F16/F22). Needs the human's decision, not a revert."
   }
  ]
 }

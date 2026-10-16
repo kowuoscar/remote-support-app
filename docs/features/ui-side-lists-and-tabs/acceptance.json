@@ -22,8 +22,8 @@
    "step": 3,
    "actor": "agent",
    "status": "failed",
-   "evidence": "evidence/step-3-run.json",
-   "note": "Table wider with the long plan (1250 vs 1154px), and a stale plan after correct-then-switch-tab (evidence/step-3-race.json). Everything else passed."
+   "evidence": "evidence/step-3-replay-race.json",
+   "note": "Replayed after the fix pass on next start (7a12398). Layout passes (wrapper scrollWidth == clientWidth at 1280 and 1440 on both tabs with a 60-char plan; evidence/step-3-replay-widths.json). Race still fails: correct a plan then switch tab and back, stale old plan at once, 1s and 3s in 6/6 runs; Client pick 5/6 stale at 3s; server holds the new plan. Edit mode widens the SIM table and scrolls at 1280/1440 (not judged)."
   },
   {
    "step": 4,

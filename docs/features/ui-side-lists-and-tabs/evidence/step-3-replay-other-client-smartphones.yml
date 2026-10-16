@@ -1,0 +1,116 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Fleet" [level=1]
+  - paragraph: Scoped to one Contract at a time
+  - button "agent@example.com · Agent"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Harbor Line Logistics":
+          - /url: /agent/fleet?contract=c1b05979-7cbd-47ff-9a53-7615890f81ab&tab=smartphones
+      - listitem:
+        - link "Solstice Retail Group":
+          - /url: /agent/fleet?contract=6d055278-02b1-4d8b-bf75-0ae066037466&tab=smartphones
+  - tablist "Fleet":
+    - tab "SIM Cards 7"
+    - tab "Smartphones 4" [selected]
+  - tabpanel "Smartphones 4":
+    - table:
+      - rowgroup:
+        - row "Model Serial Owner SIM Cards Status":
+          - columnheader "Model"
+          - columnheader "Serial"
+          - columnheader "Owner"
+          - columnheader "SIM Cards"
+          - columnheader "Status"
+      - rowgroup:
+        - row "iPhone 13 Edit model, iPhone 13 — Edit serial, iPhone 13 Client Edit owner of iPhone 13 +1-202-555-0104 Active Change status…":
+          - cell "iPhone 13 Edit model, iPhone 13":
+            - text: iPhone 13
+            - button "Edit model, iPhone 13": Edit
+          - cell "— Edit serial, iPhone 13":
+            - text: —
+            - button "Edit serial, iPhone 13": Edit
+          - cell "Client Edit owner of iPhone 13":
+            - text: Client
+            - button "Edit owner of iPhone 13": Edit
+          - cell "+1-202-555-0104"
+          - cell "Active Change status…":
+            - text: Active
+            - combobox "Change smartphone status":
+              - option "Change status…" [selected]
+              - option "In Repair"
+              - option "Retired"
+        - row "Pixel 7 Edit model, Pixel 7 PX7-88210 Edit serial, PX7-88210 Company Edit owner of Pixel 7 +1-202-555-0101, +1-202-555-0102 Active Change status…":
+          - cell "Pixel 7 Edit model, Pixel 7":
+            - text: Pixel 7
+            - button "Edit model, Pixel 7": Edit
+          - cell "PX7-88210 Edit serial, PX7-88210":
+            - text: PX7-88210
+            - button "Edit serial, PX7-88210": Edit
+          - cell "Company Edit owner of Pixel 7":
+            - text: Company
+            - button "Edit owner of Pixel 7": Edit
+          - cell "+1-202-555-0101, +1-202-555-0102"
+          - cell "Active Change status…":
+            - text: Active
+            - combobox "Change smartphone status":
+              - option "Change status…" [selected]
+              - option "In Repair"
+              - option "Retired"
+        - row "Galaxy A14 Edit model, Galaxy A14 GA14-55021 Edit serial, GA14-55021 Company Edit owner of Galaxy A14 — In Repair Change status…":
+          - cell "Galaxy A14 Edit model, Galaxy A14":
+            - text: Galaxy A14
+            - button "Edit model, Galaxy A14": Edit
+          - cell "GA14-55021 Edit serial, GA14-55021":
+            - text: GA14-55021
+            - button "Edit serial, GA14-55021": Edit
+          - cell "Company Edit owner of Galaxy A14":
+            - text: Company
+            - button "Edit owner of Galaxy A14": Edit
+          - cell "—"
+          - cell "In Repair Change status…":
+            - text: In Repair
+            - combobox "Change smartphone status":
+              - option "Change status…" [selected]
+              - option "Active"
+              - option "Retired"
+        - row "OnePlus 10 Edit model, OnePlus 10 OP10-33087 Edit serial, OP10-33087 Company Edit owner of OnePlus 10 +1-202-555-0103 Active Change status…":
+          - cell "OnePlus 10 Edit model, OnePlus 10":
+            - text: OnePlus 10
+            - button "Edit model, OnePlus 10": Edit
+          - cell "OP10-33087 Edit serial, OP10-33087":
+            - text: OP10-33087
+            - button "Edit serial, OP10-33087": Edit
+          - cell "Company Edit owner of OnePlus 10":
+            - text: Company
+            - button "Edit owner of OnePlus 10": Edit
+          - cell "+1-202-555-0103"
+          - cell "Active Change status…":
+            - text: Active
+            - combobox "Change smartphone status":
+              - option "Change status…" [selected]
+              - option "In Repair"
+              - option "Retired"
+- alert

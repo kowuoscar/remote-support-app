@@ -257,7 +257,7 @@
   {
    "id": "F24",
    "type": "rule-violated",
-   "state": "open",
+   "state": "fixed",
    "raised_by": "reviewer-standards",
    "after_review": true,
    "in_changed_lines": true,
@@ -268,7 +268,7 @@
   {
    "id": "F25",
    "type": "rule-violated",
-   "state": "open",
+   "state": "fixed",
    "raised_by": "reviewer-standards",
    "after_review": true,
    "in_changed_lines": true,
@@ -290,7 +290,7 @@
   {
    "id": "F27",
    "type": "smell",
-   "state": "open",
+   "state": "fixed",
    "raised_by": "reviewer-standards",
    "after_review": true,
    "in_changed_lines": true,
@@ -301,7 +301,7 @@
   {
    "id": "F28",
    "type": "design-guideline",
-   "state": "open",
+   "state": "fixed",
    "raised_by": "design-audit",
    "after_review": true,
    "in_changed_lines": true,
@@ -312,7 +312,7 @@
   {
    "id": "F29",
    "type": "smell",
-   "state": "open",
+   "state": "fixed",
    "raised_by": "design-audit",
    "after_review": true,
    "in_changed_lines": true,
@@ -323,7 +323,7 @@
   {
    "id": "F30",
    "type": "smell",
-   "state": "open",
+   "state": "fixed",
    "raised_by": "design-audit",
    "after_review": true,
    "in_changed_lines": true,
@@ -334,7 +334,7 @@
   {
    "id": "F31",
    "type": "spec-wrong",
-   "state": "open",
+   "state": "fixed",
    "raised_by": "reviewer-spec",
    "after_review": true,
    "in_changed_lines": true,

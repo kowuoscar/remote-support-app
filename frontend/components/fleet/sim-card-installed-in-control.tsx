@@ -75,7 +75,7 @@ export function SimCardInstalledInControl({
         value={installedInSmartphoneId ?? ""}
         disabled={pending}
         onChange={(event) => change(event.target.value)}
-        className="h-7 w-full max-w-32 rounded-lg border border-hairline-strong bg-canvas px-2 text-[12px] text-ink-secondary focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-70"
+        className="h-7 w-full max-w-32 rounded-lg border border-hairline-strong bg-canvas px-2 text-label-sm text-ink-secondary focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-70"
       >
         <option value="">Not installed</option>
         {options.map((phone) => (

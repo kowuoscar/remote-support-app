@@ -11,16 +11,16 @@ export function TableScroll({ className, ...props }: HTMLAttributes<HTMLDivEleme
 }
 
 /**
- * `dense` is for a table that must fit the area beside a side list (the Fleet tables): no 720px
- * minimum, so it narrows to its container instead of scrolling sideways, and 12px cell padding in
- * place of 16px.
+ * `dense` is for a table that must fit the area beside a side list (the Fleet tables): 10px cell
+ * padding in place of 16px, and no 720px minimum from `xl` up, so there it narrows to its container
+ * instead of scrolling sideways. Below `xl` it keeps the minimum and scrolls inside its wrapper.
  */
 export function Table({ className, dense = false, ...props }: HTMLAttributes<HTMLTableElement> & { dense?: boolean }) {
   return (
     <table
       className={cn(
         "w-full border-collapse text-sm",
-        dense ? "[&_td]:px-2.5 [&_th]:px-2.5" : "min-w-[720px]",
+        dense ? "min-w-[720px] xl:min-w-0 [&_td]:px-2.5 [&_th]:px-2.5" : "min-w-[720px]",
         className,
       )}
       {...props}

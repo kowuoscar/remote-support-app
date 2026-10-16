@@ -53,7 +53,7 @@ export function SimCardPlanControl({
   if (!edit.editing) {
     return (
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <span className="whitespace-nowrap">
+        <span className="min-w-0 max-w-full">
           <SimCardPlan sim={sim} />
         </span>
         <Button
@@ -79,7 +79,7 @@ export function SimCardPlanControl({
         void edit.submit(event, { postpaidPlanId: planId });
       }}
       onKeyDown={edit.onKeyDown}
-      className="flex min-w-48 flex-col items-start gap-1.5"
+      className="flex w-full flex-col items-start gap-1.5"
     >
       <PostpaidPlanPicker
         carrier={carrier}

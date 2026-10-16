@@ -11,11 +11,11 @@ export function SimCardCarrier({ sim }: { sim: SimCardListItem }) {
     return <span className="text-ink-mute">—</span>;
   }
   return (
-    <span className="inline-flex items-center gap-2">
+    <span className="inline-flex max-w-full items-center gap-2">
       <span
         translate="no"
         title={sim.carrierName}
-        className={cn("max-w-30 truncate", sim.carrierArchived ? "text-ink-mute" : "text-ink-secondary")}
+        className={cn("min-w-0 truncate", sim.carrierArchived ? "text-ink-mute" : "text-ink-secondary")}
       >
         {sim.carrierName}
       </span>

@@ -2,6 +2,7 @@
 
 import { forwardRef, useId, useImperativeHandle, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import { DialogConfirmFooter } from "@/components/manager/dialog-confirm-footer";
 import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
 import { DialogShell, type DialogShellHandle } from "@/components/manager/dialog-shell";
@@ -48,7 +49,7 @@ export const ArchiveCarrierDialog = forwardRef<ArchiveCarrierDialogHandle>(
         // A 409 means it was already archived: the outcome the user asked for.
         setSubmitting(false);
         close();
-        router.refresh();
+        refreshPage(router);
       } catch {
         setError("Couldn't reach the server. Check your connection and try again.");
         setSubmitting(false);

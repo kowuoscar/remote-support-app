@@ -16,7 +16,7 @@ export function SimCardPlan({ sim }: { sim: Pick<SimCardListItem, "postpaidPlanN
       <span
         translate="no"
         title={sim.postpaidPlanName}
-        className={cn("max-w-48 truncate", sim.postpaidPlanArchived ? "text-ink-mute" : "text-ink-secondary")}
+        className={cn("max-w-30 truncate", sim.postpaidPlanArchived ? "text-ink-mute" : "text-ink-secondary")}
       >
         {sim.postpaidPlanName}
       </span>

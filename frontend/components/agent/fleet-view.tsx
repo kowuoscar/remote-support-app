@@ -4,16 +4,12 @@ import { useMemo } from "react";
 import { ContractSwitcher } from "@/components/ui/contract-switcher";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SideList, SideListLayout } from "@/components/ui/side-list";
-import { FleetTabsCard } from "@/components/fleet/fleet-tabs-card";
+import { FleetTabsCard, type FleetTabId } from "@/components/fleet/fleet-tabs-card";
 import { SmartphoneFleetTable } from "@/components/fleet/smartphone-fleet-table";
 import { SimCardFleetTable } from "@/components/fleet/sim-card-fleet-table";
-import {
-  clientRows,
-  sortByClient,
-  useContractScopedFleet,
-  type FleetContract,
-} from "@/components/fleet/use-contract-scoped-fleet";
-import { IconClients, IconContracts } from "@/components/icons";
+import { useContractScopedFleet, type FleetContract } from "@/components/fleet/use-contract-scoped-fleet";
+import { clientRows, sortByClient } from "@/components/ui/side-list-rows";
+import { IconContracts } from "@/components/icons";
 import { PAGE_PADDING, PAGE_WIDTH } from "@/components/app-shell/surface-page";
 import { type CatalogCarrierItem, type SimCardListItem, type SmartphoneListItem } from "@/lib/api/types";
 import { SimCardStatusControl, SmartphoneStatusControl } from "@/components/agent/fleet-status-controls";
@@ -40,8 +36,8 @@ export function AgentFleetView({
   carriers: CatalogCarrierItem[];
   /** The page's `contract` search parameter, unvalidated: used only when it names one of `contracts`. */
   initialContractId?: string;
-  /** The page's `tab` search parameter, unvalidated. */
-  initialTab?: string;
+  /** The page's `tab` search parameter, parsed at the page. */
+  initialTab: FleetTabId;
 }) {
   const ordered = useMemo(() => sortByClient(contracts), [contracts]);
   const { contractId, select, detailRef, tab, selectTab, hrefFor, phones, sims } = useContractScopedFleet(
@@ -78,7 +74,7 @@ export function AgentFleetView({
           onSelect={select}
         />
       }
-      dropdown={<ContractSwitcher contracts={ordered} value={contractId} onChange={select} icon={IconClients} />}
+      dropdown={<ContractSwitcher contracts={ordered} value={contractId} onChange={select} />}
       detailRef={detailRef}
     >
       <FleetTabsCard

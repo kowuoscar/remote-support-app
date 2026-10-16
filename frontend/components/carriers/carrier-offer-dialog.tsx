@@ -2,6 +2,7 @@
 
 import { forwardRef, useId, useImperativeHandle, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
@@ -107,7 +108,7 @@ export const CarrierOfferDialog = forwardRef<CarrierOfferDialogHandle, { currenc
 
         setSubmitting(false);
         close();
-        router.refresh();
+        refreshPage(router);
       } catch {
         fail(null, "Couldn't reach the server. Check your connection and try again.");
       }

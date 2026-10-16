@@ -15,7 +15,7 @@ export function SimCardCarrier({ sim }: { sim: SimCardListItem }) {
       <span
         translate="no"
         title={sim.carrierName}
-        className={cn("max-w-48 truncate", sim.carrierArchived ? "text-ink-mute" : "text-ink-secondary")}
+        className={cn("max-w-30 truncate", sim.carrierArchived ? "text-ink-mute" : "text-ink-secondary")}
       >
         {sim.carrierName}
       </span>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
 import {
   SMARTPHONE_STATUS_LABEL,
@@ -51,7 +52,7 @@ export function SmartphoneStatusControl({
       // (same key) stays mounted, so a stale `pending` would otherwise stay stuck forever and
       // permanently disable the next action.
       setPending(false);
-      router.refresh();
+      refreshPage(router);
     } catch {
       setError(true);
       setPending(false);
@@ -124,7 +125,7 @@ export function SimCardStatusControl({
       // (same key) stays mounted, so a stale `pending` would otherwise stay stuck forever and
       // permanently disable the next action.
       setPending(false);
-      router.refresh();
+      refreshPage(router);
     } catch {
       setError(true);
       setPending(false);

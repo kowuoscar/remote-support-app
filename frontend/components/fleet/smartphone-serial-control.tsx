@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -54,7 +55,7 @@ export function SmartphoneSerialControl({
       // (same key) stays mounted, so a stale `pending` would otherwise stay stuck forever.
       setPending(false);
       setEditing(false);
-      router.refresh();
+      refreshPage(router);
     } catch {
       setError(true);
       setPending(false);
@@ -63,7 +64,7 @@ export function SmartphoneSerialControl({
 
   if (!editing) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span className="tnum text-ink-secondary">{serial ?? "—"}</span>
         <Button variant="ghost" size="sm" aria-label={`Edit serial, ${serial ?? model}`} onClick={startEditing}>
           Edit

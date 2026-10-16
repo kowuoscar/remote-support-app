@@ -7,6 +7,8 @@ import {
   type SimCardListItem,
   type SmartphoneListItem,
 } from "@/lib/api/types";
+import { fleetTabFromParam } from "@/components/fleet/fleet-tabs-card";
+import { firstParam } from "@/lib/search-params";
 import { requireTester } from "@/lib/api/guard";
 
 export const metadata = { title: "Fleet" };
@@ -23,7 +25,6 @@ export default async function ClientFleetPage({
 }) {
   await requireTester();
   const { contract, tab } = await searchParams;
-  const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
   const [contracts, meResponse] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),
@@ -58,8 +59,8 @@ export default async function ClientFleetPage({
           clientName: c.clientName,
           countryLabel: countryLabel(c.country),
         }))}
-        initialContractId={first(contract)}
-        initialTab={first(tab)}
+        initialContractId={firstParam(contract)}
+        initialTab={fleetTabFromParam(firstParam(tab))}
       />
     </SurfacePage>
   );

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { AgentListItem, ClientInvoiceDetail, ClientListItem, ContractListItem } from "@/lib/api/types";
 import { resolveSelectedContract } from "@/lib/manager-contracts";
 import { mockRouter } from "@/tests/component/next-navigation";
+import type { FleetTabId } from "@/components/fleet/fleet-tabs-card";
 import { ManagerContractsView, type SelectedContract } from "./contracts-view";
 
 function contract(id: string, clientId: string, clientName: string, agentName: string): ContractListItem {
@@ -37,7 +38,7 @@ function selected(c: ContractListItem, overrides: Partial<SelectedContract> = {}
   return { contract: c, smartphones: [], simCards: [], invoice: INVOICE, carriers: [], ...overrides };
 }
 
-function renderView(contracts = CONTRACTS, id = "c-aurora-1", initialTab?: string) {
+function renderView(contracts = CONTRACTS, id = "c-aurora-1", initialTab: FleetTabId = "sim-cards") {
   const current = contracts.find((c) => c.id === id) ?? null;
   return render(
     <ManagerContractsView
@@ -130,6 +131,7 @@ describe("ManagerContractsView", () => {
         clients={CLIENTS}
         agents={AGENTS}
         selected={selected(CONTRACTS[1], { invoice: null })}
+        initialTab="sim-cards"
       />,
     );
     expect(screen.queryByRole("link", { name: /Open invoice/ })).not.toBeInTheDocument();

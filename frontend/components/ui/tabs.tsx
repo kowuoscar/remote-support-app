@@ -93,7 +93,10 @@ export function Tabs({
                 onKeyDown={(event) => onKeyDown(event, index)}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-label font-medium transition-colors",
-                  isSelected ? "bg-canvas text-ink shadow-sm" : "text-ink-mute hover:text-ink",
+                  isSelected
+                    ? // Raised above the canvas-soft track in both themes: canvas-raised is lighter than the track in dark mode (canvas is darker), and the ring carries it where the shadow barely shows.
+                      "bg-canvas-raised text-ink shadow-sm ring-1 ring-hairline-strong"
+                    : "text-ink-mute hover:text-ink",
                 )}
               >
                 {tab.icon}

@@ -19,6 +19,7 @@ import { Money } from "@/components/ui/money";
 import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
 import { SideList, SideListLayout, type SideListItem } from "@/components/ui/side-list";
 import { formatMoney } from "@/lib/format";
+import { useSelectionAddress } from "@/lib/selection-address";
 import { CARRIER_OFFER_LISTS, type CarrierOfferList } from "@/lib/api/carrier-offers";
 import {
   COUNTRIES,
@@ -104,10 +105,15 @@ export function CarriersView({
   // Seeded from the URL, then flipped at once on click; the URL follows behind, so the checkbox
   // never waits on the navigation to show its new state.
   const [showArchived, setShowArchived] = useState(searchParams.get("archived") === "1");
-  const [carrierId, setCarrierId] = useState(initialCarrierId ?? "");
+  const writeAddress = useSelectionAddress();
   const countryName = countryLabel(country);
 
   const carriers = catalog?.carriers ?? [];
+  // Starts from the resolved row's real id, not from the raw address value: with no `?carrier=` the
+  // first row is the selection, and it must stay selected when archived or renamed (it re-sorts).
+  const [carrierId, setCarrierId] = useState(
+    () => carriers.find((carrier) => carrier.id === initialCarrierId)?.id ?? carriers[0]?.id ?? "",
+  );
   const active = carriers.filter((carrier) => carrier.archivedAt === null);
   // The first row stands in for a selection that names nothing in the catalog (an unknown address
   // value, or a just-added Carrier until the refreshed catalog lands).
@@ -115,13 +121,7 @@ export function CarriersView({
 
   function select(id: string) {
     setCarrierId(id);
-    // The address follows the selection with the native History API: no entry, no server render,
-    // no request. Never router.push/replace, which would re-run the page's reads. The state
-    // argument is null so that Next syncs its own router state to the new URL: a later
-    // router.refresh() (after a mutation) then keeps `carrier` instead of restoring the old address.
-    const url = new URL(window.location.href);
-    url.searchParams.set("carrier", id);
-    window.history.replaceState(null, "", url);
+    writeAddress({ carrier: id });
     // The document scrolls the detail; return to its top when it would start off-screen.
     if (detailRef.current && detailRef.current.getBoundingClientRect().top < 0) {
       window.scrollTo({ top: 0 });
@@ -204,7 +204,7 @@ export function CarriersView({
         />
       )}
 
-      <CarrierNameDialog ref={nameDialogRef} country={country} countryName={countryName} onCreated={setCarrierId} />
+      <CarrierNameDialog ref={nameDialogRef} country={country} countryName={countryName} onCreated={select} />
       <ArchiveCarrierDialog ref={archiveDialogRef} />
       <CarrierOfferDialog ref={offerDialogRef} currency={catalog?.currency ?? ""} />
       <ArchiveCarrierOfferDialog ref={archiveOfferDialogRef} />
@@ -336,9 +336,10 @@ function OfferList({
   return (
     <section aria-labelledby={headingId} className="min-w-0">
       <div className="flex items-center justify-between gap-3 border-b border-hairline pb-1.5">
-        <h4 id={headingId} className="text-label-sm font-medium tracking-[0.02em] text-ink-mute">
+        {/* tracking-[0.02em]: the Label role's tracking (DESIGN.md Typography); no token carries it. */}
+        <h3 id={headingId} className="text-label-sm font-medium tracking-[0.02em] text-ink-mute">
           {copy.heading}
-        </h4>
+        </h3>
         {readOnly ? null : (
           <Button
             variant="ghost"

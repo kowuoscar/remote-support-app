@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
 import { IconAlertTriangle, IconArrowRight } from "@/components/icons";
 
@@ -56,7 +57,7 @@ export function SendClientInvoiceControl({ invoiceId }: { invoiceId: string }) {
       }
       // Stays pending ("Sending…") until the refreshed page replaces this control; the card's
       // status note then takes focus (ClientInvoiceStatusNote).
-      router.refresh();
+      refreshPage(router);
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
       setPending(false);

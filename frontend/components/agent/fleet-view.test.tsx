@@ -1,40 +1,17 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { SimCardListItem, SmartphoneListItem } from "@/lib/api/types";
 import { stubFetch } from "@/tests/component/fetch";
+import { mockRouter } from "@/tests/component/next-navigation";
+import { refreshPage } from "@/lib/selection-address";
+import { CONTRACTS, PHONES, SIMS } from "@/tests/component/fleet-fixtures";
 import { AgentFleetView } from "@/components/agent/fleet-view";
-import { ClientFleetView } from "@/components/client/fleet-view";
-
-function contract(id: string, clientName: string, countryLabel: string) {
-  return { id, label: `${clientName} — ${countryLabel}`, meta: countryLabel, currency: "USD", clientName, countryLabel };
-}
-
-const CONTRACTS = [
-  contract("c-zeta", "Zeta Mobile", "Kenya"),
-  contract("c-acme-ke", "Acme", "Kenya"),
-  contract("c-acme-ug", "Acme", "Uganda"),
-];
-
-const phone = (id: string, contractId: string, model: string) =>
-  ({ id, contractId, model, serial: null, owner: "COMPANY", status: "ACTIVE" }) as SmartphoneListItem;
-const sim = (id: string, contractId: string, number: string) =>
-  ({
-    id,
-    contractId,
-    number,
-    flavor: "PREPAID",
-    status: "ACTIVE",
-    monthlyFeeAmount: null,
-  }) as SimCardListItem;
-
-const PHONES = [phone("p1", "c-acme-ke", "Pixel 8"), phone("p2", "c-zeta", "Galaxy S24"), phone("p3", "c-zeta", "Moto G")];
-const SIMS = [sim("s1", "c-acme-ke", "+254 700 000001"), sim("s2", "c-zeta", "+254 700 000002")];
+import type { FleetTabId } from "@/components/fleet/fleet-tabs-card";
 
 beforeEach(() => window.history.replaceState(null, "", "/"));
 afterEach(() => window.history.replaceState(null, "", "/"));
 
-function renderAgent(props: { initialContractId?: string; initialTab?: string; contracts?: typeof CONTRACTS } = {}) {
+function renderAgent(props: { initialContractId?: string; initialTab?: FleetTabId; contracts?: typeof CONTRACTS } = {}) {
   return render(
     <AgentFleetView
       smartphones={PHONES}
@@ -42,7 +19,7 @@ function renderAgent(props: { initialContractId?: string; initialTab?: string; c
       carriers={[]}
       contracts={props.contracts ?? CONTRACTS}
       initialContractId={props.initialContractId}
-      initialTab={props.initialTab}
+      initialTab={props.initialTab ?? "sim-cards"}
     />,
   );
 }
@@ -123,9 +100,12 @@ describe("AgentFleetView", () => {
     expect(window.location.search).toContain("contract=c-zeta");
   });
 
-  it("an unknown ?tab= opens SIM Cards", () => {
-    renderAgent({ initialTab: "nonsense" });
-    expect(within(fleetTabs()).getByRole("tab", { name: /SIM Cards/ })).toHaveAttribute("aria-selected", "true");
+  it("a tab switch right after a correction asks for the refresh again, since Next drops the one in flight", async () => {
+    mockRouter.refresh.mockClear();
+    renderAgent();
+    refreshPage(mockRouter); // the correction's refresh, still on its way
+    await userEvent.click(within(fleetTabs()).getByRole("tab", { name: /Smartphones/ }));
+    expect(mockRouter.refresh).toHaveBeenCalledTimes(2);
   });
 
   it("shows no table title repeating the tab label", () => {
@@ -144,28 +124,5 @@ describe("AgentFleetView", () => {
     renderAgent({ contracts: [] });
     expect(screen.getByText("No contracts yet")).toBeInTheDocument();
     expect(screen.queryByRole("navigation", { name: "Clients" })).not.toBeInTheDocument();
-  });
-});
-
-describe("ClientFleetView", () => {
-  function renderTester(contracts = CONTRACTS.slice(1)) {
-    return render(<ClientFleetView smartphones={PHONES} simCards={SIMS} contracts={contracts} />);
-  }
-
-  it("two Contracts give a Contracts landmark, one row per Country, sorted", () => {
-    renderTester();
-    const nav = screen.getByRole("navigation", { name: "Contracts" });
-    expect(within(nav).getAllByRole("link").map((l) => l.textContent)).toEqual(["Kenya", "Uganda"]);
-    expect(within(nav).getAllByRole("link")[0]).toHaveAttribute("aria-current", "true");
-    expect(screen.getByRole("button", { name: "Submit Request" })).toBeInTheDocument();
-  });
-
-  it("one Contract gives no landmark and today's chip above the tabs", () => {
-    renderTester([CONTRACTS[1]!]);
-    expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
-    expect(screen.getAllByText("Acme — Kenya").length).toBeGreaterThan(0);
-    expect(screen.queryByRole("button", { name: /Acme/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("tablist", { name: "Fleet" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Submit Request" })).toBeInTheDocument();
   });
 });

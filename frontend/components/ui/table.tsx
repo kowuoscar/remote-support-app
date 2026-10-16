@@ -10,8 +10,22 @@ export function TableScroll({ className, ...props }: HTMLAttributes<HTMLDivEleme
   );
 }
 
-export function Table({ className, ...props }: HTMLAttributes<HTMLTableElement>) {
-  return <table className={cn("w-full min-w-[720px] border-collapse text-sm", className)} {...props} />;
+/**
+ * `dense` is for a table that must fit the area beside a side list (the Fleet tables): no 720px
+ * minimum, so it narrows to its container instead of scrolling sideways, and 12px cell padding in
+ * place of 16px.
+ */
+export function Table({ className, dense = false, ...props }: HTMLAttributes<HTMLTableElement> & { dense?: boolean }) {
+  return (
+    <table
+      className={cn(
+        "w-full border-collapse text-sm",
+        dense ? "[&_td]:px-2.5 [&_th]:px-2.5" : "min-w-[720px]",
+        className,
+      )}
+      {...props}
+    />
+  );
 }
 
 export function Thead({ className, ...props }: HTMLAttributes<HTMLTableSectionElement>) {

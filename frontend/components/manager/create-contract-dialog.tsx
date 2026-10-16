@@ -2,6 +2,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconAlertTriangle, IconContracts, IconPlus } from "@/components/icons";
@@ -62,7 +63,7 @@ export function CreateContractDialog({
       setSubmitting(false);
       close();
       if (created?.id) router.replace(`/manager/contracts?contract=${created.id}`, { scroll: false });
-      else router.refresh();
+      else refreshPage(router);
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
       setSubmitting(false);

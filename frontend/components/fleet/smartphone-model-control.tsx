@@ -34,7 +34,7 @@ export function SmartphoneModelControl({
 
   if (!edit.editing) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span className="whitespace-nowrap font-medium text-ink">{model}</span>
         <Button
           ref={focusTarget}

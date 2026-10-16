@@ -2,6 +2,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { IconAlertTriangle, IconPlus } from "@/components/icons";
@@ -79,7 +80,7 @@ export function CreateSimCardDialog({
 
       setSubmitting(false);
       close();
-      router.refresh();
+      refreshPage(router);
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
       setSubmitting(false);

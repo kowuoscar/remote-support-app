@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import type { SmartphoneStatusValue } from "@/lib/api/types";
 
 export interface InstallableSmartphone {
@@ -60,7 +61,7 @@ export function SimCardInstalledInControl({
       // parent Server Component re-renders with fresh props, but this Client Component instance
       // (same key) stays mounted, so a stale `pending` would otherwise stay stuck forever.
       setPending(false);
-      router.refresh();
+      refreshPage(router);
     } catch {
       setError(true);
       setPending(false);
@@ -74,7 +75,7 @@ export function SimCardInstalledInControl({
         value={installedInSmartphoneId ?? ""}
         disabled={pending}
         onChange={(event) => change(event.target.value)}
-        className="h-7 rounded-lg border border-hairline-strong bg-canvas px-2 text-[12px] text-ink-secondary focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-70"
+        className="h-7 w-full max-w-32 rounded-lg border border-hairline-strong bg-canvas px-2 text-[12px] text-ink-secondary focus-visible:border-primary disabled:cursor-not-allowed disabled:opacity-70"
       >
         <option value="">Not installed</option>
         {options.map((phone) => (

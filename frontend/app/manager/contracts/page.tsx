@@ -2,6 +2,8 @@ import { SurfacePage } from "@/components/app-shell/surface-page";
 import { ManagerContractsView, type SelectedContract } from "@/components/manager/contracts-view";
 import { backendFetch, backendFetchList } from "@/lib/api/backend";
 import { loadActiveCarriers } from "@/lib/api/carriers";
+import { fleetTabFromParam } from "@/components/fleet/fleet-tabs-card";
+import { firstParam } from "@/lib/search-params";
 import { requireManager } from "@/lib/api/guard";
 import { resolveSelectedContract } from "@/lib/manager-contracts";
 import type {
@@ -29,14 +31,13 @@ export default async function ManagerContractsPage({
 }) {
   await requireManager();
   const { contract: contractParam, tab } = await searchParams;
-  const first = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
   const [contracts, clients, agents] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetchList<ClientListItem>("/api/clients"),
     backendFetchList<AgentListItem>("/api/agents"),
   ]);
 
-  const contract = resolveSelectedContract(contracts, first(contractParam));
+  const contract = resolveSelectedContract(contracts, firstParam(contractParam));
   let selected: SelectedContract | null = null;
   if (contract) {
     const [smartphones, simCards, invoiceResponse, carriers] = await Promise.all([
@@ -57,7 +58,7 @@ export default async function ManagerContractsPage({
         clients={clients}
         agents={agents}
         selected={selected}
-        initialTab={first(tab)}
+        initialTab={fleetTabFromParam(firstParam(tab))}
       />
     </SurfacePage>
   );

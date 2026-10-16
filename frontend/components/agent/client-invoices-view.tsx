@@ -4,6 +4,8 @@ import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
 import { SideList, SideListLayout, type SideListItem } from "@/components/ui/side-list";
+import { clientRows, sortByClient } from "@/components/ui/side-list-rows";
+import { selectionHref, useSelectionAddress } from "@/lib/selection-address";
 import { Badge } from "@/components/ui/badge";
 import { clientInvoiceBadge, isSentBackBadge, sentBackBadge } from "@/lib/status";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -24,15 +26,6 @@ export type ClientInvoicesContract = {
   countryLabel: string;
   currency: string;
 };
-
-
-/** Column order: Client name, then Country, locale-aware and case-insensitive. */
-function sortContracts(contracts: ClientInvoicesContract[]): ClientInvoicesContract[] {
-  const collator = new Intl.Collator(undefined, { sensitivity: "base" });
-  return [...contracts].sort(
-    (a, b) => collator.compare(a.clientName, b.clientName) || collator.compare(a.countryLabel, b.countryLabel),
-  );
-}
 
 /**
  * Agent opens a Contract's current-month Client Invoice draft (client-invoice-generation ticket
@@ -55,21 +48,18 @@ export function AgentClientInvoicesView({
   /** The page's `contract` search parameter, unvalidated: used only when it names one of `contracts`. */
   initialContractId?: string;
 }) {
-  const ordered = useMemo(() => sortContracts(contracts), [contracts]);
+  const ordered = useMemo(() => sortByClient(contracts), [contracts]);
   const [contractId, setContractId] = useState(
     () => ordered.find((c) => c.id === initialContractId)?.id ?? ordered[0]?.id ?? "",
   );
   const sentBackContracts = useMemo(() => new Set(sentBack.map((row) => row.contractId)), [sentBack]);
+  const writeAddress = useSelectionAddress();
   const invoiceAreaRef = useRef<HTMLDivElement>(null);
   const invoice = invoicesByContract[contractId];
 
   function select(id: string) {
     setContractId(id);
-    // The address follows the selection with the native History API: no entry, no server render,
-    // no request. Never router.push/replace, which would re-run the page's reads.
-    const url = new URL(window.location.href);
-    url.searchParams.set("contract", id);
-    window.history.replaceState(window.history.state, "", url);
+    writeAddress({ contract: id });
     // The document scrolls the invoice; return to its top when the new invoice would start off-screen.
     if (invoiceAreaRef.current && invoiceAreaRef.current.getBoundingClientRect().top < 0) {
       window.scrollTo({ top: 0 });
@@ -99,21 +89,15 @@ export function AgentClientInvoicesView({
 
   // One row per Contract: the Client name, the Country only where another row shares the name, the
   // month's status badge, and the extra "Sent back" mark.
-  const nameCounts = new Map<string, number>();
-  for (const c of ordered) {
-    const key = c.clientName.toLocaleLowerCase();
-    nameCounts.set(key, (nameCounts.get(key) ?? 0) + 1);
-  }
-  const items: SideListItem[] = ordered.map((c) => {
+  const rows = clientRows(ordered);
+  const items: SideListItem[] = ordered.map((c, index) => {
     const current = invoicesByContract[c.id];
     const status = current ? clientInvoiceBadge(current) : null;
     // The extra mark: a sent-back invoice of any month is in the list, and the row's own badge
     // does not already say so (never twice).
     const sentBackMark = sentBackContracts.has(c.id) && !isSentBackBadge(status);
     return {
-      id: c.id,
-      name: c.clientName,
-      detail: (nameCounts.get(c.clientName.toLocaleLowerCase()) ?? 0) > 1 ? c.countryLabel : undefined,
+      ...rows[index],
       badge: status ? <Badge tone={status.tone}>{status.label}</Badge> : undefined,
       mark: sentBackMark ? (
         <Badge tone={sentBackBadge.tone} dot={false}>
@@ -131,7 +115,7 @@ export function AgentClientInvoicesView({
           label="Clients"
           items={items}
           selectedId={contractId}
-          hrefFor={(id) => `/agent/client-invoices?contract=${encodeURIComponent(id)}`}
+          hrefFor={(id) => selectionHref("/agent/client-invoices", { contract: id })}
           onSelect={select}
         />
       }

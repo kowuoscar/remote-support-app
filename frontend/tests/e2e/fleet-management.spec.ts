@@ -213,14 +213,19 @@ test.describe("fleet management", () => {
 
     const simRow = page.getByRole("row", { name: new RegExp(`\\+1-555-install-${RUN_ID}`) });
     await expect(simRow).toBeVisible();
+    // Hold the page's refresh back, then switch tab at once: the address write of the tab click
+    // must not drop the refresh in flight (a correction's result shows without a reload).
+    await page.route("**/agent/fleet**", async (route) => {
+      if (route.request().url().includes("_rsc=")) await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
+    const corrected = page.waitForResponse(
+      (response) => response.request().method() === "PATCH" && response.url().includes("/sim-cards/"),
+    );
     await simRow
       .getByLabel("Installed in")
       .selectOption({ label: `iPhone 14 — SN-install-${RUN_ID}` });
-    // Wait for the refreshed row before switching tabs: a tab click writes the address while the
-    // refresh is in flight, and the refresh result can be dropped by that write.
-    await expect(simRow.getByLabel("Installed in").locator("option:checked")).toHaveText(
-      `iPhone 14 — SN-install-${RUN_ID}`,
-    );
+    await corrected;
 
     // Scoped to the Smartphones table specifically: the SIM Cards table's own row for this SIM
     // now also contains "iPhone 14" text (its "Installed in" control's selected option), so an
@@ -228,6 +233,11 @@ test.describe("fleet management", () => {
     const smartphonesTable = (await fleetTab(page, "Smartphones")).locator("table");
     const smartphoneRow = smartphonesTable.getByRole("row", { name: /iPhone 14/ });
     await expect(smartphoneRow).toContainText(`+1-555-install-${RUN_ID}`);
+    await fleetTab(page, "SIM Cards");
+    await expect(simRow.getByLabel("Installed in").locator("option:checked")).toHaveText(
+      `iPhone 14 — SN-install-${RUN_ID}`,
+    );
+    await page.unroute("**/agent/fleet**");
 
     await logout(page);
     await login(page, testerEmail, testerPassword);

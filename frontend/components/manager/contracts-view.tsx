@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ContractSwitcher } from "@/components/ui/contract-switcher";
 import { EmptyState } from "@/components/ui/empty-state";
 import { SideList, SideListLayout } from "@/components/ui/side-list";
-import { FleetTabsCard, fleetTabFromParam, type FleetTabId } from "@/components/fleet/fleet-tabs-card";
+import { FleetTabsCard, tabParam, type FleetTabId } from "@/components/fleet/fleet-tabs-card";
 import { SmartphoneFleetTable } from "@/components/fleet/smartphone-fleet-table";
 import { SimCardFleetTable } from "@/components/fleet/sim-card-fleet-table";
 import { IconClients, IconContracts } from "@/components/icons";
@@ -24,6 +24,7 @@ import {
   type SmartphoneListItem,
 } from "@/lib/api/types";
 import { groupByClient } from "@/lib/manager-contracts";
+import { selectionHref, useSelectionAddress } from "@/lib/selection-address";
 
 const PATH = "/manager/contracts";
 
@@ -36,13 +37,6 @@ export type SelectedContract = {
   invoice: ClientInvoiceDetail | null;
   carriers: CatalogCarrierItem[];
 };
-
-/** The address for a Contract (keeping the open tab, which SIM Cards leaves out as its default). */
-function addressFor(contractId: string, tab: FleetTabId): string {
-  const query = new URLSearchParams({ contract: contractId });
-  if (tab === "smartphones") query.set("tab", "smartphones");
-  return `${PATH}?${query.toString()}`;
-}
 
 /**
  * The Manager's Contracts, on one page (side-lists-and-tabs spec, "The Manager's Contracts: one
@@ -64,12 +58,13 @@ export function ManagerContractsView({
   agents: AgentListItem[];
   /** Null exactly when there are no Contracts. */
   selected: SelectedContract | null;
-  /** The page's `tab` search parameter, unvalidated. */
-  initialTab?: string;
+  /** The page's `tab` search parameter, parsed at the page. */
+  initialTab: FleetTabId;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [tab, setTab] = useState<FleetTabId>(() => fleetTabFromParam(initialTab));
+  const [tab, setTab] = useState<FleetTabId>(initialTab);
+  const writeAddress = useSelectionAddress();
   const detailRef = useRef<HTMLDivElement>(null);
   const groups = useMemo(() => groupByClient(contracts), [contracts]);
 
@@ -98,7 +93,7 @@ export function ManagerContractsView({
   function pick(id: string) {
     // Async, so the area stays busy until the navigation settles (React 19 holds an async transition open).
     startTransition(async () => {
-      await router.replace(addressFor(id, tab), { scroll: false });
+      await router.replace(selectionHref(PATH, { contract: id, tab: tabParam(tab) }), { scroll: false });
     });
     // The document scrolls the page; return to the area's top when it would start off-screen.
     if (detailRef.current && detailRef.current.getBoundingClientRect().top < 0) {
@@ -108,11 +103,7 @@ export function ManagerContractsView({
 
   function selectTab(next: FleetTabId) {
     setTab(next);
-    const url = new URL(window.location.href);
-    if (next === "smartphones") url.searchParams.set("tab", "smartphones");
-    else url.searchParams.delete("tab");
-    // A null state keeps Next's router in step, so a later refresh keeps the query.
-    window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+    writeAddress({ tab: tabParam(next) });
   }
 
   return (
@@ -123,7 +114,7 @@ export function ManagerContractsView({
           label="Clients"
           items={groups.map((g) => ({ id: g.contracts[0].id, name: g.clientName }))}
           selectedId={selectedRowId}
-          hrefFor={(id) => addressFor(id, tab).replace(PATH, "")}
+          hrefFor={(id) => selectionHref("", { contract: id, tab: tabParam(tab) })}
           onSelect={pick}
         />
       }
@@ -139,7 +130,7 @@ export function ManagerContractsView({
     >
       <div aria-busy={pending} className="flex flex-col gap-5 transition-opacity aria-busy:opacity-70">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <h2 className="min-w-0 truncate text-lg font-semibold text-ink" title={contract.clientName}>
+          <h2 className="min-w-0 truncate text-sm font-semibold text-ink" title={contract.clientName}>
             {contract.clientName}
           </h2>
           <label className="flex items-center gap-2 text-label font-medium text-ink-secondary">

@@ -2,6 +2,7 @@
 
 import { useId, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SimCardPicker } from "@/components/requests/sim-card-picker";
@@ -141,7 +142,7 @@ export function LogFeeDialog({
 
       setSubmitting(false);
       close();
-      router.refresh();
+      refreshPage(router);
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
       setSubmitting(false);

@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
 import { IconAlertTriangle, IconPaperclip } from "@/components/icons";
 
@@ -41,7 +42,7 @@ export function AttachCarrierInvoiceFileControl({ invoiceId }: { invoiceId: stri
         }
       }
       setUploading(false);
-      router.refresh();
+      refreshPage(router);
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
       setUploading(false);

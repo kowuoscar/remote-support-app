@@ -1,6 +1,7 @@
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { CarriersView } from "@/components/carriers/carriers-view";
 import { loadCarrierCatalog } from "@/lib/api/carriers";
+import { firstParam } from "@/lib/search-params";
 import { requireManager } from "@/lib/api/guard";
 import { COUNTRIES, type Country } from "@/lib/api/types";
 
@@ -23,7 +24,7 @@ export default async function ManagerCarriersPage({
   await requireManager();
   const params = await searchParams;
   const country = parseCountry(params.country);
-  const initialCarrierId = Array.isArray(params.carrier) ? params.carrier[0] : params.carrier;
+  const initialCarrierId = firstParam(params.carrier);
   const catalog = await loadCarrierCatalog(country);
 
   return (

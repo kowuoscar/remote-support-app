@@ -7,6 +7,7 @@ import {
   type ContractListItem,
   type SentBackClientInvoice,
 } from "@/lib/api/types";
+import { firstParam } from "@/lib/search-params";
 import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "Client Invoices" };
@@ -28,7 +29,7 @@ export default async function AgentClientInvoicesPage({
 }) {
   await requireAgent();
   const { contract } = await searchParams;
-  const initialContractId = Array.isArray(contract) ? contract[0] : contract;
+  const initialContractId = firstParam(contract);
   const [contracts, meResponse, sentBack] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),

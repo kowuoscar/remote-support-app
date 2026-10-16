@@ -5,15 +5,11 @@ import { ContractSwitcher } from "@/components/ui/contract-switcher";
 import { SideList, SideListLayout } from "@/components/ui/side-list";
 import { SubmitRequestDialog } from "@/components/client/submit-request-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
-import { FleetTabsCard } from "@/components/fleet/fleet-tabs-card";
+import { FleetTabsCard, type FleetTabId } from "@/components/fleet/fleet-tabs-card";
 import { SmartphoneFleetTable } from "@/components/fleet/smartphone-fleet-table";
 import { SimCardFleetTable } from "@/components/fleet/sim-card-fleet-table";
-import {
-  countryRows,
-  sortByCountry,
-  useContractScopedFleet,
-  type FleetContract,
-} from "@/components/fleet/use-contract-scoped-fleet";
+import { useContractScopedFleet, type FleetContract } from "@/components/fleet/use-contract-scoped-fleet";
+import { countryRows, sortByCountry } from "@/components/ui/side-list-rows";
 import { IconContracts } from "@/components/icons";
 import { PAGE_PADDING, PAGE_WIDTH } from "@/components/app-shell/surface-page";
 import { type SimCardListItem, type SmartphoneListItem } from "@/lib/api/types";
@@ -37,8 +33,8 @@ export function ClientFleetView({
   contracts: FleetContract[];
   /** The page's `contract` search parameter, unvalidated: used only when it names one of `contracts`. */
   initialContractId?: string;
-  /** The page's `tab` search parameter, unvalidated. */
-  initialTab?: string;
+  /** The page's `tab` search parameter, parsed at the page. */
+  initialTab: FleetTabId;
 }) {
   const ordered = useMemo(() => sortByCountry(contracts), [contracts]);
   const { contractId, select, detailRef, tab, selectTab, hrefFor, phones, sims } = useContractScopedFleet(

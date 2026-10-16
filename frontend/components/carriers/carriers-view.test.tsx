@@ -108,6 +108,23 @@ describe("CarriersView side list", () => {
     expect(within(landmark()).getByRole("link", { name: "Verizon" })).toHaveAttribute("aria-current", "true");
   });
 
+  it("keeps the Carrier selected when it is archived and moves to the bottom, with no ?carrier= in the address", () => {
+    const { rerender } = renderView();
+    expect(within(landmark()).getByRole("link", { name: "Verizon" })).toHaveAttribute("aria-current", "true");
+
+    // The refreshed catalog: Verizon archived, so the server orders it last.
+    const archived = { ...VERIZON, archivedAt: "2026-10-01T00:00:00Z" };
+    rerender(
+      <CarriersView
+        country="UNITED_STATES"
+        catalog={{ ...CATALOG, carriers: [TMOBILE, SPRINT, archived] }}
+      />,
+    );
+
+    expect(within(landmark()).getByRole("link", { name: /Verizon\s+Archived$/ })).toHaveAttribute("aria-current", "true");
+    expect(within(landmark()).getByRole("link", { name: "T-Mobile" })).not.toHaveAttribute("aria-current");
+  });
+
   it("every row is a real link to its Carrier", () => {
     renderView();
     expect(within(landmark()).getByRole("link", { name: "T-Mobile" })).toHaveAttribute("href", "/?carrier=c-tmobile");

@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EditedLineNote } from "@/components/ui/billed-amount";
@@ -116,7 +117,7 @@ export function EditClientInvoiceLineControl({
       setPending(false);
       nextFocus.current = "edit";
       announce(announced);
-      router.refresh();
+      refreshPage(router);
       return true;
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");

@@ -88,7 +88,7 @@ export function SimCardFleetTable({
   changeStatus?: (sim: SimCardListItem) => ReactNode;
 }) {
   return (
-    <Table>
+    <Table dense>
       <Thead>
         <Tr>
           <Th>Number</Th>
@@ -98,7 +98,6 @@ export function SimCardFleetTable({
           {showMonthlyFee ? <Th className="text-right">Monthly fee</Th> : null}
           <Th>Status</Th>
           <Th>Installed in</Th>
-          {changeStatus ? <Th>Change status</Th> : null}
         </Tr>
       </Thead>
       <Tbody>
@@ -134,12 +133,18 @@ export function SimCardFleetTable({
               </Td>
             ) : null}
             <Td>
-              <Badge tone={simCardStatusToneByValue[sim.status]}>{SIM_CARD_STATUS_LABEL[sim.status]}</Badge>
-              {sim.cancellationEffectiveDate ? (
-                <span className="mt-1 block text-[12px] text-ink-mute">
-                  Cancelled {formatLocalDate(sim.cancellationEffectiveDate)}
-                </span>
-              ) : null}
+              {/* The status and, for the Agent, its action share the cell: a column of its own would push the table past the area beside the side list. */}
+              <div className="flex flex-col items-start gap-1.5">
+                <div>
+                  <Badge tone={simCardStatusToneByValue[sim.status]}>{SIM_CARD_STATUS_LABEL[sim.status]}</Badge>
+                  {sim.cancellationEffectiveDate ? (
+                    <span className="mt-1 block text-[12px] text-ink-mute">
+                      Cancelled {formatLocalDate(sim.cancellationEffectiveDate)}
+                    </span>
+                  ) : null}
+                </div>
+                {changeStatus ? changeStatus(sim) : null}
+              </div>
             </Td>
             <Td className={contractId && smartphones ? undefined : "text-ink-secondary"}>
               {contractId && smartphones ? (
@@ -153,7 +158,6 @@ export function SimCardFleetTable({
                 (sim.installedInSmartphoneModel ?? "—")
               )}
             </Td>
-            {changeStatus ? <Td>{changeStatus(sim)}</Td> : null}
           </Tr>
         ))}
       </Tbody>

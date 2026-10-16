@@ -3,6 +3,7 @@ import { CarriersView } from "@/components/carriers/carriers-view";
 import { backendFetch } from "@/lib/api/backend";
 import { loadCarrierCatalog } from "@/lib/api/carriers";
 import { countryLabel } from "@/lib/api/types";
+import { firstParam } from "@/lib/search-params";
 import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "Carriers" };
@@ -18,7 +19,7 @@ export default async function AgentCarriersPage({
 }) {
   await requireAgent();
   const { carrier } = await searchParams;
-  const initialCarrierId = Array.isArray(carrier) ? carrier[0] : carrier;
+  const initialCarrierId = firstParam(carrier);
   const [catalog, meResponse] = await Promise.all([
     loadCarrierCatalog(),
     backendFetch("/api/me").catch(() => null),

@@ -12,6 +12,11 @@ export function fleetTabFromParam(value: string | undefined): FleetTabId {
   return value === "smartphones" ? "smartphones" : "sim-cards";
 }
 
+/** The `tab` parameter's value for a tab: absent for SIM Cards, the default. */
+export function tabParam(tab: FleetTabId): string | null {
+  return tab === "smartphones" ? "smartphones" : null;
+}
+
 /** What one tab holds: its count, its table, the empty state when there is none, and a per-role action. */
 export type FleetTabContent = {
   count: number;

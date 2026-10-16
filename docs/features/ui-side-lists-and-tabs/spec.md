@@ -1,7 +1,7 @@
 ---
 feature: ui-side-lists-and-tabs
 epic: side-lists-and-tabs
-status: delivered
+status: accepted
 date: 2026-10-15
 ---
 

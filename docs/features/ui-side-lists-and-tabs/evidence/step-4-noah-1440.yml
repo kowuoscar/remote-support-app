@@ -1,0 +1,71 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Client Portal
+  - navigation:
+    - link "Dashboard":
+      - /url: /client
+    - link "Fleet":
+      - /url: /client/fleet
+    - link "Requests":
+      - /url: /client/requests
+    - link "Invoices":
+      - /url: /client/invoices
+- banner:
+  - heading "Fleet" [level=1]
+  - paragraph: Loaded per Contract
+  - button "noah.kim@harborline.example · Tester"
+  - button "Switch to dark theme"
+- main:
+  - text: Harbor Line Logistics — United States
+  - button "Submit Request"
+  - tablist "Fleet":
+    - tab "SIM Cards 5" [selected]
+    - tab "Smartphones 2"
+  - tabpanel "SIM Cards 5":
+    - table:
+      - rowgroup:
+        - row "Number Carrier Plan Flavor Status Installed in":
+          - columnheader "Number"
+          - columnheader "Carrier"
+          - columnheader "Plan"
+          - columnheader "Flavor"
+          - columnheader "Status"
+          - columnheader "Installed in"
+      - rowgroup:
+        - row "+1-303-555-0201 T-Mobile — Prepaid Active iPhone 13 mini":
+          - cell "+1-303-555-0201"
+          - cell "T-Mobile"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "Active"
+          - cell "iPhone 13 mini"
+        - row "+1-303-555-0202 Verizon — Prepaid Active Spare Android":
+          - cell "+1-303-555-0202"
+          - cell "Verizon"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "Active"
+          - cell "Spare Android"
+        - row "+1-202-555-0301 Verizon Unlimited Global Enterprise Roaming Plus Priority Data Packs Postpaid Active —":
+          - cell "+1-202-555-0301"
+          - cell "Verizon"
+          - cell "Unlimited Global Enterprise Roaming Plus Priority Data Packs"
+          - cell "Postpaid"
+          - cell "Active"
+          - cell "—"
+        - row "+1-202-555-0399 Verizon — Prepaid Retired —":
+          - cell "+1-202-555-0399"
+          - cell "Verizon"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "Retired"
+          - cell "—"
+        - row "+1-202-555-0398 Verizon — Prepaid Retired —":
+          - cell "+1-202-555-0398"
+          - cell "Verizon"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "Retired"
+          - cell "—"
+- alert

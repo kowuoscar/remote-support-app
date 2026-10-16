@@ -1,0 +1,72 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Manager Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /manager
+    - link "Requests":
+      - /url: /manager/requests
+    - link "Clients":
+      - /url: /manager/clients
+    - link "Agents":
+      - /url: /manager/agents
+    - link "Contracts":
+      - /url: /manager/contracts
+    - link "Stock":
+      - /url: /manager/stock
+    - link "Carriers":
+      - /url: /manager/carriers
+    - link "Invoices":
+      - /url: /manager/invoices
+- banner:
+  - heading "Carriers" [level=1]
+  - paragraph: Every country's catalog
+  - button "Manager"
+  - button "Switch to dark theme"
+- main:
+  - text: Country
+  - combobox "Country":
+    - option "France"
+    - option "Spain"
+    - option "United Kingdom" [selected]
+    - option "Mexico"
+    - option "Philippines"
+    - option "United States"
+  - button "Add carrier"
+  - text: 2 active
+  - navigation "Carriers":
+    - heading "Carriers" [level=2]
+    - list:
+      - listitem:
+        - link "EE":
+          - /url: /manager/carriers?country=UNITED_KINGDOM&carrier=544150e2-10cf-4ecf-a25d-26df05329acf
+      - listitem:
+        - link "O2":
+          - /url: /manager/carriers?country=UNITED_KINGDOM&carrier=e05c5c6f-1cac-4840-b6ff-f0672cd6cd75
+      - listitem:
+        - link "Vodafone Archived":
+          - /url: /manager/carriers?country=UNITED_KINGDOM&carrier=e3566a4c-a2bb-4926-ba59-28dc60952ad4
+  - heading "EE" [level=2]
+  - button "Rename EE": Rename
+  - button "Archive EE": Archive
+  - paragraph: Prices in GBP · shared by every agent in United Kingdom
+  - checkbox "Show archived (1)"
+  - text: Show archived (1)
+  - region "Topup options":
+    - heading "Topup options" [level=4]
+    - button "Add a topup option to EE": Add
+    - list "EE topup options":
+      - listitem:
+        - text: Boost 10 £10.00
+        - button "Edit Boost 10": Edit
+        - button "Archive Boost 10": Archive
+  - region "Postpaid plans":
+    - heading "Postpaid plans" [level=4]
+    - button "Add a postpaid plan to EE": Add
+    - list "EE postpaid plans":
+      - listitem:
+        - text: Flex 20 £20.00/mo
+        - button "Edit Flex 20": Edit
+        - button "Archive Flex 20": Archive
+- alert: Carriers

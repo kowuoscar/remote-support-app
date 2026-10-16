@@ -1,0 +1,18 @@
+{
+  "draft-1440": {
+    "verizonLine": true,
+    "overflow": {
+      "scrollWidth": 1440,
+      "innerWidth": 1440
+    }
+  },
+  "sideList": "Clients\nHarbor Line Logistics\nDraft\nSolstice Retail Group\nSent back",
+  "afterSendClick": "N\n\nNorthwind Field Services\n\nAgent Console\n\nDashboard\nRequests\nFleet\nStock\nCarriers\nClient Invoices\nMy Invoice\nClient Invoices\n\nOne per Contract per month\n\nagent@example.com\n · Agent\nClients\nHarbor Line Logistics\nDraft\nSolstice Retail Group\nSent back\nSent back to you\nCONTRACT\tBILLING MONTH\tSENT BACK\tREASON\t\nACTION\n\n\nSolstice Retail Group — United States\n\tOctober 2026\tOct 16, 2026\t\n\nPlease recheck ",
+  "draft-390": {
+    "verizonLine": true,
+    "overflow": {
+      "scrollWidth": 390,
+      "innerWidth": 390
+    }
+  }
+}

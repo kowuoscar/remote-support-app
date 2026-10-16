@@ -1,0 +1,8 @@
+GET /api/me
+GET /api/contracts
+GET /api/clients
+GET /api/agents
+GET /api/contracts/1bae7798-c445-4cf5-83b9-ace06a0a2ce3/smartphones
+GET /api/contracts/1bae7798-c445-4cf5-83b9-ace06a0a2ce3/sim-cards
+GET /api/contracts/1bae7798-c445-4cf5-83b9-ace06a0a2ce3/client-invoice
+GET /api/carriers?country=UNITED_KINGDOM

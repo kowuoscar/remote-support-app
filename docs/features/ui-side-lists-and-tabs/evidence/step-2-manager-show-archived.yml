@@ -1,0 +1,97 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Manager Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /manager
+    - link "Requests":
+      - /url: /manager/requests
+    - link "Clients":
+      - /url: /manager/clients
+    - link "Agents":
+      - /url: /manager/agents
+    - link "Contracts":
+      - /url: /manager/contracts
+    - link "Stock":
+      - /url: /manager/stock
+    - link "Carriers":
+      - /url: /manager/carriers
+    - link "Invoices":
+      - /url: /manager/invoices
+- banner:
+  - heading "Carriers" [level=1]
+  - paragraph: Every country's catalog
+  - button "Manager"
+  - button "Switch to dark theme"
+- main:
+  - text: Country
+  - combobox "Country":
+    - option "France"
+    - option "Spain"
+    - option "United Kingdom"
+    - option "Mexico"
+    - option "Philippines"
+    - option "United States" [selected]
+  - button "Add carrier"
+  - text: 3 active
+  - navigation "Carriers":
+    - heading "Carriers" [level=2]
+    - list:
+      - listitem:
+        - link "AT&T":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000001&archived=1
+      - listitem:
+        - link "T-Mobile":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000002&archived=1
+      - listitem:
+        - link "Verizon":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000003&archived=1
+      - listitem:
+        - link "Aardvark Mobile Archived":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=f4dea882-fed8-4a8d-bba2-1b7c58faf740&archived=1
+      - listitem:
+        - link "Aardvark Mobile Archived":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=65517646-15d9-4b3d-b680-c413aafc01a5&archived=1
+      - listitem:
+        - link "Aardvark Wireless Archived":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=72498555-35ab-4b7b-bb64-ddd222b3f46a&archived=1
+      - listitem:
+        - link "Legacy Wireless Archived":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=649c9cf8-8533-4785-8182-9e23db247d1c&archived=1
+      - listitem:
+        - link "Sprint Archived":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000004&archived=1
+  - heading "Verizon" [level=2]
+  - button "Rename Verizon": Rename
+  - button "Archive Verizon": Archive
+  - paragraph: Prices in USD · shared by every agent in United States
+  - checkbox "Show archived (2)" [checked]
+  - text: Show archived (2)
+  - region "Topup options":
+    - heading "Topup options" [level=4]
+    - button "Add a topup option to Verizon": Add
+    - list "Verizon topup options":
+      - listitem:
+        - text: International Add-on $10.00
+        - button "Edit International Add-on": Edit
+        - button "Archive International Add-on": Archive
+      - listitem: Prepaid Refill 35 $35.00 Archived
+  - region "Postpaid plans":
+    - heading "Postpaid plans" [level=4]
+    - button "Add a postpaid plan to Verizon": Add
+    - list "Verizon postpaid plans":
+      - listitem:
+        - text: Unlimited Welcome $65.00/mo
+        - button "Edit Unlimited Welcome": Edit
+        - button "Archive Unlimited Welcome": Archive
+      - listitem:
+        - text: Unlimited Plus $80.00/mo
+        - button "Edit Unlimited Plus": Edit
+        - button "Archive Unlimited Plus": Archive
+      - listitem:
+        - text: Unlimited Global Enterprise Roaming Plus Priority Data Packs $99.00/mo
+        - button "Edit Unlimited Global Enterprise Roaming Plus Priority Data Packs": Edit
+        - button "Archive Unlimited Global Enterprise Roaming Plus Priority Data Packs": Archive
+      - listitem: Start Unlimited $70.00/mo Archived
+- alert: Carriers

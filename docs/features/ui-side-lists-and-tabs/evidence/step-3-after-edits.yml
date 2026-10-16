@@ -1,0 +1,133 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Fleet" [level=1]
+  - paragraph: Scoped to one Contract at a time
+  - button "agent@example.com · Agent"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Harbor Line Logistics":
+          - /url: /agent/fleet?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf
+      - listitem:
+        - link "Solstice Retail Group":
+          - /url: /agent/fleet?contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92
+  - tablist "Fleet":
+    - tab "SIM Cards 5" [selected]
+    - tab "Smartphones 2"
+  - tabpanel "SIM Cards 5":
+    - table:
+      - rowgroup:
+        - row "Number Carrier Plan Flavor Monthly fee Status Installed in Change status":
+          - columnheader "Number"
+          - columnheader "Carrier"
+          - columnheader "Plan"
+          - columnheader "Flavor"
+          - columnheader "Monthly fee"
+          - columnheader "Status"
+          - columnheader "Installed in"
+          - columnheader "Change status"
+      - rowgroup:
+        - row "+1-303-555-0201 Edit number, +1-303-555-0201 T-Mobile — Prepaid — Active iPhone 13 mini — IP13M-9021 Retire":
+          - cell "+1-303-555-0201 Edit number, +1-303-555-0201":
+            - text: +1-303-555-0201
+            - button "Edit number, +1-303-555-0201": Edit
+          - cell "T-Mobile"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "iPhone 13 mini — IP13M-9021":
+            - combobox "Installed in":
+              - option "Not installed"
+              - option "iPhone 13 mini — IP13M-9021" [selected]
+              - option "Spare Android — SPARE-2270"
+          - cell "Retire":
+            - button "Retire"
+        - row "+1-303-555-0202 Edit number, +1-303-555-0202 Verizon — Prepaid — Active Spare Android — SPARE-2270 Retire":
+          - cell "+1-303-555-0202 Edit number, +1-303-555-0202":
+            - text: +1-303-555-0202
+            - button "Edit number, +1-303-555-0202": Edit
+          - cell "Verizon"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "Spare Android — SPARE-2270":
+            - combobox "Installed in":
+              - option "Not installed"
+              - option "iPhone 13 mini — IP13M-9021"
+              - option "Spare Android — SPARE-2270" [selected]
+          - cell "Retire":
+            - button "Retire"
+        - row "+1-202-555-0301 Edit number, +1-202-555-0301 Verizon Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit plan for +1-202-555-0301 Postpaid $99.00 Active Not installed Retire":
+          - cell "+1-202-555-0301 Edit number, +1-202-555-0301":
+            - text: +1-202-555-0301
+            - button "Edit number, +1-202-555-0301": Edit
+          - cell "Verizon"
+          - cell "Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit plan for +1-202-555-0301":
+            - text: Unlimited Global Enterprise Roaming Plus Priority Data Packs
+            - button "Edit plan for +1-202-555-0301": Edit
+          - cell "Postpaid"
+          - cell "$99.00"
+          - cell "Active"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 13 mini — IP13M-9021"
+              - option "Spare Android — SPARE-2270"
+          - cell "Retire":
+            - button "Retire"
+        - row "+1-202-555-0399 Edit number, +1-202-555-0399 Verizon — Prepaid — Retired Not installed Reactivate":
+          - cell "+1-202-555-0399 Edit number, +1-202-555-0399":
+            - text: +1-202-555-0399
+            - button "Edit number, +1-202-555-0399": Edit
+          - cell "Verizon"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Retired"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 13 mini — IP13M-9021"
+              - option "Spare Android — SPARE-2270"
+          - cell "Reactivate":
+            - button "Reactivate"
+        - row "+1-202-555-0398 Edit number, +1-202-555-0398 Verizon — Prepaid — Retired Not installed Reactivate":
+          - cell "+1-202-555-0398 Edit number, +1-202-555-0398":
+            - text: +1-202-555-0398
+            - button "Edit number, +1-202-555-0398": Edit
+          - cell "Verizon"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Retired"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 13 mini — IP13M-9021"
+              - option "Spare Android — SPARE-2270"
+          - cell "Reactivate":
+            - button "Reactivate"
+- alert

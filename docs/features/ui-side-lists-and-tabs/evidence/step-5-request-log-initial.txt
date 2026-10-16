@@ -1,0 +1,8 @@
+GET /api/me
+GET /api/contracts
+GET /api/clients
+GET /api/agents
+GET /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/smartphones
+GET /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/sim-cards
+GET /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/client-invoice
+GET /api/carriers?country=UNITED_STATES

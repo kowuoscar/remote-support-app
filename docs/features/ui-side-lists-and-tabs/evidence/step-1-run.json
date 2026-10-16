@@ -1,0 +1,57 @@
+{
+  "jordanSentCard-1440": {
+    "verizon": true,
+    "awaiting": true,
+    "sentBackMarkOnList": true
+  },
+  "sideList": "Clients\nHarbor Line Logistics\nAwaiting approval\nSolstice Retail Group\nSent back",
+  "jordanOwnPage-1440": {
+    "verizon": true,
+    "overflow": {
+      "scrollWidth": 1440,
+      "innerWidth": 1440
+    }
+  },
+  "manager-1440": {
+    "verizon": false,
+    "overflow": {
+      "scrollWidth": 1440,
+      "innerWidth": 1440
+    }
+  },
+  "tester-1440": {
+    "hasInvoice": true,
+    "mentionsPostpaidLine": false,
+    "overflow": {
+      "scrollWidth": 1440,
+      "innerWidth": 1440
+    }
+  },
+  "jordanSentCard-390": {
+    "verizon": true,
+    "awaiting": true,
+    "sentBackMarkOnList": true
+  },
+  "jordanOwnPage-390": {
+    "verizon": true,
+    "overflow": {
+      "scrollWidth": 390,
+      "innerWidth": 390
+    }
+  },
+  "manager-390": {
+    "verizon": false,
+    "overflow": {
+      "scrollWidth": 390,
+      "innerWidth": 390
+    }
+  },
+  "tester-390": {
+    "hasInvoice": true,
+    "mentionsPostpaidLine": false,
+    "overflow": {
+      "scrollWidth": 390,
+      "innerWidth": 390
+    }
+  }
+}

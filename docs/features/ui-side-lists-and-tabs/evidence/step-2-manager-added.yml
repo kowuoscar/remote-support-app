@@ -1,0 +1,82 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Manager Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /manager
+    - link "Requests":
+      - /url: /manager/requests
+    - link "Clients":
+      - /url: /manager/clients
+    - link "Agents":
+      - /url: /manager/agents
+    - link "Contracts":
+      - /url: /manager/contracts
+    - link "Stock":
+      - /url: /manager/stock
+    - link "Carriers":
+      - /url: /manager/carriers
+    - link "Invoices":
+      - /url: /manager/invoices
+- banner:
+  - heading "Carriers" [level=1]
+  - paragraph: Every country's catalog
+  - button "Manager"
+  - button "Switch to dark theme"
+- main:
+  - text: Country
+  - combobox "Country":
+    - option "France"
+    - option "Spain"
+    - option "United Kingdom"
+    - option "Mexico"
+    - option "Philippines"
+    - option "United States" [selected]
+  - button "Add carrier"
+  - text: 4 active
+  - navigation "Carriers":
+    - heading "Carriers" [level=2]
+    - list:
+      - listitem:
+        - link "AT&T":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000001
+      - listitem:
+        - link "Beta Net":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=b692e2ba-c7a7-4055-91e5-8856a969b4cf
+      - listitem:
+        - link "T-Mobile":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000002
+      - listitem:
+        - link "Verizon":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000003
+      - listitem:
+        - link "Aardvark Mobile Archived":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=f4dea882-fed8-4a8d-bba2-1b7c58faf740
+      - listitem:
+        - link "Aardvark Mobile Archived":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=65517646-15d9-4b3d-b680-c413aafc01a5
+      - listitem:
+        - link "Aardvark Wireless Archived":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=72498555-35ab-4b7b-bb64-ddd222b3f46a
+      - listitem:
+        - link "Legacy Wireless Archived":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=649c9cf8-8533-4785-8182-9e23db247d1c
+      - listitem:
+        - link "Sprint Archived":
+          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000004
+  - heading "Beta Net" [level=2]
+  - button "Rename Beta Net": Rename
+  - button "Archive Beta Net": Archive
+  - paragraph: Prices in USD · shared by every agent in United States
+  - checkbox "Show archived"
+  - text: Show archived
+  - region "Topup options":
+    - heading "Topup options" [level=4]
+    - button "Add a topup option to Beta Net": Add
+    - paragraph: No topup options yet.
+  - region "Postpaid plans":
+    - heading "Postpaid plans" [level=4]
+    - button "Add a postpaid plan to Beta Net": Add
+    - paragraph: No postpaid plans yet.
+- alert: Carriers

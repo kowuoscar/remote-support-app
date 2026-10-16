@@ -1,0 +1,61 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - button "Close navigation"
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - button "Open navigation"
+  - heading "Carriers" [level=1]
+  - paragraph: United States catalog
+  - button "agent@example.com · Agent"
+  - button "Switch to dark theme"
+- main:
+  - button "Add carrier"
+  - text: 3 active
+  - button "AT&T"
+  - heading "AT&T" [level=2]
+  - button "Rename AT&T": Rename
+  - button "Archive AT&T": Archive
+  - paragraph: Prices in USD · shared by every agent in United States
+  - checkbox "Show archived"
+  - text: Show archived
+  - region "Topup options":
+    - heading "Topup options" [level=4]
+    - button "Add a topup option to AT&T": Add
+    - list "AT&T topup options":
+      - listitem:
+        - text: Prepaid Refill 25 $25.00
+        - button "Edit Prepaid Refill 25": Edit
+        - button "Archive Prepaid Refill 25": Archive
+      - listitem:
+        - text: Prepaid Refill 50 $50.00
+        - button "Edit Prepaid Refill 50": Edit
+        - button "Archive Prepaid Refill 50": Archive
+  - region "Postpaid plans":
+    - heading "Postpaid plans" [level=4]
+    - button "Add a postpaid plan to AT&T": Add
+    - list "AT&T postpaid plans":
+      - listitem:
+        - text: Unlimited Starter $65.99/mo
+        - button "Edit Unlimited Starter": Edit
+        - button "Archive Unlimited Starter": Archive
+      - listitem:
+        - text: Unlimited Premium $85.99/mo
+        - button "Edit Unlimited Premium": Edit
+        - button "Archive Unlimited Premium": Archive
+- alert

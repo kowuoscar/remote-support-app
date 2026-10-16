@@ -1,0 +1,178 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Manager Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /manager
+    - link "Requests":
+      - /url: /manager/requests
+    - link "Clients":
+      - /url: /manager/clients
+    - link "Agents":
+      - /url: /manager/agents
+    - link "Contracts":
+      - /url: /manager/contracts
+    - link "Stock":
+      - /url: /manager/stock
+    - link "Carriers":
+      - /url: /manager/carriers
+    - link "Invoices":
+      - /url: /manager/invoices
+- banner:
+  - heading "Contracts" [level=1]
+  - paragraph: 3 in this tenant
+  - button "Manager"
+  - button "Switch to dark theme"
+- main:
+  - button "New Contract"
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Harbor Line Logistics":
+          - /url: "?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf"
+      - listitem:
+        - link "Solstice Retail Group":
+          - /url: "?contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92"
+  - heading "Solstice Retail Group" [level=2]
+  - text: Agent
+  - combobox "Agent":
+    - option "Jordan Ellis" [selected]
+    - option "Priya Shah"
+  - paragraph: United States · USD
+  - region "Client Invoice":
+    - heading "Client Invoice" [level=2]
+    - paragraph: October 2026
+    - text: Draft
+    - paragraph: Total $135.99
+    - link "Open invoice":
+      - /url: /manager/invoices/client/08ee54a1-635d-4278-920c-c82722eb9283
+  - tablist "Fleet":
+    - tab "SIM Cards 7" [selected]
+    - tab "Smartphones 4"
+  - button "Add SIM card"
+  - tabpanel "SIM Cards 7":
+    - table:
+      - rowgroup:
+        - row "Number Carrier Plan Flavor Monthly fee Status Installed in":
+          - columnheader "Number"
+          - columnheader "Carrier"
+          - columnheader "Plan"
+          - columnheader "Flavor"
+          - columnheader "Monthly fee"
+          - columnheader "Status"
+          - columnheader "Installed in"
+      - rowgroup:
+        - row "+1-202-555-0101 Edit number, +1-202-555-0101 AT&T — Prepaid — Active Pixel 7 — PX7-88210":
+          - cell "+1-202-555-0101 Edit number, +1-202-555-0101":
+            - text: +1-202-555-0101
+            - button "Edit number, +1-202-555-0101": Edit
+          - cell "AT&T"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "Pixel 7 — PX7-88210":
+            - combobox "Installed in":
+              - option "Not installed"
+              - option "iPhone 13"
+              - option "Pixel 7 — PX7-88210" [selected]
+              - option "OnePlus 10 — OP10-33087"
+        - row "+1-202-555-0102 Edit number, +1-202-555-0102 AT&T Unlimited Starter Edit plan for +1-202-555-0102 Postpaid $65.99 Active Pixel 7 — PX7-88210":
+          - cell "+1-202-555-0102 Edit number, +1-202-555-0102":
+            - text: +1-202-555-0102
+            - button "Edit number, +1-202-555-0102": Edit
+          - cell "AT&T"
+          - cell "Unlimited Starter Edit plan for +1-202-555-0102":
+            - text: Unlimited Starter
+            - button "Edit plan for +1-202-555-0102": Edit
+          - cell "Postpaid"
+          - cell "$65.99"
+          - cell "Active"
+          - cell "Pixel 7 — PX7-88210":
+            - combobox "Installed in":
+              - option "Not installed"
+              - option "iPhone 13"
+              - option "Pixel 7 — PX7-88210" [selected]
+              - option "OnePlus 10 — OP10-33087"
+        - row "+1-202-555-0103 Edit number, +1-202-555-0103 T-Mobile — Prepaid — Active OnePlus 10 — OP10-33087":
+          - cell "+1-202-555-0103 Edit number, +1-202-555-0103":
+            - text: +1-202-555-0103
+            - button "Edit number, +1-202-555-0103": Edit
+          - cell "T-Mobile"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "OnePlus 10 — OP10-33087":
+            - combobox "Installed in":
+              - option "Not installed"
+              - option "iPhone 13"
+              - option "Pixel 7 — PX7-88210"
+              - option "OnePlus 10 — OP10-33087" [selected]
+        - row "+1-202-555-0104 Edit number, +1-202-555-0104 T-Mobile — Prepaid — Active iPhone 13":
+          - cell "+1-202-555-0104 Edit number, +1-202-555-0104":
+            - text: +1-202-555-0104
+            - button "Edit number, +1-202-555-0104": Edit
+          - cell "T-Mobile"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "iPhone 13":
+            - combobox "Installed in":
+              - option "Not installed"
+              - option "iPhone 13" [selected]
+              - option "Pixel 7 — PX7-88210"
+              - option "OnePlus 10 — OP10-33087"
+        - row "+1-202-555-0105 Edit number, +1-202-555-0105 Verizon — Prepaid — Active Not installed":
+          - cell "+1-202-555-0105 Edit number, +1-202-555-0105":
+            - text: +1-202-555-0105
+            - button "Edit number, +1-202-555-0105": Edit
+          - cell "Verizon"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 13"
+              - option "Pixel 7 — PX7-88210"
+              - option "OnePlus 10 — OP10-33087"
+        - row "+1-202-555-0201 Edit number, +1-202-555-0201 Verizon Unlimited Welcome Edit plan for +1-202-555-0201 Postpaid $65.00 Active Not installed":
+          - cell "+1-202-555-0201 Edit number, +1-202-555-0201":
+            - text: +1-202-555-0201
+            - button "Edit number, +1-202-555-0201": Edit
+          - cell "Verizon"
+          - cell "Unlimited Welcome Edit plan for +1-202-555-0201":
+            - text: Unlimited Welcome
+            - button "Edit plan for +1-202-555-0201": Edit
+          - cell "Postpaid"
+          - cell "$65.00"
+          - cell "Active"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 13"
+              - option "Pixel 7 — PX7-88210"
+              - option "OnePlus 10 — OP10-33087"
+        - row "+1-202-555-0202 Edit number, +1-202-555-0202 Verizon Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit plan for +1-202-555-0202 Postpaid $99.00 Active Not installed":
+          - cell "+1-202-555-0202 Edit number, +1-202-555-0202":
+            - text: +1-202-555-0202
+            - button "Edit number, +1-202-555-0202": Edit
+          - cell "Verizon"
+          - cell "Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit plan for +1-202-555-0202":
+            - text: Unlimited Global Enterprise Roaming Plus Priority Data Packs
+            - button "Edit plan for +1-202-555-0202": Edit
+          - cell "Postpaid"
+          - cell "$99.00"
+          - cell "Active"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 13"
+              - option "Pixel 7 — PX7-88210"
+              - option "OnePlus 10 — OP10-33087"
+- alert: Contracts

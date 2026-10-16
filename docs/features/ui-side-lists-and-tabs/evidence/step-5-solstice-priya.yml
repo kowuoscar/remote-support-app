@@ -1,0 +1,111 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Manager Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /manager
+    - link "Requests":
+      - /url: /manager/requests
+    - link "Clients":
+      - /url: /manager/clients
+    - link "Agents":
+      - /url: /manager/agents
+    - link "Contracts":
+      - /url: /manager/contracts
+    - link "Stock":
+      - /url: /manager/stock
+    - link "Carriers":
+      - /url: /manager/carriers
+    - link "Invoices":
+      - /url: /manager/invoices
+- banner:
+  - heading "Contracts" [level=1]
+  - paragraph: 3 in this tenant
+  - button "Manager"
+  - button "Switch to dark theme"
+- main:
+  - button "New Contract"
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Harbor Line Logistics":
+          - /url: "?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf"
+      - listitem:
+        - link "Solstice Retail Group":
+          - /url: "?contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92"
+  - heading "Solstice Retail Group" [level=2]
+  - text: Agent
+  - combobox "Agent":
+    - option "Jordan Ellis"
+    - option "Priya Shah" [selected]
+  - paragraph: United Kingdom · GBP
+  - region "Client Invoice":
+    - heading "Client Invoice" [level=2]
+    - paragraph: October 2026
+    - text: Draft
+    - paragraph: Total £20.00
+    - link "Open invoice":
+      - /url: /manager/invoices/client/8bb018bd-b24c-47d8-a6a3-4ac8afbc4386
+  - tablist "Fleet":
+    - tab "SIM Cards 3" [selected]
+    - tab "Smartphones 5"
+  - button "Add SIM card"
+  - tabpanel "SIM Cards 3":
+    - table:
+      - rowgroup:
+        - row "Number Carrier Plan Flavor Monthly fee Status Installed in":
+          - columnheader "Number"
+          - columnheader "Carrier"
+          - columnheader "Plan"
+          - columnheader "Flavor"
+          - columnheader "Monthly fee"
+          - columnheader "Status"
+          - columnheader "Installed in"
+      - rowgroup:
+        - row "+44-7700-900101 Edit number, +44-7700-900101 EE Flex 20 Edit plan for +44-7700-900101 Postpaid £20.00 Retired Cancelled Oct 15, 2026 Not installed":
+          - cell "+44-7700-900101 Edit number, +44-7700-900101":
+            - text: +44-7700-900101
+            - button "Edit number, +44-7700-900101": Edit
+          - cell "EE"
+          - cell "Flex 20 Edit plan for +44-7700-900101":
+            - text: Flex 20
+            - button "Edit plan for +44-7700-900101": Edit
+          - cell "Postpaid"
+          - cell "£20.00"
+          - cell "Retired Cancelled Oct 15, 2026"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 14 — IP14-UK-2201"
+              - option "iPhone 12"
+        - row "+44-7700-900102 Edit number, +44-7700-900102 O2 — Prepaid — Active Not installed":
+          - cell "+44-7700-900102 Edit number, +44-7700-900102":
+            - text: +44-7700-900102
+            - button "Edit number, +44-7700-900102": Edit
+          - cell "O2"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 14 — IP14-UK-2201"
+              - option "iPhone 12"
+        - row "+44-7700-900103 Edit number, +44-7700-900103 EE — Prepaid — Active iPhone 12":
+          - cell "+44-7700-900103 Edit number, +44-7700-900103":
+            - text: +44-7700-900103
+            - button "Edit number, +44-7700-900103": Edit
+          - cell "EE"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "iPhone 12":
+            - combobox "Installed in":
+              - option "Not installed"
+              - option "iPhone 14 — IP14-UK-2201"
+              - option "iPhone 12" [selected]
+- alert: Contracts

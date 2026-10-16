@@ -1,0 +1,36 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Client Portal
+  - navigation:
+    - link "Dashboard":
+      - /url: /client
+    - link "Fleet":
+      - /url: /client/fleet
+    - link "Requests":
+      - /url: /client/requests
+    - link "Invoices":
+      - /url: /client/invoices
+- banner:
+  - heading "Invoices" [level=1]
+  - paragraph: Sent by your Agent, one per Contract per month
+  - button "noah.kim@harborline.example · Tester"
+  - button "Switch to dark theme"
+- main:
+  - text: Harbor Line Logistics — United States
+  - paragraph: October 2026
+  - text: Awaiting approval
+  - paragraph: Sent Oct 16, 2026
+  - link "Download PDF":
+    - /url: /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/client-invoice/pdf
+  - term: Base amount
+  - definition: $99.00
+  - term: Fees this month
+  - definition: $0.00
+  - term: Total
+  - definition: $99.00
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees this month.
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached.
+- alert

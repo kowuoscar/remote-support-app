@@ -1,0 +1,212 @@
+{
+  "initialRows": [
+    {
+      "text": "AT&T",
+      "ariaCurrent": "true",
+      "opacity": "1",
+      "color": "rgb(71, 48, 224)",
+      "bg": "rgb(237, 235, 255)"
+    },
+    {
+      "text": "T-Mobile",
+      "ariaCurrent": null,
+      "opacity": "1",
+      "color": "rgb(69, 80, 106)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    {
+      "text": "Verizon",
+      "ariaCurrent": null,
+      "opacity": "1",
+      "color": "rgb(69, 80, 106)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    {
+      "text": "Aardvark Mobile Archived",
+      "ariaCurrent": null,
+      "opacity": "1",
+      "color": "rgb(92, 107, 142)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    {
+      "text": "Aardvark Mobile Archived",
+      "ariaCurrent": null,
+      "opacity": "1",
+      "color": "rgb(92, 107, 142)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    {
+      "text": "Aardvark Wireless Archived",
+      "ariaCurrent": null,
+      "opacity": "1",
+      "color": "rgb(92, 107, 142)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    {
+      "text": "Beta Net Archived",
+      "ariaCurrent": null,
+      "opacity": "1",
+      "color": "rgb(92, 107, 142)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    {
+      "text": "Legacy Wireless Archived",
+      "ariaCurrent": null,
+      "opacity": "1",
+      "color": "rgb(92, 107, 142)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    {
+      "text": "Sprint Archived",
+      "ariaCurrent": null,
+      "opacity": "1",
+      "color": "rgb(92, 107, 142)",
+      "bg": "rgba(0, 0, 0, 0)"
+    }
+  ],
+  "requestsOnLoad": [
+    "document GET /agent/carriers"
+  ],
+  "afterClickToTMobile": {
+    "url": "http://localhost:13000/agent/carriers?carrier=c0000000-0000-0000-0000-000000000002",
+    "rows": [
+      {
+        "text": "AT&T",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(69, 80, 106)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "T-Mobile",
+        "ariaCurrent": "true",
+        "opacity": "1",
+        "color": "rgb(71, 48, 224)",
+        "bg": "rgb(237, 235, 255)"
+      },
+      {
+        "text": "Verizon",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(69, 80, 106)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Aardvark Mobile Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Aardvark Mobile Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Aardvark Wireless Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Beta Net Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Legacy Wireless Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Sprint Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      }
+    ],
+    "requestsDuringClick": []
+  },
+  "afterReload": {
+    "url": "http://localhost:13000/agent/carriers?carrier=c0000000-0000-0000-0000-000000000002",
+    "requestsDuringReload": [
+      "document GET /agent/carriers?carrier=c0000000-0000-0000-0000-000000000002"
+    ],
+    "rows": [
+      {
+        "text": "AT&T",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(69, 80, 106)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "T-Mobile",
+        "ariaCurrent": "true",
+        "opacity": "1",
+        "color": "rgb(71, 48, 224)",
+        "bg": "rgb(237, 235, 255)"
+      },
+      {
+        "text": "Verizon",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(69, 80, 106)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Aardvark Mobile Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Aardvark Mobile Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Aardvark Wireless Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Beta Net Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Legacy Wireless Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "text": "Sprint Archived",
+        "ariaCurrent": null,
+        "opacity": "1",
+        "color": "rgb(92, 107, 142)",
+        "bg": "rgba(0, 0, 0, 0)"
+      }
+    ],
+    "heading": "T-Mobile"
+  },
+  "archivedLinkName": "Aardvark Mobile\nArchived"
+}

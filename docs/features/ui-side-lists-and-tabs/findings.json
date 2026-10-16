@@ -1,0 +1,258 @@
+{
+ "feature": "ui-side-lists-and-tabs",
+ "findings": [
+  {
+   "id": "F1",
+   "type": "spec-wrong",
+   "state": "open",
+   "raised_by": "reviewer-spec",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/fleet/use-contract-scoped-fleet.ts:521",
+   "citation": "23. ... every Fleet action to work inside its tab as it does today ... / 21. ... the chosen tab kept when I pick another Client or Contract ... / Solution, Carriers: \"After a mutation: router.refresh(), as today.\"",
+   "note": "Confirms the race in the 2026-10-16 Decisions-taken entry. selectTab/select call history.replaceState(null, ...). Next 16.3.5 wraps replaceState and dispatches a restore action (app-router.js:268-279); dispatchAction discards any running action when a restore arrives (app-router-instance.js:147-161), re-running only server actions (84-88); restoreReducer reuses the pre-refresh tree. A correction's router.refresh() is lost when the user switches tab or picks a Client before it returns; tables keep old values (controlled 'Installed in' snaps back) until reload. Same in the Manager's selectTab (contracts-view.tsx:923-930) and Carriers' select. Regression vs main. e2e fix 6f1f3af only waits it out."
+  },
+  {
+   "id": "F2",
+   "type": "spec-wrong",
+   "state": "open",
+   "raised_by": "reviewer-spec",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/carriers/carriers-view.tsx:112",
+   "citation": "13. ... with an archived Carrier staying selected, moved to the bottom and marked \"Archived\" ... / Solution: \"Archiving a Carrier keeps it selected\"",
+   "note": "carrierId starts as initialCarrierId ?? \"\" and selection is carriers.find(id) ?? carriers[0]; without ?carrier= archiving (or renaming) the first Carrier makes the selection jump to another. Start from the resolved row's real id."
+  },
+  {
+   "id": "F3",
+   "type": "spec-wrong",
+   "state": "open",
+   "raised_by": "reviewer-spec",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/agent/fleet-view.tsx:458",
+   "citation": "The dropdown is the existing ContractSwitcher, given an optional icon prop: Contracts by default, Carrier for Carriers, Clients for the Manager's Clients.",
+   "note": "Agent Fleet dropdown has icon={IconClients}; spec keeps the default Contracts icon there."
+  },
+  {
+   "id": "F4",
+   "type": "spec-partial",
+   "state": "open",
+   "raised_by": "reviewer-spec",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "DESIGN.md:64",
+   "citation": "Contract Switcher ... per-page icon (Carriers, the Manager's Clients). / Tabs, shared: \"Its only users today are the three Fleet views.\" / 47.",
+   "note": "Contract Switcher entry omits the Manager's Clients icon; Tabs entry (DESIGN.md:78) says only Agent and Tester Fleet use tabs."
+  },
+  {
+   "id": "F5",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "reviewer-spec",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "CONTEXT.md:139",
+   "citation": "",
+   "note": "Side list entry says 'Users: Client Invoices and Carriers so far'."
+  },
+  {
+   "id": "F6",
+   "type": "rule-violated",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/fleet/use-contract-scoped-fleet.ts:80; frontend/components/manager/contracts-view.tsx:72 (fed raw from app/agent/fleet/page.tsx, app/client/fleet/page.tsx, app/manager/contracts/page.tsx)",
+   "citation": "docs/agents/coding-standards.md (Frontend 14): `params`/`searchParams` are typed and parsed once at the top of the route or page; do not re-parse them further down the tree.",
+   "note": "?tab= reaches the views as an unvalidated string and is parsed into FleetTabId by fleetTabFromParam down the tree; call it in each page (fleet-tabs-card.tsx is server-importable) and pass a FleetTabId."
+  },
+  {
+   "id": "F7",
+   "type": "rule-violated",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/fleet/fleet-views.test.tsx:6-7",
+   "citation": "docs/agents/coding-standards.md (Frontend 9): Unit and component tests (Vitest + Testing Library) sit next to the file as `*.test.tsx`",
+   "note": "Tests AgentFleetView (components/agent/fleet-view.tsx) and ClientFleetView (components/client/fleet-view.tsx) from a third folder; split into components/agent/fleet-view.test.tsx and components/client/fleet-view.test.tsx."
+  },
+  {
+   "id": "F8",
+   "type": "rule-violated",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/carriers/carriers-view.tsx:339",
+   "citation": "docs/agents/coding-standards.md (Frontend 8): an arbitrary value (`w-[123px]`) needs a comment saying why it isn't a token.",
+   "note": "Rewritten line keeps tracking-[0.02em] with no comment; add one or drop it."
+  },
+  {
+   "id": "F9",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/agent/client-invoices-view.tsx:101-116; frontend/components/fleet/use-contract-scoped-fleet.ts:30-39",
+   "citation": "",
+   "note": "Possible Duplicated Code: the Client-name collision count (Country only on a shared name) is written twice; client-invoices-view could build on clientRows."
+  },
+  {
+   "id": "F10",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/carriers/carriers-view.tsx:124; frontend/components/carriers/carrier-name-dialog.tsx:76; frontend/components/fleet/use-contract-scoped-fleet.ts:86; frontend/components/manager/contracts-view.tsx:115",
+   "citation": "",
+   "note": "Possible Duplicated Code: four copies of 'write the selection to the address with replaceState(null, ...)' plus addressFor duplicating hrefFor/tabParam; client-invoices-view.tsx:72 passes window.history.state instead of null, so the copies already disagree."
+  },
+  {
+   "id": "F11",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/app/agent/fleet/page.tsx:31; frontend/app/client/fleet/page.tsx:26; frontend/app/manager/contracts/page.tsx:32; frontend/app/agent/carriers/page.tsx:21; frontend/app/manager/carriers/page.tsx:26",
+   "citation": "",
+   "note": "Possible Duplicated Code: the same first-of-string|string[] unwrapping in five pages; one helper in lib."
+  },
+  {
+   "id": "F12",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/carriers/carrier-name-dialog.tsx:70-78",
+   "citation": "",
+   "note": "Possible Feature Envy: the dialog writes the page's ?carrier= address itself although the page owns the selection and receives onCreated."
+  },
+  {
+   "id": "F13",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/ui/contract-switcher.tsx:20-34",
+   "citation": "",
+   "note": "Possible Mysterious Name: ContractSwitcher/ContractOption now also pick Carriers and the Manager's Clients via the icon prop."
+  },
+  {
+   "id": "F14",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/fleet/use-contract-scoped-fleet.ts:1-115",
+   "citation": "",
+   "note": "Possible Divergent Change: the hook module now also owns sort orders, side-list row building and URL writing."
+  },
+  {
+   "id": "F15",
+   "type": "smell",
+   "state": "open",
+   "raised_by": "reviewer-standards",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "CONTEXT.md:139",
+   "citation": "",
+   "note": "Stale vocabulary: 'Side list' entry says 'Users: Client Invoices and Carriers so far'; Fleet and the Manager's Contracts also use it (DESIGN.md § Side list)."
+  },
+  {
+   "id": "F16",
+   "type": "design-guideline",
+   "state": "open",
+   "raised_by": "design-audit",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/fleet/fleet-tabs-card.tsx:48",
+   "citation": "DESIGN.md Layout (line 166): sideways table scroll is for narrow viewports; Side list: the column exists only at xl so the detail keeps enough width",
+   "note": "At 1440px desktop (goldens agent-fleet-desktop-*, manager-contracts-desktop-*) the Fleet SIM Cards table no longer fits its card: the Installed in select is clipped at the card edge, the Change status column (Retire/Reactivate) is reachable only by sideways scroll, and the 'Monthly fee' header wraps. On main every column fit. The spec's assumption that 736px is enough for the 720px minimum does not hold, because the table's real width is larger."
+  },
+  {
+   "id": "F17",
+   "type": "design-guideline",
+   "state": "dismissed",
+   "raised_by": "design-audit",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/manager/contracts-view.tsx:145",
+   "citation": "DESIGN.md Contract Switcher: collapses to a static chip with one option",
+   "note": "The 'Agent' select always renders, even with a single Contract: an interactive control with one option. NOTE: the human explicitly chose 'shown even when there is only one Agent' (spec, confirmed 2026-10-15) — keep it. human: the Agent dropdown shows even with one Agent, confirmed 2026-10-15 (answer 'j. yes'); epic Intent point 5.1."
+  },
+  {
+   "id": "F18",
+   "type": "design-guideline",
+   "state": "open",
+   "raised_by": "design-audit",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/manager/contracts-view.tsx:142",
+   "citation": "DESIGN.md Typography > Hierarchy",
+   "note": "The Client heading uses text-lg (18px), off the type hierarchy; the Carrier detail heading is text-sm (carriers-view.tsx:250), so the two detail areas disagree."
+  },
+  {
+   "id": "F19",
+   "type": "design-guideline",
+   "state": "open",
+   "raised_by": "design-audit",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/carriers/carriers-view.tsx:339",
+   "citation": "heading order (accessibility)",
+   "note": "The Carrier became the h2 but offer-list headings stay h4, so h3 is skipped."
+  },
+  {
+   "id": "F20",
+   "type": "design-guideline",
+   "state": "open",
+   "raised_by": "design-audit",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "DESIGN.md:233",
+   "citation": "DESIGN.md must describe what shipped",
+   "note": "Tabs section says only the Fleet views use tabs (Manager Contracts does too); the Do line at 252 lists side lists only on Client Invoices and Fleet."
+  },
+  {
+   "id": "F21",
+   "type": "design-guideline",
+   "state": "open",
+   "raised_by": "design-audit",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "frontend/components/ui/tabs.tsx:96",
+   "citation": "DESIGN.md Tabs > Look: 'a raised canvas segment'",
+   "note": "In dark mode the selected 'raised' canvas segment is darker than its canvas-soft track and shadow-sm barely shows, so the selected tab reads as sunken."
+  },
+  {
+   "id": "F22",
+   "type": "acceptance-failed",
+   "state": "open",
+   "raised_by": "acceptance-runner",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "walkthrough step 3",
+   "citation": "Step 3: \"show the 60-character Plan name cut with \\\"…\\\", its title the full name, and the table no wider than for a short name\"",
+   "note": "With the 60-char plan the SIM table is 1250px vs 1154px with a short plan (name cut at 192px correctly), and the table scrolls inside its 894px overflow-x-auto wrapper at 1440. Same root as the design audit's table-fit finding. Evidence: evidence/step-3-run.json."
+  },
+  {
+   "id": "F23",
+   "type": "acceptance-failed",
+   "state": "open",
+   "raised_by": "acceptance-runner",
+   "after_review": false,
+   "in_changed_lines": true,
+   "where": "walkthrough step 3",
+   "citation": "Step 3: \"on the SIM Cards tab, correct a SIM's plan and change a status, and show both work\"; story 23",
+   "note": "Correct a plan, click Smartphones, back to SIM Cards: old plan shown; run 1 stale 2.5s+ until reload, runs 2-3 self-corrected after ~2.5s. Same root as the spec reviewer's refresh-race finding. Evidence: evidence/step-3-race.json."
+  }
+ ]
+}

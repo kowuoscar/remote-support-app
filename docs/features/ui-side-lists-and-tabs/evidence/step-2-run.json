@@ -1,0 +1,99 @@
+{
+  "jordan": {
+    "rows": [],
+    "afterClickUrl": "http://localhost:13000/agent/carriers?carrier=c0000000-0000-0000-0000-000000000003",
+    "afterClickRequests": [],
+    "verizonSnapshotHasPlans": "- main:\n  - button \"Add carrier\"\n  - text: 3 active\n  - navigation \"Carriers\":\n    - heading \"Carriers\" [level=2]\n    - list:\n      - listitem:\n        - link \"AT&T\":\n          - /url: /agent/carriers?carrier=c0000000-0000-0000-0000-000000000001\n      - listitem:\n        - link \"T-Mobile\":\n          - /url: /agent/carriers?carrier=c0000000-0000-0000-0000-000000000002\n      - listitem:\n        - link \"Verizon\":\n          - /url: /agent/carriers?carrier=c0000000-0000-0000-0000-000000000003\n      - listitem:\n        - link \"Aardvark Mobile Archived\":\n          - /url: /agent/carriers?carrier=f4dea882-fed8-4a8d-bba2-1b7c58faf740\n      - listitem:\n        - link \"Aardvark Mobile Archived\":\n          - /url: /agent/carriers?carrier=65517646-15d9-4b3d-b680-c413aafc01a5\n      - listitem:\n        - link \"Legacy Wireless Archived\":\n          - /url: /agent/carriers?carrier=649c9cf8-8533-4785-8182-9e23db247d1c\n      - listitem:\n        - link \"Sprint Archived\":\n          - /url: /agent/carriers?carrier=c0000000-0000-0000-0000-000000000004\n  - heading \"Verizon\" [level=2]\n  - button \"Rename Verizon\": Rename\n  - button \"Archive Verizon\": Archive\n  - paragraph: Prices in USD · shared by every agent in United States\n  - checkbox \"Show archived (2)\"\n  - text: Show archived (2)\n  - region \"Topup options\":\n    - heading \"Topup options\" [level=4]\n    - button \"Add a topup option to Verizon\": Add\n    - list \"Verizon topup options\":\n      - listitem:\n        - text: International Add-on $10.00\n        - button \"Edit International Add-on\": Edit\n        - button \"Archive International Add-on\": Archive\n  - region \"Postpaid plans\":\n    - heading \"Postpaid plans\" [level=4]\n    - button \"Add a postpaid plan to Verizon\": Add\n    - list \"Verizon postpaid plans\":\n      - listitem:\n        - text: Unlimited Welcome $65.00/mo\n        - button \"Edit Unlimited Welcome\": Edit\n        - button \"Archive Unlimited Welcome\": Archive\n      - listitem:\n        - text: Unlimited Plus $80.00/mo\n        - button \"Edit Unlimited Plus\": Edit\n        - button \"Archive Unlimited Plus\": Archive\n      - listitem:\n        - text: Unlimited Global Enterprise Roaming Plus Priority Data Packs $99.00/mo\n        - button \"Edit Unlimited Global Enterprise Roaming Plus Priority Data Packs\": Edit\n        - button \"Archive Unlimited Global Enterprise Roaming Plus Priority Data Packs\": Archive",
+    "afterReload": {
+      "url": "http://localhost:13000/agent/carriers?carrier=c0000000-0000-0000-0000-000000000003",
+      "rows": [],
+      "heading": "Verizon"
+    },
+    "archived": {
+      "requests": [],
+      "url": "http://localhost:13000/agent/carriers?carrier=649c9cf8-8533-4785-8182-9e23db247d1c",
+      "linkName": null,
+      "buttons": [
+        "Add carrier",
+        "Add carrier",
+        "Legacy Wireless"
+      ],
+      "text": "Add carrier\n3 active\nCarriers\nAT&T\nT-Mobile\nVerizon\nAardvark Mobile\nArchived\nAardvark Mobile\nArchived\nLegacy Wireless\nArchived\nSprint\nArchived\nLegacy Wireless\nArchived Oct 15, 2026\nArchived\n\nPrices in USD · shared by every agent in United States\n\nShow archived\nTopup options\n\nNo topup options yet.\n\nPostpaid plans\n\nNo postpaid plans yet."
+    },
+    "beforeShowArchived": "Add carrier\n3 active\nCarriers\nAT&T\nT-Mobile\nVerizon\nAardvark Mobile\nArchived\nAardvark Mobile\nArchived\nLegacy Wireless\nArchived\nSprint\nArchived\nVerizon\nRename\nArchive\n\nPrices in USD · shared by every agent in United States\n\nShow archived\n(2)\nTopup options\nAdd\nInternational Add-on\n$10.00\nEdit\nArchive\nPostpaid plans\nAdd\nUnlimited Welcome\n$65.00/mo\nEdit\nArchive\nUnlimited Plus\n$80.00/mo\nEdit\nArchive\nUnlimited Global Enterprise Roaming Plus Priority Data Packs\n$99.00/mo\nEdit\nArchive",
+    "checkboxName": "Show archived\n(2)",
+    "showArchived": "Add carrier\n3 active\nCarriers\nAT&T\nT-Mobile\nVerizon\nAardvark Mobile\nArchived\nAardvark Mobile\nArchived\nLegacy Wireless\nArchived\nSprint\nArchived\nVerizon\nRename\nArchive\n\nPrices in USD · shared by every agent in United States\n\nShow archived\n(2)\nTopup options\nAdd\nInternational Add-on\n$10.00\nEdit\nArchive\nPrepaid Refill 35\n$35.00\nArchived\nPostpaid plans\nAdd\nUnlimited Welcome\n$65.00/mo\nEdit\nArchive\nUnlimited Plus\n$80.00/mo\nEdit\nArchive\nUnlimited Global Enterprise Roaming Plus Priority Data Packs\n$99.00/mo\nEdit\nArchive\nStart Unlimited\n$70.00/mo\nArchived",
+    "afterAdd": {
+      "url": "http://localhost:13000/agent/carriers?carrier=72498555-35ab-4b7b-bb64-ddd222b3f46a",
+      "rows": [],
+      "heading": "Aardvark Wireless"
+    },
+    "afterArchive": {
+      "url": "http://localhost:13000/agent/carriers?carrier=72498555-35ab-4b7b-bb64-ddd222b3f46a",
+      "rows": [],
+      "heading": "Aardvark Wireless",
+      "buttons": [
+        "Add carrier",
+        "Add carrier",
+        "Aardvark Wireless"
+      ]
+    }
+  },
+  "manager": {
+    "rows": [],
+    "afterClickUrl": "http://localhost:13000/manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000003",
+    "afterClickRequests": [],
+    "verizonSnapshotHasPlans": "- main:\n  - text: Country\n  - combobox \"Country\":\n    - option \"France\"\n    - option \"Spain\"\n    - option \"United Kingdom\"\n    - option \"Mexico\"\n    - option \"Philippines\"\n    - option \"United States\" [selected]\n  - button \"Add carrier\"\n  - text: 3 active\n  - navigation \"Carriers\":\n    - heading \"Carriers\" [level=2]\n    - list:\n      - listitem:\n        - link \"AT&T\":\n          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000001\n      - listitem:\n        - link \"T-Mobile\":\n          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000002\n      - listitem:\n        - link \"Verizon\":\n          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000003\n      - listitem:\n        - link \"Aardvark Mobile Archived\":\n          - /url: /manager/carriers?country=UNITED_STATES&carrier=f4dea882-fed8-4a8d-bba2-1b7c58faf740\n      - listitem:\n        - link \"Aardvark Mobile Archived\":\n          - /url: /manager/carriers?country=UNITED_STATES&carrier=65517646-15d9-4b3d-b680-c413aafc01a5\n      - listitem:\n        - link \"Aardvark Wireless Archived\":\n          - /url: /manager/carriers?country=UNITED_STATES&carrier=72498555-35ab-4b7b-bb64-ddd222b3f46a\n      - listitem:\n        - link \"Legacy Wireless Archived\":\n          - /url: /manager/carriers?country=UNITED_STATES&carrier=649c9cf8-8533-4785-8182-9e23db247d1c\n      - listitem:\n        - link \"Sprint Archived\":\n          - /url: /manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000004\n  - heading \"Verizon\" [level=2]\n  - button \"Rename Verizon\": Rename\n  - button \"Archive Verizon\": Archive\n  - paragraph: Prices in USD · shared by every agent in United States\n  - checkbox \"Show archived (2)\"\n  - text: Show archived (2)\n  - region \"Topup options\":\n    - heading \"Topup options\" [level=4]\n    - button \"Add a topup option to Verizon\": Add\n    - list \"Verizon topup options\":\n      - listitem:\n        - text: International Add-on $10.00\n        - button \"Edit International Add-on\": Edit\n        - button \"Archive International Add-on\": Archive\n  - region \"Postpaid plans\":\n    - heading \"Postpaid plans\" [level=4]\n    - button \"Add a postpaid plan to Verizon\": Add\n    - list \"Verizon postpaid plans\":\n      - listitem:\n        - text: Unlimited Welcome $65.00/mo\n        - button \"Edit Unlimited Welcome\": Edit\n        - button \"Archive Unlimited Welcome\": Archive\n      - listitem:\n        - text: Unlimited Plus $80.00/mo\n        - button \"Edit Unlimited Plus\": Edit\n        - button \"Archive Unlimited Plus\": Archive\n      - listitem:\n        - text: Unlimited Global Enterprise Roaming Plus Priority Data Packs $99.00/mo\n        - button \"Edit Unlimited Global Enterprise Roaming Plus Priority Data Packs\": Edit\n        - button \"Archive Unlimited Global Enterprise Roaming Plus Priority Data Packs\": Archive",
+    "afterReload": {
+      "url": "http://localhost:13000/manager/carriers?country=UNITED_STATES&carrier=c0000000-0000-0000-0000-000000000003",
+      "rows": [],
+      "heading": "Verizon"
+    },
+    "archived": {
+      "requests": [],
+      "url": "http://localhost:13000/manager/carriers?country=UNITED_STATES&carrier=649c9cf8-8533-4785-8182-9e23db247d1c",
+      "linkName": null,
+      "buttons": [
+        "Add carrier",
+        "Add carrier",
+        "Legacy Wireless"
+      ],
+      "text": "Country\nFrance\nSpain\nUnited Kingdom\nMexico\nPhilippines\nUnited States\nAdd carrier\n3 active\nCarriers\nAT&T\nT-Mobile\nVerizon\nAardvark Mobile\nArchived\nAardvark Mobile\nArchived\nAardvark Wireless\nArchived\nLegacy Wireless\nArchived\nSprint\nArchived\nLegacy Wireless\nArchived Oct 15, 2026\nArchived\n\nPrices in USD · shared by every agent in United States\n\nShow archived\nTopup options\n\nNo topup options yet.\n\nPostp"
+    },
+    "beforeShowArchived": "Country\nFrance\nSpain\nUnited Kingdom\nMexico\nPhilippines\nUnited States\nAdd carrier\n3 active\nCarriers\nAT&T\nT-Mobile\nVerizon\nAardvark Mobile\nArchived\nAardvark Mobile\nArchived\nAardvark Wireless\nArchived\nLegacy Wireless\nArchived\nSprint\nArchived\nVerizon\nRename\nArchive\n\nPrices in USD · shared by every agent in United States\n\nShow archived\n(2)\nTopup options\nAdd\nInternational Add-on\n$10.00\nEdit\nArchive\nPostpaid plans\nAdd\nUnlimited Welcome\n$65.00/mo\nEdit\nArchive\nUnlimited Plus\n$80.00/mo\nEdit\nArchive\nUnlimited Global Enterprise Roaming Plus Priority Data Packs\n$99.00/mo\nEdit\nArchive",
+    "checkboxName": "Show archived\n(2)",
+    "showArchived": "Country\nFrance\nSpain\nUnited Kingdom\nMexico\nPhilippines\nUnited States\nAdd carrier\n3 active\nCarriers\nAT&T\nT-Mobile\nVerizon\nAardvark Mobile\nArchived\nAardvark Mobile\nArchived\nAardvark Wireless\nArchived\nLegacy Wireless\nArchived\nSprint\nArchived\nVerizon\nRename\nArchive\n\nPrices in USD · shared by every agent in United States\n\nShow archived\n(2)\nTopup options\nAdd\nInternational Add-on\n$10.00\nEdit\nArchive\nPrepaid Refill 35\n$35.00\nArchived\nPostpaid plans\nAdd\nUnlimited Welcome\n$65.00/mo\nEdit\nArchive\nUnlimited Plus\n$80.00/mo\nEdit\nArchive\nUnlimited Global Enterprise Roaming Plus Priority Data Packs\n$99.00/mo\nEdit\nArchive\nStart Unlimited\n$70.00/mo\nArchived",
+    "afterAdd": {
+      "url": "http://localhost:13000/manager/carriers?country=UNITED_STATES&carrier=b692e2ba-c7a7-4055-91e5-8856a969b4cf",
+      "rows": [],
+      "heading": "Beta Net"
+    },
+    "afterArchive": {
+      "url": "http://localhost:13000/manager/carriers?country=UNITED_STATES&carrier=b692e2ba-c7a7-4055-91e5-8856a969b4cf",
+      "rows": [],
+      "heading": "Beta Net",
+      "buttons": [
+        "Add carrier",
+        "Add carrier",
+        "Beta Net"
+      ]
+    },
+    "managerCombos": [
+      "null|UNITED_STATES"
+    ],
+    "afterCountry": {
+      "url": "http://localhost:13000/manager/carriers?country=UNITED_KINGDOM",
+      "rows": [],
+      "heading": "EE"
+    }
+  },
+  "phone": {
+    "overflow": {
+      "scrollWidth": 390,
+      "innerWidth": 390
+    },
+    "landmark": 0,
+    "dropdownSnapshot": "- main:\n  - button \"Add carrier\"\n  - text: 3 active\n  - button \"AT&T\"\n  - heading \"AT&T\" [level=2]\n  - button \"Rename AT&T\": Rename\n  - button \"Archive AT&T\": Archive\n  - paragraph: Prices in USD · shared by every agent in United States\n  - checkbox \"Show archived\"\n  - text: Show archived\n  - region \"Topup options\":\n    - heading \"Topup options\" [level=4]\n    - button \"Add a topup option to AT&T\": Add\n    - list \"AT&T topup options\":"
+  },
+  "notes": []
+}

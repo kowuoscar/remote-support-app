@@ -1,0 +1,65 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Client Portal
+  - navigation:
+    - link "Dashboard":
+      - /url: /client
+    - link "Fleet":
+      - /url: /client/fleet
+    - link "Requests":
+      - /url: /client/requests
+    - link "Invoices":
+      - /url: /client/invoices
+- banner:
+  - heading "Fleet" [level=1]
+  - paragraph: Loaded per Contract
+  - button "dana.whitfield@solsticeretail.example · Tester"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Contracts":
+    - heading "Contracts" [level=2]
+    - list:
+      - listitem:
+        - link "United Kingdom":
+          - /url: /client/fleet?contract=1bae7798-c445-4cf5-83b9-ace06a0a2ce3
+      - listitem:
+        - link "United States":
+          - /url: /client/fleet?contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92
+  - button "Submit Request"
+  - tablist "Fleet":
+    - tab "SIM Cards 3" [selected]
+    - tab "Smartphones 5"
+  - tabpanel "SIM Cards 3":
+    - table:
+      - rowgroup:
+        - row "Number Carrier Plan Flavor Status Installed in":
+          - columnheader "Number"
+          - columnheader "Carrier"
+          - columnheader "Plan"
+          - columnheader "Flavor"
+          - columnheader "Status"
+          - columnheader "Installed in"
+      - rowgroup:
+        - row "+44-7700-900101 EE Flex 20 Postpaid Retired Cancelled Oct 15, 2026 —":
+          - cell "+44-7700-900101"
+          - cell "EE"
+          - cell "Flex 20"
+          - cell "Postpaid"
+          - cell "Retired Cancelled Oct 15, 2026"
+          - cell "—"
+        - row "+44-7700-900102 O2 — Prepaid Active —":
+          - cell "+44-7700-900102"
+          - cell "O2"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "Active"
+          - cell "—"
+        - row "+44-7700-900103 EE — Prepaid Active iPhone 12":
+          - cell "+44-7700-900103"
+          - cell "EE"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "Active"
+          - cell "iPhone 12"
+- alert

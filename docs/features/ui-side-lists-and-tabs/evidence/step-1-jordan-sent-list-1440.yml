@@ -1,0 +1,82 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Client Invoices" [level=1]
+  - paragraph: One per Contract per month
+  - button "agent@example.com · Agent"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Harbor Line Logistics Awaiting approval":
+          - /url: /agent/client-invoices?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf
+      - listitem:
+        - link "Solstice Retail Group Sent back":
+          - /url: /agent/client-invoices?contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92
+  - region "Sent back to you":
+    - heading "Sent back to you" [level=2]
+    - table:
+      - rowgroup:
+        - row "Contract Billing month Sent back Reason Action":
+          - columnheader "Contract"
+          - columnheader "Billing month"
+          - columnheader "Sent back"
+          - columnheader "Reason"
+          - columnheader "Action"
+      - rowgroup:
+        - row "Solstice Retail Group — United States October 2026 Oct 16, 2026 Please recheck the top-up line Open Solstice Retail Group — United States, October 2026":
+          - cell "Solstice Retail Group — United States"
+          - cell "October 2026"
+          - cell "Oct 16, 2026"
+          - cell "Please recheck the top-up line":
+            - paragraph: Please recheck the top-up line
+          - cell "Open Solstice Retail Group — United States, October 2026":
+            - link "Open Solstice Retail Group — United States, October 2026":
+              - /url: /agent/client-invoices/08ee54a1-635d-4278-920c-c82722eb9283
+              - text: Open
+  - paragraph: October 2026
+  - text: Awaiting approval
+  - paragraph: Sent to the Manager and Client — numbers are locked to what was sent
+  - paragraph: Sent Oct 16, 2026
+  - link "Download PDF":
+    - /url: /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/client-invoice/pdf
+  - term: Base amount
+  - definition: $99.00
+  - term: Fees this month
+  - definition: $0.00
+  - term: Total
+  - definition: $99.00
+  - heading "Postpaid SIM Cards" [level=3]
+  - table:
+    - rowgroup:
+      - row "Number Billed":
+        - columnheader "Number"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "+1-202-555-0301 Verizon · Postpaid $99.00":
+        - cell "+1-202-555-0301 Verizon · Postpaid"
+        - cell "$99.00"
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees logged against this Contract yet this month.
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached yet.
+- alert

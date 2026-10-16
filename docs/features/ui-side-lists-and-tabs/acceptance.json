@@ -1,0 +1,57 @@
+{
+ "feature": "ui-side-lists-and-tabs",
+ "played_at": "2026-10-16",
+ "played_on": "feature/ui-side-lists-and-tabs @ da7ff6e+f03adbd",
+ "environment": "Isolated: postgres:16-alpine rsa-accept-pg on 55432, backend demo profile on 18080 (second no-profile backend on 18082 for the empty tenant), next dev on 13000, logging proxy 18081, visual stub 14174; all torn down; rsa-prod untouched",
+ "steps": [
+  {
+   "step": 1,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-1-run.json",
+   "note": "Postpaid-alone line shown on the stub session; the real backend rejects a SIM with no Carrier."
+  },
+  {
+   "step": 2,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-2-run.json",
+   "note": ""
+  },
+  {
+   "step": 3,
+   "actor": "agent",
+   "status": "failed",
+   "evidence": "evidence/step-3-run.json",
+   "note": "Table wider with the long plan (1250 vs 1154px), and a stale plan after correct-then-switch-tab (evidence/step-3-race.json). Everything else passed."
+  },
+  {
+   "step": 4,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-4-run.json",
+   "note": ""
+  },
+  {
+   "step": 5,
+   "actor": "agent",
+   "status": "passed",
+   "evidence": "evidence/step-5-run.json",
+   "note": "Empty state shown on a fresh no-demo tenant; the stub's empty session still lists 2 contracts."
+  },
+  {
+   "step": 6,
+   "actor": "human",
+   "status": "pending",
+   "evidence": "",
+   "note": ""
+  },
+  {
+   "step": 7,
+   "actor": "human",
+   "status": "pending",
+   "evidence": "",
+   "note": ""
+  }
+ ]
+}

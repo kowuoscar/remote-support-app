@@ -1,0 +1,158 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Manager Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /manager
+    - link "Requests":
+      - /url: /manager/requests
+    - link "Clients":
+      - /url: /manager/clients
+    - link "Agents":
+      - /url: /manager/agents
+    - link "Contracts":
+      - /url: /manager/contracts
+    - link "Stock":
+      - /url: /manager/stock
+    - link "Carriers":
+      - /url: /manager/carriers
+    - link "Invoices":
+      - /url: /manager/invoices
+- banner:
+  - heading "Contracts" [level=1]
+  - paragraph: 3 in this tenant
+  - button "Manager"
+  - button "Switch to dark theme"
+- main:
+  - button "New Contract"
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Harbor Line Logistics":
+          - /url: "?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf"
+      - listitem:
+        - link "Solstice Retail Group":
+          - /url: "?contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92"
+  - heading "Harbor Line Logistics" [level=2]
+  - text: Agent
+  - combobox "Agent":
+    - option "Jordan Ellis" [selected]
+  - paragraph: United States · USD
+  - region "Client Invoice":
+    - heading "Client Invoice" [level=2]
+    - paragraph: October 2026
+    - text: Awaiting approval
+    - paragraph: Total $99.00
+    - link "Open invoice":
+      - /url: /manager/invoices/client/5a77e817-5132-499b-b23e-1071b47d2ea0
+  - tablist "Fleet":
+    - tab "SIM Cards 6" [selected]
+    - tab "Smartphones 3"
+  - button "Add SIM card"
+  - tabpanel "SIM Cards 6":
+    - table:
+      - rowgroup:
+        - row "Number Carrier Plan Flavor Monthly fee Status Installed in":
+          - columnheader "Number"
+          - columnheader "Carrier"
+          - columnheader "Plan"
+          - columnheader "Flavor"
+          - columnheader "Monthly fee"
+          - columnheader "Status"
+          - columnheader "Installed in"
+      - rowgroup:
+        - row "+1-303-555-0201 Edit number, +1-303-555-0201 T-Mobile — Prepaid — Active iPhone 13 mini — IP13M-9021":
+          - cell "+1-303-555-0201 Edit number, +1-303-555-0201":
+            - text: +1-303-555-0201
+            - button "Edit number, +1-303-555-0201": Edit
+          - cell "T-Mobile"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "iPhone 13 mini — IP13M-9021":
+            - combobox "Installed in":
+              - option "Not installed"
+              - option "iPhone 13 mini — IP13M-9021" [selected]
+              - option "Spare Android — SPARE-2270"
+              - option "Acceptance Phone — ACC-0001"
+        - row "+1-303-555-0202 Edit number, +1-303-555-0202 Verizon — Prepaid — Active Spare Android — SPARE-2270":
+          - cell "+1-303-555-0202 Edit number, +1-303-555-0202":
+            - text: +1-303-555-0202
+            - button "Edit number, +1-303-555-0202": Edit
+          - cell "Verizon"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "Spare Android — SPARE-2270":
+            - combobox "Installed in":
+              - option "Not installed"
+              - option "iPhone 13 mini — IP13M-9021"
+              - option "Spare Android — SPARE-2270" [selected]
+              - option "Acceptance Phone — ACC-0001"
+        - row "+1-202-555-0301 Edit number, +1-202-555-0301 Verizon Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit plan for +1-202-555-0301 Postpaid $99.00 Active Not installed":
+          - cell "+1-202-555-0301 Edit number, +1-202-555-0301":
+            - text: +1-202-555-0301
+            - button "Edit number, +1-202-555-0301": Edit
+          - cell "Verizon"
+          - cell "Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit plan for +1-202-555-0301":
+            - text: Unlimited Global Enterprise Roaming Plus Priority Data Packs
+            - button "Edit plan for +1-202-555-0301": Edit
+          - cell "Postpaid"
+          - cell "$99.00"
+          - cell "Active"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 13 mini — IP13M-9021"
+              - option "Spare Android — SPARE-2270"
+              - option "Acceptance Phone — ACC-0001"
+        - row "+1-202-555-0399 Edit number, +1-202-555-0399 Verizon — Prepaid — Retired Not installed":
+          - cell "+1-202-555-0399 Edit number, +1-202-555-0399":
+            - text: +1-202-555-0399
+            - button "Edit number, +1-202-555-0399": Edit
+          - cell "Verizon"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Retired"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 13 mini — IP13M-9021"
+              - option "Spare Android — SPARE-2270"
+              - option "Acceptance Phone — ACC-0001"
+        - row "+1-202-555-0398 Edit number, +1-202-555-0398 Verizon — Prepaid — Retired Not installed":
+          - cell "+1-202-555-0398 Edit number, +1-202-555-0398":
+            - text: +1-202-555-0398
+            - button "Edit number, +1-202-555-0398": Edit
+          - cell "Verizon"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Retired"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 13 mini — IP13M-9021"
+              - option "Spare Android — SPARE-2270"
+              - option "Acceptance Phone — ACC-0001"
+        - row "+1-202-555-0777 Edit number, +1-202-555-0777 Verizon — Prepaid — Active Not installed":
+          - cell "+1-202-555-0777 Edit number, +1-202-555-0777":
+            - text: +1-202-555-0777
+            - button "Edit number, +1-202-555-0777": Edit
+          - cell "Verizon"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 13 mini — IP13M-9021"
+              - option "Spare Android — SPARE-2270"
+              - option "Acceptance Phone — ACC-0001"
+- alert: Contracts

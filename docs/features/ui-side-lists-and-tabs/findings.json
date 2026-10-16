@@ -246,7 +246,7 @@
   {
    "id": "F23",
    "type": "acceptance-failed",
-   "state": "open",
+   "state": "fixed",
    "raised_by": "acceptance-runner",
    "after_review": false,
    "in_changed_lines": true,

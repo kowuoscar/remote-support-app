@@ -31,22 +31,40 @@ describe("useSelectionAddress", () => {
     expect(mockRouter.refresh).not.toHaveBeenCalled();
   });
 
-  it("re-issues a refresh that was in flight when the address was written (Next drops it on the write)", () => {
+  it("asks again for a refresh that may be in flight, once Next has applied the write", () => {
     vi.useFakeTimers();
-    const { result } = renderHook(() => useSelectionAddress());
+    const { result, rerender } = renderHook(() => useSelectionAddress());
     refreshPage(mockRouter);
     expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
     vi.advanceTimersByTime(500);
     result.current({ tab: "smartphones" });
+    // Not in the tick of the write: Next would lose it to the restore it is about to apply.
+    expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
+    rerender(); // Next applied the restore: useSearchParams now shows the new address
+    expect(mockRouter.refresh).toHaveBeenCalledTimes(2);
+    rerender();
     expect(mockRouter.refresh).toHaveBeenCalledTimes(2);
   });
 
   it("does not refresh for a refresh long since landed", () => {
     vi.useFakeTimers();
-    const { result } = renderHook(() => useSelectionAddress());
+    const { result, rerender } = renderHook(() => useSelectionAddress());
     refreshPage(mockRouter);
     vi.advanceTimersByTime(60_000);
     result.current({ tab: "smartphones" });
+    rerender();
     expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("writes nothing when the address would not change", () => {
+    vi.useFakeTimers();
+    const replaceState = vi.spyOn(window.history, "replaceState");
+    const { result, rerender } = renderHook(() => useSelectionAddress());
+    refreshPage(mockRouter);
+    result.current({ contract: "c1" });
+    rerender();
+    expect(replaceState).not.toHaveBeenCalled();
+    expect(mockRouter.refresh).toHaveBeenCalledTimes(1);
+    replaceState.mockRestore();
   });
 });

@@ -12,6 +12,7 @@ import {
   login,
   logout,
   selectContractInSwitcher,
+  selectInSideList,
   submitRequestAsTester,
 } from "./helpers";
 
@@ -59,7 +60,7 @@ test.describe("return client-owned smartphones", () => {
     await completeReturnRequest(page, row);
 
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
 
     // API-level assertions for the Fleet's post-completion state (mirrors sim-swap-moves.spec.ts):
     // a Smartphone's Fleet row shows any SIM Card installed in it (sim-installed-in-smartphone

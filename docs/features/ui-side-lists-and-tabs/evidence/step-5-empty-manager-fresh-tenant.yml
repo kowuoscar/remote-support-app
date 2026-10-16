@@ -1,0 +1,31 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Manager Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /manager
+    - link "Requests":
+      - /url: /manager/requests
+    - link "Clients":
+      - /url: /manager/clients
+    - link "Agents":
+      - /url: /manager/agents
+    - link "Contracts":
+      - /url: /manager/contracts
+    - link "Stock":
+      - /url: /manager/stock
+    - link "Carriers":
+      - /url: /manager/carriers
+    - link "Invoices":
+      - /url: /manager/invoices
+- banner:
+  - heading "Contracts" [level=1]
+  - paragraph: 0 in this tenant
+  - button "Manager"
+  - button "Switch to dark theme"
+- main:
+  - button "New Contract"
+  - paragraph: No contracts yet
+  - paragraph: Add a contract to link one client to one agent — its currency is copied from the agent automatically.
+- alert

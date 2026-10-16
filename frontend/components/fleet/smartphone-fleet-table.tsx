@@ -37,7 +37,7 @@ export function SmartphoneFleetTable({
   changeStatus?: (phone: SmartphoneListItem) => ReactNode;
 }) {
   return (
-    <Table>
+    <Table dense>
       <Thead>
         <Tr>
           <Th>Model</Th>
@@ -45,7 +45,6 @@ export function SmartphoneFleetTable({
           <Th>Owner</Th>
           <Th>SIM Cards</Th>
           <Th>Status</Th>
-          {changeStatus ? <Th>Change status</Th> : null}
         </Tr>
       </Thead>
       <Tbody>
@@ -74,11 +73,14 @@ export function SmartphoneFleetTable({
             </Td>
             <Td className="tnum text-ink-secondary">{simCardNumbersInstalledIn(simCards, phone.id)}</Td>
             <Td>
-              <Badge tone={smartphoneStatusToneByValue[phone.status]}>
-                {SMARTPHONE_STATUS_LABEL[phone.status]}
-              </Badge>
+              {/* The status and, for the Agent, its action share the cell (see SimCardFleetTable). */}
+              <div className="flex flex-col items-start gap-1.5">
+                <Badge tone={smartphoneStatusToneByValue[phone.status]}>
+                  {SMARTPHONE_STATUS_LABEL[phone.status]}
+                </Badge>
+                {changeStatus ? changeStatus(phone) : null}
+              </div>
             </Td>
-            {changeStatus ? <Td>{changeStatus(phone)}</Td> : null}
           </Tr>
         ))}
       </Tbody>

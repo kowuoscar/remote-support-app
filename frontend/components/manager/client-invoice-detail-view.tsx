@@ -10,7 +10,7 @@ import { ApproveClientInvoiceControl } from "@/components/manager/approve-client
 import { SendBackClientInvoiceControl } from "@/components/manager/send-back-client-invoice-control";
 import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from "@/lib/status";
 import { formatBillingMonth, formatDate, formatLocalDate } from "@/lib/format";
-import { FEE_TYPE_LABEL, type ClientInvoiceDetail } from "@/lib/api/types";
+import { FEE_TYPE_LABEL, simLineKind, type ClientInvoiceDetail } from "@/lib/api/types";
 
 function statusText(invoice: ClientInvoiceDetail): string {
   switch (invoice.status) {
@@ -142,6 +142,7 @@ export function ClientInvoiceDetailView({ invoice: initial }: { invoice: ClientI
               >
                 <span className="min-w-0 break-words text-ink">
                   <span className="tnum font-medium">{sim.number}</span>
+                  <span className="ml-2 text-label-sm font-normal text-ink-mute">{simLineKind(sim)}</span>
                   {sim.cancellationEffectiveDate ? (
                     <span className="block text-label-sm text-ink-mute">
                       Cancelled {formatLocalDate(sim.cancellationEffectiveDate)} — still billed through this month

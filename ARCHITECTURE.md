@@ -69,10 +69,13 @@ error, not a nitpick.
 - `frontend/components/app-shell/change-name-dialog.tsx` · the dialog behind the account menu's Change name item: edits the caller's own name, never signs out.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
 - `frontend/components/agent/agent-client-invoice-card.tsx` · the Agent's Client Invoice card.
-- `frontend/components/agent/contract-side-list.tsx` · the presentational "Clients" nav of Contract links on the Agent's Client Invoices page; the view owns the selection.
+- `frontend/components/ui/side-list.tsx` · the shared SideList (named nav landmark of links with name, detail, badge and mark slots) and SideListLayout (page body: column at xl, dropdown and header below xl, with lead and detailRef slots).
+- `frontend/components/ui/tabs.tsx` · the shared WAI-ARIA tablist with roving tabindex, automatic activation and one rendered panel; switches between the tables of one record, never scopes a Contract.
 - `frontend/components/agent/invoice-line-table.tsx` · the Agent Client Invoice lines as one markup: a table at xl, one-column grid rows below it, with explicit ARIA table roles; exports `LINE_AREA` for parts to name their grid area.
 - `frontend/components/manager/login-activation-dialog.tsx` · the shared confirm dialog a Manager uses to deactivate or reactivate a Login.
 - `frontend/components/manager/send-back-client-invoice-control.tsx` · inline reason form that POSTs a send-back to a given endpoint and hands the returned invoice to its caller.
+- `frontend/components/fleet/fleet-tabs-card.tsx` · the Fleet card whose header row is the "Fleet" tablist (SIM Cards, Smartphones) with per-tab action and empty state, and the `?tab=` parser; used by the Agent and Tester Fleet.
+- `frontend/components/manager/contracts-view.tsx` · the Manager's one-page Contracts view: Clients side list, Agent select, invoice summary and tabbed Fleet; a pick is router.replace in a transition.
 - `frontend/components/fleet/smartphone-model-control.tsx` · the inline control that corrects a Smartphone's model.
 - `frontend/components/fleet/smartphone-owner-control.tsx` · the inline control that corrects a Smartphone's owner.
 - `frontend/components/fleet/sim-card-number-control.tsx` · the inline control that corrects a SIM Card's number.
@@ -87,6 +90,7 @@ error, not a nitpick.
 - `api` · typed callers for the BFF routes.
 - `auth` · session and token handling.
 - `demo` · demo data generation for development and the visual goldens.
+- `frontend/lib/manager-contracts.ts` · groups the Manager's Contracts by Client and resolves the selected Contract from `?contract=`.
 - `frontend/lib/api/client-invoice.ts` · the Agent's by-id Client Invoice read.
 
 ## Dependency direction

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ComponentType } from "react";
 import { IconChevronDown, IconContracts } from "@/components/icons";
 import { cn } from "@/lib/cn";
 
@@ -11,19 +11,26 @@ export interface ContractOption {
   currency?: string;
 }
 
+/** An icon component taking a class, as the `Icon*` set in `components/icons.tsx` does. */
+type SwitcherIcon = ComponentType<{ className?: string }>;
+
 /**
  * A dropdown, never a tab: scopes the Requests / Fleet / Client Invoices
  * pages (Agent Console) or the dashboard and lists (Client Portal, when the
- * Client holds more than one Contract) to a single Contract at a time.
+ * Client holds more than one Contract) to a single Contract at a time. Below `xl` it is also every
+ * side list's dropdown (side-lists-and-tabs spec): `icon` then names what it picks (Carriers, the
+ * Manager's Clients); Contracts by default.
  */
 export function ContractSwitcher({
   contracts,
   value,
   onChange,
+  icon: Icon = IconContracts,
 }: {
   contracts: ContractOption[];
   value: string;
   onChange: (id: string) => void;
+  icon?: SwitcherIcon;
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -49,7 +56,7 @@ export function ContractSwitcher({
   if (contracts.length <= 1) {
     return (
       <div className="inline-flex max-w-full items-center gap-2 rounded-lg border border-hairline bg-canvas-soft px-3 py-2 text-sm text-ink-secondary">
-        <IconContracts className="h-4 w-4 shrink-0 text-ink-mute" />
+        <Icon className="h-4 w-4 shrink-0 text-ink-mute" />
         <span className="truncate" title={current?.label}>
           {current?.label ?? "No contract"}
         </span>
@@ -67,7 +74,7 @@ export function ContractSwitcher({
         className="inline-flex min-w-55 max-w-full items-center justify-between gap-2 rounded-lg border border-hairline-strong bg-canvas px-3 py-2 text-sm text-ink transition-colors hover:bg-canvas-soft"
       >
         <span className="flex items-center gap-2 truncate">
-          <IconContracts className="h-4 w-4 shrink-0 text-ink-mute" />
+          <Icon className="h-4 w-4 shrink-0 text-ink-mute" />
           <span className="truncate font-medium">{current?.label}</span>
         </span>
         <IconChevronDown

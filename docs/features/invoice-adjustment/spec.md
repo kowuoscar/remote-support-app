@@ -33,6 +33,17 @@ The human settled how the business works, in two steps:
   re-specify. Once a month is closed, **only an adjustment** corrects it: the
   Manager records it, it lands on the **current month's** Client Invoice, and
   it **moves the Agent's pay by the same amount**.
+- 2026-10-14 (inbox `adjustment-charge-already-paid`): a charge for an item
+  the Agent was already paid for but the Client was never billed for is
+  picked by the Manager from the closed month's "paid to the Agent but not
+  billed to the Client" list; it bills the Client, leaves the Agent's pay
+  alone and is marked "Already in the Agent's pay". Every other adjustment
+  moves pay by the same amount. The same day (inbox `month-close-paid-pay`,
+  `month-closes-on-the-fifth`'s spec) the human settled that an Agent pay
+  already approved and closed, or paid, never moves: a Client Invoice edit
+  still changes the bill, and anything owed to the Agent "goes on next
+  month's pay as an adjustment". Open questions 1 and 2 are what that second
+  answer asks of this feature.
 
 A correction can lower an amount, which nothing in the app can express
 today: a Fee must be greater than zero (`FeeCreateRequest`), and a Client
@@ -75,7 +86,13 @@ features, after `edit-client-invoice-lines`, `send-a-client-invoice-back` and
 - It **moves the Agent's pay by the same amount**: the Contract's payable
   amount for the receiving month includes it, so the Agent's Local Support
   Fees for that month follow (2026-10-08). The one exception is a charge for
-  something the Agent was already paid for (open question 1).
+  something the Agent was already paid for (2026-10-14): the Manager picks it
+  from the closed month's "paid to the Agent but not billed to the Client"
+  list, and that charge bills the Client, leaves the Agent's pay alone and is
+  marked "Already in the Agent's pay".
+- An Agent Invoice already marked paid never moves
+  (`month-closes-on-the-fifth`, 2026-10-14); what a Manager's adjustment does
+  then is open question 2.
 - It shows on the receiving invoice, on every surface that shows that
   invoice's figures: the detail pages, the Agent's card, the Review Queue
   total, the Tester's view and the PDF, each with the month it corrects and
@@ -100,7 +117,10 @@ build.
 - **No Agent Invoice adjustment, and no adjustment to the Agent's pay alone**
   (2026-10-08, the two-kinds design declined). An adjustment always sits on
   the Client's bill. A Salary or Rollout Advance error is corrected before
-  the month closes, by the Manager's existing override.
+  the month closes, by the Manager's existing override. The human's
+  2026-10-14 answer to `month-closes-on-the-fifth` ("any amount owed goes on
+  next month's pay as an adjustment") may call for one pay-only case; that
+  is open question 1, and until it is answered nothing pay-only is built.
 - **No automatic carry-over** (2026-10-08). No adjustment is ever generated
   from an edit: until the 5th an Agent's edit moves that month's pay directly,
   and after it the Agent cannot edit. `ClientInvoiceService.editLine` is not
@@ -152,7 +172,7 @@ build.
 17. As an Agent, I want my Local Support Fees for the month to move by each adjustment my Contract's Client Invoice receives, so that my pay follows the corrected bill.
 18. As an Agent, I want an adjustment recorded after I sent this month's Client Invoice to appear on it and move my pay, since the month is still open, so that a correction is never deferred to a month later than the current one.
 19. As an Agent, I want a sent-back invoice to keep the adjustments it receives, so that correcting it never drops a correction.
-20. As the company, I want a charge for something the Agent was already paid for to leave the Agent's pay unchanged, so that the Agent is never paid twice (open question 1).
+20. As a Company Manager recording a charge on a closed Client Invoice, I want to pick the item from that month's "paid to the Agent but not billed to the Client" list, so that the charge bills the Client, leaves the Agent's pay alone, and the Agent is never paid twice.
 21. As a Tester, I want a sent or approved Client Invoice to show its adjustment lines, each labelled with the month it corrects and the reason, and its total to include them, so that I understand why this month's bill differs from the work done.
 22. As a Tester, I want the PDF to show the same adjustment lines and total, so that the document and the page agree.
 23. As the company, I want every adjustment recorded and withdrawn written to the audit log (who, which, amount, without the reason's text), so that every correction can be traced.
@@ -163,6 +183,10 @@ build.
 28. As the company, I want a record or a withdraw racing a send of the receiving Client Invoice or of the Agent's Agent Invoice to leave the adjustment counted exactly once on the bill and once in the pay, so that no money is lost or doubled.
 29. As everyone already using the product, I want invoices with no adjustment to look, total and behave exactly as before, so that this change carries no release risk.
 30. As a Manager or an Agent working by keyboard or on a phone, I want the adjustment form, the adjustment list and the adjustment lines usable without a mouse and at the mobile breakpoint, so that the action is available wherever I work.
+31. As an Agent or a Company Manager, I want a charge picked from that list to read "Already in the Agent's pay" on the Client Invoice that receives it, and the Agent's Local Support Fees not to move by it, so that I see why the pay did not follow the bill.
+32. As a Company Manager, I want an item already named by a non-withdrawn adjustment to be gone from the list and refused if picked again, and back on the list once that adjustment is withdrawn, so that the Client is never billed twice for it.
+33. As the company, I want an adjustment never to change an Agent Invoice already marked paid, so that money already paid never moves (open question 2).
+34. As a Company Manager, I want to pay the Agent what a bill change left owed after their pay was final, without billing the Client a second time (open question 1).
 
 ## Solution
 
@@ -173,10 +197,12 @@ build.
   closed (approved, and past the 5th of the following month; a Late invoice
   closes on approval). It also relies on that feature's rule that an edit to
   an open month's Client Invoice, whatever its status, moves that month's
-  Agent Invoice's Local Support Fees (the human's 2026-10-08 words). If that
-  feature leaves a status in which an open-month edit does not move pay, the
-  adjustment's pay effect has a hole there, and the ticket must stop and
-  raise it.
+  Agent Invoice's Local Support Fees (the human's 2026-10-08 words), with the
+  one exception that feature's 2026-10-14 answer adds: a `PAID` Agent Invoice
+  never moves, even in an open month (and an `APPROVED` one never moves once
+  closed, which a receiving month never is). That `PAID` hole is open
+  question 2. If that feature leaves any other status in which an open-month
+  edit does not move pay, the ticket must stop and raise it.
 - **The line model and the one resolution** (`edit-client-invoice-lines`,
   ADR 0004): `ClientInvoiceService.lines(invoice)` stays the only place that
   decides an invoice's lines. Adjustments are **not** Client Invoice lines
@@ -203,9 +229,13 @@ invoice_adjustments
   reason   varchar(1000), not blank
   recorded_at, recorded_by
   withdrawn_at, withdrawn_by null
-  -- per open question 1's recommendation only:
+  -- the human's 2026-10-14 answer: a charge for an item already in the Agent's pay
   already_paid_fee_id → fees null, already_paid_sim_card_id → sim_cards null
+                      at most one set; only on a charge (amount > 0)
 ```
+
+A partial unique index on each of the two item columns, over non-withdrawn
+rows, makes "the same item is charged at most once" a database fact.
 
 The receiving invoice is addressed by `(contract_id, receiving_month)`, not by
 an id: the current month's Client Invoice may not exist as a row yet (it is
@@ -239,6 +269,22 @@ the receiving month closes, `SENT` is final.
   exists, then the Agent Invoice of the receiving month if it exists, writes
   the row, and moves that Agent Invoice's Local Support Fees by the amount
   exactly as a line edit of that month would (see below).
+- **Record a charge for an item already paid.** The same route, body
+  `{ "kind": "CHARGE", "alreadyPaid": { "type": "FEE" | "POSTPAID_SIM",
+  "id": … }, "reason": "…" }`, with no `amount`: the server sets it to the
+  item's amount as the closed month's pay counted it. `400` when the item is
+  not on `{id}`'s list or the kind is `CREDIT`; `409` coded
+  `ITEM_ALREADY_CHARGED` when a non-withdrawn adjustment already names it
+  (checked under the locks, and backed by the unique index). It moves no pay,
+  so it writes no pay move and no `agentInvoiceLocalSupportFeesFollowed`
+  line.
+- **List the items already paid but not billed.**
+  `GET /api/client-invoices/{id}/paid-not-billed`, Manager only, closed
+  invoices only (`409 INVOICE_MONTH_NOT_CLOSED` otherwise). Each Fee and
+  Postpaid SIM of `{id}`'s month that `{id}` has no line for and that the
+  month's Agent pay counted (see "The 2026-10-14 answer" below), as
+  `{ type, id, date, description, amount }`, minus those a non-withdrawn
+  adjustment already names. Read-only; same `403`/`404` rules.
 - **Withdraw.** `POST /api/invoice-adjustments/{adjustmentId}/withdraw`,
   Manager only. `200`; `409` coded `ADJUSTMENT_NOT_PENDING` when it is
   `SENT` or `WITHDRAWN`, carried by a `Reason` enum as the other coded
@@ -254,7 +300,8 @@ the receiving month closes, `SENT` is final.
 
 - `adjustments`: every non-withdrawn adjustment with this invoice's Contract
   and `receiving_month = billingMonth`, each
-  `{ id, amount, correctsBillingMonth, reason, pending }`;
+  `{ id, amount, correctsBillingMonth, reason, pending, alreadyInAgentsPay }`
+  (`pending` and `alreadyInAgentsPay` are omitted for a Tester);
 - `adjustmentsTotal`;
 - `totalAmount` now includes `adjustmentsTotal`. Lines and the base amount
   are unchanged.
@@ -279,15 +326,18 @@ under `month-closes-on-the-fifth`.
 
 `ContractAmountService.payableAmountForMonth(contract, month)` adds the
 `adjustmentsTotal` of `(contract, month)` in every branch (no Client Invoice,
-lines not stored, lines stored), minus any adjustment that open question 1
-excludes. So:
+lines not stored, lines stored), except a charge that names an item already
+paid (2026-10-14, below). So:
 
 - a `DRAFT` Agent Invoice of the receiving month reads it live;
 - a `SENT` one moves by the amount in the record's (or withdraw's)
   transaction, with the existing `agentInvoiceLocalSupportFeesFollowed`
   audit line, as ADR 0004's table does for a line edit;
-- an `APPROVED` or `PAID` one of an open month moves exactly as
-  `month-closes-on-the-fifth` makes a line edit move it.
+- an `APPROVED` one of an open month moves exactly as
+  `month-closes-on-the-fifth` makes a line edit move it;
+- a `PAID` one never moves (`month-closes-on-the-fifth`, 2026-10-14: a paid
+  Agent Invoice is closed at once). Whether an adjustment that would move pay
+  may be recorded then is open question 2; the recommendation refuses it.
 
 This is why one kind can serve both sides: pay already follows what the
 Client Invoice bills (ADR 0004), so a credit for an overbilled SIM line
@@ -300,14 +350,36 @@ billed it. A charge for such a forgotten Topup would pay the Agent a second
 time. A Topup never logged in the app was never paid, and its charge
 correctly pays it once.
 
-**Open question 1, as recommended:** on a charge, the form offers the closed
-invoice's paid-but-unbilled items (each Fee and Postpaid SIM of that month
-the invoice has no line for, with its computed amount). Picking one fills
-the amount, stores the item's id, and that adjustment is left out of the
-payable amount: it bills the Client and moves no pay, and its line reads
-"Already in the Agent's pay" to the Agent and the Manager (never to the
-Tester). The same item cannot be charged twice while a non-withdrawn
-adjustment names it.
+**The 2026-10-14 answer (by the human, inbox
+`adjustment-charge-already-paid`).** "As recommended: the Manager picks the
+item from the closed month's "paid to the Agent but not billed to the
+Client" list; that charge bills the Client, leaves the Agent's pay alone and
+is marked "Already in the Agent's pay". Every other adjustment moves pay by
+the same amount." So:
+
+- **The list** is, for the closed invoice's Contract and month, each Fee and
+  Postpaid SIM that the invoice has no line for and that the month's
+  Local Support Fees counted: when that month's Agent Invoice was sent, only
+  items logged (a Fee) or added (a Postpaid SIM) before its send, because a
+  sent Agent Invoice froze its figure then and moves only by line-edit
+  differences (ADR 0004), so a later item was never paid; when it is still a
+  draft (Late), every such item, because it reads live. Each carries the
+  amount the pay counted (its computed amount). An item a non-withdrawn
+  adjustment already names is left off.
+- **Picking one** sets the charge's amount to that item's amount (the
+  Manager does not type it) and stores the item's id. The charge bills the
+  Client on the current month's invoice like any other, and is left out of
+  the payable amount, so it moves no pay in any Agent Invoice status
+  (including `PAID`).
+- **Its line reads "Already in the Agent's pay"** to the Agent and the
+  Manager, beside "Adjustment to the {Month} invoice" and the reason. The
+  Tester and the PDF see an ordinary adjustment line: the label is about the
+  Agent's pay, which the Client never sees.
+- **The same item is charged at most once** while a non-withdrawn adjustment
+  names it; withdrawing that adjustment puts it back on the list.
+- **Every other adjustment** (every credit, and every charge typed by hand)
+  moves pay by the same amount. A Topup never logged in the app was never
+  paid, so its hand-typed charge pays it once, correctly.
 
 ### ADR
 
@@ -324,7 +396,11 @@ merge, the next free one). It records:
   Invoice, never on a closed one;
 - it enters the Contract's payable amount for the receiving month, so the
   Agent's pay moves by the same amount (amending ADR 0004's payable amount),
-  with open question 1's exception;
+  except a charge for an item the closed month's pay already counted, picked
+  from the "paid to the Agent but not billed to the Client" list, which
+  bills the Client and moves no pay (the human, 2026-10-14);
+- a `PAID` Agent Invoice never moves (ADR 0007), and what that means for an
+  adjustment follows open question 2's answer;
 - no adjustment is generated automatically; ADR 0004's "carry-over for
   `invoice-adjustment`" row is not realised here (2026-10-08).
 
@@ -334,7 +410,8 @@ declares and the merger applies.
 
 ### Schema and contract
 
-- **One additive migration**, `invoice_adjustments`, at the next free Flyway
+- **One additive migration**, `invoice_adjustments` with its two partial
+  unique indexes on the already-paid item columns, at the next free Flyway
   version at merge. No existing row rewritten, no existing check changed.
 - `ClientInvoiceResponse` gains `adjustments`, `adjustmentsTotal` and
   (Manager by-id only) `adjustmentsRecorded`; `totalAmount` includes the
@@ -342,10 +419,14 @@ declares and the merger applies.
   Support Fees value includes them. For an invoice with none, every existing
   field keeps its value.
 - New routes as above; `SecurityConfig` gets Manager-only matchers for the
-  record and withdraw routes, before the broader invoice matchers.
+  record, withdraw and `paid-not-billed` routes, before the broader invoice
+  matchers. New coded conflicts on the `Reason` enum:
+  `INVOICE_MONTH_NOT_CLOSED`, `ADJUSTMENT_NOT_PENDING`,
+  `ITEM_ALREADY_CHARGED`.
 - Audit: two new `AuditLog` methods, `invoiceAdjustmentRecorded` and
-  `invoiceAdjustmentWithdrawn` (ids, signed amount, receiving month, actor,
-  Tenant), never the reason's text. A pay move reuses
+  `invoiceAdjustmentWithdrawn` (ids, signed amount, receiving month, the
+  already-paid item's type and id when set, actor, Tenant), never the
+  reason's text. A pay move reuses
   `agentInvoiceLocalSupportFeesFollowed`.
 
 ### Frontend
@@ -357,7 +438,13 @@ declares and the merger applies.
   Agent's pay" / "Raises this month's invoice and the Agent's pay"), an
   amount field with the currency, a required reason textarea labelled
   "Shown to the Client on the invoice" (2026-10-08), and **Record** and
-  **Back**. With Charge, the paid-but-unbilled picker of open question 1.
+  **Back**. With Charge, a "Paid to the Agent but not billed to the Client"
+  list (2026-10-14) shows above the amount when the closed month has such
+  items: one row per Fee or Postpaid SIM with its date, description and
+  amount, and a "None of these, I'll enter the amount" choice selected by
+  default. Picking a row fills the amount read-only and changes the hint to
+  "Raises this month's invoice. Already in the Agent's pay: their pay does
+  not move". The list is not rendered when empty or with Credit.
   Below the invoice's own figures, an "Adjustments recorded from this
   invoice" list: signed amount (credit with a minus), reason, state badge
   (Pending on {Month}, On the {Month} invoice with a link, Withdrawn), and
@@ -366,8 +453,8 @@ declares and the merger applies.
   the Tester's invoice): an "Adjustments" block after the lines, one row per
   adjustment with "Adjustment to the {Month} invoice", the reason, the signed
   amount, a **Pending** badge while the invoice is a draft (not for a
-  Tester), and "Already in the Agent's pay" where open question 1 applies
-  (not for a Tester). The block is not rendered when there is none.
+  Tester), and an "Already in the Agent's pay" badge on a charge picked from
+  that list (2026-10-14; not for a Tester, not in the PDF). The block is not rendered when there is none.
 - **Line editor.** Adjustment rows never get the line editor's controls.
 - **Agent Invoice pages**: unchanged; Local Support Fees carry the amount.
 - **BFF.** Pass-through proxies for the new routes with `backendFetch`.
@@ -397,12 +484,16 @@ finding.
 - Additive migration only, at the next free version at merge. Flyway runs
   with `outOfOrder=false`.
 - An adjustment's amount is non-zero, at most two decimals, signed only in
-  storage; the API takes a kind and a positive amount.
+  storage; the API takes a kind and a positive amount, or, for a charge
+  naming an already-paid item, the item and no amount.
 - An adjustment is recorded only from a closed invoice and lands only on the
   current billing month's invoice of the same Contract; its receiving month
   never changes; a withdrawn one never changes again.
 - `payableAmountForMonth` includes every non-withdrawn adjustment of its
-  `(contract, month)`, except those open question 1 excludes.
+  `(contract, month)`, except a charge naming an already-paid item
+  (2026-10-14). A `PAID` Agent Invoice is never written by a record or a
+  withdraw.
+- A non-withdrawn adjustment names a given Fee or Postpaid SIM at most once.
 - Locks: record and withdraw take the receiving Client Invoice's lock, then
   the receiving month's Agent Invoice's, as `editLine` does; withdraw re-reads
   the adjustment under them. A send of either invoice and a record or withdraw
@@ -435,16 +526,25 @@ internals.
    view and `403`/`404` matrices; Review Queue totals. New cases in
    `LocalSupportFeesFollowClientInvoiceApiTest` cover the pay: a `DRAFT`
    Agent Invoice reads it, a `SENT` one moves by the amount on record and back
-   on withdraw, and (open question 1) a charge naming an unbilled Fee moves
-   none. The closed-month predicate itself is `month-closes-on-the-fifth`'s to
+   on withdraw, a `PAID` one never moves (and the record follows open
+   question 2's answer), and a charge naming an already-paid Fee moves none
+   in `DRAFT`, `SENT` and `PAID`. The already-paid cases (2026-10-14) also
+   cover the list: a Fee logged after the closed Client Invoice's send and
+   before the Agent Invoice's send is listed at its computed amount, one
+   logged after the Agent Invoice's send is not, a Fee that has a line is
+   not; picking one sets the amount server-side; `ITEM_ALREADY_CHARGED` on a
+   second pick; back on the list after a withdraw; `400` with `CREDIT` or an
+   item not on the list; `alreadyInAgentsPay` absent for a Tester. The
+   closed-month predicate itself is `month-closes-on-the-fifth`'s to
    test; this suite uses only months that are closed or open on every day.
 2. **Races at the same seam, committing** (prior art
    `ClientInvoiceSendBackRaceTest`): record vs the receiving Client Invoice's
    send, withdraw vs that send, record vs the Agent Invoice's send; the
    adjustment ends counted once in the bill and once in the pay.
 3. **Migration test** under the existing migration test package: the table
-   applies on a database at the previous version with data, and its check
-   refuses a zero amount.
+   applies on a database at the previous version with data, its check
+   refuses a zero amount, and its unique indexes refuse a second
+   non-withdrawn row naming the same item.
 4. **PDF**: an existing PDF test seam is extended to assert the adjustments
    block and total by extracted text, as the line-edit feature's PDF checks
    do.
@@ -452,10 +552,13 @@ internals.
    `send-back-client-invoice-control.test.tsx`,
    `client-invoice-detail-view.test.tsx`,
    `edit-client-invoice-line-control.test.tsx`. Cover the record form (kind,
-   validation, the Client-facing label, `409`, input kept), the control's
+   validation, the Client-facing label, `409`, input kept, the
+   already-paid list with Charge only, picking a row filling the amount
+   read-only), the control's
    absence on an open-month invoice, the recorded list and withdraw, the
-   adjustments block's empty/pending/sent states, and no editor control on
-   an adjustment row.
+   adjustments block's empty/pending/sent states, the "Already in the
+   Agent's pay" badge (absent for a Tester), and no editor control on an
+   adjustment row.
 6. **One e2e spec, `invoice-adjustment.spec.ts`**, on `DemoDataLoader`'s
    approved Client Invoice of two months back (always closed): the Manager
    records a $20.00 credit, sees it Pending on this month in the list, the
@@ -481,8 +584,19 @@ internals.
 - **One kind of adjustment: it sits on the Client's bill and moves the
   Agent's pay by the same amount** (2026-10-08, inbox
   `adjustment-agent-pay-or-client-bill`; the two-kinds recommendation was
-  declined). How a charge for something already paid avoids double pay is
-  open question 1.
+  declined), with one exception settled 2026-10-14 (below).
+- **A charge for something already paid leaves the Agent's pay alone** (by the
+  human, 2026-10-14, inbox `adjustment-charge-already-paid`): "As
+  recommended: the Manager picks the item from the closed month's "paid to
+  the Agent but not billed to the Client" list; that charge bills the
+  Client, leaves the Agent's pay alone and is marked "Already in the Agent's
+  pay". Every other adjustment moves pay by the same amount."
+- **A paid Agent Invoice never moves; an approved one never moves once
+  closed** (by the human, 2026-10-14, inbox `month-close-paid-pay`, settled
+  in `month-closes-on-the-fifth` and read here): "The Client bill moves, the
+  Agent pay already approved or paid stays; any amount owed goes on next
+  month's pay as an adjustment. A paid pay invoice is closed at once." What
+  it asks of this feature is open questions 1 and 2.
 - **The Agent sees an adjustment with its reason, read-only; the Manager can
   withdraw it until the invoice is sent** (2026-10-08, inbox
   `adjustment-agent-sees-it`).
@@ -531,26 +645,59 @@ internals.
   without context and costly to reverse once invoices carry it.
 - **Two new audit methods, without reason text.** Same rule as send-back.
 - **Credits shown with a minus in the body colour.** A credit is not an error.
+- **The already-paid list holds only what the month's pay really counted.**
+  A Fee or Postpaid SIM with no line, and, when that month's Agent Invoice
+  was sent, only one logged or added before that send, because a sent Agent
+  Invoice froze its figure (ADR 0004) and a later item was never paid. That
+  is the literal reading of "paid to the Agent"; listing a never-paid item
+  would let a charge bill the Client and pay the Agent nothing.
+- **A picked item's amount is set by the server, not typed.** It must equal
+  what the pay counted, or the "leaves the pay alone" promise is off by the
+  difference.
+- **"Already in the Agent's pay" is shown to the Agent and the Manager, never
+  to the Tester or in the PDF.** It is about the Agent's pay, which the
+  Client never sees; to the Client it is an ordinary charge with its reason.
+- **One item, one non-withdrawn adjustment, enforced by partial unique
+  indexes and a coded `409 ITEM_ALREADY_CHARGED`.** Withdrawing frees the
+  item, matching "withdraw and record again".
+- **A dedicated `paid-not-billed` read route.** The list is only needed in the
+  Manager's form, so it is not carried on every invoice response.
 - **Testing: the existing HTTP, component, PDF and e2e seams, plus committing
   race tests; only months closed or open on every day.** The closing
   predicate's day boundary is the dependency's to test.
 
 ## Open questions
 
-1. **When the Manager charges the Client for something the Agent was already
-   paid for, how is the Agent kept from being paid twice?** Example: a $15
-   Topup was logged in September after September's Client Invoice was sent;
-   the app paid the Agent $15 for it but never billed the Client. In
-   November the Manager charges the Client $15 for it; by the one-kind rule
-   the Agent's November pay would also rise $15, a second time.
-   *Recommendation:* when recording a charge, the Manager can pick that
-   Topup (or any Fee or Postpaid SIM the closed invoice left off) from a
-   list; such a charge bills the Client and does not move the Agent's pay,
-   and the Agent sees it marked "Already in the Agent's pay". Every other
-   adjustment moves pay by the same amount. *Reason:* the app knows exactly
-   which items were paid but not billed, so the Manager cannot mark the
-   wrong one; a Topup never logged in the app was never paid, and its
-   ordinary charge pays the Agent once, correctly.
+Both arise from the human's 2026-10-14 answer to `month-closes-on-the-fifth`
+(inbox `month-close-paid-pay`), applied in parallel with this spec's answer.
+
+1. **When a bill went up after the Agent's pay was already final, how does
+   the Manager pay the Agent what is owed, without billing the Client
+   twice?** Example: September's pay is marked paid on 3 October; on
+   4 October the Agent raises a September line from $30 to $45. The Client
+   is billed $45, the Agent was paid on $30. You said the $15 "goes on next
+   month's pay as an adjustment", but an adjustment here always also bills
+   the Client, so a $15 charge would bill the Client $15 a second time.
+   *Recommendation:* the mirror of the list you just approved. On the closed
+   invoice, the Manager is offered "Pay the Agent the difference" when the
+   month's bill and the Agent's pay disagree, with the exact amount the app
+   computes ($15 here, or a negative amount if the bill went down). It
+   lands on the current month as a pay-only adjustment: the Agent's Local
+   Support Fees move by it, the Agent and the Manager see it marked "Pay
+   only, not billed to the Client", and the Client's total, the Tester and
+   the PDF never show it. *Reason:* the Client was already billed the right
+   amount on the closed invoice, so only the pay is behind, and the app
+   knows by how much. The alternative is settling it outside the app.
+2. **Can the Manager record an adjustment while the Agent's pay for the
+   current month is already marked paid?** Paid pay never moves (your
+   2026-10-14 answer), so the adjustment would bill the Client without
+   moving the Agent's pay. *Recommendation:* refuse it with "{Agent}'s
+   {Month} pay is already paid. Record this adjustment from 1 {next month};
+   it will land on {next month}'s invoice." A charge picked from the "paid to
+   the Agent but not billed to the Client" list is still accepted, since it
+   moves no pay. *Reason:* it keeps "an adjustment moves the bill and the pay
+   together" true without exception, paying a month before it ends is rare,
+   and the wait is at most a few weeks.
 
 ## Acceptance walkthrough
 
@@ -561,22 +708,24 @@ internals.
 5. [agent] As the Agent, send the current Client Invoice; show the adjustments on the sent response with `pending: false`, `adjustmentsRecorded` showing them on this invoice, the Review Queue totals (Client Invoice and Agent Invoice) including them, and withdraw returning `409 ADJUSTMENT_NOT_PENDING`. Record another $3.00 credit and show it on the sent invoice at once. Send the invoice back, show the adjustments still on it and withdraw now accepted; resend. (stories: 11, 12, 13, 18, 19)
 6. [agent] As a Tester of C's Client, read the sent invoice and show each adjustment line labelled with the corrected month and its reason, no `adjustmentsRecorded`; download the PDF and show the Adjustments block and the total. (stories: 21, 22)
 7. [agent] As another Agent, read C's invoices and show `404`, and show none of C's adjustments on their own invoices. (stories: 27)
-8. [agent] (Per open question 1's answer.) On a closed fixture invoice with a Fee logged after its send, record a charge picking that Fee; show it on the current month's Client Invoice and Local Support Fees unchanged; try to charge the same Fee again and show it refused. (stories: 20)
-9. [agent] Run the committing race tests: record vs Client Invoice send, withdraw vs Client Invoice send, record vs Agent Invoice send; show each adjustment counted once in the bill and once in the pay. (stories: 28, 14)
-10. [agent] Grep the backend log for steps 1, 4 and 5 and show one audit line for each record and withdraw, with actor, Tenant, ids and signed amount, and no reason text. (stories: 23, 24)
-11. [agent] In a browser as the Manager, open a current-month invoice and show no **Record adjustment** control; open the closed invoice, expand it, show the reason field's "Shown to the Client on the invoice" label and the pill unchanged, submit empty and show the inline refusal with input kept, record a $20.00 credit and show it listed Pending; withdraw it; record again. In a second tab send the receiving invoice as the Agent, then try to withdraw in the first tab and show the refresh message. (stories: 1, 5, 6, 7, 9, 10, 14)
-12. [agent] As the Agent in a browser, show the credit on the current Client Invoice card with a Pending badge, its reason and no edit control. As the Tester, show the adjustment line on the sent invoice page. Show that an invoice with no adjustment renders no Adjustments block. (stories: 15, 16, 21, 29)
-13. [agent] Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green, with existing suites unedited except as named in tickets' `## Regression`, and no golden moved. (stories: 29)
-14. [agent] Do the record, withdraw and the Agent's view by keyboard alone with a visible focus ring at each stop, and repeat at the mobile breakpoint with every form and list usable in the viewport. (stories: 30)
-15. [human] Take a real error from a closed month's Client Invoice and record the credit or charge you would really record, with the reason you would really write. Read the current month's invoice as the Agent and as the Client would see it, the PDF, and the Agent's Local Support Fees. Confirm the wording, the amounts and the pay move are what you want. (stories: 1, 2, 3, 7, 15, 17, 21, 22)
-16. [human] Take a real Topup that was paid to the Agent but never billed, charge it to the Client, and confirm the Agent is not paid for it twice. (stories: 20)
-17. [human] Read ADR 0008 and the notes on ADR 0004 and PRODUCT.md, and confirm they say what you settled: a closed month is corrected only by an adjustment on the current month's invoice; only adjustments are negative; an adjustment moves the Agent's pay by the same amount; nothing is carried over automatically. (stories: 3, 8, 24)
+8. [agent] On a closed fixture invoice with one Fee logged after the Client Invoice's send and before that month's Agent Invoice's send, and another logged after the Agent Invoice's send, `GET …/paid-not-billed` and show only the first, at its computed amount. Record a charge naming it with no amount; show `201` with that amount, the current month's Client Invoice carrying it with `alreadyInAgentsPay: true` and its total up by it, and the Agent's current Local Support Fees unchanged, in `DRAFT` and again after the Agent Invoice is sent. Show the list now without it, a second charge naming it `409 ITEM_ALREADY_CHARGED`, and a `CREDIT` naming an item `400`. Withdraw it and show it back on the list. As the Tester, show the line without `alreadyInAgentsPay`. (stories: 20, 31, 32)
+9. [agent] Mark the Agent's current-month Agent Invoice paid (fixture), record a hand-typed $10.00 credit from the closed invoice, and show the Agent Invoice's figures unchanged and the record answered as open question 2 decides (refused, per the recommendation); record a charge naming an already-paid item and show it accepted. (stories: 33)
+10. [agent] (Per open question 1's answer; per the recommendation:) on a closed month whose Client Invoice line was raised $15.00 after its Agent Invoice was marked paid, show the closed invoice offering "Pay the Agent the difference" of $15.00; record it; show the Agent's current Local Support Fees up $15.00 and the current Client Invoice's total and the Tester's view unchanged. (stories: 34)
+11. [agent] Run the committing race tests: record vs Client Invoice send, withdraw vs Client Invoice send, record vs Agent Invoice send; show each adjustment counted once in the bill and once in the pay. (stories: 28, 14)
+12. [agent] Grep the backend log for steps 1, 4, 5 and 8 and show one audit line for each record and withdraw, with actor, Tenant, ids, signed amount and (step 8) the already-paid item, and no reason text. (stories: 23, 24)
+13. [agent] In a browser as the Manager, open a current-month invoice and show no **Record adjustment** control; open the closed invoice, expand it, show the reason field's "Shown to the Client on the invoice" label and the pill unchanged, submit empty and show the inline refusal with input kept, record a $20.00 credit and show it listed Pending; withdraw it; record again. Choose Charge, show the "Paid to the Agent but not billed to the Client" list (absent with Credit), pick a row, show the amount filled read-only and the hint saying the pay does not move, and record it. In a second tab send the receiving invoice as the Agent, then try to withdraw in the first tab and show the refresh message. (stories: 1, 5, 6, 7, 9, 10, 14, 20)
+14. [agent] As the Agent in a browser, show the credit on the current Client Invoice card with a Pending badge, its reason and no edit control, and the picked charge with the "Already in the Agent's pay" badge. As the Tester, show the adjustment lines on the sent invoice page with no such badge. Show that an invoice with no adjustment renders no Adjustments block. (stories: 15, 16, 21, 29, 31)
+15. [agent] Run `mvn verify`, the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green, with existing suites unedited except as named in tickets' `## Regression`, and no golden moved. (stories: 29)
+16. [agent] Do the record (including picking an already-paid item), withdraw and the Agent's view by keyboard alone with a visible focus ring at each stop, and repeat at the mobile breakpoint with every form and list usable in the viewport. (stories: 30)
+17. [human] Take a real error from a closed month's Client Invoice and record the credit or charge you would really record, with the reason you would really write. Read the current month's invoice as the Agent and as the Client would see it, the PDF, and the Agent's Local Support Fees. Confirm the wording, the amounts and the pay move are what you want. (stories: 1, 2, 3, 7, 15, 17, 21, 22)
+18. [human] Take a real Topup that was paid to the Agent but never billed, find it in the closed month's "Paid to the Agent but not billed to the Client" list, charge it to the Client, and confirm the Client's invoice rises, the Agent is not paid for it twice, and the "Already in the Agent's pay" wording reads right. (stories: 20, 31)
+19. [human] Read ADR 0008 and the notes on ADR 0004 and PRODUCT.md, and confirm they say what you settled: a closed month is corrected only by an adjustment on the current month's invoice; only adjustments are negative; an adjustment moves the Agent's pay by the same amount, except a charge for an item already in the Agent's pay; paid pay never moves; nothing is carried over automatically. (stories: 3, 8, 20, 24, 33)
 
 ## Execution order
 
 **Depends on: `month-closes-on-the-fifth`, merged.** Each slice is a vertical
 path through migration, service, route, BFF and UI. No ticket is cut until
-open question 1 is answered.
+open questions 1 and 2 are answered.
 
 1. `manager-records-an-invoice-adjustment`. Labels: `backend`, `frontend`.
    The `invoice_adjustments` migration, record and withdraw routes with the
@@ -587,9 +736,15 @@ open question 1 is answered.
    sent, Review Queue total, Tester view, PDF, the Agent's card block.
    Depends on 1.
 3. `adjustment-moves-the-agents-pay`. Labels: `backend`. The payable amount,
-   the `SENT` Agent Invoice move on record and withdraw, the lock order, the
-   race tests. Depends on 1.
-4. `charge-for-something-already-paid`. Labels: `backend`, `frontend`. Open
-   question 1 as answered. Depends on 2 and 3.
+   the `SENT` Agent Invoice move on record and withdraw, the `PAID` case as
+   open question 2 is answered, the lock order, the race tests. Depends on 1.
+4. `charge-for-something-already-paid`. Labels: `backend`, `frontend`. The
+   human's 2026-10-14 answer: the `paid-not-billed` list, the item columns
+   and unique indexes, the server-set amount, the exclusion from the payable
+   amount, `ITEM_ALREADY_CHARGED`, the form's list and the "Already in the
+   Agent's pay" badge. Depends on 2 and 3.
 5. `invoice-adjustment-e2e`. Labels: `frontend`. The e2e spec of Testing
    decisions item 6. Depends on 2 and 3.
+6. `pay-the-agent-the-difference`. Labels: `backend`, `frontend`. Only if
+   open question 1 is answered as recommended; its shape follows the
+   answer. Depends on 3.

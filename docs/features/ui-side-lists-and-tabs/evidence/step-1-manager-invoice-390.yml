@@ -1,0 +1,55 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Manager Console
+  - button "Close navigation"
+  - navigation:
+    - link "Dashboard":
+      - /url: /manager
+    - link "Requests":
+      - /url: /manager/requests
+    - link "Clients":
+      - /url: /manager/clients
+    - link "Agents":
+      - /url: /manager/agents
+    - link "Contracts":
+      - /url: /manager/contracts
+    - link "Stock":
+      - /url: /manager/stock
+    - link "Carriers":
+      - /url: /manager/carriers
+    - link "Invoices":
+      - /url: /manager/invoices
+- banner:
+  - button "Open navigation"
+  - heading "Harbor Line Logistics — Jordan Ellis" [level=1]
+  - paragraph: Client Invoice
+  - button "Manager"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Breadcrumb":
+    - link "Invoices":
+      - /url: /manager/invoices
+    - text: Harbor Line Logistics — Jordan Ellis
+  - heading "October 2026" [level=2]
+  - text: Awaiting approval
+  - paragraph: Base amount and Fee lines are locked to what the Agent sent
+  - paragraph: Sent Oct 16, 2026
+  - link "Download PDF":
+    - /url: /api/client-invoices/5a77e817-5132-499b-b23e-1071b47d2ea0/pdf
+  - button "Send back"
+  - button "Approve"
+  - term: Base amount
+  - definition: $99.00
+  - term: Fees
+  - definition: $0.00
+  - term: Total
+  - definition: $99.00
+  - heading "Postpaid SIM Cards" [level=3]
+  - list "Postpaid SIM Cards":
+    - listitem: +1-202-555-0301Verizon · Postpaid $99.00
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees on this invoice.
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached.
+- alert

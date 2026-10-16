@@ -353,6 +353,29 @@ describe("AgentClientInvoicesView", () => {
     expect(screen.queryByText(/Cancelled/)).not.toBeInTheDocument();
   });
 
+  it("reads each SIM line's number followed by its Carrier and 'Postpaid', and 'Postpaid' alone without a Carrier", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT]}
+        invoicesByContract={{
+          "contract-1": invoice({
+            baseAmount: 50,
+            totalAmount: 50,
+            basePostpaidSims: [
+              { simCardId: "sim-a", number: "+1-555-0301", monthlyFeeAmount: 25, cancellationEffectiveDate: null, carrierName: "Verizon" },
+              { simCardId: "sim-b", number: "+1-555-0302", monthlyFeeAmount: 25, cancellationEffectiveDate: null, carrierName: null },
+            ],
+          }),
+        }}
+      />,
+    );
+
+    const first = screen.getByText("+1-555-0301").closest("tr") as HTMLElement;
+    expect(within(first).getByText("Verizon · Postpaid")).toBeInTheDocument();
+    const second = screen.getByText("+1-555-0302").closest("tr") as HTMLElement;
+    expect(within(second).getByText("Postpaid")).toBeInTheDocument();
+  });
+
   it("marks a cancelled SIM Card still billed this month with its cancellation date", () => {
     render(
       <AgentClientInvoicesView

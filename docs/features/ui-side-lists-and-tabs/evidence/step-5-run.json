@@ -1,0 +1,187 @@
+{
+  "initialBackendRequests": [
+    "GET /api/me",
+    "GET /api/contracts",
+    "GET /api/clients",
+    "GET /api/agents",
+    "GET /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/smartphones",
+    "GET /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/sim-cards",
+    "GET /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/client-invoice",
+    "GET /api/carriers?country=UNITED_STATES"
+  ],
+  "subtitle": "3 in this tenant",
+  "layout": {
+    "newContractY": 76,
+    "clientsLandmarkY": 112
+  },
+  "rows": [
+    "Harbor Line Logistics [current]",
+    "Solstice Retail Group"
+  ],
+  "h2": [
+    "Add a contract",
+    "Clients",
+    "Add a contract",
+    "Harbor Line Logistics",
+    "Client Invoice",
+    "Add a SIM card"
+  ],
+  "agentSelect": {
+    "selected": "Jordan Ellis",
+    "options": [
+      "Jordan Ellis"
+    ]
+  },
+  "countryCurrency": "United States · USD",
+  "summary": "Client Invoice October 2026 Awaiting approval TOTAL $99.00 Open invoice",
+  "openInvoiceHref": "/manager/invoices/client/5a77e817-5132-499b-b23e-1071b47d2ea0",
+  "tabs": [
+    "SIM Cards 5 [selected]",
+    "Smartphones 2"
+  ],
+  "pickSolstice": {
+    "url": "http://localhost:13000/manager/contracts?contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92",
+    "h2": [
+      "Add a contract",
+      "Clients",
+      "Add a contract",
+      "Solstice Retail Group",
+      "Client Invoice",
+      "Add a SIM card"
+    ],
+    "agent": {
+      "selected": "Jordan Ellis",
+      "options": [
+        "Jordan Ellis",
+        "Priya Shah"
+      ]
+    },
+    "summary": "Client Invoice October 2026 Draft TOTAL $135.99 Open invoice",
+    "requests": [
+      "GET /api/me",
+      "GET /api/contracts",
+      "GET /api/clients",
+      "GET /api/agents",
+      "GET /api/contracts/27d76228-7b7b-4bb5-94c6-47d02e16cf92/smartphones",
+      "GET /api/contracts/27d76228-7b7b-4bb5-94c6-47d02e16cf92/sim-cards",
+      "GET /api/contracts/27d76228-7b7b-4bb5-94c6-47d02e16cf92/client-invoice",
+      "GET /api/carriers?country=UNITED_STATES"
+    ],
+    "tabs": [
+      "SIM Cards 7 [selected]",
+      "Smartphones 4"
+    ],
+    "simTab": "NUMBER CARRIER PLAN FLAVOR MONTHLY FEE STATUS INSTALLED IN +1-202-555-0101 Edit AT&T — Prepaid — Active Not installed iPhone 13 Pixel 7 — PX7-88210 OnePlus 10 — OP10-33087 +1-202-555-0102 Edit AT&T Un"
+  },
+  "changeAgent": {
+    "url": "http://localhost:13000/manager/contracts?contract=1bae7798-c445-4cf5-83b9-ace06a0a2ce3",
+    "country": "United Kingdom · GBP",
+    "summary": "Client Invoice October 2026 Draft TOTAL £20.00 Open invoice",
+    "tabs": [
+      "SIM Cards 3 [selected]",
+      "Smartphones 5"
+    ],
+    "simTab": "NUMBER CARRIER PLAN FLAVOR MONTHLY FEE STATUS INSTALLED IN +44-7700-900101 Edit EE Flex 20 Edit Postpaid £20.00 Retired Cancelled Oct 15, 2026 Not installed iPhone 14 — IP14-UK-2201 iPhone 12 +44-7700",
+    "requests": [
+      "GET /api/me",
+      "GET /api/contracts",
+      "GET /api/clients",
+      "GET /api/agents",
+      "GET /api/contracts/1bae7798-c445-4cf5-83b9-ace06a0a2ce3/smartphones",
+      "GET /api/contracts/1bae7798-c445-4cf5-83b9-ace06a0a2ce3/sim-cards",
+      "GET /api/contracts/1bae7798-c445-4cf5-83b9-ace06a0a2ce3/client-invoice",
+      "GET /api/carriers?country=UNITED_KINGDOM"
+    ]
+  },
+  "pillCheck": {
+    "addSmartphone": {
+      "h": 28,
+      "radius": "8px"
+    },
+    "addSim": {
+      "h": 28,
+      "radius": "8px"
+    },
+    "newContract": {
+      "h": 36,
+      "radius": "3.35544e+07px"
+    }
+  },
+  "smartphoneAdded": {
+    "tabs": [
+      "SIM Cards 5",
+      "Smartphones 3 [selected]"
+    ],
+    "url": "http://localhost:13000/manager/contracts?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf&tab=smartphones"
+  },
+  "simAdded": {
+    "tabs": [
+      "SIM Cards 6 [selected]",
+      "Smartphones 3"
+    ]
+  },
+  "newContractAgentOptions": [
+    "Jordan Ellis · USD",
+    "Marcus Webb · USD",
+    "Priya Shah · GBP"
+  ],
+  "newContract": {
+    "url": "http://localhost:13000/manager/contracts?contract=04c5ac17-0f51-42bd-a04c-6fae33d24787",
+    "rows": [
+      "Harbor Line Logistics [current]",
+      "Solstice Retail Group"
+    ],
+    "h2": [
+      "Add a contract",
+      "Clients",
+      "Add a contract",
+      "Harbor Line Logistics",
+      "Client Invoice",
+      "Add a SIM card"
+    ],
+    "agent": {
+      "selected": "Marcus Webb",
+      "options": [
+        "Jordan Ellis",
+        "Marcus Webb"
+      ]
+    },
+    "summary": "Client Invoice October 2026 Draft TOTAL $0.00 Open invoice"
+  },
+  "redirect": {
+    "from": "/manager/contracts/04c5ac17-0f51-42bd-a04c-6fae33d24787",
+    "to": "http://localhost:13000/manager/contracts?contract=04c5ac17-0f51-42bd-a04c-6fae33d24787"
+  },
+  "redirect2": {
+    "to": "http://localhost:13000/manager/contracts?contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92",
+    "rows": [
+      "Harbor Line Logistics",
+      "Solstice Retail Group [current]"
+    ]
+  },
+  "nonsense": {
+    "url": "http://localhost:13000/manager/contracts?contract=nonsense",
+    "rows": [
+      "Harbor Line Logistics [current]",
+      "Solstice Retail Group"
+    ],
+    "h2": [
+      "Add a contract",
+      "Clients",
+      "Add a contract",
+      "Harbor Line Logistics",
+      "Client Invoice",
+      "Add a SIM card"
+    ]
+  },
+  "phone": {
+    "overflow": {
+      "scrollWidth": 390,
+      "innerWidth": 390
+    },
+    "newContractY": 76,
+    "clientDropdownY": 128,
+    "agentSelectY": 218,
+    "landmarkVisible": false
+  }
+}

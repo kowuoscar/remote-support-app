@@ -17,12 +17,12 @@ import java.util.UUID;
  * ticket) — never off the {@code ClientInvoice} entity directly either way. {@code sentAt}/{@code
  * approvedAt} are {@code null} until each transition happens.
  *
- * <p>{@code basePostpaidSims} (cancelled-sim-billed-through-its-month ticket) is the live
- * breakdown behind {@code baseAmount}: every Postpaid SIM Card counted this billing month,
- * including one still billing because it was cancelled on or after the month's first day (spec.md
- * Solution, "Billing a cancelled Postpaid SIM"). {@code null} once the invoice is {@code
- * SENT}/{@code APPROVED} — there is no per-unit breakdown of the frozen {@code
- * snapshotBaseAmount} to serve (ADR 0001).
+ * <p>{@code basePostpaidSims} (cancelled-sim-billed-through-its-month ticket) is the breakdown
+ * behind {@code baseAmount}: every Postpaid SIM Card counted this billing month, including one
+ * still billing because it was cancelled on or after the month's first day (spec.md Solution,
+ * "Billing a cancelled Postpaid SIM"). It is served whenever the base amount is per SIM, at any
+ * status; it is {@code null} only for an invoice holding a backfilled {@code BASE_AMOUNT} line,
+ * which has no per-unit breakdown to serve (ADR 0001).
  *
  * <p>{@code sentBackAt}/{@code sentBackReason} (send-a-client-invoice-back) are the latest
  * send-back; {@code null} if never sent back, and always {@code null} for a Tester caller, to whom

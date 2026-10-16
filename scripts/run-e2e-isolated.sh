@@ -34,4 +34,4 @@ export E2E_ISOLATED_PG_CONTAINER="remote-support-e2e-pg-$$-${RANDOM}"
 echo "Isolated e2e stack: postgres container ${E2E_ISOLATED_PG_CONTAINER} on port ${E2E_ISOLATED_PG_PORT}, backend on port ${E2E_ISOLATED_BACKEND_PORT}, frontend on port ${E2E_ISOLATED_FRONTEND_PORT}."
 
 cd "$ROOT_DIR/frontend"
-exec npx playwright test --config=playwright.e2e.isolated.config.ts
+exec npx playwright test --config=playwright.e2e.isolated.config.ts "$@"

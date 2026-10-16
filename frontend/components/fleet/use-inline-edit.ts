@@ -2,6 +2,7 @@
 
 import { useCallback, useId, useState, type FormEvent, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 
 export const GENERIC_CORRECTION_ERROR = "Couldn’t update. Try again.";
 
@@ -73,7 +74,7 @@ export function useInlineEdit({
       }
       setPending(false);
       close();
-      router.refresh();
+      refreshPage(router);
     } catch {
       setError(GENERIC_CORRECTION_ERROR);
       setPending(false);

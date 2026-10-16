@@ -1,0 +1,93 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Client Invoices" [level=1]
+  - paragraph: One per Contract per month
+  - button "agent@example.com · Agent"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Aurora Retail Group Draft":
+          - /url: /agent/client-invoices?contract=22222222-0000-0000-0000-0000000000d1
+      - listitem:
+        - link "Birch Telecom Mexico Approved":
+          - /url: /agent/client-invoices?contract=22222222-0000-0000-0000-0000000000d3
+      - listitem:
+        - link "Birch Telecom United Kingdom Awaiting approval Sent back":
+          - /url: /agent/client-invoices?contract=22222222-0000-0000-0000-0000000000d2
+      - listitem:
+        - link "Cedar Mobile Sent back":
+          - /url: /agent/client-invoices?contract=22222222-0000-0000-0000-0000000000d4
+  - region "Sent back to you":
+    - heading "Sent back to you" [level=2]
+    - table:
+      - rowgroup:
+        - row "Contract Billing month Sent back Reason Action":
+          - columnheader "Contract"
+          - columnheader "Billing month"
+          - columnheader "Sent back"
+          - columnheader "Reason"
+          - columnheader "Action"
+      - rowgroup:
+        - row "Birch Telecom — United Kingdom August 2026 Sep 2, 2026 The August roaming Fee is missing its receipt. Open Birch Telecom — United Kingdom, August 2026":
+          - cell "Birch Telecom — United Kingdom"
+          - cell "August 2026"
+          - cell "Sep 2, 2026"
+          - cell "The August roaming Fee is missing its receipt.":
+            - paragraph: The August roaming Fee is missing its receipt.
+          - cell "Open Birch Telecom — United Kingdom, August 2026":
+            - link "Open Birch Telecom — United Kingdom, August 2026":
+              - /url: /agent/client-invoices/99999999-0000-0000-0000-0000000000a2
+              - text: Open
+        - row "Cedar Mobile — Spain September 2026 Sep 12, 2026 The roaming Fee is missing its receipt. Open Cedar Mobile — Spain, September 2026":
+          - cell "Cedar Mobile — Spain"
+          - cell "September 2026"
+          - cell "Sep 12, 2026"
+          - cell "The roaming Fee is missing its receipt.":
+            - paragraph: The roaming Fee is missing its receipt.
+          - cell "Open Cedar Mobile — Spain, September 2026":
+            - link "Open Cedar Mobile — Spain, September 2026":
+              - /url: /agent/client-invoices/99999999-0000-0000-0000-0000000000d4
+              - text: Open
+  - region "Sent back by the Manager on Sep 12, 2026":
+    - heading "Sent back by the Manager on Sep 12, 2026" [level=2]
+    - paragraph: The roaming Fee is missing its receipt.
+    - paragraph: Correct what is needed, then send it again.
+  - paragraph: September 2026
+  - text: Sent back
+  - paragraph: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+  - button "Attach carrier invoice"
+  - button "Attach carrier invoice file"
+  - button "Send Client Invoice"
+  - term: Base amount
+  - definition: €150.00
+  - term: Fees this month
+  - definition: €0.00
+  - term: Total
+  - definition: €150.00
+  - paragraph: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees logged against this Contract yet this month.
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached yet.
+- alert

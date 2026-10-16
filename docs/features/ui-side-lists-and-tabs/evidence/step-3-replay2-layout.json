@@ -1,0 +1,332 @@
+[
+ {
+  "viewport": 1280,
+  "metrics": {
+   "tableWidth": 734,
+   "wrapperScrollWidth": 734,
+   "wrapperClientWidth": 734,
+   "wrapperOverflowX": "auto",
+   "docScrollWidth": 1280,
+   "innerWidth": 1280
+  },
+  "rows": [
+   {
+    "number": "+1-555-0801",
+    "numberHeight": 20,
+    "numberLineHeight": 20,
+    "numberOneLine": true,
+    "numberWhiteSpace": "nowrap",
+    "statusBadgeText": "Active",
+    "buttonText": "Retire",
+    "buttonBelowBadge": true,
+    "badgeRect": [
+     1089,
+     215,
+     239
+    ],
+    "btnRect": [
+     1089,
+     245
+    ],
+    "plan": {
+     "text": "Unlimited Welcome",
+     "title": "Unlimited Welcome",
+     "cut": false,
+     "ellipsis": "ellipsis",
+     "clientWidth": 128,
+     "scrollWidth": 128
+    }
+   },
+   {
+    "number": "+1-555-0802",
+    "numberHeight": 20,
+    "numberLineHeight": 20,
+    "numberOneLine": true,
+    "numberWhiteSpace": "nowrap",
+    "statusBadgeText": "Active",
+    "buttonText": "Retire",
+    "buttonBelowBadge": true,
+    "badgeRect": [
+     1089,
+     298,
+     322
+    ],
+    "btnRect": [
+     1089,
+     328
+    ],
+    "plan": {
+     "text": "Unlimited Plus",
+     "title": "Unlimited Plus",
+     "cut": false,
+     "ellipsis": "ellipsis",
+     "clientWidth": 95,
+     "scrollWidth": 95
+    }
+   },
+   {
+    "number": "+1-555-0803",
+    "numberHeight": 20,
+    "numberLineHeight": 20,
+    "numberOneLine": true,
+    "numberWhiteSpace": "nowrap",
+    "statusBadgeText": "Active",
+    "buttonText": "Retire",
+    "buttonBelowBadge": true,
+    "badgeRect": [
+     1089,
+     381,
+     405
+    ],
+    "btnRect": [
+     1089,
+     411
+    ],
+    "plan": {
+     "text": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+     "title": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+     "cut": true,
+     "ellipsis": "ellipsis",
+     "clientWidth": 162,
+     "scrollWidth": 408
+    }
+   }
+  ],
+  "editPlan": {
+   "tableWidth": 734,
+   "wrapperScrollWidth": 734,
+   "wrapperClientWidth": 734,
+   "wrapperOverflowX": "auto",
+   "docScrollWidth": 1280,
+   "innerWidth": 1280
+  },
+  "editNumber": {
+   "tableWidth": 734,
+   "wrapperScrollWidth": 734,
+   "wrapperClientWidth": 734,
+   "wrapperOverflowX": "auto",
+   "docScrollWidth": 1280,
+   "innerWidth": 1280
+  }
+ },
+ {
+  "viewport": 1440,
+  "metrics": {
+   "tableWidth": 894,
+   "wrapperScrollWidth": 894,
+   "wrapperClientWidth": 894,
+   "wrapperOverflowX": "auto",
+   "docScrollWidth": 1440,
+   "innerWidth": 1440
+  },
+  "rows": [
+   {
+    "number": "+1-555-0801",
+    "numberHeight": 20,
+    "numberLineHeight": 20,
+    "numberOneLine": true,
+    "numberWhiteSpace": "nowrap",
+    "statusBadgeText": "Active",
+    "buttonText": "Retire",
+    "buttonBelowBadge": true,
+    "badgeRect": [
+     1234,
+     215,
+     239
+    ],
+    "btnRect": [
+     1234,
+     245
+    ],
+    "plan": {
+     "text": "Unlimited Welcome",
+     "title": "Unlimited Welcome",
+     "cut": false,
+     "ellipsis": "ellipsis",
+     "clientWidth": 128,
+     "scrollWidth": 128
+    }
+   },
+   {
+    "number": "+1-555-0802",
+    "numberHeight": 20,
+    "numberLineHeight": 20,
+    "numberOneLine": true,
+    "numberWhiteSpace": "nowrap",
+    "statusBadgeText": "Active",
+    "buttonText": "Retire",
+    "buttonBelowBadge": true,
+    "badgeRect": [
+     1234,
+     298,
+     322
+    ],
+    "btnRect": [
+     1234,
+     328
+    ],
+    "plan": {
+     "text": "Unlimited Plus",
+     "title": "Unlimited Plus",
+     "cut": false,
+     "ellipsis": "ellipsis",
+     "clientWidth": 95,
+     "scrollWidth": 95
+    }
+   },
+   {
+    "number": "+1-555-0803",
+    "numberHeight": 20,
+    "numberLineHeight": 20,
+    "numberOneLine": true,
+    "numberWhiteSpace": "nowrap",
+    "statusBadgeText": "Active",
+    "buttonText": "Retire",
+    "buttonBelowBadge": true,
+    "badgeRect": [
+     1234,
+     381,
+     405
+    ],
+    "btnRect": [
+     1234,
+     411
+    ],
+    "plan": {
+     "text": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+     "title": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+     "cut": true,
+     "ellipsis": "ellipsis",
+     "clientWidth": 248,
+     "scrollWidth": 408
+    }
+   }
+  ],
+  "editPlan": {
+   "tableWidth": 894,
+   "wrapperScrollWidth": 894,
+   "wrapperClientWidth": 894,
+   "wrapperOverflowX": "auto",
+   "docScrollWidth": 1440,
+   "innerWidth": 1440
+  },
+  "editNumber": {
+   "tableWidth": 894,
+   "wrapperScrollWidth": 894,
+   "wrapperClientWidth": 894,
+   "wrapperOverflowX": "auto",
+   "docScrollWidth": 1440,
+   "innerWidth": 1440
+  }
+ },
+ {
+  "viewport": 390,
+  "metrics": {
+   "tableWidth": 720,
+   "wrapperScrollWidth": 720,
+   "wrapperClientWidth": 356,
+   "wrapperOverflowX": "auto",
+   "docScrollWidth": 390,
+   "innerWidth": 390
+  },
+  "rows": [
+   {
+    "number": "+1-555-0801",
+    "numberHeight": 20,
+    "numberLineHeight": 20,
+    "numberOneLine": true,
+    "numberWhiteSpace": "nowrap",
+    "statusBadgeText": "Active",
+    "buttonText": "Retire",
+    "buttonBelowBadge": true,
+    "badgeRect": [
+     571,
+     265,
+     289
+    ],
+    "btnRect": [
+     571,
+     295
+    ],
+    "plan": {
+     "text": "Unlimited Welcome",
+     "title": "Unlimited Welcome",
+     "cut": false,
+     "ellipsis": "ellipsis",
+     "clientWidth": 128,
+     "scrollWidth": 128
+    }
+   },
+   {
+    "number": "+1-555-0802",
+    "numberHeight": 20,
+    "numberLineHeight": 20,
+    "numberOneLine": true,
+    "numberWhiteSpace": "nowrap",
+    "statusBadgeText": "Active",
+    "buttonText": "Retire",
+    "buttonBelowBadge": true,
+    "badgeRect": [
+     571,
+     348,
+     372
+    ],
+    "btnRect": [
+     571,
+     378
+    ],
+    "plan": {
+     "text": "Unlimited Plus",
+     "title": "Unlimited Plus",
+     "cut": false,
+     "ellipsis": "ellipsis",
+     "clientWidth": 95,
+     "scrollWidth": 95
+    }
+   },
+   {
+    "number": "+1-555-0803",
+    "numberHeight": 20,
+    "numberLineHeight": 20,
+    "numberOneLine": true,
+    "numberWhiteSpace": "nowrap",
+    "statusBadgeText": "Active",
+    "buttonText": "Retire",
+    "buttonBelowBadge": true,
+    "badgeRect": [
+     571,
+     431,
+     455
+    ],
+    "btnRect": [
+     571,
+     461
+    ],
+    "plan": {
+     "text": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+     "title": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+     "cut": true,
+     "ellipsis": "ellipsis",
+     "clientWidth": 151,
+     "scrollWidth": 408
+    }
+   }
+  ],
+  "editPlan": {
+   "tableWidth": 720,
+   "wrapperScrollWidth": 720,
+   "wrapperClientWidth": 356,
+   "wrapperOverflowX": "auto",
+   "docScrollWidth": 390,
+   "innerWidth": 390
+  },
+  "editNumber": {
+   "tableWidth": 720,
+   "wrapperScrollWidth": 720,
+   "wrapperClientWidth": 356,
+   "wrapperOverflowX": "auto",
+   "docScrollWidth": 390,
+   "innerWidth": 390
+  }
+ }
+]

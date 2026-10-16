@@ -9,6 +9,7 @@ import {
   login,
   logout,
   selectContractInSwitcher,
+  selectInSideList,
   simCardsTable,
 } from "./helpers";
 
@@ -70,7 +71,7 @@ test.describe("sim swap moves", () => {
     await expect(row).toContainText("Completed");
 
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
 
     const smartphones = await page.evaluate(async (contractId) => {
       const response = await fetch(`/api/contracts/${contractId}/smartphones`);

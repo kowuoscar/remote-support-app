@@ -16,7 +16,10 @@ import {
 } from "@/components/carriers/archive-carrier-offer-dialog";
 import { OFFER_COPY } from "@/components/carriers/carrier-offer-copy";
 import { Money } from "@/components/ui/money";
+import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
+import { SideList, SideListLayout, type SideListItem } from "@/components/ui/side-list";
 import { formatMoney } from "@/lib/format";
+import { useSelectionAddress } from "@/lib/selection-address";
 import { CARRIER_OFFER_LISTS, type CarrierOfferList } from "@/lib/api/carrier-offers";
 import {
   COUNTRIES,
@@ -48,138 +51,174 @@ function useQueryWith() {
   };
 }
 
+/** A relative URL with one query parameter removed. */
+function queryWithout(url: string, key: string): string {
+  const [path, query = ""] = url.split("?");
+  const params = new URLSearchParams(query);
+  params.delete(key);
+  const rest = params.toString();
+  return rest ? `${path}?${rest}` : path;
+}
+
 const LIST_FIELD = { "topup-options": "topupOptions", "postpaid-plans": "postpaidPlans" } as const;
 
-/** What "Show archived" would reveal: archived Carriers, and archived entries of active ones. */
-function countArchived(carriers: CatalogCarrierItem[]): number {
-  return carriers.reduce(
-    (count, carrier) =>
-      carrier.archivedAt !== null
-        ? count + 1
-        : count +
-          carrier.topupOptions.filter((entry) => entry.archivedAt !== null).length +
-          carrier.postpaidPlans.filter((entry) => entry.archivedAt !== null).length,
-    0,
+/** What "Show archived" would reveal for the selected Carrier: its archived Topup Options and Postpaid Plans. */
+function countArchived(carrier: CatalogCarrierItem): number {
+  return (
+    carrier.topupOptions.filter((entry) => entry.archivedAt !== null).length +
+    carrier.postpaidPlans.filter((entry) => entry.archivedAt !== null).length
   );
 }
 
 /**
  * One Country's Carriers, maintained in place (agent-maintains-carriers ticket): the Agent's own
- * Country, or — with `countryFilter` — any Country the Company Manager picks. The page fetches
- * archived Carriers too; "Show archived" only reveals them. Both the Country and the toggle live in
- * the URL (`?country=`, `?archived=1`), so a view can be linked to. Every change refreshes the
- * server-rendered list without leaving the page. Each active Carrier lists its Topup Options and
- * Postpaid Plans with their prices (topup-options-and-postpaid-plans ticket); an archived Carrier
- * shows neither, since nothing under it can be picked or changed any more.
+ * Country, or — with `countryFilter` — any Country the Company Manager picks. Every Carrier of the
+ * Country, active and archived, is a row of the "Carriers" side list (archived last, as the server
+ * orders them); the selected one shows its Topup Options and Postpaid Plans beside it, in place
+ * (side-lists-and-tabs spec). The selection is `?carrier=`, written without a history entry or a
+ * request; the Country and "Show archived" (which now governs only the selected Carrier's archived
+ * offers) live in the URL too (`?country=`, `?archived=1`). Every mutation refreshes the
+ * server-rendered catalog without leaving the page. An archived Carrier shows its lists read-only,
+ * since nothing under it can be picked or changed any more. Below `xl` a Carrier dropdown takes the
+ * column's place.
  */
 export function CarriersView({
   country,
   catalog,
   countryFilter = false,
+  initialCarrierId,
 }: {
   country: Country;
   catalog: CarrierCatalog | null;
   countryFilter?: boolean;
+  /** The page's `carrier` search parameter, unvalidated: used only when it names one of the catalog's Carriers. */
+  initialCarrierId?: string;
 }) {
   const nameDialogRef = useRef<CarrierNameDialogHandle>(null);
   const archiveDialogRef = useRef<ArchiveCarrierDialogHandle>(null);
   const offerDialogRef = useRef<CarrierOfferDialogHandle>(null);
   const archiveOfferDialogRef = useRef<ArchiveCarrierOfferDialogHandle>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryWith = useQueryWith();
   // Seeded from the URL, then flipped at once on click; the URL follows behind, so the checkbox
   // never waits on the navigation to show its new state.
   const [showArchived, setShowArchived] = useState(searchParams.get("archived") === "1");
+  const writeAddress = useSelectionAddress();
   const countryName = countryLabel(country);
 
   const carriers = catalog?.carriers ?? [];
+  // Starts from the resolved row's real id, not from the raw address value: with no `?carrier=` the
+  // first row is the selection, and it must stay selected when archived or renamed (it re-sorts).
+  const [carrierId, setCarrierId] = useState(
+    () => carriers.find((carrier) => carrier.id === initialCarrierId)?.id ?? carriers[0]?.id ?? "",
+  );
   const active = carriers.filter((carrier) => carrier.archivedAt === null);
-  const archivedCount = countArchived(carriers);
-  const visible = showArchived ? carriers : active;
+  // The first row stands in for a selection that names nothing in the catalog (an unknown address
+  // value, or a just-added Carrier until the refreshed catalog lands).
+  const selected = carriers.find((carrier) => carrier.id === carrierId) ?? carriers[0];
+
+  function select(id: string) {
+    setCarrierId(id);
+    writeAddress({ carrier: id });
+    // The document scrolls the detail; return to its top when it would start off-screen.
+    if (detailRef.current && detailRef.current.getBoundingClientRect().top < 0) {
+      window.scrollTo({ top: 0 });
+    }
+  }
+
+  const header = (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+      {countryFilter ? <CountryFilter country={country} /> : null}
+      <div className="flex items-center gap-3">
+        <Button variant="primary" onClick={() => nameDialogRef.current?.openCreate()} disabled={!catalog}>
+          <IconPlus className="h-4 w-4" />
+          Add carrier
+        </Button>
+        <span className="tnum shrink-0 text-label text-ink-mute">{active.length} active</span>
+      </div>
+    </div>
+  );
+
+  const items: SideListItem[] = carriers.map((carrier) => ({
+    id: carrier.id,
+    name: carrier.name,
+    muted: carrier.archivedAt !== null,
+    badge: carrier.archivedAt !== null ? <Badge tone="neutral">Archived</Badge> : undefined,
+  }));
+  const options: ContractOption[] = carriers.map((carrier) => ({
+    id: carrier.id,
+    label: carrier.name,
+    meta: carrier.archivedAt !== null ? "Archived" : undefined,
+  }));
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-          {countryFilter ? <CountryFilter country={country} /> : null}
-          <label className="flex items-center gap-2 text-[13px] font-medium text-ink-secondary">
-            <input
-              type="checkbox"
-              checked={showArchived}
-              onChange={(event) => {
-                setShowArchived(event.target.checked);
-                router.replace(queryWith("archived", event.target.checked ? "1" : null), { scroll: false });
-              }}
-              className="h-4 w-4 rounded border-hairline-strong accent-primary"
-            />
-            Show archived
-            {archivedCount > 0 ? <span className="tnum text-ink-mute">({archivedCount})</span> : null}
-          </label>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="tnum shrink-0 text-[13px] text-ink-mute">{active.length} active</span>
-          <Button variant="primary" onClick={() => nameDialogRef.current?.openCreate()} disabled={!catalog}>
-            <IconPlus className="h-4 w-4" />
-            Add carrier
-          </Button>
-        </div>
-      </div>
-
+    <SideListLayout
+      list={
+        catalog && selected ? (
+          <SideList
+            label="Carriers"
+            items={items}
+            selectedId={selected.id}
+            hrefFor={(id) => queryWith("carrier", id)}
+            onSelect={select}
+          />
+        ) : null
+      }
+      header={header}
+      dropdown={
+        catalog && selected ? (
+          <ContractSwitcher contracts={options} value={selected.id} onChange={select} icon={IconCarrier} />
+        ) : null
+      }
+      detailRef={detailRef}
+    >
       {!catalog ? (
         <EmptyState
           icon={<IconAlertTriangle className="h-5 w-5" />}
           title="Couldn't load carriers"
           description="The catalog didn't load. Reload the page to try again."
         />
-      ) : visible.length === 0 ? (
+      ) : !selected ? (
         <EmptyState
           icon={<IconCarrier className="h-5 w-5" />}
-          title={carriers.length > 0 ? `Every carrier in ${countryName} is archived` : `No carriers in ${countryName} yet`}
-          description={
-            carriers.length > 0
-              ? "Add the carriers you work with today, or turn on Show archived to see the old ones."
-              : `Add the mobile carriers you buy SIM cards and topups from. Prices will be in ${catalog.currency}.`
-          }
+          title={`No carriers in ${countryName} yet`}
+          description={`Add the mobile carriers you buy SIM cards and topups from. Prices will be in ${catalog.currency}.`}
         />
       ) : (
-        <Card>
-          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-hairline px-5 py-4">
-            <h2 className="text-sm font-semibold text-ink">{countryName}</h2>
-            <p className="text-[13px] text-ink-mute">
-              Prices in <span className="tnum">{catalog.currency}</span> · shared by every agent in {countryName}
-            </p>
-          </div>
-          <ul aria-label="Carriers" className="divide-y divide-hairline">
-            {visible.map((carrier) => (
-              <CarrierRow
-                key={carrier.id}
-                carrier={carrier}
-                currency={catalog.currency}
-                showArchived={showArchived}
-                onRename={() => nameDialogRef.current?.openRename(carrier)}
-                onArchive={() => archiveDialogRef.current?.open(carrier)}
-                onAddEntry={(list) => offerDialogRef.current?.openCreate(list, carrier)}
-                onEditEntry={(list, entry) => offerDialogRef.current?.openEdit(list, carrier, entry)}
-                onArchiveEntry={(list, entry) => archiveOfferDialogRef.current?.open(list, carrier, entry)}
-              />
-            ))}
-          </ul>
-        </Card>
+        <CarrierDetail
+          carrier={selected}
+          currency={catalog.currency}
+          countryName={countryName}
+          showArchived={showArchived}
+          onToggleArchived={(checked) => {
+            setShowArchived(checked);
+            router.replace(queryWith("archived", checked ? "1" : null), { scroll: false });
+          }}
+          onRename={() => nameDialogRef.current?.openRename(selected)}
+          onArchive={() => archiveDialogRef.current?.open(selected)}
+          onAddEntry={(list) => offerDialogRef.current?.openCreate(list, selected)}
+          onEditEntry={(list, entry) => offerDialogRef.current?.openEdit(list, selected, entry)}
+          onArchiveEntry={(list, entry) => archiveOfferDialogRef.current?.open(list, selected, entry)}
+        />
       )}
 
-      <CarrierNameDialog ref={nameDialogRef} country={country} countryName={countryName} />
+      <CarrierNameDialog ref={nameDialogRef} country={country} countryName={countryName} onCreated={select} />
       <ArchiveCarrierDialog ref={archiveDialogRef} />
       <CarrierOfferDialog ref={offerDialogRef} currency={catalog?.currency ?? ""} />
       <ArchiveCarrierOfferDialog ref={archiveOfferDialogRef} />
-    </div>
+    </SideListLayout>
   );
 }
 
-function CarrierRow({
+/** The selected Carrier as one Card: its name and actions, the "Show archived" toggle, and its two offer lists. */
+function CarrierDetail({
   carrier,
   currency,
+  countryName,
   showArchived,
+  onToggleArchived,
   onRename,
   onArchive,
   onAddEntry,
@@ -188,7 +227,9 @@ function CarrierRow({
 }: {
   carrier: CatalogCarrierItem;
   currency: string;
+  countryName: string;
   showArchived: boolean;
+  onToggleArchived: (checked: boolean) => void;
   onRename: () => void;
   onArchive: () => void;
   onAddEntry: (list: CarrierOfferList) => void;
@@ -196,58 +237,76 @@ function CarrierRow({
   onArchiveEntry: (list: CarrierOfferList, entry: CarrierOfferItem) => void;
 }) {
   const archived = carrier.archivedAt !== null;
+  const archivedCount = countArchived(carrier);
   return (
-    <li className="px-5 py-3">
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-canvas-soft text-ink-mute">
-            <IconCarrier className="h-4 w-4" />
-          </span>
-          <div className="min-w-0">
-            <h3
-              translate="no"
-              className={`block truncate text-sm font-medium ${archived ? "text-ink-mute" : "text-ink"}`}
-            >
-              {carrier.name}
-            </h3>
-            {archived ? (
-              <span className="block text-[12px] text-ink-mute">
-                Archived {archivedDate.format(new Date(carrier.archivedAt!))}
-              </span>
-            ) : null}
+    <Card>
+      <div className="flex flex-col gap-1 border-b border-hairline px-5 py-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-canvas-soft text-ink-mute">
+              <IconCarrier className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <h2
+                translate="no"
+                className={`block truncate text-sm font-semibold ${archived ? "text-ink-mute" : "text-ink"}`}
+              >
+                {carrier.name}
+              </h2>
+              {archived ? (
+                <span className="block text-label-sm text-ink-mute">
+                  Archived {archivedDate.format(new Date(carrier.archivedAt!))}
+                </span>
+              ) : null}
+            </div>
           </div>
+          {archived ? (
+            <Badge tone="neutral">Archived</Badge>
+          ) : (
+            <span className="flex shrink-0 items-center gap-1.5">
+              <Button variant="row" size="sm" onClick={onRename} aria-label={`Rename ${carrier.name}`}>
+                Rename
+              </Button>
+              <Button variant="ghost" size="sm" onClick={onArchive} aria-label={`Archive ${carrier.name}`}>
+                Archive
+              </Button>
+            </span>
+          )}
         </div>
-        {archived ? (
-          <Badge tone="neutral">Archived</Badge>
-        ) : (
-          <span className="flex shrink-0 items-center gap-1.5">
-            <Button variant="row" size="sm" onClick={onRename} aria-label={`Rename ${carrier.name}`}>
-              Rename
-            </Button>
-            <Button variant="ghost" size="sm" onClick={onArchive} aria-label={`Archive ${carrier.name}`}>
-              Archive
-            </Button>
-          </span>
-        )}
+        <p className="text-label text-ink-mute md:pl-11">
+          Prices in <span className="tnum">{currency}</span> · shared by every agent in {countryName}
+        </p>
       </div>
 
-      {archived ? null : (
-        <div className="mt-3 grid gap-x-8 gap-y-4 pb-1 md:grid-cols-2 md:pl-11">
-          {CARRIER_OFFER_LISTS.map((list) => (
-            <OfferList
-              key={list}
-              list={list}
-              carrierName={carrier.name}
-              entries={carrier[LIST_FIELD[list]].filter((entry) => showArchived || entry.archivedAt === null)}
-              currency={currency}
-              onAdd={() => onAddEntry(list)}
-              onEdit={(entry) => onEditEntry(list, entry)}
-              onArchive={(entry) => onArchiveEntry(list, entry)}
-            />
-          ))}
-        </div>
-      )}
-    </li>
+      <div className="px-5 pt-3">
+        <label className="flex w-fit items-center gap-2 text-label font-medium text-ink-secondary">
+          <input
+            type="checkbox"
+            checked={showArchived}
+            onChange={(event) => onToggleArchived(event.target.checked)}
+            className="h-4 w-4 rounded border-hairline-strong accent-primary"
+          />
+          Show archived
+          {archivedCount > 0 ? <span className="tnum text-ink-mute">({archivedCount})</span> : null}
+        </label>
+      </div>
+
+      <div className="grid gap-x-8 gap-y-4 px-5 pb-4 pt-3 md:grid-cols-2">
+        {CARRIER_OFFER_LISTS.map((list) => (
+          <OfferList
+            key={list}
+            list={list}
+            carrierName={carrier.name}
+            readOnly={archived}
+            entries={carrier[LIST_FIELD[list]].filter((entry) => showArchived || entry.archivedAt === null)}
+            currency={currency}
+            onAdd={() => onAddEntry(list)}
+            onEdit={(entry) => onEditEntry(list, entry)}
+            onArchive={(entry) => onArchiveEntry(list, entry)}
+          />
+        ))}
+      </div>
+    </Card>
   );
 }
 
@@ -255,6 +314,7 @@ function CarrierRow({
 function OfferList({
   list,
   carrierName,
+  readOnly,
   entries,
   currency,
   onAdd,
@@ -263,6 +323,8 @@ function OfferList({
 }: {
   list: CarrierOfferList;
   carrierName: string;
+  /** An archived Carrier's lists: entries only, with no Add, Edit or Archive. */
+  readOnly: boolean;
   entries: CarrierOfferItem[];
   currency: string;
   onAdd: () => void;
@@ -274,22 +336,25 @@ function OfferList({
   return (
     <section aria-labelledby={headingId} className="min-w-0">
       <div className="flex items-center justify-between gap-3 border-b border-hairline pb-1.5">
-        <h4 id={headingId} className="text-[12px] font-medium tracking-[0.02em] text-ink-mute">
+        {/* tracking-[0.02em]: the Label role's tracking (DESIGN.md Typography); no token carries it. */}
+        <h3 id={headingId} className="text-label-sm font-medium tracking-[0.02em] text-ink-mute">
           {copy.heading}
-        </h4>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onAdd}
-          aria-label={`Add a ${copy.singular} to ${carrierName}`}
-          className="-mr-2"
-        >
-          <IconPlus className="h-3.5 w-3.5" />
-          Add
-        </Button>
+        </h3>
+        {readOnly ? null : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onAdd}
+            aria-label={`Add a ${copy.singular} to ${carrierName}`}
+            className="-mr-2"
+          >
+            <IconPlus className="h-3.5 w-3.5" />
+            Add
+          </Button>
+        )}
       </div>
       {entries.length === 0 ? (
-        <p className="py-2.5 text-[13px] text-ink-mute">No {copy.heading.toLowerCase()} yet.</p>
+        <p className="py-2.5 text-label text-ink-mute">No {copy.heading.toLowerCase()} yet.</p>
       ) : (
         <ul aria-label={`${carrierName} ${copy.heading.toLowerCase()}`} className="divide-y divide-hairline">
           {entries.map((entry) => (
@@ -298,6 +363,7 @@ function OfferList({
               entry={entry}
               currency={currency}
               perMonth={copy.perMonth}
+              readOnly={readOnly}
               onEdit={() => onEdit(entry)}
               onArchive={() => onArchive(entry)}
             />
@@ -312,12 +378,14 @@ function OfferRow({
   entry,
   currency,
   perMonth,
+  readOnly,
   onEdit,
   onArchive,
 }: {
   entry: CarrierOfferItem;
   currency: string;
   perMonth: boolean;
+  readOnly: boolean;
   onEdit: () => void;
   onArchive: () => void;
 }) {
@@ -334,11 +402,11 @@ function OfferRow({
         ) : (
           <Money amount={entry.price} currency={currency} />
         )}
-        {perMonth ? <span className="text-[12px] text-ink-mute">/mo</span> : null}
+        {perMonth ? <span className="text-label-sm text-ink-mute">/mo</span> : null}
       </span>
       {archived ? (
         <Badge tone="neutral">Archived</Badge>
-      ) : (
+      ) : readOnly ? null : (
         <span className="flex shrink-0 items-center gap-1">
           <Button variant="row" size="sm" onClick={onEdit} aria-label={`Edit ${entry.name}`}>
             Edit
@@ -359,13 +427,14 @@ function CountryFilter({ country }: { country: Country }) {
   const id = useId();
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor={id} className="text-[13px] font-medium text-ink-secondary">
+      <label htmlFor={id} className="text-label font-medium text-ink-secondary">
         Country
       </label>
       <select
         id={id}
         value={country}
-        onChange={(event) => router.push(queryWith("country", event.target.value))}
+        // A new Country opens on its first Carrier: `carrier` is dropped; `archived` is kept.
+        onChange={(event) => router.push(queryWithout(queryWith("country", event.target.value), "carrier"))}
         className="h-9 rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
       >
         {COUNTRIES.map((c) => (

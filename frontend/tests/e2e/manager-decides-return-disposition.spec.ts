@@ -13,6 +13,7 @@ import {
   logout,
   pendingRequestRow,
   selectContractInSwitcher,
+  selectInSideList,
   submitRequestAsTester,
 } from "./helpers";
 
@@ -81,7 +82,7 @@ test.describe("manager decides return disposition", () => {
     // return-client-owned-smartphones.spec.ts's own precedent — text-content on a Fleet row is
     // the wrong tool once a Smartphone can also show an installed SIM's number).
     await page.goto("/agent/fleet");
-    await selectContractInSwitcher(page, clientName);
+    await selectInSideList(page, "Clients", clientName);
 
     const smartphones = await fetchSmartphones(page, contractId);
     const returnedPhone = smartphones.find((phone) => phone.serial === serial)!;

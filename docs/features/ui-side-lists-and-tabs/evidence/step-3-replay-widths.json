@@ -1,0 +1,106 @@
+[
+  {
+    "wrapperScrollWidth": 734,
+    "wrapperClientWidth": 734,
+    "equal": true,
+    "tableWidth": 734,
+    "lastColumn": "Installed in",
+    "lastThRightWithinWrapper": true,
+    "firstRowCellsAllInside": true,
+    "headers": [
+      "Number",
+      "Carrier",
+      "Plan",
+      "Flavor",
+      "Monthly fee",
+      "Status",
+      "Installed in"
+    ],
+    "docScrollWidth": 1280,
+    "innerWidth": 1280,
+    "longCell": {
+      "text": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+      "title": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+      "truncated": true
+    },
+    "viewport": 1280,
+    "tab": "sim-cards",
+    "editMode": {
+      "sw": 984,
+      "cw": 734
+    }
+  },
+  {
+    "wrapperScrollWidth": 734,
+    "wrapperClientWidth": 734,
+    "equal": true,
+    "tableWidth": 734,
+    "lastColumn": "Status",
+    "lastThRightWithinWrapper": true,
+    "firstRowCellsAllInside": true,
+    "headers": [
+      "Model",
+      "Serial",
+      "Owner",
+      "SIM Cards",
+      "Status"
+    ],
+    "docScrollWidth": 1280,
+    "innerWidth": 1280,
+    "longCell": null,
+    "viewport": 1280,
+    "tab": "smartphones"
+  },
+  {
+    "wrapperScrollWidth": 894,
+    "wrapperClientWidth": 894,
+    "equal": true,
+    "tableWidth": 894,
+    "lastColumn": "Installed in",
+    "lastThRightWithinWrapper": true,
+    "firstRowCellsAllInside": true,
+    "headers": [
+      "Number",
+      "Carrier",
+      "Plan",
+      "Flavor",
+      "Monthly fee",
+      "Status",
+      "Installed in"
+    ],
+    "docScrollWidth": 1440,
+    "innerWidth": 1440,
+    "longCell": {
+      "text": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+      "title": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+      "truncated": true
+    },
+    "viewport": 1440,
+    "tab": "sim-cards",
+    "editMode": {
+      "sw": 984,
+      "cw": 894
+    }
+  },
+  {
+    "wrapperScrollWidth": 894,
+    "wrapperClientWidth": 894,
+    "equal": true,
+    "tableWidth": 894,
+    "lastColumn": "Status",
+    "lastThRightWithinWrapper": true,
+    "firstRowCellsAllInside": true,
+    "headers": [
+      "Model",
+      "Serial",
+      "Owner",
+      "SIM Cards",
+      "Status"
+    ],
+    "docScrollWidth": 1440,
+    "innerWidth": 1440,
+    "longCell": null,
+    "viewport": 1440,
+    "tab": "smartphones"
+  }
+]

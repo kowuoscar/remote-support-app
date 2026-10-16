@@ -1,0 +1,12 @@
+Isolated e2e stack: postgres container remote-support-e2e-pg-11355-15005 on port 65174, backend on port 65175, frontend on port 65176.
+  ✓   1 tests/e2e/fleet-correction-survives-navigation.spec.ts:52:7 › a Fleet correction followed at once by navigation › save, switch to Smartphones and back: the SIM row shows the saved plan (2.9s)
+  ✓   2 tests/e2e/fleet-correction-survives-navigation.spec.ts:66:7 › a Fleet correction followed at once by navigation › save, pick another Client and back: the SIM row shows the saved plan (2.3s)
+  ✓   3 tests/e2e/fleet-correction-survives-navigation.spec.ts:52:7 › a Fleet correction followed at once by navigation › save, switch to Smartphones and back: the SIM row shows the saved plan (2.3s)
+  ✓   4 tests/e2e/fleet-correction-survives-navigation.spec.ts:66:7 › a Fleet correction followed at once by navigation › save, pick another Client and back: the SIM row shows the saved plan (2.3s)
+  ✓   5 tests/e2e/fleet-correction-survives-navigation.spec.ts:52:7 › a Fleet correction followed at once by navigation › save, switch to Smartphones and back: the SIM row shows the saved plan (2.3s)
+  ✓   6 tests/e2e/fleet-correction-survives-navigation.spec.ts:66:7 › a Fleet correction followed at once by navigation › save, pick another Client and back: the SIM row shows the saved plan (2.4s)
+  ✓   7 tests/e2e/fleet-correction-survives-navigation.spec.ts:52:7 › a Fleet correction followed at once by navigation › save, switch to Smartphones and back: the SIM row shows the saved plan (2.3s)
+  ✓   8 tests/e2e/fleet-correction-survives-navigation.spec.ts:66:7 › a Fleet correction followed at once by navigation › save, pick another Client and back: the SIM row shows the saved plan (2.4s)
+  ✓   9 tests/e2e/fleet-correction-survives-navigation.spec.ts:52:7 › a Fleet correction followed at once by navigation › save, switch to Smartphones and back: the SIM row shows the saved plan (2.6s)
+  ✓  10 tests/e2e/fleet-correction-survives-navigation.spec.ts:66:7 › a Fleet correction followed at once by navigation › save, pick another Client and back: the SIM row shows the saved plan (2.4s)
+  10 passed (38.9s)

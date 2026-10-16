@@ -1,0 +1,98 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Fleet" [level=1]
+  - paragraph: Scoped to one Contract at a time
+  - button "priya.shah@example.com · Agent"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Solstice Retail Group":
+          - /url: /agent/fleet?contract=1bae7798-c445-4cf5-83b9-ace06a0a2ce3
+  - tablist "Fleet":
+    - tab "SIM Cards 3" [selected]
+    - tab "Smartphones 5"
+  - tabpanel "SIM Cards 3":
+    - table:
+      - rowgroup:
+        - row "Number Carrier Plan Flavor Monthly fee Status Installed in Change status":
+          - columnheader "Number"
+          - columnheader "Carrier"
+          - columnheader "Plan"
+          - columnheader "Flavor"
+          - columnheader "Monthly fee"
+          - columnheader "Status"
+          - columnheader "Installed in"
+          - columnheader "Change status"
+      - rowgroup:
+        - row "+44-7700-900101 Edit number, +44-7700-900101 EE Flex 20 Edit plan for +44-7700-900101 Postpaid £20.00 Retired Cancelled Oct 15, 2026 Not installed Reactivate":
+          - cell "+44-7700-900101 Edit number, +44-7700-900101":
+            - text: +44-7700-900101
+            - button "Edit number, +44-7700-900101": Edit
+          - cell "EE"
+          - cell "Flex 20 Edit plan for +44-7700-900101":
+            - text: Flex 20
+            - button "Edit plan for +44-7700-900101": Edit
+          - cell "Postpaid"
+          - cell "£20.00"
+          - cell "Retired Cancelled Oct 15, 2026"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 14 — IP14-UK-2201"
+              - option "iPhone 12"
+          - cell "Reactivate":
+            - button "Reactivate"
+        - row "+44-7700-900102 Edit number, +44-7700-900102 O2 — Prepaid — Active Not installed Retire":
+          - cell "+44-7700-900102 Edit number, +44-7700-900102":
+            - text: +44-7700-900102
+            - button "Edit number, +44-7700-900102": Edit
+          - cell "O2"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "Not installed":
+            - combobox "Installed in":
+              - option "Not installed" [selected]
+              - option "iPhone 14 — IP14-UK-2201"
+              - option "iPhone 12"
+          - cell "Retire":
+            - button "Retire"
+        - row "+44-7700-900103 Edit number, +44-7700-900103 EE — Prepaid — Active iPhone 12 Retire":
+          - cell "+44-7700-900103 Edit number, +44-7700-900103":
+            - text: +44-7700-900103
+            - button "Edit number, +44-7700-900103": Edit
+          - cell "EE"
+          - cell "—"
+          - cell "Prepaid"
+          - cell "—"
+          - cell "Active"
+          - cell "iPhone 12":
+            - combobox "Installed in":
+              - option "Not installed"
+              - option "iPhone 14 — IP14-UK-2201"
+              - option "iPhone 12" [selected]
+          - cell "Retire":
+            - button "Retire"
+- alert

@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/cn";
 import type { SimCardListItem } from "@/lib/api/types";
 
 /**
@@ -10,11 +11,19 @@ export function SimCardCarrier({ sim }: { sim: SimCardListItem }) {
     return <span className="text-ink-mute">—</span>;
   }
   return (
-    <span className="inline-flex items-center gap-2">
-      <span translate="no" className={sim.carrierArchived ? "text-ink-mute" : "text-ink-secondary"}>
+    <span className="inline-flex max-w-full items-center gap-2">
+      <span
+        translate="no"
+        title={sim.carrierName}
+        className={cn("min-w-0 truncate", sim.carrierArchived ? "text-ink-mute" : "text-ink-secondary")}
+      >
         {sim.carrierName}
       </span>
-      {sim.carrierArchived ? <Badge tone="neutral">Archived</Badge> : null}
+      {sim.carrierArchived ? (
+        <span className="shrink-0">
+          <Badge tone="neutral">Archived</Badge>
+        </span>
+      ) : null}
     </span>
   );
 }

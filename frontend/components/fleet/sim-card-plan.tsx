@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/cn";
 import type { SimCardListItem } from "@/lib/api/types";
 
 /**
@@ -11,11 +12,19 @@ export function SimCardPlan({ sim }: { sim: Pick<SimCardListItem, "postpaidPlanN
     return <span className="text-ink-mute">—</span>;
   }
   return (
-    <span className="inline-flex items-center gap-2">
-      <span translate="no" className={sim.postpaidPlanArchived ? "text-ink-mute" : "text-ink-secondary"}>
+    <span className="inline-flex max-w-full items-center gap-2">
+      <span
+        translate="no"
+        title={sim.postpaidPlanName}
+        className={cn("min-w-0 truncate", sim.postpaidPlanArchived ? "text-ink-mute" : "text-ink-secondary")}
+      >
         {sim.postpaidPlanName}
       </span>
-      {sim.postpaidPlanArchived ? <Badge tone="neutral">Archived</Badge> : null}
+      {sim.postpaidPlanArchived ? (
+        <span className="shrink-0">
+          <Badge tone="neutral">Archived</Badge>
+        </span>
+      ) : null}
     </span>
   );
 }

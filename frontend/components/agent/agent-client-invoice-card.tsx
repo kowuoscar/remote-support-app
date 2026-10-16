@@ -10,7 +10,12 @@ import { SendClientInvoiceControl } from "@/components/agent/send-client-invoice
 import { ClientInvoiceStatusNote } from "@/components/agent/client-invoice-status-note";
 import { clientInvoiceBadge } from "@/lib/status";
 import { formatDate, formatDateShort, formatLocalDate } from "@/lib/format";
-import { FEE_TYPE_LABEL, type ClientInvoiceDetail, type EditableClientInvoiceLineKind } from "@/lib/api/types";
+import {
+  FEE_TYPE_LABEL,
+  simLineKind,
+  type ClientInvoiceDetail,
+  type EditableClientInvoiceLineKind,
+} from "@/lib/api/types";
 
 const FEE_LABEL_DESCRIPTION_MAX = 40;
 
@@ -207,7 +212,12 @@ export function AgentClientInvoiceCard({
             {invoice.basePostpaidSims.map((sim) => (
               <LineRow key={sim.simCardId} edited={isEditedLine(sim)}>
                 <LineCell className="tnum font-medium">
-                  <span className={`wrap-anywhere ${LINE_AREA.what}`}>{sim.number}</span>
+                  <span className={`wrap-anywhere ${LINE_AREA.what}`}>
+                    <span className="mr-2">{sim.number}</span>
+                    <span className="inline-block whitespace-nowrap text-label-sm font-normal text-ink-mute">
+                      {simLineKind(sim)}
+                    </span>
+                  </span>
                   {sim.cancellationEffectiveDate ? (
                     <span className={`mt-1 block text-label-sm font-normal text-ink-mute ${LINE_AREA.note}`}>
                       Cancelled {formatLocalDate(sim.cancellationEffectiveDate)} — still billed through this month

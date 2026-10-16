@@ -8,6 +8,8 @@ import {
   type SmartphoneListItem,
 } from "@/lib/api/types";
 import { loadActiveCarriers } from "@/lib/api/carriers";
+import { fleetTabFromParam } from "@/components/fleet/fleet-tabs-card";
+import { firstParam } from "@/lib/search-params";
 import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "Fleet" };
@@ -21,8 +23,13 @@ export const metadata = { title: "Fleet" };
  * (agent-corrects-the-fleet spec): every Contract of an Agent is in the Agent's Country, so one
  * list serves the whole switcher and the plan correction.
  */
-export default async function AgentFleetPage() {
+export default async function AgentFleetPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ contract?: string | string[]; tab?: string | string[] }>;
+}) {
   await requireAgent();
+  const { contract, tab } = await searchParams;
   const [contracts, meResponse, carriers] = await Promise.all([
     backendFetchList<ContractListItem>("/api/contracts"),
     backendFetch("/api/me"),
@@ -45,6 +52,7 @@ export default async function AgentFleetPage() {
       title="Fleet"
       subtitle="Scoped to one Contract at a time"
       viewerLabel={`${me.username ?? "Agent"} · Agent`}
+      bleed
     >
       <AgentFleetView
         smartphones={fleets.flatMap((fleet) => fleet.smartphones)}
@@ -55,7 +63,11 @@ export default async function AgentFleetPage() {
           label: `${c.clientName} — ${countryLabel(c.country)}`,
           meta: countryLabel(c.country),
           currency: c.currency,
+          clientName: c.clientName,
+          countryLabel: countryLabel(c.country),
         }))}
+        initialContractId={firstParam(contract)}
+        initialTab={fleetTabFromParam(firstParam(tab))}
       />
     </SurfacePage>
   );

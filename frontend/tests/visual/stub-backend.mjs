@@ -328,9 +328,9 @@ const INVOICE_STATES = [
 // five line shapes the Agent's Client Invoice lays out: a plain, an edited and a cancelled Postpaid
 // SIM, a Fee with a description and an edited Fee with none. Base 25 + 30 + 25 = 80, Fees 10 + 8 = 18.
 const SIM_LINES = [
-  { simCardId: "66666666-0000-0000-0000-0000000000a1", number: "+44 7700 900123", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 25, computedAmount: 25, edited: false },
-  { simCardId: "66666666-0000-0000-0000-0000000000a2", number: "+44 7700 900456", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 30, computedAmount: 25, edited: true },
-  { simCardId: "66666666-0000-0000-0000-0000000000a3", number: "+44 7700 900789", monthlyFeeAmount: 25, cancellationEffectiveDate: "2026-09-03", amount: 25, computedAmount: 25, edited: false },
+  { simCardId: "66666666-0000-0000-0000-0000000000a1", number: "+44 7700 900123", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 25, computedAmount: 25, edited: false, carrierName: "Verizon" },
+  { simCardId: "66666666-0000-0000-0000-0000000000a2", number: "+44 7700 900456", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 30, computedAmount: 25, edited: true, carrierName: "Verizon" },
+  { simCardId: "66666666-0000-0000-0000-0000000000a3", number: "+44 7700 900789", monthlyFeeAmount: 25, cancellationEffectiveDate: "2026-09-03", amount: 25, computedAmount: 25, edited: false, carrierName: null },
 ];
 const FEE_LINES = [
   { id: "77777777-0000-0000-0000-0000000000a1", contractId: "22222222-0000-0000-0000-0000000000d1", requestId: "88888888-0000-0000-0000-0000000000a1", requestType: "TOPUP", feeType: "TOPUP", amount: 10, currency: "USD", description: "Customer asked for extra data", billingMonth: "2026-09-01", createdAt: "2026-09-12T10:00:00Z", computedAmount: 10, edited: false },
@@ -433,7 +433,13 @@ const TESTER_SIM_CARDS = [
   [0, "+1-555-0203", "RETIRED"],
   [1, "+44-7700-900201", "ACTIVE"],
   [1, "+44-7700-900202", "RETIRED"],
+  // A 60-character Plan name (side-lists-and-tabs spec): the Fleet cuts it with "…". Retired so no
+  // dashboard count moves, and on the Tester's second Contract, which the Manager's Contract
+  // goldens never show.
+  [1, "+44-7700-900203", "RETIRED", "POSTPAID"],
 ];
+
+const LONG_PLAN_NAME = "Unlimited Premium Postpaid Plan with Roaming and 5G Datapack";
 
 // [contract index, type, status, age in ms]
 const TESTER_REQUESTS = [
@@ -478,7 +484,7 @@ function testerSimCards(contractIndex) {
       carrierName: "AT&T",
       carrierArchived: false,
       postpaidPlanId: plan.id,
-      postpaidPlanName: plan.name,
+      postpaidPlanName: contractIndex === 1 ? LONG_PLAN_NAME : plan.name,
       postpaidPlanArchived: false,
       monthlyFeeAmount: plan.price,
     };
@@ -702,7 +708,7 @@ createServer((request, response) => {
   }
   // correct-a-smartphone-model ticket: the Manager's Contract page reads one Contract's Fleet. It
   // reuses the Agent's first Contract and the Tester fixtures' Smartphone and SIM Card rows, so the
-  // golden shows the Edit buttons on a mixed-status Fleet. Its client-invoice read stays a 404.
+  // golden shows the Edit buttons on a mixed-status Fleet. Its first Contract has a Client Invoice (below).
   const managerFleetMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/(smartphones|sim-cards)$/);
   if (managerFleetMatch && request.method === "GET" && caller.role === "MANAGER") {
     if (!AGENT_CONTRACTS.some((contract) => contract.id === managerFleetMatch[1])) return send(response, 404);
@@ -723,6 +729,14 @@ createServer((request, response) => {
     if (contractIndex !== 0) return send(response, 200, []);
     const rows = agentFleetMatch[2] === "smartphones" ? testerSmartphones(0) : testerSimCards(0);
     return send(response, 200, rows.map((row) => ({ ...row, contractId })));
+  }
+  // manager-contracts-one-page: the Manager's Contracts page reads the selected Contract's current-month
+  // Client Invoice; the first Contract carries the same draft the Agent's first Client Invoice does.
+  const managerInvoiceMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/client-invoice$/);
+  if (managerInvoiceMatch && request.method === "GET" && caller.role === "MANAGER") {
+    return managerInvoiceMatch[1] === AGENT_CONTRACTS[0].id
+      ? send(response, 200, clientInvoiceFor({ ...AGENT_CONTRACTS[0], index: 0 }))
+      : send(response, 404);
   }
   // side-list-row-status: each Contract's current-month Client Invoice, and the Agent's sent-back list.
   const clientInvoiceMatch = url.pathname.match(/^\/api\/contracts\/([^/]+)\/client-invoice$/);

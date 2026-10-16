@@ -1,0 +1,95 @@
+{
+  "landmarkRows": [
+    "Harbor Line Logistics [current]",
+    "Solstice Retail Group"
+  ],
+  "contractSwitcherTriggers": [
+    {
+      "visible": false
+    }
+  ],
+  "tabs": [
+    "SIM Cards 5 [selected]",
+    "Smartphones 2"
+  ],
+  "tabFocus": {
+    "presses": 12,
+    "focused": "tab|SIM Cards 5"
+  },
+  "afterArrowRight": {
+    "url": "http://localhost:13000/agent/fleet?tab=smartphones",
+    "focused": "Smartphones 2|selected=true",
+    "panel": "_R_4l5esneknelb_-tab-smartphones",
+    "tabs": [
+      "SIM Cards 5",
+      "Smartphones 2 [selected]"
+    ],
+    "requests": []
+  },
+  "pickOther": {
+    "url": "http://localhost:13000/agent/fleet?tab=smartphones&contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92",
+    "tabs": [
+      "SIM Cards 7",
+      "Smartphones 4 [selected]"
+    ],
+    "requests": [],
+    "rows": [
+      "Harbor Line Logistics",
+      "Solstice Retail Group [current]"
+    ]
+  },
+  "afterReload": {
+    "url": "http://localhost:13000/agent/fleet?tab=smartphones&contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92",
+    "tabs": [
+      "SIM Cards 7",
+      "Smartphones 4 [selected]"
+    ],
+    "rows": [
+      "Harbor Line Logistics",
+      "Solstice Retail Group [current]"
+    ],
+    "requests": [
+      "document GET /agent/fleet?tab=smartphones&contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92"
+    ]
+  },
+  "longPlanCell": {
+    "tag": "SPAN",
+    "title": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+    "textOverflow": "ellipsis",
+    "overflow": "hidden",
+    "whiteSpace": "nowrap",
+    "clientW": 192,
+    "scrollW": 408,
+    "text": "Unlimited Global Enterprise Roaming Plus Priority Data Packs"
+  },
+  "planCorrected": "+1-202-555-0301 Edit Verizon Unlimited Plus Edit Postpaid $80.00 Active Not installed iPhone 13 mini — IP13M-9021 Spare Android — SPARE-2270 Retire",
+  "widths": {
+    "longPlan": 1250.375,
+    "shortPlan": 1153.546875,
+    "longPlanAgain": 1250.375
+  },
+  "raceTest": {
+    "shownImmediately": "+1-202-555-0301 Edit Verizon Unlimited Plus Edit Postpaid $80.00 Active Not installed iPhone 13 mini — IP13M-9021 Spare Android — SPARE-2270 Retire",
+    "shownAfter2s": "+1-202-555-0301 Edit Verizon Unlimited Plus Edit Postpaid $80.00 Active Not installed iPhone 13 mini — IP13M-9021 Spare Android — SPARE-2270 Retire",
+    "requests": [
+      "fetch PATCH /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/sim-cards/369d3d1d-6f37-458a-ae4d-f9ad15e9685e/postpaid-plan",
+      "fetch GET /agent/fleet?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf&tab=smartphones&_rsc=gj7vNhL7t9DLTmdm"
+    ]
+  },
+  "retireDialog": "none",
+  "afterRetire": "+1-202-555-0398 Edit Verizon — Prepaid — Retired Not installed iPhone 13 mini — IP13M-9021 Spare Android — SPARE-2270 Reactivate",
+  "phone": {
+    "overflow": {
+      "scrollWidth": 390,
+      "innerWidth": 390
+    },
+    "switcherY": 76,
+    "tablistY": 143,
+    "landmark": 0
+  },
+  "priya": {
+    "rows": [
+      "Solstice Retail Group [current]"
+    ]
+  }
+}

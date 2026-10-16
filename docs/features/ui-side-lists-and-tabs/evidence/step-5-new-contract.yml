@@ -1,0 +1,58 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Manager Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /manager
+    - link "Requests":
+      - /url: /manager/requests
+    - link "Clients":
+      - /url: /manager/clients
+    - link "Agents":
+      - /url: /manager/agents
+    - link "Contracts":
+      - /url: /manager/contracts
+    - link "Stock":
+      - /url: /manager/stock
+    - link "Carriers":
+      - /url: /manager/carriers
+    - link "Invoices":
+      - /url: /manager/invoices
+- banner:
+  - heading "Contracts" [level=1]
+  - paragraph: 4 in this tenant
+  - button "Manager"
+  - button "Switch to dark theme"
+- main:
+  - button "New Contract"
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Harbor Line Logistics":
+          - /url: "?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf"
+      - listitem:
+        - link "Solstice Retail Group":
+          - /url: "?contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92"
+  - heading "Harbor Line Logistics" [level=2]
+  - text: Agent
+  - combobox "Agent":
+    - option "Jordan Ellis"
+    - option "Marcus Webb" [selected]
+  - paragraph: United States · USD
+  - region "Client Invoice":
+    - heading "Client Invoice" [level=2]
+    - paragraph: October 2026
+    - text: Draft
+    - paragraph: Total $0.00
+    - link "Open invoice":
+      - /url: /manager/invoices/client/fb273937-31f3-47d7-8ca9-422d9959c2e0
+  - tablist "Fleet":
+    - tab "SIM Cards 0" [selected]
+    - tab "Smartphones 0"
+  - button "Add SIM card"
+  - tabpanel "SIM Cards 0":
+    - paragraph: No SIM cards yet
+    - paragraph: Add this contract's first SIM card — Postpaid needs a plan, Prepaid doesn't.
+- alert: Contracts

@@ -16,6 +16,15 @@ import {
   type SimCardListItem,
 } from "@/lib/api/types";
 
+/**
+ * The Carrier and Plan cells: `max-w-0` takes the name out of the table's width sums, so the column
+ * is as wide as the percentage and the other columns leave it, and a name wider than that is cut
+ * where the column ends (`truncate` on the name). The percentages keep the columns from collapsing;
+ * a Plan name, longer than a Carrier's, gets twice the share.
+ */
+const CARRIER_CELL = "w-[14%] max-w-0";
+const PLAN_CELL = "w-[30%] max-w-0";
+
 /** The plan cell: the correction control for a Postpaid SIM on an active catalog Carrier, else text. */
 function SimCardPlanCell({
   sim,
@@ -88,7 +97,7 @@ export function SimCardFleetTable({
   changeStatus?: (sim: SimCardListItem) => ReactNode;
 }) {
   return (
-    <Table>
+    <Table dense>
       <Thead>
         <Tr>
           <Th>Number</Th>
@@ -98,23 +107,22 @@ export function SimCardFleetTable({
           {showMonthlyFee ? <Th className="text-right">Monthly fee</Th> : null}
           <Th>Status</Th>
           <Th>Installed in</Th>
-          {changeStatus ? <Th>Change status</Th> : null}
         </Tr>
       </Thead>
       <Tbody>
         {sims.map((sim) => (
           <Tr key={sim.id}>
-            <Td className="tnum font-medium text-ink">
+            <Td className="tnum whitespace-nowrap font-medium text-ink">
               {contractId && canCorrect ? (
                 <SimCardNumberControl contractId={contractId} simCardId={sim.id} number={sim.number} />
               ) : (
                 sim.number
               )}
             </Td>
-            <Td>
+            <Td className={CARRIER_CELL}>
               <SimCardCarrier sim={sim} />
             </Td>
-            <Td>
+            <Td className={PLAN_CELL}>
               <SimCardPlanCell
                 sim={sim}
                 contractId={canCorrect ? contractId : undefined}
@@ -134,12 +142,18 @@ export function SimCardFleetTable({
               </Td>
             ) : null}
             <Td>
-              <Badge tone={simCardStatusToneByValue[sim.status]}>{SIM_CARD_STATUS_LABEL[sim.status]}</Badge>
-              {sim.cancellationEffectiveDate ? (
-                <span className="mt-1 block text-[12px] text-ink-mute">
-                  Cancelled {formatLocalDate(sim.cancellationEffectiveDate)}
-                </span>
-              ) : null}
+              {/* The status and, for the Agent, its action share the cell: a column of its own would push the table past the area beside the side list. */}
+              <div className="flex flex-col items-start gap-1.5">
+                <div>
+                  <Badge tone={simCardStatusToneByValue[sim.status]}>{SIM_CARD_STATUS_LABEL[sim.status]}</Badge>
+                  {sim.cancellationEffectiveDate ? (
+                    <span className="mt-1 block text-label-sm text-ink-mute">
+                      Cancelled {formatLocalDate(sim.cancellationEffectiveDate)}
+                    </span>
+                  ) : null}
+                </div>
+                {changeStatus ? changeStatus(sim) : null}
+              </div>
             </Td>
             <Td className={contractId && smartphones ? undefined : "text-ink-secondary"}>
               {contractId && smartphones ? (
@@ -153,7 +167,6 @@ export function SimCardFleetTable({
                 (sim.installedInSmartphoneModel ?? "—")
               )}
             </Td>
-            {changeStatus ? <Td>{changeStatus(sim)}</Td> : null}
           </Tr>
         ))}
       </Tbody>

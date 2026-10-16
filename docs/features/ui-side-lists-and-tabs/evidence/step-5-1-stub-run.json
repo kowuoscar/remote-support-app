@@ -1,0 +1,29 @@
+{
+  "empty": {
+    "noContractsYet": false,
+    "landmarkCount": 1,
+    "subtitle": "2 in this tenant"
+  },
+  "stubInvoices": [
+    {
+      "row": "Aurora Retail Group Draft",
+      "lines": [
+        "+44 7700 900123Verizon · Postpaid $25.00 Edit",
+        "+44 7700 900456Verizon · Postpaid $30.00 Edit Reset Edited · computed $25.00",
+        "+44 7700 900789Postpaid Cancelled Sep 3, 2026 — still billed through this month $25.00 Edit"
+      ]
+    },
+    {
+      "row": "Birch Telecom Mexico Approved",
+      "lines": []
+    },
+    {
+      "row": "Birch Telecom United Kingdom Awaiting approval Sent back",
+      "lines": []
+    },
+    {
+      "row": "Cedar Mobile Sent back",
+      "lines": []
+    }
+  ]
+}

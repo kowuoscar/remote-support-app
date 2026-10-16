@@ -3,6 +3,7 @@ import { CarriersView } from "@/components/carriers/carriers-view";
 import { backendFetch } from "@/lib/api/backend";
 import { loadCarrierCatalog } from "@/lib/api/carriers";
 import { countryLabel } from "@/lib/api/types";
+import { firstParam } from "@/lib/search-params";
 import { requireAgent } from "@/lib/api/guard";
 
 export const metadata = { title: "Carriers" };
@@ -11,8 +12,14 @@ export const metadata = { title: "Carriers" };
  * The Agent's own Country's Carriers (agent-maintains-carriers ticket). The backend decides which
  * Country that is — an Agent never picks one — and says so in the catalog it returns.
  */
-export default async function AgentCarriersPage() {
+export default async function AgentCarriersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ carrier?: string | string[] }>;
+}) {
   await requireAgent();
+  const { carrier } = await searchParams;
+  const initialCarrierId = firstParam(carrier);
   const [catalog, meResponse] = await Promise.all([
     loadCarrierCatalog(),
     backendFetch("/api/me").catch(() => null),
@@ -25,8 +32,9 @@ export default async function AgentCarriersPage() {
       title="Carriers"
       subtitle={catalog ? `${countryLabel(catalog.country)} catalog` : "Your country's catalog"}
       viewerLabel={`${me.username ?? "Agent"} · Agent`}
+      bleed
     >
-      <CarriersView country={country} catalog={catalog} />
+      <CarriersView country={country} catalog={catalog} initialCarrierId={initialCarrierId} />
     </SurfacePage>
   );
 }

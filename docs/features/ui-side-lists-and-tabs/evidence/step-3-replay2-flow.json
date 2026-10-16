@@ -1,0 +1,40 @@
+{
+ "clients": [
+  "Harbor Line Logistics",
+  "Race Alpha",
+  "Race Beta",
+  "Solstice Retail Group"
+ ],
+ "currentRows": 1,
+ "firstCurrent": "true",
+ "switcherVisible": false,
+ "tablist": "- tablist \"Fleet\":\n  - tab \"SIM Cards 2\" [selected]\n  - tab \"Smartphones 2\"",
+ "alphaUrl": "http://localhost:13010/agent/fleet?contract=919494ca-593d-43ce-ae24-7935a0be8665",
+ "afterArrow": {
+  "url": "http://localhost:13010/agent/fleet?contract=919494ca-593d-43ce-ae24-7935a0be8665&tab=smartphones",
+  "selected": "true",
+  "focused": true,
+  "panelVisible": true
+ },
+ "otherClient": {
+  "url": "http://localhost:13010/agent/fleet?contract=3756fc25-c84d-4da0-b89c-a888bee88e3b&tab=smartphones",
+  "tabSelected": "true",
+  "reqs": []
+ },
+ "afterReload": {
+  "url": "http://localhost:13010/agent/fleet?contract=3756fc25-c84d-4da0-b89c-a888bee88e3b&tab=smartphones",
+  "tabSelected": "true",
+  "current": "Race Beta"
+ },
+ "planBefore": "+1-555-0801\nEdit\n\t\nVerizon\n\t\nUnlimited Welcome\nEdit\n\tPostpaid\t$65.00\t\nActive\nRetire\n\t\nNot installed",
+ "planAfterImmediately": "+1-555-0801\nEdit\n\t\nVerizon\n\t\nUnlimited Welcome\nEdit\n\tPostpaid\t$65.00\t\nActive\nRetire\n\t\nNot installed",
+ "planShowsPlusAfterMs": 54,
+ "planAfter": "+1-555-0801\nEdit\n\t\nVerizon\n\t\nUnlimited Plus\nEdit\n\tPostpaid\t$80.00\t\nActive\nRetire\n\t\nNot installed",
+ "statusBefore": "+1-555-0802\nEdit\n\t\nVerizon\n\t\nUnlimited Plus\nEdit\n\tPostpaid\t$80.00\t\nActive\nRetire\n\t\nNot installed",
+ "statusAfter": "+1-555-0802\nEdit\n\t\nVerizon\n\t\nUnlimited Plus\nEdit\n\tPostpaid\t$80.00\t\nRetired\nReactivate\n\t\nNot installed",
+ "afterReloadRows": {
+  "r1": "+1-555-0801\nEdit\n\t\nVerizon\n\t\nUnlimited Plus\nEdit\n\tPostpaid\t$80.00\t\nActive\nRetire\n\t\nNot installed",
+  "r2": "+1-555-0802\nEdit\n\t\nVerizon\n\t\nUnlimited Plus\nEdit\n\tPostpaid\t$80.00\t\nRetired\nReactivate\n\t\nNot installed"
+ },
+ "reactivated": "+1-555-0802\nEdit\n\t\nVerizon\n\t\nUnlimited Plus\nEdit\n\tPostpaid\t$80.00\t\nActive\nRetire\n\t\nNot installed"
+}

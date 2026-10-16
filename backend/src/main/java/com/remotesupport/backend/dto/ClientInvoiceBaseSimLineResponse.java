@@ -13,7 +13,8 @@ import java.util.UUID;
  * {@code computedAmount} what the computation said for it, and {@code edited} whether the two
  * differ. A Tester never sees the last two, so both are {@code null} for that caller.
  * {@code cancellationEffectiveDate} is present only for a SIM Card still billing because it was
- * cancelled on or after this month's first day.
+ * cancelled on or after this month's first day. {@code carrierName} is the SIM's Carrier's current
+ * name (even once archived), or {@code null} for a SIM with none; always serialised.
  */
 public record ClientInvoiceBaseSimLineResponse(
     UUID simCardId,
@@ -22,7 +23,8 @@ public record ClientInvoiceBaseSimLineResponse(
     LocalDate cancellationEffectiveDate,
     BigDecimal amount,
     @JsonInclude(JsonInclude.Include.ALWAYS) BigDecimal computedAmount,
-    @JsonInclude(JsonInclude.Include.ALWAYS) Boolean edited) {
+    @JsonInclude(JsonInclude.Include.ALWAYS) Boolean edited,
+    @JsonInclude(JsonInclude.Include.ALWAYS) String carrierName) {
 
   public static ClientInvoiceBaseSimLineResponse of(
       SimCard simCard, BigDecimal amount, BigDecimal computedAmount, Boolean edited) {
@@ -33,6 +35,7 @@ public record ClientInvoiceBaseSimLineResponse(
         simCard.getCancellationEffectiveDate(),
         amount,
         computedAmount,
-        edited);
+        edited,
+        simCard.getCarrier() == null ? null : simCard.getCarrier().getName());
   }
 }

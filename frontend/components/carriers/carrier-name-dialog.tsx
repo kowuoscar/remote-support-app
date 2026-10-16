@@ -2,6 +2,7 @@
 
 import { forwardRef, useId, useImperativeHandle, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DialogErrorAlert } from "@/components/manager/dialog-error-alert";
@@ -32,8 +33,13 @@ function errorMessage(code: string | null, status: number, name: string, country
  */
 export const CarrierNameDialog = forwardRef<
   CarrierNameDialogHandle,
-  { country: Country; countryName: string }
->(function CarrierNameDialog({ country, countryName }, ref) {
+  {
+    country: Country;
+    countryName: string;
+    /** Called with the new Carrier's id once it is created, so the page selects it and follows it in the address. */
+    onCreated?: (id: string) => void;
+  }
+>(function CarrierNameDialog({ country, countryName, onCreated }, ref) {
   const shellRef = useRef<DialogShellHandle>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const titleId = useId();
@@ -60,6 +66,12 @@ export const CarrierNameDialog = forwardRef<
 
   function close() {
     shellRef.current?.close();
+  }
+
+  /** The created Carrier is handed to the page, which selects it (and owns the address) before the refresh. */
+  async function selectCreated(response: Response) {
+    const created = (await response.json().catch(() => null)) as { id?: string } | null;
+    if (created?.id) onCreated?.(created.id);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -93,9 +105,11 @@ export const CarrierNameDialog = forwardRef<
         return;
       }
 
+      if (!renaming) await selectCreated(response);
+
       setSubmitting(false);
       close();
-      router.refresh();
+      refreshPage(router);
     } catch {
       setError("Couldn't reach the server. Check your connection and try again.");
       setSubmitting(false);

@@ -1,0 +1,73 @@
+{
+  "dana1440": {
+    "rows": [
+      "United Kingdom [current]",
+      "United States"
+    ],
+    "tabs": [
+      "SIM Cards 3 [selected]",
+      "Smartphones 5"
+    ],
+    "layout": {
+      "submitY": 80,
+      "tablistY": 145,
+      "landmarkY": 56,
+      "submitX": 1278.703125,
+      "tablistX": 541
+    }
+  },
+  "danaPickOther": {
+    "url": "http://localhost:13000/client/fleet?tab=smartphones&contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92",
+    "rows": [
+      "United Kingdom",
+      "United States [current]"
+    ],
+    "tabs": [
+      "SIM Cards 7",
+      "Smartphones 4 [selected]"
+    ],
+    "requests": []
+  },
+  "danaReload": {
+    "url": "http://localhost:13000/client/fleet?tab=smartphones&contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92",
+    "rows": [
+      "United Kingdom",
+      "United States [current]"
+    ],
+    "tabs": [
+      "SIM Cards 7",
+      "Smartphones 4 [selected]"
+    ]
+  },
+  "danaArrowLeft": {
+    "url": "http://localhost:13000/client/fleet?contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92",
+    "tabs": [
+      "SIM Cards 7 [selected]",
+      "Smartphones 4"
+    ]
+  },
+  "dana390": {
+    "overflow": {
+      "scrollWidth": 390,
+      "innerWidth": 390
+    },
+    "switcherY": 76,
+    "tablistY": 191,
+    "landmarkVisible": false
+  },
+  "noah1440": {
+    "landmark": 0,
+    "chipY": 89,
+    "tablistY": 147,
+    "longPlan": {
+      "title": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+      "textOverflow": "ellipsis",
+      "clientW": 192,
+      "scrollW": 408
+    },
+    "overflow": {
+      "scrollWidth": 1440,
+      "innerWidth": 1440
+    }
+  }
+}

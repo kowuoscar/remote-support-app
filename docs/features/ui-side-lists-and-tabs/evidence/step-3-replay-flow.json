@@ -1,0 +1,46 @@
+{
+  "clients": [
+    "Harbor Line Logistics",
+    "Solstice Retail Group"
+  ],
+  "currentFirst": "true",
+  "switcherVisible": false,
+  "tablist": "- tablist \"Fleet\":\n  - tab \"SIM Cards 4\" [selected]\n  - tab \"Smartphones 2\"",
+  "tabFocusedByTab": "SIM Cards 4",
+  "afterArrow": {
+    "url": "http://localhost:13000/agent/fleet?tab=smartphones",
+    "focused": "Smartphones 2",
+    "selected": "Smartphones\n2",
+    "panelVisible": true,
+    "reqs": []
+  },
+  "otherClient": {
+    "url": "http://localhost:13000/agent/fleet?tab=smartphones&contract=6d055278-02b1-4d8b-bf75-0ae066037466",
+    "selected": "Smartphones\n4",
+    "reqs": []
+  },
+  "afterReload": {
+    "url": "http://localhost:13000/agent/fleet?tab=smartphones&contract=6d055278-02b1-4d8b-bf75-0ae066037466",
+    "selected": "Smartphones\n4",
+    "currentClient": "Solstice Retail Group"
+  },
+  "planCorrected": "+1-202-555-0312\nEdit\n\t\nVerizon\n\t\nUnlimited Plus\nEdit\n\tPostpaid\t$80.00\t\nActive\nRetire\n\t\nNot installed\niPhone 13 mini — IP13M-9021\nSpare Android — SPARE-2270",
+  "afterStatusClick": "+1-202-555-0312\nEdit\n\t\nVerizon\n\t\nUnlimited Plus\nEdit\n\tPostpaid\t$80.00\t\nRetired\nReactivate\n\t\nNot installed\niPhone 13 mini — IP13M-9021\nSpare Android — SPARE-2270",
+  "longPlan": {
+    "title": "Unlimited Global Enterprise Roaming Plus Priority Data Packs",
+    "truncated": true,
+    "cssEllipsis": "ellipsis",
+    "tableWidth": 894
+  },
+  "retireVisibleInViewport": true,
+  "phone": {
+    "scrollWidth": 390,
+    "innerWidth": 390
+  },
+  "phoneOrder": {
+    "switcherTag": "SELECT",
+    "switcherAboveTabs": false
+  },
+  "priyaRows": 1,
+  "priyaCurrent": 1
+}

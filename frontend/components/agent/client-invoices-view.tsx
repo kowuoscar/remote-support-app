@@ -3,9 +3,11 @@
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ContractSwitcher, type ContractOption } from "@/components/ui/contract-switcher";
-import { ContractSideList } from "@/components/agent/contract-side-list";
-import { cn } from "@/lib/cn";
-import { clientInvoiceBadge, isSentBackBadge } from "@/lib/status";
+import { SideList, SideListLayout, type SideListItem } from "@/components/ui/side-list";
+import { clientRows, sortByClient } from "@/components/ui/side-list-rows";
+import { selectionHref, useSelectionAddress } from "@/lib/selection-address";
+import { Badge } from "@/components/ui/badge";
+import { clientInvoiceBadge, isSentBackBadge, sentBackBadge } from "@/lib/status";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconAlertTriangle, IconArrowRight, IconInvoices } from "@/components/icons";
 import { Card } from "@/components/ui/card";
@@ -24,15 +26,6 @@ export type ClientInvoicesContract = {
   countryLabel: string;
   currency: string;
 };
-
-
-/** Column order: Client name, then Country, locale-aware and case-insensitive. */
-function sortContracts(contracts: ClientInvoicesContract[]): ClientInvoicesContract[] {
-  const collator = new Intl.Collator(undefined, { sensitivity: "base" });
-  return [...contracts].sort(
-    (a, b) => collator.compare(a.clientName, b.clientName) || collator.compare(a.countryLabel, b.countryLabel),
-  );
-}
 
 /**
  * Agent opens a Contract's current-month Client Invoice draft (client-invoice-generation ticket
@@ -55,21 +48,18 @@ export function AgentClientInvoicesView({
   /** The page's `contract` search parameter, unvalidated: used only when it names one of `contracts`. */
   initialContractId?: string;
 }) {
-  const ordered = useMemo(() => sortContracts(contracts), [contracts]);
+  const ordered = useMemo(() => sortByClient(contracts), [contracts]);
   const [contractId, setContractId] = useState(
     () => ordered.find((c) => c.id === initialContractId)?.id ?? ordered[0]?.id ?? "",
   );
   const sentBackContracts = useMemo(() => new Set(sentBack.map((row) => row.contractId)), [sentBack]);
+  const writeAddress = useSelectionAddress();
   const invoiceAreaRef = useRef<HTMLDivElement>(null);
   const invoice = invoicesByContract[contractId];
 
   function select(id: string) {
     setContractId(id);
-    // The address follows the selection with the native History API: no entry, no server render,
-    // no request. Never router.push/replace, which would re-run the page's reads.
-    const url = new URL(window.location.href);
-    url.searchParams.set("contract", id);
-    window.history.replaceState(window.history.state, "", url);
+    writeAddress({ contract: id });
     // The document scrolls the invoice; return to its top when the new invoice would start off-screen.
     if (invoiceAreaRef.current && invoiceAreaRef.current.getBoundingClientRect().top < 0) {
       window.scrollTo({ top: 0 });
@@ -97,51 +87,57 @@ export function AgentClientInvoicesView({
     currency: c.currency,
   }));
 
-  return (
-    // Below xl: today's page, padded and capped here because the page is `bleed`. At xl: the side
-    // list beside the invoice area.
-    <div className="xl:flex xl:items-start">
-      <ContractSideList
-        contracts={ordered.map((c) => {
-          const current = invoicesByContract[c.id];
-          const status = current ? clientInvoiceBadge(current) : null;
-          // The extra mark: a sent-back invoice of any month is in the list, and the row's own badge
-          // does not already say so (never twice).
-          const sentBackMark = sentBackContracts.has(c.id) && !isSentBackBadge(status);
-          return { ...c, status, sentBackMark };
-        })}
-        selectedId={contractId}
-        onSelect={select}
-        // top-14 / 3.5rem is the 56px sticky top bar; a calc, not a token, because the column's
-        // height is the viewport's minus that bar.
-        className="hidden w-64 shrink-0 overflow-y-auto border-r border-hairline bg-canvas px-3 py-5 xl:sticky xl:top-14 xl:block xl:h-[calc(100dvh-3.5rem)]"
-      />
-      <div ref={invoiceAreaRef} className={cn(PAGE_PADDING, "xl:flex-1")}>
-        <div className={cn(PAGE_WIDTH, "xl:mx-0")}>
-          <div className="flex flex-col gap-4">
-            <SentBackSection rows={sentBack} />
-            <div className="xl:hidden">
-              <ContractSwitcher contracts={switcherOptions} value={contractId} onChange={select} />
-            </div>
+  // One row per Contract: the Client name, the Country only where another row shares the name, the
+  // month's status badge, and the extra "Sent back" mark.
+  const rows = clientRows(ordered);
+  const items: SideListItem[] = ordered.map((c, index) => {
+    const current = invoicesByContract[c.id];
+    const status = current ? clientInvoiceBadge(current) : null;
+    // The extra mark: a sent-back invoice of any month is in the list, and the row's own badge
+    // does not already say so (never twice).
+    const sentBackMark = sentBackContracts.has(c.id) && !isSentBackBadge(status);
+    return {
+      ...rows[index],
+      badge: status ? <Badge tone={status.tone}>{status.label}</Badge> : undefined,
+      mark: sentBackMark ? (
+        <Badge tone={sentBackBadge.tone} dot={false}>
+          <IconAlertTriangle className="h-3 w-3 shrink-0" />
+          {sentBackBadge.label}
+        </Badge>
+      ) : undefined,
+    };
+  });
 
-            {!invoice ? (
-              <EmptyState
-                icon={<IconAlertTriangle className="h-5 w-5" />}
-                title="Couldn't load this Contract's Client Invoice"
-                description="Pick another Client or reload the page to try again."
-              />
-            ) : (
-              <>
-                {invoice.status === "DRAFT" && invoice.sentBackAt ? (
-                  <SentBackNotice sentBackAt={invoice.sentBackAt} reason={invoice.sentBackReason} />
-                ) : null}
-                <AgentClientInvoiceCard invoice={invoice} />
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
+  return (
+    <SideListLayout
+      list={
+        <SideList
+          label="Clients"
+          items={items}
+          selectedId={contractId}
+          hrefFor={(id) => selectionHref("/agent/client-invoices", { contract: id })}
+          onSelect={select}
+        />
+      }
+      lead={<SentBackSection rows={sentBack} />}
+      dropdown={<ContractSwitcher contracts={switcherOptions} value={contractId} onChange={select} />}
+      detailRef={invoiceAreaRef}
+    >
+      {!invoice ? (
+        <EmptyState
+          icon={<IconAlertTriangle className="h-5 w-5" />}
+          title="Couldn't load this Contract's Client Invoice"
+          description="Pick another Client or reload the page to try again."
+        />
+      ) : (
+        <>
+          {invoice.status === "DRAFT" && invoice.sentBackAt ? (
+            <SentBackNotice sentBackAt={invoice.sentBackAt} reason={invoice.sentBackReason} />
+          ) : null}
+          <AgentClientInvoiceCard invoice={invoice} />
+        </>
+      )}
+    </SideListLayout>
   );
 }
 

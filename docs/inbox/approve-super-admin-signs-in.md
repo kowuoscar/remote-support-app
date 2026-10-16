@@ -1,40 +1,43 @@
 ---
 id: approve-super-admin-signs-in
 type: approval
-status: answered
+status: open
 blocks: [super-admin-signs-in]
-created: 2026-10-08
+created: 2026-10-15
 ---
 
 <!-- sdlc:template inbox-item 1 -->
 
 ## Question
 
-Approve the spec for a SuperAdmin signing in?
+Approve the revised spec for a SuperAdmin signing in?
 `docs/features/super-admin-signs-in/spec.md`.
 
-The first step of creating Tenants in the product. Every deployment gets a
-SuperAdmin login, `superadmin@example.com`, from the database setup. They
-sign in on the normal sign-in page and land on their own console. The console
-shows one list of Tenants, for example "Acme Ltd · 2 Managers · created 3 Oct
-2026". They can change their password and sign out. They can't open any
-Manager, Agent or Client page, and nobody else can open theirs.
+Your amendment ("everything, every Tenant") was too big for one feature, so
+the epic now has three steps:
 
-These are choices made without you; approving accepts them:
-1. The console is read-only for now: there's no "New Tenant" button and no
-   Tenant detail page. Creating a Tenant and managing its Managers are the
-   next features of the epic.
-2. There's exactly one SuperAdmin, and no screen to add another.
-3. The Manager count includes deactivated Manager logins.
-4. Tenants are sorted by name, with no paging, since there are only a
-   handful.
-5. A SuperAdmin who calls a Tenant's address gets "forbidden", not "not
-   found".
+1. **This feature:** the SuperAdmin `superadmin@example.com` signs in on the
+   normal page and lands on their own console. It lists every Tenant with
+   its Manager count and creation date. They can change their password and
+   sign out.
+2. `super-admin-enters-a-tenant`: open any Tenant as its Manager and do
+   everything a Manager can, with a banner naming the Tenant and a way back.
+3. `super-admin-opens-agent-and-client-pages`: inside a Tenant, open the
+   Agent pages as any Agent and the Client pages as any Tester.
+
+Every action is audit-logged under the SuperAdmin's own login. The design
+for steps 2 and 3 is drafted and kept for their specs.
+
+What changed from the version you amended: the SuperAdmin is no longer
+fenced out of Tenants. Nothing is built that the next two steps would have
+to undo. Your choices 1–4 stay as approved.
+
+One consequence of "everything", recorded rather than asked: one person can
+send an Agent's invoice as that Agent, then approve it as the Manager.
 
 ## Recommendation
 
-Approve. Your three answers from today are built in, and nothing here is
-hard to undo except the Operator Tenant you chose.
+Approve. It is the front door; entering Tenants follows straight after.
 
 ## Blocks
 
@@ -42,14 +45,6 @@ hard to undo except the Operator Tenant you chose.
 
 ## Meanwhile
 
-The loop moves on to the research for the package layout.
+The loop drafts the side lists and tabs spec.
 
 ## Answer
-
-Amend: the SuperAdmin gets access to everything, in every Tenant. They can
-open and change every page of every Tenant (Manager, Agent and Client pages
-alike), as if they were a Manager of all of them. Every action is still
-recorded in the audit log under the SuperAdmin's own login. This replaces
-"They can't open any Manager, Agent or Client page" and choice 5
-("forbidden" on a Tenant's address). Choices 1–4 are approved as written.
-(2026-10-14)

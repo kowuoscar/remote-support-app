@@ -13,8 +13,8 @@ date: 2026-10-06
 
 The deployment can now safely hold a second Tenant, but a Tenant only comes
 into being through a hand-written `INSERT`, and nobody can see in the product
-which Tenants exist. The people who would look after Tenants have no place in
-the product at all.
+which Tenants exist. The people who look after Tenants have no place in the
+product at all.
 
 The SuperAdmin role exists only as a word in the auth model. `Role` has
 `SUPER_ADMIN` and V1's check constraint allows it, but:
@@ -35,29 +35,29 @@ claim, and every query is scoped by it. A SuperAdmin looks after all Tenants,
 so its own Login needs a home that keeps that invariant. The human chose a
 hidden **Operator Tenant** (2026-10-08).
 
-This is the first of the epic's four features and its front door. Creating a
-Tenant, resetting a Manager's password and deactivating a Manager's Login
-all need a SuperAdmin who can sign in and a console to put them in.
+The human has since said (2026-10-14) that the SuperAdmin gets access to
+everything, in every Tenant. That is delivered by the epic's next two
+features, which enter a Tenant through a session of its own. This feature is
+the front door they build on: a SuperAdmin who can sign in, a console, and
+the list of Tenants to choose from.
 
 ## Journeys
 
-Advances `docs/roadmap/tenant-administration.md`, the **first** of its four
-features.
+Advances `docs/roadmap/tenant-administration.md`, its **first** feature.
 
 - **Administer the Tenants themselves** (not yet in `docs/journeys.md`; the
   epic adds it as `wanted` when placed). After this feature it is
   **`partial`**: a SuperAdmin signs in and sees the Tenants that exist, but
-  cannot create one yet. `create-a-tenant-with-its-first-manager` makes it
-  play end to end.
+  can neither enter nor create one yet.
 - **Sign in** (`exists`, stays `exists`): it gains a fourth role. A SuperAdmin
   signs in with an email and a password and lands on their own console. Every
   other role is unchanged, and that is proven. The journey's wording "Any of
   the three roles" becomes "any of the four roles" at delivery.
 - **Keep a login working over time** (`exists`, stays `exists`): a SuperAdmin
   changes their own password the same way every other role does.
-- **Operate a second tenant safely** (`exists`, stays `exists`): nothing a
-  SuperAdmin can do reaches inside a Tenant, and no Tenant-scoped route
-  answers a SuperAdmin.
+- **Operate a second tenant safely** (`exists`, stays `exists`): no Manager,
+  Agent or Tester gains anything; the SuperAdmin's own sign-in names the
+  Operator Tenant and reaches no Tenant's data.
 
 ## Goals / Non-goals
 
@@ -71,32 +71,28 @@ Goals:
   count and the date it was created.
 - A SuperAdmin changes their own password and signs out from the console, as
   every other role does.
-- A SuperAdmin cannot reach any Manager, Agent or Tester page, nor any
-  Tenant-scoped API route. A Manager, Agent or Tester cannot reach the
-  SuperAdmin Console or its API.
+- A Manager, Agent or Tester cannot reach the SuperAdmin Console or its API.
 - Every existing role signs in and works exactly as before.
 
 Non-goals. Each is something a reasonable agent would otherwise build:
 
+- **Entering a Tenant is `super-admin-enters-a-tenant` and
+  `super-admin-opens-agent-and-client-pages`; their design is drafted in
+  commit 5840fff of this spec.** Nothing in this feature opens a Manager,
+  Agent or Client page for a SuperAdmin, and nothing here promises that it
+  never will.
 - **No creating a Tenant.** That is `create-a-tenant-with-its-first-manager`.
-  The console offers no **New Tenant** button, not even a disabled one.
+  The console offers no **New Tenant** button, not even a disabled one
+  (choice 1, approved 2026-10-14).
 - **No renaming, archiving or deleting a Tenant.** Nothing in this feature
   writes to `tenants` beyond the migration.
-- **No list of a Tenant's Managers, no Tenant detail page.** The Tenant row is
-  not a link. Manager Logins appear with the reset and deactivation features,
-  which decide where they are shown.
+- **No Tenant detail page, and no action on a Tenant row** (choice 1). The
+  row is not a link.
 - **No resetting a Manager's password, no deactivating a Manager's Login.**
-  Those are the epic's third and fourth features.
+  Those are the epic's later features.
 - **No creating, listing, resetting or deactivating SuperAdmin Logins in the
-  product.** There is exactly one way a SuperAdmin comes to exist: the
-  database seed (human, 2026-10-08). A second SuperAdmin, if ever wanted, is a
-  later decision.
-- **No impersonation, "view as Manager" or switching into a Tenant.**
-- **Nothing of a Tenant's work, not even as a count.** No Agent, Client,
-  Tester, Contract or invoice lists or counts per Tenant, and no activity or
-  billing figures. A SuperAdmin sees the Tenant list and, in later features,
-  that Tenant's Manager Logins; never a Tenant's Agents, Clients or invoices
-  (human, 2026-10-08).
+  product.** Exactly one SuperAdmin, from the database seed (human,
+  2026-10-08; choice 2, approved 2026-10-14).
 - **No dashboard, charts or search.** One list.
 - **No change to how Managers, Agents and Testers sign in, what their tokens
   carry, or what they can see.**
@@ -107,7 +103,7 @@ Non-goals. Each is something a reasonable agent would otherwise build:
 
 1. As a SuperAdmin, I want a Login that exists from the moment the product is deployed, so that I can get in without anyone writing SQL.
 2. As a SuperAdmin, I want to sign in on the same sign-in page as everyone else, with my email and password, so that there is one front door to the product.
-3. As a SuperAdmin, I want to land on a console of my own after signing in, so that I never see a Manager's, Agent's or Tester's screens.
+3. As a SuperAdmin, I want to land on a console of my own after signing in, so that I start from the list of Tenants.
 4. As a SuperAdmin, I want the console to say it is the SuperAdmin Console and who I am signed in as, so that I know which hat I am wearing.
 5. As a SuperAdmin, I want to see every Tenant that exists, by name, so that I know who is operating in this deployment.
 6. As a SuperAdmin, I want each Tenant shown with its number of Managers, so that I can spot a Tenant with nobody able to run it.
@@ -118,21 +114,22 @@ Non-goals. Each is something a reasonable agent would otherwise build:
 11. As a SuperAdmin, I want the place my own Login lives not to appear among the customer Tenants, so that the list is only the companies operating here.
 12. As a SuperAdmin, I want to change my own password from the console, so that the password I was first given does not stay in use.
 13. As a SuperAdmin, I want to sign out from the console, so that I can leave a shared machine safely.
-14. As the company, I want a SuperAdmin unable to open any Manager, Agent or Tester page, so that the SuperAdmin role never sees inside a Tenant's work.
-15. As the company, I want every Tenant-scoped API route to refuse a SuperAdmin's token, so that the boundary holds at the backend and not only in the browser.
-16. As the company, I want Managers, Agents and Testers unable to open the SuperAdmin Console or call its API, so that seeing every Tenant stays with the SuperAdmin.
-17. As a visitor who is not signed in, I want to be sent to the sign-in page when I open the SuperAdmin Console, so that it behaves like every other console.
-18. As a SuperAdmin whose session has expired, I want to land on the sign-in page at my next page load, rather than see an empty list, so that what happened is clear.
-19. As a Manager, Agent or Tester, I want sign-in, my console and my own password change to behave exactly as before, so that the new role carries no release risk.
-20. As a Manager, I want my Tenant's data unchanged by this feature, so that nothing I own moves.
-21. As a SuperAdmin working by keyboard, I want to reach the Tenant list, the change-password action and sign-out without a mouse, with a visible focus ring, so that the console is usable without one.
-22. As a SuperAdmin on a phone, I want the Tenant list readable at the mobile breakpoint, so that I can check on Tenants away from a desk.
-23. As a developer or someone trying the demo, I want the SuperAdmin's seeded email and password documented next to the other seeded Logins, so that I can sign in as one locally.
+14. As the company, I want the SuperAdmin's own sign-in to reach no Tenant's data, so that the role's only way into a Tenant is the one the next features build on purpose.
+15. As the company, I want Managers, Agents and Testers unable to open the SuperAdmin Console or call its API, so that seeing every Tenant stays with the SuperAdmin.
+16. As a visitor who is not signed in, I want to be sent to the sign-in page when I open the SuperAdmin Console, so that it behaves like every other console.
+17. As a SuperAdmin whose session has expired, I want to land on the sign-in page at my next page load, rather than see an empty list, so that what happened is clear.
+18. As a Manager, Agent or Tester, I want sign-in, my console and my own password change to behave exactly as before, so that the new role carries no release risk.
+19. As a Manager, I want my Tenant's data unchanged by this feature, so that nothing I own moves.
+20. As a SuperAdmin working by keyboard, I want to reach the Tenant list, the change-password action and sign-out without a mouse, with a visible focus ring, so that the console is usable without one.
+21. As a SuperAdmin on a phone, I want the Tenant list readable at the mobile breakpoint, so that I can check on Tenants away from a desk.
+22. As a developer or someone trying the demo, I want the SuperAdmin's seeded email and password documented next to the other seeded Logins, so that I can sign in as one locally.
 
 ## Solution
 
-The three questions this spec raised were answered as recommended
-(2026-10-08); see `## Decisions taken`.
+The three questions this spec first raised were answered as recommended
+(2026-10-08). The approval was answered on 2026-10-14: choices 1 to 4
+approved as written; the access the human asked for in place of choice 5 is
+the epic's next two features. See `## Decisions taken`.
 
 ### Where a SuperAdmin lives: the Operator Tenant
 
@@ -143,9 +140,8 @@ Agent, Contract, Manager or invoice ever belongs to it.
 This keeps the invariant "every Login belongs to exactly one Tenant" exactly
 as it is. `users.tenant_id` stays NOT NULL, the token keeps its `tenantId`
 claim, `AuthenticatedPrincipal` keeps a non-null `tenantId`, and every
-Tenant-scoped query keeps working. Even if a SuperAdmin token reached a
-Tenant-scoped query, the query would find only the Operator Tenant's data,
-which is none.
+Tenant-scoped query keeps working. The SuperAdmin's own token names the
+Operator Tenant, which holds nothing: it has no Tenant to work in.
 
 The Operator Tenant is marked on its row, not by a magic id:
 
@@ -158,8 +154,8 @@ CREATE UNIQUE INDEX uq_tenants_one_operator ON tenants (operator) WHERE operator
 
 ### How the first SuperAdmin exists: a migration seed
 
-One migration, **the next free Flyway version at merge (V60 today)**, does
-three things:
+One migration, **the next free Flyway version at merge (V61 today; V60 is
+`add_users_name`)**, does three things:
 
 1. adds the `operator` column and its partial unique index (above);
 2. inserts the Operator Tenant, named `Operator`, with a fixed id in the same
@@ -169,13 +165,12 @@ three things:
    seeds `manager@example.com`.
 
 The migration is additive. It rewrites no row and drops nothing. The seed
-runs in every environment, as V2 and V3 do today, so every deployment has a
-SuperAdmin from the moment it migrates. The documented password is to be
-changed with **Change password** at first sign-in (story 12). The README's
-seeded-Logins list gains the SuperAdmin's email and password. `V55`'s global
-username index already guarantees the email cannot clash with an existing
-Login; if a deployment somehow holds `superadmin@example.com` already, the
-migration fails loudly rather than seeding a second Login.
+runs in every environment, as V2 and V3 do today. The documented password is
+to be changed with **Change password** at first sign-in (story 12). The
+README's seeded-Logins list gains the SuperAdmin's email and password. V55's
+global username index already guarantees the email cannot clash; if a
+deployment somehow holds `superadmin@example.com` already, the migration
+fails loudly rather than seeding a second Login.
 
 Nothing else creates a SuperAdmin. There is no endpoint, command or start-up
 hook for it.
@@ -185,25 +180,26 @@ hook for it.
 Sign-in is unchanged. `AuthController` already authenticates any role and
 issues a token with `userId`, `tenantId` (the Operator Tenant's id) and
 `role: SUPER_ADMIN`, and already logs `login success … role=SUPER_ADMIN`. The
-deactivation doors (`isEnabled()`, the Login-state check, the self-service
-refusal) apply to a SuperAdmin unchanged. `/api/me` answers for a SuperAdmin
-as it does for any role. Self-service password change (`POST /api/me/password`)
-already works for any role and needs no change; the test that excluded
+deactivation doors apply to a SuperAdmin unchanged. `/api/me` answers for a
+SuperAdmin as for any role. Self-service password change
+(`POST /api/me/password`) already works for any role; the test that excluded
 `SUPER_ADMIN` now covers it.
 
-### Backend access: a fence both ways
+### Backend access
 
 Two rules in the security configuration, placed before every existing
 matcher so that they win:
 
 1. **`/api/super-admin/**` is `SUPER_ADMIN` only.** Any other role gets `403`.
-2. **A SuperAdmin gets `403` on every route except `/api/super-admin/**`,
-   `/api/me` and `/api/me/password`** (and the public sign-in and health
-   routes). This is a single deny rule on the role, not a change to each
-   existing matcher. Without it, a SuperAdmin token would pass the matchers
-   that only ask for "any signed-in role" (the Contract-scoped Fleet,
-   Requests, Fees and Client Invoice routes) and depend on per-resource guards
-   that never considered this role.
+2. **The `SUPER_ADMIN` role is allowed only `/api/super-admin/**`, `/api/me`
+   and `/api/me/password`** (and the public sign-in and health routes). This
+   is a safeguard on the role, not a promise about the SuperAdmin: the own
+   token names a Tenant that holds nothing, and without the rule it would
+   still reach the matchers that only ask for "any signed-in role" (the
+   Contract-scoped Fleet, Requests, Fees and Client Invoice routes) and depend
+   on per-resource guards that never considered this role. The later features
+   reach a Tenant through a session of its own, not through this token, so
+   they leave the rule in place.
 
 No existing matcher changes, so every Manager, Agent and Tester answer is
 unchanged.
@@ -241,9 +237,7 @@ GET /api/super-admin/tenants
   no session is sent to `/login` as on the other three surfaces.
 - **Guard.** `requireSuperAdmin`, in the same shape as `requireManager`: ask
   `/api/me`, and on a non-OK answer or another role, `redirect("/login")`.
-  The existing `requireManager`, `requireAgent` and `requireTester` already
-  send a SuperAdmin to `/login`, because they compare roles exactly; no
-  change is needed for story 14 beyond a test proving it.
+  `requireManager`, `requireAgent` and `requireTester` are not touched.
 - **Shell.** `ShellFrame` with a new `super-admin` surface and the role label
   **SuperAdmin Console**. Its navigation has one item, **Tenants**. The
   shared viewer menu gives **Change password** and **Sign out** as on every
@@ -261,8 +255,8 @@ GET /api/super-admin/tenants
 ### Documentation at delivery
 
 - `PRODUCT.md` Users: the SuperAdmin gains a line of its own ("looks after
-  the Tenants of the deployment; sees each Tenant's name and Managers, never
-  its work"), replacing "has no dedicated screens this iteration".
+  the Tenants of the deployment"), replacing "has no dedicated screens this
+  iteration". The later features extend it.
 - `docs/journeys.md`: **Sign in** says four roles; **Administer the Tenants
   themselves** is `partial`.
 - `DESIGN.md` Navigation: the SuperAdmin Console's item list (Tenants).
@@ -281,7 +275,7 @@ styles the Manager lists use). **The `design` slot is not needed.**
 - The table follows the Manager's Clients list: hairline rows, the number
   column tabular and right-aligned, the date muted.
 - The empty state is the quiet text the other empty lists use, without an
-  action (creating a Tenant is the next feature).
+  action.
 - At the mobile breakpoint the three columns fit without horizontal scroll;
   the date may wrap under the name if needed.
 
@@ -295,17 +289,15 @@ Visual goldens:
 
 ## Constraints
 
-- **Migration: the next free Flyway version at merge (V60 today)**, additive
+- **Migration: the next free Flyway version at merge (V61 today)**, additive
   only: one column with a default, one partial unique index, two inserts.
   No row is rewritten.
 - `users.tenant_id` stays NOT NULL, the token's claims are unchanged, and
   `AuthenticatedPrincipal` is unchanged.
-- No existing security matcher is edited. The two new rules are placed before
-  them.
+- No existing security matcher is edited, and no frontend role guard is
+  edited. The two new rules are placed before the existing matchers.
 - The Tenant directory reads only `tenants` and `users`, and returns only id,
   name, creation date and Manager count. It never returns a username.
-- A SuperAdmin is `403`, never `404`, on a Tenant-scoped route: the refusal
-  is about the role, and it reveals nothing about any Tenant's data.
 - Backend tests run under `IntegrationTest` (singleton Testcontainers Postgres,
   rollback per method). Mocking a repository in an integration test is banned
   (Backend rule 5).
@@ -342,14 +334,16 @@ list.
   not contain the Operator Tenant, and is in name order. A Tenant created in
   the test with no Manager shows `0`. A second Manager added to a Tenant
   raises its count by one.
-- **The fence, both ways:** `managerToken()`, `agentToken()` and
-  `testerToken()` get `403` on `GET /api/super-admin/tenants`; no token gets
-  `401`. `superAdminToken()` gets `403` on a representative route from every
-  matcher group: a Manager-only list (`/api/clients`, `/api/agents`), the
-  open Contract list (`GET /api/contracts`), a Contract-scoped Fleet, Requests,
-  Fees and Client Invoice route, `/api/review-queue`, `/api/carriers`,
-  `/api/stock`, and an Agent Invoice route. One parameterised test covers
-  the list.
+- **The console's API is the SuperAdmin's:** `managerToken()`, `agentToken()`
+  and `testerToken()` get `403` on `GET /api/super-admin/tenants`; no token
+  gets `401`.
+- **The own token reaches no Tenant's data:** `superAdminToken()` on a
+  representative route from every matcher group (a Manager-only list, the
+  open Contract list, a Contract-scoped Fleet, Requests, Fees and Client
+  Invoice route, the Review Queue, Carriers, Stock, an Agent Invoice route)
+  returns no Tenant's data. Today that is a `403` from the role rule; one
+  parameterised test covers the list, and it asserts on the absence of data
+  through the status, so the later features can keep it as is.
 - **Self-service password change:** `ChangeOwnPasswordApiTest`'s
   parameterised test gains `SUPER_ADMIN`, on a SuperAdmin Login the test
   creates in the Operator Tenant. The `IllegalArgumentException` branch goes.
@@ -365,11 +359,12 @@ list.
   non-OK `/api/me` and on every other role.
 - **One new e2e spec, `super-admin-signs-in.spec.ts`,** using `helpers.ts`'
   `login`/`logout`: sign in as the seeded SuperAdmin, land on the SuperAdmin
-  Console, see `Default Tenant` with its Manager count; open `/manager`,
-  `/agent` and `/client` and land on `/login`; sign in as the seeded Manager
-  and open `/super-admin` and land on `/login`. It never changes the seeded
-  password. A failure is judged against a controlled comparison on an idle
-  machine, never waved off as a flake.
+  Console, see `Default Tenant` with its Manager count, sign out; sign in as
+  the seeded Manager, open `/super-admin` and land on `/login`. It does not
+  assert what a SuperAdmin meets on `/manager`, `/agent` or `/client`; that
+  belongs to the later features. It never changes the seeded password. A
+  failure is judged against a controlled comparison on an idle machine, never
+  waved off as a flake.
 
 ## Decisions taken
 
@@ -378,69 +373,63 @@ list.
 - **A SuperAdmin's Login lives in a hidden Operator Tenant** that holds only
   SuperAdmins and never shows in the Tenant list (human, 2026-10-08, as
   recommended). Sign-in, the token and every Tenant-scoped query keep working
-  unchanged, and a mistake would show an empty Tenant rather than another
-  Tenant's data. A Login with no Tenant was rejected.
+  unchanged. A Login with no Tenant was rejected.
 - **The first SuperAdmin is seeded by the database setup** as
   `superadmin@example.com` with a documented password, changed at first
   sign-in through **Change password** (human, 2026-10-08, as recommended),
-  exactly as `manager@example.com` exists today. No start-up hook and no
-  one-off command create one. Until it is changed, the documented password
-  opens the SuperAdmin Console in a deployment; the human accepted that.
-- **A SuperAdmin sees the Tenant list and, in later features, that Tenant's
-  Manager Logins; never a Tenant's Agents, Clients or invoices** (human,
-  2026-10-08, as recommended). This feature shows name, Manager count and
-  creation date only; the backend fence (stories 14, 15) holds the line.
+  exactly as `manager@example.com` exists today. Until it is changed, the
+  documented password opens the SuperAdmin Console in a deployment; the human
+  accepted that.
+- **Choices 1 to 4 approved as written** (human, 2026-10-14): no **New
+  Tenant** button and no Tenant detail page; exactly one SuperAdmin; the
+  Manager count includes deactivated Manager Logins; Tenants sorted by name,
+  no paging.
+- **The SuperAdmin gets access to everything, in every Tenant** (human,
+  2026-10-14). That replaces the 2026-10-08 answer "never a Tenant's Agents,
+  Clients or invoices" and choice 5. It is delivered by
+  `super-admin-enters-a-tenant` and
+  `super-admin-opens-agent-and-client-pages` (split accepted 2026-10-15), not
+  here; this feature promises nothing that contradicts it.
 - **Resetting a Manager's password is the SuperAdmin's job** (human,
-  2026-09-30). It is not in this feature; the console built here is where it
-  will go.
+  2026-09-30). It is not in this feature.
 - **Passwords are generated by the product, never typed** by one person for
-  another (human, 2026-10-01/02). Nothing here sets anyone's password. The
-  seeded SuperAdmin's documented password is a deployment seed, like the
-  seeded Manager's, and the SuperAdmin replaces it through their own
-  **Change password**.
+  another (human, 2026-10-01/02). Nothing here sets anyone's password.
 - **A Manager administers only Agents and Testers in their own Tenant**
-  (human). Nothing here changes what a Manager can do, and a Manager cannot
-  reach the SuperAdmin Console.
+  (human). Nothing here changes what a Manager can do.
 
 ### Taken alone
 
 - **The console lives at `/super-admin`, with the API under
   `/api/super-admin/**`.** It mirrors the per-role surfaces and gives the
   security configuration one prefix to fence.
-- **A SuperAdmin is fenced out of every other route by one deny rule on the
-  role, placed first.** The alternative, auditing every `authenticated()`
-  matcher and every per-resource guard for a fourth role, is larger and
-  easier to get wrong. One rule is testable with one parameterised test.
-- **`403`, not `404`, when a SuperAdmin calls a Tenant-scoped route.** The
-  refusal is about the role, decided before any id is looked up, so it
-  reveals nothing about a Tenant.
+- **The `SUPER_ADMIN` role is held to its own prefix and `/api/me` by one
+  rule placed first, as a safeguard, not as a product promise.** The own
+  token names a Tenant that holds nothing; the rule keeps it away from
+  per-resource guards that never considered the role. The later features
+  enter a Tenant with a separate token whose role is the one entered, so this
+  rule stays in place.
 - **The Operator Tenant is marked by a boolean column with a partial unique
   index, not recognised by a fixed id or a name.** A fixed id in code is a
-  magic number; a name can be edited later. The column states the meaning
-  where the data lives.
-- **The Operator Tenant is named `Operator`.** It never appears in the list,
-  but it appears in logs and the database, where a plain name helps.
+  magic number; a name can be edited later.
+- **The Operator Tenant is named `Operator`.** It appears in logs and the
+  database, where a plain name helps.
 - **The list is ordered by name, case-insensitively.** A person scanning for
   one Tenant reads names; creation order is shown in its own column.
-- **`managerCount` counts every Manager Login, deactivated included.** No
-  Manager can be deactivated until the epic's fourth feature, which decides
-  whether the count should then distinguish them.
+- **`managerCount` counts every Manager Login, deactivated included.**
 - **No paging.** A handful of Tenants, created by hand.
 - **The Tenant directory is a separate read service, not a method on an
   existing Tenant-scoped repository or service.** It is the only code that
   reads across Tenants on purpose, so it is kept apart and named for it.
-- **Rows are not links, and there is no New Tenant button.** The next
-  feature decides both; a dead link or a disabled button would only invite
-  questions.
+- **Rows are not links and carry no action, and there is no New Tenant
+  button.** The later features add the row's action; a dead link or a
+  disabled button would only invite questions.
 - **The shell reuses the Manager Console's look with its own label and one
-  nav item.** A distinct colour for the SuperAdmin would be new design
-  language for a one-table surface.
+  nav item.**
 - **`requireSuperAdmin` in the same shape as the other guards; the other
-  guards are not changed.** They already compare roles exactly.
+  guards are not changed.**
 - **Testing: the existing HTTP seam, with `superAdminToken()` added to
   `IntegrationTest`.** Prior art is `SecondTenantSignInApiTest`,
-  `ChangeOwnPasswordApiTest` and `OtherTenantFixture`. The fence is proven
-  by status codes, not by reading configuration.
+  `ChangeOwnPasswordApiTest` and `OtherTenantFixture`.
 - **Tests never change the seeded SuperAdmin's password.** Seeded
   credentials underpin the token helpers and the e2e suite, and e2e state
   does not roll back.
@@ -454,25 +443,25 @@ None
 1. [agent] Run the migrations on a fresh database and show exactly one Operator Tenant, named `Operator`, and one `SUPER_ADMIN` Login, `superadmin@example.com`, belonging to it. Show every pre-existing Tenant has `operator = false`, and that inserting a second operator Tenant is refused. (stories: 1, 11)
 2. [agent] `POST /api/auth/login` as `superadmin@example.com` with the documented password and show `200` with role `SUPER_ADMIN`. With a wrong password, show `401` with no body. Call `GET /api/me` with the token and show role `SUPER_ADMIN`. (stories: 1, 2)
 3. [agent] With the SuperAdmin token, `GET /api/super-admin/tenants` and show `Default Tenant` with `managerCount: 1` and its creation date, and no `Operator` entry. Add `OtherTenantFixture`'s Tenant and a Tenant with no Manager, and show all three in name order, the empty one with `0`. Add a second Manager to one and show its count rise by one. Show no username appears in the response. (stories: 5, 6, 7, 8, 9, 11)
-4. [agent] Call `GET /api/super-admin/tenants` with the Manager, Agent and Tester tokens and show `403` for each, and with no token show `401`. (stories: 16)
-5. [agent] With the SuperAdmin token, call a representative route of every matcher group (Clients, Agents, Contracts list, a Contract's Fleet, Requests, Fees and Client Invoice, the Review Queue, Carriers, Stock, an Agent Invoice) and show `403` for every one. (stories: 15)
+4. [agent] Call `GET /api/super-admin/tenants` with the Manager, Agent and Tester tokens and show `403` for each, and with no token show `401`. (stories: 15)
+5. [agent] With the SuperAdmin's own token, call a representative route of every matcher group (Clients, Agents, Contracts list, a Contract's Fleet, Requests, Fees and Client Invoice, the Review Queue, Carriers, Stock, an Agent Invoice) and show none returns any Tenant's data. (stories: 14)
 6. [agent] On a SuperAdmin Login created for the test, change its password through `POST /api/me/password`, show the new one signs in and the old one is refused. (stories: 12)
-7. [agent] Show `git diff` adds exactly one migration, at the next free version, that only adds a column, an index and two rows. Run `AuthLoginTest`, `SecondTenantSignInApiTest`, `ChangeOwnPasswordApiTest` and `mvn verify`, then the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green. Show no existing golden moved. (stories: 19, 20)
+7. [agent] Show `git diff` adds exactly one migration, at the next free version, that only adds a column, an index and two rows, and edits no existing security matcher or frontend role guard. Run `AuthLoginTest`, `SecondTenantSignInApiTest`, `ChangeOwnPasswordApiTest` and `mvn verify`, then the frontend vitest suite, typecheck, lint, the full isolated e2e suite and the visual suite, all green. Show no existing golden moved. (stories: 18, 19)
 8. [agent] In a browser, sign in as the seeded SuperAdmin and show the landing page is `/super-admin`, the shell reads **SuperAdmin Console** with one nav item, **Tenants**, and the viewer menu shows the SuperAdmin's email. (stories: 2, 3, 4)
-9. [agent] On the console, show the **Tenants** table with name, Manager count and creation date for each Tenant, no `Operator` row, no links on rows and no **New Tenant** button. Against the stub backend with no Tenants, show "No Tenants yet." (stories: 5, 6, 7, 10, 11)
-10. [agent] Still signed in as the SuperAdmin, open `/manager`, `/manager/clients`, `/agent` and `/client` and show each lands on `/login`. Sign in as the seeded Manager, open `/super-admin`, and show it lands on `/login`; repeat as the seeded Agent and Tester. Signed out, open `/super-admin` and show `/login`. (stories: 14, 16, 17)
-11. [agent] With an expired or deleted SuperAdmin session cookie, load `/super-admin` and show the sign-in page, not an empty table. (stories: 18)
+9. [agent] On the console, show the **Tenants** table with name, Manager count and creation date for each Tenant, no `Operator` row, no links or actions on rows and no **New Tenant** button. Against the stub backend with no Tenants, show "No Tenants yet." (stories: 5, 6, 7, 10, 11)
+10. [agent] Sign in as the seeded Manager, open `/super-admin`, and show it lands on `/login`; repeat as the seeded Agent and Tester. Signed out, open `/super-admin` and show `/login`. (stories: 15, 16)
+11. [agent] With an expired or deleted SuperAdmin session cookie, load `/super-admin` and show the sign-in page, not an empty table. (stories: 17)
 12. [agent] Sign out from the console's viewer menu and show `/login`. (stories: 13)
-13. [agent] By keyboard alone, from the sign-in page, sign in, reach the Tenants table, open the viewer menu, open **Change password**, cancel with Escape and sign out, showing a visible focus ring at each stop. At the mobile breakpoint, show the table's three columns inside the viewport. (stories: 21, 22)
-14. [agent] Show the README lists `superadmin@example.com` and its documented password beside the other seeded Logins, and that `PRODUCT.md` and `docs/journeys.md` describe the SuperAdmin and four roles. (stories: 23)
+13. [agent] By keyboard alone, from the sign-in page, sign in, reach the Tenants table, open the viewer menu, open **Change password**, cancel with Escape and sign out, showing a visible focus ring at each stop. At the mobile breakpoint, show the table's three columns inside the viewport. (stories: 20, 21)
+14. [agent] Show the README lists `superadmin@example.com` and its documented password beside the other seeded Logins, and that `PRODUCT.md` and `docs/journeys.md` describe the SuperAdmin and four roles. (stories: 22)
 15. [human] On the running app, sign in as the SuperAdmin with the documented password, change it from the console, sign out and back in with the new one, and show the documented password is now refused. Confirm the seeded first sign-in plays as decided on 2026-10-08. (stories: 1, 2, 12)
-16. [human] Look at the Tenant list as the person who will look after Tenants. Confirm it shows each Tenant's name, Manager count and creation date, no Operator Tenant, and nothing of a Tenant's Agents, Clients or invoices, as decided on 2026-10-08. (stories: 5, 6, 7, 11, 14)
+16. [human] Look at the Tenant list as the person who will look after Tenants. Confirm it shows each Tenant's name, Manager count and creation date and no Operator Tenant, as approved on 2026-10-14. (stories: 5, 6, 7, 11)
 
 ## Execution order
 
 Four slices.
 
-1. `super-admin-exists-and-signs-in` — the migration (operator column, index, Operator Tenant, seeded SuperAdmin), `Tenant.operator`, `superAdminToken()` in `IntegrationTest`, the two security rules (the `/api/super-admin/**` fence and the SuperAdmin deny rule) with their parameterised test, `SUPER_ADMIN` in `ChangeOwnPasswordApiTest`, the migration test, and the README's seeded Login. Labels: `backend`. Depends on nothing. (stories: 1, 2, 12, 15, 16, 19, 20, 23)
+1. `super-admin-exists-and-signs-in` — the migration (operator column, index, Operator Tenant, seeded SuperAdmin), `Tenant.operator`, `superAdminToken()` in `IntegrationTest`, the two security rules with their parameterised test, `SUPER_ADMIN` in `ChangeOwnPasswordApiTest`, the migration test, and the README's seeded Login. Labels: `backend`. Depends on nothing. (stories: 1, 2, 12, 14, 15, 18, 19, 22)
 2. `tenant-list-api` — the Tenant directory read service, `GET /api/super-admin/tenants`, and its integration tests. Labels: `backend`. Depends on `super-admin-exists-and-signs-in`. (stories: 5, 6, 7, 8, 9, 11)
-3. `super-admin-console-shell` — the `/super-admin` surface, `landingPathForRole`, the session proxy's matcher, `requireSuperAdmin`, the shell with its label and nav item, the viewer menu, a placeholder page body, component tests, and the e2e spec's sign-in, landing and fence steps. Labels: `frontend`. Depends on `super-admin-exists-and-signs-in`. (stories: 3, 4, 12, 13, 14, 16, 17, 18, 21)
-4. `tenant-list-ui` — the BFF proxy, the Tenants table and empty state, the stub-backend fixture, the new goldens, the e2e spec's list step, and the delivery documentation (`PRODUCT.md`, `docs/journeys.md`, `DESIGN.md`, `ARCHITECTURE.md`). Labels: `frontend`. Depends on `tenant-list-api` and `super-admin-console-shell`. (stories: 5, 6, 7, 9, 10, 11, 22)
+3. `super-admin-console-shell` — the `/super-admin` surface, `landingPathForRole`, the session proxy's matcher, `requireSuperAdmin`, the shell with its label and nav item, the viewer menu, a placeholder page body, component tests, and the e2e spec's sign-in, landing and console-fence steps. Labels: `frontend`. Depends on `super-admin-exists-and-signs-in`. (stories: 3, 4, 12, 13, 15, 16, 17, 20)
+4. `tenant-list-ui` — the BFF proxy, the Tenants table and empty state, the stub-backend fixture, the new goldens, the e2e spec's list step, and the delivery documentation (`PRODUCT.md`, `docs/journeys.md`, `DESIGN.md`, `ARCHITECTURE.md`). Labels: `frontend`. Depends on `tenant-list-api` and `super-admin-console-shell`. (stories: 5, 6, 7, 9, 10, 11, 21)

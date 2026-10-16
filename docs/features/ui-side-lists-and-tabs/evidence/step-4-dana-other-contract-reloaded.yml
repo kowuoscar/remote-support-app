@@ -1,0 +1,67 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Client Portal
+  - navigation:
+    - link "Dashboard":
+      - /url: /client
+    - link "Fleet":
+      - /url: /client/fleet
+    - link "Requests":
+      - /url: /client/requests
+    - link "Invoices":
+      - /url: /client/invoices
+- banner:
+  - heading "Fleet" [level=1]
+  - paragraph: Loaded per Contract
+  - button "dana.whitfield@solsticeretail.example · Tester"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Contracts":
+    - heading "Contracts" [level=2]
+    - list:
+      - listitem:
+        - link "United Kingdom":
+          - /url: /client/fleet?contract=1bae7798-c445-4cf5-83b9-ace06a0a2ce3&tab=smartphones
+      - listitem:
+        - link "United States":
+          - /url: /client/fleet?contract=27d76228-7b7b-4bb5-94c6-47d02e16cf92&tab=smartphones
+  - button "Submit Request"
+  - tablist "Fleet":
+    - tab "SIM Cards 7"
+    - tab "Smartphones 4" [selected]
+  - tabpanel "Smartphones 4":
+    - table:
+      - rowgroup:
+        - row "Model Serial Owner SIM Cards Status":
+          - columnheader "Model"
+          - columnheader "Serial"
+          - columnheader "Owner"
+          - columnheader "SIM Cards"
+          - columnheader "Status"
+      - rowgroup:
+        - row "iPhone 13 — Client +1-202-555-0104 Active":
+          - cell "iPhone 13"
+          - cell "—"
+          - cell "Client"
+          - cell "+1-202-555-0104"
+          - cell "Active"
+        - row "Pixel 7 PX7-88210 Company +1-202-555-0101, +1-202-555-0102 Active":
+          - cell "Pixel 7"
+          - cell "PX7-88210"
+          - cell "Company"
+          - cell "+1-202-555-0101, +1-202-555-0102"
+          - cell "Active"
+        - row "Galaxy A14 GA14-55021 Company — In Repair":
+          - cell "Galaxy A14"
+          - cell "GA14-55021"
+          - cell "Company"
+          - cell "—"
+          - cell "In Repair"
+        - row "OnePlus 10 OP10-33087 Company +1-202-555-0103 Active":
+          - cell "OnePlus 10"
+          - cell "OP10-33087"
+          - cell "Company"
+          - cell "+1-202-555-0103"
+          - cell "Active"
+- alert

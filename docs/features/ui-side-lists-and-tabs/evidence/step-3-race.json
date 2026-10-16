@@ -1,0 +1,77 @@
+{
+  "runs": [
+    {
+      "chosen": "Unlimited Welcome",
+      "before": "+1-202-555-0301 Edit Verizon Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit Postpaid $99.00 Active Not installed",
+      "immediately": "+1-202-555-0301 Edit Verizon Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit Postpaid $99.00 Active Not installed",
+      "after2500ms": "+1-202-555-0301 Edit Verizon Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit Postpaid $99.00 Active Not installed",
+      "requests": [
+        "fetch PATCH /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/sim-cards/369d3d1d-6f37-458a-ae4d-f9ad15e9685e/postpaid-plan",
+        "fetch GET /agent/fleet?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf&tab=smartphones&_rsc=gj7vNhL7t9DLTmdm"
+      ]
+    },
+    {
+      "chosen": "Unlimited Plus",
+      "before": "+1-202-555-0301 Edit Verizon Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit Postpaid $99.00 Active Not installed",
+      "immediately": "+1-202-555-0301 Edit Verizon Unlimited Global Enterprise Roaming Plus Priority Data Packs Edit Postpaid $99.00 Active Not installed",
+      "after2500ms": "+1-202-555-0301 Edit Verizon Unlimited Plus Edit Postpaid $80.00 Active Not installed",
+      "requests": [
+        "fetch PATCH /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/sim-cards/369d3d1d-6f37-458a-ae4d-f9ad15e9685e/postpaid-plan",
+        "fetch GET /agent/fleet?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf&_rsc=gj7vNhL7t9DLTmdm"
+      ]
+    },
+    {
+      "chosen": "Unlimited Welcome",
+      "before": "+1-202-555-0301 Edit Verizon Unlimited Plus Edit Postpaid $80.00 Active Not installed",
+      "immediately": "+1-202-555-0301 Edit Verizon Unlimited Plus Edit Postpaid $80.00 Active Not installed",
+      "after2500ms": "+1-202-555-0301 Edit Verizon Unlimited Welcome Edit Postpaid $65.00 Active Not installed",
+      "requests": [
+        "fetch PATCH /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/sim-cards/369d3d1d-6f37-458a-ae4d-f9ad15e9685e/postpaid-plan",
+        "fetch GET /agent/fleet?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf&_rsc=gj7vNhL7t9DLTmdm"
+      ]
+    }
+  ],
+  "afterReload": "+1-202-555-0301 Edit Verizon Unlimited Welcome Edit Postpaid $65.00 Active Not installed",
+  "containerOverflow": {
+    "table": 1186.796875,
+    "doc": 1440,
+    "inner": 1440,
+    "chain": [
+      {
+        "tag": "DIV",
+        "cls": "overflow-x-auto rounded-xl border border-hairline rounded-no",
+        "cw": 894,
+        "sw": 1187,
+        "ox": "auto"
+      },
+      {
+        "tag": "DIV",
+        "cls": "",
+        "cw": 894,
+        "sw": 894,
+        "ox": "visible"
+      },
+      {
+        "tag": "DIV",
+        "cls": "rounded-xl border border-hairline bg-canvas-raised p-0",
+        "cw": 894,
+        "sw": 894,
+        "ox": "visible"
+      },
+      {
+        "tag": "DIV",
+        "cls": "flex flex-col gap-4",
+        "cw": 896,
+        "sw": 896,
+        "ox": "visible"
+      },
+      {
+        "tag": "DIV",
+        "cls": "mx-auto flex w-full max-w-6xl flex-col gap-6 xl:mx-0",
+        "cw": 896,
+        "sw": 896,
+        "ox": "visible"
+      }
+    ]
+  }
+}

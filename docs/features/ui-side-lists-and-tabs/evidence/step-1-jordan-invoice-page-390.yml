@@ -1,0 +1,58 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - button "Close navigation"
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - button "Open navigation"
+  - heading "Harbor Line Logistics — United States" [level=1]
+  - paragraph: Client Invoice
+  - button "agent@example.com · Agent"
+  - button "Switch to dark theme"
+- main:
+  - navigation "Breadcrumb":
+    - link "Client Invoices":
+      - /url: /agent/client-invoices?contract=b54b9b40-ea61-4a74-867a-8c52ecf5b0bf
+    - text: Harbor Line Logistics — United States · October 2026
+  - paragraph: October 2026
+  - text: Awaiting approval
+  - paragraph: Sent to the Manager and Client — numbers are locked to what was sent
+  - paragraph: Sent Oct 16, 2026
+  - link "Download PDF":
+    - /url: /api/contracts/b54b9b40-ea61-4a74-867a-8c52ecf5b0bf/client-invoice/pdf
+  - term: Base amount
+  - definition: $99.00
+  - term: Fees this month
+  - definition: $0.00
+  - term: Total
+  - definition: $99.00
+  - heading "Postpaid SIM Cards" [level=3]
+  - table:
+    - rowgroup:
+      - row "Number Billed":
+        - columnheader "Number"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "+1-202-555-0301 Verizon · Postpaid $99.00":
+        - cell "+1-202-555-0301 Verizon · Postpaid"
+        - cell "$99.00"
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees logged against this Contract yet this month.
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: No carrier invoice files attached yet.
+- alert

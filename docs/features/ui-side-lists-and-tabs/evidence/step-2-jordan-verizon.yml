@@ -1,0 +1,82 @@
+- complementary:
+  - text: "N"
+  - paragraph: Northwind Field Services
+  - paragraph: Agent Console
+  - navigation:
+    - link "Dashboard":
+      - /url: /agent
+    - link "Requests":
+      - /url: /agent/requests
+    - link "Fleet":
+      - /url: /agent/fleet
+    - link "Stock":
+      - /url: /agent/stock
+    - link "Carriers":
+      - /url: /agent/carriers
+    - link "Client Invoices":
+      - /url: /agent/client-invoices
+    - link "My Invoice":
+      - /url: /agent/my-invoice
+- banner:
+  - heading "Carriers" [level=1]
+  - paragraph: United States catalog
+  - button "agent@example.com · Agent"
+  - button "Switch to dark theme"
+- main:
+  - button "Add carrier"
+  - text: 3 active
+  - navigation "Carriers":
+    - heading "Carriers" [level=2]
+    - list:
+      - listitem:
+        - link "AT&T":
+          - /url: /agent/carriers?carrier=c0000000-0000-0000-0000-000000000001
+      - listitem:
+        - link "T-Mobile":
+          - /url: /agent/carriers?carrier=c0000000-0000-0000-0000-000000000002
+      - listitem:
+        - link "Verizon":
+          - /url: /agent/carriers?carrier=c0000000-0000-0000-0000-000000000003
+      - listitem:
+        - link "Aardvark Mobile Archived":
+          - /url: /agent/carriers?carrier=f4dea882-fed8-4a8d-bba2-1b7c58faf740
+      - listitem:
+        - link "Aardvark Mobile Archived":
+          - /url: /agent/carriers?carrier=65517646-15d9-4b3d-b680-c413aafc01a5
+      - listitem:
+        - link "Legacy Wireless Archived":
+          - /url: /agent/carriers?carrier=649c9cf8-8533-4785-8182-9e23db247d1c
+      - listitem:
+        - link "Sprint Archived":
+          - /url: /agent/carriers?carrier=c0000000-0000-0000-0000-000000000004
+  - heading "Verizon" [level=2]
+  - button "Rename Verizon": Rename
+  - button "Archive Verizon": Archive
+  - paragraph: Prices in USD · shared by every agent in United States
+  - checkbox "Show archived (2)"
+  - text: Show archived (2)
+  - region "Topup options":
+    - heading "Topup options" [level=4]
+    - button "Add a topup option to Verizon": Add
+    - list "Verizon topup options":
+      - listitem:
+        - text: International Add-on $10.00
+        - button "Edit International Add-on": Edit
+        - button "Archive International Add-on": Archive
+  - region "Postpaid plans":
+    - heading "Postpaid plans" [level=4]
+    - button "Add a postpaid plan to Verizon": Add
+    - list "Verizon postpaid plans":
+      - listitem:
+        - text: Unlimited Welcome $65.00/mo
+        - button "Edit Unlimited Welcome": Edit
+        - button "Archive Unlimited Welcome": Archive
+      - listitem:
+        - text: Unlimited Plus $80.00/mo
+        - button "Edit Unlimited Plus": Edit
+        - button "Archive Unlimited Plus": Archive
+      - listitem:
+        - text: Unlimited Global Enterprise Roaming Plus Priority Data Packs $99.00/mo
+        - button "Edit Unlimited Global Enterprise Roaming Plus Priority Data Packs": Edit
+        - button "Archive Unlimited Global Enterprise Roaming Plus Priority Data Packs": Archive
+- alert

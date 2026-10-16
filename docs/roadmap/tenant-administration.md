@@ -44,6 +44,8 @@ The journey does not exist in `docs/journeys.md` yet and should be added as
 ## Features
 
 - [ ] `super-admin-signs-in` — a SuperAdmin signs in to a console of their own and sees the Tenants that exist, each with its Manager count; how the first SuperAdmin comes to exist, and what Tenant (if any) a SuperAdmin belongs to, are settled in its spec.
+- [ ] `super-admin-enters-a-tenant` — from the console, the SuperAdmin opens any Tenant as its Manager and can do everything a Manager can, with a banner naming the Tenant and a way back; every action is audit-logged under the SuperAdmin's own login (the human's amendment of 2026-10-14). Design drafted in commit 5840fff of `super-admin-signs-in`'s spec.
+- [ ] `super-admin-opens-agent-and-client-pages` — inside a Tenant, the SuperAdmin opens the Agent pages as any Agent and the Client pages as any Tester. Open question for its spec: whose name shows on a Request the SuperAdmin logged or decided (recommended: the SuperAdmin's email).
 - [ ] `create-a-tenant-with-its-first-manager` — a SuperAdmin creates a Tenant by name together with its first Manager login, whose name the SuperAdmin enters (required; the Manager name rule from `real-manager-dashboard`) and whose generated password is shown once; that Manager signs in to an empty Tenant and can start working.
 - [ ] `super-admin-resets-a-managers-password` — a SuperAdmin resets a locked-out Manager's password (generated, shown once), reusing the password write the Agent and Tester resets use.
 - [ ] `super-admin-deactivates-a-managers-login` — a SuperAdmin switches a Manager's login off and on, with the refusals `deactivate-a-login` built.
@@ -55,6 +57,11 @@ login lifecycle that `manager-resets-a-password` and `deactivate-a-login`
 left to this epic.
 
 ## Reworked
+
+- **2026-10-15, split.** The human's amendment ("Everything, every Tenant") made
+  `super-admin-signs-in` too big for one feature. It is cut into signing in
+  and the Tenant list, then entering a Tenant as its Manager, then opening
+  Agent and Client pages. Each leaves the product working.
 
 Explored on 2026-10-06 (`main`):
 

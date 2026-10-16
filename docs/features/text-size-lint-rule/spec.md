@@ -1,7 +1,7 @@
 ---
 feature: text-size-lint-rule
 epic: frontend-cleanup
-status: draft
+status: approved
 date: 2026-10-09
 ---
 

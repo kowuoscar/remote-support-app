@@ -1,0 +1,22 @@
+Isolated e2e stack: postgres container remote-support-e2e-pg-5242-31548 on port 64558, backend on port 64559, frontend on port 64560.
+  ✘   1 tests/e2e/fleet-correction-survives-navigation.spec.ts:52:7 › a Fleet correction followed at once by navigation › save, switch to Smartphones and back: the SIM row shows the saved plan (6.1s)
+  ✘   2 tests/e2e/fleet-correction-survives-navigation.spec.ts:66:7 › a Fleet correction followed at once by navigation › save, pick another Client and back: the SIM row shows the saved plan (5.3s)
+  ✘   3 tests/e2e/fleet-correction-survives-navigation.spec.ts:52:7 › a Fleet correction followed at once by navigation › save, switch to Smartphones and back: the SIM row shows the saved plan (5.2s)
+  ✘   4 tests/e2e/fleet-correction-survives-navigation.spec.ts:66:7 › a Fleet correction followed at once by navigation › save, pick another Client and back: the SIM row shows the saved plan (5.2s)
+  ✘   5 tests/e2e/fleet-correction-survives-navigation.spec.ts:52:7 › a Fleet correction followed at once by navigation › save, switch to Smartphones and back: the SIM row shows the saved plan (5.2s)
+  ✘   6 tests/e2e/fleet-correction-survives-navigation.spec.ts:66:7 › a Fleet correction followed at once by navigation › save, pick another Client and back: the SIM row shows the saved plan (5.3s)
+  ✘   7 tests/e2e/fleet-correction-survives-navigation.spec.ts:52:7 › a Fleet correction followed at once by navigation › save, switch to Smartphones and back: the SIM row shows the saved plan (5.2s)
+  ✘   8 tests/e2e/fleet-correction-survives-navigation.spec.ts:66:7 › a Fleet correction followed at once by navigation › save, pick another Client and back: the SIM row shows the saved plan (5.2s)
+  ✘   9 tests/e2e/fleet-correction-survives-navigation.spec.ts:52:7 › a Fleet correction followed at once by navigation › save, switch to Smartphones and back: the SIM row shows the saved plan (5.5s)
+  ✘  10 tests/e2e/fleet-correction-survives-navigation.spec.ts:66:7 › a Fleet correction followed at once by navigation › save, pick another Client and back: the SIM row shows the saved plan (5.5s)
+    Error: expect(locator).toContainText(expected) failed
+    Error: expect(locator).toContainText(expected) failed
+    Error: expect(locator).toContainText(expected) failed
+    Error: expect(locator).toContainText(expected) failed
+    Error: expect(locator).toContainText(expected) failed
+    Error: expect(locator).toContainText(expected) failed
+    Error: expect(locator).toContainText(expected) failed
+    Error: expect(locator).toContainText(expected) failed
+    Error: expect(locator).toContainText(expected) failed
+    Error: expect(locator).toContainText(expected) failed
+  10 failed

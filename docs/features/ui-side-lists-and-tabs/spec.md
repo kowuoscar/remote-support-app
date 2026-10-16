@@ -133,8 +133,9 @@ Non-goals. Each is something a reasonable agent would otherwise build:
 - **No snapshot of the Carrier name on an invoice.** The line reads the SIM's
   Carrier as it is now, as it already does for the SIM's number.
 - **No truncation of other Fleet cells.** Smartphone models, SIM numbers and
-  "Installed in" keep their current behaviour. Fleet tables keep their 720px
-  minimum and their sideways scroll.
+  "Installed in" keep their current behaviour. Below `xl`, Fleet tables keep
+  their 720px minimum and their sideways scroll; at `xl` and wider the SIM
+  Cards table fits its card without sideways scroll. (Amended by the human, 2026-10-16: layout A, `ui-side-lists-fleet-table-layout`.)
 - **No change to the Carrier, Topup Option or Postpaid Plan dialogs, or to what
   they accept.**
 - **No change to `CreateContractDialog`'s form.** Its title, its fields and
@@ -356,9 +357,14 @@ three Fleet views.
 
 ### Plan and Carrier names in the SIM Cards table
 
-- `SimCardPlan` and `SimCardCarrier` cap the name at `max-w-48` (192px). Past
-  that the name is cut with "…" (`truncate`), and the full name is its
-  `title`. The "Archived" badge comes after the name and never shrinks.
+- `SimCardPlan` and `SimCardCarrier` cut the name with "…" (`truncate`) at
+  the width its column has, not at a fixed cap, and the full name is its
+  `title`. A name that fits its column is never cut. The "Archived" badge
+  comes after the name and never shrinks.
+- At `xl` and wider the table fits its card: Retire / Reactivate sit under
+  the status badge, and there is no separate "Change status" column. Below
+  `xl` the table keeps its 720px minimum and scrolls inside its wrapper;
+  numbers never break across lines. (Amended by the human, 2026-10-16: layout A, `ui-side-lists-fleet-table-layout`.)
 - `SimCardPlanControl`'s display state uses the same capped name, with Edit
   beside it. Its editing state is unchanged.
 - The rule applies wherever the table renders: the Agent's, the Tester's and
@@ -498,7 +504,8 @@ Each amendment lands in the commit of its visual change:
   that have one. Tabs switch between one Contract's tables, never between
   Contracts."
 - **A Tables sentence.** In the Fleet's SIM Cards table, Plan and Carrier
-  names are capped at 192px and cut with "…", with the full name in `title`.
+  names are cut with "…" at their column's width, with the full name in
+  `title`; Retire / Reactivate sit under the status badge.
 
 ## Design direction
 
@@ -539,7 +546,8 @@ on 2026-10-15.
   No JavaScript media query is used.
 - **Widths.** The column is 256px. At 1280px the detail area keeps 736px of
   content width (1280 − 240 rail − 256 − 48 padding), which is enough for the
-  Fleet tables' 720px minimum.
+  Fleet tables' 720px minimum. At `xl` and wider the SIM Cards table fits
+  the detail area without sideways scroll. (Amended by the human, 2026-10-16: layout A, `ui-side-lists-fleet-table-layout`.)
 - **No sideways page scroll** at 375, 390, 768, 1024, 1279 and 1440px on
   `/agent/carriers`, `/manager/carriers`, `/agent/fleet`, `/client/fleet` and
   `/manager/contracts`: `document.documentElement.scrollWidth` equals
@@ -837,9 +845,10 @@ tested at the highest seam that already exists and can see it.
   wrapping under the number when there is no room.** Reason: the human asked
   for it "next to the number". Keeping it inside `what` lets the
   `client-invoices-layout-fixes` grid stay as it is at every width.
-- **The Plan and Carrier cap is 192px (`max-w-48`), with the full name in
-  `title`.** Reason: it fits catalog names like "Unlimited Welcome" whole and
-  stops a long one widening the table. `title` is the recorded side-list
+- **Plan and Carrier names are cut at their column's width, with the full
+  name in `title`** (amended by the human, 2026-10-16, layout A; was a 192px
+  cap). Reason: the desktop table fits beside the side list, and a name is
+  cut only when its column has no room. `title` is the recorded side-list
   precedent. The hover-only debt it carries ("Name cut hard") is already
   recorded.
 - **Debt paid: "Two pills", and the stale `basePostpaidSims` comments. Debt

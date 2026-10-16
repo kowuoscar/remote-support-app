@@ -1,7 +1,7 @@
 ---
 id: ui-side-lists-fleet-table-layout
 type: question
-status: open
+status: answered
 blocks: [ui-side-lists-and-tabs]
 created: 2026-10-16
 ---
@@ -43,3 +43,5 @@ asked for on the Plan column. Retire sits right under the status it changes.
 Nothing else runs: `text-size-lint-rule` is held at your request.
 
 ## Answer
+
+(A) (the human, 2026-10-16): keep the fitted desktop table; restore the phone sideways scroll; cut long names at the column width, not a fixed 120px.

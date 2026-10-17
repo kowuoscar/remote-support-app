@@ -60,12 +60,13 @@ import com.remotesupport.backend.web.AgentController;
 import com.remotesupport.backend.web.AgentInvoiceController;
 import com.remotesupport.backend.web.AgentInvoiceService;
 import com.remotesupport.backend.web.CarrierController;
-import com.remotesupport.backend.web.CarrierInvoiceFileStorage;
+import com.remotesupport.backend.web.CarrierInvoiceFileService;
 import com.remotesupport.backend.web.CarrierOfferController;
 import com.remotesupport.backend.web.ClientController;
 import com.remotesupport.backend.web.ClientInvoiceController;
-import com.remotesupport.backend.web.ClientInvoiceService;
 import com.remotesupport.backend.web.ContractAmountService;
+import com.remotesupport.backend.web.ObjectStoreAvailability;
+import com.remotesupport.backend.web.ObjectStoreUnavailableException;
 import com.remotesupport.backend.web.ContractController;
 import com.remotesupport.backend.web.FeeController;
 import com.remotesupport.backend.web.RequestByIdController;
@@ -77,15 +78,6 @@ import com.remotesupport.backend.web.TesterController;
 import java.math.BigDecimal;
 import com.remotesupport.backend.dto.ClientInvoiceBaseSimLineResponse;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
-import org.springframework.web.multipart.MultipartFile;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.nio.file.Files;
-import java.nio.charset.StandardCharsets;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.File;
-import java.io.ByteArrayInputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -98,7 +90,8 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Builds the demo story on startup, once, for local use only (demo-data-story spec.md Solution's
@@ -187,8 +180,9 @@ public class DemoDataLoader implements ApplicationRunner {
   private final ClientInvoiceController clientInvoiceController;
   private final AgentInvoiceController agentInvoiceController;
   private final AgentInvoiceService agentInvoiceService;
-  private final CarrierInvoiceFileStorage carrierInvoiceFileStorage;
-  private final ClientInvoiceService clientInvoiceService;
+  private final CarrierInvoiceFileService carrierInvoiceFileService;
+  private final ObjectStoreAvailability objectStoreAvailability;
+  private final TransactionTemplate transaction;
   private final StandingAmountService standingAmountService;
   private final ContractAmountService contractAmountService;
 
@@ -218,8 +212,9 @@ public class DemoDataLoader implements ApplicationRunner {
       ClientInvoiceController clientInvoiceController,
       AgentInvoiceController agentInvoiceController,
       AgentInvoiceService agentInvoiceService,
-      CarrierInvoiceFileStorage carrierInvoiceFileStorage,
-      ClientInvoiceService clientInvoiceService,
+      CarrierInvoiceFileService carrierInvoiceFileService,
+      ObjectStoreAvailability objectStoreAvailability,
+      PlatformTransactionManager transactionManager,
       StandingAmountService standingAmountService,
       ContractAmountService contractAmountService,
       PasswordWrite passwordWrite) {
@@ -249,14 +244,18 @@ public class DemoDataLoader implements ApplicationRunner {
     this.clientInvoiceController = clientInvoiceController;
     this.agentInvoiceController = agentInvoiceController;
     this.agentInvoiceService = agentInvoiceService;
-    this.carrierInvoiceFileStorage = carrierInvoiceFileStorage;
-    this.clientInvoiceService = clientInvoiceService;
+    this.carrierInvoiceFileService = carrierInvoiceFileService;
+    this.objectStoreAvailability = objectStoreAvailability;
+    this.transaction = new TransactionTemplate(transactionManager);
     this.standingAmountService = standingAmountService;
     this.contractAmountService = contractAmountService;
   }
 
+  /**
+   * Not itself transactional: the story is written in two transactions with the Carrier Invoice
+   * Files between them, because the object store is never called inside a transaction (Backend 8).
+   */
   @Override
-  @Transactional
   public void run(ApplicationArguments args) {
     if (clientRepository.findById(CLIENT_SOLSTICE_ID).isPresent()) {
       log.info("Demo story already present (Client {} exists) — skipping.", CLIENT_SOLSTICE_ID);
@@ -264,6 +263,22 @@ public class DemoDataLoader implements ApplicationRunner {
     }
     log.info("Building the demo story...");
     Counts counts = new Counts();
+    Story story = transaction.execute(status -> buildUntilThisMonthsInvoices(counts));
+    sendUs1InvoiceWithItsCarrierInvoices(story.contractUs1(), story.jordan());
+    transaction.executeWithoutResult(status -> finishThisMonthsInvoices(story, counts));
+    log.info("Demo story built: {}", counts);
+  }
+
+  /** What the second transaction needs of the first. */
+  private record Story(
+      UUID contractUs1,
+      UUID contractUk1,
+      UUID contractUs2,
+      UUID priyaAgentId,
+      AuthenticatedPrincipal jordan,
+      AuthenticatedPrincipal priya) {}
+
+  private Story buildUntilThisMonthsInvoices(Counts counts) {
 
     AuthenticatedPrincipal manager = principal(MANAGER_USER_ID, "manager@example.com", "MANAGER");
     AuthenticatedPrincipal jordan = principal(JORDAN_USER_ID, "agent@example.com", "AGENT");
@@ -349,17 +364,18 @@ public class DemoDataLoader implements ApplicationRunner {
     runContractUk1Requests(contractUk1, uk1, uk, dana, priya, manager, counts);
     runContractUs2Requests(contractUs2, us2, noah, jordan, manager, counts);
 
-    // --- This month's invoices ---
-    sendUs1InvoiceWithItsCarrierInvoices(contractUs1, jordan);
-    clientInvoiceController.get(contractUk1, priya);
-    clientInvoiceController.get(contractUs2, jordan);
+    return new Story(contractUs1, contractUk1, contractUs2, priyaAgent.getId(), jordan, priya);
+  }
+
+  /** The rest of this month's invoices; contract US-1's was sent (or left a draft) in between. */
+  private void finishThisMonthsInvoices(Story story, Counts counts) {
+    clientInvoiceController.get(story.contractUk1(), story.priya());
+    clientInvoiceController.get(story.contractUs2(), story.jordan());
     counts.clientInvoicesSentOrDraft = 3;
 
-    agentInvoiceController.send(JORDAN_AGENT_ID, jordan);
-    agentInvoiceController.get(priyaAgent.getId(), priya);
+    agentInvoiceController.send(JORDAN_AGENT_ID, story.jordan());
+    agentInvoiceController.get(story.priyaAgentId(), story.priya());
     counts.agentInvoicesSentOrDraft = 2;
-
-    log.info("Demo story built: {}", counts);
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -445,99 +461,42 @@ public class DemoDataLoader implements ApplicationRunner {
 
   /**
    * Sends contract US-1's current-month invoice, which the send gate refuses until every Postpaid
-   * SIM line has its Carrier Invoice File. One small generated PDF per line goes through the
-   * storage {@code put} and {@link ClientInvoiceService#recordAttachedFile} directly: the startup
-   * probe has not marked the store available yet. If the store refuses, one WARN is logged and the
-   * invoice stays a draft, so the demo always starts. Every object is written before any row, so a
-   * refusal leaves nothing half-attached.
+   * SIM line has its Carrier Invoice File. One small generated PDF per line goes through {@link
+   * CarrierInvoiceFileService#attach}, the way an Agent's attach does, each in its own call and
+   * outside any transaction of the loader's. The store is probed first, because the startup probe
+   * has not run yet; if it is down, one WARN is logged and the invoice stays a draft, so the demo
+   * always starts. A refusal part way leaves the files already attached in place (each attach undoes
+   * only its own object): the draft is simply unfinished.
    */
   private void sendUs1InvoiceWithItsCarrierInvoices(UUID contractUs1, AuthenticatedPrincipal jordan) {
-    ClientInvoiceResponse draft = clientInvoiceController.get(contractUs1, jordan);
-    ClientInvoice invoice = clientInvoiceRepository.findById(draft.id()).orElseThrow();
-    List<UUID> simIds =
-        draft.basePostpaidSims().stream().map(ClientInvoiceBaseSimLineResponse::simCardId).toList();
-    Map<UUID, String> keys = new LinkedHashMap<>();
-    Map<UUID, UUID> fileIds = new LinkedHashMap<>();
+    objectStoreAvailability.probe();
+    if (!objectStoreAvailability.isAvailable()) {
+      log.warn(
+          "The object store is unavailable; the demo's current-month invoice of contract US-1 stays a draft without carrier invoices.");
+      return;
+    }
+    Draft draft = transaction.execute(status -> currentMonthDraft(contractUs1, jordan));
     try {
-      for (UUID simId : simIds) {
-        UUID fileId = UUID.randomUUID();
-        String key = carrierInvoiceFileStorage.keyFor(invoice.getTenant().getId(), invoice.getId(), fileId);
-        carrierInvoiceFileStorage.put(key, new DemoCarrierInvoice());
-        keys.put(simId, key);
-        fileIds.put(simId, fileId);
+      for (UUID simId : draft.simIds()) {
+        carrierInvoiceFileService.attach(draft.invoice(), new DemoCarrierInvoice(), simId, jordan);
       }
-    } catch (RuntimeException e) {
-      keys.values().forEach(this::deleteQuietly);
+    } catch (ObjectStoreUnavailableException e) {
       log.warn(
           "The object store refused the demo's carrier invoices; the current-month invoice of contract US-1 stays a draft.");
       return;
     }
-    for (UUID simId : simIds) {
-      try {
-        clientInvoiceService.recordAttachedFile(
-            invoice, fileIds.get(simId), keys.get(simId), new DemoCarrierInvoice(), simId, jordan);
-      } catch (RuntimeException e) {
-        keys.values().forEach(this::deleteQuietly);
-        throw e;
-      }
-    }
-    clientInvoiceController.send(contractUs1, jordan);
+    transaction.executeWithoutResult(status -> clientInvoiceController.send(contractUs1, jordan));
   }
 
-  private void deleteQuietly(String key) {
-    try {
-      carrierInvoiceFileStorage.delete(key);
-    } catch (RuntimeException ignored) {
-      // the store is the very thing that failed; the stray object is harmless
-    }
-  }
+  /** The invoice and its Postpaid SIM lines' SIM ids. */
+  private record Draft(ClientInvoice invoice, List<UUID> simIds) {}
 
-  /** A tiny generated PDF standing in for the carrier's bill. */
-  private static final class DemoCarrierInvoice implements MultipartFile {
-    private static final byte[] PDF =
-        ("%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
-                + "3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 100]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n")
-            .getBytes(StandardCharsets.US_ASCII);
-
-    @Override
-    public String getName() {
-      return "file";
-    }
-
-    @Override
-    public String getOriginalFilename() {
-      return "carrier-invoice.pdf";
-    }
-
-    @Override
-    public String getContentType() {
-      return "application/pdf";
-    }
-
-    @Override
-    public boolean isEmpty() {
-      return false;
-    }
-
-    @Override
-    public long getSize() {
-      return PDF.length;
-    }
-
-    @Override
-    public byte[] getBytes() {
-      return PDF;
-    }
-
-    @Override
-    public InputStream getInputStream() {
-      return new ByteArrayInputStream(PDF);
-    }
-
-    @Override
-    public void transferTo(File dest) throws IOException {
-      Files.write(dest.toPath(), PDF);
-    }
+  private Draft currentMonthDraft(UUID contractId, AuthenticatedPrincipal agent) {
+    ClientInvoiceResponse response = clientInvoiceController.get(contractId, agent);
+    ClientInvoice invoice = clientInvoiceRepository.findById(response.id()).orElseThrow();
+    return new Draft(
+        invoice,
+        response.basePostpaidSims().stream().map(ClientInvoiceBaseSimLineResponse::simCardId).toList());
   }
 
   /**

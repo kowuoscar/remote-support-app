@@ -11,6 +11,7 @@ import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.support.ObjectStoreTestSupport;
+import com.remotesupport.backend.web.CarrierInvoiceFileStorage;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -29,7 +30,7 @@ import org.testcontainers.utility.DockerImageName;
 
 /**
  * The demo must start whatever the object store's state (ADR 0007). With the store refusing every
- * write, the loader completes, logs one WARN, and leaves contract US-1's current-month Client
+ * write, the loader completes, logs one WARN (and attempts no write), and leaves contract US-1's current-month Client
  * Invoice a draft, because the send gate would refuse it without its Carrier Invoice Files. Like
  * {@link DemoDataLoaderApiTest}, it owns a fresh database under the {@code demo} profile; the store
  * is an endpoint nobody listens on.
@@ -59,6 +60,7 @@ class DemoDataLoaderStoreDownTest {
     @PostConstruct
     void attach() {
       ((Logger) LoggerFactory.getLogger(DemoDataLoader.class)).addAppender(LOG);
+      ((Logger) LoggerFactory.getLogger(CarrierInvoiceFileStorage.class)).addAppender(LOG);
     }
   }
 
@@ -83,5 +85,8 @@ class DemoDataLoaderStoreDownTest {
     assertThat(clientInvoiceRepository.findAll()).anyMatch(i -> i.getStatus() == ClientInvoiceStatus.APPROVED);
     assertThat(LOG.list.stream().filter(e -> e.getLevel() == Level.WARN).map(ILoggingEvent::getFormattedMessage).toList())
         .hasSize(1);
+    assertThat(LOG.list.stream().filter(e -> e.getLoggerName().equals(CarrierInvoiceFileStorage.class.getName())))
+        .as("the loader probes the store first, so no write is attempted and logs its own ERROR")
+        .isEmpty();
   }
 }

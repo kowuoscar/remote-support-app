@@ -1064,7 +1064,7 @@ with its dev-only credentials (e.g. `aws s3api list-objects-v2
 4. [agent] As the Manager, open that invoice's `/manager/invoices/client/{id}`, attach a third file and download one of Jordan's. As Jordan, send the invoice. As the Tester of that Client, download a file from the Invoices page. Show the same bytes and name. (stories: 3, 4)
 5. [agent] Through the API, as Jordan, POST a file to the now-sent invoice. Show a 409, and the bucket still holding exactly the three objects under that invoice's prefix. (stories: 6)
 6. [agent] Restart the backend process, then restart the SeaweedFS container (`docker restart`, the same container). Show every file still downloads with the same bytes. (stories: 8)
-7. [agent] The store goes down and comes back. For this step the throwaway SeaweedFS keeps its data across a stop (started without `--rm`, removed by name at the end).
+7. [agent] The store goes down and comes back (stories: 11, 12, 13, 20, 21, 22, 23, 24, 25). For this step the throwaway SeaweedFS keeps its data across a stop (started without `--rm`, removed by name at the end).
    - With the page open on a new draft as Jordan, `docker stop` SeaweedFS and attach a file. Show "Couldn't attach one or more files. Try again." and one ERROR in the backend log naming the store operation, with no credentials.
    - Reload. As Jordan on the draft, as the Manager on its `/manager/invoices/client/{id}`, and as the Tester on an earlier sent invoice's Invoices page, show the files section listing every file name, "Attach carrier invoice" disabled (Jordan, Manager), each Download disabled and not a link, and the notice: "File storage is unavailable right now. Attaching and downloading are paused." (Jordan, Manager) or "File storage is unavailable right now. Downloading is paused." (Tester). Screenshot each.
    - Show lines, fees, the PDF and the Fleet page still work, and that a direct API attach and download answer 503 at once.
@@ -1073,7 +1073,7 @@ with its dev-only credentials (e.g. `aws s3api list-objects-v2
    - Stop SeaweedFS again without attaching anything. Reload Jordan's draft once (again with the last check at least 30 seconds old): it may still show the controls enabled. Reload again: paused, with one ERROR in the log. `docker start` SeaweedFS.
    - Stop the backend. Start it with `OBJECT_STORE_ENDPOINT` at a free port where nothing listens. Show it starts (`/api/health` answers), logs one ERROR naming that endpoint and the bucket, and the files sections are paused. Start a fresh throwaway SeaweedFS on that port; reload once (the last check at least 30 seconds old), then again, and show Attach works and the bucket was created by the backend.
    - With SeaweedFS running, start the backend with `OBJECT_STORE_CREATE_BUCKET=false` and `OBJECT_STORE_BUCKET` set to a bucket that does not exist, then with a wrong secret key, then with `OBJECT_STORE_ENDPOINT=not a url`. Each time show it starts, logs one ERROR naming the endpoint and the bucket (or the bad setting), never the secret, creates no bucket, and the files sections are paused. (stories: 11, 12, 13, 20, 21, 22, 23, 24, 25)
-8. [agent] Run `docker compose -f docker-compose.yml config` (read-only; nothing is started). Show:
+8. [agent] Run `docker compose -f docker-compose.yml config` (read-only; nothing is started) (stories: 9, 10, 13, 17, 18, 19). Show:
    - a `seaweedfs` service on the pinned `chrislusf/seaweedfs` tag, with the `seaweedfs_data` volume, no `ports`, a healthcheck, and dev-only S3 credentials;
    - `backend` with `OBJECT_STORE_ENDPOINT=http://seaweedfs:8333` and a `depends_on` on `seaweedfs` with `service_started` (not `service_healthy`);
    - `seaweedfs_data` declared.
@@ -1083,47 +1083,33 @@ with its dev-only credentials (e.g. `aws s3api list-objects-v2
 
 ## Execution order
 
-Three tickets, one PR. The second and third depend on the first only: the
-second because both touch the download path in `CarrierInvoiceFileService`,
-the third because it reads `filesAvailable`.
+Four tickets, one PR. `carrier-invoice-file-download-name` and
+`carrier-invoice-files-availability` depend on the first only;
+`carrier-invoice-files-paused` depends on the availability ticket, whose
+`filesAvailable` field it reads.
 
-1. `carrier-invoice-files-in-object-store`. It covers:
-   - the AWS SDK dependency and `ObjectStoreProperties`;
-   - the `S3Client` bean, built so that no store setting can fail startup;
-   - `ObjectStoreAvailability`: the bucket ensured at startup, then re-checked
-     only when a Client Invoice response is built and the last check is more
-     than 30 seconds old (asynchronous, single flight, no scheduler), logged
-     on transitions, `markUnavailable` on a store failure, the 503 at once
-     while unavailable, and `filesAvailable` on `ClientInvoiceResponse`;
-   - `CarrierInvoiceFileStorage` rewritten over S3, with the filesystem code,
-     `app.file-storage` and the `backend/.gitignore` entry removed;
-   - `CarrierInvoiceFileService` (attach with undo on failure, download) and
-     `ClientInvoiceService.recordAttachedFile`;
-   - `ObjectStoreUnavailableException` and `CarrierInvoiceFileMissingException`;
-   - the shared test SeaweedFS (`GenericContainer`) for `IntegrationTest` and
-     `DemoDataLoaderApiTest`;
-   - the new `ClientInvoiceApiTest` cases for the key, no metadata, the 409
-     undo, the missing object and `filesAvailable: true`, the malformed-endpoint
-     context test, and the unit tests (availability and recovery included);
-   - the `seaweedfs` service, the `seaweedfs_data` volume, the backend env and
-     its `service_started` dependency in `docker-compose.yml`;
-   - throwaway SeaweedFS in both e2e backend scripts, `run-e2e-isolated.sh`
-     and the isolated Playwright config;
-   - the check of the S3 operations and addressing style against Hetzner
-     Object Storage's documentation;
-   - ADR 0007;
-   - the declared `CONTEXT.md` terms and `ARCHITECTURE.md` entries.
-
-   Labels: backend, infra. No dependency. (stories: 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 25)
+1. `carrier-invoice-files-in-object-store`: the AWS SDK dependency,
+   `ObjectStoreProperties`, the `S3Client` bean (no store setting can fail
+   startup), a one-shot startup bucket check that never fails startup,
+   `CarrierInvoiceFileStorage` over S3 (503 on a store failure), the
+   attach-with-undo `CarrierInvoiceFileService`, the shared test SeaweedFS,
+   compose, both e2e scripts, ADR 0007 and the declared `CONTEXT.md` and
+   `ARCHITECTURE.md` entries. Labels: backend, infra. No dependency.
+   (stories: 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
 2. `carrier-invoice-file-download-name`: `Content-Disposition` built with
    `ContentDisposition` and UTF-8, `X-Content-Type-Options: nosniff`, and the
    `ClientInvoiceApiTest` case with an accented, quoted name. Labels: backend.
    Depends on `carrier-invoice-files-in-object-store`. (stories: 5)
-3. `carrier-invoice-files-paused`: the shared `CarrierInvoiceFilesSection`
+3. `carrier-invoice-files-availability`: `ObjectStoreAvailability` (cached
+   value, on-demand stale-while-revalidate check, single flight, no
+   scheduler), the 503 at once while unavailable, and `filesAvailable` on
+   `ClientInvoiceResponse`. Labels: backend. Depends on
+   `carrier-invoice-files-in-object-store`. (stories: 25)
+4. `carrier-invoice-files-paused`: the shared `CarrierInvoiceFilesSection`
    used by the Agent's card, the Manager's detail and the Tester's Invoices
    page; the paused state (names listed, Attach and Download disabled, the
    notice); the `disabled` prop on `AttachCarrierInvoiceFileControl`;
    `filesAvailable` in `lib/api/types.ts`, the test fixtures and the visual
    stub backend; its component tests; the one-line `DESIGN.md` entry. Labels:
-   frontend. Depends on `carrier-invoice-files-in-object-store`. (stories: 20,
+   frontend. Depends on `carrier-invoice-files-availability`. (stories: 20,
    21, 22, 23, 24)

@@ -10,11 +10,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -135,10 +138,10 @@ class CarrierInvoiceFileStorageTest {
 
   @Test
   void anUnreadableUploadIsNotTheStoresFaultAndDoesNotMarkItUnavailable() throws Exception {
-    org.springframework.web.multipart.MultipartFile part = mock(org.springframework.web.multipart.MultipartFile.class);
-    when(part.getBytes()).thenThrow(new java.io.IOException("disk"));
+    MultipartFile part = mock(MultipartFile.class);
+    when(part.getInputStream()).thenThrow(new IOException("disk"));
 
-    assertThatThrownBy(() -> storage.put("k/1", part)).isInstanceOf(java.io.UncheckedIOException.class);
+    assertThatThrownBy(() -> storage.put("k/1", part)).isInstanceOf(UncheckedIOException.class);
 
     verify(availability, never()).markUnavailable();
   }

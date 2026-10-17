@@ -1,6 +1,7 @@
 package com.remotesupport.backend.web;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.http.ContentStreamProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -48,22 +50,55 @@ public class CarrierInvoiceFileStorage {
   }
 
   /**
-   * Sends the upload to {@code key}. The body is the part's bytes, which the SDK can rewind when it
-   * retries; a stream could not be, and the retry would fail with an {@code IllegalStateException}.
-   * Failing to read the part is not the store's fault: it is not reported as unavailability.
+   * Streams the upload to {@code key}, its size taken from the part. The SDK may retry, so the body
+   * is a content provider that opens a fresh stream of the part on each call (closing the previous
+   * one); a single stream could not be rewound. Failing to read the part is not the store's fault:
+   * it is not reported as unavailability.
    */
   public void put(String key, MultipartFile file) {
-    byte[] bytes;
-    try {
-      bytes = file.getBytes();
-    } catch (IOException e) {
-      throw new UncheckedIOException("Could not read the uploaded file", e);
-    }
+    ReopeningProvider provider = new ReopeningProvider(file);
+    provider.newStream(); // an unreadable part fails here, before the SDK could mistake it for an outage
     try {
       s3.putObject(
-          PutObjectRequest.builder().bucket(props.bucket()).key(key).build(), RequestBody.fromBytes(bytes));
+          PutObjectRequest.builder().bucket(props.bucket()).key(key).build(),
+          RequestBody.fromContentProvider(provider, file.getSize(), "application/octet-stream"));
     } catch (SdkException e) {
       throw unavailable("PutObject", key, e);
+    } finally {
+      provider.close();
+    }
+  }
+
+  /** Hands the SDK a new stream of the part per call, closing the one it handed before. */
+  private static final class ReopeningProvider implements ContentStreamProvider {
+    private final MultipartFile file;
+    private InputStream current;
+
+    ReopeningProvider(MultipartFile file) {
+      this.file = file;
+    }
+
+    void close() {
+      try {
+        if (current != null) {
+          current.close();
+        }
+      } catch (IOException ignored) {
+        // nothing left to read
+      }
+    }
+
+    @Override
+    public InputStream newStream() {
+      try {
+        if (current != null) {
+          current.close();
+        }
+        current = file.getInputStream();
+        return current;
+      } catch (IOException e) {
+        throw new UncheckedIOException("Could not read the uploaded file", e);
+      }
     }
   }
 

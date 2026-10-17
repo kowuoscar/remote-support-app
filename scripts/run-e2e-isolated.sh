@@ -30,8 +30,11 @@ E2E_ISOLATED_BACKEND_PORT="$(free_port)"
 export E2E_ISOLATED_FRONTEND_PORT
 E2E_ISOLATED_FRONTEND_PORT="$(free_port)"
 export E2E_ISOLATED_PG_CONTAINER="remote-support-e2e-pg-$$-${RANDOM}"
+export E2E_ISOLATED_SEAWEEDFS_PORT
+E2E_ISOLATED_SEAWEEDFS_PORT="$(free_port)"
+export E2E_ISOLATED_SEAWEEDFS_CONTAINER="remote-support-e2e-seaweedfs-$$-${RANDOM}"
 
-echo "Isolated e2e stack: postgres container ${E2E_ISOLATED_PG_CONTAINER} on port ${E2E_ISOLATED_PG_PORT}, backend on port ${E2E_ISOLATED_BACKEND_PORT}, frontend on port ${E2E_ISOLATED_FRONTEND_PORT}."
+echo "Isolated e2e stack: postgres container ${E2E_ISOLATED_PG_CONTAINER} on port ${E2E_ISOLATED_PG_PORT}, seaweedfs container ${E2E_ISOLATED_SEAWEEDFS_CONTAINER} on port ${E2E_ISOLATED_SEAWEEDFS_PORT}, backend on port ${E2E_ISOLATED_BACKEND_PORT}, frontend on port ${E2E_ISOLATED_FRONTEND_PORT}."
 
 cd "$ROOT_DIR/frontend"
 exec npx playwright test --config=playwright.e2e.isolated.config.ts "$@"

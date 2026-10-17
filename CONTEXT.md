@@ -141,8 +141,11 @@ A shared column of links beside the detail it selects, shown at xl (1280px) and 
 **Payable amount** (of a Contract for a month):
 What a Contract adds to the Agent's Local Support Fees: every line its Client Invoice bills at its billed amount, plus anything of that month the invoice does not bill at its computed amount; with no Client Invoice, the computation.
 
+**Object store**:
+The S3-compatible service holding Carrier Invoice File bytes in one private bucket, reached only by the backend through the S3 API: Hetzner Object Storage in production, a local SeaweedFS in docker compose, tests and throwaway e2e stacks.
+
 **Carrier Invoice File**:
-One file (typically a carrier-issued PDF) an Agent attaches to a Client Invoice draft as supporting documentation for its postpaid charges. Stored on the backend's local filesystem (client-invoice-generation ticket) — an opaque path only the backend ever resolves — with filename/content-type/size recorded as row metadata; not modeled as its own billing entity, matching spec.md's "opaque supporting documents, not modeled entities". A Client Invoice can carry several.
+One file (typically a carrier-issued PDF) an Agent attaches to a Client Invoice draft as supporting documentation for its postpaid charges. Its bytes live in the **Object store**, in one private bucket at `carrier-invoices/{tenant id}/{client invoice id}/{file id}`; the row's storage path holds that object key and is always read from the row. The object carries no metadata or tags; filename/content-type/size are recorded as row metadata. Not modeled as its own billing entity, matching spec.md's "opaque supporting documents, not modeled entities". A Client Invoice can carry several.
 _Avoid_: Attachment (too generic — every Client Invoice file is specifically a carrier's own invoice).
 
 **Agent Invoice**:

@@ -37,6 +37,13 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/dto/SimCardPostpaidPlanUpdateRequest.java` · the request body of a SIM Card's plan Correction.
 - `backend/src/main/java/com/remotesupport/backend/web/InvalidCorrectionException.java` · the coded 400 for a Correction the Fleet refuses.
 - `backend/src/main/java/com/remotesupport/backend/web/CorrectionConflictException.java` · the coded 409 for a Fleet Correction that clashes with the unit's state.
+- `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreProperties.java` · typed `app.object-store` settings (endpoint, region, bucket, credentials, path style, create bucket).
+- `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreConfig.java` · builds the single S3 client for a non-AWS store and validates settings; never fails the context.
+- `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreBucketCheck.java` · one-shot, never-fatal startup HeadBucket/CreateBucket that gates the store.
+- `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileStorage.java` · key, put, read and delete of Carrier Invoice File bytes in the object-store bucket.
+- `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileService.java` · non-transactional attach (upload, record row under lock, undo on failure) and download.
+- `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreUnavailableException.java` · the 503 for a failed or unusable object store.
+- `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileMissingException.java` · the 404 for a row whose object is missing.
 
 ### Frontend — `frontend/app`
 
@@ -113,6 +120,7 @@ Components may call the backend directly through
 - `frontend/app/login`, `frontend/app/agent`, `frontend/app/manager`, `frontend/app/client` · the four browser surfaces.
 - `frontend/app/api` · the BFF route handlers, one subtree per backend resource.
 - `frontend/proxy.ts` · the request proxy in front of the app.
+- `docker-compose.yml` · local Postgres and the SeaweedFS object store (`seaweedfs`, no host port); the e2e scripts start a throwaway SeaweedFS.
 - `scripts/run-backend-for-e2e.sh` · starts docker-compose Postgres and the backend on 8080 for the e2e suite.
 - `scripts/run-backend-for-e2e-isolated.sh` · starts a throwaway Postgres container and the backend against it for the isolated e2e stage, torn down by exact container name and PID on exit.
 - `scripts/run-e2e-isolated.sh` · runs `frontend/tests/e2e` against that throwaway stack, driven by `frontend/playwright.e2e.isolated.config.ts`; what `verify`'s e2e stage calls.

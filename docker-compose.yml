@@ -41,6 +41,30 @@ services:
       timeout: 3s
       retries: 30
 
+  # The S3-compatible object store holding Carrier Invoice File bytes (ADR 0007).
+  # SeaweedFS runs as one all-in-one server with its S3 gateway on; its data lives
+  # in the `seaweedfs_data` volume, so files survive a backend rebuild. The tag is
+  # pinned, never `latest`, and is the same one the backend tests and both e2e
+  # backend scripts use. No host port is published: the store is private, only the
+  # backend reaches it, on the compose network at http://seaweedfs:8333. The S3
+  # credentials are dev-only defaults for this local store (like POSTGRES_PASSWORD)
+  # and are never a hosted store's; AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY are how
+  # this version configures its admin S3 identity.
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.48
+    command: server -dir=/data -s3
+    environment:
+      AWS_ACCESS_KEY_ID: dev-only-access-key
+      AWS_SECRET_ACCESS_KEY: dev-only-secret-key-change-me
+    volumes:
+      - seaweedfs_data:/data
+    healthcheck:
+      # Any HTTP answer (an unauthenticated request is a 403) proves the S3 gateway is up.
+      test: ["CMD-SHELL", "curl -s -o /dev/null http://localhost:8333/"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
   # Full app stack (backend + frontend) for quick manual testing and demoing
   # every feature with a coherent business — `docker compose up --build` and
   # open http://localhost:3000. The backend runs under the `demo` Spring
@@ -54,6 +78,8 @@ services:
   #   docker compose rm -sf backend postgres-demo
   #   docker volume rm remote-support-app_postgres_demo_data
   #   docker compose up --build
+  # Add `seaweedfs` to the `rm` and `remote-support-app_seaweedfs_data` to the
+  # `volume rm` when you also want a clean file store.
   # (the volume name is `<project-name>_postgres_demo_data` — `docker volume
   # ls` shows the exact name if your compose project isn't named
   # `remote-support-app`, e.g. because of the directory this file lives in).
@@ -67,14 +93,19 @@ services:
       SPRING_PROFILES_ACTIVE: demo
       # JWT_SECRET intentionally unset: application.yml's dev-only default is fine for
       # local manual testing. Set it here if you need tokens stable across rebuilds.
-      # Carrier invoice uploads (CARRIER_INVOICES_DIR) live on the container's writable
-      # layer, not a volume, so they don't survive a rebuild — matches this compose
-      # file's "quick manual testing" scope; add a bind mount if that becomes a problem.
+      # Carrier Invoice Files live in the `seaweedfs` service's volume (ADR 0007), so they
+      # survive a rebuild of this container. Same dev-only credentials as `seaweedfs`.
+      OBJECT_STORE_ENDPOINT: http://seaweedfs:8333
+      OBJECT_STORE_ACCESS_KEY: dev-only-access-key
+      OBJECT_STORE_SECRET_KEY: dev-only-secret-key-change-me
     ports:
       - "8080:8080"
     depends_on:
       postgres-demo:
         condition: service_healthy
+      # Started first, never waited on: the backend starts whatever the store's state.
+      seaweedfs:
+        condition: service_started
     healthcheck:
       # Same unauthenticated liveness endpoint scripts/run-backend-for-e2e.sh polls
       # (HealthController), not actuator's /actuator/health.
@@ -98,3 +129,4 @@ services:
 volumes:
   postgres_data:
   postgres_demo_data:
+  seaweedfs_data:

@@ -1,7 +1,7 @@
 ---
 id: carrier-invoice-files-in-object-store
 title: Keep Carrier Invoice File bytes in an S3-compatible object store that can never stop the backend starting
-status: in-progress
+status: done
 depends_on: []
 labels: [backend, infra]
 stories: [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]

@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EditedLineNote } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
-import { IconDownload, IconPaperclip } from "@/components/icons";
+import { IconDownload } from "@/components/icons";
 import { CarrierInvoiceFilesSection } from "@/components/ui/carrier-invoice-files-section";
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
 import { EditClientInvoiceLineControl } from "@/components/agent/edit-client-invoice-line-control";

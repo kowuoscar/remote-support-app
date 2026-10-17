@@ -73,9 +73,13 @@ test.describe("client invoice generation", () => {
     // Attach a carrier invoice file through the "Attach carrier invoice" form: one file per
     // Postpaid SIM line (carrier-invoice-per-sim).
     await expect(page.getByText("No carrier invoice files attached yet.")).toBeVisible();
-    const fileName = await attachCarrierInvoice(page, simNumber, "october-carrier-invoice.pdf");
+    await attachCarrierInvoice(page, simNumber, "october-carrier-invoice.PDF");
 
-    await expect(page.getByText(fileName)).toBeVisible();
+    // The file is listed under its computed name, not the uploaded one
+    // (carrier-invoice-computed-name): {Client} - {Month Year} - {Carrier} - {SIM number}{.ext}.
+    const monthYear = new Date().toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+    await expect(page.getByText(`${clientName} - ${monthYear} - Verizon - ${simNumber}.pdf`)).toBeVisible();
+    await expect(page.getByText("october-carrier-invoice")).toHaveCount(0);
     // Every Postpaid SIM line now has its file: nothing is left to attach.
     await expect(page.getByRole("button", { name: "Attach carrier invoice" })).toBeDisabled();
     await expect(page.getByRole("link", { name: "Download" })).toBeVisible();

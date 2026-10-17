@@ -45,6 +45,13 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
     return LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1);
   }
 
+  private static String monthYear() {
+    LocalDate month = currentMonth();
+    return month.getMonth().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH)
+        + " "
+        + month.getYear();
+  }
+
   private UUID openDraft(String agentToken, UUID contractId) throws Exception {
     MvcResult result =
         mockMvc
@@ -170,7 +177,9 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.feeLines[0].amount").value(45.00))
         .andExpect(jsonPath("$.totalAmount").value(70.00))
         .andExpect(jsonPath("$.files.length()").value(1))
-        .andExpect(jsonPath("$.files[0].filename").value("carrier.pdf"))
+        .andExpect(
+            jsonPath("$.files[0].filename")
+                .value("Aurora Retail Group - " + monthYear() + " - AT&T - +1-555-0190.pdf"))
         .andExpect(jsonPath("$.sentAt").isNotEmpty())
         .andExpect(jsonPath("$.approvedAt").isEmpty());
   }
@@ -454,7 +463,9 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
     mockMvc
         .perform(get("/api/client-invoices/" + invoiceId + "/files").header("Authorization", "Bearer " + agentToken))
         .andExpect(jsonPath("$.length()").value(1))
-        .andExpect(jsonPath("$[0].filename").value("first.pdf"));
+        .andExpect(
+            jsonPath("$[0].filename")
+                .value(org.hamcrest.Matchers.startsWith("Twice By Id Co - " + monthYear() + " - AT&T - ")));
     assertThat(
             com.remotesupport.backend.support.ObjectStoreTestSupport.keysUnder(
                 "carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/"))
@@ -483,5 +494,79 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
             com.remotesupport.backend.support.ObjectStoreTestSupport.keysUnder(
                 "carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/"))
         .isEmpty();
+  }
+
+  // --- The computed name (carrier-invoice-computed-name) ---------------------------------------
+
+  private String downloadedName(String token, UUID invoiceId, UUID fileId) throws Exception {
+    String disposition =
+        mockMvc
+            .perform(get("/api/client-invoices/" + invoiceId + "/files/" + fileId).header("Authorization", "Bearer " + token))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getHeader("Content-Disposition");
+    java.util.regex.Matcher m = java.util.regex.Pattern.compile("filename\\*=UTF-8''([^;]+)").matcher(disposition);
+    assertThat(m.find()).as("filename* in %s", disposition).isTrue();
+    return java.net.URLDecoder.decode(m.group(1).replace("+", "%2B"), StandardCharsets.UTF_8);
+  }
+
+  @Test
+  void anAttachedFileIsNamedByItsClientMonthCarrierAndSimInTheBodyTheListAndTheDownload() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Acme/Labs \"Test\": North");
+    UUID simId = addPostpaidSim(managerToken, contractId, "+1-202-555-0102", "25.00");
+    UUID invoiceId = openDraft(agentToken, contractId);
+    String expected = "Acme_Labs _Test__ North - " + monthYear() + " - AT&T - +1-202-555-0102.pdf";
+
+    MvcResult attached =
+        attachById(agentToken, invoiceId, simId, "scan.PDF")
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.filename").value(expected))
+            .andReturn();
+    UUID fileId =
+        UUID.fromString(objectMapper.readTree(attached.getResponse().getContentAsString()).get("id").asText());
+
+    mockMvc
+        .perform(get("/api/client-invoices/" + invoiceId + "/files").header("Authorization", "Bearer " + agentToken))
+        .andExpect(jsonPath("$[0].filename").value(expected));
+    assertThat(downloadedName(agentToken, invoiceId, fileId)).isEqualTo(expected);
+    assertThat(downloadedName(managerToken, invoiceId, fileId)).isEqualTo(expected);
+  }
+
+  @Test
+  void theNameIsFixedAtAttachWhenTheSimsNumberIsCorrectedLater() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Fixed Name Co");
+    UUID simId = addPostpaidSim(managerToken, contractId, "+1-202-555-0111", "25.00");
+    UUID invoiceId = openDraft(agentToken, contractId);
+    String expected = "Fixed Name Co - " + monthYear() + " - AT&T - +1-202-555-0111.pdf";
+    UUID fileId =
+        UUID.fromString(
+            objectMapper
+                .readTree(
+                    attachById(agentToken, invoiceId, simId, "scan.pdf")
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString())
+                .get("id")
+                .asText());
+
+    mockMvc
+        .perform(
+            org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch(
+                    "/api/contracts/" + contractId + "/sim-cards/" + simId + "/number")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content("{\"number\":\"+1-202-555-0999\"}"))
+        .andExpect(status().isOk());
+
+    mockMvc
+        .perform(get("/api/client-invoices/" + invoiceId + "/files").header("Authorization", "Bearer " + agentToken))
+        .andExpect(jsonPath("$[0].filename").value(expected));
+    assertThat(downloadedName(agentToken, invoiceId, fileId)).isEqualTo(expected);
   }
 }

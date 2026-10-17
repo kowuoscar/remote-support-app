@@ -82,6 +82,9 @@ Ordered by dependency; cut and sized at spec time.
   speaks the S3 API (AWS SDK), MinIO in compose with its own volume and in
   tests (the human, 2026-10-17: "A", after options A ids / B readable keys /
   C lifecycle-on-approved-prefix).
+- **No metadata on the stored object.** Which Client Invoice, month and SIM a
+  file is for lives only in the database row; the object carries no
+  client/month/carrier/SIM labels (the human, 2026-10-17: "no").
 
 ## Open at spec time
 

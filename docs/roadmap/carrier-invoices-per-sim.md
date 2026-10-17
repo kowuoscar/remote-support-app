@@ -79,8 +79,8 @@ Ordered by dependency; cut and sized at spec time.
   database and is given on download (Content-Disposition). Deletion at
   retention is done by the app (a daily job that records "Deleted on"), not
   by a bucket lifecycle rule, which cannot count from approval. The backend
-  speaks the S3 API (AWS SDK), MinIO in compose with its own volume and in
-  tests (the human, 2026-10-17: "A", after options A ids / B readable keys /
+  speaks the S3 API (AWS SDK); SeaweedFS in compose with its own volume and
+  in tests, Hetzner Object Storage in production (MinIO dropped: discontinued) (the human, 2026-10-17: "A", after options A ids / B readable keys /
   C lifecycle-on-approved-prefix).
 - **No metadata on the stored object.** Which Client Invoice, month and SIM a
   file is for lives only in the database row; the object carries no

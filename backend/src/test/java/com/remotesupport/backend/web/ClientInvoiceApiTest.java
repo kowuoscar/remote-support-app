@@ -964,4 +964,102 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isNotFound());
   }
+
+  private static final String AWKWARD_NAME = "R\u00e9f \"Oct\" 2026 \u2013 Orange.pdf";
+
+  private static String decodedFilenameStar(String contentDisposition) {
+    assertThat(contentDisposition).startsWith("attachment");
+    java.util.regex.Matcher m =
+        java.util.regex.Pattern.compile("filename\\*=UTF-8''([^;]+)").matcher(contentDisposition);
+    assertThat(m.find()).as("filename* in %s", contentDisposition).isTrue();
+    return java.net.URLDecoder.decode(m.group(1).replace("+", "%2B"), StandardCharsets.UTF_8);
+  }
+
+  private UUID attachFile(String token, UUID contractId, String name, byte[] bytes) throws Exception {
+    MvcResult upload =
+        mockMvc
+            .perform(
+                multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                    .file(new MockMultipartFile("file", name, "application/pdf", bytes))
+                    .header("Authorization", "Bearer " + token))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(upload.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  @Test
+  void aFileWithAccentsAQuoteAndAnEnDashDownloadsUnderItsExactNameWithNosniff() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Download Name Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    byte[] bytes = "not a real pdf".getBytes();
+    UUID fileId = attachFile(agentToken, contractId, AWKWARD_NAME, bytes);
+    UUID invoiceId =
+        UUID.fromString(
+            objectMapper
+                .readTree(
+                    mockMvc
+                        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString())
+                .get("id")
+                .asText());
+
+    for (var download :
+        java.util.List.of(
+            get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken),
+            get("/api/client-invoices/" + invoiceId + "/files/" + fileId).header("Authorization", "Bearer " + managerToken))) {
+      MvcResult result =
+          mockMvc
+              .perform(download)
+              .andExpect(status().isOk())
+              .andExpect(header().string("Content-Type", "application/pdf"))
+              .andExpect(header().string("X-Content-Type-Options", "nosniff"))
+              .andReturn();
+      assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(AWKWARD_NAME);
+      assertThat(result.getResponse().getContentAsByteArray()).isEqualTo(bytes);
+    }
+  }
+
+  @Test
+  void aPlainAsciiFileNameDownloadsUnderTheSameName() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Plain Name Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    UUID fileId = attachFile(agentToken, contractId, "invoice.pdf", "x".getBytes());
+
+    MvcResult result =
+        mockMvc
+            .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo("invoice.pdf");
+  }
+
+  @Test
+  void theTesterOfASentInvoiceDownloadsUnderTheSameExactNameWithNosniff() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Tester Download Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    UUID fileId = attachFile(agentToken, contractId, AWKWARD_NAME, "bytes".getBytes());
+    MvcResult sent =
+        mockMvc
+            .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    UUID invoiceId = UUID.fromString(objectMapper.readTree(sent.getResponse().getContentAsString()).get("id").asText());
+    String testerToken = createTesterAndLogin(managerToken, clientId, "tester@download-name.example");
+
+    MvcResult result =
+        mockMvc
+            .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + testerToken))
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-Content-Type-Options", "nosniff"))
+            .andReturn();
+    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(AWKWARD_NAME);
+  }
 }

@@ -38,6 +38,7 @@ class ClientInvoiceServiceAttachTest {
   private CarrierInvoiceFileRepository fileRepository;
   private ClientInvoiceService service;
   private ClientInvoice invoice;
+  private SimCard sim;
 
   @BeforeEach
   void setUp() {
@@ -71,7 +72,7 @@ class ClientInvoiceServiceAttachTest {
     when(invoiceRepository.findByIdForUpdate(invoiceId)).thenReturn(Optional.of(invoice));
     when(principal.role()).thenReturn("MANAGER");
 
-    SimCard sim = new SimCard();
+    sim = new SimCard();
     sim.setId(simId);
     sim.setNumber("+1-202-555-0102");
     sim.setFlavor(com.remotesupport.backend.domain.SimCardFlavor.POSTPAID);
@@ -118,5 +119,25 @@ class ClientInvoiceServiceAttachTest {
     assertThatThrownBy(() -> service.recordAttachedFile(invoice, UUID.randomUUID(), "k", file, UUID.randomUUID(), principal))
         .isInstanceOf(InvalidRequestException.class)
         .hasMessage("Not a Postpaid SIM line of this Client Invoice");
+  }
+
+  @Test
+  void theNameCarriesTheCurrentNameOfAnArchivedCarrier() {
+    com.remotesupport.backend.domain.Carrier carrier = new com.remotesupport.backend.domain.Carrier();
+    carrier.setName("Old Carrier");
+    carrier.setArchivedAt(java.time.Instant.now());
+    sim.setCarrier(carrier);
+
+    service.recordAttachedFile(invoice, UUID.randomUUID(), "k", file, simId, principal);
+
+    org.mockito.ArgumentCaptor<com.remotesupport.backend.domain.CarrierInvoiceFile> saved =
+        org.mockito.ArgumentCaptor.forClass(com.remotesupport.backend.domain.CarrierInvoiceFile.class);
+    org.mockito.Mockito.verify(fileRepository).saveAndFlush(saved.capture());
+    assertThat(saved.getValue().getFilename())
+        .isEqualTo(
+            "Acme - "
+                + java.time.format.DateTimeFormatter.ofPattern("MMMM yyyy", java.util.Locale.ENGLISH)
+                    .format(invoice.getBillingMonth())
+                + " - Old Carrier - +1-202-555-0102.pdf");
   }
 }

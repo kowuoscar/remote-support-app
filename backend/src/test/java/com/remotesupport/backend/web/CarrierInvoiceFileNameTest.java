@@ -25,8 +25,12 @@ class CarrierInvoiceFileNameTest {
             "Acme_Labs _Test__ North - October 2026 - A_B_C_ - 1_2_3_4.pdf"),
         Arguments.of("control characters", "Ac\u0000me\u0007", "Ver\u001fizon", "1", "x.pdf",
             "Ac_me_ - October 2026 - Ver_izon - 1.pdf"),
-        Arguments.of("whitespace runs and trim", "  Acme   \t Corp ", "Veri   zon", " 1  2 ", "x.pdf",
+        Arguments.of("space runs collapse and parts are trimmed", "  Acme    Corp ", "Veri   zon", " 1  2 ", "x.pdf",
             "Acme Corp - October 2026 - Veri zon - 1 2.pdf"),
+        Arguments.of("tab, newline and carriage return become _", "Ac\tme\nCo\rrp", "V\u000b\f", "1", "x.pdf",
+            "Ac_me_Co_rp - October 2026 - V__ - 1.pdf"),
+        Arguments.of("C1 controls become _", "Ac\u0080me\u009f", "V", "1\u0085", "x.pdf",
+            "Ac_me_ - October 2026 - V - 1_.pdf"),
         Arguments.of("no extension", "Acme", "V", "1", "invoice", "Acme - October 2026 - V - 1"),
         Arguments.of("extension with space rejected", "Acme", "V", "1", "scan.final version",
             "Acme - October 2026 - V - 1"),
@@ -54,6 +58,25 @@ class CarrierInvoiceFileNameTest {
 
     assertThat(name).hasSize(255).endsWith(tail);
     assertThat(name.substring(0, name.length() - tail.length())).isEqualTo("C".repeat(255 - tail.length()));
+  }
+
+  @Test
+  void shortenedClientIsTrimmedAgain() {
+    String tail = " - October 2026 - V - 1.pdf";
+    String client = "C".repeat(255 - tail.length() - 1) + " D";
+
+    assertThat(CarrierInvoiceFileName.of(client, OCT, "V", "1", "a.pdf"))
+        .isEqualTo("C".repeat(255 - tail.length() - 1) + tail);
+  }
+
+  @Test
+  void shorteningNeverSplitsASurrogatePair() {
+    String tail = " - October 2026 - V - 1.pdf";
+    String client = "C".repeat(255 - tail.length() - 1) + "\uD83D\uDE00";
+
+    String name = CarrierInvoiceFileName.of(client, OCT, "V", "1", "a.pdf");
+
+    assertThat(name).isEqualTo("C".repeat(255 - tail.length() - 1) + tail);
   }
 
   @Test

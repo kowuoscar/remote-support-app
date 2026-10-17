@@ -14,8 +14,8 @@ final class CarrierInvoiceFileName {
 
   private static final String SEPARATOR = " - ";
   private static final int MAX_LENGTH = 255;
-  private static final Pattern UNSAFE = Pattern.compile("[/\\\\:*?\"<>|\\p{Cntrl}]");
-  private static final Pattern WHITESPACE = Pattern.compile("\\s+");
+  private static final Pattern UNSAFE = Pattern.compile("[/\\\\:*?\"<>|\\p{Cntrl}\\x{80}-\\x{9F}]");
+  private static final Pattern SPACES = Pattern.compile(" {2,}");
   private static final Pattern EXTENSION = Pattern.compile("\\.([A-Za-z0-9]{1,10})$");
 
   private CarrierInvoiceFileName() {}
@@ -42,15 +42,22 @@ final class CarrierInvoiceFileName {
     String client = clean(clientName);
     int room = Math.max(0, MAX_LENGTH - tail.length());
     if (client.length() > room) {
-      client = client.substring(0, room);
+      int end = room;
+      if (end > 0 && Character.isHighSurrogate(client.charAt(end - 1))) {
+        end--;
+      }
+      client = client.substring(0, end).stripTrailing();
     }
     return client + tail;
   }
 
-  /** Whitespace (tabs and newlines included) collapses first; other control characters become _. */
+  /**
+   * Unsafe characters, tabs and newlines and the C1 controls included, become _; then runs of plain
+   * spaces collapse to one and the part is trimmed.
+   */
   private static String clean(String part) {
-    String spaced = WHITESPACE.matcher(part).replaceAll(" ").strip();
-    return UNSAFE.matcher(spaced).replaceAll("_");
+    String safe = UNSAFE.matcher(part).replaceAll("_");
+    return SPACES.matcher(safe).replaceAll(" ").strip();
   }
 
   private static String extension(String uploadedFilename) {

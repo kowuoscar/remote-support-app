@@ -1,7 +1,7 @@
 ---
 id: carrier-invoices-per-sim
 title: Carrier invoices attached per SIM, required before send, kept in object storage
-status: planned
+status: in-progress
 journeys: [bill-the-client-for-the-month]
 ---
 

@@ -1,0 +1,1 @@
+2026-10-17T08:51:53.269+02:00 ERROR [:] c.r.b.web.ObjectStoreAvailability - Object store is unavailable: bucket check failed for endpoint http://127.0.0.1:58333 bucket remote-support-files (SdkClientException). File storage answers 503 until the store is reachable and the bucket exists.

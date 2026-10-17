@@ -1,0 +1,11 @@
+Tester Noah Kim (Harbor Line) downloads from /client/invoices:
+34ca09fe7d70153378e5c14b75c833e71a6b6f9a9bc3b90b627c33ba12f65bbf  .playwright-cli/Réf-22Oct-22-2026-–-Orange.pdf
+f1915a73fb887a0dc8e8f1706c4026eec635162aaf5a958113fd1958b177160a  .playwright-cli/photo.png
+originals:
+34ca09fe7d70153378e5c14b75c833e71a6b6f9a9bc3b90b627c33ba12f65bbf  up/Réf "Oct" 2026 – Orange.pdf
+d1aeb3abdeeb870dc63f138e93ce8d630a8a15051597c175ac4dcb75a3f8b237  up/manager-note.txt
+f1915a73fb887a0dc8e8f1706c4026eec635162aaf5a958113fd1958b177160a  up/photo.png
+Jordan send: invoice status after confirm:
+SENT 2026-10-17T06:44:12.863394Z
+Manager downloaded photo.png via UI: f1915a73... (equal to original, see step 4 run)
+d1aeb3abdeeb870dc63f138e93ce8d630a8a15051597c175ac4dcb75a3f8b237  .playwright-cli/manager-note.txt

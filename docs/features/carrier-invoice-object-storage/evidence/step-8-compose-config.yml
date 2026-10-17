@@ -1,0 +1,131 @@
+name: remote-support-app
+services:
+  backend:
+    build:
+      context: /Users/oscar/myspace/projects/remote-support-app/backend
+      dockerfile: Dockerfile
+    depends_on:
+      postgres-demo:
+        condition: service_healthy
+        required: true
+      seaweedfs:
+        condition: service_started
+        required: true
+    environment:
+      DB_PASSWORD: remote_support
+      DB_URL: jdbc:postgresql://postgres-demo:5432/remote_support_demo
+      DB_USERNAME: remote_support
+      OBJECT_STORE_ACCESS_KEY: dev-only-access-key
+      OBJECT_STORE_ENDPOINT: http://seaweedfs:8333
+      OBJECT_STORE_SECRET_KEY: dev-only-secret-key-change-me
+      SPRING_PROFILES_ACTIVE: demo
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- http://localhost:8080/api/health | grep -q '"status":"UP"'
+      timeout: 3s
+      interval: 5s
+      retries: 30
+      start_period: 30s
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 8080
+        published: "8080"
+        protocol: tcp
+  frontend:
+    build:
+      context: /Users/oscar/myspace/projects/remote-support-app/frontend
+      dockerfile: Dockerfile
+    depends_on:
+      backend:
+        condition: service_healthy
+        required: true
+    environment:
+      BACKEND_URL: http://backend:8080
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 3000
+        published: "3000"
+        protocol: tcp
+  postgres:
+    environment:
+      POSTGRES_DB: remote_support
+      POSTGRES_PASSWORD: remote_support
+      POSTGRES_USER: remote_support
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U remote_support
+      timeout: 3s
+      interval: 2s
+      retries: 30
+    image: postgres:16-alpine
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 5432
+        published: "5432"
+        protocol: tcp
+    volumes:
+      - type: volume
+        source: postgres_data
+        target: /var/lib/postgresql/data
+        volume: {}
+  postgres-demo:
+    environment:
+      POSTGRES_DB: remote_support_demo
+      POSTGRES_PASSWORD: remote_support
+      POSTGRES_USER: remote_support
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U remote_support -d remote_support_demo
+      timeout: 3s
+      interval: 2s
+      retries: 30
+    image: postgres:16-alpine
+    networks:
+      default: null
+    volumes:
+      - type: volume
+        source: postgres_demo_data
+        target: /var/lib/postgresql/data
+        volume: {}
+  seaweedfs:
+    command:
+      - server
+      - -dir=/data
+      - -s3
+    environment:
+      AWS_ACCESS_KEY_ID: dev-only-access-key
+      AWS_SECRET_ACCESS_KEY: dev-only-secret-key-change-me
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl -s -o /dev/null http://localhost:8333/
+      timeout: 3s
+      interval: 2s
+      retries: 30
+    image: chrislusf/seaweedfs:4.48
+    networks:
+      default: null
+    volumes:
+      - type: volume
+        source: seaweedfs_data
+        target: /data
+        volume: {}
+networks:
+  default:
+    name: remote-support-app_default
+volumes:
+  postgres_data:
+    name: remote-support-app_postgres_data
+  postgres_demo_data:
+    name: remote-support-app_postgres_demo_data
+  seaweedfs_data:
+    name: remote-support-app_seaweedfs_data

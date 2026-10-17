@@ -37,6 +37,13 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/dto/SimCardPostpaidPlanUpdateRequest.java` · the request body of a SIM Card's plan Correction.
 - `backend/src/main/java/com/remotesupport/backend/web/InvalidCorrectionException.java` · the coded 400 for a Correction the Fleet refuses.
 - `backend/src/main/java/com/remotesupport/backend/web/CorrectionConflictException.java` · the coded 409 for a Fleet Correction that clashes with the unit's state.
+- `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreProperties.java` · typed `app.object-store` settings (endpoint, region, bucket, credentials, path style, create bucket).
+- `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreConfig.java` · builds the single S3 client for a non-AWS store and validates settings; never fails the context.
+- `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreAvailability.java` · cached, on-demand, single-flight answer to whether file storage is available, plus the never-fatal startup bucket probe.
+- `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileStorage.java` · key, put, read and delete of Carrier Invoice File bytes in the object-store bucket.
+- `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileService.java` · non-transactional attach (upload, record row under lock, undo on failure) and download.
+- `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreUnavailableException.java` · the 503 for a failed or unusable object store.
+- `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileMissingException.java` · the 404 for a row whose object is missing.
 
 ### Frontend — `frontend/app`
 
@@ -71,6 +78,7 @@ error, not a nitpick.
 - `frontend/components/agent/agent-client-invoice-card.tsx` · the Agent's Client Invoice card.
 - `frontend/components/ui/side-list.tsx` · the shared SideList (named nav landmark of links with name, detail, badge and mark slots) and SideListLayout (page body: column at xl, dropdown and header below xl, with lead and detailRef slots).
 - `frontend/components/ui/tabs.tsx` · the shared WAI-ARIA tablist with roving tabindex, automatic activation and one rendered panel; switches between the tables of one record, never scopes a Contract.
+- `frontend/components/ui/carrier-invoice-files-section.tsx` · the shared Carrier invoice files section for the Agent card, Manager invoice detail and Tester Invoices page, including the paused state (names listed, Download disabled, one notice).
 - `frontend/components/agent/invoice-line-table.tsx` · the Agent Client Invoice lines as one markup: a table at xl, one-column grid rows below it, with explicit ARIA table roles; exports `LINE_AREA` for parts to name their grid area.
 - `frontend/components/manager/login-activation-dialog.tsx` · the shared confirm dialog a Manager uses to deactivate or reactivate a Login.
 - `frontend/components/manager/send-back-client-invoice-control.tsx` · inline reason form that POSTs a send-back to a given endpoint and hands the returned invoice to its caller.
@@ -113,6 +121,7 @@ Components may call the backend directly through
 - `frontend/app/login`, `frontend/app/agent`, `frontend/app/manager`, `frontend/app/client` · the four browser surfaces.
 - `frontend/app/api` · the BFF route handlers, one subtree per backend resource.
 - `frontend/proxy.ts` · the request proxy in front of the app.
+- `docker-compose.yml` · local Postgres and the SeaweedFS object store (`seaweedfs`, no host port); the e2e scripts start a throwaway SeaweedFS.
 - `scripts/run-backend-for-e2e.sh` · starts docker-compose Postgres and the backend on 8080 for the e2e suite.
 - `scripts/run-backend-for-e2e-isolated.sh` · starts a throwaway Postgres container and the backend against it for the isolated e2e stage, torn down by exact container name and PID on exit.
 - `scripts/run-e2e-isolated.sh` · runs `frontend/tests/e2e` against that throwaway stack, driven by `frontend/playwright.e2e.isolated.config.ts`; what `verify`'s e2e stage calls.

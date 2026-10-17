@@ -24,10 +24,19 @@ app:
     # Dev-only default secret. Override with JWT_SECRET in every real environment.
     secret: ${JWT_SECRET:dev-only-secret-key-change-me-0123456789abcdef}
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
-  file-storage:
-    # Carrier invoice file bytes (client-invoice-generation ticket) — see
-    # CarrierInvoiceFileStorage's Javadoc for why the filesystem, not a DB blob column.
-    carrier-invoices-dir: ${CARRIER_INVOICES_DIR:./data/carrier-invoice-files}
+  object-store:
+    # Carrier Invoice File bytes live in an S3-compatible object store (ADR 0007). These defaults
+    # are dev-only and serve the local SeaweedFS (docker compose, tests, e2e) and nothing else.
+    # Production sets all of OBJECT_STORE_ENDPOINT, OBJECT_STORE_REGION, OBJECT_STORE_BUCKET,
+    # OBJECT_STORE_ACCESS_KEY, OBJECT_STORE_SECRET_KEY, OBJECT_STORE_PATH_STYLE and
+    # OBJECT_STORE_CREATE_BUCKET; see ADR 0007 for the values a hosted store needs.
+    endpoint: ${OBJECT_STORE_ENDPOINT:http://localhost:8333}
+    region: ${OBJECT_STORE_REGION:us-east-1}
+    bucket: ${OBJECT_STORE_BUCKET:remote-support-files}
+    access-key: ${OBJECT_STORE_ACCESS_KEY:dev-only-access-key}
+    secret-key: ${OBJECT_STORE_SECRET_KEY:dev-only-secret-key-change-me}
+    path-style-access: ${OBJECT_STORE_PATH_STYLE:true}
+    create-bucket: ${OBJECT_STORE_CREATE_BUCKET:true}
 
 management:
   endpoints:

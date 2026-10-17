@@ -1,0 +1,6 @@
+buckets now:
+remote-support-files
+carrier-invoices/11111111-1111-1111-1111-111111111111/dd6975e6-94f2-44ec-8360-daec94aaa3b9/dc03d59b-01c2-412d-82bf-24f8f66ea847
+
+2026-10-17T08:53:35.461+02:00 INFO  [:] c.r.b.web.ObjectStoreAvailability - Created object store bucket remote-support-files at http://127.0.0.1:58334
+2026-10-17T08:53:35.462+02:00 INFO  [:] c.r.b.web.ObjectStoreAvailability - Object store is available again at http://127.0.0.1:58334 bucket remote-support-files

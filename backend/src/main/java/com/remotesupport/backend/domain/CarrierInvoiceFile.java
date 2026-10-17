@@ -16,9 +16,10 @@ import lombok.Setter;
  * One carrier invoice file an Agent attached to a {@link ClientInvoice} draft (spec.md Solution:
  * "plus attached carrier-invoice files (opaque supporting documents, not modeled entities)";
  * client-invoice-generation ticket AC: "Agent can attach one or more carrier invoice files"). The
- * file's bytes live on disk (see {@link com.remotesupport.backend.web.CarrierInvoiceFileStorage});
- * {@code storagePath} is the opaque handle this row uses to find them again, never returned to a
- * client directly.
+ * file's bytes live in an S3-compatible object store (see {@link
+ * com.remotesupport.backend.web.CarrierInvoiceFileStorage}); {@code storagePath} is the object key
+ * this row uses to find them again, always read from the row and never rebuilt from ids, and never
+ * returned to a client directly.
  */
 @Entity
 @Table(name = "carrier_invoice_files")

@@ -135,7 +135,7 @@ A restrained palette: two neutral scales (canvas, ink) carry nearly everything; 
 
 ### Semantic
 - **Success** (`#0f7a53` / bg `#e4f5ed`; dark `#35c290` / bg `rgba(53,194,144,.14)`): Completed/Active/Approved/Paid states.
-- **Warning** (`#9a5b0a` / bg `#fbf0dc`; dark `#e3a33e`): In Progress, Awaiting approval, In Repair. The side list's "Sent back" mark is also warning, but carries the alert-triangle icon (`IconAlertTriangle`, `h-3 w-3`) in place of the dot, so it never reads as "Awaiting approval".
+- **Warning** (`#9a5b0a` / bg `#fbf0dc`; dark `#e3a33e`): In Progress, Awaiting approval, In Repair, and the paused Carrier invoice files notice. The side list's "Sent back" mark is also warning, but carries the alert-triangle icon (`IconAlertTriangle`, `h-3 w-3`) in place of the dot, so it never reads as "Awaiting approval".
 - **Danger** (`#c22a3e` / bg `#fceaed`; dark `#f16b7a`): destructive actions, negative money values.
 - **Info** (`#2f5fd6` / bg `#eaf0fd`; dark `#6f9bff`): Submitted, invoice Approved-not-yet-paid.
 
@@ -197,6 +197,9 @@ Two radius steps carry the whole system: `8px` (`rounded-lg`, Tailwind) for ever
 - **Danger:** `bg-danger`, white text, brightness-shift on hover/active.
 - **Row** (inline record actions): soft-indigo tone (`primary-soft-bg`/`primary-soft-text`) at the 8px control radius — indigo used here as a low-emphasis tint, not the reserved primary-action pill.
 - **Inline corrections** (Fleet units, Client Invoice lines): the value with a `ghost` `sm` Edit beside it. Editing is the field, a `row` Save and a `ghost` Cancel on one line, with the refusal below.
+
+### Paused files section
+When file storage is unavailable, the Carrier invoice files section keeps every file name (`ink`) with its paperclip, turns each Download into non-interactive `ink-mute` text (`aria-disabled`, no `href`, `cursor-not-allowed`), disables "Attach carrier invoice" with the secondary button's disabled look, and adds one `warning`-tone `text-label-sm` line with `IconAlertTriangle` under the heading (plain paragraph, not an alert). No banner, no card, no new token.
 
 ### Badges
 - **Style:** pill-shaped (`rounded-full`), small dot + label, `px-2.5 py-0.5`, `text-xs font-medium`. Six tones map 1:1 to semantic colors (`success`/`warning`/`danger`/`info`/`neutral`/`primary`), driven centrally by `lib/status.ts`'s status→tone maps (Request, Smartphone, SIM, Client Invoice, Agent Invoice statuses) so status color is never chosen ad hoc per screen.

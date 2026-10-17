@@ -21,8 +21,6 @@ import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.FeeRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -50,7 +48,8 @@ import org.springframework.web.multipart.MultipartFile;
  * "this Contract's invoice for the current month" ({@link ClientInvoiceController}, which today
  * carries no Manager action) or by its own id ({@link ClientInvoiceByIdController}, the only
  * place a Manager approves): the response shape with its lines resolved from the stored rows or the computation
- * (ADR 0001, ADR 0004), the send and approve transitions, the PDF and the Carrier Invoice Files. The two controllers
+ * (ADR 0001, ADR 0004), the send and approve transitions, the PDF and the list of Carrier Invoice Files
+ * (their bytes are {@link CarrierInvoiceFileService}'s). The two controllers
  * differ only in how they find the invoice and who may call them.
  */
 @Component
@@ -62,9 +61,9 @@ public class ClientInvoiceService {
   private final ContractAmountService contractAmountService;
   private final CarrierInvoiceFileRepository carrierInvoiceFileRepository;
   private final ClientInvoiceLineRepository clientInvoiceLineRepository;
-  private final CarrierInvoiceFileStorage fileStorage;
   private final ClientInvoicePdfRenderer pdfRenderer;
   private final AgentInvoiceService agentInvoiceService;
+  private final ObjectStoreAvailability availability;
 
   public ClientInvoiceService(
       ClientInvoiceRepository clientInvoiceRepository,
@@ -73,16 +72,16 @@ public class ClientInvoiceService {
       ContractAmountService contractAmountService,
       CarrierInvoiceFileRepository carrierInvoiceFileRepository,
       ClientInvoiceLineRepository clientInvoiceLineRepository,
-      CarrierInvoiceFileStorage fileStorage,
       ClientInvoicePdfRenderer pdfRenderer,
-      AgentInvoiceService agentInvoiceService) {
+      AgentInvoiceService agentInvoiceService,
+      ObjectStoreAvailability availability) {
+    this.availability = availability;
     this.clientInvoiceRepository = clientInvoiceRepository;
     this.contractRepository = contractRepository;
     this.feeRepository = feeRepository;
     this.contractAmountService = contractAmountService;
     this.carrierInvoiceFileRepository = carrierInvoiceFileRepository;
     this.clientInvoiceLineRepository = clientInvoiceLineRepository;
-    this.fileStorage = fileStorage;
     this.pdfRenderer = pdfRenderer;
     this.agentInvoiceService = agentInvoiceService;
   }
@@ -126,7 +125,7 @@ public class ClientInvoiceService {
       throw new ConflictException("Cannot generate a PDF for a Client Invoice still in draft");
     }
 
-    byte[] pdfBytes = pdfRenderer.render(invoice.getContract(), toResponse(invoice, false));
+    byte[] pdfBytes = pdfRenderer.render(invoice.getContract(), toResponse(invoice, false, false));
 
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_PDF)
@@ -144,15 +143,21 @@ public class ClientInvoiceService {
   }
 
   /**
-   * Attaches a Carrier Invoice File to a found, non-empty-file invoice, as one transaction: the
-   * invoice is re-read under the row lock the send takes, so an attach never lands on a sent
-   * invoice. Only a {@code DRAFT} takes one (any other status is a {@link ConflictException},
-   * 409), and an Agent only on a draft open to them (the Manager attaches regardless). Stores the
-   * bytes, saves the row, logs its creation, and answers {@code 201} with the file.
+   * Saves the row of a Carrier Invoice File whose bytes {@link CarrierInvoiceFileService} has
+   * already written to the store at {@code key}, as one transaction: the invoice is re-read under
+   * the row lock the send takes, so an attach never lands on a sent invoice. Only a {@code DRAFT}
+   * takes one (any other status is a {@link ConflictException}, 409), and an Agent only on a draft
+   * open to them (the Manager attaches regardless). Stores {@code key} as the row's {@code
+   * storage_path}, logs the creation, and answers {@code 201} with the file. No store call happens
+   * here: the lock must never be held across one.
    */
   @Transactional
-  public ResponseEntity<CarrierInvoiceFileResponse> attachFile(
-      ClientInvoice found, MultipartFile file, AuthenticatedPrincipal principal) {
+  public ResponseEntity<CarrierInvoiceFileResponse> recordAttachedFile(
+      ClientInvoice found,
+      UUID fileId,
+      String key,
+      MultipartFile file,
+      AuthenticatedPrincipal principal) {
     ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
     if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
       throw new ConflictException(
@@ -163,7 +168,7 @@ public class ClientInvoiceService {
     }
 
     CarrierInvoiceFile carrierFile = new CarrierInvoiceFile();
-    carrierFile.setId(UUID.randomUUID());
+    carrierFile.setId(fileId);
     carrierFile.setTenant(invoice.getTenant());
     carrierFile.setClientInvoice(invoice);
     carrierFile.setFilename(
@@ -175,13 +180,7 @@ public class ClientInvoiceService {
     carrierFile.setSizeBytes(file.getSize());
     carrierFile.setUploadedAt(Instant.now());
 
-    String storagePath;
-    try {
-      storagePath = fileStorage.store(invoice.getId(), carrierFile.getId(), file);
-    } catch (IOException e) {
-      throw new UncheckedIOException("Failed to store carrier invoice file", e);
-    }
-    carrierFile.setStoragePath(storagePath);
+    carrierFile.setStoragePath(key);
     carrierInvoiceFileRepository.save(carrierFile);
 
     AuditLog.created("CarrierInvoiceFile", carrierFile.getId(), principal.userId(), principal.tenantId());
@@ -195,26 +194,6 @@ public class ClientInvoiceService {
         .toList();
   }
 
-  /** One of this invoice's Carrier Invoice Files; a file belonging to any other invoice is 404. */
-  public ResponseEntity<byte[]> downloadFile(ClientInvoice invoice, UUID fileId) {
-    CarrierInvoiceFile file =
-        carrierInvoiceFileRepository
-            .findByIdAndClientInvoiceId(fileId, invoice.getId())
-            .orElseThrow(() -> new NotFoundException("No carrier invoice file with id " + fileId));
-
-    byte[] content;
-    try {
-      content = fileStorage.read(file.getStoragePath());
-    } catch (IOException e) {
-      throw new UncheckedIOException("Failed to read carrier invoice file", e);
-    }
-
-    return ResponseEntity.ok()
-        .contentType(MediaType.parseMediaType(file.getContentType()))
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
-        .body(content);
-  }
-
   /**
    * The invoice's response, served from {@link #lines its lines}: the base amount is the sum of the
    * per-SIM and base-amount lines, the Fee lines are the Fee lines, the total is both. The per-SIM
@@ -225,6 +204,12 @@ public class ClientInvoiceService {
    */
   @Transactional(readOnly = true)
   public ClientInvoiceResponse toResponse(ClientInvoice invoice, boolean includeEdits) {
+    return toResponse(invoice, includeEdits, availability.availableForPage());
+  }
+
+  /** The PDF is the only caller that passes {@code filesAvailable} itself: it never shows it. */
+  private ClientInvoiceResponse toResponse(
+      ClientInvoice invoice, boolean includeEdits, boolean filesAvailable) {
     List<ResolvedLine> lines = lines(invoice);
     boolean perSim = lines.stream().noneMatch(l -> l.kind() == ClientInvoiceLineKind.BASE_AMOUNT);
     List<ClientInvoiceBaseSimLineResponse> basePostpaidSims =
@@ -263,6 +248,7 @@ public class ClientInvoiceService {
         feeLines,
         total(lines),
         files(invoice),
+        filesAvailable,
         invoice.getSentAt(),
         invoice.getApprovedAt(),
         includeEdits ? invoice.getSentBackAt() : null,

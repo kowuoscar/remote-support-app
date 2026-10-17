@@ -1,0 +1,2 @@
+log since SeaweedFS start (mark line      415): ERROR/WARN/recovery lines
+19:2026-10-17T10:42:11.501+02:00 INFO  [:] c.r.b.web.ObjectStoreAvailability - Object store is available again at http://localhost:58333 bucket remote-support-files

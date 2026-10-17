@@ -1,0 +1,16 @@
+== invoice (lines/fees) as Jordan:
+200
+== invoice PDF as Manager:
+409 application/json
+== Fleet (API) as Jordan:
+404
+== direct API attach:
+{"timestamp":"2026-10-17T08:39:28.546+00:00","status":503,"error":"Service Unavailable","path":"/api/client-invoices/0a262791-e487-4564-b36d-e7acc5476f5b/files"}
+HTTP 503 in 0.007804s
+== direct API download:
+{"timestamp":"2026-10-17T08:39:28.561+00:00","status":503,"error":"Service Unavailable","path":"/api/client-invoices/0a262791-e487-4564-b36d-e7acc5476f5b/files/c6c907b8-1b10-4f77-9f14-fc9bd8cb8603"}
+HTTP 503 in 0.008132s
+== (above: PDF of a DRAFT answers 409 by design; Fleet is a UI page, API path 404 is the wrong path)
+== invoice PDF as Manager, sent invoice 15f8f328:
+200 application/pdf
+== Fleet UI page /agent/fleet rendered table cells: 14 (playwright snapshot); invoice has 2 fee lines (JSON feeLines)

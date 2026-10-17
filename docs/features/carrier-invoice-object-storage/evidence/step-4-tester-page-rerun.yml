@@ -1,0 +1,70 @@
+```yaml
+- generic [ref=e1]:
+  - alert [ref=e25]: Invoices · Remote Support Platform
+  - generic [ref=e26]:
+    - complementary [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]: "N"
+        - generic [ref=e30]:
+          - paragraph [ref=e31]: Northwind Field Services
+          - paragraph [ref=e32]: Client Portal
+      - navigation [ref=e33]:
+        - link "Dashboard" [ref=e34] [cursor=pointer]:
+          - /url: /client
+        - link "Fleet" [ref=e40] [cursor=pointer]:
+          - /url: /client/fleet
+        - link "Requests" [ref=e43] [cursor=pointer]:
+          - /url: /client/requests
+        - link "Invoices" [active] [ref=e47] [cursor=pointer]:
+          - /url: /client/invoices
+    - generic [ref=e52]:
+      - banner [ref=e95]:
+        - generic [ref=e97]:
+          - heading "Invoices" [level=1] [ref=e98]
+          - paragraph [ref=e99]: Sent by your Agent, one per Contract per month
+        - generic [ref=e100]:
+          - button "noah.kim@harborline.example · Tester" [ref=e102]:
+            - generic [ref=e103]: noah.kim@harborline.example
+            - generic [ref=e104]: · Tester
+          - button "Switch to dark theme" [ref=e105]
+      - main [ref=e109]:
+        - generic [ref=e111]:
+          - generic "Harbor Line Logistics — United States" [ref=e117]
+          - generic [ref=e118]:
+            - generic [ref=e119]:
+              - generic [ref=e120]:
+                - generic [ref=e121]:
+                  - paragraph [ref=e122]: October 2026
+                  - generic [ref=e123]: Awaiting approval
+                - paragraph [ref=e125]: Sent Oct 17, 2026
+              - link "Download PDF" [ref=e126] [cursor=pointer]:
+                - /url: /api/contracts/dc69132e-d684-4e10-bd9a-78c2be0bda43/client-invoice/pdf
+            - generic [ref=e130]:
+              - generic [ref=e131]:
+                - term [ref=e132]: Base amount
+                - definition [ref=e133]: $0.00
+              - generic [ref=e134]:
+                - term [ref=e135]: Fees this month
+                - definition [ref=e136]: $0.00
+              - generic [ref=e137]:
+                - term [ref=e138]: Total
+                - definition [ref=e139]: $0.00
+            - generic [ref=e140]:
+              - heading "Fee lines" [level=3] [ref=e141]
+              - paragraph [ref=e142]: No Fees this month.
+            - generic [ref=e143]:
+              - heading "Carrier invoice files" [level=3] [ref=e144]
+              - list [ref=e147]:
+                - listitem [ref=e148]:
+                  - generic [ref=e149]: Réf %22Oct%22 2026 – Orange.pdf
+                  - link "Download" [ref=e153] [cursor=pointer]:
+                    - /url: /api/contracts/dc69132e-d684-4e10-bd9a-78c2be0bda43/client-invoice/files/8d9875a4-c5df-497a-9687-d8027f184b20
+                - listitem [ref=e157]:
+                  - generic [ref=e158]: photo.png
+                  - link "Download" [ref=e162] [cursor=pointer]:
+                    - /url: /api/contracts/dc69132e-d684-4e10-bd9a-78c2be0bda43/client-invoice/files/e4672d8e-bee7-4e5e-9365-a70807f991f2
+                - listitem [ref=e166]:
+                  - generic [ref=e167]: third.png
+                  - link "Download" [ref=e171] [cursor=pointer]:
+                    - /url: /api/contracts/dc69132e-d684-4e10-bd9a-78c2be0bda43/client-invoice/files/1366ef0d-4ac6-4f47-913a-8affbecaf570
+```

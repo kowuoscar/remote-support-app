@@ -1,0 +1,160 @@
+```yaml
+- generic [active] [ref=f10e1]:
+  - generic [ref=f10e2]:
+    - complementary [ref=f10e3]:
+      - generic [ref=f10e4]:
+        - generic [ref=f10e5]: "N"
+        - generic [ref=f10e6]:
+          - paragraph [ref=f10e7]: Northwind Field Services
+          - paragraph [ref=f10e8]: Agent Console
+      - navigation [ref=f10e9]:
+        - link "Dashboard" [ref=f10e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f10e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f10e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f10e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f10e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f10e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f10e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f10e43]:
+      - banner [ref=f10e44]:
+        - generic [ref=f10e46]:
+          - heading "Client Invoices" [level=1] [ref=f10e47]
+          - paragraph [ref=f10e48]: One per Contract per month
+        - generic [ref=f10e49]:
+          - button "agent@example.com · Agent" [ref=f10e51]:
+            - generic [ref=f10e52]: agent@example.com
+            - generic [ref=f10e53]: · Agent
+          - button "Switch to dark theme" [ref=f10e54]
+      - main [ref=f10e58]:
+        - generic [ref=f10e59]:
+          - navigation [ref=f10e61]:
+            - heading "Clients" [level=2] [ref=f10e62]
+            - list [ref=f10e63]:
+              - listitem [ref=f10e64]:
+                - link "Harbor Line Logistics Awaiting approval" [ref=f10e65] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=fa972f2e-db38-4ffb-8787-ea12cc66b101
+                  - generic "Harbor Line Logistics" [ref=f10e66]
+                  - generic [ref=f10e67]: Awaiting approval
+              - listitem [ref=f10e70]:
+                - link "Solstice Retail Group Sent back" [ref=f10e71] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=bc04198d-89cf-46cc-8fbc-b3e47512216c
+                  - generic "Solstice Retail Group" [ref=f10e72]
+                  - generic [ref=f10e73]: Sent back
+          - generic [ref=f10e78]:
+            - region [ref=f10e79]:
+              - generic [ref=f10e80]:
+                - heading "Sent back to you" [level=2] [ref=f10e81]
+                - table [ref=f10e83]:
+                  - rowgroup [ref=f10e84]:
+                    - row [ref=f10e85]:
+                      - columnheader "Contract" [ref=f10e86]
+                      - columnheader "Billing month" [ref=f10e87]
+                      - columnheader "Sent back" [ref=f10e88]
+                      - columnheader "Reason" [ref=f10e89]
+                      - columnheader "Action" [ref=f10e90]
+                  - rowgroup [ref=f10e92]:
+                    - row [ref=f10e93]:
+                      - cell "Solstice Retail Group — United States" [ref=f10e94]
+                      - cell "October 2026" [ref=f10e96]
+                      - cell "Oct 17, 2026" [ref=f10e97]
+                      - cell [ref=f10e98]:
+                        - paragraph [ref=f10e99]: "acceptance: need a fresh draft"
+                      - cell [ref=f10e100]:
+                        - link "Open Solstice Retail Group — United States, October 2026" [ref=f10e101] [cursor=pointer]:
+                          - /url: /agent/client-invoices/dd6975e6-94f2-44ec-8360-daec94aaa3b9
+                          - text: Open
+            - region [ref=f10e104]:
+              - heading "Sent back by the Manager on Oct 17, 2026" [level=2] [ref=f10e105]
+              - paragraph [ref=f10e109]: "acceptance: need a fresh draft"
+              - paragraph [ref=f10e110]: Correct what is needed, then send it again.
+            - generic [ref=f10e111]:
+              - generic [ref=f10e112]:
+                - generic [ref=f10e113]:
+                  - generic [ref=f10e114]:
+                    - paragraph [ref=f10e115]: October 2026
+                    - generic [ref=f10e116]: Sent back
+                  - paragraph [ref=f10e118]: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+                - generic [ref=f10e119]:
+                  - generic [ref=f10e120]:
+                    - button "Attach carrier invoice" [disabled] [ref=f10e121]
+                    - button "Attach carrier invoice file" [disabled] [ref=f10e124]
+                  - button "Send Client Invoice" [ref=f10e126]
+              - generic [ref=f10e129]:
+                - generic [ref=f10e130]:
+                  - term [ref=f10e131]: Base amount
+                  - definition [ref=f10e132]: $65.99
+                - generic [ref=f10e133]:
+                  - term [ref=f10e134]: Fees this month
+                  - definition [ref=f10e135]: $70.00
+                - generic [ref=f10e136]:
+                  - term [ref=f10e137]: Total
+                  - definition [ref=f10e138]: $135.99
+              - paragraph [ref=f10e139]: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+              - generic [ref=f10e140]:
+                - heading "Postpaid SIM Cards" [level=3] [ref=f10e141]
+                - table [ref=f10e143]:
+                  - rowgroup [ref=f10e144]:
+                    - row [ref=f10e145]:
+                      - columnheader "Number" [ref=f10e146]
+                      - columnheader "Billed" [ref=f10e147]
+                  - rowgroup [ref=f10e148]:
+                    - row [ref=f10e149]:
+                      - cell "+1-202-555-0102 AT&T · Postpaid" [ref=f10e150]:
+                        - generic [ref=f10e151]:
+                          - text: +1-202-555-0102
+                          - generic [ref=f10e152]: AT&T · Postpaid
+                      - cell "$65.99 Edit" [ref=f10e153]:
+                        - generic [ref=f10e154]:
+                          - generic [ref=f10e155]:
+                            - generic [ref=f10e156]: $65.99
+                            - button "Edit" [ref=f10e158]
+                          - status [ref=f10e159]
+              - generic [ref=f10e160]:
+                - heading "Fee lines" [level=3] [ref=f10e161]
+                - table [ref=f10e163]:
+                  - rowgroup [ref=f10e164]:
+                    - row [ref=f10e165]:
+                      - columnheader "Type" [ref=f10e166]
+                      - columnheader "Description" [ref=f10e167]
+                      - columnheader "Logged" [ref=f10e168]
+                      - columnheader "Billed" [ref=f10e169]
+                  - rowgroup [ref=f10e170]:
+                    - row [ref=f10e171]:
+                      - cell "Topup" [ref=f10e172]
+                      - cell "—" [ref=f10e173]
+                      - cell "Oct 17" [ref=f10e174]
+                      - cell "$25.00 Edit" [ref=f10e176]:
+                        - generic [ref=f10e177]:
+                          - generic [ref=f10e178]:
+                            - generic [ref=f10e179]: $25.00
+                            - button "Edit" [ref=f10e181]
+                          - status [ref=f10e182]
+                    - row [ref=f10e183]:
+                      - cell "Other" [ref=f10e184]
+                      - cell "—" [ref=f10e185]
+                      - cell "Oct 17" [ref=f10e186]
+                      - cell "$45.00 Edit" [ref=f10e188]:
+                        - generic [ref=f10e189]:
+                          - generic [ref=f10e190]:
+                            - generic [ref=f10e191]: $45.00
+                            - button "Edit" [ref=f10e193]
+                          - status [ref=f10e194]
+              - generic [ref=f10e195]:
+                - heading "Carrier invoice files" [level=3] [ref=f10e196]
+                - paragraph [ref=f10e199]: File storage is unavailable right now. Attaching and downloading are paused.
+                - list [ref=f10e203]:
+                  - listitem [ref=f10e204]:
+                    - generic [ref=f10e205]: photo.png
+                    - generic [ref=f10e209]: Download
+                  - listitem [ref=f10e213]:
+                    - generic [ref=f10e214]: manager-note.txt
+                    - generic [ref=f10e218]: Download
+  - alert [ref=f10e222]
+```

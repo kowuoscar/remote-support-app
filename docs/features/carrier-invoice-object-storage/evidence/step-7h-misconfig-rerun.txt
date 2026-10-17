@@ -1,0 +1,27 @@
+=== missing-bucket
+up
+{"status":"UP"}
+ERROR lines: 1
+2026-10-17T10:45:25.585+02:00 ERROR [:] c.r.b.web.ObjectStoreAvailability - Object store is unavailable: bucket check failed for endpoint http://localhost:58333 bucket no-such-bucket (HTTP 404). File storage answers 503 until the store is reachable and the bucket exists.
+secret occurrences in log: 0
+buckets on 58333: remote-support-files
+                    - button "Attach carrier invoice" [disabled] [ref=f5e121]
+                - paragraph [ref=f5e199]: File storage is unavailable right now. Attaching and downloading are paused.
+=== wrong-secret
+up
+{"status":"UP"}
+ERROR lines: 1
+2026-10-17T10:45:35.566+02:00 ERROR [:] c.r.b.web.ObjectStoreAvailability - Object store is unavailable: bucket check failed for endpoint http://localhost:58333 bucket remote-support-files (HTTP 403). File storage answers 503 until the store is reachable and the bucket exists.
+secret occurrences in log: 0
+buckets on 58333: remote-support-files
+                    - button "Attach carrier invoice" [disabled] [ref=f7e121]
+                - paragraph [ref=f7e199]: File storage is unavailable right now. Attaching and downloading are paused.
+=== bad-url
+up
+{"status":"UP"}
+ERROR lines: 1
+2026-10-17T10:45:44.484+02:00 ERROR [:] c.r.backend.web.ObjectStoreConfig - Object store configuration is unusable: OBJECT_STORE_ENDPOINT is not a http(s) URL. File storage is unavailable until the configuration is fixed and the backend restarted.
+secret occurrences in log: 0
+buckets on 58333: remote-support-files
+                    - button "Attach carrier invoice" [disabled] [ref=f9e121]
+                - paragraph [ref=f9e199]: File storage is unavailable right now. Attaching and downloading are paused.

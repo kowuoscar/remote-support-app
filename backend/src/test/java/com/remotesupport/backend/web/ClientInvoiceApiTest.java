@@ -11,9 +11,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.remotesupport.backend.domain.Fee;
 import com.remotesupport.backend.domain.SimCard;
+import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
 import com.remotesupport.backend.repository.SimCardRepository;
 import com.remotesupport.backend.repository.FeeRepository;
 import com.remotesupport.backend.support.IntegrationTest;
+import com.remotesupport.backend.support.ObjectStoreTestSupport;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -34,6 +36,7 @@ import org.springframework.test.web.servlet.MvcResult;
  */
 class ClientInvoiceApiTest extends IntegrationTest {
 
+  @Autowired private CarrierInvoiceFileRepository carrierInvoiceFileRepository;
   @Autowired private FeeRepository feeRepository;
   @Autowired private SimCardRepository simCardRepository;
 
@@ -879,5 +882,208 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .perform(post("/api/client-invoices/" + invoiceId + "/approve").header("Authorization", "Bearer " + managerToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("APPROVED"));
+  }
+
+  // --- Carrier Invoice Files kept in the object store (ADR 0007) -------------------------------
+
+  @Test
+  void anAttachedFileIsOneObjectAtItsKeyWithTheUploadedBytesAndNoMetadata() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Object Key Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    byte[] bytes = "object store bytes".getBytes(StandardCharsets.UTF_8);
+
+    MvcResult upload =
+        mockMvc
+            .perform(
+                multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                    .file(new MockMultipartFile("file", "keyed.pdf", "application/pdf", bytes))
+                    .header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isCreated())
+            .andReturn();
+    var created = objectMapper.readTree(upload.getResponse().getContentAsString());
+    UUID fileId = UUID.fromString(created.get("id").asText());
+    UUID invoiceId = UUID.fromString(created.get("clientInvoiceId").asText());
+    String key = "carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/" + fileId;
+
+    assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/"))
+        .containsExactly(key);
+    assertThat(ObjectStoreTestSupport.read(key)).isEqualTo(bytes);
+    assertThat(ObjectStoreTestSupport.userMetadata(key)).isEmpty();
+    assertThat(ObjectStoreTestSupport.tagCount(key)).isZero();
+    assertThat(carrierInvoiceFileRepository.findById(fileId).orElseThrow().getStoragePath()).isEqualTo(key);
+  }
+
+  @Test
+  void attachingToASentInvoiceIs409AndLeavesNoObjectUnderTheInvoicePrefix() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Undo Attach Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    MvcResult sent =
+        mockMvc
+            .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    UUID invoiceId = UUID.fromString(objectMapper.readTree(sent.getResponse().getContentAsString()).get("id").asText());
+
+    mockMvc
+        .perform(
+            multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                .file(new MockMultipartFile("file", "late.pdf", "application/pdf", "late".getBytes()))
+                .header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isConflict());
+
+    assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/")).isEmpty();
+  }
+
+  @Test
+  void aFileWhoseObjectIsMissingDownloadsAs404() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Lost Object Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    MvcResult upload =
+        mockMvc
+            .perform(
+                multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                    .file(new MockMultipartFile("file", "lost.pdf", "application/pdf", "lost".getBytes()))
+                    .header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isCreated())
+            .andReturn();
+    UUID fileId = UUID.fromString(objectMapper.readTree(upload.getResponse().getContentAsString()).get("id").asText());
+    String key = carrierInvoiceFileRepository.findById(fileId).orElseThrow().getStoragePath();
+
+    ObjectStoreTestSupport.delete(key);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isNotFound());
+  }
+
+  private static final String AWKWARD_NAME = "R\u00e9f \"Oct\" 2026 \u2013 Orange.pdf";
+
+  private static String decodedFilenameStar(String contentDisposition) {
+    assertThat(contentDisposition).startsWith("attachment");
+    java.util.regex.Matcher m =
+        java.util.regex.Pattern.compile("filename\\*=UTF-8''([^;]+)").matcher(contentDisposition);
+    assertThat(m.find()).as("filename* in %s", contentDisposition).isTrue();
+    return java.net.URLDecoder.decode(m.group(1).replace("+", "%2B"), StandardCharsets.UTF_8);
+  }
+
+  private UUID attachFile(String token, UUID contractId, String name, byte[] bytes) throws Exception {
+    MvcResult upload =
+        mockMvc
+            .perform(
+                multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                    .file(new MockMultipartFile("file", name, "application/pdf", bytes))
+                    .header("Authorization", "Bearer " + token))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(upload.getResponse().getContentAsString()).get("id").asText());
+  }
+
+  @Test
+  void aFileWithAccentsAQuoteAndAnEnDashDownloadsUnderItsExactNameWithNosniff() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Download Name Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    byte[] bytes = "not a real pdf".getBytes();
+    UUID fileId = attachFile(agentToken, contractId, AWKWARD_NAME, bytes);
+    UUID invoiceId =
+        UUID.fromString(
+            objectMapper
+                .readTree(
+                    mockMvc
+                        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString())
+                .get("id")
+                .asText());
+
+    for (var download :
+        java.util.List.of(
+            get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken),
+            get("/api/client-invoices/" + invoiceId + "/files/" + fileId).header("Authorization", "Bearer " + managerToken))) {
+      MvcResult result =
+          mockMvc
+              .perform(download)
+              .andExpect(status().isOk())
+              .andExpect(header().string("Content-Type", "application/pdf"))
+              .andExpect(header().string("X-Content-Type-Options", "nosniff"))
+              .andReturn();
+      assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(AWKWARD_NAME);
+      assertThat(result.getResponse().getContentAsByteArray()).isEqualTo(bytes);
+    }
+  }
+
+  @Test
+  void aPlainAsciiFileNameDownloadsUnderTheSameName() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Plain Name Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    UUID fileId = attachFile(agentToken, contractId, "invoice.pdf", "x".getBytes());
+
+    MvcResult result =
+        mockMvc
+            .perform(
+                get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId)
+                    .header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo("invoice.pdf");
+  }
+
+  @Test
+  void theTesterOfASentInvoiceDownloadsUnderTheSameExactNameWithNosniff() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Tester Download Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    UUID fileId = attachFile(agentToken, contractId, AWKWARD_NAME, "bytes".getBytes());
+    MvcResult sent =
+        mockMvc
+            .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    UUID invoiceId = UUID.fromString(objectMapper.readTree(sent.getResponse().getContentAsString()).get("id").asText());
+    String testerToken = createTesterAndLogin(managerToken, clientId, "tester@download-name.example");
+
+    MvcResult result =
+        mockMvc
+            .perform(
+                get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId)
+                    .header("Authorization", "Bearer " + testerToken))
+            .andExpect(status().isOk())
+            .andExpect(header().string("X-Content-Type-Options", "nosniff"))
+            .andReturn();
+    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(AWKWARD_NAME);
+  }
+
+  @Test
+  void everyClientInvoiceResponseCarriesFilesAvailableTrueWhileTheStoreAnswers() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Files Available Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+
+    MvcResult invoice =
+        mockMvc
+            .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.filesAvailable").value(true))
+            .andReturn();
+    String invoiceId = objectMapper.readTree(invoice.getResponse().getContentAsString()).get("id").asText();
+
+    mockMvc
+        .perform(get("/api/client-invoices/" + invoiceId).header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.filesAvailable").value(true));
   }
 }

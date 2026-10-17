@@ -1,0 +1,3 @@
+Manager UI has no Attach control (only the Agent card renders AttachCarrierInvoiceFileControl); Manager attach via API:
+{"id":"2104e1fb-d98d-4530-9be3-049522b7b384","clientInvoiceId":"63797ec7-2873-4866-8731-16f2c866c8b1","filename":"manager-note.txt","contentType":"text/plain","sizeBytes":33,"uploadedAt":"2026-10-17T06:43:53.285028Z"}
+HTTP 201

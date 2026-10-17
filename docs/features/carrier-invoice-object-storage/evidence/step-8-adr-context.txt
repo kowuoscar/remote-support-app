@@ -1,0 +1,23 @@
+46:- **The bucket is checked once at startup and never fails it.** `HeadBucket` runs on
+63:Main code uses exactly five operations: `PutObject`, `GetObject`, `DeleteObject`, `HeadBucket` and
+64:`CreateBucket` (tests also list objects and read tagging through their own client against SeaweedFS).
+66:Checked on 2026-10-17 against Hetzner's published "List of supported actions"
+73:| `PutObject` | offered, not among the exceptions. |
+74:| `GetObject` | offered, not among the exceptions. |
+75:| `DeleteObject` | offered, not among the exceptions (the listed exception is conditional PUT/DELETE on *versioned* buckets, which we do not use). |
+76:| `HeadBucket` | offered, not among the exceptions. |
+77:| `CreateBucket` | offered with limits: only the headers `x-amz-bucket-object-lock-enabled` and `x-amz-acl` (`private`, `public-read`), and only `LocationConstraint` in `CreateBucketConfiguration`. The SDK sets neither header and sends o
+80:unsupported or limited: object tagging on buckets, `GetObjectAttributes`, `CopyObject` across buckets,
+85:Hetzner documents **virtual-hosted style** (the bucket in the host name), not path style:
+94:So production sets `OBJECT_STORE_PATH_STYLE=false`; SeaweedFS serves path style without wildcard DNS, so
+
+144-**Object store**:
+145:The S3-compatible service holding Carrier Invoice File bytes in one private bucket, reached only by the backend through the S3 API: Hetzner Object Storage in production, a local SeaweedFS in docker compose, tests and throwaway e2e stacks.
+146-
+147:**Carrier Invoice File**:
+148-One file (typically a carrier-issued PDF) an Agent attaches to a Client Invoice draft as supporting documentation for its postpaid charges. Its bytes live in the **Object store**, in one private bucket at `carrier-invoices/{tenant id}/{client invoice id}/{file id}`; the row's storage path holds that object key and is always read from the row. The object carries no metadata or tags; filename/content-type/size are recorded as row metadata. Not modeled as its own billing entity, matching spec.md's "opaque supporting documents, not modeled entities". A Client Invoice can carry several.
+149-_Avoid_: Attachment (too generic — every Client Invoice file is specifically a carrier's own invoice).
+150-
+151-**Agent Invoice**:
+152-The monthly invoice an Agent sends to the Company Manager: full reimbursement of every Fee (postpaid base + additional) across all of the Agent's Contracts that month, plus salary, plus the Rollout Advance adjustment. One per Agent per calendar month, get-or-created on first access — the same shape Client Invoice established. Only that current-month view creates: a Manager opening an Agent Invoice from the Review Queue reaches it by its own identity, for any billing month, and never creates one. Every Manager action on it — override, approve, mark paid — is addressed the same way, by the invoice's own identity; only the Agent's own view/build and send are addressed as "this Agent's invoice for the current month". Lifecycle: draft → sent → approved → paid, every transition set manually by the Manager (`agent-standing-amounts-and-invoice-generation` wrote only `draft`; `agent-invoice-submission-and-approval` completes send/approve/paid and the Manager's per-invoice override).
+153-

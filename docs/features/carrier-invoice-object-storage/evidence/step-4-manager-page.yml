@@ -1,0 +1,19 @@
+              - heading "Carrier invoice files" [level=3] [ref=f2e93]
+              - list [ref=f2e96]:
+                - listitem [ref=f2e97]:
+                  - generic [ref=f2e98]: Réf %22Oct%22 2026 – Orange.pdf
+                  - link "Download Réf %22Oct%22 2026 – Orange.pdf" [ref=f2e102] [cursor=pointer]:
+                    - /url: /api/client-invoices/63797ec7-2873-4866-8731-16f2c866c8b1/files/13a2aed6-60fc-4306-9b63-641e957ac201
+                    - text: Download
+                - listitem [ref=f2e106]:
+                  - generic [ref=f2e107]: photo.png
+                  - link "Download photo.png" [ref=f2e111] [cursor=pointer]:
+                    - /url: /api/client-invoices/63797ec7-2873-4866-8731-16f2c866c8b1/files/797284c2-4499-4605-aaa1-86ccd863b889
+                    - text: Download
+                - listitem [ref=f2e115]:
+                  - generic [ref=f2e116]: manager-note.txt
+                  - link "Download manager-note.txt" [ref=f2e120] [cursor=pointer]:
+                    - /url: /api/client-invoices/63797ec7-2873-4866-8731-16f2c866c8b1/files/2104e1fb-d98d-4530-9be3-049522b7b384
+                    - text: Download
+  - alert [ref=f2e124]
+```

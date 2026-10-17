@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { BilledAmount } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
-import { IconDownload, IconPaperclip } from "@/components/icons";
+import { CarrierInvoiceFilesSection } from "@/components/ui/carrier-invoice-files-section";
+import { IconDownload } from "@/components/icons";
 import { ApproveClientInvoiceControl } from "@/components/manager/approve-client-invoice-control";
 import { SendBackClientInvoiceControl } from "@/components/manager/send-back-client-invoice-control";
 import { clientInvoiceStatusLabelByValue, clientInvoiceStatusToneByValue } from "@/lib/status";
@@ -190,39 +191,13 @@ export function ClientInvoiceDetailView({ invoice: initial }: { invoice: ClientI
         )}
       </div>
 
-      <div>
-        <h3 className="mb-2 flex items-center gap-1.5 text-label font-medium text-ink-secondary">
-          <IconPaperclip className="h-4 w-4" />
-          Carrier invoice files
-        </h3>
-        {invoice.files.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-hairline-strong px-4 py-6 text-center text-label text-ink-mute">
-            No carrier invoice files attached.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-1.5">
-            {invoice.files.map((file) => (
-              <li
-                key={file.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-hairline bg-canvas px-3.5 py-2.5"
-              >
-                <div className="flex min-w-0 items-center gap-2">
-                  <IconPaperclip className="h-4 w-4 shrink-0 text-ink-mute" />
-                  <span className="truncate text-label text-ink">{file.filename}</span>
-                </div>
-                <a
-                  href={`${base}/files/${file.id}`}
-                  aria-label={`Download ${file.filename}`}
-                  className="inline-flex shrink-0 items-center gap-1 text-label-sm font-medium text-primary underline-offset-2 hover:underline"
-                >
-                  <IconDownload className="h-3.5 w-3.5" />
-                  Download
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <CarrierInvoiceFilesSection
+        files={invoice.files}
+        downloadHref={(fileId) => `${base}/files/${fileId}`}
+        emptyText="No carrier invoice files attached."
+        filesAvailable={invoice.filesAvailable}
+        labelledDownloads
+      />
     </Card>
   );
 }

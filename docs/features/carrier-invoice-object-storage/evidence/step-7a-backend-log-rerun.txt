@@ -1,0 +1,6 @@
+backend log lines after store stop (line 362+), ERROR/WARN:
+1:2026-10-17T10:38:49.684+02:00 ERROR [11111111-1111-1111-1111-111111111111:33333333-3333-3333-3333-333333333333] c.r.b.web.CarrierInvoiceFileStorage - Object store PutObject failed for key carrier-invoices/11111111-1111-1111-1111-111111111111/0a262791-e487-4564-b36d-e7acc5476f5b/02180468-9483-4725-a374-7c6ae895af6f at endpoint http://localhost:58333 bucket remote-support-files (SdkClientException
+--- full new lines count:
+       2
+--- credential grep:
+0

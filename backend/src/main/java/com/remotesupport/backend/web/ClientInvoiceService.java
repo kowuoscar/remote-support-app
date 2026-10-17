@@ -185,11 +185,13 @@ public class ClientInvoiceService {
     carrierFile.setTenant(invoice.getTenant());
     carrierFile.setClientInvoice(invoice);
     carrierFile.setSimCard(sim);
-    // A placeholder: the uploaded file's own name. carrier-invoice-computed-name replaces it.
     carrierFile.setFilename(
-        file.getOriginalFilename() != null && !file.getOriginalFilename().isBlank()
-            ? file.getOriginalFilename()
-            : "carrier-invoice");
+        CarrierInvoiceFileName.of(
+            invoice.getContract().getClient().getName(),
+            invoice.getBillingMonth(),
+            sim.getCarrier() == null ? null : sim.getCarrier().getName(),
+            sim.getNumber(),
+            file.getOriginalFilename()));
     carrierFile.setContentType(
         file.getContentType() != null ? file.getContentType() : MediaType.APPLICATION_OCTET_STREAM_VALUE);
     carrierFile.setSizeBytes(file.getSize());

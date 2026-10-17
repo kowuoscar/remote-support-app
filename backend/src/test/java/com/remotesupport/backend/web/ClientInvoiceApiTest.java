@@ -513,7 +513,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
                     .header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.simCardId").value(simId.toString()))
-            .andExpect(jsonPath("$.filename").value("october-carrier-invoice.pdf"))
+            .andExpect(jsonPath("$.filename").value(computedName("Kessler & Vance LLP", simId)))
             .andExpect(jsonPath("$.contentType").value("application/pdf"))
             .andExpect(jsonPath("$.sizeBytes").value("not a real pdf".getBytes().length))
             .andReturn();
@@ -532,7 +532,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.files.length()").value(1))
-        .andExpect(jsonPath("$.files[0].filename").value("october-carrier-invoice.pdf"));
+        .andExpect(jsonPath("$.files[0].filename").value(computedName("Kessler & Vance LLP", simId)));
 
     MvcResult downloadResult =
         mockMvc
@@ -979,7 +979,23 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .andExpect(status().isNotFound());
   }
 
-  private static final String AWKWARD_NAME = "R\u00e9f \"Oct\" 2026 \u2013 Orange.pdf";
+  // Accents and an en dash survive the computed name, so the download header still has to encode them.
+  private static final String AWKWARD_CLIENT = "R\u00e9f \u2013 Orange Co";
+
+  private String storedFilename(UUID fileId) {
+    return carrierInvoiceFileRepository.findById(fileId).orElseThrow().getFilename();
+  }
+
+  /** The name an attached file takes: the Client, this month, the seeded Carrier and the SIM's number. */
+  private String computedName(String clientName, UUID simId) {
+    LocalDate month = LocalDate.now(ZoneOffset.UTC);
+    return "%s - %s %d - AT&T - %s.pdf"
+        .formatted(
+            clientName,
+            month.getMonth().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH),
+            month.getYear(),
+            simCardRepository.findById(simId).orElseThrow().getNumber());
+  }
 
   private static String decodedFilenameStar(String contentDisposition) {
     assertThat(contentDisposition).startsWith("attachment");
@@ -990,7 +1006,11 @@ class ClientInvoiceApiTest extends IntegrationTest {
   }
 
   private UUID attachFile(String token, UUID contractId, String name, byte[] bytes) throws Exception {
-    UUID simId = addUniquePostpaidSim(managerToken(), contractId);
+    return attachFile(token, contractId, name, bytes, addUniquePostpaidSim(managerToken(), contractId));
+  }
+
+  private UUID attachFile(String token, UUID contractId, String name, byte[] bytes, UUID simId)
+      throws Exception {
     MvcResult upload =
         mockMvc
             .perform(
@@ -1006,11 +1026,11 @@ class ClientInvoiceApiTest extends IntegrationTest {
   @Test
   void aFileWithAccentsAQuoteAndAnEnDashDownloadsUnderItsExactNameWithNosniff() throws Exception {
     String managerToken = managerToken();
-    UUID clientId = createClient(managerToken, "Download Name Co");
+    UUID clientId = createClient(managerToken, AWKWARD_CLIENT);
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String agentToken = agentToken();
     byte[] bytes = "not a real pdf".getBytes();
-    UUID fileId = attachFile(agentToken, contractId, AWKWARD_NAME, bytes);
+    UUID fileId = attachFile(agentToken, contractId, "upload.PDF", bytes);
     UUID invoiceId =
         UUID.fromString(
             objectMapper
@@ -1034,13 +1054,34 @@ class ClientInvoiceApiTest extends IntegrationTest {
               .andExpect(header().string("Content-Type", "application/pdf"))
               .andExpect(header().string("X-Content-Type-Options", "nosniff"))
               .andReturn();
-      assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(AWKWARD_NAME);
+      assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(storedFilename(fileId));
+      assertThat(storedFilename(fileId)).startsWith(AWKWARD_CLIENT + " - ");
       assertThat(result.getResponse().getContentAsByteArray()).isEqualTo(bytes);
     }
   }
 
   @Test
-  void aPlainAsciiFileNameDownloadsUnderTheSameName() throws Exception {
+  void theTestersInvoiceListsTheFileUnderItsComputedName() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Tester Lists Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    attachFile(agentToken, contractId, "scan.pdf", "x".getBytes(), simId);
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+    String testerToken = createTesterAndLogin(managerToken, clientId, "tester@lists-name.example");
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + testerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.files.length()").value(1))
+        .andExpect(jsonPath("$.files[0].filename").value(computedName("Tester Lists Co", simId)));
+  }
+
+  @Test
+  void aPlainAsciiFileNameDownloadsUnderTheComputedName() throws Exception {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Plain Name Co");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
@@ -1054,16 +1095,17 @@ class ClientInvoiceApiTest extends IntegrationTest {
                     .header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isOk())
             .andReturn();
-    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo("invoice.pdf");
+    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(storedFilename(fileId));
+    assertThat(storedFilename(fileId)).startsWith("Plain Name Co - ").endsWith(".pdf");
   }
 
   @Test
   void theTesterOfASentInvoiceDownloadsUnderTheSameExactNameWithNosniff() throws Exception {
     String managerToken = managerToken();
-    UUID clientId = createClient(managerToken, "Tester Download Co");
+    UUID clientId = createClient(managerToken, AWKWARD_CLIENT);
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String agentToken = agentToken();
-    UUID fileId = attachFile(agentToken, contractId, AWKWARD_NAME, "bytes".getBytes());
+    UUID fileId = attachFile(agentToken, contractId, "upload.PDF", "bytes".getBytes());
     MvcResult sent =
         mockMvc
             .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
@@ -1080,7 +1122,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
             .andExpect(status().isOk())
             .andExpect(header().string("X-Content-Type-Options", "nosniff"))
             .andReturn();
-    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(AWKWARD_NAME);
+    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(storedFilename(fileId));
   }
 
   @Test
@@ -1204,6 +1246,6 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.files.length()").value(1))
         .andExpect(jsonPath("$.files[0].simCardId").value(simId.toString()))
-        .andExpect(jsonPath("$.files[0].filename").value("kept.pdf"));
+        .andExpect(jsonPath("$.files[0].filename").value(computedName("Left Fleet Co", simId)));
   }
 }

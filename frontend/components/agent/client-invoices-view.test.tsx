@@ -592,6 +592,8 @@ describe("AgentClientInvoicesView", () => {
       edited: false,
     };
     const SIM_TWO = { ...SIM, simCardId: "sim-2", number: "+1-555-0200" };
+    // A line is covered when it names its file (FILE_OF_SIM_1): the line is the source of truth.
+    const SIM_COVERED = { ...SIM, carrierInvoiceFileId: "file-1" };
     const FEE = {
       id: "fee-1",
       contractId: "contract-1",
@@ -610,7 +612,7 @@ describe("AgentClientInvoicesView", () => {
       invoice({
         baseAmount: 25,
         totalAmount: 70,
-        basePostpaidSims: [SIM],
+        basePostpaidSims: [SIM_COVERED],
         feeLines: [FEE],
         // The send gate: the sent-back invoice's one line already has its carrier invoice.
         files: [FILE_OF_SIM_1],
@@ -683,11 +685,11 @@ describe("AgentClientInvoicesView", () => {
     };
 
     it("offers Attach carrier invoice while a Postpaid SIM line has no file, and disables it once every line has one", () => {
-      const { unmount } = renderPage(sentBack({ basePostpaidSims: [SIM, SIM_TWO], files: [FILE_OF_SIM_1] }));
+      const { unmount } = renderPage(sentBack({ basePostpaidSims: [SIM_COVERED, SIM_TWO], files: [FILE_OF_SIM_1] }));
       expect(screen.getByRole("button", { name: /Attach carrier invoice/ })).toBeEnabled();
       unmount();
 
-      renderPage(sentBack({ basePostpaidSims: [SIM], files: [FILE_OF_SIM_1] }));
+      renderPage(sentBack({ basePostpaidSims: [SIM_COVERED], files: [FILE_OF_SIM_1] }));
       expect(screen.getByRole("button", { name: /Attach carrier invoice/ })).toBeDisabled();
     });
 
@@ -732,7 +734,7 @@ describe("AgentClientInvoicesView", () => {
 
     describe("Remove (remove-carrier-invoice-file)", () => {
       const withFile = (overrides: Partial<ClientInvoiceDetail> = {}) =>
-        sentBack({ basePostpaidSims: [SIM, SIM_TWO], files: [FILE_OF_SIM_1], ...overrides });
+        sentBack({ basePostpaidSims: [SIM_COVERED, SIM_TWO], files: [FILE_OF_SIM_1], ...overrides });
 
       it("opens an inline confirm, sends a DELETE by invoice and file id, and refreshes the page", async () => {
         const fetchMock = stubFetch(204);
@@ -780,6 +782,8 @@ describe("AgentClientInvoicesView", () => {
         renderPage(withFile({ filesAvailable: false }));
 
         expect(screen.getByRole("button", { name: "Remove carrier.pdf" })).toBeDisabled();
+        // The secondary button's disabled look: half opacity, so a paused Remove does not read as live.
+        expect(screen.getByRole("button", { name: "Remove carrier.pdf" })).toHaveClass("disabled:opacity-50");
         expect(
           screen.getByText("File storage is unavailable right now. Attaching, removing and downloading are paused."),
         ).toBeInTheDocument();
@@ -873,12 +877,12 @@ describe("AgentClientInvoicesView", () => {
 
     describe("the send gate (carrier-invoice-per-sim)", () => {
       it("disables Send with a singular count note, linked by aria-describedby, while one line lacks its file", () => {
-        renderPage(sentBack({ basePostpaidSims: [SIM, SIM_TWO], files: [FILE_OF_SIM_1] }));
+        renderPage(sentBack({ basePostpaidSims: [SIM_COVERED, SIM_TWO], files: [FILE_OF_SIM_1] }));
 
         const send = screen.getByRole("button", { name: "Send Client Invoice" });
         expect(send).toBeDisabled();
         const note = screen.getByText("1 Postpaid SIM still needs its carrier invoice.");
-        expect(note).toHaveClass("text-label-sm", "text-ink-mute");
+        expect(note).toHaveClass("max-w-65", "text-right", "text-label-sm", "text-ink-mute");
         expect(send).toHaveAccessibleDescription("1 Postpaid SIM still needs its carrier invoice.");
         expect(send.getAttribute("aria-describedby")).toBe(note.id);
       });
@@ -891,7 +895,7 @@ describe("AgentClientInvoicesView", () => {
       });
 
       it("enables Send with every line covered or with no Postpaid line, and shows no note", () => {
-        const { unmount } = renderPage(sentBack({ basePostpaidSims: [SIM], files: [FILE_OF_SIM_1] }));
+        const { unmount } = renderPage(sentBack({ basePostpaidSims: [SIM_COVERED], files: [FILE_OF_SIM_1] }));
         expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeEnabled();
         expect(screen.queryByText(/still needs? (its|their) carrier invoice/)).not.toBeInTheDocument();
         unmount();

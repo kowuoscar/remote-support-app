@@ -100,7 +100,7 @@ describe("CarrierInvoiceFilesSection", () => {
   });
 
   it("renders the per-file action slot beside each Download, handing it the file", () => {
-    renderSection({ renderAction: (file) => <button type="button">Act on {file.filename}</button> });
+    renderSection({ renderRemove: (file) => <button type="button">Act on {file.filename}</button> });
 
     expect(screen.getByRole("button", { name: "Act on a.pdf" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Act on b.pdf" })).toBeInTheDocument();
@@ -112,14 +112,25 @@ describe("CarrierInvoiceFilesSection", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("names removing in the paused notice only when an action slot is offered", () => {
+  it("names removing in the paused notice only when a Remove is offered for a file", () => {
     const { unmount } = renderSection({
       filesAvailable: false,
       canAttach: true,
-      renderAction: () => <button type="button">Remove</button>,
+      renderRemove: () => <button type="button">Remove</button>,
     });
     expect(screen.getByText(REMOVE_NOTICE)).toBeInTheDocument();
     unmount();
+
+    // No file, so nothing can be removed or downloaded: the notice does not promise it.
+    const { unmount: unmountEmpty } = renderSection({
+      filesAvailable: false,
+      canAttach: true,
+      files: [],
+      renderRemove: () => <button type="button">Remove</button>,
+    });
+    expect(screen.queryByText(REMOVE_NOTICE)).not.toBeInTheDocument();
+    expect(screen.getByText(ATTACH_NOTICE)).toBeInTheDocument();
+    unmountEmpty();
 
     renderSection({ filesAvailable: false, canAttach: true });
     expect(screen.getByText(ATTACH_NOTICE)).toBeInTheDocument();

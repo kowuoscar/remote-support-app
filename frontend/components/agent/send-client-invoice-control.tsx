@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
+import { readErrorCode } from "@/lib/api/errors";
 import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
 import { IconAlertTriangle, IconArrowRight } from "@/components/icons";
@@ -63,9 +64,9 @@ export function SendClientInvoiceControl({
     try {
       const response = await fetch(`/api/client-invoices/${invoiceId}/send`, { method: "POST" });
       if (!response.ok) {
-        const body = (await response.json().catch(() => null)) as { code?: string } | null;
+        const code = response.status === 409 ? await readErrorCode(response) : null;
         setError(
-          response.status === 409 && body?.code === "CARRIER_INVOICES_MISSING"
+          code === "CARRIER_INVOICES_MISSING"
             ? "A Postpaid SIM still needs its carrier invoice. Reload to see which."
             : "Couldn't send. Try again.",
         );
@@ -135,7 +136,7 @@ export function SendClientInvoiceControl({
         Send Client Invoice
       </Button>
       {missingCarrierInvoices > 0 ? (
-        <p id={noteId} className="text-label-sm text-ink-mute">
+        <p id={noteId} className="max-w-65 text-right text-label-sm text-ink-mute">
           {missingCarrierInvoices === 1
             ? "1 Postpaid SIM still needs its carrier invoice."
             : `${missingCarrierInvoices} Postpaid SIMs still need their carrier invoice.`}

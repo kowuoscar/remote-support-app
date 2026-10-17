@@ -518,14 +518,13 @@ export interface ClientInvoiceBaseSimLine {
 }
 
 /**
- * The invoice's Postpaid SIM lines whose SIM has no Carrier Invoice File yet. A file whose SIM has
- * no line on the invoice counts for no line.
+ * The invoice's Postpaid SIM lines whose `carrierInvoiceFileId` is null: the line is the one source
+ * of truth, so a file whose SIM has no line on the invoice counts for no line.
  */
 export function missingCarrierInvoiceLines(
-  invoice: Pick<ClientInvoiceDetail, "basePostpaidSims" | "files">,
+  invoice: Pick<ClientInvoiceDetail, "basePostpaidSims">,
 ): ClientInvoiceBaseSimLine[] {
-  const covered = new Set(invoice.files.map((file) => file.simCardId));
-  return (invoice.basePostpaidSims ?? []).filter((line) => !covered.has(line.simCardId));
+  return (invoice.basePostpaidSims ?? []).filter((line) => !line.carrierInvoiceFileId);
 }
 
 /** What an invoice SIM line is: "{Carrier} · Postpaid", or "Postpaid" for a SIM with no Carrier. */

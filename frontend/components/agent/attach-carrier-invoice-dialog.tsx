@@ -105,7 +105,7 @@ export function AttachCarrierInvoiceDialog({
 
         {error ? <DialogErrorAlert message={error} /> : null}
 
-        <label htmlFor={simFieldId} className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+        <label htmlFor={simFieldId} className="flex flex-col gap-1.5 text-label font-medium text-ink-secondary">
           Postpaid SIM
           <PickerSelect
             id={simFieldId}
@@ -123,7 +123,7 @@ export function AttachCarrierInvoiceDialog({
           </PickerSelect>
         </label>
 
-        <label htmlFor={fileFieldId} className="flex flex-col gap-1.5 text-[13px] font-medium text-ink-secondary">
+        <label htmlFor={fileFieldId} className="flex flex-col gap-1.5 text-label font-medium text-ink-secondary">
           File
           <input
             id={fileFieldId}
@@ -132,7 +132,7 @@ export function AttachCarrierInvoiceDialog({
             name="file"
             aria-required="true"
             disabled={submitting}
-            className="text-[13px] font-normal text-ink file:mr-3 file:rounded-lg file:border file:border-hairline-strong file:bg-canvas file:px-3 file:py-1.5 file:text-label file:font-medium file:text-ink"
+            className="text-label font-normal text-ink file:mr-3 file:rounded-lg file:border file:border-hairline-strong file:bg-canvas file:px-3 file:py-1.5 file:text-label file:font-medium file:text-ink"
           />
         </label>
 

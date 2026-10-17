@@ -82,7 +82,7 @@ export function RemoveCarrierInvoiceFileControl({
   if (confirming) {
     return (
       <div className="flex flex-col items-end gap-1" onKeyDown={handleKeyDown}>
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center justify-end gap-1.5">
           <span className="text-label-sm text-ink-mute">Remove this file?</span>
           <Button type="button" variant="ghost" size="sm" disabled={pending} onClick={close}>
             Cancel
@@ -113,7 +113,7 @@ export function RemoveCarrierInvoiceFileControl({
         aria-label={`Remove ${filename}`}
         disabled={disabled}
         onClick={() => setConfirming(true)}
-        className="text-label-sm font-medium text-ink-mute hover:text-ink hover:underline disabled:cursor-not-allowed disabled:no-underline disabled:hover:text-ink-mute"
+        className="text-label-sm font-medium text-ink-mute hover:text-ink hover:underline disabled:cursor-not-allowed disabled:no-underline disabled:opacity-50 disabled:hover:text-ink-mute"
       >
         Remove
       </button>

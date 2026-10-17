@@ -137,6 +137,7 @@ export function AgentClientInvoiceCard({
   const badge = clientInvoiceBadge(invoice);
   const feeLabelList = feeLabels(invoice.feeLines);
   const hasPostpaidLines = (invoice.basePostpaidSims?.length ?? 0) > 0;
+  const missingLines = missingCarrierInvoiceLines(invoice);
 
   return (
     <Card className="flex flex-col gap-6 p-5" data-testid="client-invoice-card">
@@ -167,13 +168,13 @@ export function AgentClientInvoiceCard({
             {hasPostpaidLines ? (
               <AttachCarrierInvoiceFileControl
                 invoiceId={invoice.id}
-                missingLines={missingCarrierInvoiceLines(invoice)}
+                missingLines={missingLines}
                 disabled={!invoice.filesAvailable}
               />
             ) : null}
             <SendClientInvoiceControl
               invoiceId={invoice.id}
-              missingCarrierInvoices={missingCarrierInvoiceLines(invoice).length}
+              missingCarrierInvoices={missingLines.length}
             />
           </div>
         ) : invoice.status === "DRAFT" || !currentMonth ? null : (
@@ -320,7 +321,7 @@ export function AgentClientInvoiceCard({
         emptyText="No carrier invoice files attached yet."
         filesAvailable={invoice.filesAvailable}
         canAttach={editable}
-        renderAction={
+        renderRemove={
           editable
             ? (file) => (
                 <RemoveCarrierInvoiceFileControl

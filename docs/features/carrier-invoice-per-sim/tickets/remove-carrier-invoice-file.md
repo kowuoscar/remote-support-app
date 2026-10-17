@@ -37,6 +37,9 @@ At risk: the Carrier Invoice Files section on all three screens in the normal an
 
 Existing tests expected to change, each with the reason:
 
+
+- Accepted by the orchestrator at merge: `frontend/components/agent/client-invoices-view.test.tsx` case `pauses-attach-and-download-with-a-notice-when-file-storage-is-unavailable` renders an editable draft with a file, where Remove is offered, so its expected notice moves to "…Attaching, removing and downloading are paused." as the spec's Frontend "Remove" section requires; nothing else in that case changes.
+
 - `ClientInvoiceByIdApiTest` and `CarrierInvoiceFileServiceTest` (or the existing service test file) gain the cases above; every pre-existing method keeps passing unmodified.
 - `frontend/components/manager/client-invoice-detail-view.test.tsx` gains one case (no Remove on the Manager's detail); every pre-existing case keeps passing unmodified.
 - `frontend/components/agent/client-invoices-view.test.tsx` and `carrier-invoice-files-section.test.tsx` gain Remove and wording cases; every pre-existing case keeps passing unmodified, including the existing paused wording where Remove is not offered.

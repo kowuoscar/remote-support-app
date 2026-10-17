@@ -210,6 +210,32 @@ public class ClientInvoiceService {
     return ResponseEntity.status(HttpStatus.CREATED).body(CarrierInvoiceFileResponse.of(carrierFile));
   }
 
+  /**
+   * Deletes the row of a Carrier Invoice File as one transaction under the invoice's row lock, and
+   * returns its object key for {@link CarrierInvoiceFileService} to delete after the commit. Only a
+   * {@code DRAFT} open to its Agent takes it (409, coded for a past month's draft never sent); a
+   * file that is not this invoice's is a 404. No store call happens here.
+   */
+  @Transactional
+  public String removeFile(ClientInvoice found, UUID fileId, AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
+    if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
+      throw new ConflictException(
+          "Cannot remove a carrier invoice file from a Client Invoice that has already been sent");
+    }
+    requireOpenToAgent(invoice);
+    CarrierInvoiceFile file =
+        carrierInvoiceFileRepository
+            .findByIdAndClientInvoiceId(fileId, invoice.getId())
+            .orElseThrow(() -> new NotFoundException("No carrier invoice file with id " + fileId));
+    String key = file.getStoragePath();
+    UUID simCardId = file.getSimCard() == null ? null : file.getSimCard().getId();
+    carrierInvoiceFileRepository.delete(file);
+    carrierInvoiceFileRepository.flush();
+    AuditLog.carrierInvoiceFileRemoved(invoice.getId(), fileId, simCardId, principal.userId(), principal.tenantId());
+    return key;
+  }
+
   private static ClientInvoiceConflictException alreadyAttached() {
     return new ClientInvoiceConflictException(
         ClientInvoiceConflictException.Reason.CARRIER_INVOICE_ALREADY_ATTACHED,

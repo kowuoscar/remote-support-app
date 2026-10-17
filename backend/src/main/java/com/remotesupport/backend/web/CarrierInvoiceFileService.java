@@ -69,6 +69,22 @@ public class CarrierInvoiceFileService {
     }
   }
 
+  /**
+   * Removes a file from a draft open to its Agent: 503 at once while the store is unavailable, then
+   * the row is deleted under the invoice's row lock ({@link ClientInvoiceService#removeFile}), and
+   * only after that commit the object. A failing object delete is a WARN naming the stray key; the
+   * file is gone from the invoice, so the answer stands.
+   */
+  public void remove(ClientInvoice invoice, UUID fileId, AuthenticatedPrincipal principal) {
+    requireStore();
+    String key = clientInvoiceService.removeFile(invoice, fileId, principal);
+    try {
+      storage.delete(key);
+    } catch (RuntimeException e) {
+      log.warn("Carrier invoice file object left in the store, stray object, no row refers to it: {}", key);
+    }
+  }
+
   /** One of this invoice's Carrier Invoice Files; a file of any other invoice is 404. */
   public ResponseEntity<byte[]> download(ClientInvoice invoice, UUID fileId) {
     CarrierInvoiceFile file =

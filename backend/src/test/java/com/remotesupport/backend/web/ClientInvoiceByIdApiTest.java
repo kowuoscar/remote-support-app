@@ -2,6 +2,7 @@ package com.remotesupport.backend.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -555,5 +556,197 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
             .getContentAsString();
     assertThat(objectMapper.readTree(body).get("basePostpaidSims").get(0).get("carrierInvoiceFileId").isNull())
         .isTrue();
+  }
+
+  // --- Removing a file (remove-carrier-invoice-file) ----------------------------------------------
+
+  @Autowired private com.remotesupport.backend.repository.CarrierInvoiceFileRepository carrierInvoiceFileRepository;
+  @Autowired private ObjectStoreAvailability objectStoreAvailability;
+
+  private org.springframework.test.web.servlet.ResultActions removeById(String token, UUID invoiceId, UUID fileId)
+      throws Exception {
+    return mockMvc.perform(
+        delete("/api/client-invoices/" + invoiceId + "/files/" + fileId).header("Authorization", "Bearer " + token));
+  }
+
+  private UUID attachReturningFileId(String token, UUID invoiceId, UUID simId, String name) throws Exception {
+    String body =
+        attachById(token, invoiceId, simId, name).andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+    return UUID.fromString(objectMapper.readTree(body).get("id").asText());
+  }
+
+  private List<String> keysOf(UUID invoiceId) {
+    return com.remotesupport.backend.support.ObjectStoreTestSupport.keysUnder(
+        "carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/");
+  }
+
+  private int fileRows(UUID invoiceId) {
+    return carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoiceId).size();
+  }
+
+  /** A second Agent, created with a known login; returns its token. */
+  private String otherAgentToken(String managerToken) throws Exception {
+    String email = "other-agent-" + UUID.randomUUID() + "@agents.example";
+    MvcResult created =
+        mockMvc
+            .perform(
+                post("/api/agents")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                        {"name":"Other Agent","country":"PHILIPPINES","salaryAmount":2000.00,"username":"%s"}
+                        """
+                            .formatted(email)))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return loginAs(email, objectMapper.readTree(created.getResponse().getContentAsString()).get("password").asText());
+  }
+
+  @Test
+  void theAgentRemovesAFileFromACurrentMonthDraftAndItsRowAndObjectAreGone() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Remove Draft Co");
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    UUID fileId = attachReturningFileId(agentToken, invoiceId, simId, "a.pdf");
+    assertThat(keysOf(invoiceId)).hasSize(1);
+
+    removeById(agentToken, invoiceId, fileId).andExpect(status().isNoContent());
+
+    assertThat(fileRows(invoiceId)).isZero();
+    assertThat(keysOf(invoiceId)).isEmpty();
+    mockMvc
+        .perform(get("/api/client-invoices/" + invoiceId + "/files").header("Authorization", "Bearer " + agentToken))
+        .andExpect(jsonPath("$.length()").value(0));
+  }
+
+  @Test
+  void theAgentRemovesAFileFromASentBackDraftAndAttachesItsReplacement() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Remove Sent Back Co");
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    UUID fileId = attachReturningFileId(agentToken, invoiceId, simId, "wrong.pdf");
+    send(agentToken, contractId);
+    mockMvc
+        .perform(
+            post("/api/client-invoices/" + invoiceId + "/send-back")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("{\"reason\":\"wrong file\"}"))
+        .andExpect(status().isOk());
+    moveToPastMonth(invoiceId, 1);
+
+    removeById(agentToken, invoiceId, fileId).andExpect(status().isNoContent());
+
+    assertThat(fileRows(invoiceId)).isZero();
+    assertThat(keysOf(invoiceId)).isEmpty();
+    attachById(agentToken, invoiceId, simId, "right.pdf").andExpect(status().isCreated());
+  }
+
+  @Test
+  void removingFromASentInvoiceIsAConflictAndKeepsTheFile() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Remove Sent Co");
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    UUID fileId = attachReturningFileId(agentToken, invoiceId, simId, "a.pdf");
+    send(agentToken, contractId);
+
+    removeById(agentToken, invoiceId, fileId).andExpect(status().isConflict());
+
+    assertThat(fileRows(invoiceId)).isEqualTo(1);
+    assertThat(keysOf(invoiceId)).hasSize(1);
+  }
+
+  @Test
+  void removingFromAnApprovedInvoiceIsAConflictAndKeepsTheFile() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Remove Approved Co");
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    UUID fileId = attachReturningFileId(agentToken, invoiceId, simId, "a.pdf");
+    send(agentToken, contractId);
+    mockMvc
+        .perform(post("/api/client-invoices/" + invoiceId + "/approve").header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk());
+
+    removeById(agentToken, invoiceId, fileId).andExpect(status().isConflict());
+
+    assertThat(fileRows(invoiceId)).isEqualTo(1);
+    assertThat(keysOf(invoiceId)).hasSize(1);
+  }
+
+  @Test
+  void removingFromANeverSentPastMonthDraftIsACoded409AndKeepsTheFile() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Remove Past Co");
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    UUID fileId = attachReturningFileId(agentToken, invoiceId, simId, "a.pdf");
+    moveToPastMonth(invoiceId, 1);
+
+    removeById(agentToken, invoiceId, fileId)
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("PAST_MONTH_DRAFT_NOT_SENDABLE"));
+
+    assertThat(fileRows(invoiceId)).isEqualTo(1);
+    assertThat(keysOf(invoiceId)).hasSize(1);
+  }
+
+  @Test
+  void aManagerATesterAndAnotherAgentAreForbiddenFromRemovingAFile() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID clientId = createClient(managerToken, "Remove Forbidden Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken = createTesterAndLogin(managerToken, clientId, "remove.forbidden@example.com");
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    UUID fileId = attachReturningFileId(agentToken, invoiceId, simId, "a.pdf");
+    String otherAgentToken = otherAgentToken(managerToken);
+
+    removeById(managerToken, invoiceId, fileId).andExpect(status().isForbidden());
+    removeById(testerToken, invoiceId, fileId).andExpect(status().isForbidden());
+    removeById(otherAgentToken, invoiceId, fileId).andExpect(status().isForbidden());
+
+    assertThat(fileRows(invoiceId)).isEqualTo(1);
+    assertThat(keysOf(invoiceId)).hasSize(1);
+  }
+
+  @Test
+  void removingAnUnknownFileIs404() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Remove Unknown Co");
+    UUID invoiceId = openDraft(agentToken, contractId);
+
+    removeById(agentToken, invoiceId, UUID.randomUUID()).andExpect(status().isNotFound());
+  }
+
+  @Test
+  void removingWhileFileStorageIsUnavailableIs503AndKeepsTheRow() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Remove Outage Co");
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    UUID fileId = attachReturningFileId(agentToken, invoiceId, simId, "a.pdf");
+
+    objectStoreAvailability.markUnavailable();
+    try {
+      removeById(agentToken, invoiceId, fileId).andExpect(status().isServiceUnavailable());
+    } finally {
+      objectStoreAvailability.probe();
+    }
+
+    assertThat(fileRows(invoiceId)).isEqualTo(1);
+    assertThat(keysOf(invoiceId)).hasSize(1);
   }
 }

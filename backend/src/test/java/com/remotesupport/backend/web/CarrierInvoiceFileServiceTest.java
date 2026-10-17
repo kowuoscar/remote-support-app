@@ -33,6 +33,7 @@ class CarrierInvoiceFileServiceTest {
   private final AuthenticatedPrincipal principal = mock(AuthenticatedPrincipal.class);
   private final UUID tenantId = UUID.randomUUID();
   private final UUID invoiceId = UUID.randomUUID();
+  private final UUID simCardId = UUID.randomUUID();
 
   @BeforeEach
   void setUp() {
@@ -53,9 +54,9 @@ class CarrierInvoiceFileServiceTest {
   @Test
   void anExceptionFromRecordAttachedFileDeletesTheKeyAndRethrows() {
     ConflictException refused = new ConflictException("sent");
-    when(clientInvoiceService.recordAttachedFile(any(), any(), any(), any(), any())).thenThrow(refused);
+    when(clientInvoiceService.recordAttachedFile(any(), any(), any(), any(), any(), any())).thenThrow(refused);
 
-    assertThatThrownBy(() -> service.attach(invoice, file, principal)).isSameAs(refused);
+    assertThatThrownBy(() -> service.attach(invoice, file, simCardId, principal)).isSameAs(refused);
 
     verify(storage).put("the/key", file);
     verify(storage).delete("the/key");
@@ -64,10 +65,10 @@ class CarrierInvoiceFileServiceTest {
   @Test
   void aFailingDeleteStillRethrowsTheOriginalException() {
     ConflictException refused = new ConflictException("sent");
-    when(clientInvoiceService.recordAttachedFile(any(), any(), any(), any(), any())).thenThrow(refused);
+    when(clientInvoiceService.recordAttachedFile(any(), any(), any(), any(), any(), any())).thenThrow(refused);
     doThrow(new ObjectStoreUnavailableException("down")).when(storage).delete("the/key");
 
-    assertThatThrownBy(() -> service.attach(invoice, file, principal)).isSameAs(refused);
+    assertThatThrownBy(() -> service.attach(invoice, file, simCardId, principal)).isSameAs(refused);
   }
 
   @Test
@@ -75,9 +76,9 @@ class CarrierInvoiceFileServiceTest {
     ObjectStoreUnavailableException down = new ObjectStoreUnavailableException("down");
     doThrow(down).when(storage).put("the/key", file);
 
-    assertThatThrownBy(() -> service.attach(invoice, file, principal)).isSameAs(down);
+    assertThatThrownBy(() -> service.attach(invoice, file, simCardId, principal)).isSameAs(down);
 
-    verify(clientInvoiceService, never()).recordAttachedFile(any(), any(), any(), any(), any());
+    verify(clientInvoiceService, never()).recordAttachedFile(any(), any(), any(), any(), any(), any());
     verify(storage, never()).delete(any());
   }
 
@@ -85,19 +86,19 @@ class CarrierInvoiceFileServiceTest {
   void attachAnswers503WithoutCallingTheStoreWhileFileStorageIsUnavailable() {
     when(availability.isAvailable()).thenReturn(false);
 
-    assertThatThrownBy(() -> service.attach(invoice, file, principal)).isInstanceOf(ObjectStoreUnavailableException.class);
+    assertThatThrownBy(() -> service.attach(invoice, file, simCardId, principal)).isInstanceOf(ObjectStoreUnavailableException.class);
 
     verify(storage, never()).put(any(), any());
-    verify(clientInvoiceService, never()).recordAttachedFile(any(), any(), any(), any(), any());
+    verify(clientInvoiceService, never()).recordAttachedFile(any(), any(), any(), any(), any(), any());
   }
 
   @Test
   void theRowIsRecordedUnderTheSameFileIdAndKeyTheObjectWasWrittenTo() {
-    service.attach(invoice, file, principal);
+    service.attach(invoice, file, simCardId, principal);
 
     ArgumentCaptor<UUID> fileId = ArgumentCaptor.forClass(UUID.class);
     verify(storage).keyFor(eq(tenantId), eq(invoiceId), fileId.capture());
-    verify(clientInvoiceService).recordAttachedFile(invoice, fileId.getValue(), "the/key", file, principal);
+    verify(clientInvoiceService).recordAttachedFile(invoice, fileId.getValue(), "the/key", file, simCardId, principal);
     assertThat(fileId.getValue()).isNotNull();
   }
 

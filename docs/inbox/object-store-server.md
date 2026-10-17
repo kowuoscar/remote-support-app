@@ -1,7 +1,7 @@
 ---
 id: object-store-server
 type: question
-status: open
+status: answered
 blocks: [carrier-invoice-object-storage]
 created: 2026-10-17
 ---
@@ -38,3 +38,5 @@ questions 1.
 Nothing else runs: `text-size-lint-rule` is held at your request.
 
 ## Answer
+
+SeaweedFS (the human, 2026-10-17), as the local stand-in in docker compose (rsa-prod included), tests and throwaway stacks. Production runs on Hetzner Object Storage ("I am working with hetzner object storage"); the app reaches either through the S3 API, configured by environment (endpoint such as https://fsn1.your-objectstorage.com, region, bucket, keys; credentials never in the repo).

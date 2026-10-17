@@ -1,7 +1,7 @@
 ---
 id: carrier-invoices-per-sim
 title: Carrier invoices attached per SIM, required before send, kept in object storage
-status: proposed
+status: planned
 journeys: [bill-the-client-for-the-month]
 ---
 
@@ -52,22 +52,31 @@ What the code does today (explorer, 2026-10-16):
 
 Ordered by dependency; cut and sized at spec time.
 
-- [ ] `carrier-invoice-object-storage` — Carrier Invoice Files are stored in an S3-compatible object store (MinIO in compose and for tests), existing files moved over; nothing a user sees changes.
-- [ ] `carrier-invoice-per-sim` — "Attach carrier invoice" opens a form that links the file to one of the invoice's Postpaid SIM lines (its number and Carrier) and stores it under a computed name "{Client} - {Month Year} - {Carrier} - {SIM number}"; the Agent cannot send the invoice until every Postpaid SIM line has its Carrier invoice; the Manager sees which SIM each file is for.
+- [ ] `carrier-invoice-object-storage` — Carrier Invoice Files are stored in an S3-compatible object store (MinIO in compose and for tests), no existing files to move (the human, 2026-10-17); nothing a user sees changes.
+- [ ] `carrier-invoice-per-sim` — "Attach carrier invoice" opens a form that links the file to one of the invoice's Postpaid SIM lines (its number and Carrier) and stores it under a computed name "{Client} - {Month Year} - {Carrier} - {SIM number}"; the Agent cannot send the invoice until every Postpaid SIM line has its Carrier invoice; each Postpaid SIM line shows a check mark once its file is attached; after a send-back the Agent can remove a file.
 - [ ] `carrier-invoice-retention` — a Carrier Invoice File is deleted from storage 30 days after its Client Invoice is approved, and the pages say so where the file was.
+
+## Settled with the human (2026-10-17)
+
+- **One file per Postpaid SIM.** "can one carrier invoice cover several sims
+  of the same carrier? no".
+- **Every SIM has a Carrier** ("A sim has always a carrier"): no
+  Carrier-less case to design for.
+- **No backfill.** "none presently so nothing to do to backfill": no Carrier
+  Invoice File exists yet on the human's stack.
+- **After a send-back the Agent can remove a file** ("yes the agent can remove
+  a file"), then attach its replacement.
+- **The link's purpose is the row's check mark.** "it's really to have in the
+  row an icon (check mark) showing that for the sim number a file were
+  uploaded." Each Postpaid SIM line shows a check mark once its file is
+  attached.
 
 ## Open at spec time
 
-- One file per Postpaid SIM, as the example reads, or may one Carrier
-  invoice cover several SIMs of the same Carrier?
-- A Postpaid SIM with no Carrier (from before the catalog): is a file still
-  required, and what goes in the name's Carrier part?
-- Existing files, not linked to any SIM: what happens to them, and to an
-  unsent draft that holds them?
-- Sent back: do the files stay linked, can the Agent replace or remove one?
-- Retention: is the database record kept (the name, "deleted on …") or
-  removed with the bytes? Does it apply to every tenant alike?
-- The object store's deployment for the user's own stack, and an ADR for the
+- Retention: after the 30 days, does the invoice still list the file
+  (name, SIM, "deleted on …", the row's check mark kept) or does it disappear
+  with the bytes? Asked 2026-10-17.
+- The object store's deployment for the human's own stack, and an ADR for the
   storage choice.
 
 ## Later

@@ -1,7 +1,7 @@
 ---
 feature: carrier-invoice-object-storage
 epic: carrier-invoices-per-sim
-status: draft
+status: approved
 date: 2026-10-17
 ---
 
@@ -827,6 +827,8 @@ mocked database. No test reaches Hetzner.
    a full run, `backend/data` is not created.
 
 ## Decisions taken
+
+- **Spec approved by the human, 2026-10-17** (`docs/inbox/approve-carrier-invoice-object-storage.md`, "Ok"), after their amendments (no startup block, files paused in the UI, on-demand availability check). This accepts ADR 0007 as described here; ticket 1 writes it `accepted`.
 
 - **Settled by the human (2026-10-17), answering this spec's former open
   question on the server: Hetzner Object Storage in production; SeaweedFS

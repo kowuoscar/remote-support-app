@@ -29,6 +29,7 @@ abstract class ObjectStoreUnusableStartupCases extends IntegrationTest {
   static final String WRONG_SECRET_KEY = "wrong-secret-key-456";
 
   @Autowired private JdbcTemplate jdbcTemplate;
+  @Autowired private ObjectStoreAvailability availability;
 
   /** Text the one startup ERROR must contain (the endpoint and bucket, or the bad setting's name). */
   abstract String[] startupErrorMustName();
@@ -52,6 +53,11 @@ abstract class ObjectStoreUnusableStartupCases extends IntegrationTest {
       assertThat(startupErrors.get(0)).contains(name);
     }
     assertThat(output.getAll()).doesNotContain(WRONG_ACCESS_KEY).doesNotContain(WRONG_SECRET_KEY);
+  }
+
+  @Test
+  void fileStorageIsReportedUnavailable() {
+    assertThat(availability.isAvailable()).isFalse();
   }
 
   @Test

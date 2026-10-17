@@ -30,14 +30,14 @@ public class CarrierInvoiceFileService {
   private final CarrierInvoiceFileStorage storage;
   private final ClientInvoiceService clientInvoiceService;
   private final CarrierInvoiceFileRepository carrierInvoiceFileRepository;
-  private final ObjectStoreBucketCheck bucketCheck;
+  private final ObjectStoreAvailability availability;
 
   public CarrierInvoiceFileService(
       CarrierInvoiceFileStorage storage,
       ClientInvoiceService clientInvoiceService,
       CarrierInvoiceFileRepository carrierInvoiceFileRepository,
-      ObjectStoreBucketCheck bucketCheck) {
-    this.bucketCheck = bucketCheck;
+      ObjectStoreAvailability availability) {
+    this.availability = availability;
     this.storage = storage;
     this.clientInvoiceService = clientInvoiceService;
     this.carrierInvoiceFileRepository = carrierInvoiceFileRepository;
@@ -81,9 +81,9 @@ public class CarrierInvoiceFileService {
         .body(content);
   }
 
-  /** 503 at once, without a store call, when the startup check did not pass. */
+  /** 503 at once, without a store call, while file storage is unavailable. */
   private void requireStore() {
-    if (!bucketCheck.passed()) {
+    if (!availability.isAvailable()) {
       throw new ObjectStoreUnavailableException("Object store is unavailable");
     }
   }

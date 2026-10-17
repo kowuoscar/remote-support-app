@@ -63,6 +63,7 @@ public class ClientInvoiceService {
   private final ClientInvoiceLineRepository clientInvoiceLineRepository;
   private final ClientInvoicePdfRenderer pdfRenderer;
   private final AgentInvoiceService agentInvoiceService;
+  private final ObjectStoreAvailability availability;
 
   public ClientInvoiceService(
       ClientInvoiceRepository clientInvoiceRepository,
@@ -72,7 +73,9 @@ public class ClientInvoiceService {
       CarrierInvoiceFileRepository carrierInvoiceFileRepository,
       ClientInvoiceLineRepository clientInvoiceLineRepository,
       ClientInvoicePdfRenderer pdfRenderer,
-      AgentInvoiceService agentInvoiceService) {
+      AgentInvoiceService agentInvoiceService,
+      ObjectStoreAvailability availability) {
+    this.availability = availability;
     this.clientInvoiceRepository = clientInvoiceRepository;
     this.contractRepository = contractRepository;
     this.feeRepository = feeRepository;
@@ -122,7 +125,7 @@ public class ClientInvoiceService {
       throw new ConflictException("Cannot generate a PDF for a Client Invoice still in draft");
     }
 
-    byte[] pdfBytes = pdfRenderer.render(invoice.getContract(), toResponse(invoice, false));
+    byte[] pdfBytes = pdfRenderer.render(invoice.getContract(), toResponse(invoice, false, false));
 
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_PDF)
@@ -201,6 +204,12 @@ public class ClientInvoiceService {
    */
   @Transactional(readOnly = true)
   public ClientInvoiceResponse toResponse(ClientInvoice invoice, boolean includeEdits) {
+    return toResponse(invoice, includeEdits, availability.availableForPage());
+  }
+
+  /** The PDF is the only caller that passes {@code filesAvailable} itself: it never shows it. */
+  private ClientInvoiceResponse toResponse(
+      ClientInvoice invoice, boolean includeEdits, boolean filesAvailable) {
     List<ResolvedLine> lines = lines(invoice);
     boolean perSim = lines.stream().noneMatch(l -> l.kind() == ClientInvoiceLineKind.BASE_AMOUNT);
     List<ClientInvoiceBaseSimLineResponse> basePostpaidSims =
@@ -239,6 +248,7 @@ public class ClientInvoiceService {
         feeLines,
         total(lines),
         files(invoice),
+        filesAvailable,
         invoice.getSentAt(),
         invoice.getApprovedAt(),
         includeEdits ? invoice.getSentBackAt() : null,

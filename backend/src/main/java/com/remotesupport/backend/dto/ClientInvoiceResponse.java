@@ -24,6 +24,9 @@ import java.util.UUID;
  * status; it is {@code null} only for an invoice holding a backfilled {@code BASE_AMOUNT} line,
  * which has no per-unit breakdown to serve (ADR 0001).
  *
+ * <p>{@code filesAvailable} is the cached availability of file storage at the moment the page was
+ * built (ObjectStoreAvailability); the same on every invoice, whatever its status.
+ *
  * <p>{@code sentBackAt}/{@code sentBackReason} (send-a-client-invoice-back) are the latest
  * send-back; {@code null} if never sent back, and always {@code null} for a Tester caller, to whom
  * the reason (a note from the Manager to the Agent) is not part of the statement.
@@ -39,6 +42,7 @@ public record ClientInvoiceResponse(
     List<ClientInvoiceFeeLineResponse> feeLines,
     BigDecimal totalAmount,
     List<CarrierInvoiceFileResponse> files,
+    boolean filesAvailable,
     Instant sentAt,
     Instant approvedAt,
     Instant sentBackAt,

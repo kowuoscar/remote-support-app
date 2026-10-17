@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -28,13 +30,16 @@ class CarrierInvoiceFileStorageTest {
 
   private S3Client s3;
   private CarrierInvoiceFileStorage storage;
+  private ObjectStoreAvailability availability;
 
   @BeforeEach
   void setUp() {
     s3 = mock(S3Client.class);
+    availability = mock(ObjectStoreAvailability.class);
     storage =
         new CarrierInvoiceFileStorage(
-            s3, new ObjectStoreProperties("http://store:8333", "us-east-1", "the-bucket", "ak", "sk", true, true));
+            s3, new ObjectStoreProperties("http://store:8333", "us-east-1", "the-bucket", "ak", "sk", true, true),
+            availability);
   }
 
   @Test
@@ -96,5 +101,35 @@ class CarrierInvoiceFileStorageTest {
     when(s3.deleteObject(any(DeleteObjectRequest.class))).thenReturn(DeleteObjectResponse.builder().build());
 
     assertThatCode(() -> storage.delete("k/missing")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void aStoreFailureMarksFileStorageUnavailable() {
+    when(s3.getObjectAsBytes(any(GetObjectRequest.class))).thenThrow(SdkClientException.create("down"));
+
+    assertThatThrownBy(() -> storage.read("k/1")).isInstanceOf(ObjectStoreUnavailableException.class);
+
+    verify(availability).markUnavailable();
+  }
+
+  @Test
+  void aFailedPutAndAFailedDeleteMarkFileStorageUnavailable() {
+    when(s3.putObject(any(PutObjectRequest.class), any(RequestBody.class))).thenThrow(SdkClientException.create("down"));
+    when(s3.deleteObject(any(DeleteObjectRequest.class))).thenThrow(SdkClientException.create("down"));
+
+    assertThatThrownBy(() -> storage.put("k/1", new MockMultipartFile("file", "a.pdf", "application/pdf", "abc".getBytes())))
+        .isInstanceOf(ObjectStoreUnavailableException.class);
+    assertThatThrownBy(() -> storage.delete("k/1")).isInstanceOf(ObjectStoreUnavailableException.class);
+
+    verify(availability, times(2)).markUnavailable();
+  }
+
+  @Test
+  void aMissingObjectDoesNotMarkFileStorageUnavailable() {
+    when(s3.getObjectAsBytes(any(GetObjectRequest.class))).thenThrow(NoSuchKeyException.builder().build());
+
+    assertThatThrownBy(() -> storage.read("k/1")).isInstanceOf(CarrierInvoiceFileMissingException.class);
+
+    verify(availability, never()).markUnavailable();
   }
 }

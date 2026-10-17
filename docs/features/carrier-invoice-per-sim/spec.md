@@ -631,7 +631,8 @@ leaves, what is in the bucket, and what a user sees and can do on the page.
 - **One shared `CarrierInvoiceCheck` for both views.** Reason: the Agent and Manager invoice layouts are already duplicated (debt :17). The new mark must not become a third copy.
 - **The coded-409 handler covers the current-month controller too.** Reason: a refused send on that route would otherwise lose its `code`.
 - **Test seams: the existing HTTP seam with real Postgres and SeaweedFS, component tests at the view, e2e through the real form; no new seam.** Reason: those seams already prove attach, send and send-back. One helper per suite keeps the many sending tests unchanged in what they assert.
-- **Three tickets, one PR (below).** Reason: the per-SIM attach is the foundation. The gate and Remove each depend only on it and are each demoable alone.
+- **Five tickets, one PR (below).** Reason: the per-SIM attach is the foundation, the computed name and the check mark are their own slices, and the gate and Remove each build on the check mark and are each demoable alone.
+- **The ticket cut's second-round critic gaps (R2 split, two R5 cases, two R6 files) were closed by the orchestrator**, all mechanical; no behaviour changed.
 
 ## Open questions
 
@@ -651,34 +652,34 @@ down itself. It never touches the human's compose project `rsa-prod`, ports
 Logins are in the root `README.md`; Jordan is the demo Agent. "List the
 bucket" means an S3 API listing against that SeaweedFS.
 
-1. [agent] Run `verify` on an idle machine. Show:
+1. [agent] (stories: 29) Run `verify` on an idle machine. Show:
    - it is green;
    - only the four `agent-client-invoices-*` goldens changed, and each shows a check mark on one SIM line, the disabled Send with its note, and a computed file name;
    - no throwaway container is left behind.
 
-   (stories: 29)
-2. [agent] Set up the human's example. As the Manager, on one of Jordan's Contracts with no Postpaid SIM yet, add three Postpaid SIMs (two on Verizon, one on AT&T) and one Prepaid SIM. As Jordan, open that Contract's current-month draft. Show:
+2. [agent] (stories: 10, 11) Set up the human's example. As the Manager, on one of Jordan's Contracts with no Postpaid SIM yet, add three Postpaid SIMs (two on Verizon, one on AT&T) and one Prepaid SIM. As Jordan, open that Contract's current-month draft. Show:
    - exactly three Postpaid SIM lines, each "{number}" with "{Carrier} · Postpaid", no check mark;
    - no line for the Prepaid SIM;
    - "Send Client Invoice" disabled, with "3 Postpaid SIMs still need their carrier invoice."
 
-   (stories: 10, 11)
-3. [agent] Click "Attach carrier invoice". Show the form lists the three lines as `{number} · {Carrier}`. Pick the first, choose `scan.PDF`, and attach. Show:
+3. [agent] (stories: 1, 3, 4, 7) Click "Attach carrier invoice". Show the form lists the three lines as `{number} · {Carrier}`. Pick the first, choose `scan.PDF`, and attach. Show:
    - the dialog closes;
    - the file is listed as `{Client} - {Month Year} - Verizon - {number}.pdf`;
    - that line shows the "Carrier invoice attached" check mark;
    - the note reads "2 Postpaid SIMs still need their carrier invoice."
 
-   Download it and show the saved name equals the listed name and the SHA-256 equals the upload's. (stories: 1, 3, 4, 7)
-4. [agent] Through the API as Jordan, show:
+   Download it and show the saved name equals the listed name and the SHA-256 equals the upload's.
+
+4. [agent] (stories: 2, 8, 12) Through the API as Jordan, show:
    - attach without `simCardId` is 400;
    - attach with the Prepaid SIM's id is 400;
    - attach again for the first SIM is 409 `{code: CARRIER_INVOICE_ALREADY_ATTACHED}`;
    - `POST /send` is 409 `{code: CARRIER_INVOICES_MISSING, message}` naming the two missing numbers, and the invoice is still a draft;
    - the same send through the current-month route also carries `code`.
 
-   In the browser, with the dialog open on a SIM that was attached meanwhile through the API, attach. Show the "already has its carrier invoice" text, with the dialog still open. (stories: 2, 8, 12)
-5. [agent] Reopen the form. Show it offers only the two remaining lines. Attach one; the form preselects the last line; attach it. Show:
+   In the browser, with the dialog open on a SIM that was attached meanwhile through the API, attach. Show the "already has its carrier invoice" text, with the dialog still open.
+
+5. [agent] (stories: 1, 2, 9, 26) Reopen the form. Show it offers only the two remaining lines. Attach one; the form preselects the last line; attach it. Show:
    - three check marks;
    - "Attach carrier invoice" disabled;
    - Send enabled.
@@ -687,44 +688,48 @@ bucket" means an S3 API listing against that SeaweedFS.
    - list the bucket and show exactly three objects under `carrier-invoices/{tenant}/{invoice}/`, keyed by file ids, with no `x-amz-meta-*`;
    - query `carrier_invoice_files` and show each row's `sim_card_id` and computed `filename`.
 
-   (stories: 1, 2, 9, 26)
-6. [agent] With the page loaded on a fully covered draft of another Contract, add a fourth Postpaid SIM as the Manager. As Jordan, without reloading, confirm send. Show "A Postpaid SIM still needs its carrier invoice. Reload to see which." After a reload, show the new line has no check mark and Send is disabled. (stories: 12, 13)
-7. [agent] As the Manager, open the sent invoice's `/manager/invoices/client/{id}`. Show:
+6. [agent] (stories: 12, 13) With the page loaded on a fully covered draft of another Contract, add a fourth Postpaid SIM as the Manager. As Jordan, without reloading, confirm send. Show "A Postpaid SIM still needs its carrier invoice. Reload to see which." After a reload, show the new line has no check mark and Send is disabled.
+
+7. [agent] (stories: 4, 21, 22, 24, 25) As the Manager, open the sent invoice's `/manager/invoices/client/{id}`. Show:
    - each Postpaid SIM line with the check mark;
    - no Attach and no Remove.
 
-   Through the API, `DELETE` a file as the Manager: 403. As the Tester of that Client, show the Invoices page lists the three files under their computed names, and one downloads. Through the API as the Tester: 403. As Jordan on the sent invoice: no Remove, and the API answers 409. (stories: 4, 21, 22, 24, 25)
-8. [agent] As the Manager, send the invoice back. As Jordan:
+   Through the API, `DELETE` a file as the Manager: 403. As the Tester of that Client, show the Invoices page lists the three files under their computed names, and one downloads. Through the API as the Tester: 403. As Jordan on the sent invoice: no Remove, and the API answers 409.
+
+8. [agent] (stories: 15, 18, 19, 20) As the Manager, send the invoice back. As Jordan:
    - Remove the AT&T file and confirm. Show the file gone, that line's check mark gone, Send disabled with "1 Postpaid SIM still needs its carrier invoice.", and the form offering that line again. List the bucket: its object is gone.
    - Attach a replacement. Show the check mark back, then resend.
 
-   (stories: 15, 18, 19, 20)
-9. [agent] On another current-month draft never sent, as Jordan, attach a file and remove it, and show it works. Through the API, on a past month's draft never sent, `DELETE` a file: 409 `PAST_MONTH_DRAFT_NOT_SENDABLE`. (stories: 18, 21)
-10. [agent] Correct the number of a SIM whose file is attached, through Fleet's correction. Show:
+9. [agent] (stories: 18, 21) On another current-month draft never sent, as Jordan, attach a file and remove it, and show it works. Through the API, on a past month's draft never sent, `DELETE` a file: 409 `PAST_MONTH_DRAFT_NOT_SENDABLE`.
+
+10. [agent] (stories: 5, 6) Correct the number of a SIM whose file is attached, through Fleet's correction. Show:
     - the line shows the new number with its check mark still there;
     - the file keeps its original name.
 
-    Create a Client named `Acme/Labs "Test": North` with a Contract and a Postpaid SIM, and attach a file to its draft. Show the name reads `Acme_Labs _Test__ North - …` and downloads under that name. (stories: 5, 6)
-11. [agent] On a Contract whose month has only a Prepaid SIM, show no "Attach carrier invoice", Send enabled, and the send succeeds. (stories: 9, 14)
-12. [agent] On a draft where every line has its file, stop the throwaway SeaweedFS (started without `--rm` for this step) and reload twice. Show:
+    Create a Client named `Acme/Labs "Test": North` with a Contract and a Postpaid SIM, and attach a file to its draft. Show the name reads `Acme_Labs _Test__ North - …` and downloads under that name.
+
+11. [agent] (stories: 9, 14) On a Contract whose month has only a Prepaid SIM, show no "Attach carrier invoice", Send enabled, and the send succeeds.
+
+12. [agent] (stories: 17, 23) On a draft where every line has its file, stop the throwaway SeaweedFS (started without `--rm` for this step) and reload twice. Show:
     - the files section paused, with "Attach carrier invoice", each Download and each Remove disabled;
     - the notice "File storage is unavailable right now. Attaching, removing and downloading are paused.";
     - Send enabled, and the send succeeds;
     - through the API, `DELETE` is 503 at once.
 
-    On another draft missing a file, show Send disabled with its note. Start SeaweedFS again. (stories: 17, 23)
-13. [agent] Make a SIM leave a never-sent draft's lines after its file was attached. Use a Return kept in Agent Stock, or whichever path the implementer found that takes it out of the Contract's billing Postpaid SIMs for the month, and name it in the evidence. Show:
+    On another draft missing a file, show Send disabled with its note. Start SeaweedFS again.
+
+13. [agent] (stories: 16) Make a SIM leave a never-sent draft's lines after its file was attached. Use a Return kept in Agent Stock, or whichever path the implementer found that takes it out of the Contract's billing Postpaid SIMs for the month, and name it in the evidence. Show:
     - its file still listed and removable;
     - no line for it;
     - it neither counts in the note nor blocks Send.
 
-    (stories: 16)
-14. [agent] Restart the backend on a fresh demo database. Show:
+14. [agent] (stories: 27, 28, 30) Restart the backend on a fresh demo database. Show:
     - contract US-1's current-month invoice is sent, with one file per Postpaid SIM line and a check mark on each;
     - the demo with SeaweedFS stopped at startup still starts, logs one WARN, and leaves that invoice a draft.
 
-    Show the declared `CONTEXT.md` entry for Carrier Invoice File and the `DESIGN.md` line. (stories: 27, 28, 30)
-15. [human] On your own stack (`rsa-prod`), rebuild with your usual `up -d --build`. On a Contract with Postpaid SIMs:
+    Show the declared `CONTEXT.md` entry for Carrier Invoice File and the `DESIGN.md` line.
+
+15. [human] (stories: 1, 3, 7, 11, 18, 24) On your own stack (`rsa-prod`), rebuild with your usual `up -d --build`. On a Contract with Postpaid SIMs:
     - open this month's Client Invoice and check Send is disabled with the count note;
     - attach a real carrier PDF for each Postpaid SIM through the form;
     - check each name reads `{Client} - {Month Year} - {Carrier} - {SIM number}.pdf` and each line shows its check mark;
@@ -732,33 +737,43 @@ bucket" means an S3 API listing against that SeaweedFS.
     - as the Manager, check the marks and send it back;
     - as the Agent, remove one file, attach it again, and resend.
 
-    Confirm it reads and behaves as you expected. (stories: 1, 3, 7, 11, 18, 24)
+    Confirm it reads and behaves as you expected.
 
 ## Execution order
 
-Three tickets, one PR. The gate and Remove each depend only on the per-SIM
-attach.
+Five tickets, one PR. The computed name and the check mark each depend on the
+per-SIM attach; the gate and Remove each depend on the check mark, and not on
+the computed name (they read rows and SIM links, and work with the placeholder
+name).
 
 1. `attach-carrier-invoice-per-sim`: V61 (`sim_card_id` and the unique
-   constraint), `CarrierInvoiceFileName`, the required `simCardId` on attach
-   (400 and the coded 409), `simCardId` and `carrierInvoiceFileId` in the
-   responses, and the shared coded-409 handler. On the frontend: the attach
-   dialog, the shared `CarrierInvoiceCheck` on the Agent's card and the
-   Manager's detail, the types, the stub, the e2e attach helpers with
-   `client-invoice-generation.spec.ts` moved to the form, and the
-   `DESIGN.md` check-mark line. Labels: backend, frontend. No dependency.
-   (stories: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 16, 24, 25, 26, 27, 30)
-2. `send-requires-every-carrier-invoice`: the `CARRIER_INVOICES_MISSING`
+   constraint), the required `simCardId` on attach (400 and the coded 409),
+   `simCardId` in `CarrierInvoiceFileResponse`, the shared coded-409 handler,
+   the stored name a placeholder (the uploaded name). On the frontend: the
+   attach dialog, the `missingCarrierInvoiceLines` helper (reading
+   `files[].simCardId`), the types, the e2e `attachCarrierInvoice` helper with
+   `client-invoice-generation.spec.ts` moved to the form. Labels: backend,
+   frontend. No dependency. (stories: 1, 2, 8, 9, 10, 16, 26, 27)
+2. `carrier-invoice-computed-name`: `CarrierInvoiceFileName` and its unit
+   test, the stored and downloaded computed name, the number-correction case,
+   the Tester's names, the `CONTEXT.md` declaration. Labels: backend. Depends
+   on `attach-carrier-invoice-per-sim`. (stories: 3, 4, 5, 6, 25, 30)
+3. `carrier-invoice-check-mark`: `carrierInvoiceFileId` on the SIM line
+   response, the shared `CarrierInvoiceCheck` on the Agent's card and the
+   Manager's detail, the stub, the four `agent-client-invoices-*` goldens and
+   the `DESIGN.md` check-mark line. Labels: backend, frontend. Depends on
+   `attach-carrier-invoice-per-sim`. (stories: 7, 24)
+4. `send-requires-every-carrier-invoice`: the `CARRIER_INVOICES_MISSING`
    gate in `send`, the disabled Send with its count note and the coded error
    text, the backend test helper and every sending test using it, the demo
    loader's attach before send, every sending e2e spec calling the helper,
-   and the four `agent-client-invoices-*` goldens. Labels: backend, frontend.
-   Depends on `attach-carrier-invoice-per-sim`. (stories: 11, 12, 13, 14, 15,
-   17, 28, 29)
-3. `remove-carrier-invoice-file`: the `DELETE` route (row under the lock,
+   and the four goldens recaptured for the note. Labels: backend, frontend.
+   Depends on `carrier-invoice-check-mark` (the shared goldens and stub).
+   (stories: 11, 12, 13, 14, 15, 17, 28, 29)
+5. `remove-carrier-invoice-file`: the `DELETE` route (row under the lock,
    object after commit, 503 while unavailable), `AuditLog`'s removal event,
    the BFF `DELETE`, the Remove control with its inline confirm and paused
    state, the notice wording, the `send-a-client-invoice-back.spec.ts`
    replacement flow, and the `DESIGN.md` Remove line. Labels: backend,
-   frontend. Depends on `attach-carrier-invoice-per-sim`. (stories: 18, 19,
-   20, 21, 22, 23)
+   frontend. Depends on `carrier-invoice-check-mark`. (stories: 18, 19, 20,
+   21, 22, 23)

@@ -18,6 +18,7 @@ import com.remotesupport.backend.repository.ClientInvoiceLineRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.FeeRepository;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -109,6 +110,8 @@ class ClientInvoiceStoredLinesApiTest extends IntegrationTest {
   }
 
   private UUID send() throws Exception {
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     MvcResult result =
         mockMvc
             .perform(

@@ -12,6 +12,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.remotesupport.backend.domain.Country;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import java.util.UUID;
 import org.assertj.core.api.Assertions;
@@ -175,6 +176,8 @@ class PostpaidSimPlanApiTest extends IntegrationTest {
     create(Path.MANAGER_ADDS_TO_FLEET, "POSTPAID", "\"postpaidPlanId\":\"" + planId + "\"")
         .andExpect(status().isCreated());
 
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(
             post("/api/contracts/" + contractId + "/client-invoice/send")

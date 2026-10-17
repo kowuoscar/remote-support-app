@@ -7,7 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.remotesupport.backend.domain.AgentInvoice;
 import com.remotesupport.backend.domain.AgentInvoiceStatus;
+import com.remotesupport.backend.domain.CarrierInvoiceFile;
 import com.remotesupport.backend.domain.ClientInvoice;
+import com.remotesupport.backend.domain.ClientInvoiceLineKind;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Request;
 import com.remotesupport.backend.domain.RequestStatus;
@@ -15,6 +17,8 @@ import com.remotesupport.backend.domain.RequestType;
 import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.domain.SimCardFlavor;
 import com.remotesupport.backend.repository.AgentInvoiceRepository;
+import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
+import com.remotesupport.backend.repository.ClientInvoiceLineRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ClientRepository;
 import com.remotesupport.backend.repository.FeeRepository;
@@ -76,6 +80,8 @@ class DemoDataLoaderApiTest {
   @Autowired private SmartphoneRepository smartphoneRepository;
   @Autowired private SimCardRepository simCardRepository;
   @Autowired private ClientInvoiceRepository clientInvoiceRepository;
+  @Autowired private ClientInvoiceLineRepository clientInvoiceLineRepository;
+  @Autowired private CarrierInvoiceFileRepository carrierInvoiceFileRepository;
   @Autowired private AgentInvoiceRepository agentInvoiceRepository;
   @Autowired private ContractAmountService contractAmountService;
 
@@ -143,6 +149,28 @@ class DemoDataLoaderApiTest {
     assertThat(clientInvoiceRepository.count()).isEqualTo(clientInvoiceCount);
     assertThat(agentInvoiceRepository.count()).isEqualTo(agentInvoiceCount);
     assertThat(clientRepository.count()).isEqualTo(clientCount);
+  }
+
+  @Test
+  void theSentInvoiceHasOneCarrierInvoiceFilePerPostpaidSimLineAndThePastApprovedOnesHaveNone() {
+    List<ClientInvoice> sent =
+        clientInvoiceRepository.findAll().stream().filter(i -> i.getStatus() == ClientInvoiceStatus.SENT).toList();
+    assertThat(sent).isNotEmpty();
+    for (ClientInvoice invoice : sent) {
+      long postpaidLines =
+          clientInvoiceLineRepository.findByClientInvoiceId(invoice.getId()).stream()
+              .filter(l -> l.getKind() == ClientInvoiceLineKind.POSTPAID_SIM)
+              .count();
+      List<CarrierInvoiceFile> files =
+          carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoice.getId());
+      assertThat(postpaidLines).isPositive();
+      assertThat(files).hasSize((int) postpaidLines);
+      assertThat(files.stream().map(f -> f.getSimCard().getId()).distinct()).hasSize((int) postpaidLines);
+    }
+    for (ClientInvoice approved :
+        clientInvoiceRepository.findAll().stream().filter(i -> i.getStatus() == ClientInvoiceStatus.APPROVED).toList()) {
+      assertThat(carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(approved.getId())).isEmpty();
+    }
   }
 
   @Test

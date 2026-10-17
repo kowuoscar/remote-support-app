@@ -23,6 +23,7 @@ import com.remotesupport.backend.repository.AgentRepository;
 import com.remotesupport.backend.repository.ClientInvoiceLineRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import java.math.BigDecimal;
@@ -58,6 +59,8 @@ class TenantTotalsApiTest extends IntegrationTest {
   }
 
   private UUID sendClientInvoice(String agentToken, UUID contractId) throws Exception {
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     MvcResult result =
         mockMvc
             .perform(

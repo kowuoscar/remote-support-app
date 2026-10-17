@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.JsonNode;
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import java.time.LocalDate;
@@ -67,6 +68,8 @@ class MeClientApiTest extends IntegrationTest {
 
   private UUID sendCurrent(UUID contractId) throws Exception {
     openDraft(contractId);
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken());
     return idOf(
         mockMvc
             .perform(

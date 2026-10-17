@@ -14,6 +14,7 @@ import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
 import com.remotesupport.backend.repository.SimCardRepository;
 import com.remotesupport.backend.repository.FeeRepository;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.ObjectStoreTestSupport;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -35,6 +37,8 @@ import org.springframework.test.web.servlet.MvcResult;
  * Contract, driven through the real HTTP seam.
  */
 class ClientInvoiceApiTest extends IntegrationTest {
+
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   @Autowired private CarrierInvoiceFileRepository carrierInvoiceFileRepository;
   @Autowired private FeeRepository feeRepository;
@@ -289,6 +293,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
     addPostpaidSimOnCarrier(managerToken, contractId, SEEDED_US_CARRIER_ID, "+1-555-0302", "12.00");
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
 
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
@@ -328,6 +334,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
     // A Tester sees an invoice only once it is sent.
     String agentToken = agentToken();
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk());
@@ -356,6 +364,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
     addSimCard(managerToken, contractId, "+1-555-0208", "POSTPAID", "10.00");
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
 
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
@@ -440,6 +450,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
     addSimCard(managerToken, contractId, "+1-555-0205", "POSTPAID", "12.00");
     UUID toBeCancelled = addSimCard(managerToken, contractId, "+1-555-0206", "POSTPAID", "20.00");
 
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
@@ -734,6 +746,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
     UUID topupRequestId = submitRequest(testerToken, contractId, "TOPUP");
     logFee(agentToken, contractId, topupRequestId, "TOPUP", "45.00");
 
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
@@ -818,6 +832,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
 
     addSimCard(managerToken, contractId, "+1-555-0177", "POSTPAID", "30.00");
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk());
@@ -1247,5 +1263,49 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.files.length()").value(1))
         .andExpect(jsonPath("$.files[0].simCardId").value(simId.toString()))
         .andExpect(jsonPath("$.files[0].filename").value(computedName("Left Fleet Co", simId)));
+  }
+
+  // --- The send gate on the current-month route -------------------------------------------------
+
+  @Test
+  void aCurrentMonthSendWithAMissingLineIsACoded409LeavingTheInvoiceADraftWithNoLineRow() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Gate Current Co"), SEEDED_AGENT_ID);
+    addUniquePostpaidSim(managerToken, contractId);
+    addUniquePostpaidSim(managerToken, contractId);
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("CARRIER_INVOICES_MISSING"))
+        .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("2 Postpaid SIM")));
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(jsonPath("$.status").value("DRAFT"));
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM client_invoice_lines l JOIN client_invoices i ON i.id = l.client_invoice_id"
+                    + " WHERE i.contract_id = ?",
+                Integer.class,
+                contractId))
+        .isZero();
+  }
+
+  @Test
+  void aCurrentMonthSendWithEveryLineCoveredIs200() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Gate Current Ok Co"), SEEDED_AGENT_ID);
+    addUniquePostpaidSim(managerToken, contractId);
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"));
   }
 }

@@ -1,7 +1,7 @@
 ---
 id: approve-carrier-invoice-object-storage
 type: approval
-status: open
+status: answered
 blocks: [carrier-invoice-object-storage]
 created: 2026-10-17
 ---
@@ -48,3 +48,5 @@ Approve.
 `text-size-lint-rule` stays held at your request.
 
 ## Answer
+
+Amended (the human, 2026-10-17): "Let's not block the backend startup if the object storage configuration is failing. Aside from that, upload and download should be deactivated on the frontend."

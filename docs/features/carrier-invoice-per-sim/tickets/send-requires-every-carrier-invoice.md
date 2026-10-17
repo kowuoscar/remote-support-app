@@ -41,6 +41,14 @@ At risk: every flow that sends a Client Invoice (send, send-back, resend, approv
 
 Existing tests expected to change, each with the reason. Each backend file below sends a Client Invoice through `/client-invoice/send`, and the gate now refuses a send with a Postpaid SIM line and no file. Each calls `attachCarrierInvoicesForEveryPostpaidLine` before its send(s) (a no-op on a Contract with no Postpaid line); every pre-existing method keeps passing unmodified in what it asserts:
 
+
+- Accepted by the orchestrator at merge (reported by the implementer):
+  - `ClientInvoiceConcurrentSendTest`, `ClientInvoiceLineEditRaceTest`, `ClientInvoiceSendBackRaceTest`: `@AfterEach` also deletes `carrier_invoice_files`, since the new file rows block deleting the invoice.
+  - `ClientInvoiceSendBackApiTest`: a `jdbcTemplate` field; `agentAttachesFileById` and `pastMonthSentBackInvoiceReadEditAttachAndResendById` delete the helper's file row after the send-back so their own attach for the same SIM is not a 409; assertions untouched.
+  - `CarrierInvoiceFileAttachConcurrentSendTest.aSendIsAnsweredWhileAnAttachUploadIsStillTransferring`: covers the SIM first so the send passes the gate; its last assertion moves from "no keys under the invoice prefix" to "keys equal the snapshot taken after the helper", which still proves the refused attach's object is removed.
+  - `client-invoices-view.test.tsx`: the `sentBack` fixture defaults to a covered line.
+  - New classes `support/CarrierInvoiceTestSupport.java` and `demo/DemoDataLoaderStoreDownTest.java` (the failing-store demo case needs its own boot context).
+
 - `AgentInvoiceApiTest`, `CarrierInvoiceFileAttachConcurrentSendTest`, `ClientInvoiceApiTest`, `ClientInvoiceByIdApiTest`, `ClientInvoiceConcurrentSendTest`, `ClientInvoiceLineEditApiTest`, `ClientInvoiceLineEditRaceTest`, `ClientInvoiceSendBackApiTest`, `ClientInvoiceSendBackRaceTest`, `ClientInvoiceStoredLinesApiTest`, `LocalSupportFeesFollowClientInvoiceApiTest`, `MeClientApiTest`, `PostpaidSimPlanApiTest`, `ReviewQueueApiTest`, `SimCardCorrectionApiTest`, `TenantTotalsApiTest`: adds the helper call.
 - Not touched: `AgentInvoiceByIdApiTest` and `LocalSupportFeesRaceTest` send only the Agent Invoice (`/api/agents/{id}/invoice/send`), which the gate does not cover.
 - `ClientInvoiceApiTest`, `ClientInvoiceByIdApiTest` and `CarrierInvoiceFileAttachConcurrentSendTest` also gain the gate cases above; `DemoDataLoaderApiTest` gains the failing-put case.

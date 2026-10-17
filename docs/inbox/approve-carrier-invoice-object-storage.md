@@ -1,7 +1,7 @@
 ---
 id: approve-carrier-invoice-object-storage
 type: approval
-status: answered
+status: open
 blocks: [carrier-invoice-object-storage]
 created: 2026-10-17
 ---
@@ -10,30 +10,31 @@ created: 2026-10-17
 
 ## Question
 
-Approve the spec `docs/features/carrier-invoice-object-storage/spec.md`?
-Read the user stories, the non-goals, the decisions taken and the
-walkthrough; the solution is yours to skip.
+Approve the revised spec `docs/features/carrier-invoice-object-storage/spec.md`,
+with your amendment applied? Read the user stories, the non-goals, the
+decisions taken and the walkthrough.
 
-What it does: Carrier invoice files move from the backend container's disk
-into an S3 bucket: a local SeaweedFS in docker compose (your `rsa-prod`
-included, with its own volume, so uploads survive rebuilds), in the tests and
-in the throwaway stacks; Hetzner Object Storage in production, set by
-environment only. Keys are `carrier-invoices/{tenant id}/{client invoice
-id}/{file id}`, objects carry no labels. Nothing changes on screen, except
-that a file name with accents or quotes now downloads under its exact name.
+Your amendment, as written into the spec:
 
-Choices to note:
-
-1. The backend refuses to start when it can't reach its bucket, with a log
-   line naming it. On your stack it waits for SeaweedFS to be healthy first.
-2. An attach that fails or is refused leaves no file behind in the bucket.
-3. A store outage fails only the attach or download, with a clear error; the
-   rest of the app keeps working. `/api/health` doesn't check the store.
-4. In production the bucket is created on Hetzner outside the app; locally
-   the app creates it.
-5. ADR 0007 records the choice, Hetzner and SeaweedFS, and why MinIO and
-   Garage were not chosen; your approval accepts it.
-6. Two tickets in one PR: the storage move, then the safe download name.
+1. The backend always starts, whatever the store's state or settings; it logs
+   one error naming the endpoint and bucket.
+2. It checks the bucket at startup and every 30 seconds (each check capped at
+   about 3s), and a failed upload or download marks it unavailable at once.
+   It recovers by itself; the log says once when it goes down and once when
+   it comes back.
+3. The invoice pages learn it from the invoice itself (`filesAvailable`), with
+   no extra request. While unavailable, for the Agent, the Manager and the
+   Tester: the file names still show; Attach and every Download are disabled;
+   one notice in the files section:
+   - "File storage is unavailable right now. Attaching and downloading are
+     paused." where Attach is shown;
+   - "File storage is unavailable right now. Downloading is paused."
+     elsewhere.
+   The controls come back on the next page load after the store returns.
+4. Send, send-back and approve are unaffected here; the send gate (next
+   feature) will decide what happens while storage is down.
+5. Three tickets in one PR: the storage move with the availability check, the
+   exact download name, the paused state on screen.
 
 ## Recommendation
 
@@ -48,5 +49,3 @@ Approve.
 `text-size-lint-rule` stays held at your request.
 
 ## Answer
-
-Amended (the human, 2026-10-17): "Let's not block the backend startup if the object storage configuration is failing. Aside from that, upload and download should be deactivated on the frontend."

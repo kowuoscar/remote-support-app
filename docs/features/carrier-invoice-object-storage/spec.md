@@ -57,7 +57,30 @@ Settled by the human (2026-10-17), and not reopened here:
 - No backfill: no Carrier Invoice File exists on the human's stack.
 - Retention (feature 3) is done by the app, not a bucket lifecycle rule. The
   keys must let it delete one file.
-- Nothing a user sees changes in this feature.
+
+Amended by the human at the approval gate (2026-10-17): "Let's not block the
+backend startup if the object storage configuration is failing. Aside from
+that, upload and download should be deactivated on the frontend." Settled
+from it:
+
+- **The backend always starts**, whatever the store's state or configuration:
+  unreachable endpoint, wrong credentials, missing bucket, malformed or missing
+  settings. At startup it still checks the bucket (and creates it when the
+  create-bucket flag is on), and on failure logs one clear ERROR naming the
+  endpoint and the bucket.
+- **The backend knows whether file storage is available and tells the
+  frontend.** It re-checks by itself, so it recovers without a restart. A
+  failed upload or download also marks it unavailable. An attach or download
+  that reaches the backend while it is unavailable still answers 503: the
+  server stays authoritative.
+- **While file storage is unavailable**, wherever files are attached or
+  downloaded (the Agent's Client Invoice card, the Manager's invoice detail,
+  the Tester's Invoices page), "Attach carrier invoice" and every file's
+  Download are disabled, one short notice explains why, and the file names
+  are still listed. The controls come back on the next page load once the
+  store is back. Send, send-back and approve are not affected by this feature.
+- Apart from that paused state and the exact download name, nothing a user
+  sees changes in this feature.
 
 ## Journeys
 
@@ -68,7 +91,9 @@ First feature of `docs/roadmap/carrier-invoices-per-sim.md`.
   bytes live changes. Its proof spec,
   `client-invoice-submission-and-visibility.spec.ts`, and
   `client-invoice-generation.spec.ts` keep passing unedited. They now run
-  against a real object store.
+  against a real object store. While the store is unavailable, the journey's
+  file steps pause (Attach and Download disabled, with a notice); every other
+  step of it (lines, fees, send, send-back, approve, the PDF) carries on.
 
 ## Goals / Non-goals
 
@@ -85,6 +110,12 @@ Goals:
 - A failed attach leaves no object behind, and no object upload happens while
   the Client Invoice's row lock is held.
 - A downloaded file keeps its exact name, whatever characters it holds.
+- The backend starts whatever the store's state, reports whether file
+  storage is available, and recovers by itself within 30 seconds of the store
+  coming back.
+- While file storage is unavailable, the three screens that show carrier
+  invoice files list them by name with Attach and Download disabled and one
+  notice, instead of offering controls that fail.
 - Backend tests and the isolated e2e stack run against a real SeaweedFS and
   leave nothing in the working tree.
 - Storage configuration is one typed `@ConfigurationProperties` class.
@@ -94,6 +125,18 @@ Non-goals. Each is something a reasonable agent would otherwise build:
 
 - **No link to a SIM or a Carrier, no computed name, no form, no send gate, no
   removal of a file, no check mark.** Those are `carrier-invoice-per-sim`.
+  Note for that feature: its send gate (a file per SIM before send) must
+  decide what happens while file storage is unavailable. This feature leaves
+  send, send-back and approve exactly as they are, store up or down.
+- **No live update of the paused state.** No polling, server push or timer in
+  the browser: the controls follow the availability the page was loaded with,
+  and change on the next load or refresh (Decisions taken).
+- **No new status endpoint and no BFF route for availability.** It rides on
+  the Client Invoice response every one of the three screens already loads.
+- **No paused state anywhere else.** The Fleet, the PDF download, the
+  dashboards and every other control are untouched by the store's state. A
+  single file whose object is missing (404) is not "storage unavailable" and
+  keeps today's behaviour.
 - **No retention, no scheduled job, no "Deleted on".** Those are
   `carrier-invoice-retention`. This feature adds the delete operation it needs
   for itself (undoing a failed attach), and nothing scheduled.
@@ -104,8 +147,8 @@ Non-goals. Each is something a reasonable agent would otherwise build:
   Carrier, SIM, filename). The store's own `Content-Type` on the object is not
   set from the upload either (Decisions taken).
 - **No presigned URLs and no browser access to the store.** Downloads keep
-  going browser → BFF → backend → store. The BFF routes, `forwardBinary` and
-  every frontend file are unchanged.
+  going browser → BFF → backend → store. The BFF routes and `forwardBinary`
+  are unchanged. The frontend changes only for the paused state.
 - **No change to what an upload accepts**: still several files at once, any
   type, up to 20MB each, the uploaded name kept. Restricting types belongs to
   the per-SIM form.
@@ -115,7 +158,7 @@ Non-goals. Each is something a reasonable agent would otherwise build:
 - **No streaming rewrite of downloads.** The backend still answers a download
   with the whole file in memory (Decisions taken).
 - **No object-store probe in `/api/health`**, and no Actuator health
-  contributor.
+  contributor. The availability probe below is internal to the backend.
 - **No Hetzner provisioning by this feature**: no bucket, credentials or
   deployment script for Hetzner, and no test, e2e run or acceptance step ever
   touches a Hetzner bucket. The production bucket is provisioned outside the
@@ -144,7 +187,7 @@ Operating the stack:
 8. As the human running my own stack, I want attached files kept when I rebuild or restart the backend container, so that an upgrade never loses a carrier invoice.
 9. As the human, I want the files in a local SeaweedFS running from `docker-compose.yml`, with its own named volume, so that my `rsa-prod` stack gets it on the next rebuild with no extra step.
 10. As the human, I want the store reachable only from inside the stack, with no host port and no public bucket, so that a carrier invoice is never served except through the app's access rules.
-11. As the human, I want the backend to refuse to start when it cannot reach its bucket, with a log line that names the endpoint and bucket, so that a broken store is found at deploy time, not at the first upload.
+11. As the human, I want the backend to start whatever the store's state or configuration (unreachable, wrong credentials, missing bucket, bad settings), logging one ERROR that names the endpoint and the bucket, so that a store problem never takes the whole app down and is still found in the log at deploy time.
 12. As the human, I want an attach or download that hits an unavailable store to fail on its own with a clear log line, while the rest of the app keeps working, so that a store outage is visible and contained.
 13. As the human, I want to point the backend at Hetzner Object Storage in production by environment alone (endpoint, region, bucket, access key, secret), with no credential in the repo, and moving between stores to be a configuration change plus a copy of the objects, so that neither SeaweedFS nor Hetzner locks me in.
 
@@ -156,6 +199,15 @@ For the team and the next features:
 17. As the team, I want the store's settings in one typed configuration class with dev-only defaults, so that Backend 14 holds and every environment variable is in one place.
 18. As the team, I want ADR 0007 to record the store, the key shape, the SDK, the licences and what we rejected, so that the next reader knows why without reading this spec.
 19. As the team, I want `CONTEXT.md`'s Carrier Invoice File entry to say where its bytes live, so that the glossary stops saying "local filesystem".
+
+When file storage is unavailable:
+
+20. As an Agent, I want my Client Invoice card to keep listing the files by name while file storage is unavailable, with "Attach carrier invoice" and each file's Download disabled and one short notice saying why, so that I don't try an attach that can only fail and I know it is not my doing.
+21. As a Manager, I want the same on an invoice's detail view (names listed, Attach and Download disabled, the notice), so that my review shows what is attached even while the files can't be fetched.
+22. As a Tester, I want my Client's invoice on the Invoices page to keep listing its carrier invoice files with Download disabled and the notice, so that I can see the files exist and that they will come back.
+23. As an Agent, a Manager or a Tester, I want Attach and Download to work again on my next page load once file storage is back, without anyone restarting anything, so that an outage ends by itself.
+24. As an Agent or a Manager, I want everything else on the invoice (lines, fees, the PDF, send, send-back, approve) to work as usual while file storage is unavailable, so that a store outage only pauses files.
+25. As the human, I want the backend to re-check the store by itself every 30 seconds, and to mark it unavailable as soon as an upload or download fails, so that the screens follow the store's real state within half a minute and an outage is logged once, not every 30 seconds.
 
 ## Solution
 
@@ -171,6 +223,9 @@ For the team and the next features:
 - **Test residue in `backend/data`.** Nothing writes there any more. The
   `data/` entry and its comment leave `backend/.gitignore`. A leftover
   directory in a checkout can be deleted by hand; nothing reads it.
+- **Three copies of the files section** (Agent card, Manager detail, Tester
+  Invoices page) become one shared `CarrierInvoiceFilesSection`, so the paused
+  state is written and tested once (below).
 
 ### Configuration
 
@@ -181,7 +236,7 @@ unmoved, ADR 0006 / Backend 13):
 ```java
 @ConfigurationProperties("app.object-store")
 record ObjectStoreProperties(
-    URI endpoint,          // OBJECT_STORE_ENDPOINT, dev default http://localhost:8333 (SeaweedFS S3)
+    String endpoint,       // OBJECT_STORE_ENDPOINT, dev default http://localhost:8333 (SeaweedFS S3); parsed when the client is built, never at binding
     String region,         // OBJECT_STORE_REGION, default us-east-1
     String bucket,         // OBJECT_STORE_BUCKET, default remote-support-files
     String accessKey,      // OBJECT_STORE_ACCESS_KEY, dev-only default
@@ -231,17 +286,67 @@ variables and says production sets all of them; it holds no Hetzner value.
   Hetzner Object Storage's published list of supported S3 actions, and which
   addressing style Hetzner documents, and records both in ADR 0007. An
   operation Hetzner does not support is a stop: it goes back to the human.
-- **Bucket at startup.** The backend always checks for the bucket at startup
-  (`HeadBucket`). When it is absent and `createBucket` is true, the backend
-  creates it. When it is absent and `createBucket` is false, or when the store
-  cannot be reached, startup fails with one ERROR line naming the endpoint and
-  the bucket (story 11). Compose, the tests and the e2e stacks leave the flag
-  on. Production on Hetzner turns it off: the bucket is provisioned outside the
-  app, and the app's credentials need no right to create one. The bucket is
-  never made public.
+- **Bucket at startup, never fatal.** The backend always checks for the bucket
+  at startup (`HeadBucket`). When it is absent and `createBucket` is true, the
+  backend creates it. When it is absent and `createBucket` is false, or when
+  the store cannot be reached or refuses the credentials, the backend **logs
+  one ERROR line naming the endpoint and the bucket and starts anyway**, with
+  file storage marked unavailable (story 11). A setting that cannot even build
+  a client (an endpoint that is not a URL, a blank bucket or region) is the
+  same: one ERROR naming the setting, never its value when it is a
+  credential, and file storage stays unavailable until a restart with a
+  fixed configuration. Nothing about the store can fail the Spring context.
+  Compose, the tests and the e2e stacks leave the flag on. Production on
+  Hetzner turns it off: the bucket is provisioned outside the app, and the
+  app's credentials need no right to create one. The bucket is never made
+  public.
 - **Hetzner's reported occasional instability** needs nothing more: a failed
-  call during a request is the 503 below, logged once, and the rest of the app
-  keeps working (story 12). The SDK's default retries stand.
+  call during a request is the 503 below, logged once, marks file storage
+  unavailable until the next successful probe (at most 30 seconds), and the
+  rest of the app keeps working (stories 12, 25). The SDK's default retries
+  stand.
+
+### File storage availability: `ObjectStoreAvailability`
+
+A new `@Component` in `web`, beside the storage, owns one fact: is file
+storage available right now. Its surface:
+
+```java
+boolean isAvailable();      // the cached answer; never calls the store
+void markUnavailable();     // called by CarrierInvoiceFileStorage on a store failure
+void probe();               // ensure the bucket (HeadBucket, then CreateBucket when absent and createBucket is on)
+```
+
+- **One probe, three callers.** `probe()` is the bucket check above. It runs
+  once at startup (on `ApplicationReadyEvent`, so the context is up whatever
+  it finds), then every **30 seconds** on a fixed delay through Spring's
+  `@Scheduled`. Success sets available; any failure sets unavailable. The
+  probe's call carries its own short timeout (about 3 seconds), so a hung
+  store never holds the scheduler thread.
+- **Logging on transitions only.** The move to unavailable logs one ERROR
+  naming the endpoint, the bucket and the cause (never the credentials); the
+  move back logs one INFO. A store that stays down for an hour logs once, not
+  120 times.
+- **A failed request marks it at once.** Every `ObjectStoreUnavailableException`
+  raised by `CarrierInvoiceFileStorage` first calls `markUnavailable()`. A
+  missing object (`NoSuchKey`, 404) does not: one lost file is not an outage.
+- **Recovery is the probe's job.** Nothing else sets it back to available.
+  Since the probe also creates a missing bucket when the flag is on, a store
+  that comes up empty after the backend (a fresh SeaweedFS) is recovered too.
+- Scheduling is enabled by a small `@EnableScheduling` configuration class.
+  This is the app's first scheduled task; `carrier-invoice-retention` will use
+  the same switch.
+
+### What the frontend is told: `filesAvailable`
+
+`ClientInvoiceResponse` gains one field, `filesAvailable: boolean`, filled
+from `isAvailable()` wherever the response is built. It is the same value on
+every Client Invoice and does not depend on the invoice's status. The
+Agent's Client Invoices page, the Manager's invoice detail and the Tester's
+Invoices page all render from this response already, server-side, so each
+page load carries the availability of that moment with no extra request
+(Decisions taken). `CarrierInvoiceFileResponse` and the file-list endpoints
+are unchanged.
 
 ### `CarrierInvoiceFileStorage`, rewritten
 
@@ -263,7 +368,8 @@ void delete(String key);                    // idempotent: deleting a missing ke
 - Every store failure (`SdkException`, other than "no such key" on `read`)
   becomes `ObjectStoreUnavailableException`. That is a domain exception with
   `@ResponseStatus(SERVICE_UNAVAILABLE)` (Backend 7), logged once at ERROR
-  with the operation and the key, never the credentials.
+  with the operation and the key, never the credentials. Before it is thrown,
+  `ObjectStoreAvailability.markUnavailable()` is called.
 - `CarrierInvoiceFileMissingException` extends the existing
   `NotFoundException` (404), logged at WARN with the file id. A row that
   predates this feature, holding a filesystem path, lands here. No such row
@@ -280,7 +386,9 @@ unchanged.
 **Attach**, in this order (Backend 3 and 8: the store call runs outside the
 transaction that holds the row lock):
 
-1. `requireNonEmpty` (unchanged).
+1. `requireNonEmpty` (unchanged). If `isAvailable()` is false, throw
+   `ObjectStoreUnavailableException` (503) at once, without calling the store
+   or waiting on a timeout.
 2. Pick the file id. Compute the key with `keyFor(invoice's tenant, invoice
    id, file id)`. `put` the bytes. No lock is held.
 3. Call `ClientInvoiceService.recordAttachedFile(found, fileId, key, metadata,
@@ -296,8 +404,9 @@ A refused attach (a sent invoice) therefore uploads and then deletes. The UI
 never offers an attach on a sent invoice, so that is rare. One path for every
 failure is simpler than adding a pre-check.
 
-**Download**: find the row by file id and invoice (404 as today), `read` the
-stored key, and answer it. Unchanged:
+**Download**: find the row by file id and invoice (404 as today). If
+`isAvailable()` is false, answer 503 at once. Otherwise `read` the stored key
+and answer it. Unchanged:
 
 - the status;
 - the body, the whole file;
@@ -315,6 +424,51 @@ Two things change:
 `ClientInvoiceService` loses its `CarrierInvoiceFileStorage` dependency, its
 `attachFile` and its `downloadFile`. Its class Javadoc stops listing the
 Carrier Invoice Files, except for the list read.
+
+### Frontend: the paused files section
+
+The three views draw the same "Carrier invoice files" section today, each
+with its own copy of the markup. This feature extracts it into one shared
+component, `CarrierInvoiceFilesSection` (prefactoring), used by
+`AgentClientInvoiceCard`, the Manager's `ClientInvoiceDetailView` and the
+Tester's `InvoicesView`. It takes the files, how to build a file's download
+address, the empty-list text (each caller keeps its own: "No carrier invoice
+files attached yet." for the Agent, "No carrier invoice files attached." for
+the others), `filesAvailable`, and an optional attach control. In the
+available state each caller renders exactly what it renders today, including
+the Manager's `Download {filename}` accessible name.
+
+When `filesAvailable` is false:
+
+- **The file list still shows every name**, with its paperclip, as today (the
+  names come from the database).
+- **Each Download is disabled, not a dead link**: it renders as non-interactive
+  text with the same icon and label, `aria-disabled="true"`, no `href`,
+  `text-ink-mute`, `cursor-not-allowed`. It is not focusable and cannot be
+  opened in a new tab.
+- **"Attach carrier invoice" is disabled** where it is offered today (a draft
+  the viewer may attach to): `AttachCarrierInvoiceFileControl` takes a
+  `disabled` prop, passed to the existing `Button`'s `disabled`, so it shows
+  the secondary button's existing disabled look (`disabled:opacity-50`,
+  `cursor-not-allowed`), and the hidden file input is disabled too.
+- **One notice**, under the section heading and above the list:
+  `IconAlertTriangle` (`h-3.5 w-3.5`) and one line of `text-label-sm` in the
+  `warning` tone, the same shape as the attach control's inline error but
+  warning, not danger, because nothing the viewer did failed. It is a plain
+  paragraph, not `role="alert"`: it is there on load, not announced as an
+  event. Its text names only what the section offers:
+  - with the attach control shown: "File storage is unavailable right now.
+    Attaching and downloading are paused."
+  - otherwise (the Tester; any sent or approved invoice): "File storage is
+    unavailable right now. Downloading is paused."
+  - a section with no files and no attach control shows no notice, since
+    nothing is paused there.
+- The controls come back on the next page load or refresh after the store is
+  back (story 23). The section never polls.
+
+Nothing else on the three pages reads `filesAvailable`. The `ClientInvoice`
+type in `lib/api/types.ts` gains the field. The visual-test stub backend
+serves `filesAvailable: true`, so no golden changes.
 
 ### Schema
 
@@ -342,7 +496,9 @@ Javadoc and the column's meaning in `CONTEXT.md` say "object key".
     answers (e.g. an HTTP probe of port 8333 from inside the container).
 - **`backend`** gains the `OBJECT_STORE_*` environment, pointing at
   `http://seaweedfs:8333` with the same dev-only credentials. It `depends_on`
-  `seaweedfs` with `service_healthy`.
+  `seaweedfs` with `service_started`, not `service_healthy`: compose starts
+  the store first, but never holds the backend back on the store's health
+  (the human's amendment); the probe picks the store up within 30 seconds.
   - The comment saying uploads are lost on rebuild is replaced. Files now
     live in `seaweedfs_data` and survive a rebuild.
   - The demo-reset instructions also name `seaweedfs_data` when you want a
@@ -398,6 +554,9 @@ status `proposed`. The human's approval of this spec accepts it. It records:
   - the browser never reaches the store;
   - the bucket checked at startup, created by the app only locally;
     provisioned outside the app on Hetzner;
+  - the backend never refuses to start over the store: it logs the failure,
+    reports file storage as unavailable to the frontend, re-checks every 30
+    seconds and recovers by itself (the human's amendment, 2026-10-17);
   - the S3 operations used, checked against Hetzner's supported actions, and
     the addressing style Hetzner needs.
 - **Licences**:
@@ -417,6 +576,8 @@ status `proposed`. The human's approval of this spec accepts it. It records:
     used are kept few and checked against Hetzner's list.
   - Upgrading the SeaweedFS image is a deliberate tag change.
   - Whole-file downloads are held in memory, capped at 20MB.
+  - A broken store configuration is found in the log and on screen (files
+    paused), not by a failed deploy.
 - **Rejected**:
   - MinIO: its free edition ended (no community images since October 2025,
     archived in 2026, images removed from Docker Hub in September 2026), so a
@@ -427,11 +588,33 @@ status `proposed`. The human's approval of this spec accepts it. It records:
   - bytes in Postgres;
   - readable keys (B);
   - a bucket lifecycle rule (C), which cannot count from approval;
-  - presigned URLs to the browser, which would bypass the access guards.
+  - presigned URLs to the browser, which would bypass the access guards;
+  - failing startup when the store is unreachable (this spec's first draft),
+    turned down by the human.
 
 ## Design direction
 
-N/A — no user interface changes. The design slot is not engaged.
+Design slot: `impeccable`. `DESIGN.md` is the world, and this is a quiet
+state, not a new pattern: no new token, no new component style, no new
+colour.
+
+- The paused section looks like today's section with its controls dimmed:
+  the secondary button's existing disabled treatment for "Attach carrier
+  invoice", and the Download label in `ink-mute` without its indigo link
+  colour or underline on hover. The names stay `ink`: what is attached is
+  still true.
+- The notice reuses the inline message shape already in the files section
+  (the attach control's `IconAlertTriangle` plus a 12px line), in the
+  `warning` tone, the system's tone for "waiting on something", never
+  `danger`, which says the viewer's action failed. One line, no card, no
+  banner, no dismiss button.
+- Voice: plain, short, no apology, no blame, no instruction to do anything,
+  since the viewer can do nothing about it: "File storage is unavailable right
+  now. Attaching and downloading are paused." ("Downloading is paused." where
+  nothing can be attached.)
+- In the normal state every pixel is unchanged; the visual goldens prove it.
+- `DESIGN.md` gains one line under Components describing the paused files
+  section, so the next file control follows it.
 
 ## Constraints
 
@@ -442,7 +625,15 @@ N/A — no user interface changes. The design slot is not engaged.
   `CarrierInvoiceFileResponse`. Additions only:
   - the RFC 6266 form of `Content-Disposition`;
   - `X-Content-Type-Options: nosniff`;
-  - a 503 when the store is unavailable, where today an I/O failure is a 500.
+  - a 503 when the store is unavailable, where today an I/O failure is a 500;
+  - `filesAvailable: boolean` on `ClientInvoiceResponse`.
+- **The backend starts whatever the store's state or configuration** (the
+  human, 2026-10-17). Nothing about the store may fail the Spring context or
+  hold compose's backend back.
+- **The availability probe runs every 30 seconds**, each call capped at about
+  3 seconds, and logs only on a change of state.
+- **The browser never polls** for availability.
+- **No new design token**; the normal state of every page is pixel-identical.
 - **Object key**: exactly `carrier-invoices/{tenant id}/{client invoice
   id}/{file id}`, lowercase canonical UUIDs, one private bucket.
 - **No user metadata or tags on any object** (the human, 2026-10-17).
@@ -519,19 +710,56 @@ mocked database. No test reaches Hetzner.
      - an exception from `recordAttachedFile` deletes the key and rethrows;
      - a failing delete still rethrows the original exception;
      - a store failure on `put` never calls `recordAttachedFile`.
-4. **Startup**: a context-level test that `createBucket` creates a missing
-   bucket. The shared test bucket starts absent, so every context boot
-   exercises it. The bucket-startup logic (absent bucket with the flag off
-   fails; present bucket is not recreated) is unit-tested over a mocked
-   `S3Client`. A store unreachable at startup is shown in the acceptance
-   walkthrough.
-5. **End to end: the existing specs, unedited**, on the isolated stack with
+4. **Startup and availability.**
+   - A context-level test that `createBucket` creates a missing bucket. The
+     shared test bucket starts absent, so every context boot exercises it.
+   - `ClientInvoiceApiTest` asserts `filesAvailable: true` on a Client
+     Invoice response against the real SeaweedFS (the HTTP seam).
+   - `ObjectStoreAvailability` is unit-tested over a mocked `S3Client`, calling
+     `probe()` directly (no timer is waited on):
+     - an unreachable store, refused credentials, or an absent bucket with
+       the flag off make it unavailable, and `probe()` never throws;
+     - an absent bucket with the flag on is created and it is available; a
+       present bucket is not recreated;
+     - **recovery**: a failing probe, then a succeeding one, goes from
+       unavailable to available;
+     - `markUnavailable()` flips it until the next successful probe;
+     - one ERROR on the move to unavailable, none on a second failure, one
+       INFO on recovery.
+   - A context test boots with a malformed `OBJECT_STORE_ENDPOINT` and shows
+     the context starts and `isAvailable()` is false. Prior art: the existing
+     context tests under `IntegrationTest`.
+   - `CarrierInvoiceFileService`'s unit tests add: while unavailable, attach
+     and download throw `ObjectStoreUnavailableException` without calling the
+     storage; and `CarrierInvoiceFileStorage`'s add: a store failure calls
+     `markUnavailable()`, a `NoSuchKey` does not.
+   - A store that is down or comes back is shown end to end in the acceptance
+     walkthrough (step 7), not in the e2e suite: stopping the throwaway
+     SeaweedFS mid-suite would disturb the other specs sharing it.
+5. **Frontend component tests (Vitest + Testing Library)** for the paused
+   state, at the highest seam that renders it:
+   - `CarrierInvoiceFilesSection`, in a new test beside it: with
+     `filesAvailable` false, every name is listed, each Download is
+     `aria-disabled` with no `href`, the attach control's button is disabled,
+     and the notice reads the attach wording; without an attach control it
+     reads the download-only wording; with no files and no attach control
+     there is no notice; with `filesAvailable` true, today's links and button.
+   - The existing view tests (`client-invoices-view.test.tsx`,
+     `client-invoice-detail-view.test.tsx`) each gain one case passing
+     `filesAvailable: false` through the view, proving the wiring; their
+     fixtures gain `filesAvailable: true` and otherwise pass unedited.
+   - Prior art: `client-invoices-view.test.tsx`'s "Attach carrier invoice"
+     cases (around line 621).
+6. **End to end: the existing specs, unedited**, on the isolated stack with
    its throwaway SeaweedFS: `client-invoice-generation.spec.ts` (attach and
    download, :26, :80-88) and `client-invoice-submission-and-visibility.spec.ts`
    (:68). Prior art for the stack: `run-backend-for-e2e-isolated.sh`'s
    Postgres.
-6. **Visual goldens**: unaffected. The stub backend serves `files: []`.
-7. **`verify`** stays the command in `docs/agents/sdlc.json`, unchanged. After
+7. **Visual goldens**: unchanged, none added. The stub backend serves
+   `files: []` and now `filesAvailable: true`, so every page renders as
+   today; a golden that changes is a defect. The paused state is covered by
+   the component tests and the walkthrough.
+8. **`verify`** stays the command in `docs/agents/sdlc.json`, unchanged. After
    a full run, `backend/data` is not created.
 
 ## Decisions taken
@@ -545,10 +773,84 @@ mocked database. No test reaches Hetzner.
   October 2025, archived in 2026, images removed from Docker Hub in September
   2026), so a pinned tag never gets a security fix. SeaweedFS is Apache-2.0,
   maintained, and one container.
+- **Settled by the human (2026-10-17), amending this spec at the approval
+  gate: the backend never refuses to start over the store, and the frontend
+  disables upload and download while the store is unavailable.** Reason: the
+  human's words, "Let's not block the backend startup if the object storage
+  configuration is failing. Aside from that, upload and download should be
+  deactivated on the frontend."
 - **The startup `HeadBucket` runs whatever the flag; `createBucket` only
-  decides whether a missing bucket is created or fails startup.** Reason: on
+  decides whether a missing bucket is created or reported.** Reason: on
   Hetzner the flag is off, and story 11 still wants a broken store or a wrong
-  bucket name found at deploy time.
+  bucket name found in the log at deploy time.
+- **Availability is a cached flag refreshed by a scheduled probe every 30
+  seconds (fixed delay), plus a startup probe, not a lazy check on read.**
+  Reason: a page load never waits on the store, so a down store costs no
+  page any latency. 30 seconds is short enough that the screens catch up
+  within half a minute of the store returning, matching "unavailable right
+  now", and long enough that a down store costs one capped request every 30
+  seconds and one log line in all. Changing the number is one constant.
+- **The probe is the bucket ensure itself (`HeadBucket`, then `CreateBucket`
+  when absent and the flag is on).** Reason: one code path for startup and
+  recovery, and a store that comes back empty is recovered too. It adds no S3
+  operation to the five.
+- **The probe's call is capped at about 3 seconds.** Reason: the scheduler
+  thread must never sit on a hung store for the 30-second call timeout.
+- **Only the probe sets it available; any `ObjectStoreUnavailableException`
+  sets it unavailable at once; a missing object does not.** Reason: one
+  failure is enough to stop offering controls that will fail, and recovery
+  through the probe alone keeps one source of "it's back". One lost object is
+  not an outage.
+- **Log ERROR on the move to unavailable and INFO on the move back, nothing in
+  between.** Reason: an hour-long outage would otherwise log 120 errors.
+- **While unavailable, attach and download answer 503 at once, without
+  calling the store.** Reason: the server stays authoritative for a page
+  loaded before the outage, and the request fails in milliseconds, not after a
+  30-second timeout.
+- **A configuration that cannot build a client leaves file storage
+  unavailable for the life of the process, with one ERROR naming the
+  setting.** Reason: the human's "missing config" case must not fail startup.
+  Configuration is read at startup only, so recovering from it needs a restart
+  anyway. The endpoint is bound as a string so that binding itself cannot
+  fail.
+- **The flag reaches the frontend as `filesAvailable` on
+  `ClientInvoiceResponse`, not through a status endpoint.** Reason: the three
+  screens already render from that response, server-side, so it adds no
+  request, no BFF route and no client fetch, and the flag arrives with the
+  page it governs. A status endpoint would need a new BFF route and a second
+  fetch on three pages. The field is per response, not per file, because
+  availability is the store's, not a file's.
+- **Controls re-enable on the next page load or refresh, with no polling.**
+  Reason: the human asked for the controls to be deactivated, not watched; an
+  Agent who reloads gets the current state, and polling would add a timer and
+  a client fetch to three pages for an outage that should be rare.
+- **Compose's backend `depends_on` SeaweedFS with `service_started`, not
+  `service_healthy`.** Reason: waiting on the store's health would block the
+  backend's startup, which the human ruled out. Start order is kept, and the
+  probe catches up.
+- **Proposed notice wording, for the human to veto: "File storage is
+  unavailable right now. Attaching and downloading are paused." where the
+  attach control is shown, and "File storage is unavailable right now.
+  Downloading is paused." elsewhere; no notice where nothing is paused.**
+  Reason: `DESIGN.md`'s plain voice; it says what is wrong and what is
+  paused, blames no one, and asks nothing of a user who can do nothing about
+  it. A Tester is never told about attaching, which they never do.
+- **The notice uses the warning tone and the existing inline message shape
+  (`IconAlertTriangle` + 12px line), as a plain paragraph, not an alert.**
+  Reason: no new token or pattern; warning means "waiting on something",
+  danger would say the viewer's own action failed, and a state present on
+  load is not an event to announce.
+- **A paused Download is non-interactive text (`aria-disabled`, no `href`),
+  not a link to a 503.** Reason: the human asked for it deactivated; a link,
+  even styled grey, can still be opened in a new tab and fail.
+- **The three files sections become one shared `CarrierInvoiceFilesSection`.**
+  Reason: the paused state is then written and tested once, and each caller
+  keeps its own empty text and accessible names, so the normal state does not
+  move a pixel.
+- **The paused state is not an e2e spec; it is shown in the walkthrough.**
+  Reason: the isolated e2e specs share one throwaway SeaweedFS, and stopping it
+  mid-suite would make the other specs' failures depend on timing. Component
+  tests and the backend unit tests cover each half.
 - **`pathStyleAccess` stays a flag, default path-style, env
   `OBJECT_STORE_PATH_STYLE`.** Reason: SeaweedFS serves path-style without a
   wildcard DNS name; Hetzner's required style is set by environment once the
@@ -559,7 +861,8 @@ mocked database. No test reaches Hetzner.
   production; a small, checked surface is the guard.
 - **No retry beyond the SDK's defaults for Hetzner's reported occasional
   instability.** Reason: a failed call is already a contained 503 with an
-  ERROR line, and the user retries with today's "Try again." text.
+  ERROR line; the files section pauses for at most 30 seconds and the user
+  retries after a reload.
 - **The SeaweedFS S3 credential mechanism (config JSON or environment) is left
   to the implementer; the values are dev-only defaults in compose and the
   scripts.** Reason: it depends on the pinned version, and it never reaches
@@ -600,16 +903,17 @@ mocked database. No test reaches Hetzner.
 - **The bucket is named `remote-support-files` by default.** Reason: it holds
   the `carrier-invoices/` prefix, not only one kind. The name is a config
   value.
-- **The bucket is ensured at startup, and startup fails when the store is
-  unreachable.** Reason: a broken store is found at deploy time. Compose
-  starts the backend only once SeaweedFS is healthy, and a flag turns the
-  creation off for a pre-provisioned store (Hetzner).
+- **The bucket is ensured at startup, and a failure is logged, never fatal.**
+  Reason: a broken store is found in the deploy's log without taking the app
+  down (the human's amendment). A flag turns the creation off for a
+  pre-provisioned store (Hetzner).
 - **`/api/health` does not probe the store.** Reason: it is the compose
   liveness check. Tying it to the store would take the whole app (and the
   frontend's start) down with a store outage that only touches attachments.
 - **A store failure during a request is a 503 (`ObjectStoreUnavailableException`)
-  with one ERROR line; the frontend shows its existing failure text.**
-  Reason: Backend 7. It is visible and contained, and no copy changes.
+  with one ERROR line; the frontend shows its existing failure text for that
+  attempt, and the paused state from the next page load.** Reason: Backend 7.
+  It is visible and contained, and the failure text is unchanged.
 - **Downloads stay whole-file `byte[]`.** Reason: the BFF's `forwardBinary`
   buffers the whole body anyway, and files are capped at 20MB. Streaming would
   change two controllers and the BFF for no gain today.
@@ -637,12 +941,16 @@ mocked database. No test reaches Hetzner.
   choice is hard to reverse (the stored data's location and key contract) and
   the result of a trade-off.
 - **`track` is `full`.** Reason: it adds a main-scope dependency, a compose
-  service and a volume on the human's stack, and changes the e2e
-  infrastructure.
-- **Two tickets: the store first, the download name second.** Reason: the
-  store swap must land with compose, scripts and the test seam together, or
-  `verify` and the human's stack break between tickets. The header fix is
-  independent and small. Both go in one PR.
+  service and a volume on the human's stack, changes the e2e infrastructure,
+  and now touches three screens.
+- **Three tickets in one PR: the store with its availability, the download
+  name, the paused files section.** Reason: the availability probe is the
+  startup bucket check rewritten, so it lands with the store swap, which must
+  already land with compose, scripts and the test seam together or `verify`
+  and the human's stack break between tickets. The header fix is independent
+  and small. The frontend change is a different layer with its own tests and
+  only needs the `filesAvailable` field; folding it into the store ticket
+  would make one ticket span backend, infra and three screens.
 
 ## Open questions
 
@@ -666,21 +974,22 @@ bucket" means an S3 API listing against the throwaway SeaweedFS's S3 port
 with its dev-only credentials (e.g. `aws s3api list-objects-v2
 --endpoint-url http://localhost:<port> --bucket remote-support-files`).
 
-1. [agent] Run `verify`. Show it green, and show that `backend/data` was not created. Show `docker ps` listing no SeaweedFS or Postgres container left from the run. (stories: 16, 17)
+1. [agent] Run `verify`. Show it green, the visual goldens unchanged, and that `backend/data` was not created. Show `docker ps` listing no SeaweedFS or Postgres container left from the run. (stories: 16, 17)
 2. [agent] As Jordan, on the current-month draft at `/agent/client-invoices`, attach two files at once: a PDF named `Réf "Oct" 2026 – Orange.pdf` and a PNG. Show both listed under their names. Download each from the page, and show the saved name equals the original exactly and the bytes' SHA-256 equals the uploaded file's. (stories: 1, 2, 5)
 3. [agent] List the bucket in SeaweedFS through the S3 API. Show exactly two objects, at `carrier-invoices/{tenant id}/{that invoice id}/{file id}`, whose file ids are the ones the invoice's file list returns. Head each and show no `x-amz-meta-*` and no tags. Query `carrier_invoice_files` and show each row's `storage_path` equals its key. (stories: 14, 15)
 4. [agent] As the Manager, open that invoice's `/manager/invoices/client/{id}`, attach a third file and download one of Jordan's. As Jordan, send the invoice. As the Tester of that Client, download a file from the Invoices page. Show the same bytes and name. (stories: 3, 4)
 5. [agent] Through the API, as Jordan, POST a file to the now-sent invoice. Show a 409, and the bucket still holding exactly the three objects under that invoice's prefix. (stories: 6)
 6. [agent] Restart the backend process, then restart the SeaweedFS container (`docker restart`, the same container). Show every file still downloads with the same bytes. (stories: 8)
-7. [agent] Stop the SeaweedFS container. Show:
-   - attaching on a draft shows "Couldn't attach one or more files. Try again." and the backend logs one ERROR naming the store operation and no credentials;
-   - the invoice page, its list of files and the Fleet page still load;
-   - start SeaweedFS again and the attach works.
-
-   Then, with SeaweedFS stopped, start the backend. Show it refuses to start with an ERROR naming the endpoint and the bucket. With SeaweedFS running, start the backend with `OBJECT_STORE_CREATE_BUCKET=false` and `OBJECT_STORE_BUCKET` set to a bucket that does not exist; show it refuses to start the same way and creates no bucket. (stories: 11, 12, 13)
+7. [agent] The store goes down and comes back. For this step the throwaway SeaweedFS keeps its data across a stop (started without `--rm`, removed by name at the end).
+   - With the page open on a new draft as Jordan, `docker stop` SeaweedFS and attach a file. Show "Couldn't attach one or more files. Try again." and one ERROR in the backend log naming the store operation, with no credentials.
+   - Reload. As Jordan on the draft, as the Manager on its `/manager/invoices/client/{id}`, and as the Tester on an earlier sent invoice's Invoices page, show the files section listing every file name, "Attach carrier invoice" disabled (Jordan, Manager), each Download disabled and not a link, and the notice: "File storage is unavailable right now. Attaching and downloading are paused." (Jordan, Manager) or "File storage is unavailable right now. Downloading is paused." (Tester). Screenshot each.
+   - Show lines, fees, the PDF and the Fleet page still work, and that a direct API attach and download answer 503 at once.
+   - `docker start` SeaweedFS. Wait 30 seconds, reload: Attach and Download are enabled on all three screens, a download returns the same bytes and an attach works. Show one INFO line for the recovery and no repeated ERROR lines in between.
+   - Stop the backend. Start it with `OBJECT_STORE_ENDPOINT` at a free port where nothing listens. Show it starts (`/api/health` answers), logs one ERROR naming that endpoint and the bucket, and the files sections are paused. Start a fresh throwaway SeaweedFS on that port; after 30 seconds and a reload, show Attach works and the bucket was created by the backend.
+   - With SeaweedFS running, start the backend with `OBJECT_STORE_CREATE_BUCKET=false` and `OBJECT_STORE_BUCKET` set to a bucket that does not exist, then with a wrong secret key, then with `OBJECT_STORE_ENDPOINT=not a url`. Each time show it starts, logs one ERROR naming the endpoint and the bucket (or the bad setting), never the secret, creates no bucket, and the files sections are paused. (stories: 11, 12, 13, 20, 21, 22, 23, 24, 25)
 8. [agent] Run `docker compose -f docker-compose.yml config` (read-only; nothing is started). Show:
    - a `seaweedfs` service on the pinned `chrislusf/seaweedfs` tag, with the `seaweedfs_data` volume, no `ports`, a healthcheck, and dev-only S3 credentials;
-   - `backend` with `OBJECT_STORE_ENDPOINT=http://seaweedfs:8333` and a `depends_on` on `seaweedfs` being healthy;
+   - `backend` with `OBJECT_STORE_ENDPOINT=http://seaweedfs:8333` and a `depends_on` on `seaweedfs` with `service_started` (not `service_healthy`);
    - `seaweedfs_data` declared.
 
    Grep the repository for `your-objectstorage.com` and show it appears only in docs, never with a key or secret. Show `application.yml`'s `app.object-store` block reading every value from `OBJECT_STORE_*`. Show ADR 0007, including the S3 operations checked against Hetzner's supported actions and the addressing style, and the amended Carrier Invoice File entry. (stories: 9, 10, 13, 17, 18, 19)
@@ -688,12 +997,17 @@ with its dev-only credentials (e.g. `aws s3api list-objects-v2
 
 ## Execution order
 
-Two tickets, one PR. The second depends on the first only because both touch
-the download path in `CarrierInvoiceFileService`.
+Three tickets, one PR. The second and third depend on the first only: the
+second because both touch the download path in `CarrierInvoiceFileService`,
+the third because it reads `filesAvailable`.
 
 1. `carrier-invoice-files-in-object-store`. It covers:
    - the AWS SDK dependency and `ObjectStoreProperties`;
-   - the `S3Client` bean and the bucket ensured at startup;
+   - the `S3Client` bean, built so that no store setting can fail startup;
+   - `ObjectStoreAvailability`: the bucket ensured at startup and every 30
+     seconds, logged on transitions, `@EnableScheduling`, `markUnavailable`
+     on a store failure, the 503 at once while unavailable, and
+     `filesAvailable` on `ClientInvoiceResponse`;
    - `CarrierInvoiceFileStorage` rewritten over S3, with the filesystem code,
      `app.file-storage` and the `backend/.gitignore` entry removed;
    - `CarrierInvoiceFileService` (attach with undo on failure, download) and
@@ -702,9 +1016,10 @@ the download path in `CarrierInvoiceFileService`.
    - the shared test SeaweedFS (`GenericContainer`) for `IntegrationTest` and
      `DemoDataLoaderApiTest`;
    - the new `ClientInvoiceApiTest` cases for the key, no metadata, the 409
-     undo and the missing object, and the unit tests;
-   - the `seaweedfs` service, the `seaweedfs_data` volume and the backend env
-     in `docker-compose.yml`;
+     undo, the missing object and `filesAvailable: true`, the malformed-endpoint
+     context test, and the unit tests (availability and recovery included);
+   - the `seaweedfs` service, the `seaweedfs_data` volume, the backend env and
+     its `service_started` dependency in `docker-compose.yml`;
    - throwaway SeaweedFS in both e2e backend scripts, `run-e2e-isolated.sh`
      and the isolated Playwright config;
    - the check of the S3 operations and addressing style against Hetzner
@@ -712,8 +1027,16 @@ the download path in `CarrierInvoiceFileService`.
    - ADR 0007;
    - the declared `CONTEXT.md` terms and `ARCHITECTURE.md` entries.
 
-   Labels: backend, infra. No dependency. (stories: 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+   Labels: backend, infra. No dependency. (stories: 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 25)
 2. `carrier-invoice-file-download-name`: `Content-Disposition` built with
    `ContentDisposition` and UTF-8, `X-Content-Type-Options: nosniff`, and the
    `ClientInvoiceApiTest` case with an accented, quoted name. Labels: backend.
    Depends on `carrier-invoice-files-in-object-store`. (stories: 5)
+3. `carrier-invoice-files-paused`: the shared `CarrierInvoiceFilesSection`
+   used by the Agent's card, the Manager's detail and the Tester's Invoices
+   page; the paused state (names listed, Attach and Download disabled, the
+   notice); the `disabled` prop on `AttachCarrierInvoiceFileControl`;
+   `filesAvailable` in `lib/api/types.ts`, the test fixtures and the visual
+   stub backend; its component tests; the one-line `DESIGN.md` entry. Labels:
+   frontend. Depends on `carrier-invoice-files-in-object-store`. (stories: 20,
+   21, 22, 23, 24)

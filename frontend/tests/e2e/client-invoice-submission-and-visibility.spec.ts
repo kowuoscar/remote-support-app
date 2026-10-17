@@ -55,6 +55,9 @@ test.describe("client invoice submission and visibility", () => {
     await expect(page.getByTestId("client-invoice-card").getByText("Draft")).toBeVisible();
     // The SIM line reads its number, then the Carrier and the flavor.
     await expect(page.getByTestId("client-invoice-card").getByText("Verizon · Postpaid")).toBeVisible();
+    // The send gate: with the Postpaid SIM's carrier invoice missing, Send is disabled and says why.
+    await expect(page.getByRole("button", { name: "Send Client Invoice" })).toBeDisabled();
+    await expect(page.getByText("1 Postpaid SIM still needs its carrier invoice.")).toBeVisible();
     // The line's carrier invoice is attached; the Manager will see its check mark.
     await attachCarrierInvoice(page, simNumber);
     // Wait for the refreshed card (the line's check mark) so the helper below sees nothing left to attach.
@@ -63,6 +66,7 @@ test.describe("client invoice submission and visibility", () => {
     ).toBeVisible();
 
     await attachCarrierInvoicesForEveryPostpaidSim(page);
+    await expect(page.getByRole("button", { name: "Send Client Invoice" })).toBeEnabled();
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     const [sendResponse] = await Promise.all([
       page.waitForResponse(

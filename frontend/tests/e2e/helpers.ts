@@ -634,10 +634,13 @@ export async function attachCarrierInvoicesForEveryPostpaidSim(page: Page) {
 
   await attach.click();
   const dialog = page.getByRole("dialog", { name: "Attach carrier invoice" });
-  const optionTexts = await dialog.getByRole("combobox", { name: "Postpaid SIM" }).locator("option").allTextContents();
+  const options = await dialog
+    .getByRole("combobox", { name: "Postpaid SIM" })
+    .locator("option")
+    .evaluateAll((nodes) => (nodes as HTMLOptionElement[]).map((node) => ({ value: node.value, text: node.text })));
   await dialog.getByRole("button", { name: "Cancel" }).click();
-  // Each option reads "{number} · {Carrier}"; the first, empty-valued one is the placeholder.
-  const numbers = optionTexts.filter((text) => text.includes("+")).map((text) => text.split(" · ")[0]!.trim());
+  // Each option reads "{number} · {Carrier}"; the empty-valued one is the placeholder.
+  const numbers = options.filter((option) => option.value !== "").map((option) => option.text.split(" · ")[0]!.trim());
 
   const checks = page.getByRole("img", { name: "Carrier invoice attached" });
   let covered = await checks.count();

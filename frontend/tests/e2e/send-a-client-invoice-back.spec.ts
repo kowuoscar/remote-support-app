@@ -3,6 +3,7 @@ import {
   SEEDED_USERS,
   addPostpaidSimCard,
   addTesterAndSubmitRequestAsAgent,
+  attachCarrierInvoice,
   createClientAndContractWithSeededAgent,
   login,
   logout,
@@ -44,6 +45,9 @@ test.describe("send a client invoice back", () => {
     await page.goto("/agent/client-invoices");
     await selectClientInvoiceContract(page, clientName);
     await expect(page.getByRole("heading", { name: "Sent back to you" })).toHaveCount(0);
+    // The wrong carrier invoice goes on first: the Agent will replace it after the send-back.
+    await attachCarrierInvoice(page, simNumber, "wrong-carrier.pdf");
+    await expect(page.getByRole("img", { name: "Carrier invoice attached" })).toBeVisible();
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
@@ -109,6 +113,17 @@ test.describe("send a client invoice back", () => {
     const feeRow = page.getByRole("row", { name: /Topup/ });
     await expect(simRow.getByText("$25.00", { exact: true })).toBeVisible();
     await expect(feeRow.getByText("$45.00", { exact: true })).toBeVisible();
+
+    // Remove the wrong carrier invoice: the mark leaves the line and the form takes the line back.
+    await expect(simRow.getByRole("img", { name: "Carrier invoice attached" })).toBeVisible();
+    await page.getByRole("button", { name: "Remove wrong-carrier.pdf" }).click();
+    await expect(page.getByText("Remove this file?")).toBeVisible();
+    await page.getByRole("button", { name: "Remove", exact: true }).click();
+    await expect(page.getByText("wrong-carrier.pdf")).toHaveCount(0);
+    await expect(simRow.getByRole("img", { name: "Carrier invoice attached" })).toHaveCount(0);
+    await attachCarrierInvoice(page, simNumber, "right-carrier.pdf");
+    await expect(simRow.getByRole("img", { name: "Carrier invoice attached" })).toBeVisible();
+    await expect(page.getByText("right-carrier.pdf")).toBeVisible();
 
     // Correct the Postpaid SIM line and resend.
     await simRow.getByRole("button", { name: "Edit" }).click();

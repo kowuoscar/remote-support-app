@@ -757,7 +757,12 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
 
     postFileById(agentToken, invoiceId, simIdOf(byId(invoiceId)), "extra.pdf", "more-bytes")
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.filename").value("extra.pdf"));
+        .andExpect(
+            jsonPath("$.filename")
+                .value(
+                    org.hamcrest.Matchers.allOf(
+                        org.hamcrest.Matchers.startsWith("Send Back "),
+                        org.hamcrest.Matchers.endsWith(" - AT&T - +1-555-0400.pdf"))));
 
     assertThat(body(getById(agentToken, invoiceId, "/files").andExpect(status().isOk()))).hasSize(1);
     // A sent invoice takes no file: the plain 409 it is today.

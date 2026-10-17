@@ -75,9 +75,13 @@ test.describe("client invoice generation", () => {
     await expect(page.getByText("No carrier invoice files attached yet.")).toBeVisible();
     // Nothing attached yet: the SIM line shows no check mark.
     await expect(page.getByRole("img", { name: "Carrier invoice attached" })).toHaveCount(0);
-    const fileName = await attachCarrierInvoice(page, simNumber, "october-carrier-invoice.pdf");
+    await attachCarrierInvoice(page, simNumber, "october-carrier-invoice.PDF");
 
-    await expect(page.getByText(fileName)).toBeVisible();
+    // The file is listed under its computed name, not the uploaded one
+    // (carrier-invoice-computed-name): {Client} - {Month Year} - {Carrier} - {SIM number}{.ext}.
+    const monthYear = new Date().toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+    await expect(page.getByText(`${clientName} - ${monthYear} - Verizon - ${simNumber}.pdf`)).toBeVisible();
+    await expect(page.getByText("october-carrier-invoice")).toHaveCount(0);
     // The line's check mark appears once its file is attached (carrier-invoice-check-mark).
     await expect(
       page.getByTestId("client-invoice-card").getByRole("img", { name: "Carrier invoice attached" }),

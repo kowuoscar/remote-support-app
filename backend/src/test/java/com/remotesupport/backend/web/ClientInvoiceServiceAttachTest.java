@@ -59,6 +59,9 @@ class ClientInvoiceServiceAttachTest {
 
     Contract contract = mock(Contract.class);
     when(contract.getId()).thenReturn(UUID.randomUUID());
+    com.remotesupport.backend.domain.Client client = mock(com.remotesupport.backend.domain.Client.class);
+    when(client.getName()).thenReturn("Acme");
+    when(contract.getClient()).thenReturn(client);
     invoice = new ClientInvoice();
     invoice.setId(invoiceId);
     invoice.setTenant(mock(Tenant.class));
@@ -70,6 +73,7 @@ class ClientInvoiceServiceAttachTest {
 
     SimCard sim = new SimCard();
     sim.setId(simId);
+    sim.setNumber("+1-202-555-0102");
     sim.setFlavor(com.remotesupport.backend.domain.SimCardFlavor.POSTPAID);
     sim.setMonthlyFeeAmount(java.math.BigDecimal.TEN);
     when(amounts.billablePostpaidSims(any(), any())).thenReturn(List.of(sim));

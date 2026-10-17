@@ -114,16 +114,19 @@ test.describe("send a client invoice back", () => {
     await expect(simRow.getByText("$25.00", { exact: true })).toBeVisible();
     await expect(feeRow.getByText("$45.00", { exact: true })).toBeVisible();
 
+    // The file is listed under its computed name, which a replacement takes again.
+    const monthYear = new Date().toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+    const fileName = `${clientName} - ${monthYear} - Verizon - ${simNumber}.pdf`;
     // Remove the wrong carrier invoice: the mark leaves the line and the form takes the line back.
     await expect(simRow.getByRole("img", { name: "Carrier invoice attached" })).toBeVisible();
-    await page.getByRole("button", { name: "Remove wrong-carrier.pdf" }).click();
+    await page.getByRole("button", { name: `Remove ${fileName}` }).click();
     await expect(page.getByText("Remove this file?")).toBeVisible();
     await page.getByRole("button", { name: "Remove", exact: true }).click();
-    await expect(page.getByText("wrong-carrier.pdf")).toHaveCount(0);
+    await expect(page.getByText(fileName)).toHaveCount(0);
     await expect(simRow.getByRole("img", { name: "Carrier invoice attached" })).toHaveCount(0);
     await attachCarrierInvoice(page, simNumber, "right-carrier.pdf");
     await expect(simRow.getByRole("img", { name: "Carrier invoice attached" })).toBeVisible();
-    await expect(page.getByText("right-carrier.pdf")).toBeVisible();
+    await expect(page.getByText(fileName)).toBeVisible();
 
     // Correct the Postpaid SIM line and resend.
     await simRow.getByRole("button", { name: "Edit" }).click();

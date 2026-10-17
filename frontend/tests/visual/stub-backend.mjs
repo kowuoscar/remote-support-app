@@ -348,6 +348,7 @@ function clientInvoiceFor(contract) {
     feeLines: withLines ? FEE_LINES : [],
     totalAmount: withLines ? 98 : 120 + contract.index * 10,
     files: [],
+    filesAvailable: true,
     sentAt: null,
     approvedAt: null,
     ...INVOICE_STATES[contract.index],

@@ -16,7 +16,14 @@ import { IconAlertTriangle, IconPaperclip } from "@/components/icons";
  * own upload (the backend accepts one file per call), sequentially, so a failure partway through
  * leaves the files that already succeeded attached rather than losing all of them.
  */
-export function AttachCarrierInvoiceFileControl({ invoiceId }: { invoiceId: string }) {
+export function AttachCarrierInvoiceFileControl({
+  invoiceId,
+  disabled = false,
+}: {
+  invoiceId: string;
+  /** File storage is unavailable: the button and the hidden input are disabled. */
+  disabled?: boolean;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [uploading, setUploading] = useState(false);
@@ -58,6 +65,7 @@ export function AttachCarrierInvoiceFileControl({ invoiceId }: { invoiceId: stri
         variant="secondary"
         size="sm"
         loading={uploading}
+        disabled={disabled}
         onClick={() => inputRef.current?.click()}
       >
         <IconPaperclip className="h-4 w-4" />
@@ -67,6 +75,7 @@ export function AttachCarrierInvoiceFileControl({ invoiceId }: { invoiceId: stri
         ref={inputRef}
         type="file"
         multiple
+        disabled={disabled}
         className="sr-only"
         aria-label="Attach carrier invoice file"
         onChange={(event) => handleFiles(event.target.files)}

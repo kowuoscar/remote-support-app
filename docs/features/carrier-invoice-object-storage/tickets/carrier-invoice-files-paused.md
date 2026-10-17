@@ -1,7 +1,7 @@
 ---
 id: carrier-invoice-files-paused
 title: Show Carrier Invoice Files as paused, with Attach and Download disabled, while file storage is unavailable
-status: ready-for-agent
+status: in-progress
 depends_on: [carrier-invoice-files-availability]
 labels: [frontend]
 stories: [20, 21, 22, 23, 24]

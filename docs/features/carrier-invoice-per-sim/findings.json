@@ -213,7 +213,7 @@
     {
       "id": "F20",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
@@ -224,7 +224,7 @@
     {
       "id": "F21",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
@@ -235,7 +235,7 @@
     {
       "id": "F22",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
@@ -246,7 +246,7 @@
     {
       "id": "F23",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
@@ -257,7 +257,7 @@
     {
       "id": "F24",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
@@ -279,13 +279,57 @@
     {
       "id": "F26",
       "type": "spec-wrong",
-      "state": "open",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": true,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/demo/DemoDataLoader.java:471-490",
       "citation": "Decisions taken: \"The demo loader attaches through storage `put` plus `recordAttachedFile`, and on a store failure leaves the invoice a draft with a WARN.\" / Demo data: \"it uses the storage `put` and `recordAttachedFile` directly, with the same undo.\"",
       "note": "The fix pass made the loader probe the store and go through CarrierInvoiceFileService.attach; a failure part way keeps earlier files. The spec was not amended. Orchestrator recorded an (after review) decision and aligned the Demo data paragraph."
+    },
+    {
+      "id": "F27",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/tests/visual/client-invoice-files.spec.ts:55-68",
+      "citation": "DESIGN.md Layout: sticky 56px top bar and sticky rail; F20 asked for a golden of 'the open inline confirm'",
+      "note": "All four client-invoice-remove-confirm-open-* goldens are bad full-page captures: clicking Remove scrolls the document, so the sticky top bar and rail are drawn partway down, covering the card header; the mobile ones bake in a hover underline. Scroll to the top and move the mouse away before capture (or screenshot the files section), then retake."
+    },
+    {
+      "id": "F28",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:167",
+      "citation": "spec Design direction, disabled Send: 'right-aligned like the confirm text'; F23 note",
+      "note": "At 390 the wrapped action column (now max-w-65) right-aligns to x≈297, lining up with neither the title nor the card's content edge. Give the column ml-auto (or w-full items-end below sm) so it sits flush right, then retake the mobile goldens."
+    },
+    {
+      "id": "F29",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/client-invoice-detail-view.tsx:146-148 with frontend/components/ui/carrier-invoice-check.tsx",
+      "citation": "spec Design direction: 'inline after the muted Carrier label … the row layout … do not move'; DESIGN.md Components: IconCheckCircle 'after its Carrier label'",
+      "note": "At 390 on the Manager detail the check mark wraps alone onto a new line under the Carrier label. Keep label and check together (whitespace-nowrap span around simLineKind + CarrierInvoiceCheck), then retake."
+    },
+    {
+      "id": "F30",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": true,
+      "in_changed_lines": false,
+      "where": "frontend/components/manager/client-invoice-detail-view.tsx (Manager SIM row break-words)",
+      "citation": "DESIGN.md: 'A SIM number never breaks across lines'",
+      "note": "At 390 the Manager detail breaks '+44 7700 / 900456' across lines; pre-existing break-words on the Manager row, predates this branch."
     }
   ]
 }

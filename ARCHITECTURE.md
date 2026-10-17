@@ -28,6 +28,8 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/domain/ManagerName.java` · the one rule for a valid Manager name (trim, non-blank, at most 100 chars).
 - `backend/src/main/java/com/remotesupport/backend/web/ManagerNameController.java` · `PUT /api/me/name`, Manager-only, writes the caller's own name.
 - `backend/src/main/resources/db/migration/V60__add_users_name.sql` · the migration behind a Manager's name.
+- `backend/src/main/resources/db/migration/V61__add_carrier_invoice_file_sim_card.sql` · the migration behind a Carrier Invoice File belonging to one SIM line.
+- `backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceConflictAdvice.java` · the one `@RestControllerAdvice` for both Client Invoice controllers: conflicts as `{code, message}`, invalid requests as `{message}`.
 - `backend/src/main/java/com/remotesupport/backend/web/TenantTotalsController.java` · `GET /api/tenant-totals`, Manager-only.
 - `backend/src/main/java/com/remotesupport/backend/web/TenantTotalsService.java` · selects and sums this month's billed (Client Invoices SENT/APPROVED) and payout (Agent Invoices APPROVED/PAID) per currency from frozen totals.
 - `backend/src/main/java/com/remotesupport/backend/repository/AgentInvoiceTotal.java` · the single JPQL expression for an Agent Invoice's frozen total, shared by the Review Queue and Tenant totals queries.
@@ -76,6 +78,7 @@ error, not a nitpick.
 - `frontend/components/app-shell/change-name-dialog.tsx` · the dialog behind the account menu's Change name item: edits the caller's own name, never signs out.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
 - `frontend/components/agent/agent-client-invoice-card.tsx` · the Agent's Client Invoice card.
+- `frontend/components/agent/attach-carrier-invoice-dialog.tsx` · the attach form: pick a Postpaid SIM line and one file.
 - `frontend/components/ui/side-list.tsx` · the shared SideList (named nav landmark of links with name, detail, badge and mark slots) and SideListLayout (page body: column at xl, dropdown and header below xl, with lead and detailRef slots).
 - `frontend/components/ui/tabs.tsx` · the shared WAI-ARIA tablist with roving tabindex, automatic activation and one rendered panel; switches between the tables of one record, never scopes a Contract.
 - `frontend/components/ui/carrier-invoice-files-section.tsx` · the shared Carrier invoice files section for the Agent card, Manager invoice detail and Tester Invoices page, including the paused state (names listed, Download disabled, one notice).

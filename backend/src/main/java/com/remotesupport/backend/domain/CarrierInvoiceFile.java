@@ -2,6 +2,7 @@ package com.remotesupport.backend.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -37,6 +38,11 @@ public class CarrierInvoiceFile {
   @ManyToOne(optional = false)
   @JoinColumn(name = "client_invoice_id", nullable = false)
   private ClientInvoice clientInvoice;
+
+  /** The Postpaid SIM Card this file bills; {@code null} only for a row from before carrier-invoice-per-sim. */
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "sim_card_id")
+  private SimCard simCard;
 
   @Column(nullable = false)
   private String filename;

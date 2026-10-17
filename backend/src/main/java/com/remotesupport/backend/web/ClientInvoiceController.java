@@ -160,6 +160,7 @@ public class ClientInvoiceController {
   public ResponseEntity<CarrierInvoiceFileResponse> uploadFile(
       @PathVariable UUID contractId,
       @RequestParam("file") MultipartFile file,
+      @RequestParam("simCardId") UUID simCardId,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
     clientInvoiceAccessGuard.requireCanBuildOrView(contract, principal);
@@ -168,7 +169,7 @@ public class ClientInvoiceController {
     clientInvoiceService.requireNonEmpty(file);
 
     ClientInvoice invoice = getOrCreateDraftForCurrentMonth(contract, principal);
-    return carrierInvoiceFileService.attach(invoice, file, principal);
+    return carrierInvoiceFileService.attach(invoice, file, simCardId, principal);
   }
 
   @GetMapping("/files")

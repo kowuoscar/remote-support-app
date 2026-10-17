@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -157,6 +158,7 @@ public class ClientInvoiceService {
       UUID fileId,
       String key,
       MultipartFile file,
+      UUID simCardId,
       AuthenticatedPrincipal principal) {
     ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
     if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
@@ -167,10 +169,22 @@ public class ClientInvoiceService {
       requireOpenToAgent(invoice);
     }
 
+    SimCard sim =
+        lines(invoice).stream()
+            .filter(l -> l.kind() == ClientInvoiceLineKind.POSTPAID_SIM && l.simCard().getId().equals(simCardId))
+            .map(ResolvedLine::simCard)
+            .findFirst()
+            .orElseThrow(() -> new InvalidRequestException("Not a Postpaid SIM line of this Client Invoice"));
+    if (carrierInvoiceFileRepository.existsByClientInvoiceIdAndSimCardId(invoice.getId(), simCardId)) {
+      throw alreadyAttached();
+    }
+
     CarrierInvoiceFile carrierFile = new CarrierInvoiceFile();
     carrierFile.setId(fileId);
     carrierFile.setTenant(invoice.getTenant());
     carrierFile.setClientInvoice(invoice);
+    carrierFile.setSimCard(sim);
+    // A placeholder: the uploaded file's own name. carrier-invoice-computed-name replaces it.
     carrierFile.setFilename(
         file.getOriginalFilename() != null && !file.getOriginalFilename().isBlank()
             ? file.getOriginalFilename()
@@ -181,11 +195,24 @@ public class ClientInvoiceService {
     carrierFile.setUploadedAt(Instant.now());
 
     carrierFile.setStoragePath(key);
-    carrierInvoiceFileRepository.save(carrierFile);
+    try {
+      carrierInvoiceFileRepository.saveAndFlush(carrierFile);
+    } catch (DataIntegrityViolationException e) {
+      if (String.valueOf(e.getMostSpecificCause().getMessage()).contains("uq_carrier_invoice_files_invoice_sim")) {
+        throw alreadyAttached();
+      }
+      throw e;
+    }
 
     AuditLog.created("CarrierInvoiceFile", carrierFile.getId(), principal.userId(), principal.tenantId());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(CarrierInvoiceFileResponse.of(carrierFile));
+  }
+
+  private static ClientInvoiceConflictException alreadyAttached() {
+    return new ClientInvoiceConflictException(
+        ClientInvoiceConflictException.Reason.CARRIER_INVOICE_ALREADY_ATTACHED,
+        "This SIM already has its carrier invoice on this Client Invoice");
   }
 
   public List<CarrierInvoiceFileResponse> files(ClientInvoice invoice) {

@@ -52,13 +52,13 @@ public class CarrierInvoiceFileService {
    * hides the original exception. Callers run {@link ClientInvoiceService#requireNonEmpty} first.
    */
   public ResponseEntity<CarrierInvoiceFileResponse> attach(
-      ClientInvoice invoice, MultipartFile file, AuthenticatedPrincipal principal) {
+      ClientInvoice invoice, MultipartFile file, UUID simCardId, AuthenticatedPrincipal principal) {
     requireStore();
     UUID fileId = UUID.randomUUID();
     String key = storage.keyFor(invoice.getTenant().getId(), invoice.getId(), fileId);
     storage.put(key, file);
     try {
-      return clientInvoiceService.recordAttachedFile(invoice, fileId, key, file, principal);
+      return clientInvoiceService.recordAttachedFile(invoice, fileId, key, file, simCardId, principal);
     } catch (RuntimeException e) {
       try {
         storage.delete(key);

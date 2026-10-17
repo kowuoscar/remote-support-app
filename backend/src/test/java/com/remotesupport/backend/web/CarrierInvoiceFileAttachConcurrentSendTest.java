@@ -11,6 +11,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.ObjectStoreTestSupport;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -53,6 +55,7 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
           "DELETE FROM client_invoice_lines WHERE client_invoice_id IN (SELECT id FROM client_invoices WHERE contract_id = ?)",
           contractId);
       jdbcTemplate.update("DELETE FROM client_invoices WHERE contract_id = ?", contractId);
+      jdbcTemplate.update("DELETE FROM sim_cards WHERE contract_id = ?", contractId);
       jdbcTemplate.update("DELETE FROM contracts WHERE id = ?", contractId);
     }
     if (clientId != null) {
@@ -66,6 +69,7 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
     String agentToken = agentToken();
     clientId = createClient(managerToken, "Attach Race " + UUID.randomUUID());
     contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
     mockMvc
         .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk());
@@ -90,6 +94,7 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
                       .perform(
                           multipart("/api/contracts/" + contractId + "/client-invoice/files")
                               .file(new MockMultipartFile("file", "slow.pdf", "application/pdf", "slow".getBytes()))
+                              .param("simCardId", simId.toString())
                               .header("Authorization", "Bearer " + agentToken))
                       .andReturn()
                       .getResponse()
@@ -119,6 +124,61 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
       assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/")).isEmpty();
     } finally {
       release.countDown();
+      pool.shutdownNow();
+    }
+  }
+
+  @Test
+  void twoSimultaneousAttachesForOneSimLeaveOneRowOneObjectAnd409ForTheOther() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    clientId = createClient(managerToken, "Attach Same Sim Race " + UUID.randomUUID());
+    contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId =
+        UUID.fromString(
+            objectMapper
+                .readTree(
+                    mockMvc
+                        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+                        .andExpect(status().isOk())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString())
+                .get("id")
+                .asText());
+
+    CountDownLatch go = new CountDownLatch(1);
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    try {
+      List<Future<Integer>> attaches = new ArrayList<>();
+      for (int i = 0; i < 2; i++) {
+        String name = "race-" + i + ".pdf";
+        attaches.add(
+            pool.submit(
+                () -> {
+                  assertThat(go.await(30, TimeUnit.SECONDS)).isTrue();
+                  return mockMvc
+                      .perform(
+                          multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                              .file(new MockMultipartFile("file", name, "application/pdf", name.getBytes()))
+                              .param("simCardId", simId.toString())
+                              .header("Authorization", "Bearer " + agentToken))
+                      .andReturn()
+                      .getResponse()
+                      .getStatus();
+                }));
+      }
+      go.countDown();
+      List<Integer> statuses = List.of(attaches.get(0).get(60, TimeUnit.SECONDS), attaches.get(1).get(60, TimeUnit.SECONDS));
+
+      assertThat(statuses).containsExactlyInAnyOrder(201, 409);
+      assertThat(
+              jdbcTemplate.queryForObject(
+                  "SELECT count(*) FROM carrier_invoice_files WHERE client_invoice_id = ?", Integer.class, invoiceId))
+          .isEqualTo(1);
+      assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/")).hasSize(1);
+    } finally {
       pool.shutdownNow();
     }
   }

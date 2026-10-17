@@ -194,6 +194,27 @@ describe("ClientInvoiceDetailView", () => {
       expect(within(rows[2]).getByText("Postpaid")).toBeInTheDocument();
     });
 
+    it("shows the read-only 'Carrier invoice attached' mark on a covered line, with no Attach and no Remove", () => {
+      render(
+        <ClientInvoiceDetailView
+          invoice={invoice({
+            basePostpaidSims: [
+              { simCardId: "s1", number: "+1-555-0401", monthlyFeeAmount: 20, cancellationEffectiveDate: null, amount: 20, carrierName: "Verizon", carrierInvoiceFileId: "file-1" },
+              { simCardId: "s2", number: "+1-555-0402", monthlyFeeAmount: 20, cancellationEffectiveDate: null, amount: 20, carrierName: "Verizon", carrierInvoiceFileId: null },
+            ],
+          })}
+        />,
+      );
+
+      const rows = within(screen.getByRole("list", { name: "Postpaid SIM Cards" })).getAllByRole("listitem");
+      const mark = within(rows[0]).getByRole("img", { name: "Carrier invoice attached" });
+      const kind = within(rows[0]).getByText("Verizon · Postpaid");
+      expect(kind.compareDocumentPosition(mark) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(within(rows[1]).queryByRole("img", { name: "Carrier invoice attached" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /attach/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+    });
+
     it("edited-line-shows-computed-amount-marker", () => {
       render(
         <ClientInvoiceDetailView

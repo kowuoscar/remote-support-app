@@ -28,6 +28,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -239,6 +240,13 @@ public class ClientInvoiceService {
       ClientInvoice invoice, boolean includeEdits, boolean filesAvailable) {
     List<ResolvedLine> lines = lines(invoice);
     boolean perSim = lines.stream().noneMatch(l -> l.kind() == ClientInvoiceLineKind.BASE_AMOUNT);
+    List<CarrierInvoiceFileResponse> files = files(invoice);
+    Map<UUID, UUID> fileIdBySim = new HashMap<>();
+    for (CarrierInvoiceFileResponse file : files) {
+      if (file.simCardId() != null) {
+        fileIdBySim.put(file.simCardId(), file.id());
+      }
+    }
     List<ClientInvoiceBaseSimLineResponse> basePostpaidSims =
         perSim
             ? lines.stream()
@@ -249,7 +257,8 @@ public class ClientInvoiceService {
                             l.simCard(),
                             l.amount(),
                             includeEdits ? l.computedAmount() : null,
-                            includeEdits ? l.edited() : null))
+                            includeEdits ? l.edited() : null,
+                            fileIdBySim.get(l.simCard().getId())))
                 .toList()
             : null;
     List<ClientInvoiceFeeLineResponse> feeLines =
@@ -274,7 +283,7 @@ public class ClientInvoiceService {
         basePostpaidSims,
         feeLines,
         total(lines),
-        files(invoice),
+        files,
         filesAvailable,
         invoice.getSentAt(),
         invoice.getApprovedAt(),

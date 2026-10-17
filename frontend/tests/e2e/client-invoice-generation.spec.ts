@@ -73,9 +73,15 @@ test.describe("client invoice generation", () => {
     // Attach a carrier invoice file through the "Attach carrier invoice" form: one file per
     // Postpaid SIM line (carrier-invoice-per-sim).
     await expect(page.getByText("No carrier invoice files attached yet.")).toBeVisible();
+    // Nothing attached yet: the SIM line shows no check mark.
+    await expect(page.getByRole("img", { name: "Carrier invoice attached" })).toHaveCount(0);
     const fileName = await attachCarrierInvoice(page, simNumber, "october-carrier-invoice.pdf");
 
     await expect(page.getByText(fileName)).toBeVisible();
+    // The line's check mark appears once its file is attached (carrier-invoice-check-mark).
+    await expect(
+      page.getByTestId("client-invoice-card").getByRole("img", { name: "Carrier invoice attached" }),
+    ).toBeVisible();
     // Every Postpaid SIM line now has its file: nothing is left to attach.
     await expect(page.getByRole("button", { name: "Attach carrier invoice" })).toBeDisabled();
     await expect(page.getByRole("link", { name: "Download" })).toBeVisible();

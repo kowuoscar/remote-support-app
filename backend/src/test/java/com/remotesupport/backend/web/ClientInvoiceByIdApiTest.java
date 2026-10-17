@@ -484,4 +484,76 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
                 "carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/"))
         .isEmpty();
   }
+
+  // --- The check mark: carrierInvoiceFileId on each Postpaid SIM line (carrier-invoice-check-mark) ---
+
+  @Test
+  void aLineServesTheIdOfItsSimsFileAndAnUncoveredLineServesAnExplicitNull() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Check Mark Co");
+    UUID coveredSim = addUniquePostpaidSim(managerToken, contractId);
+    UUID bareSim = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+
+    UUID fileId = UUID.fromString(
+        objectMapper
+            .readTree(attachById(agentToken, invoiceId, coveredSim, "covered.pdf")
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString())
+            .get("id")
+            .asText());
+
+    for (String token : List.of(managerToken, agentToken)) {
+      String path = token.equals(managerToken)
+          ? "/api/client-invoices/" + invoiceId
+          : "/api/contracts/" + contractId + "/client-invoice";
+      String body =
+          mockMvc
+              .perform(get(path).header("Authorization", "Bearer " + token))
+              .andExpect(status().isOk())
+              .andReturn()
+              .getResponse()
+              .getContentAsString();
+      for (com.fasterxml.jackson.databind.JsonNode line : objectMapper.readTree(body).get("basePostpaidSims")) {
+        if (line.get("simCardId").asText().equals(coveredSim.toString())) {
+          assertThat(line.get("carrierInvoiceFileId").asText()).isEqualTo(fileId.toString());
+        } else {
+          assertThat(line.get("simCardId").asText()).isEqualTo(bareSim.toString());
+          assertThat(line.has("carrierInvoiceFileId")).isTrue();
+          assertThat(line.get("carrierInvoiceFileId").isNull()).isTrue();
+        }
+      }
+    }
+  }
+
+  @Test
+  void aFileWhoseSimHasNoLineIsListedButSetsNoLinesField() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID clientId = createClient(managerToken, "Check Mark Orphan Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken = createTesterAndLogin(managerToken, clientId, "check.mark.orphan@example.com");
+    UUID leavingSim = addUniquePostpaidSim(managerToken, contractId);
+    UUID stayingSim = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    attachById(agentToken, invoiceId, leavingSim, "leaving.pdf").andExpect(status().isCreated());
+
+    cancelSimCard(contractId, managerToken, testerToken, agentToken, leavingSim, currentMonth().minusMonths(2));
+
+    String body =
+        mockMvc
+            .perform(get("/api/client-invoices/" + invoiceId).header("Authorization", "Bearer " + managerToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.files.length()").value(1))
+            .andExpect(jsonPath("$.basePostpaidSims.length()").value(1))
+            .andExpect(jsonPath("$.basePostpaidSims[0].simCardId").value(stayingSim.toString()))
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    assertThat(objectMapper.readTree(body).get("basePostpaidSims").get(0).get("carrierInvoiceFileId").isNull())
+        .isTrue();
+  }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { CarrierInvoiceCheck } from "@/components/ui/carrier-invoice-check";
 import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -144,6 +145,7 @@ export function ClientInvoiceDetailView({ invoice: initial }: { invoice: ClientI
                 <span className="min-w-0 break-words text-ink">
                   <span className="tnum font-medium">{sim.number}</span>
                   <span className="ml-2 text-label-sm font-normal text-ink-mute">{simLineKind(sim)}</span>
+                  <CarrierInvoiceCheck carrierInvoiceFileId={sim.carrierInvoiceFileId} />
                   {sim.cancellationEffectiveDate ? (
                     <span className="block text-label-sm text-ink-mute">
                       Cancelled {formatLocalDate(sim.cancellationEffectiveDate)} — still billed through this month

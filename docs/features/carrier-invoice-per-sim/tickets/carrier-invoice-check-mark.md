@@ -1,7 +1,7 @@
 ---
 id: carrier-invoice-check-mark
 title: Show a check mark on each Postpaid SIM line whose Carrier Invoice File is attached
-status: ready-for-agent
+status: in-progress
 depends_on: [attach-carrier-invoice-per-sim]
 labels: [backend, frontend]
 stories: [7, 24]

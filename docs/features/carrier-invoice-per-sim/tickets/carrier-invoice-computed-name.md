@@ -1,7 +1,7 @@
 ---
 id: carrier-invoice-computed-name
 title: Store and download each Carrier Invoice File under its computed name
-status: ready-for-agent
+status: in-progress
 depends_on: [attach-carrier-invoice-per-sim]
 labels: [backend]
 stories: [3, 4, 5, 6, 25, 30]

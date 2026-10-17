@@ -1033,7 +1033,9 @@ class ClientInvoiceApiTest extends IntegrationTest {
 
     MvcResult result =
         mockMvc
-            .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken))
+            .perform(
+                get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId)
+                    .header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isOk())
             .andReturn();
     assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo("invoice.pdf");
@@ -1056,7 +1058,9 @@ class ClientInvoiceApiTest extends IntegrationTest {
 
     MvcResult result =
         mockMvc
-            .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + testerToken))
+            .perform(
+                get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId)
+                    .header("Authorization", "Bearer " + testerToken))
             .andExpect(status().isOk())
             .andExpect(header().string("X-Content-Type-Options", "nosniff"))
             .andReturn();

@@ -272,7 +272,7 @@
     {
       "id": "F25",
       "type": "spec-wrong",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": true,
       "in_changed_lines": true,
@@ -294,7 +294,7 @@
     {
       "id": "F27",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": true,
       "in_changed_lines": true,

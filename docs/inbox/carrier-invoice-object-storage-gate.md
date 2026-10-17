@@ -1,7 +1,7 @@
 ---
 id: carrier-invoice-object-storage-gate
 type: question
-status: open
+status: answered
 blocks: [carrier-invoice-object-storage]
 created: 2026-10-17
 ---
@@ -35,3 +35,5 @@ Findings: `docs/features/carrier-invoice-object-storage/findings.json` (F25).
 The feature is blocked; PR #32 stays draft.
 
 ## Answer
+
+Fix it (2026-10-17): authorises one more fixer pass for F25.

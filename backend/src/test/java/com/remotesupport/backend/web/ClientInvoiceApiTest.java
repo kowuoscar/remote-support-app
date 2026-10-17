@@ -1066,4 +1066,24 @@ class ClientInvoiceApiTest extends IntegrationTest {
             .andReturn();
     assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(AWKWARD_NAME);
   }
+
+  @Test
+  void everyClientInvoiceResponseCarriesFilesAvailableTrueWhileTheStoreAnswers() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Files Available Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+
+    MvcResult invoice =
+        mockMvc
+            .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.filesAvailable").value(true))
+            .andReturn();
+    String invoiceId = objectMapper.readTree(invoice.getResponse().getContentAsString()).get("id").asText();
+
+    mockMvc
+        .perform(get("/api/client-invoices/" + invoiceId).header("Authorization", "Bearer " + managerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.filesAvailable").value(true));
+  }
 }

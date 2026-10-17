@@ -33,8 +33,11 @@ public class CarrierInvoiceFileStorage {
 
   private final S3Client s3;
   private final ObjectStoreProperties props;
+  private final ObjectStoreAvailability availability;
 
-  public CarrierInvoiceFileStorage(S3Client s3, ObjectStoreProperties props) {
+  public CarrierInvoiceFileStorage(
+      S3Client s3, ObjectStoreProperties props, ObjectStoreAvailability availability) {
+    this.availability = availability;
     this.s3 = s3;
     this.props = props;
   }
@@ -81,6 +84,7 @@ public class CarrierInvoiceFileStorage {
   private ObjectStoreUnavailableException unavailable(String operation, String key, Exception cause) {
     String detail =
         cause instanceof S3Exception s3e ? "HTTP " + s3e.statusCode() : cause.getClass().getSimpleName();
+    availability.markUnavailable();
     log.error("Object store {} failed for key {} ({})", operation, key, detail);
     return new ObjectStoreUnavailableException("Object store is unavailable", cause);
   }

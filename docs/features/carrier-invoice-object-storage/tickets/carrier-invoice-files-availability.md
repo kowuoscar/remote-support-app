@@ -1,7 +1,7 @@
 ---
 id: carrier-invoice-files-availability
 title: Tell the frontend whether file storage is available, re-checking the store only when an invoice page opens
-status: in-progress
+status: done
 depends_on: [carrier-invoice-files-in-object-store]
 labels: [backend]
 stories: [25]

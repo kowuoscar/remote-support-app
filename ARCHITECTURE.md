@@ -39,7 +39,7 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/web/CorrectionConflictException.java` · the coded 409 for a Fleet Correction that clashes with the unit's state.
 - `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreProperties.java` · typed `app.object-store` settings (endpoint, region, bucket, credentials, path style, create bucket).
 - `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreConfig.java` · builds the single S3 client for a non-AWS store and validates settings; never fails the context.
-- `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreBucketCheck.java` · one-shot, never-fatal startup HeadBucket/CreateBucket that gates the store.
+- `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreAvailability.java` · cached, on-demand, single-flight answer to whether file storage is available, plus the never-fatal startup bucket probe.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileStorage.java` · key, put, read and delete of Carrier Invoice File bytes in the object-store bucket.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileService.java` · non-transactional attach (upload, record row under lock, undo on failure) and download.
 - `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreUnavailableException.java` · the 503 for a failed or unusable object store.

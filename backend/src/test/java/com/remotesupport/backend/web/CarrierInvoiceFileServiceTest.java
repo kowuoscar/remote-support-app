@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.remotesupport.backend.domain.CarrierInvoiceFile;
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.domain.Tenant;
 import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
@@ -25,7 +26,7 @@ class CarrierInvoiceFileServiceTest {
 
   private CarrierInvoiceFileStorage storage;
   private ClientInvoiceService clientInvoiceService;
-  private ObjectStoreBucketCheck bucketCheck;
+  private ObjectStoreAvailability availability;
   private CarrierInvoiceFileService service;
   private ClientInvoice invoice;
   private final MockMultipartFile file = new MockMultipartFile("file", "a.pdf", "application/pdf", "abc".getBytes());
@@ -37,10 +38,10 @@ class CarrierInvoiceFileServiceTest {
   void setUp() {
     storage = mock(CarrierInvoiceFileStorage.class);
     clientInvoiceService = mock(ClientInvoiceService.class);
-    bucketCheck = mock(ObjectStoreBucketCheck.class);
-    when(bucketCheck.passed()).thenReturn(true);
+    availability = mock(ObjectStoreAvailability.class);
+    when(availability.isAvailable()).thenReturn(true);
     service =
-        new CarrierInvoiceFileService(storage, clientInvoiceService, mock(CarrierInvoiceFileRepository.class), bucketCheck);
+        new CarrierInvoiceFileService(storage, clientInvoiceService, mock(CarrierInvoiceFileRepository.class), availability);
     invoice = mock(ClientInvoice.class);
     Tenant tenant = mock(Tenant.class);
     when(tenant.getId()).thenReturn(tenantId);
@@ -81,8 +82,8 @@ class CarrierInvoiceFileServiceTest {
   }
 
   @Test
-  void attachAnswers503WithoutCallingTheStoreWhenTheStartupCheckDidNotPass() {
-    when(bucketCheck.passed()).thenReturn(false);
+  void attachAnswers503WithoutCallingTheStoreWhileFileStorageIsUnavailable() {
+    when(availability.isAvailable()).thenReturn(false);
 
     assertThatThrownBy(() -> service.attach(invoice, file, principal)).isInstanceOf(ObjectStoreUnavailableException.class);
 
@@ -98,5 +99,19 @@ class CarrierInvoiceFileServiceTest {
     verify(storage).keyFor(eq(tenantId), eq(invoiceId), fileId.capture());
     verify(clientInvoiceService).recordAttachedFile(invoice, fileId.getValue(), "the/key", file, principal);
     assertThat(fileId.getValue()).isNotNull();
+  }
+
+  @Test
+  void downloadAnswers503WithoutCallingTheStoreWhileFileStorageIsUnavailable() {
+    CarrierInvoiceFileRepository repository = mock(CarrierInvoiceFileRepository.class);
+    CarrierInvoiceFile row = mock(CarrierInvoiceFile.class);
+    UUID fileId = UUID.randomUUID();
+    when(repository.findByIdAndClientInvoiceId(fileId, invoiceId)).thenReturn(java.util.Optional.of(row));
+    when(availability.isAvailable()).thenReturn(false);
+    CarrierInvoiceFileService withRows = new CarrierInvoiceFileService(storage, clientInvoiceService, repository, availability);
+
+    assertThatThrownBy(() -> withRows.download(invoice, fileId)).isInstanceOf(ObjectStoreUnavailableException.class);
+
+    verify(storage, never()).read(any());
   }
 }

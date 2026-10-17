@@ -1027,14 +1027,22 @@ mocked database. No test reaches Hetzner.
 - **`track` is `full`.** Reason: it adds a main-scope dependency, a compose
   service and a volume on the human's stack, changes the e2e infrastructure,
   and now touches three screens.
-- **Three tickets in one PR: the store with its availability, the download
-  name, the paused files section.** Reason: the availability probe is the
-  startup bucket check rewritten, so it lands with the store swap, which must
-  already land with compose, scripts and the test seam together or `verify`
-  and the human's stack break between tickets. The header fix is independent
-  and small. The frontend change is a different layer with its own tests and
-  only needs the `filesAvailable` field; folding it into the store ticket
-  would make one ticket span backend, infra and three screens.
+- **Four tickets in one PR: the store, the download name, the availability
+  check, the paused files section** (re-cut 2026-10-17 on the ticket critic's
+  R2: the store ticket with its availability did not fit one context). The
+  store swap lands with compose, scripts and the test seam together, or
+  `verify` and the human's stack break between tickets; its startup bucket
+  check is one-shot and never fails startup. The availability ticket turns it
+  into `ObjectStoreAvailability`. The download name and the availability
+  check depend only on the store; the paused files section depends on the
+  availability check.
+- **The ticket cut's last gaps were closed by the orchestrator, not
+  escalated** (2026-10-17). The critic's second pass failed R3, R5 and R6 on
+  wording only; each fix was applied with the critic's own "would pass" text:
+  criterion 7 of the store ticket names the settings instead of the class;
+  two context cases (closed port, missing bucket with creation off); the
+  availability ticket's Regression names the two unit test classes it
+  extends.
 
 ## Open questions
 

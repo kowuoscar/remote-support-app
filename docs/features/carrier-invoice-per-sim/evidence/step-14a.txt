@@ -1,0 +1,6 @@
+# US-1 (Solstice US) current-month invoice after fresh demo start
+status SENT filesAvailable True
+line +1-202-555-0102 AT&T carrierInvoiceFileId 47f2af27-9715-4e50-a3da-a4acbadf3319
+file 1783d76f-76e5-41f2-8ee3-a56d2bb5c8b6 Solstice Retail Group - October 2026 - AT&T - +1-202-555-0102.pdf
+# demo log WARN/ERROR count (store up):
+0

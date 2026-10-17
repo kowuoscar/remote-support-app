@@ -1,0 +1,12 @@
+# attach without simCardId
+{"timestamp":"2026-10-17T23:07:28.486+00:00","status":400,"error":"Bad Request","path":"/api/contracts/45a81f29-9425-47dd-8490-26d738040b08/client-invoice/files"} [400]
+# attach with Prepaid SIM id
+{"message":"Not a Postpaid SIM line of this Client Invoice"} [400]
+# attach again for first SIM
+{"code":"CARRIER_INVOICE_ALREADY_ATTACHED","message":"This SIM already has its carrier invoice on this Client Invoice"} [409]
+# POST /api/client-invoices/{id}/send
+{"code":"CARRIER_INVOICES_MISSING","message":"2 Postpaid SIM line(s) lack their carrier invoice: +1-303-555-0302, +1-303-555-0303"} [409]
+# POST /api/contracts/{c}/client-invoice/send (current-month route)
+{"code":"CARRIER_INVOICES_MISSING","message":"2 Postpaid SIM line(s) lack their carrier invoice: +1-303-555-0302, +1-303-555-0303"} [409]
+# invoice status
+DRAFT 1

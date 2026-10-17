@@ -1,0 +1,23 @@
+(first literal attempt, run without waiting for the 30s cache to go stale: no pause shown, DELETE returned 204 and left a stray object; replay below waits >30s)
+reload 1 Download links: 1 | notice shown: false
+reload 2 Download links: 0 | notice shown: true
+[
+  'File storage is unavailable right now. Attaching, removing and downloading are paused.'
+]
+  - button "Attach carrier invoice" [disabled]
+  - button "Send Client Invoice"
+      - row "+1-909-555-0901 Verizon · Postpaid Carrier invoice attached $65.00 Edit":
+        - cell "+1-909-555-0901 Verizon · Postpaid Carrier invoice attached":
+          - img "Carrier invoice attached"
+  - paragraph: File storage is unavailable right now. Attaching, removing and downloading are paused.
+      - text: Zeta Co - October 2026 - Verizon - +1-909-555-0901.pdf Download
+      - button "Remove Zeta Co - October 2026 - Verizon - +1-909-555-0901.pdf" [disabled]: Remove
+Attach disabled: true | Send disabled: false
+Download links (live): 0 | Remove buttons: 1 disabled: [ true ] | aria-disabled Download: [ 'Download' ]
+# API DELETE with store stopped
+{"timestamp":"2026-10-17T23:15:51.412+00:00","status":503,"error":"Service Unavailable","path":"/api/client-invoices/599e5cfe-e88a-4fb2-8b5a-ac0a3f7a9834/files/6b6bfdc4-3853-42fa-846a-64d3cff57f9d"} [503] time=0.010750s
+after send: Awaiting approval / Awaiting approval / Awaiting approval / Awaiting approval / Awaiting approval / Awaiting approval / Sent to the Manager and Client — numbers are locked to what was sent / File storage is unavailable right now. Downloading is paused.
+Epsilon (missing a file): Send disabled: true [
+  '1 Postpaid SIM still needs its carrier invoice.',
+  'File storage is unavailable right now. Attaching, removing and downloading are paused.'
+]

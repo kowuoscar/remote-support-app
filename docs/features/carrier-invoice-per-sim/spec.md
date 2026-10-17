@@ -710,7 +710,7 @@ bucket" means an S3 API listing against that SeaweedFS.
 
 11. [agent] (stories: 9, 14) On a Contract whose month has only a Prepaid SIM, show no "Attach carrier invoice", Send enabled, and the send succeeds.
 
-12. [agent] (stories: 17, 23) On a draft where every line has its file, stop the throwaway SeaweedFS (started without `--rm` for this step) and reload twice. Show:
+12. [agent] (stories: 17, 23) On a draft where every line has its file, stop the throwaway SeaweedFS (started without `--rm` for this step) and reload twice, the first reload at least 30 seconds after the last invoice page load (the availability check is cached for 30 seconds, as the object-storage feature settled). Show:
     - the files section paused, with "Attach carrier invoice", each Download and each Remove disabled;
     - the notice "File storage is unavailable right now. Attaching, removing and downloading are paused.";
     - Send enabled, and the send succeeds;

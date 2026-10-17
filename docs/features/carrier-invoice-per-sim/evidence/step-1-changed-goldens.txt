@@ -1,0 +1,4 @@
+frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-dark.png
+frontend/tests/visual/__screenshots__/agent-client-invoices-desktop-light.png
+frontend/tests/visual/__screenshots__/agent-client-invoices-mobile-dark.png
+frontend/tests/visual/__screenshots__/agent-client-invoices-mobile-light.png

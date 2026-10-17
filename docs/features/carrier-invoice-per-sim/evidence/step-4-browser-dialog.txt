@@ -1,0 +1,12 @@
+- dialog "Attach carrier invoice":
+  - heading "Attach carrier invoice" [level=2]
+  - alert: This SIM already has its carrier invoice. Remove it first to replace it.
+  - text: Postpaid SIM
+  - combobox "Postpaid SIM":
+    - option "Choose a Postpaid SIM" [disabled]
+    - option "+1-404-555-0401 · Verizon" [selected]
+    - option "+1-404-555-0402 · AT&T"
+  - text: File
+  - button "File"
+  - button "Cancel"
+  - button "Attach"

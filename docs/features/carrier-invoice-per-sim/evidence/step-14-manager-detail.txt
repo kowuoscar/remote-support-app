@@ -1,0 +1,36 @@
+- main:
+  - navigation "Breadcrumb":
+    - link "Invoices":
+      - /url: /manager/invoices
+    - text: Solstice Retail Group — Jordan Ellis
+  - heading "October 2026" [level=2]
+  - text: Awaiting approval
+  - paragraph: Base amount and Fee lines are locked to what the Agent sent
+  - paragraph: Sent Oct 18, 2026
+  - link "Download PDF":
+    - /url: /api/client-invoices/78d4c643-45fe-41cb-b27b-24b3eef7653d/pdf
+  - button "Send back"
+  - button "Approve"
+  - term: Base amount
+  - definition: $65.99
+  - term: Fees
+  - definition: $70.00
+  - term: Total
+  - definition: $135.99
+  - heading "Postpaid SIM Cards" [level=3]
+  - list "Postpaid SIM Cards":
+    - listitem:
+      - text: +1-202-555-0102AT&T · Postpaid
+      - img "Carrier invoice attached"
+      - text: $65.99
+  - heading "Fee lines" [level=3]
+  - list:
+    - listitem: Topup $25.00
+    - listitem: Other $45.00
+  - heading "Carrier invoice files" [level=3]
+  - list:
+    - listitem:
+      - text: Solstice Retail Group - October 2026 - AT&T - +1-202-555-0102.pdf
+      - link "Download Solstice Retail Group - October 2026 - AT&T - +1-202-555-0102.pdf":
+        - /url: /api/client-invoices/78d4c643-45fe-41cb-b27b-24b3eef7653d/files/47f2af27-9715-4e50-a3da-a4acbadf3319
+        - text: Download

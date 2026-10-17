@@ -1,0 +1,29 @@
+- main:
+  - text: Harbor Line Logistics — United States
+  - paragraph: October 2026
+  - text: Awaiting approval
+  - paragraph: Sent Oct 18, 2026
+  - link "Download PDF":
+    - /url: /api/contracts/45a81f29-9425-47dd-8490-26d738040b08/client-invoice/pdf
+  - term: Base amount
+  - definition: $195.99
+  - term: Fees this month
+  - definition: $0.00
+  - term: Total
+  - definition: $195.99
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees this month.
+  - heading "Carrier invoice files" [level=3]
+  - list:
+    - listitem:
+      - text: Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0301.pdf
+      - link "Download":
+        - /url: /api/contracts/45a81f29-9425-47dd-8490-26d738040b08/client-invoice/files/e10c2d55-99af-40a6-a241-d067e21ebb8b
+    - listitem:
+      - text: Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0302.pdf
+      - link "Download":
+        - /url: /api/contracts/45a81f29-9425-47dd-8490-26d738040b08/client-invoice/files/9df80f31-9e00-4f00-8e5a-32c46efbf23b
+    - listitem:
+      - text: Harbor Line Logistics - October 2026 - AT&T - +1-303-555-0303.pdf
+      - link "Download":
+        - /url: /api/contracts/45a81f29-9425-47dd-8490-26d738040b08/client-invoice/files/489553cf-1095-4514-ada3-b5f480d92405

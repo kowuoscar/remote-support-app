@@ -1,0 +1,53 @@
+--- form 1:
+- dialog "Attach carrier invoice":
+  - heading "Attach carrier invoice" [level=2]
+  - text: Postpaid SIM
+  - combobox "Postpaid SIM":
+    - option "Choose a Postpaid SIM" [disabled] [selected]
+    - option "+1-303-555-0302 · Verizon"
+    - option "+1-303-555-0303 · AT&T"
+  - text: File
+  - button "File"
+  - button "Cancel"
+  - button "Attach"
+--- form 2:
+- dialog "Attach carrier invoice":
+  - heading "Attach carrier invoice" [level=2]
+  - text: Postpaid SIM
+  - combobox "Postpaid SIM":
+    - option "Choose a Postpaid SIM" [disabled]
+    - option "+1-303-555-0303 · AT&T" [selected]
+  - text: File
+  - button "File"
+  - button "Cancel"
+  - button "Attach"
+preselected value: +1-303-555-0303 · AT&T
+check marks: 3
+Attach disabled: true
+Send disabled: false
+[]
+Clients
+Beta Co
+Draft
+Harbor Line Logistics
+Draft
+Solstice Retail Group
+Awaiting approval
+October 2026
+Draft
+This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+Attach carrier invoice
+Sends to the Manager and Client, and locks the numbers. Only the Manager can send it back to you.
+Back
+Confirm send
+BASE AMOUNT
+$195.99
+FEES THIS MONTH
+$0.00
+TOTAL
+$195.99
+You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+Postpaid SIM Cards
+NUMBER	BILLED
++1-303-555-0301Verizon · Postpaid
+$65.00

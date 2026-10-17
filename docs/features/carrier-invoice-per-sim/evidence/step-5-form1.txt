@@ -1,0 +1,11 @@
+- dialog "Attach carrier invoice":
+  - heading "Attach carrier invoice" [level=2]
+  - text: Postpaid SIM
+  - combobox "Postpaid SIM":
+    - option "Choose a Postpaid SIM" [disabled] [selected]
+    - option "+1-303-555-0302 · Verizon"
+    - option "+1-303-555-0303 · AT&T"
+  - text: File
+  - button "File"
+  - button "Cancel"
+  - button "Attach"

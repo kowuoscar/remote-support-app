@@ -1,0 +1,280 @@
+{
+  "feature": "carrier-invoice-per-sim",
+  "findings": [
+    {
+      "id": "F1",
+      "type": "spec-partial",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "CONTEXT.md:148",
+      "citation": "Story 30: \"As the team, I want `CONTEXT.md`'s Carrier Invoice File entry to say one per Postpaid SIM line, with a computed name, removable by its Agent from an open draft, so that the glossary matches the code.\"",
+      "note": "The entry gained the computed name and the removal, but never says one file per Postpaid SIM line; it still ends 'A Client Invoice can carry several.'"
+    },
+    {
+      "id": "F2",
+      "type": "spec-wrong",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileName.java:51",
+      "citation": "Solution, The computed name: \"**Unsafe characters.** In each part, `/ \\ : * ? \" < > |` and control characters become `_`.\" / Story 5",
+      "note": "clean() collapses \\s first, so tab, LF, CR, VT, FF become a space instead of '_' (the test asserts '  Acme   \\t Corp ' -> 'Acme Corp'). \\p{Cntrl} without UNICODE_CHARACTER_CLASS is ASCII-only, so C1 controls U+0080-U+009F are kept. Fix the code, or record the whitespace ordering as an (after review) decision; the C1 gap needs the code fixed either way."
+    },
+    {
+      "id": "F3",
+      "type": "spec-partial",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/tests/e2e/client-invoice-submission-and-visibility.spec.ts:59",
+      "citation": "Journeys: \"The journey's proof, `client-invoice-submission-and-visibility.spec.ts`, attaches a file for its Postpaid SIM before sending and asserts the check mark and the send gate.\"",
+      "note": "Asserts the Agent's and the Manager's check marks but never the send gate (Send disabled with its note before the attach)."
+    },
+    {
+      "id": "F4",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/lib/api/types.ts:524",
+      "citation": "Frontend, Types: \"One helper, `missingCarrierInvoiceLines(invoice)`, returns the Postpaid SIM lines whose `carrierInvoiceFileId` is null.\"",
+      "note": "Reads files[].simCardId (ticket 1's interim form) instead of the line's carrierInvoiceFileId. Same result today, two sources of truth."
+    },
+    {
+      "id": "F5",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileName.java:45",
+      "citation": "Solution: \"Runs of whitespace collapse to one space, and each part is trimmed.\" / 255-character cut",
+      "note": "The cut Client part is not trimmed again (double space before ' - '), and substring can split a surrogate pair."
+    },
+    {
+      "id": "F6",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/CarrierInvoiceFileNameTest.java:16",
+      "citation": "Testing decisions 3: \"`CarrierInvoiceFileName`, table-driven: the plain case; an archived Carrier; ...\"",
+      "note": "No archived-Carrier case at any level; the service behaviour (current Carrier name) is untested."
+    },
+    {
+      "id": "F7",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/demo/DemoDataLoader.java:480",
+      "citation": "",
+      "note": "If recordAttachedFile fails on the 2nd or later SIM, every key is deleted, including those whose rows are already committed."
+    },
+    {
+      "id": "F8",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/tests/e2e/helpers.ts:640",
+      "citation": "",
+      "note": "attachCarrierInvoicesForEveryPostpaidSim keeps only options containing '+'; a SIM number without '+' is silently skipped and the next send fails without an obvious reason."
+    },
+    {
+      "id": "F9",
+      "type": "rule-violated",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/demo/DemoDataLoader.java:465",
+      "citation": "docs/agents/coding-standards.md (Backend 8): A `@Transactional` method never calls an external HTTP or queue client inside the transaction; dispatch that call after commit (event listener, outbox) so a slow downstream never holds a database lock.",
+      "note": "run() is @Transactional (line 259) and calls sendUs1InvoiceWithItsCarrierInvoices (line 353), which calls carrierInvoiceFileStorage.put (S3 over HTTP) at 465 and storage.delete via deleteQuietly at 470/480 inside run()'s transaction; 480 runs after recordAttachedFile took the invoice row lock. Run the store calls outside a transaction."
+    },
+    {
+      "id": "F10",
+      "type": "rule-violated",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceConflictAdvice.java:16",
+      "citation": "docs/agents/coding-standards.md (Backend 7): Exceptions crossing the service→controller boundary are domain exceptions carrying `@ResponseStatus`, translated to a response body by a per-controller `@ExceptionHandler` when the body needs a machine-readable `code`",
+      "note": "New @RestControllerAdvice(assignableTypes = {ClientInvoiceByIdController, ClientInvoiceController}) replaces the per-controller handler; the only ControllerAdvice in backend/src/main. Spec Prefactoring allowed '(or is repeated identically in the second one)'. Fix: one @ExceptionHandler per controller, or the human amends Backend 7."
+    },
+    {
+      "id": "F11",
+      "type": "rule-violated",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/demo/DemoDataLoaderStoreDownTest.java:39",
+      "citation": "docs/agents/coding-standards.md (Backend 6): a test that needs a Spring context is an integration test: it extends `IntegrationTest`, keeps the `*Test` name and sits beside the unit tests of its package.",
+      "note": "New @SpringBootTest with its own PostgreSQLContainer, not extending IntegrationTest (follows DemoDataLoaderApiTest on main: IntegrationTest is pinned to the test profile, this needs demo). No exception in the rule; human carve-out or conform."
+    },
+    {
+      "id": "F12",
+      "type": "rule-violated",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/attach-carrier-invoice-dialog.tsx:108",
+      "citation": "docs/agents/coding-standards.md (Frontend 8): The two small type sizes are the tokens `text-label-sm` and `text-label`: a new or changed line uses them, never `text-[12px]`/`text-[13px]`",
+      "note": "text-[13px] on lines 108, 126, 135. Replace with text-label."
+    },
+    {
+      "id": "F13",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/send-client-invoice-control.tsx:66",
+      "citation": "smell baseline: possible Duplicated Code",
+      "note": "Inlines the 409 code parsing that readErrorCode (frontend/lib/api/errors.ts) does; use the shared helper."
+    },
+    {
+      "id": "F14",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceService.java:273",
+      "citation": "smell baseline: possible Duplicated Code",
+      "note": "Which SIM has a file is computed twice (toResponse fileIdBySim at 273, requireEveryCarrierInvoice at 482); one private helper returning Map<UUID, UUID>."
+    },
+    {
+      "id": "F15",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/demo/DemoDataLoader.java:454",
+      "citation": "smell baseline: possible Duplicated Code / Divergent Change",
+      "note": "Re-implements CarrierInvoiceFileService.attach's put/record/undo sequence plus an inline MultipartFile (DemoCarrierInvoice, line 496)."
+    },
+    {
+      "id": "F16",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/ui/carrier-invoice-files-section.tsx:51",
+      "citation": "smell baseline: possible Speculative Generality (leaky render prop)",
+      "note": "renderAction is a generic slot, yet the paused notice infers removing from its presence. Name the slot for what it is or pass the wording explicitly."
+    },
+    {
+      "id": "F17",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceService.java:193",
+      "citation": "smell baseline: possible Duplicated Code / Message Chains",
+      "note": "sim.getCarrier() == null ? null : sim.getCarrier().getName() duplicates ClientInvoiceBaseSimLineResponse.of."
+    },
+    {
+      "id": "F18",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:170",
+      "citation": "smell baseline: possible Duplicated Code",
+      "note": "missingCarrierInvoiceLines(invoice) computed twice in one render (170, 176)."
+    },
+    {
+      "id": "F19",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/ClientInvoiceByIdApiTest.java:673",
+      "citation": "smell baseline: possible Duplicated Code (Backend 12 may apply)",
+      "note": "Three near-identical removing-refused tests (673-722); a @ParameterizedTest over a setup function."
+    },
+    {
+      "id": "F20",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/tests/visual/__screenshots__/agent-client-invoices-*.png (recaptured in 24d52df, before e46b933)",
+      "citation": "spec Design direction, Remove: 'beside Download in the file row'",
+      "note": "None of the four goldens shows Remove on the editable draft's file row, but HEAD renders it; they pass only because of maxDiffPixelRatio 0.005. Recapture all four at HEAD, and add visual states for the attach dialog, the open inline confirm, the paused section and the Manager detail."
+    },
+    {
+      "id": "F21",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/ui/carrier-invoice-files-section.tsx:66,74 with remove-carrier-invoice-file-control.tsx:84-86",
+      "citation": "DESIGN.md Layout ('the page never scrolls sideways'); spec Remove: 'It is inline, with no modal for one file'",
+      "note": "At 390 wide the open confirm (Download + 'Remove this file?' + Cancel + Remove ~320px) truncates the filename to nothing and overflows the card. Let the row wrap or put the confirm on its own line below sm; the filename must stay readable while the confirm is open."
+    },
+    {
+      "id": "F22",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/remove-carrier-invoice-file-control.tsx:116",
+      "citation": "DESIGN.md Paused files section: 'disables ... each Remove with the secondary button's disabled look'",
+      "note": "Disabled Remove only adds cursor-not-allowed and stays ink-mute (its resting colour), so a paused Remove looks active. Add disabled:opacity-50 or change DESIGN.md."
+    },
+    {
+      "id": "F23",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/send-client-invoice-control.tsx:138",
+      "citation": "spec Design direction, disabled Send: 'with the note under it, right-aligned like the confirm text' (confirm text: max-w-65 text-right text-label-sm text-ink-mute)",
+      "note": "The count note lacks max-w-65 text-right; the stack sizes to the note and on mobile the group stops reading as one right-aligned column."
+    },
+    {
+      "id": "F24",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/ui/carrier-invoice-files-section.tsx:50-52 with agent-client-invoice-card.tsx:323",
+      "citation": "carrier-invoice-files-section.tsx renderAction docblock: 'the paused notice names removing as well: it says exactly what the section offers'",
+      "note": "On a paused editable draft with zero files the notice says 'Attaching, removing and downloading are paused.' though nothing can be removed or downloaded. Choose the wording from files.length > 0 as well."
+    },
+    {
+      "id": "F25",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "acceptance-runner",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/demo/DemoDataLoader.java",
+      "citation": "walkthrough step 14: 'with the store unavailable at startup the backend still starts, logs one WARN and leaves that invoice a draft'",
+      "note": "With the store down the log has the loader's one WARN plus CarrierInvoiceFileStorage's own ERROR ('PutObject failed...'), so the line count is two, not one. Behaviour is right; either the loader should check availability first or the step should allow the storage ERROR."
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+# store stopped at startup: backend UP
+{"status":"UP"}
+# US-1 invoice
+status DRAFT files 0 filesAvailable False
+# WARN/ERROR lines in the startup log (be3.log), before any request:
+241:2026-10-18T01:18:24.425+02:00 ERROR [:] c.r.b.web.CarrierInvoiceFileStorage - Object store PutObject failed for key carrier-invoices/11111111-1111-1111-1111-111111111111/f8cc8717-7ff8-4457-90cf-b6d078b4699a/da01ebea-ebcb-4c87-bfed-4a0cd6a041f6 at endpoint http://127.0.0.1:58333 bucket remote-support-files (SdkClientException
+242:2026-10-18T01:18:24.426+02:00 WARN  [:] c.r.backend.demo.DemoDataLoader - The object store refused the demo's carrier invoices; the current-month invoice of contract US-1 stays a draft.

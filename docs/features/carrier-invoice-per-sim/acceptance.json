@@ -1,0 +1,113 @@
+{
+  "feature": "carrier-invoice-per-sim",
+  "played_at": "2026-10-18",
+  "played_on": "feature/carrier-invoice-per-sim @ 4ca69d3",
+  "environment": "Isolated: throwaway postgres:16 rsa-acc-pg on 55432, chrislusf/seaweedfs:4.48 rsa-acc-seaweed on 58333, backend jar from an rsync of the tree on the demo profile on 58080, frontend next build+start on 53000; all removed; rsa-prod untouched",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1-verify.log",
+      "note": "verify green (mvn 921, vitest 588, e2e 112); only the four agent-client-invoices goldens changed"
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2.txt",
+      "note": "Three Postpaid lines with 'Verizon · Postpaid' / 'AT&T · Postpaid', no check mark, no Prepaid line; Send disabled with '3 Postpaid SIMs still need their carrier invoice.'"
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3-download.log",
+      "note": "Form lists '{number} · {Carrier}'; file named 'Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0301.pdf'; check mark; note '2 ...'; saved name equals listed name, SHA-256 matches."
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4-api.txt",
+      "note": "400 without simCardId, 400 for a Prepaid SIM, 409 CARRIER_INVOICE_ALREADY_ATTACHED, 409 CARRIER_INVOICES_MISSING naming 0302 and 0303 on both routes; browser conflict played on a second Contract so step 5 keeps two missing lines."
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5-bucket-db.txt",
+      "note": "Form offers only the remaining lines, preselects the last; three check marks, Attach disabled, Send enabled and sent; bucket has exactly three id-keyed objects with no metadata; rows carry sim_card_id and the computed filename."
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.log",
+      "note": "A SIM added after the page loaded: send refused with 'A Postpaid SIM still needs its carrier invoice. Reload to see which.'; after reload the note says 1."
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7-api.txt",
+      "note": "Manager sees three check marks, no Attach, no Remove; Manager and Tester DELETE 403; Tester downloads under the computed name; Jordan's DELETE on a sent invoice 409."
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8.log",
+      "note": "After a send-back, Remove with inline confirm takes the file and its check mark away (bucket 3 -> 2), replacement attached, resent (bucket back to 3)."
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9-past.txt",
+      "note": "Attach and Remove on a never-sent current-month draft; a past-month never-sent draft refuses DELETE with 409 PAST_MONTH_DRAFT_NOT_SENDABLE."
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-10-acme.log",
+      "note": "Number corrected: line shows the new number, the file keeps its original name; 'Acme/Labs \"Test\": North' gives 'Acme_Labs _Test__ North - ...' and downloads under it."
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-11.log",
+      "note": "Prepaid-only Contract: no Attach button, Send enabled, send succeeds."
+    },
+    {
+      "step": 12,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-12.log",
+      "note": "Paused notice 'Attaching, removing and downloading are paused.'; Attach and Remove disabled; covered draft sends; DELETE 503; a missing file still disables Send. Played after the 30 s availability cache expired (an immediate reload shows the cached state, as the object-storage feature settled)."
+    },
+    {
+      "step": 13,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-13.log",
+      "note": "SIM retired with no cancellation date: line gone, file still listed and removable, Send stays enabled."
+    },
+    {
+      "step": 14,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-14b.txt",
+      "note": "Fresh demo: US-1 invoice SENT with its one computed-name file and the check mark; store down at startup: backend starts, invoice stays DRAFT with 0 files (one WARN from the loader plus the storage's ERROR, F21)."
+    },
+    {
+      "step": 15,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    }
+  ]
+}

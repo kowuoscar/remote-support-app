@@ -1,0 +1,62 @@
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - 'link "Acme/Labs \"Test\": North Draft"':
+          - /url: /agent/client-invoices?contract=57b6c10c-8dec-48da-8607-2715b9fbd3e2
+      - listitem:
+        - link "Beta Co Draft":
+          - /url: /agent/client-invoices?contract=204a0040-a5e7-4868-b512-af652384d94f
+      - listitem:
+        - link "Delta Co Awaiting approval":
+          - /url: /agent/client-invoices?contract=dbd8f9d0-0333-4b03-886d-b9a1319a677f
+      - listitem:
+        - link "Epsilon Co Draft":
+          - /url: /agent/client-invoices?contract=663a29c2-8f69-43ee-a999-6c868a6cdb2a
+      - listitem:
+        - link "Eta Co Draft":
+          - /url: /agent/client-invoices?contract=5734653c-bb35-4b76-ba72-11219e557a15
+      - listitem:
+        - link "Gamma Co Awaiting approval":
+          - /url: /agent/client-invoices?contract=ccf2aab2-c8f8-403f-9c92-0018b2fbff5d
+      - listitem:
+        - link "Harbor Line Logistics Awaiting approval":
+          - /url: /agent/client-invoices?contract=45a81f29-9425-47dd-8490-26d738040b08
+      - listitem:
+        - link "Solstice Retail Group Awaiting approval":
+          - /url: /agent/client-invoices?contract=cd35d084-5dab-4077-ab84-c192f31e6d7d
+      - listitem:
+        - link "Zeta Co Awaiting approval":
+          - /url: /agent/client-invoices?contract=b3f38a51-7dbf-4ed6-a869-1301d8e648e2
+  - paragraph: October 2026
+  - text: Draft
+  - paragraph: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+  - button "Attach carrier invoice" [disabled]
+  - button "Send Client Invoice" [disabled]
+  - paragraph: 1 Postpaid SIM still needs its carrier invoice.
+  - term: Base amount
+  - definition: $65.99
+  - term: Fees this month
+  - definition: $0.00
+  - term: Total
+  - definition: $65.99
+  - paragraph: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+  - heading "Postpaid SIM Cards" [level=3]
+  - table:
+    - rowgroup:
+      - row "Number Billed":
+        - columnheader "Number"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "+1-808-555-0801 AT&T · Postpaid $65.99 Edit":
+        - cell "+1-808-555-0801 AT&T · Postpaid"
+        - cell "$65.99 Edit":
+          - text: $65.99
+          - button "Edit"
+          - status
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees logged against this Contract yet this month.
+  - heading "Carrier invoice files" [level=3]
+  - paragraph: File storage is unavailable right now. Attaching, removing and downloading are paused.
+  - paragraph: No carrier invoice files attached yet.

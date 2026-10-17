@@ -1,0 +1,10 @@
+# SQL: make Beta Co's never-sent draft a past-month draft
+                  id                  | billing_month | status 
+--------------------------------------+---------------+--------
+ 0c4848a2-773b-4ecd-8a71-299c58b0d41e | 2026-08-01    | DRAFT
+(1 row)
+
+UPDATE 1
+# Jordan DELETE file da312d8d-9a24-4c6a-83b5-4e07e3c5cec1
+{"code":"PAST_MONTH_DRAFT_NOT_SENDABLE","message":"A past month's draft that was never sent cannot be sent or changed"} [409]
+files remaining: 2

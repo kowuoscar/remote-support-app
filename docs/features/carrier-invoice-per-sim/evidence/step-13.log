@@ -1,0 +1,17 @@
+[before] SIM rows: [
+  '- row "+1-909-555-0902 Verizon · Postpaid Carrier invoice attached $65.00 Edit":',
+  '- row "+1-909-555-0903 AT&T · Postpaid Carrier invoice attached $65.99 Edit":'
+]
+[before] files: [
+  '- text: Eta Co - October 2026 - Verizon - +1-909-555-0902.pdf',
+  '- text: Eta Co - October 2026 - AT&T - +1-909-555-0903.pdf'
+] | Remove buttons: 2 | Send disabled: false | note: []
+{"id":"a7f1de11-93d5-4afd-99d3-9c5cd589cbf2","contractId":"5734653c-bb35-4b76-ba72-11219e557a15","number":"+1-909-555-0902","carrierId":"c0000000-0000-0000-0000-000000000003","carrierName":"Verizon","
+
+[after-retire] SIM rows: [
+  '- row "+1-909-555-0903 AT&T · Postpaid Carrier invoice attached $65.99 Edit":'
+]
+[after-retire] files: [
+  '- text: Eta Co - October 2026 - Verizon - +1-909-555-0902.pdf',
+  '- text: Eta Co - October 2026 - AT&T - +1-909-555-0903.pdf'
+] | Remove buttons: 2 | Send disabled: false | note: []

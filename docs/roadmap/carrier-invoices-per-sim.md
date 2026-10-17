@@ -52,7 +52,7 @@ What the code does today (explorer, 2026-10-16):
 
 Ordered by dependency; cut and sized at spec time.
 
-- [ ] `carrier-invoice-object-storage` — Carrier Invoice Files are stored in an S3-compatible object store (MinIO in compose and for tests), no existing files to move (the human, 2026-10-17); nothing a user sees changes.
+- [x] `carrier-invoice-object-storage` — Carrier Invoice Files are stored in an S3-compatible object store (Hetzner in production, SeaweedFS in compose and for tests), no existing files to move (the human, 2026-10-17); nothing a user sees changes.
 - [ ] `carrier-invoice-per-sim` — "Attach carrier invoice" opens a form that links the file to one of the invoice's Postpaid SIM lines (its number and Carrier) and stores it under a computed name "{Client} - {Month Year} - {Carrier} - {SIM number}"; the Agent cannot send the invoice until every Postpaid SIM line has its Carrier invoice; each Postpaid SIM line shows a check mark once its file is attached; after a send-back the Agent can remove a file.
 - [ ] `carrier-invoice-retention` — a Carrier Invoice File is deleted from storage 30 days after its Client Invoice is approved, and the pages say so where the file was.
 

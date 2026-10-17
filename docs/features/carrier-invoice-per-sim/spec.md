@@ -1,7 +1,7 @@
 ---
 feature: carrier-invoice-per-sim
 epic: carrier-invoices-per-sim
-status: draft
+status: approved
 date: 2026-10-17
 ---
 
@@ -602,6 +602,8 @@ leaves, what is in the bucket, and what a user sees and can do on the page.
 8. **`verify`** stays the command in `docs/agents/sdlc.json`.
 
 ## Decisions taken
+
+- **Spec approved by the human, 2026-10-17** (`docs/inbox/approve-carrier-invoice-per-sim.md`, "ok"), including the four decisions it listed (remove on any open draft; send during a store outage when every file is present; name fixed at attach, extension kept, unsafe characters to `_`; remove confirmed by a second click).
 
 - **The gate counts every `POSTPAID_SIM` line the invoice shows, the same `lines(invoice)` the send stores.** Reason: the check marks and the gate then follow one rule, and a line's file is required exactly when the line is billed.
 - **A file whose SIM has no line stays listed, removable, and neither counts nor blocks.** Reason: deleting it silently would lose the Agent's upload. Flagging it would add UI for a rare case: a SIM that left the Fleet before the month began, or an override reset to zero. Its name already carries its SIM number.

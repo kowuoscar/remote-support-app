@@ -1,3 +1,4 @@
+import { CarrierInvoiceCheck } from "@/components/ui/carrier-invoice-check";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EditedLineNote } from "@/components/ui/billed-amount";
@@ -226,6 +227,7 @@ export function AgentClientInvoiceCard({
                     <span className="inline-block whitespace-nowrap text-label-sm font-normal text-ink-mute">
                       {simLineKind(sim)}
                     </span>
+                    <CarrierInvoiceCheck carrierInvoiceFileId={sim.carrierInvoiceFileId} />
                   </span>
                   {sim.cancellationEffectiveDate ? (
                     <span className={`mt-1 block text-label-sm font-normal text-ink-mute ${LINE_AREA.note}`}>

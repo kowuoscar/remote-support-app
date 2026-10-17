@@ -328,9 +328,14 @@ const INVOICE_STATES = [
 // five line shapes the Agent's Client Invoice lays out: a plain, an edited and a cancelled Postpaid
 // SIM, a Fee with a description and an edited Fee with none. Base 25 + 30 + 25 = 80, Fees 10 + 8 = 18.
 const SIM_LINES = [
-  { simCardId: "66666666-0000-0000-0000-0000000000a1", number: "+44 7700 900123", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 25, computedAmount: 25, edited: false, carrierName: "Verizon" },
-  { simCardId: "66666666-0000-0000-0000-0000000000a2", number: "+44 7700 900456", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 30, computedAmount: 25, edited: true, carrierName: "Verizon" },
-  { simCardId: "66666666-0000-0000-0000-0000000000a3", number: "+44 7700 900789", monthlyFeeAmount: 25, cancellationEffectiveDate: "2026-09-03", amount: 25, computedAmount: 25, edited: false, carrierName: null },
+  { simCardId: "66666666-0000-0000-0000-0000000000a1", number: "+44 7700 900123", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 25, computedAmount: 25, edited: false, carrierName: "Verizon", carrierInvoiceFileId: "aaaaaaaa-0000-0000-0000-0000000000f1" },
+  { simCardId: "66666666-0000-0000-0000-0000000000a2", number: "+44 7700 900456", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 30, computedAmount: 25, edited: true, carrierName: "Verizon", carrierInvoiceFileId: null },
+  { simCardId: "66666666-0000-0000-0000-0000000000a3", number: "+44 7700 900789", monthlyFeeAmount: 25, cancellationEffectiveDate: "2026-09-03", amount: 25, computedAmount: 25, edited: false, carrierName: null, carrierInvoiceFileId: null },
+];
+// carrier-invoice-check-mark: the first line's SIM has its Carrier Invoice File (the check mark); the
+// second has none. The name is the stub's own string.
+const SIM_FILES = [
+  { id: "aaaaaaaa-0000-0000-0000-0000000000f1", clientInvoiceId: "99999999-0000-0000-0000-0000000000d1", simCardId: "66666666-0000-0000-0000-0000000000a1", filename: "Aurora - September 2026 - Verizon - +44 7700 900123.pdf", contentType: "application/pdf", sizeBytes: 48213, uploadedAt: "2026-09-15T09:30:00Z" },
 ];
 const FEE_LINES = [
   { id: "77777777-0000-0000-0000-0000000000a1", contractId: "22222222-0000-0000-0000-0000000000d1", requestId: "88888888-0000-0000-0000-0000000000a1", requestType: "TOPUP", feeType: "TOPUP", amount: 10, currency: "USD", description: "Customer asked for extra data", billingMonth: "2026-09-01", createdAt: "2026-09-12T10:00:00Z", computedAmount: 10, edited: false },
@@ -347,7 +352,7 @@ function clientInvoiceFor(contract) {
     basePostpaidSims: withLines ? SIM_LINES : [],
     feeLines: withLines ? FEE_LINES : [],
     totalAmount: withLines ? 98 : 120 + contract.index * 10,
-    files: [],
+    files: withLines ? SIM_FILES : [],
     filesAvailable: true,
     sentAt: null,
     approvedAt: null,

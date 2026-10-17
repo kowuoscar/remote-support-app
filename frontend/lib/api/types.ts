@@ -512,6 +512,9 @@ export interface ClientInvoiceBaseSimLine {
   // The SIM's Carrier's current name (still its name once archived), or null for a SIM with none.
   // Always sent; optional only so older fixtures stay valid, as `amount` is.
   carrierName?: string | null;
+  // The id of the invoice's Carrier Invoice File linked to this SIM, or null (the check mark is
+  // this being non-null). Always sent; optional only so older fixtures stay valid.
+  carrierInvoiceFileId?: string | null;
 }
 
 /**

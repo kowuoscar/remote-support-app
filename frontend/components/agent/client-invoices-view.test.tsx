@@ -377,6 +377,32 @@ describe("AgentClientInvoicesView", () => {
     expect(within(second).getByText("Postpaid")).toBeInTheDocument();
   });
 
+  it("shows 'Carrier invoice attached' on a covered Postpaid SIM line and nothing on an uncovered one", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT]}
+        invoicesByContract={{
+          "contract-1": invoice({
+            baseAmount: 50,
+            totalAmount: 50,
+            basePostpaidSims: [
+              { simCardId: "sim-a", number: "+1-555-0301", monthlyFeeAmount: 25, cancellationEffectiveDate: null, carrierName: "Verizon", carrierInvoiceFileId: "file-a" },
+              { simCardId: "sim-b", number: "+1-555-0302", monthlyFeeAmount: 25, cancellationEffectiveDate: null, carrierName: "Verizon", carrierInvoiceFileId: null },
+            ],
+          }),
+        }}
+      />,
+    );
+
+    const covered = screen.getByText("+1-555-0301").closest("tr") as HTMLElement;
+    const mark = within(covered).getByRole("img", { name: "Carrier invoice attached" });
+    const kind = within(covered).getByText("Verizon · Postpaid");
+    expect(kind.compareDocumentPosition(mark) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const bare = screen.getByText("+1-555-0302").closest("tr") as HTMLElement;
+    expect(within(bare).queryByRole("img", { name: "Carrier invoice attached" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("img", { name: "Carrier invoice attached" })).toHaveLength(1);
+  });
+
   it("marks a cancelled SIM Card still billed this month with its cancellation date", () => {
     render(
       <AgentClientInvoicesView

@@ -198,6 +198,9 @@ Two radius steps carry the whole system: `8px` (`rounded-lg`, Tailwind) for ever
 - **Row** (inline record actions): soft-indigo tone (`primary-soft-bg`/`primary-soft-text`) at the 8px control radius — indigo used here as a low-emphasis tint, not the reserved primary-action pill.
 - **Inline corrections** (Fleet units, Client Invoice lines): the value with a `ghost` `sm` Edit beside it. Editing is the field, a `row` Save and a `ghost` Cancel on one line, with the refusal below.
 
+### Carrier invoice check mark
+A Postpaid SIM line whose carrier invoice is attached carries `IconCheckCircle` (`h-3.5`, `success`) after its Carrier label, non-interactive, named "Carrier invoice attached".
+
 ### Paused files section
 When file storage is unavailable, the Carrier invoice files section keeps every file name (`ink`) with its paperclip, turns each Download into non-interactive `ink-mute` text (`aria-disabled`, no `href`, `cursor-not-allowed`), disables "Attach carrier invoice" with the secondary button's disabled look, and adds one `warning`-tone `text-label-sm` line with `IconAlertTriangle` under the heading (plain paragraph, not an alert). No banner, no card, no new token.
 

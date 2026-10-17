@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { refreshPage } from "@/lib/selection-address";
 import { Button } from "@/components/ui/button";
@@ -19,9 +19,21 @@ import { IconAlertTriangle, IconArrowRight } from "@/components/icons";
  * activation ignored) instead of natively disabled, so it never falls to the page. After a send the
  * control stays mounted ("Sending…") until the refreshed page replaces it, and the card's status
  * note takes focus then.
+ *
+ * <p>The send gate (carrier-invoice-per-sim): while `missingCarrierInvoices` Postpaid SIM lines
+ * still lack their Carrier Invoice File the trigger is disabled and a note, linked by
+ * `aria-describedby`, says how many. The server stays authoritative: a send it refuses with
+ * `CARRIER_INVOICES_MISSING` (a SIM began billing after the page loaded) says so.
  */
-export function SendClientInvoiceControl({ invoiceId }: { invoiceId: string }) {
+export function SendClientInvoiceControl({
+  invoiceId,
+  missingCarrierInvoices = 0,
+}: {
+  invoiceId: string;
+  missingCarrierInvoices?: number;
+}) {
   const router = useRouter();
+  const noteId = useId();
   const trigger = useRef<HTMLButtonElement>(null);
   const confirmButton = useRef<HTMLButtonElement>(null);
   const refocusTrigger = useRef(false);
@@ -51,7 +63,12 @@ export function SendClientInvoiceControl({ invoiceId }: { invoiceId: string }) {
     try {
       const response = await fetch(`/api/client-invoices/${invoiceId}/send`, { method: "POST" });
       if (!response.ok) {
-        setError("Couldn't send. Try again.");
+        const body = (await response.json().catch(() => null)) as { code?: string } | null;
+        setError(
+          response.status === 409 && body?.code === "CARRIER_INVOICES_MISSING"
+            ? "A Postpaid SIM still needs its carrier invoice. Reload to see which."
+            : "Couldn't send. Try again.",
+        );
         setPending(false);
         return;
       }
@@ -75,7 +92,7 @@ export function SendClientInvoiceControl({ invoiceId }: { invoiceId: string }) {
     </p>
   ) : null;
 
-  if (confirming) {
+  if (confirming && missingCarrierInvoices === 0) {
     return (
       <div className="flex flex-col items-end gap-1.5" onKeyDown={handleKeyDown}>
         <p className="max-w-65 text-right text-label-sm text-ink-mute">
@@ -105,10 +122,25 @@ export function SendClientInvoiceControl({ invoiceId }: { invoiceId: string }) {
 
   return (
     <div className="flex flex-col items-end gap-1.5">
-      <Button ref={trigger} type="button" variant="primary" size="sm" onClick={() => setConfirming(true)}>
+      <Button
+        ref={trigger}
+        type="button"
+        variant="primary"
+        size="sm"
+        disabled={missingCarrierInvoices > 0}
+        aria-describedby={missingCarrierInvoices > 0 ? noteId : undefined}
+        onClick={() => setConfirming(true)}
+      >
         <IconArrowRight className="h-4 w-4" />
         Send Client Invoice
       </Button>
+      {missingCarrierInvoices > 0 ? (
+        <p id={noteId} className="text-label-sm text-ink-mute">
+          {missingCarrierInvoices === 1
+            ? "1 Postpaid SIM still needs its carrier invoice."
+            : `${missingCarrierInvoices} Postpaid SIMs still need their carrier invoice.`}
+        </p>
+      ) : null}
       {errorLine}
     </div>
   );

@@ -10,6 +10,7 @@ import {
   logout,
   selectClientInvoiceContract,
   submitRequestAsTester,
+  attachCarrierInvoicesForEveryPostpaidSim,
 } from "./helpers";
 
 /**
@@ -90,6 +91,7 @@ test.describe.serial("a Tester's dashboard follows the Contract's invoice", () =
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/client-invoices");
     await selectClientInvoiceContract(page, clientName);
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     const [sendResponse] = await Promise.all([
       page.waitForResponse((resp) => resp.url().includes("/api/client-invoices/") && resp.url().includes("/send") && resp.request().method() === "POST"),

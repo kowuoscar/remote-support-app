@@ -75,6 +75,10 @@ test.describe("client invoice generation", () => {
     await expect(page.getByText("No carrier invoice files attached yet.")).toBeVisible();
     // Nothing attached yet: the SIM line shows no check mark.
     await expect(page.getByRole("img", { name: "Carrier invoice attached" })).toHaveCount(0);
+    // The send gate: Send stays disabled, with its note, until every Postpaid SIM line has its file.
+    const send = page.getByRole("button", { name: "Send Client Invoice" });
+    await expect(send).toBeDisabled();
+    await expect(page.getByText("1 Postpaid SIM still needs its carrier invoice.")).toBeVisible();
     await attachCarrierInvoice(page, simNumber, "october-carrier-invoice.PDF");
 
     // The file is listed under its computed name, not the uploaded one
@@ -89,5 +93,7 @@ test.describe("client invoice generation", () => {
     // Every Postpaid SIM line now has its file: nothing is left to attach.
     await expect(page.getByRole("button", { name: "Attach carrier invoice" })).toBeDisabled();
     await expect(page.getByRole("link", { name: "Download" })).toBeVisible();
+    await expect(send).toBeEnabled();
+    await expect(page.getByText(/still needs? (its|their) carrier invoice/)).toHaveCount(0);
   });
 });

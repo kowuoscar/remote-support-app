@@ -621,3 +621,29 @@ export async function attachCarrierInvoice(page: Page, simNumber: string, fileNa
   await expect(dialog).toBeHidden();
   return fileName;
 }
+
+/**
+ * Attaches a carrier invoice to every Postpaid SIM line of the open Client Invoice that still lacks
+ * one (the send gate refuses the invoice otherwise). A no-op on an invoice with no Postpaid SIM
+ * line, or with every line covered. Waits for each line's check mark before the next.
+ */
+export async function attachCarrierInvoicesForEveryPostpaidSim(page: Page) {
+  await page.getByRole("button", { name: "Send Client Invoice" }).waitFor();
+  const attach = page.getByRole("button", { name: "Attach carrier invoice" });
+  if ((await attach.count()) === 0 || !(await attach.isEnabled())) return;
+
+  await attach.click();
+  const dialog = page.getByRole("dialog", { name: "Attach carrier invoice" });
+  const optionTexts = await dialog.getByRole("combobox", { name: "Postpaid SIM" }).locator("option").allTextContents();
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+  // Each option reads "{number} · {Carrier}"; the first, empty-valued one is the placeholder.
+  const numbers = optionTexts.filter((text) => text.includes("+")).map((text) => text.split(" · ")[0]!.trim());
+
+  const checks = page.getByRole("img", { name: "Carrier invoice attached" });
+  let covered = await checks.count();
+  for (const number of numbers) {
+    await attachCarrierInvoice(page, number);
+    covered += 1;
+    await expect(checks).toHaveCount(covered);
+  }
+}

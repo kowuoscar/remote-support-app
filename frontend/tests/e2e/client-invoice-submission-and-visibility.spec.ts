@@ -9,6 +9,7 @@ import {
   logout,
   selectContractInSwitcher,
   selectClientInvoiceContract,
+  attachCarrierInvoicesForEveryPostpaidSim,
 } from "./helpers";
 
 /**
@@ -57,6 +58,7 @@ test.describe("client invoice submission and visibility", () => {
     // The line's carrier invoice is attached; the Manager will see its check mark.
     await attachCarrierInvoice(page, simNumber);
 
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     const [sendResponse] = await Promise.all([
       page.waitForResponse(

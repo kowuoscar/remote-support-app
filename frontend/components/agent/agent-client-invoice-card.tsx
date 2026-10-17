@@ -170,7 +170,10 @@ export function AgentClientInvoiceCard({
                 disabled={!invoice.filesAvailable}
               />
             ) : null}
-            <SendClientInvoiceControl invoiceId={invoice.id} />
+            <SendClientInvoiceControl
+              invoiceId={invoice.id}
+              missingCarrierInvoices={missingCarrierInvoiceLines(invoice).length}
+            />
           </div>
         ) : invoice.status === "DRAFT" || !currentMonth ? null : (
           <a

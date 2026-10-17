@@ -612,6 +612,8 @@ describe("AgentClientInvoicesView", () => {
         totalAmount: 70,
         basePostpaidSims: [SIM],
         feeLines: [FEE],
+        // The send gate: the sent-back invoice's one line already has its carrier invoice.
+        files: [FILE_OF_SIM_1],
         sentAt: "2026-09-10T10:00:00Z",
         sentBackAt: "2026-09-12T10:00:00Z",
         sentBackReason: "The top-up Fee is missing its receipt.",
@@ -802,6 +804,64 @@ describe("AgentClientInvoicesView", () => {
 
       expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeInTheDocument();
+    });
+
+    describe("the send gate (carrier-invoice-per-sim)", () => {
+      it("disables Send with a singular count note, linked by aria-describedby, while one line lacks its file", () => {
+        renderPage(sentBack({ basePostpaidSims: [SIM, SIM_TWO], files: [FILE_OF_SIM_1] }));
+
+        const send = screen.getByRole("button", { name: "Send Client Invoice" });
+        expect(send).toBeDisabled();
+        const note = screen.getByText("1 Postpaid SIM still needs its carrier invoice.");
+        expect(note).toHaveClass("text-label-sm", "text-ink-mute");
+        expect(send).toHaveAccessibleDescription("1 Postpaid SIM still needs its carrier invoice.");
+        expect(send.getAttribute("aria-describedby")).toBe(note.id);
+      });
+
+      it("counts several lines in the plural", () => {
+        renderPage(sentBack({ basePostpaidSims: [SIM, SIM_TWO], files: [] }));
+
+        expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeDisabled();
+        expect(screen.getByText("2 Postpaid SIMs still need their carrier invoice.")).toBeInTheDocument();
+      });
+
+      it("enables Send with every line covered or with no Postpaid line, and shows no note", () => {
+        const { unmount } = renderPage(sentBack({ basePostpaidSims: [SIM], files: [FILE_OF_SIM_1] }));
+        expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeEnabled();
+        expect(screen.queryByText(/still needs? (its|their) carrier invoice/)).not.toBeInTheDocument();
+        unmount();
+
+        renderPage(sentBack({ basePostpaidSims: [], files: [] }));
+        expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeEnabled();
+      });
+
+      it("does not count a file whose SIM has no line toward a line", () => {
+        renderPage(sentBack({ basePostpaidSims: [SIM], files: [{ ...FILE_OF_SIM_1, simCardId: "sim-gone" }] }));
+
+        expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeDisabled();
+      });
+
+      it("shows the reload message for a send refused with CARRIER_INVOICES_MISSING", async () => {
+        stubFetch(409, { code: "CARRIER_INVOICES_MISSING", message: "1 Postpaid SIM line(s) lack their carrier invoice" });
+        renderPage(sentBack());
+
+        await userEvent.click(screen.getByRole("button", { name: "Send Client Invoice" }));
+        await userEvent.click(screen.getByRole("button", { name: "Confirm send" }));
+
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+          "A Postpaid SIM still needs its carrier invoice. Reload to see which.",
+        );
+      });
+
+      it("keeps the old text for any other failed send", async () => {
+        stubFetch(409, { message: "Cannot send a Client Invoice from status SENT" });
+        renderPage(sentBack());
+
+        await userEvent.click(screen.getByRole("button", { name: "Send Client Invoice" }));
+        await userEvent.click(screen.getByRole("button", { name: "Confirm send" }));
+
+        expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't send. Try again.");
+      });
     });
 
     it("send-confirmation-says-only-the-manager-can-send-it-back", async () => {

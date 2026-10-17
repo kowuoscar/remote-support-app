@@ -1,0 +1,16 @@
+uploaded sha256:
+34ca09fe7d70153378e5c14b75c833e71a6b6f9a9bc3b90b627c33ba12f65bbf  up/Réf "Oct" 2026 – Orange.pdf
+f1915a73fb887a0dc8e8f1706c4026eec635162aaf5a958113fd1958b177160a  up/photo.png
+downloaded via page click (suggested filename from Playwright events: 'Réf %22Oct%22 2026 – Orange.pdf' and 'photo.png'):
+34ca09fe7d70153378e5c14b75c833e71a6b6f9a9bc3b90b627c33ba12f65bbf  .playwright-cli/Réf-22Oct-22-2026-–-Orange.pdf
+f1915a73fb887a0dc8e8f1706c4026eec635162aaf5a958113fd1958b177160a  .playwright-cli/photo.png
+
+API download headers for the PDF:
+Content-Disposition: attachment; filename="=?UTF-8?Q?R=C3=A9f_%22Oct%22_2026_=E2=80=93_Orange.pdf?="; filename*=UTF-8''R%C3%A9f%20%2522Oct%2522%202026%20%E2%80%93%20Orange.pdf
+X-Content-Type-Options: nosniff
+Content-Type: application/pdf
+Content-Length: 65
+
+Listed names (API): 
+Réf %22Oct%22 2026 – Orange.pdf 13a2aed6-60fc-4306-9b63-641e957ac201
+photo.png 797284c2-4499-4605-aaa1-86ccd863b889

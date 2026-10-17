@@ -1,0 +1,10 @@
+== grep your-objectstorage.com
+docs/adr/0007-carrier-invoice-files-in-an-s3-compatible-object-store.md:87:- the endpoint includes the location: `fsn1.your-objectstorage.com`, `nbg1.your-objectstorage.com`,
+docs/adr/0007-carrier-invoice-files-in-an-s3-compatible-object-store.md:88:  `hel1.your-objectstorage.com` (Overview, "Available endpoints"); the region value is that location;
+docs/adr/0007-carrier-invoice-files-in-an-s3-compatible-object-store.md:90:  `%(bucket)s.fsn1.your-objectstorage.com`, and publish bucket URLs as
+docs/adr/0007-carrier-invoice-files-in-an-s3-compatible-object-store.md:91:  `https://<bucket-name>.<location>.your-objectstorage.com/<file-name>`
+docs/adr/0007-carrier-invoice-files-in-an-s3-compatible-object-store.md:98:Production variables, for example Falkenstein: `OBJECT_STORE_ENDPOINT=https://fsn1.your-objectstorage.com`,
+docs/features/carrier-invoice-object-storage/spec.md:43:  `nbg1`, `hel1`; endpoints like `https://fsn1.your-objectstorage.com`). It
+docs/features/carrier-invoice-object-storage/spec.md:268:| `OBJECT_STORE_ENDPOINT` | `https://fsn1.your-objectstorage.com` (or `nbg1`, `hel1`) |
+docs/features/carrier-invoice-object-storage/spec.md:1089:   Grep the repository for `your-objectstorage.com` and show it appears only in docs, never with a key or secret. Show `application.yml`'s `app.object-store` block reading every value from `OBJECT_STORE
+docs/features/carrier-invoice-object-storage/evidence/step-8-grep-hetzner.txt:1:== grep your-objectstorage.com

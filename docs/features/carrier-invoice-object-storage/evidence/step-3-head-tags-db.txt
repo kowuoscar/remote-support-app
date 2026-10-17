@@ -1,0 +1,35 @@
+== carrier-invoices/11111111-1111-1111-1111-111111111111/63797ec7-2873-4866-8731-16f2c866c8b1/13a2aed6-60fc-4306-9b63-641e957ac201
+{
+    "AcceptRanges": "bytes",
+    "LastModified": "2026-10-17T06:42:11+00:00",
+    "ContentLength": 65,
+    "ETag": "\"e23f67ff8ebf199376fb54ba7e186d0a\"",
+    "ContentEncoding": "aws-chunked",
+    "ContentType": "application/octet-stream",
+    "Metadata": {}
+}
+-- tags
+{
+    "TagSet": []
+}
+== carrier-invoices/11111111-1111-1111-1111-111111111111/63797ec7-2873-4866-8731-16f2c866c8b1/797284c2-4499-4605-aaa1-86ccd863b889
+{
+    "AcceptRanges": "bytes",
+    "LastModified": "2026-10-17T06:42:11+00:00",
+    "ContentLength": 20000,
+    "ETag": "\"ec60649b476e2e95c5414d0798395b9d\"",
+    "ContentEncoding": "aws-chunked",
+    "ContentType": "application/octet-stream",
+    "Metadata": {}
+}
+-- tags
+{
+    "TagSet": []
+}
+== DB
+                  id                  |          client_invoice_id           |            filename             |                                                          storage_path                                                           
+--------------------------------------+--------------------------------------+---------------------------------+---------------------------------------------------------------------------------------------------------------------------------
+ 13a2aed6-60fc-4306-9b63-641e957ac201 | 63797ec7-2873-4866-8731-16f2c866c8b1 | Réf %22Oct%22 2026 – Orange.pdf | carrier-invoices/11111111-1111-1111-1111-111111111111/63797ec7-2873-4866-8731-16f2c866c8b1/13a2aed6-60fc-4306-9b63-641e957ac201
+ 797284c2-4499-4605-aaa1-86ccd863b889 | 63797ec7-2873-4866-8731-16f2c866c8b1 | photo.png                       | carrier-invoices/11111111-1111-1111-1111-111111111111/63797ec7-2873-4866-8731-16f2c866c8b1/797284c2-4499-4605-aaa1-86ccd863b889
+(2 rows)
+

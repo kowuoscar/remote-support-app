@@ -1,0 +1,269 @@
+{
+  "feature": "carrier-invoice-object-storage",
+  "findings": [
+    {
+      "id": "F1",
+      "type": "out-of-scope",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/ClientInvoiceApiTest.java-e:1",
+      "citation": "Hunk: new file backend/src/test/java/com/remotesupport/backend/web/ClientInvoiceApiTest.java-e (+1090 lines), a sed -i -e backup of ClientInvoiceApiTest.java. No source in spec: no story, no Decisions taken entry and no ticket asks for it.",
+      "note": "Accidental sed backup committed in the availability merge (341eece). Delete it."
+    },
+    {
+      "id": "F2",
+      "type": "spec-wrong",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/ui/carrier-invoice-files-section.tsx:72",
+      "citation": "In the available state each caller renders exactly what it renders today, including the Manager's `Download {filename}` accessible name.",
+      "note": "The Manager's link had underline-offset-2; the shared link drops it, so the Manager's hover underline changes. Keep the offset for the Manager's links. Also raised by the design audit."
+    },
+    {
+      "id": "F3",
+      "type": "spec-partial",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileStorage.java:88",
+      "citation": "Logging on transitions only. The move to unavailable logs one ERROR naming the endpoint, the bucket and the cause (never the credentials); the move back logs one INFO.",
+      "note": "When a failed transfer makes storage unavailable, the only ERROR is the storage line naming operation and key, not endpoint or bucket. Add endpoint and bucket to that line (exactly one ERROR)."
+    },
+    {
+      "id": "F4",
+      "type": "spec-partial",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "docs/adr/0007-carrier-invoice-files-in-an-s3-compatible-object-store.md:46",
+      "citation": "availability is checked once at startup and then only on demand, when an invoice page is opened and the last check is more than 30 seconds old, asynchronously, one check at a time; there is no background schedule (the human, 2026-10-17). The cost: right after the store changes state, the first page opened may still show the previous one;",
+      "note": "ADR still records ticket 1's one-shot startup check as the decision and defers to a ticket by name; not updated after the availability ticket."
+    },
+    {
+      "id": "F5",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileStorage.java:56",
+      "citation": "",
+      "note": "An IOException reading the uploaded part answers 503 and calls markUnavailable(), pausing files for everyone until the next probe; spec scopes this to SdkException."
+    },
+    {
+      "id": "F6",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/client-invoice-detail-view.tsx:194",
+      "citation": "",
+      "note": "Spec gap: the Manager's detail page has no Attach control on main or this branch; story 21 and walkthrough steps 4 and 7 expect the Manager to attach there and see the attach wording."
+    },
+    {
+      "id": "F7",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "CONTEXT.md:144",
+      "citation": "",
+      "note": "New 'Object store' glossary term beyond story 19. Harmless."
+    },
+    {
+      "id": "F8",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/pom.xml:26",
+      "citation": "",
+      "note": "Overrides Spring Boot's managed httpclient5/httpcore5 versions for the SDK; recorded in the ADR but an app-wide version change the spec does not name."
+    },
+    {
+      "id": "F9",
+      "type": "rule-violated",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ObjectStoreConfig.java:68 (tested by ObjectStoreBlankBucketStartupTest, ObjectStoreBlankRegionStartupTest, ObjectStoreMalformedEndpointStartupTest)",
+      "citation": "docs/agents/coding-standards.md (Backend 12): \"Table-driven tests (`@ParameterizedTest` + `@MethodSource`) for any method with more than two branch conditions, instead of copy-pasted per-case tests.\"",
+      "note": "configurationProblem has five branch conditions and is tested only through near-identical per-case Spring-context subclasses; blank access-key and secret-key branches untested. Fix: @ParameterizedTest + @MethodSource unit test over all five; keep one startup test proving the context survives."
+    },
+    {
+      "id": "F10",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/.gitignore:5",
+      "citation": "",
+      "note": "data/ ignore removed; leftover local backend/data/ now untracked and could be committed by accident. Keep the ignore until those directories are gone."
+    },
+    {
+      "id": "F11",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileStorage.java:86; ObjectStoreAvailability.java:173",
+      "citation": "",
+      "note": "Possible Duplicated Code: same 'HTTP status or exception simple name' expression in both; timeout override lambda repeated at ObjectStoreAvailability.java:141 and :150."
+    },
+    {
+      "id": "F12",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "scripts/run-backend-for-e2e.sh:14-56; scripts/run-backend-for-e2e-isolated.sh:29-70",
+      "citation": "",
+      "note": "Possible Duplicated Code: same SeaweedFS image, credentials, docker run and wait loop in both scripts."
+    },
+    {
+      "id": "F13",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ObjectStoreAvailability.java:122",
+      "citation": "",
+      "note": "Possible Feature Envy: ObjectStoreConfig.configurationProblem reads only ObjectStoreProperties; move it onto the record."
+    },
+    {
+      "id": "F14",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceService.java:128; ObjectStoreAvailability.java:66-70",
+      "citation": "",
+      "note": "Possible flag arguments: toResponse(invoice, false, false); boolean owned + (ExecutorService) cast; two constructors would remove them."
+    },
+    {
+      "id": "F15",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileService.java:80",
+      "citation": "",
+      "note": "Possible layering smell: the service builds ResponseEntity with Content-Disposition and nosniff headers (HTTP translation outside the controller)."
+    },
+    {
+      "id": "F16",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/CarrierInvoiceFileStorageTest.java:71,79,86",
+      "citation": "",
+      "note": "Possible Duplicated Code: three near-identical SDK-failure tests (put, read, delete); one parameterized test would do."
+    },
+    {
+      "id": "F17",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/ui/carrier-invoice-files-section.tsx:60-63",
+      "citation": "",
+      "note": "Paused Download is a role-less <span> with aria-disabled and (Manager) aria-label: not allowed/meaningless on a generic element in ARIA 1.2; screen readers likely read 'Download' with no disabled state or filename. Fix: plain muted text with a visually hidden filename, or role=link + aria-disabled=true without tabindex; DESIGN.md:202 wording to match."
+    },
+    {
+      "id": "F18",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/agent-client-invoice-card.tsx:163",
+      "citation": "",
+      "note": "Disabled Attach in the card header; the explaining notice is at the bottom of the card; a disabled button can't be focused. Spec accepts single notice; consider title/aria-describedby if Agents are confused."
+    },
+    {
+      "id": "F19",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": false,
+      "where": "DESIGN.md:201-202",
+      "citation": "DESIGN.md:138 \"Warning (#9a5b0a / bg #fbf0dc; dark #e3a33e): In Progress, Awaiting approval, In Repair. The side list's \\\"Sent back\\\" mark is also warning...\"",
+      "note": "New Paused files section uses warning inline; the Warning entry's list of uses doesn't mention it. Add 'the paused Carrier invoice files notice' to line 138."
+    },
+    {
+      "id": "F20",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/tests/visual/stub-backend.mjs:351",
+      "citation": "",
+      "note": "Stub always sends filesAvailable: true, so no golden covers the paused state; a stub invoice with filesAvailable: false and one file would."
+    },
+    {
+      "id": "F21",
+      "type": "acceptance-failed",
+      "state": "open",
+      "raised_by": "acceptance-runner",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "walkthrough step 7",
+      "citation": "Step 7: \"Couldn't attach one or more files. Try again.\" and one ERROR in the backend log naming the store operation",
+      "note": "With the store down, attach returns 500 with an unhandled IllegalStateException ('Content input stream does not support mark/reset, and was already read once') from CarrierInvoiceFileStorage.put (SDK retry on a non-rewindable stream; not an SdkException so the catch misses it), a stack trace instead of one ERROR, and the store is not marked unavailable (next reload still enabled). Evidence: evidence/step-7-*."
+    },
+    {
+      "id": "F22",
+      "type": "acceptance-failed",
+      "state": "open",
+      "raised_by": "acceptance-runner",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "walkthrough step 7",
+      "citation": "Step 7: Attach disabled for Jordan and the Manager, with the Manager notice \"Attaching and downloading are paused.\"",
+      "note": "The Manager's invoice page has no Attach control (none on main either) and shows the download-only wording. Same root as the spec gap noted in F6."
+    },
+    {
+      "id": "F23",
+      "type": "acceptance-failed",
+      "state": "open",
+      "raised_by": "acceptance-runner",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "walkthrough step 4",
+      "citation": "Step 4: \"As the Manager, open that invoice's /manager/invoices/client/{id}, attach a third file\"",
+      "note": "No Manager Attach control on the page (none on main either); the third file was attached through the API (201). Same root as F6."
+    },
+    {
+      "id": "F24",
+      "type": "acceptance-failed",
+      "state": "open",
+      "raised_by": "acceptance-runner",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "walkthrough step 2",
+      "citation": "Step 2: a PDF named `Réf \"Oct\" 2026 – Orange.pdf` ... listed and downloaded under exactly that name",
+      "note": "Through a browser upload the double quotes arrive as %22 (the browser percent-encodes \" in the multipart filename), so the file is listed and saved as `Réf %22Oct%22 2026 – Orange.pdf`. Accents and en dash survive; bytes match."
+    }
+  ]
+}

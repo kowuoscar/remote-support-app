@@ -1,0 +1,24 @@
+== GET invoice (lines/fees):
+200
+== invoice PDF:
+403 149B application/json
+== Fleet (UI page):
+200
+== direct API attach (time):
+{"timestamp":"2026-10-17T06:47:05.350+00:00","status":503,"error":"Service Unavailable","path":"/api/client-invoices/dd6975e6-94f2-44ec-8360-daec94aaa3b9/files"}
+HTTP 503 in 0.010893s
+== direct API download (time):
+{"timestamp":"2026-10-17T06:47:05.368+00:00","status":503,"error":"Service Unavailable","path":"/api/client-invoices/63797ec7-2873-4866-8731-16f2c866c8b1/files/13a2aed6-60fc-4306-9b63-641e957ac201"}
+HTTP 503 in 0.010371s
+== invoice PDF as Manager:
+200 963B application/pdf
+%PDF-1.6
+== Jordan's draft page shows fee lines:
+64:                      - cell "Solstice Retail Group — United States" [ref=f5e94]
+65:                      - cell "October 2026" [ref=f5e96]
+66:                      - cell "Oct 17, 2026" [ref=f5e97]
+109:                      - cell "+1-202-555-0102 AT&T · Postpaid" [ref=f5e150]:
+113:                      - cell "$65.99 Edit" [ref=f5e153]:
+120:                - heading "Fee lines" [level=3] [ref=f5e161]
+130:                      - cell "Topup" [ref=f5e172]
+131:                      - cell "—" [ref=f5e173]

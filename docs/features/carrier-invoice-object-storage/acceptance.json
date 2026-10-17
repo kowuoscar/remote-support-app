@@ -1,0 +1,71 @@
+{
+  "feature": "carrier-invoice-object-storage",
+  "played_at": "2026-10-17",
+  "played_on": "feature/carrier-invoice-object-storage @ 85d9408",
+  "environment": "Isolated: throwaway postgres:16-alpine rsa-acc-pg on 55433, chrislusf/seaweedfs:4.48 rsa-acc-sw on 58333 (no --rm, restarted and stopped) and rsa-acc-sw2 on 58334, backend demo profile (JAVA_HOME openjdk@21) from a copy of the tree on 58080, frontend next build && next start on 53000; all torn down; rsa-prod untouched",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1-and-teardown.txt",
+      "note": "Cited, not re-run: merger's verify green at 85d9408 (mvn verify, lint, build, tsc, vitest, isolated e2e 112 passed, visual 145 passed). backend/data was already an untracked directory before this run (dir mtime Sep 15, nothing modified today); my backend runs in a copy created none. docker ps after teardown lists only rsa-prod containers."
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "failed",
+      "evidence": "evidence/step-2-downloads.txt",
+      "note": "Both files attached at once and listed; both downloaded from the page; SHA-256 of PDF (34ca09fe...) and PNG (f1915a73...) equal the uploads. But the PDF name with double quotes is listed and saved as 'Réf %22Oct%22 2026 – Orange.pdf' (the browser percent-encodes '\"' in the multipart filename), so the saved name does not equal the original exactly. Accents and en dash survived; Content-Disposition is RFC 6266 with filename*; X-Content-Type-Options: nosniff present."
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3-head-tags-db.txt",
+      "note": "Exactly two objects at carrier-invoices/{tenant}/{invoice}/{file id}; ids equal the invoice's file ids; head-object Metadata {} and TagSet []; carrier_invoice_files.storage_path equals each key. Aside: head shows ContentEncoding 'aws-chunked' and ContentType application/octet-stream (SDK default trailer checksum); not metadata or tags."
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "failed",
+      "evidence": "evidence/step-4-manager-attach.txt",
+      "note": "Manager's /manager/invoices/client/{id} has no Attach control (only the Agent card renders it), so the Manager's attach was done by API (201) and could not be played on the page. The rest passed: Manager downloaded Jordan's photo.png from the page, Jordan sent via Confirm send (SENT), Tester Noah Kim (Harbor Line) downloaded all three files from the Invoices page, same SHA-256 and names (step-4-tester-downloads.txt)."
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5-409.txt",
+      "note": "POST to the sent invoice answered 409; bucket still holds exactly the three objects under the prefix; 3 rows."
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6-restarts.txt",
+      "note": "After backend restart and after docker restart of the same SeaweedFS container, all three files download with identical SHA-256; bucket count 3."
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "failed",
+      "evidence": "evidence/step-7a-attach-store-down.txt",
+      "note": "Failed: (a) with the store stopped, an attach answers 500 (not 503) and the backend logs an unhandled IllegalStateException 'Content input stream does not support mark/reset' with a stack trace from CarrierInvoiceFileStorage.put (the SDK retry cannot rewind the non-resettable stream, which is not an SdkException), not one ERROR naming the store operation; the failed upload also did not mark the store unavailable (the next reload still showed it enabled). The UI did show 'Couldn't attach one or more files. Try again.' (b) Manager's page shows no Attach control and the Tester wording 'Downloading is paused.' instead of 'Attaching and downloading are paused.' with Attach disabled. Passed: Jordan paused (Attach disabled, notice, names listed, e.g. step-7f), Tester paused wording and names, Downloads non-links, Manager Downloads non-links; fee lines, invoice PDF (Manager) and Fleet work; direct API attach and download 503 in ~10ms; no log line in 125s with no page open (457 -> 457); recovery: first load paused, second enabled, one INFO 'available again', download same bytes, attach works, no repeated ERROR; stop again: first load enabled, second paused, one ERROR; dead endpoint: starts, /api/health UP, one ERROR naming endpoint and bucket, paused, fresh SeaweedFS -> bucket created by backend and attach works after two loads; missing bucket (create-bucket=false), wrong secret, 'not a url': each starts, one ERROR naming endpoint+bucket (or the bad setting), no secret in log, no bucket created, paused (step-7h-misconfig.txt)."
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8-compose-config.yml",
+      "note": "seaweedfs: chrislusf/seaweedfs:4.48, seaweedfs_data volume, no ports, healthcheck, dev-only credentials; backend OBJECT_STORE_ENDPOINT=http://seaweedfs:8333, depends_on seaweedfs service_started; seaweedfs_data declared. your-objectstorage.com only in ADR 0007 and the spec (step-8-grep-hetzner.txt). application.yml app.object-store reads all seven values from OBJECT_STORE_*. ADR 0007 lists the five S3 operations checked against Hetzner's supported actions and the virtual-hosted addressing; CONTEXT.md has Object store and the amended Carrier Invoice File entry (step-8-adr-context.txt)."
+    },
+    {
+      "step": 9,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": ""
+    }
+  ]
+}

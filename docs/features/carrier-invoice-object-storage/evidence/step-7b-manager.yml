@@ -1,0 +1,81 @@
+```yaml
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - complementary [ref=f3e3]:
+      - generic [ref=f3e4]:
+        - generic [ref=f3e5]: "N"
+        - generic [ref=f3e6]:
+          - paragraph [ref=f3e7]: Northwind Field Services
+          - paragraph [ref=f3e8]: Manager Console
+      - navigation [ref=f3e9]:
+        - link "Dashboard" [ref=f3e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f3e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f3e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f3e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f3e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f3e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f3e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f3e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f3e48]:
+      - banner [ref=f3e49]:
+        - generic [ref=f3e51]:
+          - heading "Harbor Line Logistics — Jordan Ellis" [level=1] [ref=f3e52]
+          - paragraph [ref=f3e53]: Client Invoice
+        - generic [ref=f3e54]:
+          - button "Manager" [ref=f3e56]
+          - button "Switch to dark theme" [ref=f3e58]
+      - main [ref=f3e62]:
+        - generic [ref=f3e63]:
+          - navigation "Breadcrumb" [ref=f3e64]:
+            - link "Invoices" [ref=f3e66] [cursor=pointer]:
+              - /url: /manager/invoices
+            - generic [ref=f3e67]: Harbor Line Logistics — Jordan Ellis
+          - generic [ref=f3e71]:
+            - generic [ref=f3e72]:
+              - generic [ref=f3e73]:
+                - generic [ref=f3e74]:
+                  - heading "October 2026" [level=2] [ref=f3e75]
+                  - generic [ref=f3e76]: Awaiting approval
+                - paragraph [ref=f3e78]: Base amount and Fee lines are locked to what the Agent sent
+                - paragraph [ref=f3e79]: Sent Oct 17, 2026
+              - generic [ref=f3e80]:
+                - link "Download PDF" [ref=f3e81] [cursor=pointer]:
+                  - /url: /api/client-invoices/63797ec7-2873-4866-8731-16f2c866c8b1/pdf
+                - button "Send back" [ref=f3e85]
+                - button "Approve" [ref=f3e87]
+            - generic [ref=f3e91]:
+              - generic [ref=f3e92]:
+                - term [ref=f3e93]: Base amount
+                - definition [ref=f3e94]: $0.00
+              - generic [ref=f3e95]:
+                - term [ref=f3e96]: Fees
+                - definition [ref=f3e97]: $0.00
+              - generic [ref=f3e98]:
+                - term [ref=f3e99]: Total
+                - definition [ref=f3e100]: $0.00
+            - generic [ref=f3e101]:
+              - heading "Fee lines" [level=3] [ref=f3e102]
+              - paragraph [ref=f3e103]: No Fees on this invoice.
+            - generic [ref=f3e104]:
+              - heading "Carrier invoice files" [level=3] [ref=f3e105]
+              - paragraph [ref=f3e108]: File storage is unavailable right now. Downloading is paused.
+              - list [ref=f3e112]:
+                - listitem [ref=f3e113]:
+                  - generic [ref=f3e114]: Réf %22Oct%22 2026 – Orange.pdf
+                  - generic "Download Réf %22Oct%22 2026 – Orange.pdf" [ref=f3e118]: Download
+                - listitem [ref=f3e122]:
+                  - generic [ref=f3e123]: photo.png
+                  - generic "Download photo.png" [ref=f3e127]: Download
+                - listitem [ref=f3e131]:
+                  - generic [ref=f3e132]: manager-note.txt
+                  - generic "Download manager-note.txt" [ref=f3e136]: Download
+  - alert [ref=f3e140]
+```

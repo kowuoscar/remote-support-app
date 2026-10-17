@@ -1,0 +1,27 @@
+##### be4: OBJECT_STORE_CREATE_BUCKET=false OBJECT_STORE_BUCKET=no-such-bucket-xyz
+health: {"status":"UP"}
+startup ERROR lines:
+2026-10-17T08:54:11.236+02:00 ERROR [:] c.r.b.web.ObjectStoreAvailability - Object store is unavailable: bucket check failed for endpoint http://127.0.0.1:58333 bucket no-such-bucket-xyz (HTTP 404). File storage answers 503 until the store is reachable and the bucket exists.
+count=1; secret-in-log=0
+buckets: remote-support-files
+filesAvailable on 2 loads: False False 
+UI: 1 disabled attach button; notice: 1
+ERROR lines after page loads: 1
+##### be5: OBJECT_STORE_SECRET_KEY=wrong-secret-key-123
+health: {"status":"UP"}
+startup ERROR lines:
+2026-10-17T08:54:26.211+02:00 ERROR [:] c.r.b.web.ObjectStoreAvailability - Object store is unavailable: bucket check failed for endpoint http://127.0.0.1:58333 bucket remote-support-files (HTTP 403). File storage answers 503 until the store is reachable and the bucket exists.
+count=1; secret-in-log=0
+buckets: remote-support-files
+filesAvailable on 2 loads: False False 
+UI: 1 disabled attach button; notice: 1
+ERROR lines after page loads: 1
+##### be6: OBJECT_STORE_ENDPOINT=not a url
+health: {"status":"UP"}
+startup ERROR lines:
+2026-10-17T08:54:40.601+02:00 ERROR [:] c.r.backend.web.ObjectStoreConfig - Object store configuration is unusable: OBJECT_STORE_ENDPOINT is not a http(s) URL. File storage is unavailable until the configuration is fixed and the backend restarted.
+count=1; secret-in-log=0
+buckets: remote-support-files
+filesAvailable on 2 loads: False False 
+UI: 1 disabled attach button; notice: 1
+ERROR lines after page loads: 1

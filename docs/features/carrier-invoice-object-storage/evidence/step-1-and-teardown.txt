@@ -1,0 +1,10 @@
+copy tree backend/data created by my runs? ls: w/backend/data: No such file or directory
+primary tree backend/data mtime: Sep 15 08:37:17 2026 ; newest file inside:        0 files modified today
+git status:
+?? backend/data/
+?? docs/features/carrier-invoice-object-storage/evidence/
+docker ps after teardown:
+rsa-prod-frontend-1 rsa-prod-frontend
+rsa-prod-backend-1 rsa-prod-backend
+rsa-prod-postgres-demo-1 postgres:16-alpine
+       0

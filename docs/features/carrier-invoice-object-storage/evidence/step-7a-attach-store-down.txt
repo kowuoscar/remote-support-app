@@ -1,0 +1,9 @@
+store stopped; attach via API:
+{"timestamp":"2026-10-17T06:46:31.997+00:00","status":500,"error":"Internal Server Error","path":"/api/client-invoices/dd6975e6-94f2-44ec-8360-daec94aaa3b9/files"}
+HTTP 500
+--- backend log ERROR/WARN lines (first line of each, no stack):
+63:2026-10-17T08:45:59.363+02:00 ERROR [:] o.a.c.c.C.[.[.[.[dispatcherServlet] - Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.IllegalStateException: Content input stream does not support mark/reset, and was already read once.] with root cause
+245:2026-10-17T08:46:31.993+02:00 ERROR [:] o.a.c.c.C.[.[.[.[dispatcherServlet] - Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.IllegalStateException: Content input stream does not support mark/reset, and was already read once.] with root cause
+--- log lines mentioning 'Object store':
+--- credential grep:
+0

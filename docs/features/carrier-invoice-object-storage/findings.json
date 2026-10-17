@@ -272,7 +272,7 @@
     {
       "id": "F25",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": true,
       "in_changed_lines": true,

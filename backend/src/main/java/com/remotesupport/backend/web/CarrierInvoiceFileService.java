@@ -5,9 +5,11 @@ import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
 import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -77,7 +79,10 @@ public class CarrierInvoiceFileService {
     byte[] content = storage.read(file.getStoragePath());
     return ResponseEntity.ok()
         .contentType(MediaType.parseMediaType(file.getContentType()))
-        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"")
+        .header(
+            HttpHeaders.CONTENT_DISPOSITION,
+            ContentDisposition.attachment().filename(file.getFilename(), StandardCharsets.UTF_8).build().toString())
+        .header("X-Content-Type-Options", "nosniff")
         .body(content);
   }
 

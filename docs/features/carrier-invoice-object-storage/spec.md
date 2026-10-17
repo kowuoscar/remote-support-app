@@ -69,16 +69,20 @@ from it:
   create-bucket flag is on), and on failure logs one clear ERROR naming the
   endpoint and the bucket.
 - **The backend knows whether file storage is available and tells the
-  frontend.** It re-checks by itself, so it recovers without a restart. A
-  failed upload or download also marks it unavailable. An attach or download
-  that reaches the backend while it is unavailable still answers 503: the
-  server stays authoritative.
+  frontend.** It re-checks the store only when an invoice page is opened,
+  never in the background (the human, 2026-10-17: "Let's go with the
+  alternative when invoice pages are opened"), so it recovers without a
+  restart. A failed upload or download also marks it unavailable. An attach
+  or download that reaches the backend while it is unavailable still answers
+  503: the server stays authoritative.
 - **While file storage is unavailable**, wherever files are attached or
   downloaded (the Agent's Client Invoice card, the Manager's invoice detail,
   the Tester's Invoices page), "Attach carrier invoice" and every file's
   Download are disabled, one short notice explains why, and the file names
-  are still listed. The controls come back on the next page load once the
-  store is back. Send, send-back and approve are not affected by this feature.
+  are still listed. The controls come back by themselves once the store is
+  back: the first page opened after that may still show them paused, the
+  next load shows them working. Send, send-back and approve are not affected
+  by this feature.
 - Apart from that paused state and the exact download name, nothing a user
   sees changes in this feature.
 
@@ -111,8 +115,8 @@ Goals:
   the Client Invoice's row lock is held.
 - A downloaded file keeps its exact name, whatever characters it holds.
 - The backend starts whatever the store's state, reports whether file
-  storage is available, and recovers by itself within 30 seconds of the store
-  coming back.
+  storage is available, and recovers by itself when invoice pages are opened
+  after the store comes back, with no background check and no restart.
 - While file storage is unavailable, the three screens that show carrier
   invoice files list them by name with Attach and Download disabled and one
   notice, instead of offering controls that fail.
@@ -130,16 +134,22 @@ Non-goals. Each is something a reasonable agent would otherwise build:
   send, send-back and approve exactly as they are, store up or down.
 - **No live update of the paused state.** No polling, server push or timer in
   the browser: the controls follow the availability the page was loaded with,
-  and change on the next load or refresh (Decisions taken).
+  and change on a later load or refresh (Decisions taken).
+- **No background availability check.** No `@Scheduled` task, timer or
+  polling thread re-checks the store: nothing runs while nobody opens an
+  invoice page (the human, 2026-10-17). This rule is about availability
+  only. It does not decide how `carrier-invoice-retention` runs its daily
+  deletion, which is that feature's choice.
 - **No new status endpoint and no BFF route for availability.** It rides on
   the Client Invoice response every one of the three screens already loads.
 - **No paused state anywhere else.** The Fleet, the PDF download, the
   dashboards and every other control are untouched by the store's state. A
   single file whose object is missing (404) is not "storage unavailable" and
   keeps today's behaviour.
-- **No retention, no scheduled job, no "Deleted on".** Those are
-  `carrier-invoice-retention`. This feature adds the delete operation it needs
-  for itself (undoing a failed attach), and nothing scheduled.
+- **No retention, no deletion job, no "Deleted on".** Those are
+  `carrier-invoice-retention`, which is free to add its own daily job. This
+  feature adds the delete operation it needs for itself (undoing a failed
+  attach), and nothing scheduled.
 - **No migration of existing files and no backfill.** No row exists on the
   human's stack. No Flyway migration is added: the `storage_path` column keeps
   its name and type (Decisions taken).
@@ -205,9 +215,9 @@ When file storage is unavailable:
 20. As an Agent, I want my Client Invoice card to keep listing the files by name while file storage is unavailable, with "Attach carrier invoice" and each file's Download disabled and one short notice saying why, so that I don't try an attach that can only fail and I know it is not my doing.
 21. As a Manager, I want the same on an invoice's detail view (names listed, Attach and Download disabled, the notice), so that my review shows what is attached even while the files can't be fetched.
 22. As a Tester, I want my Client's invoice on the Invoices page to keep listing its carrier invoice files with Download disabled and the notice, so that I can see the files exist and that they will come back.
-23. As an Agent, a Manager or a Tester, I want Attach and Download to work again on my next page load once file storage is back, without anyone restarting anything, so that an outage ends by itself.
+23. As an Agent, a Manager or a Tester, I want Attach and Download to work again by themselves once file storage is back, at worst on my second page load after it returns, without anyone restarting anything, so that an outage ends by itself.
 24. As an Agent or a Manager, I want everything else on the invoice (lines, fees, the PDF, send, send-back, approve) to work as usual while file storage is unavailable, so that a store outage only pauses files.
-25. As the human, I want the backend to re-check the store by itself every 30 seconds, and to mark it unavailable as soon as an upload or download fails, so that the screens follow the store's real state within half a minute and an outage is logged once, not every 30 seconds.
+25. As the human, I want the backend to re-check the store only when an invoice page is opened and its last check is more than 30 seconds old, in the background of that request so the page never waits on the store, and to mark it unavailable as soon as an upload or download fails, so that nothing runs while nobody uses the app, the screens follow the store's real state one reload late at worst, and an outage is logged once.
 
 ## Solution
 
@@ -302,8 +312,9 @@ variables and says production sets all of them; it holds no Hetzner value.
   public.
 - **Hetzner's reported occasional instability** needs nothing more: a failed
   call during a request is the 503 below, logged once, marks file storage
-  unavailable until the next successful probe (at most 30 seconds), and the
-  rest of the app keeps working (stories 12, 25). The SDK's default retries
+  unavailable until the next successful check (triggered by the next invoice
+  page opened once the last check is 30 seconds old), and the rest of the app
+  keeps working (stories 12, 25). The SDK's default retries
   stand.
 
 ### File storage availability: `ObjectStoreAvailability`
@@ -312,35 +323,61 @@ A new `@Component` in `web`, beside the storage, owns one fact: is file
 storage available right now. Its surface:
 
 ```java
-boolean isAvailable();      // the cached answer; never calls the store
-void markUnavailable();     // called by CarrierInvoiceFileStorage on a store failure
-void probe();               // ensure the bucket (HeadBucket, then CreateBucket when absent and createBucket is on)
+boolean isAvailable();          // the cached answer; never calls the store, never starts a check
+boolean availableForPage();     // the cached answer at once; starts one asynchronous probe when the last check is stale
+void markUnavailable();         // called by CarrierInvoiceFileStorage on a store failure
+void probe();                   // ensure the bucket (HeadBucket, then CreateBucket when absent and createBucket is on)
 ```
 
-- **One probe, three callers.** `probe()` is the bucket check above. It runs
-  once at startup (on `ApplicationReadyEvent`, so the context is up whatever
-  it finds), then every **30 seconds** on a fixed delay through Spring's
-  `@Scheduled`. Success sets available; any failure sets unavailable. The
-  probe's call carries its own short timeout (about 3 seconds), so a hung
-  store never holds the scheduler thread.
+- **No background schedule.** There is no `@Scheduled` task, no timer and no
+  polling thread. Nothing calls the store while nobody opens an invoice page
+  (the human, 2026-10-17).
+- **Once at startup.** `probe()` runs once on `ApplicationReadyEvent`, so the
+  context is up whatever it finds; it cannot fail startup, and on failure it
+  logs the one ERROR of story 11. Until it completes, the cached answer is
+  unavailable.
+- **On demand, stale-while-revalidate.** Wherever a Client Invoice response
+  is built (the Agent's card, the Manager's detail, the Tester's Invoices
+  page), `availableForPage()` is read. It returns the cached answer
+  immediately. When the last completed check is more than **30 seconds** old
+  and no check is in flight, it also submits one `probe()` to a small
+  single-thread executor the component owns, and returns without waiting.
+  The page is built from the value it was given and never waits on the store.
+  - **Single flight**: an in-flight flag (compare-and-set) ensures at most one
+    probe runs at a time. A page opened while one is running starts nothing.
+  - **Capped**: the probe's call carries its own short timeout (about 3
+    seconds), so a hung store ties up the executor's one thread for at most
+    that long.
+  - "Last check" is the time the last probe finished, success or failure.
+    `markUnavailable()` does not touch it.
+  - The executor and the clock are injected, so unit tests run the probe on
+    the calling thread and move time by hand. The executor is shut down with
+    the context.
+- **Consequence, stated plainly.** The page that triggers a check shows the
+  value from before it. Right after the store comes back, or goes down
+  without a failed transfer, the first page opened may still show the
+  previous state; the next reload shows the right one. Within 30 seconds of
+  the last check, no new check is made, so a reload in that window shows the
+  same state again.
 - **Logging on transitions only.** The move to unavailable logs one ERROR
   naming the endpoint, the bucket and the cause (never the credentials); the
-  move back logs one INFO. A store that stays down for an hour logs once, not
-  120 times.
+  move back logs one INFO. A store that stays down while pages keep opening
+  logs once, not once per check.
 - **A failed request marks it at once.** Every `ObjectStoreUnavailableException`
   raised by `CarrierInvoiceFileStorage` first calls `markUnavailable()`. A
   missing object (`NoSuchKey`, 404) does not: one lost file is not an outage.
-- **Recovery is the probe's job.** Nothing else sets it back to available.
-  Since the probe also creates a missing bucket when the flag is on, a store
-  that comes up empty after the backend (a fresh SeaweedFS) is recovered too.
-- Scheduling is enabled by a small `@EnableScheduling` configuration class.
-  This is the app's first scheduled task; `carrier-invoice-retention` will use
-  the same switch.
+- **Recovery is the probe's job.** Only a successful probe sets it back to
+  available. Since the probe also creates a missing bucket when the flag is
+  on, a store that comes up empty after the backend (a fresh SeaweedFS) is
+  recovered too.
+- Attach and download read `isAvailable()` for their 503 gate and start no
+  check: the page they come from already did.
 
 ### What the frontend is told: `filesAvailable`
 
 `ClientInvoiceResponse` gains one field, `filesAvailable: boolean`, filled
-from `isAvailable()` wherever the response is built. It is the same value on
+from `availableForPage()` wherever the response is built (read once per
+response, or once per list of responses). It is the same value on
 every Client Invoice and does not depend on the invoice's status. The
 Agent's Client Invoices page, the Manager's invoice detail and the Tester's
 Invoices page all render from this response already, server-side, so each
@@ -463,8 +500,9 @@ When `filesAvailable` is false:
     unavailable right now. Downloading is paused."
   - a section with no files and no attach control shows no notice, since
     nothing is paused there.
-- The controls come back on the next page load or refresh after the store is
-  back (story 23). The section never polls.
+- The controls come back on a page load or refresh after the store is back:
+  the first one may still show them paused, the next shows them working
+  (story 23). The section never polls.
 
 Nothing else on the three pages reads `filesAvailable`. The `ClientInvoice`
 type in `lib/api/types.ts` gains the field. The visual-test stub backend
@@ -498,7 +536,8 @@ Javadoc and the column's meaning in `CONTEXT.md` say "object key".
   `http://seaweedfs:8333` with the same dev-only credentials. It `depends_on`
   `seaweedfs` with `service_started`, not `service_healthy`: compose starts
   the store first, but never holds the backend back on the store's health
-  (the human's amendment); the probe picks the store up within 30 seconds.
+  (the human's amendment); an invoice page opened once the store is up
+  triggers the check that picks it up.
   - The comment saying uploads are lost on rebuild is replaced. Files now
     live in `seaweedfs_data` and survive a rebuild.
   - The demo-reset instructions also name `seaweedfs_data` when you want a
@@ -555,8 +594,13 @@ status `proposed`. The human's approval of this spec accepts it. It records:
   - the bucket checked at startup, created by the app only locally;
     provisioned outside the app on Hetzner;
   - the backend never refuses to start over the store: it logs the failure,
-    reports file storage as unavailable to the frontend, re-checks every 30
-    seconds and recovers by itself (the human's amendment, 2026-10-17);
+    reports file storage as unavailable to the frontend, and recovers by
+    itself (the human's amendment, 2026-10-17);
+  - availability is checked once at startup and then only on demand, when an
+    invoice page is opened and the last check is more than 30 seconds old,
+    asynchronously, one check at a time; there is no background schedule
+    (the human, 2026-10-17). The cost: right after the store changes state,
+    the first page opened may still show the previous one;
   - the S3 operations used, checked against Hetzner's supported actions, and
     the addressing style Hetzner needs.
 - **Licences**:
@@ -590,7 +634,10 @@ status `proposed`. The human's approval of this spec accepts it. It records:
   - a bucket lifecycle rule (C), which cannot count from approval;
   - presigned URLs to the browser, which would bypass the access guards;
   - failing startup when the store is unreachable (this spec's first draft),
-    turned down by the human.
+    turned down by the human;
+  - a background check of the store every 30 seconds (this spec's second
+    draft), turned down by the human for a check when invoice pages are
+    opened.
 
 ## Design direction
 
@@ -630,8 +677,13 @@ colour.
 - **The backend starts whatever the store's state or configuration** (the
   human, 2026-10-17). Nothing about the store may fail the Spring context or
   hold compose's backend back.
-- **The availability probe runs every 30 seconds**, each call capped at about
-  3 seconds, and logs only on a change of state.
+- **No background availability check** (the human, 2026-10-17): no
+  `@Scheduled` task, timer or polling thread for it. The probe runs once at
+  startup and otherwise only when a Client Invoice response is built and the
+  last check is more than 30 seconds old; asynchronously, one at a time, each
+  call capped at about 3 seconds; it logs only on a change of state. This
+  constrains availability only, not `carrier-invoice-retention`'s deletion
+  job.
 - **The browser never polls** for availability.
 - **No new design token**; the normal state of every page is pixel-identical.
 - **Object key**: exactly `carrier-invoices/{tenant id}/{client invoice
@@ -715,15 +767,27 @@ mocked database. No test reaches Hetzner.
      shared test bucket starts absent, so every context boot exercises it.
    - `ClientInvoiceApiTest` asserts `filesAvailable: true` on a Client
      Invoice response against the real SeaweedFS (the HTTP seam).
-   - `ObjectStoreAvailability` is unit-tested over a mocked `S3Client`, calling
-     `probe()` directly (no timer is waited on):
+   - `ObjectStoreAvailability` is unit-tested over a mocked `S3Client`, an
+     injected manual executor (it records submitted tasks and runs them only
+     when the test says) and a hand-moved clock. No scheduler exists, so
+     none is mocked, and no real time is waited on:
      - an unreachable store, refused credentials, or an absent bucket with
        the flag off make it unavailable, and `probe()` never throws;
      - an absent bucket with the flag on is created and it is available; a
        present bucket is not recreated;
-     - **recovery**: a failing probe, then a succeeding one, goes from
-       unavailable to available;
-     - `markUnavailable()` flips it until the next successful probe;
+     - **stale value served, refresh triggered**: with the last check more
+       than 30 seconds old, `availableForPage()` returns the cached value
+       before any probe runs, and exactly one probe is submitted; once it
+       runs, the next call returns the new value;
+     - **single flight**: several `availableForPage()` calls while a probe is
+       submitted but not finished submit no second one;
+     - **no refresh within 30 seconds**: with the last check younger than 30
+       seconds, `availableForPage()` submits nothing; `isAvailable()` never
+       submits anything, whatever the age;
+     - **recovery**: unavailable (a failed probe or `markUnavailable()`), then
+       a successful probe, gives available; nothing else does;
+     - `markUnavailable()` flips it at once and does not reset the age of the
+       last check;
      - one ERROR on the move to unavailable, none on a second failure, one
        INFO on recovery.
    - A context test boots with a malformed `OBJECT_STORE_ENDPOINT` and shows
@@ -783,26 +847,42 @@ mocked database. No test reaches Hetzner.
   decides whether a missing bucket is created or reported.** Reason: on
   Hetzner the flag is off, and story 11 still wants a broken store or a wrong
   bucket name found in the log at deploy time.
-- **Availability is a cached flag refreshed by a scheduled probe every 30
-  seconds (fixed delay), plus a startup probe, not a lazy check on read.**
-  Reason: a page load never waits on the store, so a down store costs no
-  page any latency. 30 seconds is short enough that the screens catch up
-  within half a minute of the store returning, matching "unavailable right
-  now", and long enough that a down store costs one capped request every 30
-  seconds and one log line in all. Changing the number is one constant.
+- **Settled by the human (2026-10-17), replacing this spec's 30-second
+  background check: availability is a cached flag, checked once at startup
+  and then only when an invoice page is opened, stale-while-revalidate.**
+  The human: "Let's go with the alternative when invoice pages are opened."
+  No `@Scheduled` task, timer or polling thread. Building a Client Invoice
+  response reads the cached value at once and, when the last check is more
+  than 30 seconds old, starts one asynchronous probe (single flight, capped
+  at about 3 seconds). Reason: nothing runs while nobody uses the app, and a
+  page load still never waits on the store. The 30-second window bounds the
+  store traffic to one capped check per 30 seconds however many pages open,
+  and the log to one line per change of state. The price, accepted: the page
+  that triggers a check shows the state from before it, so right after the
+  store recovers, or goes down without a failed transfer, the first page
+  opened may still show the previous state, and the next reload (once the
+  last check is more than 30 seconds old) is correct. Changing the number is
+  one constant.
+- **The asynchronous probe runs on a single-thread executor the component
+  owns, with the executor and clock injected; not Spring's `@Async`.**
+  Reason: no `@EnableAsync` switch for one task, single flight is a flag the
+  component holds, and the unit tests drive both the executor and time by
+  hand.
 - **The probe is the bucket ensure itself (`HeadBucket`, then `CreateBucket`
   when absent and the flag is on).** Reason: one code path for startup and
   recovery, and a store that comes back empty is recovered too. It adds no S3
   operation to the five.
-- **The probe's call is capped at about 3 seconds.** Reason: the scheduler
-  thread must never sit on a hung store for the 30-second call timeout.
+- **The probe's call is capped at about 3 seconds.** Reason: the startup
+  check and the executor's one thread must never sit on a hung store for the
+  30-second call timeout; a check in flight blocks the next one.
 - **Only the probe sets it available; any `ObjectStoreUnavailableException`
   sets it unavailable at once; a missing object does not.** Reason: one
   failure is enough to stop offering controls that will fail, and recovery
   through the probe alone keeps one source of "it's back". One lost object is
   not an outage.
 - **Log ERROR on the move to unavailable and INFO on the move back, nothing in
-  between.** Reason: an hour-long outage would otherwise log 120 errors.
+  between.** Reason: an outage during which pages keep opening would
+  otherwise log an error on every check.
 - **While unavailable, attach and download answer 503 at once, without
   calling the store.** Reason: the server stays authoritative for a page
   loaded before the outage, and the request fails in milliseconds, not after a
@@ -820,14 +900,15 @@ mocked database. No test reaches Hetzner.
   page it governs. A status endpoint would need a new BFF route and a second
   fetch on three pages. The field is per response, not per file, because
   availability is the store's, not a file's.
-- **Controls re-enable on the next page load or refresh, with no polling.**
+- **Controls re-enable on a later page load or refresh, with no polling.**
   Reason: the human asked for the controls to be deactivated, not watched; an
-  Agent who reloads gets the current state, and polling would add a timer and
-  a client fetch to three pages for an outage that should be rare.
+  Agent who reloads gets the current state (one reload late at worst), and
+  polling would add a timer and a client fetch to three pages for an outage
+  that should be rare.
 - **Compose's backend `depends_on` SeaweedFS with `service_started`, not
   `service_healthy`.** Reason: waiting on the store's health would block the
   backend's startup, which the human ruled out. Start order is kept, and the
-  probe catches up.
+  check triggered by the first invoice page opened catches up.
 - **Proposed notice wording, for the human to veto: "File storage is
   unavailable right now. Attaching and downloading are paused." where the
   attach control is shown, and "File storage is unavailable right now.
@@ -861,8 +942,9 @@ mocked database. No test reaches Hetzner.
   production; a small, checked surface is the guard.
 - **No retry beyond the SDK's defaults for Hetzner's reported occasional
   instability.** Reason: a failed call is already a contained 503 with an
-  ERROR line; the files section pauses for at most 30 seconds and the user
-  retries after a reload.
+  ERROR line; the files section pauses until a page opened after the store
+  answers again triggers a successful check, and the user retries after a
+  reload or two.
 - **The SeaweedFS S3 credential mechanism (config JSON or environment) is left
   to the implementer; the values are dev-only defaults in compose and the
   scripts.** Reason: it depends on the pinned version, and it never reaches
@@ -984,8 +1066,10 @@ with its dev-only credentials (e.g. `aws s3api list-objects-v2
    - With the page open on a new draft as Jordan, `docker stop` SeaweedFS and attach a file. Show "Couldn't attach one or more files. Try again." and one ERROR in the backend log naming the store operation, with no credentials.
    - Reload. As Jordan on the draft, as the Manager on its `/manager/invoices/client/{id}`, and as the Tester on an earlier sent invoice's Invoices page, show the files section listing every file name, "Attach carrier invoice" disabled (Jordan, Manager), each Download disabled and not a link, and the notice: "File storage is unavailable right now. Attaching and downloading are paused." (Jordan, Manager) or "File storage is unavailable right now. Downloading is paused." (Tester). Screenshot each.
    - Show lines, fees, the PDF and the Fleet page still work, and that a direct API attach and download answer 503 at once.
-   - `docker start` SeaweedFS. Wait 30 seconds, reload: Attach and Download are enabled on all three screens, a download returns the same bytes and an attach works. Show one INFO line for the recovery and no repeated ERROR lines in between.
-   - Stop the backend. Start it with `OBJECT_STORE_ENDPOINT` at a free port where nothing listens. Show it starts (`/api/health` answers), logs one ERROR naming that endpoint and the bucket, and the files sections are paused. Start a fresh throwaway SeaweedFS on that port; after 30 seconds and a reload, show Attach works and the bucket was created by the backend.
+   - Leave the stack untouched for two minutes with SeaweedFS still stopped and no page open. Show the backend log gains no line in that time: nothing checks the store while nobody opens a page.
+   - `docker start` SeaweedFS. Reload Jordan's draft once (at least 30 seconds after the last reload of an invoice page, so the last check is stale; wait out the rest of the 30 seconds only if needed): it may still show the paused state. Reload again: Attach and Download are enabled; reload the Manager's and the Tester's pages: enabled too. A download returns the same bytes and an attach works. Show one INFO line for the recovery and no repeated ERROR lines in between.
+   - Stop SeaweedFS again without attaching anything. Reload Jordan's draft once (again with the last check at least 30 seconds old): it may still show the controls enabled. Reload again: paused, with one ERROR in the log. `docker start` SeaweedFS.
+   - Stop the backend. Start it with `OBJECT_STORE_ENDPOINT` at a free port where nothing listens. Show it starts (`/api/health` answers), logs one ERROR naming that endpoint and the bucket, and the files sections are paused. Start a fresh throwaway SeaweedFS on that port; reload once (the last check at least 30 seconds old), then again, and show Attach works and the bucket was created by the backend.
    - With SeaweedFS running, start the backend with `OBJECT_STORE_CREATE_BUCKET=false` and `OBJECT_STORE_BUCKET` set to a bucket that does not exist, then with a wrong secret key, then with `OBJECT_STORE_ENDPOINT=not a url`. Each time show it starts, logs one ERROR naming the endpoint and the bucket (or the bad setting), never the secret, creates no bucket, and the files sections are paused. (stories: 11, 12, 13, 20, 21, 22, 23, 24, 25)
 8. [agent] Run `docker compose -f docker-compose.yml config` (read-only; nothing is started). Show:
    - a `seaweedfs` service on the pinned `chrislusf/seaweedfs` tag, with the `seaweedfs_data` volume, no `ports`, a healthcheck, and dev-only S3 credentials;
@@ -1004,10 +1088,11 @@ the third because it reads `filesAvailable`.
 1. `carrier-invoice-files-in-object-store`. It covers:
    - the AWS SDK dependency and `ObjectStoreProperties`;
    - the `S3Client` bean, built so that no store setting can fail startup;
-   - `ObjectStoreAvailability`: the bucket ensured at startup and every 30
-     seconds, logged on transitions, `@EnableScheduling`, `markUnavailable`
-     on a store failure, the 503 at once while unavailable, and
-     `filesAvailable` on `ClientInvoiceResponse`;
+   - `ObjectStoreAvailability`: the bucket ensured at startup, then re-checked
+     only when a Client Invoice response is built and the last check is more
+     than 30 seconds old (asynchronous, single flight, no scheduler), logged
+     on transitions, `markUnavailable` on a store failure, the 503 at once
+     while unavailable, and `filesAvailable` on `ClientInvoiceResponse`;
    - `CarrierInvoiceFileStorage` rewritten over S3, with the filesystem code,
      `app.file-storage` and the `backend/.gitignore` entry removed;
    - `CarrierInvoiceFileService` (attach with undo on failure, download) and

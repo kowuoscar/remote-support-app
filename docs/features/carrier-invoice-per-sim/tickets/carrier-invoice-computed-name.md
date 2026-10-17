@@ -38,6 +38,8 @@ At risk: the download name, the file list on all three screens, the Tester's Inv
 
 Existing tests expected to change, each with the reason:
 
+- `backend/src/test/java/com/remotesupport/backend/web/ClientInvoiceServiceAttachTest.java`: its `setUp` gives the mocked Contract a Client name and the SIM a number, because the service now reads them to compute the name; no assertion changes. Accepted by the orchestrator at merge.
+
 - `ClientInvoiceByIdApiTest` and `ClientInvoiceApiTest`: assertions that expected the uploaded name (the placeholder set by `attach-carrier-invoice-per-sim`) now expect the computed name, and the new cases are added; every other pre-existing method keeps passing unmodified.
 - `client-invoice-generation.spec.ts`: gains the computed-name assertion; its existing steps keep passing unmodified.
 - `ClientInvoiceSendBackApiTest`: any assertion of the file's listed name moves to the computed name; every other pre-existing method keeps passing unmodified.

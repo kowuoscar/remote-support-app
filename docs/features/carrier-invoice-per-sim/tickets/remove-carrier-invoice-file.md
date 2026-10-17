@@ -1,7 +1,7 @@
 ---
 id: remove-carrier-invoice-file
 title: Let the Agent remove a Carrier Invoice File from a draft open to them
-status: ready-for-agent
+status: in-progress
 depends_on: [carrier-invoice-check-mark]
 labels: [backend, frontend]
 stories: [18, 19, 20, 21, 22, 23]

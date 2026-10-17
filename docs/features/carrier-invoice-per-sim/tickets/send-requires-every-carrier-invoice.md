@@ -1,7 +1,7 @@
 ---
 id: send-requires-every-carrier-invoice
 title: Refuse to send a Client Invoice while a Postpaid SIM line lacks its Carrier Invoice File
-status: ready-for-agent
+status: in-progress
 depends_on: [carrier-invoice-check-mark]
 labels: [backend, frontend]
 stories: [11, 12, 13, 14, 15, 17, 28, 29]

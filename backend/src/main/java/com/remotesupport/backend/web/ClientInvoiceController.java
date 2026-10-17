@@ -69,16 +69,19 @@ public class ClientInvoiceController {
   private final ClientInvoiceRepository clientInvoiceRepository;
   private final ClientInvoiceAccessGuard clientInvoiceAccessGuard;
   private final ClientInvoiceService clientInvoiceService;
+  private final CarrierInvoiceFileService carrierInvoiceFileService;
 
   public ClientInvoiceController(
       ContractRepository contractRepository,
       ClientInvoiceRepository clientInvoiceRepository,
       ClientInvoiceAccessGuard clientInvoiceAccessGuard,
-      ClientInvoiceService clientInvoiceService) {
+      ClientInvoiceService clientInvoiceService,
+      CarrierInvoiceFileService carrierInvoiceFileService) {
     this.contractRepository = contractRepository;
     this.clientInvoiceRepository = clientInvoiceRepository;
     this.clientInvoiceAccessGuard = clientInvoiceAccessGuard;
     this.clientInvoiceService = clientInvoiceService;
+    this.carrierInvoiceFileService = carrierInvoiceFileService;
   }
 
   @GetMapping
@@ -165,7 +168,7 @@ public class ClientInvoiceController {
     clientInvoiceService.requireNonEmpty(file);
 
     ClientInvoice invoice = getOrCreateDraftForCurrentMonth(contract, principal);
-    return clientInvoiceService.attachFile(invoice, file, principal);
+    return carrierInvoiceFileService.attach(invoice, file, principal);
   }
 
   @GetMapping("/files")
@@ -181,7 +184,7 @@ public class ClientInvoiceController {
       @PathVariable UUID fileId,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
-    return clientInvoiceService.downloadFile(resolveInvoiceForView(contract, principal), fileId);
+    return carrierInvoiceFileService.download(resolveInvoiceForView(contract, principal), fileId);
   }
 
   /**

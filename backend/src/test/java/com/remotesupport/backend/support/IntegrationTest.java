@@ -23,6 +23,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -89,6 +91,12 @@ public abstract class IntegrationTest {
 
   static {
     POSTGRES.start();
+  }
+
+  // The shared SeaweedFS beside the shared Postgres (ObjectStoreTestSupport starts it once).
+  @DynamicPropertySource
+  static void objectStore(DynamicPropertyRegistry registry) {
+    ObjectStoreTestSupport.register(registry);
   }
 
   @Autowired protected MockMvc mockMvc;

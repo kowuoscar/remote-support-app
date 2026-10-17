@@ -11,9 +11,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.remotesupport.backend.domain.Fee;
 import com.remotesupport.backend.domain.SimCard;
+import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
 import com.remotesupport.backend.repository.SimCardRepository;
 import com.remotesupport.backend.repository.FeeRepository;
 import com.remotesupport.backend.support.IntegrationTest;
+import com.remotesupport.backend.support.ObjectStoreTestSupport;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -34,6 +36,7 @@ import org.springframework.test.web.servlet.MvcResult;
  */
 class ClientInvoiceApiTest extends IntegrationTest {
 
+  @Autowired private CarrierInvoiceFileRepository carrierInvoiceFileRepository;
   @Autowired private FeeRepository feeRepository;
   @Autowired private SimCardRepository simCardRepository;
 
@@ -879,5 +882,86 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .perform(post("/api/client-invoices/" + invoiceId + "/approve").header("Authorization", "Bearer " + managerToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("APPROVED"));
+  }
+
+  // --- Carrier Invoice Files kept in the object store (ADR 0007) -------------------------------
+
+  @Test
+  void anAttachedFileIsOneObjectAtItsKeyWithTheUploadedBytesAndNoMetadata() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Object Key Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    byte[] bytes = "object store bytes".getBytes(StandardCharsets.UTF_8);
+
+    MvcResult upload =
+        mockMvc
+            .perform(
+                multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                    .file(new MockMultipartFile("file", "keyed.pdf", "application/pdf", bytes))
+                    .header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isCreated())
+            .andReturn();
+    var created = objectMapper.readTree(upload.getResponse().getContentAsString());
+    UUID fileId = UUID.fromString(created.get("id").asText());
+    UUID invoiceId = UUID.fromString(created.get("clientInvoiceId").asText());
+    String key = "carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/" + fileId;
+
+    assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/"))
+        .containsExactly(key);
+    assertThat(ObjectStoreTestSupport.read(key)).isEqualTo(bytes);
+    assertThat(ObjectStoreTestSupport.userMetadata(key)).isEmpty();
+    assertThat(ObjectStoreTestSupport.tagCount(key)).isZero();
+    assertThat(carrierInvoiceFileRepository.findById(fileId).orElseThrow().getStoragePath()).isEqualTo(key);
+  }
+
+  @Test
+  void attachingToASentInvoiceIs409AndLeavesNoObjectUnderTheInvoicePrefix() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Undo Attach Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    MvcResult sent =
+        mockMvc
+            .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    UUID invoiceId = UUID.fromString(objectMapper.readTree(sent.getResponse().getContentAsString()).get("id").asText());
+
+    mockMvc
+        .perform(
+            multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                .file(new MockMultipartFile("file", "late.pdf", "application/pdf", "late".getBytes()))
+                .header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isConflict());
+
+    assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/")).isEmpty();
+  }
+
+  @Test
+  void aFileWhoseObjectIsMissingDownloadsAs404() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Lost Object Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+
+    MvcResult upload =
+        mockMvc
+            .perform(
+                multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                    .file(new MockMultipartFile("file", "lost.pdf", "application/pdf", "lost".getBytes()))
+                    .header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isCreated())
+            .andReturn();
+    UUID fileId = UUID.fromString(objectMapper.readTree(upload.getResponse().getContentAsString()).get("id").asText());
+    String key = carrierInvoiceFileRepository.findById(fileId).orElseThrow().getStoragePath();
+
+    ObjectStoreTestSupport.delete(key);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isNotFound());
   }
 }

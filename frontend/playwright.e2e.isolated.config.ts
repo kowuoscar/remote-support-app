@@ -27,6 +27,8 @@ const pgPort = requiredEnv("E2E_ISOLATED_PG_PORT");
 const backendPort = requiredEnv("E2E_ISOLATED_BACKEND_PORT");
 const frontendPort = requiredEnv("E2E_ISOLATED_FRONTEND_PORT");
 const pgContainer = requiredEnv("E2E_ISOLATED_PG_CONTAINER");
+const seaweedfsPort = requiredEnv("E2E_ISOLATED_SEAWEEDFS_PORT");
+const seaweedfsContainer = requiredEnv("E2E_ISOLATED_SEAWEEDFS_CONTAINER");
 
 // The same throwaway database this run's backend is pointed at below via DB_URL/DB_USERNAME/
 // DB_PASSWORD (run-backend-for-e2e-isolated.sh) — the two specs that write fixtures directly
@@ -52,11 +54,11 @@ export default defineConfig({
   },
   webServer: [
     {
-      // Starts the throwaway Postgres (plain `docker run`, not docker-compose) and the backend
-      // against it, in one script — see run-backend-for-e2e-isolated.sh for why both live in one
+      // Starts the throwaway Postgres and SeaweedFS (plain `docker run`, not docker-compose) and the
+      // backend against them, in one script — see run-backend-for-e2e-isolated.sh for why both live in one
       // process. `reuseExistingServer: false` unconditionally: a throwaway port has nothing
       // meaningful to reuse, and reusing would defeat "two consecutive runs never share state".
-      command: `../scripts/run-backend-for-e2e-isolated.sh "${pgContainer}" "${pgPort}" "${backendPort}"`,
+      command: `../scripts/run-backend-for-e2e-isolated.sh "${pgContainer}" "${pgPort}" "${backendPort}" "${seaweedfsContainer}" "${seaweedfsPort}"`,
       url: `http://127.0.0.1:${backendPort}/api/health`,
       timeout: 180_000,
       reuseExistingServer: false,

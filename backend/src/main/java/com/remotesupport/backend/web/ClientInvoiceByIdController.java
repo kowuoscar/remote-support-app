@@ -50,14 +50,17 @@ public class ClientInvoiceByIdController {
   private final ClientInvoiceRepository clientInvoiceRepository;
   private final ClientInvoiceAccessGuard clientInvoiceAccessGuard;
   private final ClientInvoiceService clientInvoiceService;
+  private final CarrierInvoiceFileService carrierInvoiceFileService;
 
   public ClientInvoiceByIdController(
       ClientInvoiceRepository clientInvoiceRepository,
       ClientInvoiceAccessGuard clientInvoiceAccessGuard,
-      ClientInvoiceService clientInvoiceService) {
+      ClientInvoiceService clientInvoiceService,
+      CarrierInvoiceFileService carrierInvoiceFileService) {
     this.clientInvoiceRepository = clientInvoiceRepository;
     this.clientInvoiceAccessGuard = clientInvoiceAccessGuard;
     this.clientInvoiceService = clientInvoiceService;
+    this.carrierInvoiceFileService = carrierInvoiceFileService;
   }
 
   @GetMapping
@@ -114,7 +117,7 @@ public class ClientInvoiceByIdController {
     ClientInvoice invoice = find(invoiceId, principal);
     clientInvoiceAccessGuard.requireCanBuildOrView(invoice.getContract(), principal);
     clientInvoiceService.requireNonEmpty(file);
-    return clientInvoiceService.attachFile(invoice, file, principal);
+    return carrierInvoiceFileService.attach(invoice, file, principal);
   }
 
   @GetMapping("/files")
@@ -128,7 +131,7 @@ public class ClientInvoiceByIdController {
       @PathVariable UUID invoiceId,
       @PathVariable UUID fileId,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
-    return clientInvoiceService.downloadFile(findForView(invoiceId, principal), fileId);
+    return carrierInvoiceFileService.download(findForView(invoiceId, principal), fileId);
   }
 
   /** A refused body (a line edit's amount, a send-back's reason) is a {@code 400} whose {@code message} names the first thing wrong. */

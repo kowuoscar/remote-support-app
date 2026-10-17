@@ -21,6 +21,7 @@ import com.remotesupport.backend.repository.FeeRepository;
 import com.remotesupport.backend.repository.RequestRepository;
 import com.remotesupport.backend.repository.SimCardRepository;
 import com.remotesupport.backend.repository.SmartphoneRepository;
+import com.remotesupport.backend.support.ObjectStoreTestSupport;
 import com.remotesupport.backend.web.ContractAmountService;
 import java.math.BigDecimal;
 import java.util.EnumSet;
@@ -35,6 +36,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -58,6 +61,11 @@ class DemoDataLoaderApiTest {
 
   static {
     POSTGRES.start();
+  }
+
+  @DynamicPropertySource
+  static void objectStore(DynamicPropertyRegistry registry) {
+    ObjectStoreTestSupport.register(registry);
   }
 
   @Autowired private MockMvc mockMvc;

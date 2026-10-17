@@ -33,6 +33,8 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
@@ -669,54 +671,34 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
     attachById(agentToken, invoiceId, simId, "right.pdf").andExpect(status().isCreated());
   }
 
-  @Test
-  void removingFromASentInvoiceIsAConflictAndKeepsTheFile() throws Exception {
+  @ParameterizedTest(name = "{0}")
+  @CsvSource(
+      value = {"sent,", "approved,", "a never-sent past-month draft,PAST_MONTH_DRAFT_NOT_SENDABLE"},
+      ignoreLeadingAndTrailingWhitespace = true)
+  void removingFromAnInvoiceNotOpenToTheAgentIsAConflictAndKeepsTheFile(String state, String code)
+      throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
-    UUID contractId = newContract(managerToken, "Remove Sent Co");
+    UUID contractId = newContract(managerToken, "Remove Refused Co " + state);
     UUID simId = addUniquePostpaidSim(managerToken, contractId);
     UUID invoiceId = openDraft(agentToken, contractId);
     UUID fileId = attachReturningFileId(agentToken, invoiceId, simId, "a.pdf");
-    send(agentToken, contractId);
+    switch (state) {
+      case "sent" -> send(agentToken, contractId);
+      case "approved" -> {
+        send(agentToken, contractId);
+        mockMvc
+            .perform(
+                post("/api/client-invoices/" + invoiceId + "/approve").header("Authorization", "Bearer " + managerToken))
+            .andExpect(status().isOk());
+      }
+      default -> moveToPastMonth(invoiceId, 1);
+    }
 
-    removeById(agentToken, invoiceId, fileId).andExpect(status().isConflict());
-
-    assertThat(fileRows(invoiceId)).isEqualTo(1);
-    assertThat(keysOf(invoiceId)).hasSize(1);
-  }
-
-  @Test
-  void removingFromAnApprovedInvoiceIsAConflictAndKeepsTheFile() throws Exception {
-    String managerToken = managerToken();
-    String agentToken = agentToken();
-    UUID contractId = newContract(managerToken, "Remove Approved Co");
-    UUID simId = addUniquePostpaidSim(managerToken, contractId);
-    UUID invoiceId = openDraft(agentToken, contractId);
-    UUID fileId = attachReturningFileId(agentToken, invoiceId, simId, "a.pdf");
-    send(agentToken, contractId);
-    mockMvc
-        .perform(post("/api/client-invoices/" + invoiceId + "/approve").header("Authorization", "Bearer " + managerToken))
-        .andExpect(status().isOk());
-
-    removeById(agentToken, invoiceId, fileId).andExpect(status().isConflict());
-
-    assertThat(fileRows(invoiceId)).isEqualTo(1);
-    assertThat(keysOf(invoiceId)).hasSize(1);
-  }
-
-  @Test
-  void removingFromANeverSentPastMonthDraftIsACoded409AndKeepsTheFile() throws Exception {
-    String managerToken = managerToken();
-    String agentToken = agentToken();
-    UUID contractId = newContract(managerToken, "Remove Past Co");
-    UUID simId = addUniquePostpaidSim(managerToken, contractId);
-    UUID invoiceId = openDraft(agentToken, contractId);
-    UUID fileId = attachReturningFileId(agentToken, invoiceId, simId, "a.pdf");
-    moveToPastMonth(invoiceId, 1);
-
-    removeById(agentToken, invoiceId, fileId)
-        .andExpect(status().isConflict())
-        .andExpect(jsonPath("$.code").value("PAST_MONTH_DRAFT_NOT_SENDABLE"));
+    var refused = removeById(agentToken, invoiceId, fileId).andExpect(status().isConflict());
+    if (code != null) {
+      refused.andExpect(jsonPath("$.code").value(code));
+    }
 
     assertThat(fileRows(invoiceId)).isEqualTo(1);
     assertThat(keysOf(invoiceId)).hasSize(1);

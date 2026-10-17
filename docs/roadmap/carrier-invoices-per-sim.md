@@ -74,11 +74,17 @@ Ordered by dependency; cut and sized at spec time.
   deleted; the invoice still lists the file by name with "Deleted on {date}"
   in place of Download, and the SIM line keeps its check mark (the human,
   2026-10-17: "A").
+- **Object keys are ids (A).** `carrier-invoices/{tenant id}/{client invoice
+  id}/{file id}` in one private bucket; the computed name lives in the
+  database and is given on download (Content-Disposition). Deletion at
+  retention is done by the app (a daily job that records "Deleted on"), not
+  by a bucket lifecycle rule, which cannot count from approval. The backend
+  speaks the S3 API (AWS SDK), MinIO in compose with its own volume and in
+  tests (the human, 2026-10-17: "A", after options A ids / B readable keys /
+  C lifecycle-on-approved-prefix).
 
 ## Open at spec time
 
-- The object storage path strategy: asked by the human to be presented
-  (2026-10-17).
 - The object store's deployment for the human's own stack, and an ADR for the
   storage choice.
 

@@ -32,6 +32,7 @@ function invoice(overrides: Partial<ClientInvoiceDetail> = {}): ClientInvoiceDet
       {
         id: "file-1",
         clientInvoiceId: "invoice-1",
+        simCardId: "sim-1",
         filename: "august-carrier.pdf",
         contentType: "application/pdf",
         sizeBytes: 1200,

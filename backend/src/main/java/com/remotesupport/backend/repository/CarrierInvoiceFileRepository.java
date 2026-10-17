@@ -10,6 +10,8 @@ public interface CarrierInvoiceFileRepository extends JpaRepository<CarrierInvoi
 
   List<CarrierInvoiceFile> findByClientInvoiceIdOrderByUploadedAtAsc(UUID clientInvoiceId);
 
+  boolean existsByClientInvoiceIdAndSimCardId(UUID clientInvoiceId, UUID simCardId);
+
   /** Scoped by the file's own Client Invoice's Contract, for a direct-by-id download lookup. */
   Optional<CarrierInvoiceFile> findByIdAndClientInvoiceContractId(UUID id, UUID contractId);
 

@@ -13,6 +13,7 @@ import { clientInvoiceBadge } from "@/lib/status";
 import { formatDate, formatDateShort, formatLocalDate } from "@/lib/format";
 import {
   FEE_TYPE_LABEL,
+  missingCarrierInvoiceLines,
   simLineKind,
   type ClientInvoiceDetail,
   type EditableClientInvoiceLineKind,
@@ -133,6 +134,7 @@ export function AgentClientInvoiceCard({
   const editable = invoice.status === "DRAFT" && !readOnly;
   const badge = clientInvoiceBadge(invoice);
   const feeLabelList = feeLabels(invoice.feeLines);
+  const hasPostpaidLines = (invoice.basePostpaidSims?.length ?? 0) > 0;
 
   return (
     <Card className="flex flex-col gap-6 p-5" data-testid="client-invoice-card">
@@ -160,7 +162,13 @@ export function AgentClientInvoiceCard({
         </div>
         {editable ? (
           <div className="flex flex-col items-end gap-2">
-            <AttachCarrierInvoiceFileControl invoiceId={invoice.id} disabled={!invoice.filesAvailable} />
+            {hasPostpaidLines ? (
+              <AttachCarrierInvoiceFileControl
+                invoiceId={invoice.id}
+                missingLines={missingCarrierInvoiceLines(invoice)}
+                disabled={!invoice.filesAvailable}
+              />
+            ) : null}
             <SendClientInvoiceControl invoiceId={invoice.id} />
           </div>
         ) : invoice.status === "DRAFT" || !currentMonth ? null : (

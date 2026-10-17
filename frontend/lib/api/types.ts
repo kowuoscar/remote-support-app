@@ -484,6 +484,8 @@ export const CLIENT_INVOICE_STATUS_LABEL: Record<ClientInvoiceStatusValue, strin
 export interface CarrierInvoiceFileListItem {
   id: string;
   clientInvoiceId: string;
+  // The Postpaid SIM Card the file bills; null only for a file from before carrier-invoice-per-sim.
+  simCardId: string | null;
   filename: string;
   contentType: string;
   sizeBytes: number;
@@ -510,6 +512,17 @@ export interface ClientInvoiceBaseSimLine {
   // The SIM's Carrier's current name (still its name once archived), or null for a SIM with none.
   // Always sent; optional only so older fixtures stay valid, as `amount` is.
   carrierName?: string | null;
+}
+
+/**
+ * The invoice's Postpaid SIM lines whose SIM has no Carrier Invoice File yet. A file whose SIM has
+ * no line on the invoice counts for no line.
+ */
+export function missingCarrierInvoiceLines(
+  invoice: Pick<ClientInvoiceDetail, "basePostpaidSims" | "files">,
+): ClientInvoiceBaseSimLine[] {
+  const covered = new Set(invoice.files.map((file) => file.simCardId));
+  return (invoice.basePostpaidSims ?? []).filter((line) => !covered.has(line.simCardId));
 }
 
 /** What an invoice SIM line is: "{Carrier} · Postpaid", or "Postpaid" for a SIM with no Carrier. */

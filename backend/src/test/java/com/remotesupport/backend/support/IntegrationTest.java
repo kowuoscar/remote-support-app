@@ -300,6 +300,21 @@ public abstract class IntegrationTest {
         .strip();
   }
 
+  /** A new Postpaid SIM on this Contract with a number no other test used, at a fee of 25.00; its id. */
+  protected UUID addUniquePostpaidSim(String managerToken, UUID contractId) throws Exception {
+    String number = "+1-" + Math.abs(UUID.randomUUID().getMostSignificantBits() % 10_000_000_000L);
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/api/contracts/" + contractId + "/sim-cards")
+                    .header("Authorization", "Bearer " + managerToken)
+                    .contentType(APPLICATION_JSON)
+                    .content(postpaidSimCardJson(managerToken, contractId, number, "25.00")))
+            .andExpect(status().isCreated())
+            .andReturn();
+    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+  }
+
   /**
    * Cancels a SIM Card with the given effective date through the real Return flow (submit → the
    * Manager approves with Disposition {@code CANCELLED} → the Agent progresses and completes with

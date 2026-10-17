@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { clientInvoiceFromByIdResponse } from "@/lib/api/client-invoice";
@@ -565,6 +565,7 @@ describe("AgentClientInvoicesView", () => {
       computedAmount: 25,
       edited: false,
     };
+    const SIM_TWO = { ...SIM, simCardId: "sim-2", number: "+1-555-0200" };
     const FEE = {
       id: "fee-1",
       contractId: "contract-1",
@@ -619,11 +620,13 @@ describe("AgentClientInvoicesView", () => {
       renderPage(
         invoice({
           billingMonth: CURRENT_MONTH,
+          basePostpaidSims: [SIM, SIM_TWO],
           filesAvailable: false,
           files: [
             {
               id: "file-1",
               clientInvoiceId: "invoice-1",
+              simCardId: "sim-1",
               filename: "carrier.pdf",
               contentType: "application/pdf",
               sizeBytes: 10,
@@ -634,12 +637,48 @@ describe("AgentClientInvoicesView", () => {
       );
 
       expect(screen.getByRole("button", { name: /Attach carrier invoice/ })).toBeDisabled();
-      expect(screen.getByLabelText("Attach carrier invoice file")).toBeDisabled();
       expect(screen.getByText("carrier.pdf")).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "Download" })).not.toBeInTheDocument();
       expect(
         screen.getByText("File storage is unavailable right now. Attaching and downloading are paused."),
       ).toBeInTheDocument();
+    });
+
+    const FILE_OF_SIM_1 = {
+      id: "file-1",
+      clientInvoiceId: "invoice-1",
+      simCardId: "sim-1",
+      filename: "carrier.pdf",
+      contentType: "application/pdf",
+      sizeBytes: 10,
+      uploadedAt: "2026-09-02T10:00:00Z",
+    };
+
+    it("offers Attach carrier invoice while a Postpaid SIM line has no file, and disables it once every line has one", () => {
+      const { unmount } = renderPage(sentBack({ basePostpaidSims: [SIM, SIM_TWO], files: [FILE_OF_SIM_1] }));
+      expect(screen.getByRole("button", { name: /Attach carrier invoice/ })).toBeEnabled();
+      unmount();
+
+      renderPage(sentBack({ basePostpaidSims: [SIM], files: [FILE_OF_SIM_1] }));
+      expect(screen.getByRole("button", { name: /Attach carrier invoice/ })).toBeDisabled();
+    });
+
+    it("keeps a file whose SIM has no line listed, and still offers every line without its file", () => {
+      renderPage(
+        sentBack({ basePostpaidSims: [SIM], files: [{ ...FILE_OF_SIM_1, simCardId: "sim-gone" }] }),
+      );
+
+      expect(screen.getByText("carrier.pdf")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Attach carrier invoice/ })).toBeEnabled();
+    });
+
+    it("has no Attach carrier invoice when the invoice has no Postpaid SIM line", () => {
+      renderPage(sentBack({ basePostpaidSims: [] }));
+      expect(screen.queryByRole("button", { name: /Attach carrier invoice/ })).not.toBeInTheDocument();
+      cleanup();
+
+      renderPage(sentBack({ basePostpaidSims: undefined }));
+      expect(screen.queryByRole("button", { name: /Attach carrier invoice/ })).not.toBeInTheDocument();
     });
 
     it("editor-present-on-sent-back-draft-and-calls-by-id-route", async () => {

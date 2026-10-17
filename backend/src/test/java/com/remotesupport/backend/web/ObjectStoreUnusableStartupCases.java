@@ -65,11 +65,13 @@ abstract class ObjectStoreUnusableStartupCases extends IntegrationTest {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "No Store Co " + UUID.randomUUID());
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
 
     mockMvc
         .perform(
             multipart("/api/contracts/" + contractId + "/client-invoice/files")
                 .file(new MockMultipartFile("file", "a.pdf", "application/pdf", "abc".getBytes()))
+                .param("simCardId", simId.toString())
                 .header("Authorization", "Bearer " + agentToken()))
         .andExpect(status().isServiceUnavailable());
   }

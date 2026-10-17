@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.FieldError;
@@ -113,11 +112,12 @@ public class ClientInvoiceByIdController {
   public ResponseEntity<CarrierInvoiceFileResponse> uploadFile(
       @PathVariable UUID invoiceId,
       @RequestParam("file") MultipartFile file,
+      @RequestParam("simCardId") UUID simCardId,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     ClientInvoice invoice = find(invoiceId, principal);
     clientInvoiceAccessGuard.requireCanBuildOrView(invoice.getContract(), principal);
     clientInvoiceService.requireNonEmpty(file);
-    return carrierInvoiceFileService.attach(invoice, file, principal);
+    return carrierInvoiceFileService.attach(invoice, file, simCardId, principal);
   }
 
   @GetMapping("/files")
@@ -143,13 +143,6 @@ public class ClientInvoiceByIdController {
             .findFirst()
             .orElse("The request is invalid");
     return ResponseEntity.badRequest().body(Map.of("message", message));
-  }
-
-  /** The {@code 409} of a draft not open to its Agent carries a {@code code}, which a plain {@link ConflictException} body does not. */
-  @ExceptionHandler(ClientInvoiceConflictException.class)
-  public ResponseEntity<Map<String, String>> clientInvoiceConflict(ClientInvoiceConflictException e) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(Map.of("code", e.reason().name(), "message", e.getMessage()));
   }
 
   private ClientInvoice findForView(UUID invoiceId, AuthenticatedPrincipal principal) {

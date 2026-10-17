@@ -42,6 +42,8 @@ At risk: the attach, list and download flow of Carrier Invoice Files; the coded 
 
 Existing tests expected to change, each with the reason:
 
+- `backend/src/test/java/com/remotesupport/backend/support/IntegrationTest.java`: adds the helper `addUniquePostpaidSim` (additive; the new attach tests need a Postpaid SIM with a unique number); nothing existing changes. Accepted by the orchestrator at merge.
+
 - `ClientInvoiceApiTest` and `ClientInvoiceByIdApiTest`: the pre-existing attach cases must send `simCardId` now that it is required; their assertions on status, list and download move to the computed name. New cases are added; every other pre-existing method keeps passing unmodified.
 - `ClientInvoiceSendBackApiTest` (`postFileById` ~line 560 and `sentInvoiceWithFile` ~line 618 post to `/files`): they must send the `simCardId` of a real Postpaid SIM line of the invoice; every other pre-existing method keeps passing unmodified.
 - `ObjectStoreUnusableStartupCases` (`attachAnswers503`, shared by the four `ObjectStore*StartupTest` classes): its attach gets a Postpaid SIM line and its `simCardId`, so the availability gate (503) is still what is tested; every other pre-existing method keeps passing unmodified. No other backend, frontend or e2e test posts to a `/files` route without `simCardId` (grep: `ClientInvoiceByIdApiTest`, `ClientInvoiceApiTest`, `CarrierInvoiceFileAttachConcurrentSendTest`, `client-invoice-generation.spec.ts` are named here).

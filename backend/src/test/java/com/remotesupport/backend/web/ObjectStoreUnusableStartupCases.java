@@ -41,7 +41,11 @@ abstract class ObjectStoreUnusableStartupCases extends IntegrationTest {
   @Test
   void startupLogsExactlyOneErrorNamingWhatIsWrongAndNoCredential(CapturedOutput output) {
     var startupErrors =
-        output.getAll().lines().filter(line -> line.contains(" ERROR ") && line.contains("Object store") && !line.contains("failed for key")).toList();
+        output
+            .getAll()
+            .lines()
+            .filter(line -> line.contains(" ERROR ") && line.contains("Object store") && !line.contains("failed for key"))
+            .toList();
 
     assertThat(startupErrors).hasSize(1);
     for (String name : startupErrorMustName()) {

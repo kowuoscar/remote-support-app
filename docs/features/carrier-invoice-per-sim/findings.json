@@ -4,7 +4,7 @@
     {
       "id": "F1",
       "type": "spec-partial",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
@@ -15,7 +15,7 @@
     {
       "id": "F2",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
@@ -26,7 +26,7 @@
     {
       "id": "F3",
       "type": "spec-partial",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
@@ -92,7 +92,7 @@
     {
       "id": "F9",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
@@ -103,7 +103,7 @@
     {
       "id": "F10",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
@@ -125,7 +125,7 @@
     {
       "id": "F12",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
@@ -275,6 +275,17 @@
       "where": "backend/src/main/java/com/remotesupport/backend/demo/DemoDataLoader.java",
       "citation": "walkthrough step 14: 'with the store unavailable at startup the backend still starts, logs one WARN and leaves that invoice a draft'",
       "note": "With the store down the log has the loader's one WARN plus CarrierInvoiceFileStorage's own ERROR ('PutObject failed...'), so the line count is two, not one. Behaviour is right; either the loader should check availability first or the step should allow the storage ERROR."
+    },
+    {
+      "id": "F26",
+      "type": "spec-wrong",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/demo/DemoDataLoader.java:471-490",
+      "citation": "Decisions taken: \"The demo loader attaches through storage `put` plus `recordAttachedFile`, and on a store failure leaves the invoice a draft with a WARN.\" / Demo data: \"it uses the storage `put` and `recordAttachedFile` directly, with the same undo.\"",
+      "note": "The fix pass made the loader probe the store and go through CarrierInvoiceFileService.attach; a failure part way keeps earlier files. The spec was not amended. Orchestrator recorded an (after review) decision and aligned the Demo data paragraph."
     }
   ]
 }

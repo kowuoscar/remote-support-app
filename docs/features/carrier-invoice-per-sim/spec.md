@@ -319,11 +319,11 @@ never sees a row without its object:
 `DemoDataLoader` sends contract US-1's current-month invoice through the
 controller, so the gate would now refuse it. Before that send, the loader
 attaches one small generated PDF per Postpaid SIM line, through
-`CarrierInvoiceFileService.attach`. The loader runs before the startup probe
-has marked the store available, so it uses the storage `put` and
-`recordAttachedFile` directly, with the same undo. If the store refuses, the
-loader logs one WARN and leaves that invoice as a draft, so the demo always
-starts. The approved past invoices written directly by the loader stay
+`CarrierInvoiceFileService.attach`, outside any transaction. The loader runs
+before the startup probe, so it probes the store itself first. If the store is
+unavailable, the loader logs one WARN, attempts no write and leaves that
+invoice as a draft, so the demo always starts. If an attach fails part way,
+the files already attached stay on the draft, which stays unsent. The approved past invoices written directly by the loader stay
 without files. They read as invoices from before this rule.
 
 ### Frontend
@@ -627,7 +627,7 @@ leaves, what is in the bucket, and what a user sees and can do on the page.
 - **Remove's confirm is inline, not a dialog.** Reason: it is one file and one sentence. It follows the Send control's inline two-step and its focus handling.
 - **`carrierInvoiceFileId` on the SIM line, not a boolean.** Reason: it says the same thing, and a later change (retention's "Deleted on", a jump to the file) can use the id without changing the contract again.
 - **`sim_card_id` nullable, with a plain unique constraint.** Reason: pre-feature dev and test rows keep working. Postgres's handling of `NULL` lets them through. No backfill exists to make it `NOT NULL`, and a later contract migration can tighten it.
-- **The demo loader attaches through storage `put` plus `recordAttachedFile`, and on a store failure leaves the invoice a draft with a WARN.** Reason: the demo must start whatever the store's state (ADR 0007), and its sent invoice must obey the rule it demonstrates.
+- **(after review) The demo loader probes the store itself, then attaches through `CarrierInvoiceFileService.attach` outside any transaction; with the store down it logs one WARN, writes nothing and leaves the invoice a draft; a failure part way keeps the files already attached and leaves the invoice unsent.** (Replaces "storage `put` plus `recordAttachedFile`", changed by the fix pass for F9/F15/F25: no store call inside a transaction, no duplicate of attach's undo, no storage ERROR at a store-down start.) Reason: the demo must start whatever the store's state (ADR 0007), and its sent invoice must obey the rule it demonstrates.
 - **One shared `CarrierInvoiceCheck` for both views.** Reason: the Agent and Manager invoice layouts are already duplicated (debt :17). The new mark must not become a third copy.
 - **The coded-409 handler covers the current-month controller too.** Reason: a refused send on that route would otherwise lose its `code`.
 - **Test seams: the existing HTTP seam with real Postgres and SeaweedFS, component tests at the view, e2e through the real form; no new seam.** Reason: those seams already prove attach, send and send-back. One helper per suite keeps the many sending tests unchanged in what they assert.

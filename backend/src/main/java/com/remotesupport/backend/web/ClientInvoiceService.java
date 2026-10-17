@@ -190,7 +190,7 @@ public class ClientInvoiceService {
         CarrierInvoiceFileName.of(
             invoice.getContract().getClient().getName(),
             invoice.getBillingMonth(),
-            sim.getCarrier() == null ? null : sim.getCarrier().getName(),
+            sim.carrierName(),
             sim.getNumber(),
             file.getOriginalFilename()));
     carrierFile.setContentType(
@@ -246,9 +246,22 @@ public class ClientInvoiceService {
   }
 
   public List<CarrierInvoiceFileResponse> files(ClientInvoice invoice) {
-    return carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoice.getId()).stream()
-        .map(CarrierInvoiceFileResponse::of)
-        .toList();
+    return rows(invoice).stream().map(CarrierInvoiceFileResponse::of).toList();
+  }
+
+  private List<CarrierInvoiceFile> rows(ClientInvoice invoice) {
+    return carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoice.getId());
+  }
+
+  /** The id of the invoice's file for each SIM Card that has one; a row from before the link has no entry. */
+  private static Map<UUID, UUID> fileIdBySim(List<CarrierInvoiceFile> rows) {
+    Map<UUID, UUID> byId = new HashMap<>();
+    for (CarrierInvoiceFile row : rows) {
+      if (row.getSimCard() != null) {
+        byId.put(row.getSimCard().getId(), row.getId());
+      }
+    }
+    return byId;
   }
 
   /**
@@ -269,13 +282,9 @@ public class ClientInvoiceService {
       ClientInvoice invoice, boolean includeEdits, boolean filesAvailable) {
     List<ResolvedLine> lines = lines(invoice);
     boolean perSim = lines.stream().noneMatch(l -> l.kind() == ClientInvoiceLineKind.BASE_AMOUNT);
-    List<CarrierInvoiceFileResponse> files = files(invoice);
-    Map<UUID, UUID> fileIdBySim = new HashMap<>();
-    for (CarrierInvoiceFileResponse file : files) {
-      if (file.simCardId() != null) {
-        fileIdBySim.put(file.simCardId(), file.id());
-      }
-    }
+    List<CarrierInvoiceFile> fileRows = rows(invoice);
+    List<CarrierInvoiceFileResponse> files = fileRows.stream().map(CarrierInvoiceFileResponse::of).toList();
+    Map<UUID, UUID> fileIdBySim = fileIdBySim(fileRows);
     List<ClientInvoiceBaseSimLineResponse> basePostpaidSims =
         perSim
             ? lines.stream()
@@ -480,11 +489,7 @@ public class ClientInvoiceService {
    * has no line neither counts nor blocks.
    */
   private void requireEveryCarrierInvoice(ClientInvoice invoice) {
-    Set<UUID> attached =
-        carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoice.getId()).stream()
-            .filter(f -> f.getSimCard() != null)
-            .map(f -> f.getSimCard().getId())
-            .collect(Collectors.toSet());
+    Set<UUID> attached = fileIdBySim(rows(invoice)).keySet();
     List<String> missing =
         lines(invoice).stream()
             .filter(l -> l.kind() == ClientInvoiceLineKind.POSTPAID_SIM)

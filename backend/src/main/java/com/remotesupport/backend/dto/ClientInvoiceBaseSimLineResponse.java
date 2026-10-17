@@ -43,7 +43,7 @@ public record ClientInvoiceBaseSimLineResponse(
         amount,
         computedAmount,
         edited,
-        simCard.getCarrier() == null ? null : simCard.getCarrier().getName(),
+        simCard.carrierName(),
         carrierInvoiceFileId);
   }
 }

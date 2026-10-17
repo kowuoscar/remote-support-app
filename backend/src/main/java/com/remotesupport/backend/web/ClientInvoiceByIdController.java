@@ -161,6 +161,18 @@ public class ClientInvoiceByIdController {
     return ResponseEntity.badRequest().body(Map.of("message", message));
   }
 
+  /** The {@code 409} of a draft not open to its Agent, of a send without its carrier invoices, carries a {@code code}. */
+  @ExceptionHandler(ClientInvoiceConflictException.class)
+  public ResponseEntity<Map<String, String>> clientInvoiceConflict(ClientInvoiceConflictException e) {
+    return ClientInvoiceErrors.conflict(e);
+  }
+
+  /** A refused request (an attach naming no Postpaid SIM line of the invoice) names what was wrong in {@code message}. */
+  @ExceptionHandler(InvalidRequestException.class)
+  public ResponseEntity<Map<String, String>> invalidRequest(InvalidRequestException e) {
+    return ClientInvoiceErrors.invalid(e);
+  }
+
   private ClientInvoice findForView(UUID invoiceId, AuthenticatedPrincipal principal) {
     ClientInvoice invoice = find(invoiceId, principal);
     clientInvoiceAccessGuard.requireCanView(invoice.getContract(), invoice.getStatus(), principal);

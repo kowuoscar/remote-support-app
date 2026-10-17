@@ -2,8 +2,9 @@ package com.remotesupport.backend.web;
 
 /**
  * A 409 on a Client Invoice that carries which cause applies, so the client can tell it from the
- * plain "wrong status" conflict. {@link ClientInvoiceConflictAdvice} renders both Client Invoice controllers' it as {@code {code,
- * message}}, as {@link AgentController} does for {@link AgentLoginConflictException}.
+ * plain "wrong status" conflict. {@link ClientInvoiceByIdController} and {@link
+ * ClientInvoiceController} each render it as {@code {code, message}}, as {@link AgentController}
+ * does for {@link AgentLoginConflictException}.
  */
 public class ClientInvoiceConflictException extends ConflictException {
 

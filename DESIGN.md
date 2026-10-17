@@ -135,7 +135,7 @@ A restrained palette: two neutral scales (canvas, ink) carry nearly everything; 
 
 ### Semantic
 - **Success** (`#0f7a53` / bg `#e4f5ed`; dark `#35c290` / bg `rgba(53,194,144,.14)`): Completed/Active/Approved/Paid states.
-- **Warning** (`#9a5b0a` / bg `#fbf0dc`; dark `#e3a33e`): In Progress, Awaiting approval, In Repair. The side list's "Sent back" mark is also warning, but carries the alert-triangle icon (`IconAlertTriangle`, `h-3 w-3`) in place of the dot, so it never reads as "Awaiting approval".
+- **Warning** (`#9a5b0a` / bg `#fbf0dc`; dark `#e3a33e`): In Progress, Awaiting approval, In Repair, and the paused Carrier invoice files notice. The side list's "Sent back" mark is also warning, but carries the alert-triangle icon (`IconAlertTriangle`, `h-3 w-3`) in place of the dot, so it never reads as "Awaiting approval".
 - **Danger** (`#c22a3e` / bg `#fceaed`; dark `#f16b7a`): destructive actions, negative money values.
 - **Info** (`#2f5fd6` / bg `#eaf0fd`; dark `#6f9bff`): Submitted, invoice Approved-not-yet-paid.
 

@@ -43,20 +43,21 @@ epic, which will call `CarrierInvoiceFileStorage.delete`).
   `ClientInvoiceService.recordAttachedFile` saves the row under the invoice's row lock, and a failure for
   any reason deletes the object again. No store call happens inside a transaction holding that lock
   (coding standards, Backend 8), so a slow upload never stalls a send.
-- **The bucket is checked once at startup and never fails it.** `HeadBucket` runs on
-  `ApplicationReadyEvent`; when the bucket is absent and `OBJECT_STORE_CREATE_BUCKET` is on it is created
-  (compose, tests and e2e leave the flag on), and when it is off (Hetzner: the bucket is provisioned
-  outside the app and the app's credentials need no right to create one) or the store is unreachable or
-  refuses the credentials, the backend logs **one ERROR naming the endpoint and the bucket and starts
-  anyway**. A setting that cannot build a client (an endpoint that is not a URL, a blank bucket or
-  region) is one ERROR naming the setting, never a credential value. Attaching and downloading answer 503
-  until a check has passed. Nothing about the store can fail the Spring context, and `/api/health` does
-  not probe the store. Availability reaching the frontend and recovering without a restart is the
-  `carrier-invoice-files-availability` ticket of the same feature, which replaces this one-shot check
-  with an on-demand one (once at startup, then only when an invoice page is opened and the last check is
-  more than 30 seconds old; no background schedule).
+- **Availability is checked at startup and then on demand, and never fails startup.** `HeadBucket` runs
+  on `ApplicationReadyEvent`; when the bucket is absent and `OBJECT_STORE_CREATE_BUCKET` is on it is
+  created (compose, tests and e2e leave the flag on), and when it is off (Hetzner: the bucket is
+  provisioned outside the app and the app's credentials need no right to create one) or the store is
+  unreachable or refuses the credentials, the backend logs **one ERROR naming the endpoint and the
+  bucket and starts anyway**. A setting that cannot build a client (an endpoint that is not a URL, a
+  blank bucket or region) is one ERROR naming the setting, never a credential value. After startup the
+  store is checked again only on demand: when an invoice page is opened and the last check is more than
+  30 seconds old, asynchronously, one check at a time; there is no background schedule. A failed
+  transfer also marks the store unavailable at once. Logging is on transitions only (one ERROR going
+  down, one INFO coming back). The cost: right after the store changes state, the first page opened may
+  still show the previous one. Attaching and downloading answer 503 while unavailable. Nothing about the
+  store can fail the Spring context, and `/api/health` does not probe the store.
 - **A store failure during a request is a 503** (`ObjectStoreUnavailableException`) with one ERROR line
-  naming the operation and the key and never the credentials; a missing object is a 404 with a WARN.
+  naming the operation, the key, the endpoint and the bucket and never the credentials; a missing object is a 404 with a WARN.
 
 ### The S3 operations used, checked against Hetzner
 

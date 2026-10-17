@@ -132,4 +132,14 @@ class CarrierInvoiceFileStorageTest {
 
     verify(availability, never()).markUnavailable();
   }
+
+  @Test
+  void anUnreadableUploadIsNotTheStoresFaultAndDoesNotMarkItUnavailable() throws Exception {
+    org.springframework.web.multipart.MultipartFile part = mock(org.springframework.web.multipart.MultipartFile.class);
+    when(part.getBytes()).thenThrow(new java.io.IOException("disk"));
+
+    assertThatThrownBy(() -> storage.put("k/1", part)).isInstanceOf(java.io.UncheckedIOException.class);
+
+    verify(availability, never()).markUnavailable();
+  }
 }

@@ -69,7 +69,7 @@ export function CarrierInvoiceFilesSection({
                 <a
                   href={downloadHref(file.id)}
                   aria-label={labelledDownloads ? `Download ${file.filename}` : undefined}
-                  className="inline-flex shrink-0 items-center gap-1 text-label-sm font-medium text-primary hover:underline"
+                  className={`inline-flex shrink-0 items-center gap-1 text-label-sm font-medium text-primary hover:underline${labelledDownloads ? " underline-offset-2" : ""}`}
                 >
                   <IconDownload className="h-3.5 w-3.5" />
                   Download

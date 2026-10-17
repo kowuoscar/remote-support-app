@@ -1,7 +1,7 @@
 package com.remotesupport.backend.web;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,13 +47,22 @@ public class CarrierInvoiceFileStorage {
     return "carrier-invoices/" + tenantId + "/" + clientInvoiceId + "/" + fileId;
   }
 
-  /** Streams the upload to {@code key}, its size taken from the part. */
+  /**
+   * Sends the upload to {@code key}. The body is the part's bytes, which the SDK can rewind when it
+   * retries; a stream could not be, and the retry would fail with an {@code IllegalStateException}.
+   * Failing to read the part is not the store's fault: it is not reported as unavailability.
+   */
   public void put(String key, MultipartFile file) {
-    try (InputStream in = file.getInputStream()) {
+    byte[] bytes;
+    try {
+      bytes = file.getBytes();
+    } catch (IOException e) {
+      throw new UncheckedIOException("Could not read the uploaded file", e);
+    }
+    try {
       s3.putObject(
-          PutObjectRequest.builder().bucket(props.bucket()).key(key).build(),
-          RequestBody.fromInputStream(in, file.getSize()));
-    } catch (SdkException | IOException e) {
+          PutObjectRequest.builder().bucket(props.bucket()).key(key).build(), RequestBody.fromBytes(bytes));
+    } catch (SdkException e) {
       throw unavailable("PutObject", key, e);
     }
   }
@@ -80,12 +89,18 @@ public class CarrierInvoiceFileStorage {
     }
   }
 
-  /** Logs the failure once, naming the operation and key; never the credentials or the SDK's message. */
+  /** Logs the failure once, naming the operation, key, endpoint and bucket; never the credentials or the SDK's message. */
   private ObjectStoreUnavailableException unavailable(String operation, String key, Exception cause) {
     String detail =
         cause instanceof S3Exception s3e ? "HTTP " + s3e.statusCode() : cause.getClass().getSimpleName();
     availability.markUnavailable();
-    log.error("Object store {} failed for key {} ({})", operation, key, detail);
+    log.error(
+        "Object store {} failed for key {} at endpoint {} bucket {} ({})",
+        operation,
+        key,
+        props.endpoint(),
+        props.bucket(),
+        detail);
     return new ObjectStoreUnavailableException("Object store is unavailable", cause);
   }
 }

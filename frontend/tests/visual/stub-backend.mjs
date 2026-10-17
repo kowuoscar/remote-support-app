@@ -25,6 +25,15 @@ const ROLES = {
   // Client Invoices page's goldens. A token of its own, because the Agent dashboard's goldens read the
   // two-Contract list below. The second token's Birch Telecom (UK) invoice read answers 500.
   "visual-agent-invoices-session": { username: "agent@example.com", role: "AGENT", country: "UNITED_STATES", invoices: true },
+  // carrier-invoice-per-sim: the same Client Invoices with file storage unavailable (the paused files
+  // section), and the Manager's by-id Client Invoice detail below.
+  "visual-agent-invoices-paused-session": {
+    username: "agent@example.com",
+    role: "AGENT",
+    country: "UNITED_STATES",
+    invoices: true,
+    filesPaused: true,
+  },
   "visual-agent-invoice-failing-session": {
     username: "agent@example.com",
     role: "AGENT",
@@ -341,7 +350,7 @@ const FEE_LINES = [
   { id: "77777777-0000-0000-0000-0000000000a1", contractId: "22222222-0000-0000-0000-0000000000d1", requestId: "88888888-0000-0000-0000-0000000000a1", requestType: "TOPUP", feeType: "TOPUP", amount: 10, currency: "USD", description: "Customer asked for extra data", billingMonth: "2026-09-01", createdAt: "2026-09-12T10:00:00Z", computedAmount: 10, edited: false },
   { id: "77777777-0000-0000-0000-0000000000a2", contractId: "22222222-0000-0000-0000-0000000000d1", requestId: "88888888-0000-0000-0000-0000000000a2", requestType: "TOPUP", feeType: "OTHER", amount: 8, currency: "USD", description: null, billingMonth: "2026-09-01", createdAt: "2026-09-14T10:00:00Z", computedAmount: 12, edited: true },
 ];
-function clientInvoiceFor(contract) {
+function clientInvoiceFor(contract, filesAvailable = true) {
   const withLines = contract.index === 0;
   return {
     id: `99999999-0000-0000-0000-0000000000${contract.id.slice(-2)}`,
@@ -353,7 +362,7 @@ function clientInvoiceFor(contract) {
     feeLines: withLines ? FEE_LINES : [],
     totalAmount: withLines ? 98 : 120 + contract.index * 10,
     files: withLines ? SIM_FILES : [],
-    filesAvailable: true,
+    filesAvailable,
     sentAt: null,
     approvedAt: null,
     ...INVOICE_STATES[contract.index],
@@ -750,7 +759,13 @@ createServer((request, response) => {
     const contract = INVOICE_CONTRACTS.find((candidate) => candidate.id === clientInvoiceMatch[1]);
     if (!contract) return send(response, 404);
     if (caller.failingInvoiceContract === contract.id) return send(response, 500);
-    return send(response, 200, clientInvoiceFor(contract));
+    return send(response, 200, clientInvoiceFor(contract, !caller.filesPaused));
+  }
+  // carrier-invoice-per-sim: the Manager's Client Invoice detail page reads the same first draft by id.
+  const clientInvoiceByIdMatch = url.pathname.match(/^\/api\/client-invoices\/([^/]+)$/);
+  if (clientInvoiceByIdMatch && request.method === "GET" && caller.role === "MANAGER") {
+    const invoice = clientInvoiceFor({ ...AGENT_CONTRACTS[0], index: 0 });
+    return clientInvoiceByIdMatch[1] === invoice.id ? send(response, 200, invoice) : send(response, 404);
   }
   if (url.pathname === "/api/client-invoices/sent-back" && request.method === "GET" && caller.invoices) {
     const contract = INVOICE_CONTRACTS[3];

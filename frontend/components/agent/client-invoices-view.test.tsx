@@ -668,7 +668,7 @@ describe("AgentClientInvoicesView", () => {
       expect(screen.getByText("carrier.pdf")).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: "Download" })).not.toBeInTheDocument();
       expect(
-        screen.getByText("File storage is unavailable right now. Attaching and downloading are paused."),
+        screen.getByText("File storage is unavailable right now. Attaching, removing and downloading are paused."),
       ).toBeInTheDocument();
     });
 
@@ -728,6 +728,71 @@ describe("AgentClientInvoicesView", () => {
         ),
       );
       expect(screen.getAllByRole("button", { name: "Edit" })).toHaveLength(2);
+    });
+
+    describe("Remove (remove-carrier-invoice-file)", () => {
+      const withFile = (overrides: Partial<ClientInvoiceDetail> = {}) =>
+        sentBack({ basePostpaidSims: [SIM, SIM_TWO], files: [FILE_OF_SIM_1], ...overrides });
+
+      it("opens an inline confirm, sends a DELETE by invoice and file id, and refreshes the page", async () => {
+        const fetchMock = stubFetch(204);
+        renderPage(withFile());
+
+        await userEvent.click(screen.getByRole("button", { name: "Remove carrier.pdf" }));
+        expect(screen.getByText("Remove this file?")).toBeInTheDocument();
+        expect(fetchMock).not.toHaveBeenCalled();
+        await userEvent.click(screen.getByRole("button", { name: "Remove" }));
+
+        await waitFor(() =>
+          expect(fetchMock).toHaveBeenCalledWith(
+            "/api/client-invoices/invoice-1/files/file-1",
+            expect.objectContaining({ method: "DELETE" }),
+          ),
+        );
+        await waitFor(() => expect(mockRouter.refresh).toHaveBeenCalled());
+      });
+
+      it("Cancel closes the confirm without a request and gives the trigger its focus back", async () => {
+        const fetchMock = stubFetch(204);
+        renderPage(withFile());
+
+        await userEvent.click(screen.getByRole("button", { name: "Remove carrier.pdf" }));
+        await userEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+        expect(screen.queryByText("Remove this file?")).not.toBeInTheDocument();
+        expect(fetchMock).not.toHaveBeenCalled();
+        expect(screen.getByRole("button", { name: "Remove carrier.pdf" })).toHaveFocus();
+      });
+
+      it("shows a failure and keeps the file listed", async () => {
+        stubFetch(500, {});
+        renderPage(withFile());
+
+        await userEvent.click(screen.getByRole("button", { name: "Remove carrier.pdf" }));
+        await userEvent.click(screen.getByRole("button", { name: "Remove" }));
+
+        expect(await screen.findByText("Couldn't remove the file. Try again.")).toBeInTheDocument();
+        expect(screen.getByText("carrier.pdf")).toBeInTheDocument();
+        expect(mockRouter.refresh).not.toHaveBeenCalled();
+      });
+
+      it("is disabled while file storage is unavailable, and the notice names removing", () => {
+        renderPage(withFile({ filesAvailable: false }));
+
+        expect(screen.getByRole("button", { name: "Remove carrier.pdf" })).toBeDisabled();
+        expect(
+          screen.getByText("File storage is unavailable right now. Attaching, removing and downloading are paused."),
+        ).toBeInTheDocument();
+      });
+
+      it("is absent on a sent invoice and on a past month's draft never sent", () => {
+        renderPage(withFile({ status: "SENT" }));
+        expect(screen.queryByRole("button", { name: /Remove/ })).not.toBeInTheDocument();
+        cleanup();
+
+        renderPage(withFile({ sentAt: null, sentBackAt: null, sentBackReason: null }));
+        expect(screen.queryByRole("button", { name: /Remove/ })).not.toBeInTheDocument();
+      });
     });
 
     it("editor-attach-and-send-absent-on-past-month-draft-never-sent", () => {

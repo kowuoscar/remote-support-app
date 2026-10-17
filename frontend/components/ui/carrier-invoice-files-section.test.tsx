@@ -20,6 +20,8 @@ function renderSection(props: Partial<React.ComponentProps<typeof CarrierInvoice
 }
 
 const ATTACH_NOTICE = "File storage is unavailable right now. Attaching and downloading are paused.";
+const REMOVE_NOTICE =
+  "File storage is unavailable right now. Attaching, removing and downloading are paused.";
 const DOWNLOAD_NOTICE = "File storage is unavailable right now. Downloading is paused.";
 
 describe("CarrierInvoiceFilesSection", () => {
@@ -95,5 +97,32 @@ describe("CarrierInvoiceFilesSection", () => {
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     expect(screen.getByText(ATTACH_NOTICE).tagName).toBe("P");
+  });
+
+  it("renders the per-file action slot beside each Download, handing it the file", () => {
+    renderSection({ renderAction: (file) => <button type="button">Act on {file.filename}</button> });
+
+    expect(screen.getByRole("button", { name: "Act on a.pdf" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Act on b.pdf" })).toBeInTheDocument();
+  });
+
+  it("renders no action when no slot is given", () => {
+    renderSection();
+
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("names removing in the paused notice only when an action slot is offered", () => {
+    const { unmount } = renderSection({
+      filesAvailable: false,
+      canAttach: true,
+      renderAction: () => <button type="button">Remove</button>,
+    });
+    expect(screen.getByText(REMOVE_NOTICE)).toBeInTheDocument();
+    unmount();
+
+    renderSection({ filesAvailable: false, canAttach: true });
+    expect(screen.getByText(ATTACH_NOTICE)).toBeInTheDocument();
+    expect(screen.queryByText(REMOVE_NOTICE)).not.toBeInTheDocument();
   });
 });

@@ -56,6 +56,17 @@ describe("ClientInvoiceDetailView", () => {
     expect(document.querySelector('[aria-disabled="true"]')).toHaveTextContent("Download");
   });
 
+  it("offers no Remove on a listed file, in the normal or the paused state", () => {
+    const { unmount } = render(<ClientInvoiceDetailView invoice={invoice()} />);
+    expect(screen.getByRole("link", { name: "Download august-carrier.pdf" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+    unmount();
+
+    render(<ClientInvoiceDetailView invoice={invoice({ filesAvailable: false })} />);
+    expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/removing/)).not.toBeInTheDocument();
+  });
+
   it("shows the full sent invoice with its files, PDF and the Approve action", () => {
     render(<ClientInvoiceDetailView invoice={invoice()} />);
 

@@ -17,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -132,6 +133,21 @@ public class ClientInvoiceByIdController {
       @PathVariable UUID fileId,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     return carrierInvoiceFileService.download(findForView(invoiceId, principal), fileId);
+  }
+
+  /**
+   * The Contract's own Agent removes a file from a draft open to them: 204, the row first, the
+   * object after the commit.
+   */
+  @DeleteMapping("/files/{fileId}")
+  public ResponseEntity<Void> removeFile(
+      @PathVariable UUID invoiceId,
+      @PathVariable UUID fileId,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = find(invoiceId, principal);
+    clientInvoiceAccessGuard.requireCanSend(invoice.getContract(), principal);
+    carrierInvoiceFileService.remove(invoice, fileId, principal);
+    return ResponseEntity.noContent().build();
   }
 
   /** A refused body (a line edit's amount, a send-back's reason) is a {@code 400} whose {@code message} names the first thing wrong. */

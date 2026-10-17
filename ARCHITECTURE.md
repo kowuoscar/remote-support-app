@@ -80,6 +80,7 @@ error, not a nitpick.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
 - `frontend/components/agent/agent-client-invoice-card.tsx` · the Agent's Client Invoice card.
 - `frontend/components/agent/attach-carrier-invoice-dialog.tsx` · the attach form: pick a Postpaid SIM line and one file.
+- `frontend/components/agent/remove-carrier-invoice-file-control.tsx` · the Agent's Remove on one Carrier Invoice File of an open draft, with an inline confirm.
 - `frontend/components/ui/side-list.tsx` · the shared SideList (named nav landmark of links with name, detail, badge and mark slots) and SideListLayout (page body: column at xl, dropdown and header below xl, with lead and detailRef slots).
 - `frontend/components/ui/tabs.tsx` · the shared WAI-ARIA tablist with roving tabindex, automatic activation and one rendered panel; switches between the tables of one record, never scopes a Contract.
 - `frontend/components/ui/carrier-invoice-files-section.tsx` · the shared Carrier invoice files section for the Agent card, Manager invoice detail and Tester Invoices page, including the paused state (names listed, Download disabled, one notice).

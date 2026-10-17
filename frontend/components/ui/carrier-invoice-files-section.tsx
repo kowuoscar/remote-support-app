@@ -1,4 +1,9 @@
-import { IconAlertTriangle, IconDownload, IconPaperclip } from "@/components/icons";
+import type { ReactNode } from "react";
+import {
+  IconAlertTriangle,
+  IconDownload,
+  IconPaperclip,
+} from "@/components/icons";
 
 /**
  * The "Carrier invoice files" section of a Client Invoice, shared by the Agent's card, the
@@ -15,6 +20,7 @@ export function CarrierInvoiceFilesSection({
   filesAvailable,
   canAttach = false,
   labelledDownloads = false,
+  renderAction,
 }: {
   files: { id: string; filename: string }[];
   downloadHref: (fileId: string) => string;
@@ -23,6 +29,11 @@ export function CarrierInvoiceFilesSection({
   canAttach?: boolean;
   /** Give each Download the accessible name `Download {filename}` (the Manager's view does). */
   labelledDownloads?: boolean;
+  /**
+   * A per-file action beside Download (the Agent's Remove on an editable draft). When given, the
+   * paused notice names removing as well: it says exactly what the section offers.
+   */
+  renderAction?: (file: { id: string; filename: string }) => ReactNode;
 }) {
   const paused = !filesAvailable;
   const showNotice = paused && (canAttach || files.length > 0);
@@ -37,7 +48,9 @@ export function CarrierInvoiceFilesSection({
         <p className="mb-2 flex items-center gap-1.5 text-label-sm text-warning">
           <IconAlertTriangle className="h-3.5 w-3.5 shrink-0" />
           {canAttach
-            ? "File storage is unavailable right now. Attaching and downloading are paused."
+            ? renderAction
+              ? "File storage is unavailable right now. Attaching, removing and downloading are paused."
+              : "File storage is unavailable right now. Attaching and downloading are paused."
             : "File storage is unavailable right now. Downloading is paused."}
         </p>
       ) : null}
@@ -54,27 +67,40 @@ export function CarrierInvoiceFilesSection({
             >
               <div className="flex min-w-0 items-center gap-2">
                 <IconPaperclip className="h-4 w-4 shrink-0 text-ink-mute" />
-                <span className="truncate text-label text-ink">{file.filename}</span>
-              </div>
-              {paused ? (
-                <span
-                  aria-disabled="true"
-                  aria-label={labelledDownloads ? `Download ${file.filename}` : undefined}
-                  className="inline-flex shrink-0 cursor-not-allowed items-center gap-1 text-label-sm font-medium text-ink-mute"
-                >
-                  <IconDownload className="h-3.5 w-3.5" />
-                  Download
+                <span className="truncate text-label text-ink">
+                  {file.filename}
                 </span>
-              ) : (
-                <a
-                  href={downloadHref(file.id)}
-                  aria-label={labelledDownloads ? `Download ${file.filename}` : undefined}
-                  className={`inline-flex shrink-0 items-center gap-1 text-label-sm font-medium text-primary hover:underline${labelledDownloads ? " underline-offset-2" : ""}`}
-                >
-                  <IconDownload className="h-3.5 w-3.5" />
-                  Download
-                </a>
-              )}
+              </div>
+              <div className="flex shrink-0 items-center gap-3">
+                {paused ? (
+                  <span
+                    aria-disabled="true"
+                    aria-label={
+                      labelledDownloads
+                        ? `Download ${file.filename}`
+                        : undefined
+                    }
+                    className="inline-flex shrink-0 cursor-not-allowed items-center gap-1 text-label-sm font-medium text-ink-mute"
+                  >
+                    <IconDownload className="h-3.5 w-3.5" />
+                    Download
+                  </span>
+                ) : (
+                  <a
+                    href={downloadHref(file.id)}
+                    aria-label={
+                      labelledDownloads
+                        ? `Download ${file.filename}`
+                        : undefined
+                    }
+                    className={`inline-flex shrink-0 items-center gap-1 text-label-sm font-medium text-primary hover:underline${labelledDownloads ? " underline-offset-2" : ""}`}
+                  >
+                    <IconDownload className="h-3.5 w-3.5" />
+                    Download
+                  </a>
+                )}
+                {renderAction ? renderAction(file) : null}
+              </div>
             </li>
           ))}
         </ul>

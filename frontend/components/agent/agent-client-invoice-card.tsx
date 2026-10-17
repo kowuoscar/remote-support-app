@@ -5,6 +5,7 @@ import { EditedLineNote } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
 import { IconDownload } from "@/components/icons";
 import { CarrierInvoiceFilesSection } from "@/components/ui/carrier-invoice-files-section";
+import { RemoveCarrierInvoiceFileControl } from "@/components/agent/remove-carrier-invoice-file-control";
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
 import { EditClientInvoiceLineControl } from "@/components/agent/edit-client-invoice-line-control";
 import { LINE_AREA, LINE_WRAPPER, LineCell, LineRow, LineTable } from "@/components/agent/invoice-line-table";
@@ -319,6 +320,18 @@ export function AgentClientInvoiceCard({
         emptyText="No carrier invoice files attached yet."
         filesAvailable={invoice.filesAvailable}
         canAttach={editable}
+        renderAction={
+          editable
+            ? (file) => (
+                <RemoveCarrierInvoiceFileControl
+                  invoiceId={invoice.id}
+                  fileId={file.id}
+                  filename={file.filename}
+                  disabled={!invoice.filesAvailable}
+                />
+              )
+            : undefined
+        }
       />
     </Card>
   );

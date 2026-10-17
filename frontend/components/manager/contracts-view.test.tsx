@@ -30,6 +30,7 @@ const INVOICE: ClientInvoiceDetail = {
   feeLines: [],
   totalAmount: 0,
   files: [],
+  filesAvailable: true,
   sentAt: null,
   approvedAt: null,
 };

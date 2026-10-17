@@ -549,6 +549,8 @@ export interface ClientInvoiceDetail {
   feeLines: ClientInvoiceFeeLine[];
   totalAmount: number;
   files: CarrierInvoiceFileListItem[];
+  /** False while the object store is unreachable: Attach and Download are shown paused. */
+  filesAvailable: boolean;
   sentAt: string | null;
   approvedAt: string | null;
   /** The most recent send-back's time and Manager's reason; null (or absent) if never sent back. Never sent to a Tester. */

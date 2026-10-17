@@ -2,7 +2,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EditedLineNote } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
-import { IconDownload, IconPaperclip } from "@/components/icons";
+import { IconDownload } from "@/components/icons";
+import { CarrierInvoiceFilesSection } from "@/components/ui/carrier-invoice-files-section";
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
 import { EditClientInvoiceLineControl } from "@/components/agent/edit-client-invoice-line-control";
 import { LINE_AREA, LINE_WRAPPER, LineCell, LineRow, LineTable } from "@/components/agent/invoice-line-table";
@@ -159,7 +160,7 @@ export function AgentClientInvoiceCard({
         </div>
         {editable ? (
           <div className="flex flex-col items-end gap-2">
-            <AttachCarrierInvoiceFileControl invoiceId={invoice.id} />
+            <AttachCarrierInvoiceFileControl invoiceId={invoice.id} disabled={!invoice.filesAvailable} />
             <SendClientInvoiceControl invoiceId={invoice.id} />
           </div>
         ) : invoice.status === "DRAFT" || !currentMonth ? null : (
@@ -299,38 +300,13 @@ export function AgentClientInvoiceCard({
         )}
       </div>
 
-      <div>
-        <h3 className="mb-2 flex items-center gap-1.5 text-label font-medium text-ink-secondary">
-          <IconPaperclip className="h-4 w-4" />
-          Carrier invoice files
-        </h3>
-        {invoice.files.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-hairline-strong px-4 py-6 text-center text-label text-ink-mute">
-            No carrier invoice files attached yet.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-1.5">
-            {invoice.files.map((file) => (
-              <li
-                key={file.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-hairline bg-canvas px-3.5 py-2.5"
-              >
-                <div className="flex min-w-0 items-center gap-2">
-                  <IconPaperclip className="h-4 w-4 shrink-0 text-ink-mute" />
-                  <span className="truncate text-label text-ink">{file.filename}</span>
-                </div>
-                <a
-                  href={`/api/client-invoices/${invoice.id}/files/${file.id}`}
-                  className="inline-flex shrink-0 items-center gap-1 text-label-sm font-medium text-primary hover:underline"
-                >
-                  <IconDownload className="h-3.5 w-3.5" />
-                  Download
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+      <CarrierInvoiceFilesSection
+        files={invoice.files}
+        downloadHref={(fileId) => `/api/client-invoices/${invoice.id}/files/${fileId}`}
+        emptyText="No carrier invoice files attached yet."
+        filesAvailable={invoice.filesAvailable}
+        canAttach={editable}
+      />
     </Card>
   );
 }

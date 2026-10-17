@@ -38,6 +38,7 @@ function invoice(overrides: Partial<ClientInvoiceDetail> = {}): ClientInvoiceDet
         uploadedAt: "2026-08-30T10:00:00Z",
       },
     ],
+    filesAvailable: true,
     sentAt: "2026-08-31T18:00:00Z",
     approvedAt: null,
     ...overrides,
@@ -45,6 +46,15 @@ function invoice(overrides: Partial<ClientInvoiceDetail> = {}): ClientInvoiceDet
 }
 
 describe("ClientInvoiceDetailView", () => {
+  it("shows the files paused, with a disabled Download and the notice, when file storage is unavailable", () => {
+    render(<ClientInvoiceDetailView invoice={invoice({ filesAvailable: false })} />);
+
+    expect(screen.getByText("august-carrier.pdf")).toBeInTheDocument();
+    expect(screen.getByText("File storage is unavailable right now. Downloading is paused.")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Download august-carrier.pdf" })).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-disabled="true"]')).toHaveTextContent("Download");
+  });
+
   it("shows the full sent invoice with its files, PDF and the Approve action", () => {
     render(<ClientInvoiceDetailView invoice={invoice()} />);
 

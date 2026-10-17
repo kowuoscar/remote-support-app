@@ -21,6 +21,7 @@ function invoice(overrides: Partial<ClientInvoiceDetail> = {}): ClientInvoiceDet
     feeLines: [],
     totalAmount: 0,
     files: [],
+    filesAvailable: true,
     sentAt: null,
     approvedAt: null,
     ...overrides,
@@ -612,6 +613,33 @@ describe("AgentClientInvoicesView", () => {
 
       expect(screen.getByText("Draft")).toBeInTheDocument();
       expect(screen.queryByText(/Sent back/)).not.toBeInTheDocument();
+    });
+
+    it("pauses-attach-and-download-with-a-notice-when-file-storage-is-unavailable", () => {
+      renderPage(
+        invoice({
+          billingMonth: CURRENT_MONTH,
+          filesAvailable: false,
+          files: [
+            {
+              id: "file-1",
+              clientInvoiceId: "invoice-1",
+              filename: "carrier.pdf",
+              contentType: "application/pdf",
+              sizeBytes: 10,
+              uploadedAt: "2026-09-02T10:00:00Z",
+            },
+          ],
+        }),
+      );
+
+      expect(screen.getByRole("button", { name: /Attach carrier invoice/ })).toBeDisabled();
+      expect(screen.getByLabelText("Attach carrier invoice file")).toBeDisabled();
+      expect(screen.getByText("carrier.pdf")).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "Download" })).not.toBeInTheDocument();
+      expect(
+        screen.getByText("File storage is unavailable right now. Attaching and downloading are paused."),
+      ).toBeInTheDocument();
     });
 
     it("editor-present-on-sent-back-draft-and-calls-by-id-route", async () => {

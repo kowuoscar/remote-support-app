@@ -1,0 +1,82 @@
+```yaml
+- generic [active] [ref=f5e1]:
+  - generic [ref=f5e2]:
+    - complementary [ref=f5e3]:
+      - generic [ref=f5e4]:
+        - generic [ref=f5e5]: "N"
+        - generic [ref=f5e6]:
+          - paragraph [ref=f5e7]: Northwind Field Services
+          - paragraph [ref=f5e8]: Manager Console
+      - navigation [ref=f5e9]:
+        - link "Dashboard" [ref=f5e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f5e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f5e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f5e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f5e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f5e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f5e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f5e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f5e48]:
+      - banner [ref=f5e49]:
+        - generic [ref=f5e51]:
+          - heading "Solstice Retail Group — Jordan Ellis" [level=1] [ref=f5e52]
+          - paragraph [ref=f5e53]: Client Invoice
+        - generic [ref=f5e54]:
+          - button "Manager" [ref=f5e56]
+          - button "Switch to dark theme" [ref=f5e58]
+      - main [ref=f5e62]:
+        - generic [ref=f5e63]:
+          - navigation "Breadcrumb" [ref=f5e64]:
+            - link "Invoices" [ref=f5e66] [cursor=pointer]:
+              - /url: /manager/invoices
+            - generic [ref=f5e67]: Solstice Retail Group — Jordan Ellis
+          - generic [ref=f5e71]:
+            - generic [ref=f5e73]:
+              - generic [ref=f5e74]:
+                - heading "October 2026" [level=2] [ref=f5e75]
+                - generic [ref=f5e76]: Draft
+              - paragraph [ref=f5e78]: Sent back to the Agent on Oct 17, 2026 — waiting for them to resend
+            - blockquote [ref=f5e79]:
+              - paragraph [ref=f5e80]: rerun draft
+            - generic [ref=f5e81]:
+              - generic [ref=f5e82]:
+                - term [ref=f5e83]: Base amount
+                - definition [ref=f5e84]: $65.99
+              - generic [ref=f5e85]:
+                - term [ref=f5e86]: Fees
+                - definition [ref=f5e87]: $70.00
+              - generic [ref=f5e88]:
+                - term [ref=f5e89]: Total
+                - definition [ref=f5e90]: $135.99
+            - generic [ref=f5e91]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f5e92]
+              - list "Postpaid SIM Cards" [ref=f5e93]:
+                - listitem [ref=f5e94]:
+                  - generic [ref=f5e95]: +1-202-555-0102AT&T · Postpaid
+                  - generic [ref=f5e96]: $65.99
+            - generic [ref=f5e98]:
+              - heading "Fee lines" [level=3] [ref=f5e99]
+              - list [ref=f5e100]:
+                - listitem [ref=f5e101]:
+                  - generic [ref=f5e102]: Topup
+                  - generic [ref=f5e103]: $25.00
+                - listitem [ref=f5e105]:
+                  - generic [ref=f5e106]: Other
+                  - generic [ref=f5e107]: $45.00
+            - generic [ref=f5e109]:
+              - heading "Carrier invoice files" [level=3] [ref=f5e110]
+              - paragraph [ref=f5e113]: File storage is unavailable right now. Downloading is paused.
+              - list [ref=f5e117]:
+                - listitem [ref=f5e118]:
+                  - generic [ref=f5e119]: photo.png
+                  - generic "Download photo.png" [ref=f5e123]: Download
+  - alert [ref=f5e127]
+```

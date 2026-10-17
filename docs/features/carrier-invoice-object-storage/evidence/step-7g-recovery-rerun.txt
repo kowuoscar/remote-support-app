@@ -1,0 +1,10 @@
+[]
+                    - button "Attach carrier invoice" [disabled] [ref=f2e121]
+                    - button "Attach carrier invoice" [ref=f3e121]
+[
+    "remote-support-files"
+]
+                    - generic [ref=f3e220]: manager-note.txt
+[
+    "carrier-invoices/11111111-1111-1111-1111-111111111111/0a262791-e487-4564-b36d-e7acc5476f5b/726d39aa-2cf1-48bd-a6a1-8b94de948538"
+]

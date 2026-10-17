@@ -4,7 +4,7 @@
     {
       "id": "F1",
       "type": "out-of-scope",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
@@ -15,7 +15,7 @@
     {
       "id": "F2",
       "type": "spec-wrong",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
@@ -26,7 +26,7 @@
     {
       "id": "F3",
       "type": "spec-partial",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
@@ -37,7 +37,7 @@
     {
       "id": "F4",
       "type": "spec-partial",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
@@ -93,7 +93,7 @@
     {
       "id": "F9",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
@@ -203,7 +203,7 @@
     {
       "id": "F19",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": false,
@@ -225,7 +225,7 @@
     {
       "id": "F21",
       "type": "acceptance-failed",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "acceptance-runner",
       "after_review": false,
       "in_changed_lines": true,
@@ -268,6 +268,39 @@
       "citation": "Step 2: a PDF named `Réf \"Oct\" 2026 – Orange.pdf` ... listed and downloaded under exactly that name",
       "note": "Through a browser upload the double quotes arrive as %22 (the browser percent-encodes \" in the multipart filename), so the file is listed and saved as `Réf %22Oct%22 2026 – Orange.pdf`. Accents and en dash survive; bytes match.",
       "reason": "human: browsers percent-encode quotes in multipart filenames before upload; accepted, the next feature uses computed names without quotes. Settled 2026-10-17."
+    },
+    {
+      "id": "F25",
+      "type": "spec-wrong",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileStorage.java:55-65",
+      "citation": "spec.md:397 \"void put(String key, MultipartFile file);   // streams the upload, size from the part\"",
+      "note": "The F21 fix replaced RequestBody.fromInputStream with file.getBytes() + RequestBody.fromBytes, so each upload (up to 20MB) is held in memory. The spec allows whole-file in memory only for downloads. Stream and survive retries with RequestBody.fromContentProvider over file::getInputStream and file.getSize(), or have a human record the buffering."
+    },
+    {
+      "id": "F26",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/CarrierInvoiceFileStorageUnreachableStoreTest.java:17",
+      "citation": "possible mixed test category (adjacent to docs/agents/coding-standards.md Backend 6)",
+      "note": "Real S3Client against localhost:1 with no Spring context: neither a mocked-collaborator unit test nor an IntegrationTest. Needed to test SDK retry behaviour; Backend 6 is silent on this kind."
+    },
+    {
+      "id": "F27",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/CarrierInvoiceFileStorageTest.java:137",
+      "citation": "readability (judgement call)",
+      "note": "Fully qualified MultipartFile, IOException and UncheckedIOException inline instead of imports."
     }
   ]
 }

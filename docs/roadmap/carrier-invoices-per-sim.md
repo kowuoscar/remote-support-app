@@ -70,12 +70,15 @@ Ordered by dependency; cut and sized at spec time.
   row an icon (check mark) showing that for the sim number a file were
   uploaded." Each Postpaid SIM line shows a check mark once its file is
   attached.
+- **Retention keeps the record (A).** After the 30 days the bytes are
+  deleted; the invoice still lists the file by name with "Deleted on {date}"
+  in place of Download, and the SIM line keeps its check mark (the human,
+  2026-10-17: "A").
 
 ## Open at spec time
 
-- Retention: after the 30 days, does the invoice still list the file
-  (name, SIM, "deleted on …", the row's check mark kept) or does it disappear
-  with the bytes? Asked 2026-10-17.
+- The object storage path strategy: asked by the human to be presented
+  (2026-10-17).
 - The object store's deployment for the human's own stack, and an ADR for the
   storage choice.
 

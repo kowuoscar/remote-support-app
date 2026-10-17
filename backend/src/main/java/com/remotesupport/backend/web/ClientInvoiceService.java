@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -421,6 +422,7 @@ public class ClientInvoiceService {
       throw new ConflictException("Cannot send a Client Invoice from status " + oldStatus);
     }
     requireOpenToAgent(invoice);
+    requireEveryCarrierInvoice(invoice);
 
     boolean neverSent = !invoice.isLinesStored();
     for (ResolvedLine line : lines(invoice)) {
@@ -444,6 +446,31 @@ public class ClientInvoiceService {
         principal.tenantId());
 
     return toResponse(invoice, true);
+  }
+
+  /**
+   * The send gate: every {@code POSTPAID_SIM} line the invoice shows needs its Carrier Invoice File.
+   * Reads rows only, under the row lock the caller holds, never the object store. A file whose SIM
+   * has no line neither counts nor blocks.
+   */
+  private void requireEveryCarrierInvoice(ClientInvoice invoice) {
+    Set<UUID> attached =
+        carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoice.getId()).stream()
+            .filter(f -> f.getSimCard() != null)
+            .map(f -> f.getSimCard().getId())
+            .collect(Collectors.toSet());
+    List<String> missing =
+        lines(invoice).stream()
+            .filter(l -> l.kind() == ClientInvoiceLineKind.POSTPAID_SIM)
+            .map(ResolvedLine::simCard)
+            .filter(sim -> !attached.contains(sim.getId()))
+            .map(SimCard::getNumber)
+            .toList();
+    if (!missing.isEmpty()) {
+      throw new ClientInvoiceConflictException(
+          ClientInvoiceConflictException.Reason.CARRIER_INVOICES_MISSING,
+          missing.size() + " Postpaid SIM line(s) lack their carrier invoice: " + String.join(", ", missing));
+    }
   }
 
   private static ClientInvoiceLine newRow(ClientInvoice invoice, ResolvedLine line) {

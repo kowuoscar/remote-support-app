@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.ObjectStoreTestSupport;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,6 +75,13 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
     mockMvc
         .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk());
+    // The send gate needs the SIM covered; the slow attach below is then a second upload for it.
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
+    UUID gatedInvoiceId =
+        jdbcTemplate.queryForObject("SELECT id FROM client_invoices WHERE contract_id = ?", UUID.class, contractId);
+    List<String> keysBefore =
+        ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + gatedInvoiceId + "/");
 
     CountDownLatch uploading = new CountDownLatch(1);
     CountDownLatch release = new CountDownLatch(1);
@@ -121,7 +130,9 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
       assertThat(attach.get(30, TimeUnit.SECONDS)).isEqualTo(409);
       UUID invoiceId =
           jdbcTemplate.queryForObject("SELECT id FROM client_invoices WHERE contract_id = ?", UUID.class, contractId);
-      assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/")).isEmpty();
+      assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/"))
+          .as("the refused attach's object is gone; only the covering file remains")
+          .isEqualTo(keysBefore);
     } finally {
       release.countDown();
       pool.shutdownNow();
@@ -178,6 +189,72 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
                   "SELECT count(*) FROM carrier_invoice_files WHERE client_invoice_id = ?", Integer.class, invoiceId))
           .isEqualTo(1);
       assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/")).hasSize(1);
+    } finally {
+      pool.shutdownNow();
+    }
+  }
+
+  @Test
+  void anAttachRacingASendOnTheLastMissingFileNeverLeavesASentInvoiceWithoutIt() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    clientId = createClient(managerToken, "Attach Versus Send " + UUID.randomUUID());
+    contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    CountDownLatch go = new CountDownLatch(1);
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    try {
+      Future<MvcResult> attach =
+          pool.submit(
+              () -> {
+                assertThat(go.await(30, TimeUnit.SECONDS)).isTrue();
+                return mockMvc
+                    .perform(
+                        multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                            .file(new MockMultipartFile("file", "last.pdf", "application/pdf", "last".getBytes()))
+                            .param("simCardId", simId.toString())
+                            .header("Authorization", "Bearer " + agentToken))
+                    .andReturn();
+              });
+      Future<MvcResult> send =
+          pool.submit(
+              () -> {
+                assertThat(go.await(30, TimeUnit.SECONDS)).isTrue();
+                return mockMvc
+                    .perform(
+                        post("/api/contracts/" + contractId + "/client-invoice/send")
+                            .header("Authorization", "Bearer " + agentToken))
+                    .andReturn();
+              });
+      go.countDown();
+      MvcResult attached = attach.get(60, TimeUnit.SECONDS);
+      MvcResult sent = send.get(60, TimeUnit.SECONDS);
+
+      int sendStatus = sent.getResponse().getStatus();
+      assertThat(sendStatus).isIn(200, 409);
+      if (sendStatus == 409) {
+        assertThat(objectMapper.readTree(sent.getResponse().getContentAsString()).get("code").asText())
+            .isEqualTo("CARRIER_INVOICES_MISSING");
+        assertThat(attached.getResponse().getStatus()).isEqualTo(201);
+      } else {
+        // The attach took the lock first, so the file was there when the send looked.
+        assertThat(attached.getResponse().getStatus()).isEqualTo(201);
+      }
+      assertThat(
+              jdbcTemplate.queryForObject(
+                  "SELECT count(*) FROM carrier_invoice_files f JOIN client_invoices i ON i.id = f.client_invoice_id"
+                      + " WHERE i.contract_id = ? AND f.sim_card_id = ?",
+                  Integer.class,
+                  contractId,
+                  simId))
+          .isEqualTo(1);
+      String status =
+          jdbcTemplate.queryForObject("SELECT status FROM client_invoices WHERE contract_id = ?", String.class, contractId);
+      assertThat(status).isEqualTo(sendStatus == 200 ? "SENT" : "DRAFT");
     } finally {
       pool.shutdownNow();
     }

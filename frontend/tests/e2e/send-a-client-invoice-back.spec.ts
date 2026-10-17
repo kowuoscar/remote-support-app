@@ -9,6 +9,7 @@ import {
   rollSeededAgentInvoiceIntoThePast,
   selectContractInSwitcher,
   selectClientInvoiceContract,
+  attachCarrierInvoicesForEveryPostpaidSim,
 } from "./helpers";
 
 /**
@@ -44,6 +45,7 @@ test.describe("send a client invoice back", () => {
     await page.goto("/agent/client-invoices");
     await selectClientInvoiceContract(page, clientName);
     await expect(page.getByRole("heading", { name: "Sent back to you" })).toHaveCount(0);
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
@@ -117,6 +119,7 @@ test.describe("send a client invoice back", () => {
     await page.getByRole("button", { name: "Save" }).click();
     await expect(field).toBeHidden();
     await expect(simRow.getByText("Edited · computed $25.00")).toBeVisible();
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
     await expect(page.getByText("Awaiting approval")).toBeVisible();

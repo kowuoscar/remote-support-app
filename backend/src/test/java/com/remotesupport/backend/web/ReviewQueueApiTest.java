@@ -10,6 +10,7 @@ import com.remotesupport.backend.domain.AgentInvoice;
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.repository.AgentInvoiceRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import java.time.Instant;
@@ -35,6 +36,8 @@ class ReviewQueueApiTest extends IntegrationTest {
   @Autowired private OtherTenantFixture otherTenantFixture;
 
   private UUID sendClientInvoice(String agentToken, UUID contractId) throws Exception {
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     MvcResult result =
         mockMvc
             .perform(

@@ -12,7 +12,9 @@ public class ClientInvoiceConflictException extends ConflictException {
     /** A draft of a past billing month that was never sent: it could only be built from today's Fleet. */
     PAST_MONTH_DRAFT_NOT_SENDABLE,
     /** The SIM Card already has its Carrier Invoice File on this invoice. */
-    CARRIER_INVOICE_ALREADY_ATTACHED
+    CARRIER_INVOICE_ALREADY_ATTACHED,
+    /** A Postpaid SIM line of the invoice has no Carrier Invoice File, so it cannot be sent. */
+    CARRIER_INVOICES_MISSING
   }
 
   private final Reason reason;

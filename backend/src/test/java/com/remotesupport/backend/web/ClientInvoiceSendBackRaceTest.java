@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -47,6 +48,9 @@ class ClientInvoiceSendBackRaceTest extends IntegrationTest {
   void deleteWhatThisTestCommitted() {
     for (UUID contractId : contractIds) {
       jdbcTemplate.update(
+          "DELETE FROM carrier_invoice_files WHERE client_invoice_id IN (SELECT id FROM client_invoices WHERE contract_id = ?)",
+          contractId);
+      jdbcTemplate.update(
           "DELETE FROM client_invoice_lines WHERE client_invoice_id IN (SELECT id FROM client_invoices WHERE contract_id = ?)",
           contractId);
       jdbcTemplate.update("DELETE FROM client_invoices WHERE contract_id = ?", contractId);
@@ -85,6 +89,8 @@ class ClientInvoiceSendBackRaceTest extends IntegrationTest {
                       """
                           .formatted(round, carrierId, planId)))
           .andExpect(status().isCreated());
+      CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+          mockMvc, objectMapper, contractId, agentToken);
       MvcResult sent =
           mockMvc
               .perform(

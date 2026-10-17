@@ -134,6 +134,8 @@ Components may call the backend directly through
 ## Tests
 
 - `backend/src/test/java/com/remotesupport/backend/web` · integration tests at the HTTP seam, driven through MockMvc against a real PostgreSQL started by Testcontainers. The base class and its fixture helpers are `backend/src/test/java/com/remotesupport/backend/support/IntegrationTest.java`.
+- `backend/src/test/java/com/remotesupport/backend/support/CarrierInvoiceTestSupport.java` · attaches a file per Postpaid SIM line before a send (by invoice id and current month); no-op when not a draft, no Postpaid line, or already covered.
+- `backend/src/test/java/com/remotesupport/backend/demo/DemoDataLoaderStoreDownTest.java` · demo loader with the store refusing writes: completes, one WARN, invoice stays a draft.
 - `backend/src/test/java/com/remotesupport/backend/migration` · migration tests, each migrating a throwaway database to a fixed version and asserting what that migration did.
 - `frontend/components` · Vitest component tests, colocated with the component as `*.test.tsx`.
 - `frontend/tests/visual` · Playwright visual goldens, rendered against the stub backend named in `frontend/playwright.config.ts` — no database.

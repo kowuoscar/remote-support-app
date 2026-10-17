@@ -60,9 +60,11 @@ import com.remotesupport.backend.web.AgentController;
 import com.remotesupport.backend.web.AgentInvoiceController;
 import com.remotesupport.backend.web.AgentInvoiceService;
 import com.remotesupport.backend.web.CarrierController;
+import com.remotesupport.backend.web.CarrierInvoiceFileStorage;
 import com.remotesupport.backend.web.CarrierOfferController;
 import com.remotesupport.backend.web.ClientController;
 import com.remotesupport.backend.web.ClientInvoiceController;
+import com.remotesupport.backend.web.ClientInvoiceService;
 import com.remotesupport.backend.web.ContractAmountService;
 import com.remotesupport.backend.web.ContractController;
 import com.remotesupport.backend.web.FeeController;
@@ -73,6 +75,17 @@ import com.remotesupport.backend.web.SmartphoneController;
 import com.remotesupport.backend.web.StandingAmountService;
 import com.remotesupport.backend.web.TesterController;
 import java.math.BigDecimal;
+import com.remotesupport.backend.dto.ClientInvoiceBaseSimLineResponse;
+import com.remotesupport.backend.dto.ClientInvoiceResponse;
+import org.springframework.web.multipart.MultipartFile;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -174,6 +187,8 @@ public class DemoDataLoader implements ApplicationRunner {
   private final ClientInvoiceController clientInvoiceController;
   private final AgentInvoiceController agentInvoiceController;
   private final AgentInvoiceService agentInvoiceService;
+  private final CarrierInvoiceFileStorage carrierInvoiceFileStorage;
+  private final ClientInvoiceService clientInvoiceService;
   private final StandingAmountService standingAmountService;
   private final ContractAmountService contractAmountService;
 
@@ -203,6 +218,8 @@ public class DemoDataLoader implements ApplicationRunner {
       ClientInvoiceController clientInvoiceController,
       AgentInvoiceController agentInvoiceController,
       AgentInvoiceService agentInvoiceService,
+      CarrierInvoiceFileStorage carrierInvoiceFileStorage,
+      ClientInvoiceService clientInvoiceService,
       StandingAmountService standingAmountService,
       ContractAmountService contractAmountService,
       PasswordWrite passwordWrite) {
@@ -232,6 +249,8 @@ public class DemoDataLoader implements ApplicationRunner {
     this.clientInvoiceController = clientInvoiceController;
     this.agentInvoiceController = agentInvoiceController;
     this.agentInvoiceService = agentInvoiceService;
+    this.carrierInvoiceFileStorage = carrierInvoiceFileStorage;
+    this.clientInvoiceService = clientInvoiceService;
     this.standingAmountService = standingAmountService;
     this.contractAmountService = contractAmountService;
   }
@@ -331,7 +350,7 @@ public class DemoDataLoader implements ApplicationRunner {
     runContractUs2Requests(contractUs2, us2, noah, jordan, manager, counts);
 
     // --- This month's invoices ---
-    clientInvoiceController.send(contractUs1, jordan);
+    sendUs1InvoiceWithItsCarrierInvoices(contractUs1, jordan);
     clientInvoiceController.get(contractUk1, priya);
     clientInvoiceController.get(contractUs2, jordan);
     counts.clientInvoicesSentOrDraft = 3;
@@ -423,6 +442,103 @@ public class DemoDataLoader implements ApplicationRunner {
   // ---------------------------------------------------------------------------------------------
   // Clients, Contracts, Testers
   // ---------------------------------------------------------------------------------------------
+
+  /**
+   * Sends contract US-1's current-month invoice, which the send gate refuses until every Postpaid
+   * SIM line has its Carrier Invoice File. One small generated PDF per line goes through the
+   * storage {@code put} and {@link ClientInvoiceService#recordAttachedFile} directly: the startup
+   * probe has not marked the store available yet. If the store refuses, one WARN is logged and the
+   * invoice stays a draft, so the demo always starts. Every object is written before any row, so a
+   * refusal leaves nothing half-attached.
+   */
+  private void sendUs1InvoiceWithItsCarrierInvoices(UUID contractUs1, AuthenticatedPrincipal jordan) {
+    ClientInvoiceResponse draft = clientInvoiceController.get(contractUs1, jordan);
+    ClientInvoice invoice = clientInvoiceRepository.findById(draft.id()).orElseThrow();
+    List<UUID> simIds =
+        draft.basePostpaidSims().stream().map(ClientInvoiceBaseSimLineResponse::simCardId).toList();
+    Map<UUID, String> keys = new LinkedHashMap<>();
+    Map<UUID, UUID> fileIds = new LinkedHashMap<>();
+    try {
+      for (UUID simId : simIds) {
+        UUID fileId = UUID.randomUUID();
+        String key = carrierInvoiceFileStorage.keyFor(invoice.getTenant().getId(), invoice.getId(), fileId);
+        carrierInvoiceFileStorage.put(key, new DemoCarrierInvoice());
+        keys.put(simId, key);
+        fileIds.put(simId, fileId);
+      }
+    } catch (RuntimeException e) {
+      keys.values().forEach(this::deleteQuietly);
+      log.warn(
+          "The object store refused the demo's carrier invoices; the current-month invoice of contract US-1 stays a draft.");
+      return;
+    }
+    for (UUID simId : simIds) {
+      try {
+        clientInvoiceService.recordAttachedFile(
+            invoice, fileIds.get(simId), keys.get(simId), new DemoCarrierInvoice(), simId, jordan);
+      } catch (RuntimeException e) {
+        keys.values().forEach(this::deleteQuietly);
+        throw e;
+      }
+    }
+    clientInvoiceController.send(contractUs1, jordan);
+  }
+
+  private void deleteQuietly(String key) {
+    try {
+      carrierInvoiceFileStorage.delete(key);
+    } catch (RuntimeException ignored) {
+      // the store is the very thing that failed; the stray object is harmless
+    }
+  }
+
+  /** A tiny generated PDF standing in for the carrier's bill. */
+  private static final class DemoCarrierInvoice implements MultipartFile {
+    private static final byte[] PDF =
+        ("%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+                + "3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 100]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n")
+            .getBytes(StandardCharsets.US_ASCII);
+
+    @Override
+    public String getName() {
+      return "file";
+    }
+
+    @Override
+    public String getOriginalFilename() {
+      return "carrier-invoice.pdf";
+    }
+
+    @Override
+    public String getContentType() {
+      return "application/pdf";
+    }
+
+    @Override
+    public boolean isEmpty() {
+      return false;
+    }
+
+    @Override
+    public long getSize() {
+      return PDF.length;
+    }
+
+    @Override
+    public byte[] getBytes() {
+      return PDF;
+    }
+
+    @Override
+    public InputStream getInputStream() {
+      return new ByteArrayInputStream(PDF);
+    }
+
+    @Override
+    public void transferTo(File dest) throws IOException {
+      Files.write(dest.toPath(), PDF);
+    }
+  }
 
   /**
    * The one fixed-id anchor (see class Javadoc) — {@link ClientController#create} always assigns

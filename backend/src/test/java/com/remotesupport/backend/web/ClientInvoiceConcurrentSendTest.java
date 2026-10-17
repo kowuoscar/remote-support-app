@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,9 @@ class ClientInvoiceConcurrentSendTest extends IntegrationTest {
   @AfterEach
   void deleteWhatThisTestCommitted() {
     if (contractId != null) {
+      jdbcTemplate.update(
+          "DELETE FROM carrier_invoice_files WHERE client_invoice_id IN (SELECT id FROM client_invoices WHERE contract_id = ?)",
+          contractId);
       jdbcTemplate.update(
           "DELETE FROM client_invoice_lines WHERE client_invoice_id IN (SELECT id FROM client_invoices WHERE contract_id = ?)",
           contractId);
@@ -78,6 +82,8 @@ class ClientInvoiceConcurrentSendTest extends IntegrationTest {
     mockMvc
         .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk());
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
 
     CountDownLatch go = new CountDownLatch(1);
     ExecutorService pool = Executors.newFixedThreadPool(2);

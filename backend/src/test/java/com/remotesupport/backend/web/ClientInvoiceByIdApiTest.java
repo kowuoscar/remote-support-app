@@ -13,7 +13,17 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.remotesupport.backend.domain.ClientInvoice;
+import org.springframework.jdbc.core.JdbcTemplate;
+import java.time.Instant;
+import java.math.BigDecimal;
+import com.remotesupport.backend.repository.ContractRepository;
+import com.remotesupport.backend.repository.ClientInvoiceLineRepository;
+import com.remotesupport.backend.domain.ClientInvoiceStatus;
+import com.remotesupport.backend.domain.ClientInvoiceLineKind;
+import com.remotesupport.backend.domain.ClientInvoiceLine;
+import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import java.nio.charset.StandardCharsets;
@@ -62,6 +72,8 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
   }
 
   private UUID send(String agentToken, UUID contractId) throws Exception {
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     MvcResult result =
         mockMvc
             .perform(
@@ -640,5 +652,181 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
         .perform(get("/api/client-invoices/" + invoiceId + "/files").header("Authorization", "Bearer " + agentToken))
         .andExpect(jsonPath("$[0].filename").value(expected));
     assertThat(downloadedName(agentToken, invoiceId, fileId)).isEqualTo(expected);
+  }
+
+  // --- The send gate: every Postpaid SIM line needs its Carrier Invoice File ---------------------
+
+  @Autowired private ClientInvoiceLineRepository clientInvoiceLineRepository;
+  @Autowired private ContractRepository contractRepository;
+  @Autowired private ObjectStoreAvailability objectStoreAvailability;
+  @Autowired private JdbcTemplate jdbcTemplate;
+
+  private org.springframework.test.web.servlet.ResultActions sendById(String token, UUID invoiceId) throws Exception {
+    return mockMvc.perform(post("/api/client-invoices/" + invoiceId + "/send").header("Authorization", "Bearer " + token));
+  }
+
+  private String numberOf(UUID simId) {
+    return jdbcTemplate.queryForObject("SELECT number FROM sim_cards WHERE id = ?", String.class, simId);
+  }
+
+  private void sendBackById(String managerToken, UUID invoiceId) throws Exception {
+    mockMvc
+        .perform(
+            post("/api/client-invoices/" + invoiceId + "/send-back")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("{\"reason\":\"Wrong file\"}"))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void sendByIdWithAMissingLineIsACoded409NamingTheCountAndNumberAndWritesNothing() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Gate Missing Co");
+    UUID covered = addUniquePostpaidSim(managerToken, contractId);
+    UUID bare = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    attachById(agentToken, invoiceId, covered, "covered.pdf").andExpect(status().isCreated());
+
+    sendById(agentToken, invoiceId)
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("CARRIER_INVOICES_MISSING"))
+        .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("1 Postpaid SIM")))
+        .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString(numberOf(bare))));
+
+    ClientInvoice stored = clientInvoiceRepository.findById(invoiceId).orElseThrow();
+    assertThat(stored.getStatus().name()).isEqualTo("DRAFT");
+    assertThat(stored.isLinesStored()).isFalse();
+    assertThat(clientInvoiceLineRepository.findByClientInvoiceId(invoiceId)).isEmpty();
+  }
+
+  @Test
+  void sendByIdWithEveryLineCoveredIs200() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Gate Covered Co");
+    addUniquePostpaidSim(managerToken, contractId);
+    addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLine(mockMvc, objectMapper, invoiceId, agentToken);
+
+    sendById(agentToken, invoiceId).andExpect(status().isOk()).andExpect(jsonPath("$.status").value("SENT"));
+  }
+
+  @Test
+  void sendByIdWithNoPostpaidSimIs200() throws Exception {
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken(), "Gate No Postpaid Co");
+    UUID invoiceId = openDraft(agentToken, contractId);
+
+    sendById(agentToken, invoiceId).andExpect(status().isOk());
+  }
+
+  @Test
+  void aLegacyBaseAmountInvoiceSentBackResendsWithoutAnyFile() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Gate Legacy Co");
+    Contract contract = contractRepository.findById(contractId).orElseThrow();
+    ClientInvoice invoice = new ClientInvoice();
+    invoice.setId(UUID.randomUUID());
+    invoice.setTenant(contract.getTenant());
+    invoice.setContract(contract);
+    invoice.setBillingMonth(currentMonth());
+    invoice.setStatus(ClientInvoiceStatus.SENT);
+    invoice.setCurrency(contract.getCurrency());
+    invoice.setCreatedAt(Instant.now());
+    invoice.setSentAt(Instant.now());
+    invoice.setSnapshotBaseAmount(new BigDecimal("42.00"));
+    invoice.setLinesStored(true);
+    clientInvoiceRepository.saveAndFlush(invoice);
+    ClientInvoiceLine line = new ClientInvoiceLine();
+    line.setId(UUID.randomUUID());
+    line.setTenant(invoice.getTenant());
+    line.setClientInvoice(invoice);
+    line.setKind(ClientInvoiceLineKind.BASE_AMOUNT);
+    line.setAmount(new BigDecimal("42.00"));
+    line.setComputedAmount(new BigDecimal("42.00"));
+    line.setCreatedAt(Instant.now());
+    clientInvoiceLineRepository.saveAndFlush(line);
+    sendBackById(managerToken, invoice.getId());
+
+    sendById(agentToken, invoice.getId()).andExpect(status().isOk());
+  }
+
+  @Test
+  void aResendAfterASendBackIsGatedOnTheStoredLines() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Gate Resend Co");
+    addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLine(mockMvc, objectMapper, invoiceId, agentToken);
+    sendById(agentToken, invoiceId).andExpect(status().isOk());
+    sendBackById(managerToken, invoiceId);
+    // The stored line still has its file, so the resend passes.
+    sendById(agentToken, invoiceId).andExpect(status().isOk());
+    sendBackById(managerToken, invoiceId);
+    jdbcTemplate.update("DELETE FROM carrier_invoice_files WHERE client_invoice_id = ?", invoiceId);
+
+    sendById(agentToken, invoiceId)
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("CARRIER_INVOICES_MISSING"));
+    assertThat(clientInvoiceRepository.findById(invoiceId).orElseThrow().getStatus().name()).isEqualTo("DRAFT");
+  }
+
+  @Test
+  void aFileWhoseSimStoppedBillingNeitherCountsNorBlocksTheSend() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID clientId = createClient(managerToken, "Gate Orphan Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String testerToken = createTesterAndLogin(managerToken, clientId, "gate.orphan@example.com");
+    UUID leavingSim = addUniquePostpaidSim(managerToken, contractId);
+    UUID stayingSim = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    attachById(agentToken, invoiceId, leavingSim, "leaving.pdf").andExpect(status().isCreated());
+    cancelSimCard(contractId, managerToken, testerToken, agentToken, leavingSim, currentMonth().minusMonths(2));
+
+    // Only the staying SIM bills now, and the leaving SIM's file does not stand in for it.
+    sendById(agentToken, invoiceId).andExpect(status().isConflict());
+    attachById(agentToken, invoiceId, stayingSim, "staying.pdf").andExpect(status().isCreated());
+    sendById(agentToken, invoiceId).andExpect(status().isOk());
+  }
+
+  @Test
+  void sendByIdSucceedsWhileFileStorageIsUnavailableWhenEveryLineHasItsFile() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Gate Outage Co");
+    addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLine(mockMvc, objectMapper, invoiceId, agentToken);
+
+    objectStoreAvailability.markUnavailable();
+    try {
+      sendById(agentToken, invoiceId).andExpect(status().isOk());
+    } finally {
+      objectStoreAvailability.probe();
+    }
+  }
+
+  @Test
+  void sendByIdWhileFileStorageIsUnavailableIsStillRefusedWhenAFileIsMissing() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = newContract(managerToken, "Gate Outage Missing Co");
+    addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openDraft(agentToken, contractId);
+
+    objectStoreAvailability.markUnavailable();
+    try {
+      sendById(agentToken, invoiceId)
+          .andExpect(status().isConflict())
+          .andExpect(jsonPath("$.code").value("CARRIER_INVOICES_MISSING"));
+    } finally {
+      objectStoreAvailability.probe();
+    }
   }
 }

@@ -22,6 +22,7 @@ import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.repository.ClientInvoiceLineRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import java.math.BigDecimal;
@@ -54,6 +55,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
   @Autowired private ClientInvoiceRepository clientInvoiceRepository;
   @Autowired private ClientInvoiceLineRepository clientInvoiceLineRepository;
   @Autowired private ContractRepository contractRepository;
+  @Autowired private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
   @Autowired private OtherTenantFixture otherTenantFixture;
 
   private String managerToken;
@@ -124,6 +126,8 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
   }
 
   private JsonNode send() throws Exception {
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     return objectMapper.readTree(
         mockMvc
             .perform(
@@ -754,6 +758,8 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
   void agentAttachesFileById() throws Exception {
     UUID invoiceId = sentInvoice();
     sendBack(invoiceId);
+    // sentInvoice() covered the line to pass the gate; this test attaches its own file for it.
+    jdbcTemplate.update("DELETE FROM carrier_invoice_files WHERE client_invoice_id = ?", invoiceId);
 
     postFileById(agentToken, invoiceId, simIdOf(byId(invoiceId)), "extra.pdf", "more-bytes")
         .andExpect(status().isCreated())
@@ -815,6 +821,8 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
     UUID invoiceId = sentInvoice();
     moveToPastMonth(invoiceId);
     sendBack(invoiceId);
+    // sentInvoice() covered the line to pass the gate; this test attaches its own file for it.
+    jdbcTemplate.update("DELETE FROM carrier_invoice_files WHERE client_invoice_id = ?", invoiceId);
 
     JsonNode read = body(getById(agentToken, invoiceId, "").andExpect(status().isOk()));
     assertThat(read.get("sentBackReason").asText()).isEqualTo(REASON);

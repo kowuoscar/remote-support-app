@@ -9,6 +9,7 @@ import {
   logout,
   selectContractInSwitcher,
   selectClientInvoiceContract,
+  attachCarrierInvoicesForEveryPostpaidSim,
 } from "./helpers";
 
 /**
@@ -56,7 +57,12 @@ test.describe("client invoice submission and visibility", () => {
     await expect(page.getByTestId("client-invoice-card").getByText("Verizon · Postpaid")).toBeVisible();
     // The line's carrier invoice is attached; the Manager will see its check mark.
     await attachCarrierInvoice(page, simNumber);
+    // Wait for the refreshed card (the line's check mark) so the helper below sees nothing left to attach.
+    await expect(
+      page.getByTestId("client-invoice-card").getByRole("img", { name: "Carrier invoice attached" }),
+    ).toBeVisible();
 
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     const [sendResponse] = await Promise.all([
       page.waitForResponse(

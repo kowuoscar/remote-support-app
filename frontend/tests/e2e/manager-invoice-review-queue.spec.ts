@@ -6,6 +6,7 @@ import {
   logout,
   rollSeededAgentInvoiceIntoThePast,
   selectClientInvoiceContract,
+  attachCarrierInvoicesForEveryPostpaidSim,
 } from "./helpers";
 
 /**
@@ -23,6 +24,7 @@ async function sendClientInvoiceAsAgent(page: Page, clientName: string) {
   await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
   await page.goto("/agent/client-invoices");
   await selectClientInvoiceContract(page, clientName);
+  await attachCarrierInvoicesForEveryPostpaidSim(page);
   await page.getByRole("button", { name: "Send Client Invoice" }).click();
   await page.getByRole("button", { name: "Confirm send" }).click();
   await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
@@ -72,6 +74,7 @@ test.describe("manager invoice review queue", () => {
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/client-invoices");
     await selectClientInvoiceContract(page, clientName);
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();

@@ -21,6 +21,7 @@ import com.remotesupport.backend.repository.ClientInvoiceLineRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.repository.FeeRepository;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -116,6 +117,8 @@ class LocalSupportFeesFollowClientInvoiceApiTest extends IntegrationTest {
   }
 
   private UUID sendClientInvoice(Cx c) throws Exception {
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, c.contractId(), agentToken);
     return UUID.fromString(
         json(
                 mockMvc

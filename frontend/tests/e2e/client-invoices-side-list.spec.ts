@@ -5,6 +5,7 @@ import {
   createClientAndContractWithSeededAgent,
   login,
   logout,
+  attachCarrierInvoicesForEveryPostpaidSim,
 } from "./helpers";
 
 /**
@@ -202,6 +203,7 @@ test.describe("client invoices side list", () => {
 
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto(`/agent/client-invoices?contract=${contractId}`);
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
@@ -228,6 +230,7 @@ test.describe("client invoices side list", () => {
     ).toHaveAttribute("aria-current", "true");
 
     // Leave nothing behind: a sent-back invoice would show in later specs' "Sent back to you".
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
@@ -318,6 +321,7 @@ test.describe("client invoices side list sent back", () => {
     await page.goto(`/agent/client-invoices?contract=${contractId}`);
     const clients = page.getByRole("navigation", { name: "Clients" });
     const card = page.getByTestId("client-invoice-card");
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
     await expect(clients.getByRole("link", { name: `${sentBackName} Awaiting approval`, exact: true })).toBeVisible();
@@ -353,6 +357,7 @@ test.describe("client invoices side list sent back", () => {
     // The Agent resends: the badge returns to "Awaiting approval", no "Sent back" is left on the
     // row and the region is gone, with the same Client still selected.
     await row.click();
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
     const resent = clients.getByRole("link", { name: `${sentBackName} Awaiting approval`, exact: true });

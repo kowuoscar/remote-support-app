@@ -59,13 +59,14 @@
     {
       "id": "F6",
       "type": "smell",
-      "state": "open",
+      "state": "dismissed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/client-invoice-detail-view.tsx:194",
       "citation": "",
-      "note": "Spec gap: the Manager's detail page has no Attach control on main or this branch; story 21 and walkthrough steps 4 and 7 expect the Manager to attach there and see the attach wording."
+      "note": "Spec gap: the Manager's detail page has no Attach control on main or this branch; story 21 and walkthrough steps 4 and 7 expect the Manager to attach there and see the attach wording.",
+      "reason": "human: the Manager does not attach; the spec was wrong and is corrected (stories 3, 21; steps 4, 7). Settled 2026-10-17."
     },
     {
       "id": "F7",
@@ -235,35 +236,38 @@
     {
       "id": "F22",
       "type": "acceptance-failed",
-      "state": "open",
+      "state": "dismissed",
       "raised_by": "acceptance-runner",
       "after_review": false,
       "in_changed_lines": true,
       "where": "walkthrough step 7",
       "citation": "Step 7: Attach disabled for Jordan and the Manager, with the Manager notice \"Attaching and downloading are paused.\"",
-      "note": "The Manager's invoice page has no Attach control (none on main either) and shows the download-only wording. Same root as the spec gap noted in F6."
+      "note": "The Manager's invoice page has no Attach control (none on main either) and shows the download-only wording. Same root as the spec gap noted in F6.",
+      "reason": "human: the Manager does not attach, so the Manager's page rightly shows the download-only notice; step 7 corrected. Settled 2026-10-17."
     },
     {
       "id": "F23",
       "type": "acceptance-failed",
-      "state": "open",
+      "state": "dismissed",
       "raised_by": "acceptance-runner",
       "after_review": false,
       "in_changed_lines": true,
       "where": "walkthrough step 4",
       "citation": "Step 4: \"As the Manager, open that invoice's /manager/invoices/client/{id}, attach a third file\"",
-      "note": "No Manager Attach control on the page (none on main either); the third file was attached through the API (201). Same root as F6."
+      "note": "No Manager Attach control on the page (none on main either); the third file was attached through the API (201). Same root as F6.",
+      "reason": "human: the Manager does not attach; step 4 corrected so Jordan attaches the third file. Settled 2026-10-17."
     },
     {
       "id": "F24",
       "type": "acceptance-failed",
-      "state": "open",
+      "state": "dismissed",
       "raised_by": "acceptance-runner",
       "after_review": false,
       "in_changed_lines": true,
       "where": "walkthrough step 2",
       "citation": "Step 2: a PDF named `Réf \"Oct\" 2026 – Orange.pdf` ... listed and downloaded under exactly that name",
-      "note": "Through a browser upload the double quotes arrive as %22 (the browser percent-encodes \" in the multipart filename), so the file is listed and saved as `Réf %22Oct%22 2026 – Orange.pdf`. Accents and en dash survive; bytes match."
+      "note": "Through a browser upload the double quotes arrive as %22 (the browser percent-encodes \" in the multipart filename), so the file is listed and saved as `Réf %22Oct%22 2026 – Orange.pdf`. Accents and en dash survive; bytes match.",
+      "reason": "human: browsers percent-encode quotes in multipart filenames before upload; accepted, the next feature uses computed names without quotes. Settled 2026-10-17."
     }
   ]
 }

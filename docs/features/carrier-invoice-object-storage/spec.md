@@ -186,7 +186,7 @@ Using the product, unchanged:
 
 1. As an Agent, I want "Attach carrier invoice" on my Client Invoice draft to work as it does today (several files at once, any type, up to 20MB each, each listed under its own name), so that moving the storage costs me nothing.
 2. As an Agent, I want to download a file I attached and get the same bytes under the same name and type, so that I can check what I sent.
-3. As a Manager, I want to attach a file to any draft and download any invoice's files as today, so that my review is unchanged.
+3. As a Manager, I want to download any invoice's files as today, so that my review is unchanged. (Only the Agent attaches; the Manager's invoice page has no Attach control, as today.)
 4. As a Tester, I want to download my Client's carrier invoice files from a sent or approved invoice as today, so that I can see the carrier's own bill.
 5. As an Agent or a Manager, I want a file whose name holds accents, quotes or other non-ASCII characters (e.g. `Réf "Oct" 2026 – Orange.pdf`) to download under exactly that name, so that the computed names coming next in this epic keep their Client's spelling.
 6. As an Agent, I want an attach that is refused or fails (the invoice was sent meanwhile, or the store is unavailable) to show today's "Couldn't attach one or more files. Try again." and leave no trace of the file, so that the list never shows a file that is not there and the store never keeps a file no invoice lists.
@@ -213,7 +213,7 @@ For the team and the next features:
 When file storage is unavailable:
 
 20. As an Agent, I want my Client Invoice card to keep listing the files by name while file storage is unavailable, with "Attach carrier invoice" and each file's Download disabled and one short notice saying why, so that I don't try an attach that can only fail and I know it is not my doing.
-21. As a Manager, I want the same on an invoice's detail view (names listed, Attach and Download disabled, the notice), so that my review shows what is attached even while the files can't be fetched.
+21. As a Manager, I want the same on an invoice's detail view (names listed, Download disabled, the notice "File storage is unavailable right now. Downloading is paused."), so that my review shows what is attached even while the files can't be fetched.
 22. As a Tester, I want my Client's invoice on the Invoices page to keep listing its carrier invoice files with Download disabled and the notice, so that I can see the files exist and that they will come back.
 23. As an Agent, a Manager or a Tester, I want Attach and Download to work again by themselves once file storage is back, at worst on my second page load after it returns, without anyone restarting anything, so that an outage ends by itself.
 24. As an Agent or a Manager, I want everything else on the invoice (lines, fees, the PDF, send, send-back, approve) to work as usual while file storage is unavailable, so that a store outage only pauses files.
@@ -828,6 +828,10 @@ mocked database. No test reaches Hetzner.
 
 ## Decisions taken
 
+- **Settled by the human (2026-10-17), at delivery review: the Manager does not attach.** The Manager's invoice page has never had an Attach control; only the Agent attaches, which the next feature (one file per postpaid SIM, attached by the Agent) keeps. Stories 3 and 21 and walkthrough steps 4 and 7 were corrected; findings F6, F22, F23 dismissed.
+
+- **Settled by the human (2026-10-17), at delivery review: a quote in an uploaded file name may come back as `%22`.** Browsers percent-encode `"` in multipart filenames before the request leaves them; the next feature stores every file under a computed name without quotes, and decoding server-side would mangle a name that really holds `%22`. Finding F24 dismissed.
+
 - **Spec approved by the human, 2026-10-17** (`docs/inbox/approve-carrier-invoice-object-storage.md`, "Ok"), after their amendments (no startup block, files paused in the UI, on-demand availability check). This accepts ADR 0007 as described here; ticket 1 writes it `accepted`.
 
 - **Settled by the human (2026-10-17), answering this spec's former open
@@ -1069,12 +1073,12 @@ with its dev-only credentials (e.g. `aws s3api list-objects-v2
 1. [agent] Run `verify`. Show it green, the visual goldens unchanged, and that `backend/data` was not created. Show `docker ps` listing no SeaweedFS or Postgres container left from the run. (stories: 16, 17)
 2. [agent] As Jordan, on the current-month draft at `/agent/client-invoices`, attach two files at once: a PDF named `Réf "Oct" 2026 – Orange.pdf` and a PNG. Show both listed under their names. Download each from the page, and show the saved name equals the original exactly and the bytes' SHA-256 equals the uploaded file's. (stories: 1, 2, 5)
 3. [agent] List the bucket in SeaweedFS through the S3 API. Show exactly two objects, at `carrier-invoices/{tenant id}/{that invoice id}/{file id}`, whose file ids are the ones the invoice's file list returns. Head each and show no `x-amz-meta-*` and no tags. Query `carrier_invoice_files` and show each row's `storage_path` equals its key. (stories: 14, 15)
-4. [agent] As the Manager, open that invoice's `/manager/invoices/client/{id}`, attach a third file and download one of Jordan's. As Jordan, send the invoice. As the Tester of that Client, download a file from the Invoices page. Show the same bytes and name. (stories: 3, 4)
+4. [agent] As Jordan, attach a third file. As the Manager, open that invoice's `/manager/invoices/client/{id}` and download one of Jordan's files. As Jordan, send the invoice. As the Tester of that Client, download a file from the Invoices page. Show the same bytes and name. (stories: 3, 4)
 5. [agent] Through the API, as Jordan, POST a file to the now-sent invoice. Show a 409, and the bucket still holding exactly the three objects under that invoice's prefix. (stories: 6)
 6. [agent] Restart the backend process, then restart the SeaweedFS container (`docker restart`, the same container). Show every file still downloads with the same bytes. (stories: 8)
 7. [agent] The store goes down and comes back (stories: 11, 12, 13, 20, 21, 22, 23, 24, 25). For this step the throwaway SeaweedFS keeps its data across a stop (started without `--rm`, removed by name at the end).
    - With the page open on a new draft as Jordan, `docker stop` SeaweedFS and attach a file. Show "Couldn't attach one or more files. Try again." and one ERROR in the backend log naming the store operation, with no credentials.
-   - Reload. As Jordan on the draft, as the Manager on its `/manager/invoices/client/{id}`, and as the Tester on an earlier sent invoice's Invoices page, show the files section listing every file name, "Attach carrier invoice" disabled (Jordan, Manager), each Download disabled and not a link, and the notice: "File storage is unavailable right now. Attaching and downloading are paused." (Jordan, Manager) or "File storage is unavailable right now. Downloading is paused." (Tester). Screenshot each.
+   - Reload. As Jordan on the draft, as the Manager on its `/manager/invoices/client/{id}`, and as the Tester on an earlier sent invoice's Invoices page, show the files section listing every file name, "Attach carrier invoice" disabled (Jordan), each Download disabled and not a link, and the notice: "File storage is unavailable right now. Attaching and downloading are paused." (Jordan) or "File storage is unavailable right now. Downloading is paused." (Manager, Tester). Screenshot each.
    - Show lines, fees, the PDF and the Fleet page still work, and that a direct API attach and download answer 503 at once.
    - Leave the stack untouched for two minutes with SeaweedFS still stopped and no page open. Show the backend log gains no line in that time: nothing checks the store while nobody opens a page.
    - `docker start` SeaweedFS. Reload Jordan's draft once (at least 30 seconds after the last reload of an invoice page, so the last check is stale; wait out the rest of the 30 seconds only if needed): it may still show the paused state. Reload again: Attach and Download are enabled; reload the Manager's and the Tester's pages: enabled too. A download returns the same bytes and an attach works. Show one INFO line for the recovery and no repeated ERROR lines in between.

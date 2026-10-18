@@ -251,6 +251,64 @@ const AGENTS = [
   },
 ];
 
+// manager-reviews-by-agent: what the Manager's Agents side list and an Agent's month read. Counts are
+// fixed fixture values, not derived from the Review Queue stub below (which has two rows): Priya Nair
+// "3", Jordan Ellis "2" (her one To review plus the sent Agent Invoice), Ana Costa "—". Name order, as
+// the read serves it. Jordan's September is the golden: one To review, one Approved, one Sent back and
+// a sent Agent Invoice; her August is fully approved, for the Month select.
+const REVIEW_AGENTS = [
+  { agentId: AGENTS[2].id, agentName: AGENTS[2].name, waiting: 0 },
+  { agentId: AGENTS[0].id, agentName: AGENTS[0].name, waiting: 2 },
+  { agentId: AGENTS[1].id, agentName: AGENTS[1].name, waiting: 3 },
+];
+
+const JORDAN_REVIEW_MONTHS = [
+  { billingMonth: "2026-09-01", waiting: 2 },
+  { billingMonth: "2026-08-01", waiting: 0 },
+];
+
+function reviewRow(id, clientName, reviewStatus, totalAmount) {
+  return {
+    id,
+    contractId: AGENT_CONTRACTS[0].id,
+    clientName,
+    reviewStatus,
+    currency: "USD",
+    totalAmount,
+    sentAt: "2026-09-28T12:00:00Z",
+    approvedAt: reviewStatus === "APPROVED" ? "2026-09-29T12:00:00Z" : null,
+    sentBackAt: reviewStatus === "SENT_BACK" ? "2026-09-29T12:00:00Z" : null,
+  };
+}
+
+function jordanReviewMonth(billingMonth) {
+  const month = { agentId: AGENTS[0].id, agentName: AGENTS[0].name, billingMonth };
+  if (billingMonth === "2026-09-01") {
+    return {
+      ...month,
+      monthSentAt: "2026-09-28T12:00:00Z",
+      clientInvoices: [
+        reviewRow("c1000000-0000-0000-0000-000000000001", "Aurora Retail Group", "TO_REVIEW", 1284.5),
+        reviewRow("c1000000-0000-0000-0000-000000000002", "Birch Telecom", "APPROVED", 540),
+        reviewRow("c1000000-0000-0000-0000-000000000003", "Meridian Logistics", "SENT_BACK", 912.25),
+      ],
+      agentInvoice: { id: "c2000000-0000-0000-0000-000000000002", status: "SENT", currency: "USD", totalAmount: 3200 },
+    };
+  }
+  if (billingMonth === "2026-08-01") {
+    return {
+      ...month,
+      monthSentAt: "2026-08-30T12:00:00Z",
+      clientInvoices: [
+        reviewRow("c1000000-0000-0000-0000-000000000011", "Aurora Retail Group", "APPROVED", 1190),
+        reviewRow("c1000000-0000-0000-0000-000000000012", "Birch Telecom", "APPROVED", 505.5),
+      ],
+      agentInvoice: { id: "c2000000-0000-0000-0000-000000000003", status: "PAID", currency: "USD", totalAmount: 3200 },
+    };
+  }
+  return { ...month, monthSentAt: null, clientInvoices: [], agentInvoice: null };
+}
+
 // The password the stubbed reset route reveals (the golden of the reveal step).
 const RESET_PASSWORD = "k7mq-x3vh-p9te";
 
@@ -606,6 +664,23 @@ createServer((request, response) => {
         agentId: AGENTS[1].id,
       },
     ]);
+  }
+  // manager-reviews-by-agent: the Agents side list and an Agent's months and month (Manager only).
+  if (url.pathname.startsWith("/api/review-queue/agents") && request.method === "GET") {
+    if (caller.role !== "MANAGER") return send(response, 403);
+    if (url.pathname === "/api/review-queue/agents") return send(response, 200, REVIEW_AGENTS);
+    const match = url.pathname.match(/^\/api\/review-queue\/agents\/([^/]+)\/months(?:\/([^/]+))?$/);
+    const agent = match && AGENTS.find((candidate) => candidate.id === match[1]);
+    if (!agent) return send(response, 404);
+    if (!match[2]) return send(response, 200, agent === AGENTS[0] ? JORDAN_REVIEW_MONTHS : []);
+    if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(match[2])) return send(response, 400);
+    return send(
+      response,
+      200,
+      agent === AGENTS[0]
+        ? jordanReviewMonth(`${match[2]}-01`)
+        : { agentId: agent.id, agentName: agent.name, billingMonth: `${match[2]}-01`, monthSentAt: null, clientInvoices: [], agentInvoice: null },
+    );
   }
   // real-manager-dashboard: the Tenant's money for a fixed Billing Month — billed in two currencies
   // (GBP then USD, as the read orders them), payout in one. The empty session has nothing counted

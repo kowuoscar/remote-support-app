@@ -672,6 +672,56 @@ export interface AgentInvoiceQueueItem extends ReviewQueueItemBase {
 
 export type ReviewQueueItem = ClientInvoiceQueueItem | AgentInvoiceQueueItem;
 
+// Mirrors backend/.../dto/ReviewAgentResponse.java: an Agent of the Manager's Agents side list
+// (GET /api/review-queue/agents), `waiting` being their rows of the Review Queue.
+export interface ReviewAgent {
+  agentId: string;
+  agentName: string;
+  waiting: number;
+}
+
+// Mirrors ReviewMonthSummaryResponse.java: one month of an Agent's for the Month select
+// (GET /api/review-queue/agents/{agentId}/months), newest first. `billingMonth` is first-of-month.
+export interface ReviewMonthSummary {
+  billingMonth: string;
+  waiting: number;
+}
+
+// Mirrors ReviewMonthResponse.java; `reviewStatus` is served, never derived in the browser.
+export type ReviewStatusValue = "TO_REVIEW" | "APPROVED" | "SENT_BACK";
+
+export interface ReviewClientInvoice {
+  id: string;
+  contractId: string;
+  clientName: string;
+  reviewStatus: ReviewStatusValue;
+  currency: string;
+  totalAmount: number;
+  sentAt: string | null;
+  approvedAt: string | null;
+  sentBackAt: string | null;
+}
+
+export interface ReviewAgentInvoice {
+  id: string;
+  status: AgentInvoiceStatusValue;
+  currency: string;
+  totalAmount: number;
+}
+
+/** GET /api/review-queue/agents/{agentId}/months/{YYYY-MM}: an Agent's month as the Manager reviews it. */
+export interface ReviewMonth {
+  agentId: string;
+  agentName: string;
+  billingMonth: string;
+  /** When the Agent first sent the month; null if unsent. */
+  monthSentAt: string | null;
+  /** The Client Invoices that reached the Manager, by Client name: the list's and "Next invoice"'s order. */
+  clientInvoices: ReviewClientInvoice[];
+  /** Null unless the Agent Invoice is past DRAFT. */
+  agentInvoice: ReviewAgentInvoice | null;
+}
+
 /** Mirrors ClientInvoiceSummaryResponse.java: a Tester's dashboard row, SENT or APPROVED only. */
 export interface ClientInvoiceSummary {
   contractId: string;

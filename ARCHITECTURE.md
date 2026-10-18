@@ -104,6 +104,8 @@ error, not a nitpick.
 - `frontend/components/manager/send-back-client-invoice-control.tsx` · inline reason form that POSTs a send-back to a given endpoint and hands the returned invoice to its caller.
 - `frontend/components/fleet/fleet-tabs-card.tsx` · the Fleet card whose header row is the "Fleet" tablist (SIM Cards, Smartphones) with per-tab action and empty state, and the `?tab=` parser; used by the Agent and Tester Fleet.
 - `frontend/components/manager/contracts-view.tsx` · the Manager's one-page Contracts view: Clients side list, Agent select, invoice summary and tabbed Fleet; a pick is router.replace in a transition.
+- `frontend/components/manager/manager-invoices-view.tsx` · the Manager's Invoices page body: Agents SideList / dropdown with All Agents (Review Queue) first, swapping in AgentMonthReview on a pick.
+- `frontend/components/manager/agent-month-review.tsx` · an Agent's month as the Manager reviews it, read-only: header, Month select, Client Invoice table, Agent Invoice row, empty and failed states.
 - `frontend/components/fleet/smartphone-model-control.tsx` · the inline control that corrects a Smartphone's model.
 - `frontend/components/fleet/smartphone-owner-control.tsx` · the inline control that corrects a Smartphone's owner.
 - `frontend/components/fleet/sim-card-number-control.tsx` · the inline control that corrects a SIM Card's number.
@@ -119,6 +121,7 @@ error, not a nitpick.
 - `auth` · session and token handling.
 - `demo` · demo data generation for development and the visual goldens.
 - `frontend/lib/manager-contracts.ts` · groups the Manager's Contracts by Client and resolves the selected Contract from `?contract=`.
+- `frontend/lib/review-months.ts` · reviewMonthFor: picks the month the Manager's Agent view opens on (valid `?month=`, else oldest month with something waiting, else newest listed, else current).
 - `frontend/lib/api/client-invoice.ts` · the Agent's by-id Client Invoice read.
 - `frontend/lib/api/client-invoice-month.ts` · clientInvoiceMonth: derives the month bar's state from the page's loaded invoices.
 

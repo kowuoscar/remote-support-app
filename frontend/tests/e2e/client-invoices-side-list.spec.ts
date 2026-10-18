@@ -231,8 +231,8 @@ test.describe("client invoices side list", () => {
 
     // Leave nothing behind: a sent-back invoice would show in later specs' "Sent back to you".
     await attachCarrierInvoicesForEveryPostpaidSim(page);
-    await page.getByRole("button", { name: "Send Client Invoice" }).click();
-    await page.getByRole("button", { name: "Confirm send" }).click();
+    await page.getByRole("button", { name: "Resend Client Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm resend" }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
     await logout(page);
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
@@ -358,8 +358,8 @@ test.describe("client invoices side list sent back", () => {
     // row and the region is gone, with the same Client still selected.
     await row.click();
     await attachCarrierInvoicesForEveryPostpaidSim(page);
-    await page.getByRole("button", { name: "Send Client Invoice" }).click();
-    await page.getByRole("button", { name: "Confirm send" }).click();
+    await page.getByRole("button", { name: "Resend Client Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm resend" }).click();
     const resent = clients.getByRole("link", { name: `${sentBackName} Awaiting approval`, exact: true });
     await expect(resent).toBeVisible();
     await expect(resent).toHaveAttribute("aria-current", "true");

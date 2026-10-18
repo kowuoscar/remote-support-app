@@ -9,7 +9,7 @@ import { RemoveCarrierInvoiceFileControl } from "@/components/agent/remove-carri
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
 import { EditClientInvoiceLineControl } from "@/components/agent/edit-client-invoice-line-control";
 import { LINE_AREA, LINE_WRAPPER, LineCell, LineRow, LineTable } from "@/components/agent/invoice-line-table";
-import { SendClientInvoiceControl } from "@/components/agent/send-client-invoice-control";
+import { SendClientInvoiceControl, missingCarrierInvoicesNote } from "@/components/agent/send-client-invoice-control";
 import { ClientInvoiceStatusNote } from "@/components/agent/client-invoice-status-note";
 import { clientInvoiceBadge } from "@/lib/status";
 import { formatDate, formatDateShort, formatLocalDate } from "@/lib/format";
@@ -172,10 +172,20 @@ export function AgentClientInvoiceCard({
                 disabled={!invoice.filesAvailable}
               />
             ) : null}
-            <SendClientInvoiceControl
-              invoiceId={invoice.id}
-              missingCarrierInvoices={missingLines.length}
-            />
+            {invoice.sendableOnItsOwn ? (
+              <SendClientInvoiceControl
+                invoiceId={invoice.id}
+                missingCarrierInvoices={missingLines.length}
+                resend={Boolean(invoice.sentBackAt)}
+              />
+            ) : (
+              <div className="flex flex-col items-end gap-0.5 text-right">
+                {missingLines.length > 0 ? (
+                  <p className="max-w-65 text-label-sm text-ink-mute">{missingCarrierInvoicesNote(missingLines.length)}</p>
+                ) : null}
+                <p className="max-w-65 text-label-sm text-ink-mute">Sent with the month, from the bar above.</p>
+              </div>
+            )}
           </div>
         ) : invoice.status === "DRAFT" || !currentMonth ? null : (
           <a

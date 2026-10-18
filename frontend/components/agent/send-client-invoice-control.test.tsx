@@ -110,4 +110,53 @@ describe("SendClientInvoiceControl", () => {
       expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't send. Try again.");
     });
   });
+  describe("the month send (agent-sends-the-month)", () => {
+    it("reads Resend wording on a sent-back draft", async () => {
+      render(<SendClientInvoiceControl invoiceId="invoice-1" resend />);
+
+      await userEvent.click(screen.getByRole("button", { name: "Resend Client Invoice" }));
+
+      expect(screen.getByRole("button", { name: "Confirm resend" })).toHaveFocus();
+      expect(screen.queryByRole("button", { name: "Confirm send" })).not.toBeInTheDocument();
+      await userEvent.click(screen.getByRole("button", { name: "Back" }));
+      expect(screen.getByRole("button", { name: "Resend Client Invoice" })).toHaveFocus();
+    });
+
+    it("keeps Send wording for a late Contract's draft", () => {
+      render(<SendClientInvoiceControl invoiceId="invoice-1" resend={false} />);
+
+      expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeInTheDocument();
+    });
+
+    it("shows Sending… on a resend while it is pending", async () => {
+      stubPendingFetch();
+      render(<SendClientInvoiceControl invoiceId="invoice-1" resend />);
+      await userEvent.click(screen.getByRole("button", { name: "Resend Client Invoice" }));
+      await userEvent.click(screen.getByRole("button", { name: "Confirm resend" }));
+
+      expect(screen.getByRole("button", { name: "Sending…" })).toHaveAttribute("aria-busy", "true");
+    });
+
+    it("says to send the month from the bar when the server refuses with MONTH_NOT_SENT", async () => {
+      stubFetch(409, { code: "MONTH_NOT_SENT", message: "x" });
+      render(<SendClientInvoiceControl invoiceId="invoice-1" />);
+      await openConfirm();
+      await userEvent.click(screen.getByRole("button", { name: "Confirm send" }));
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        "Send this month from the bar above. Reload to see it.",
+      );
+    });
+
+    it("keeps the CARRIER_INVOICES_MISSING text unchanged", async () => {
+      stubFetch(409, { code: "CARRIER_INVOICES_MISSING", message: "x" });
+      render(<SendClientInvoiceControl invoiceId="invoice-1" resend />);
+      await userEvent.click(screen.getByRole("button", { name: "Resend Client Invoice" }));
+      await userEvent.click(screen.getByRole("button", { name: "Confirm resend" }));
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        "A Postpaid SIM still needs its carrier invoice. Reload to see which.",
+      );
+    });
+  });
 });

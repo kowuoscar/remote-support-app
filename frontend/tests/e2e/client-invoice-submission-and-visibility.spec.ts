@@ -64,6 +64,9 @@ test.describe("client invoice submission and visibility", () => {
 
     await selectClientInvoiceContract(page, clientName);
     await expect(page.getByTestId("client-invoice-card").getByText("Draft")).toBeVisible();
+    // The month is unsent: the card has no Send of its own, only a line pointing at the bar.
+    await expect(page.getByTestId("client-invoice-card").getByRole("button", { name: /Send/ })).toHaveCount(0);
+    await expect(page.getByTestId("client-invoice-card").getByText("Sent with the month, from the bar above.")).toBeVisible();
     // The SIM line reads its number, then the Carrier and the flavor.
     await expect(page.getByTestId("client-invoice-card").getByText("Verizon · Postpaid")).toBeVisible();
     // The line's carrier invoice is attached; the Manager will see its check mark.

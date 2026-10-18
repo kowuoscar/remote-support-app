@@ -45,6 +45,7 @@ Existing tests expected to change, each with the reason:
 - `frontend/tests/e2e/send-a-client-invoice-back.spec.ts`: its resend click becomes "Resend Client Invoice" and its confirm click "Confirm resend" (line ~141) (the first send is a late Contract's and keeps its label).
 - `frontend/tests/e2e/client-invoices-side-list.spec.ts`: its two resends after a send-back click "Resend Client Invoice" and then "Confirm resend" (lines ~235, ~362).
 - `frontend/tests/e2e/client-invoice-submission-and-visibility.spec.ts`: gains an assertion that no card shows a Send while the fresh Agent's month is unsent; its other assertions are unchanged.
+- Accepted by the orchestrator at merge: the by-id block's sentBack() fixture gains sendableOnItsOwn: true and its Send clicks read Resend / Confirm resend.
 - Goldens `agent-client-invoices-*` and, where their capture includes the card header or its note, `client-invoice-attach-dialog-open-*`, `client-invoice-files-paused-*`, `client-invoice-remove-confirm-open-*`, recaptured.
 - The other e2e specs that send a Jordan Contract (`client-dashboard`, `client-invoice-generation`, `edit-client-invoice-lines`, `manager-dashboard`, `manager-invoice-review-queue`, `agent-invoice-submission-and-approval`) stay unedited: their Contracts are late, so the card's label is unchanged. If one needs an edit anyway, name it in the result.
 

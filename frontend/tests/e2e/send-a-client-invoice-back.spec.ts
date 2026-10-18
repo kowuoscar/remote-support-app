@@ -137,8 +137,8 @@ test.describe("send a client invoice back", () => {
     await expect(field).toBeHidden();
     await expect(simRow.getByText("Edited · computed $25.00")).toBeVisible();
     await attachCarrierInvoicesForEveryPostpaidSim(page);
-    await page.getByRole("button", { name: "Send Client Invoice" }).click();
-    await page.getByRole("button", { name: "Confirm send" }).click();
+    await page.getByRole("button", { name: "Resend Client Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm resend" }).click();
     await expect(page.getByText("Awaiting approval")).toBeVisible();
 
     // Resent: it has left the Agent's "Sent back to you" list.

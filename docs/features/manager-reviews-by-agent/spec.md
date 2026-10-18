@@ -756,20 +756,21 @@ walkthrough creates as the Manager (Create agent, login shown once).
 
 ## Execution order
 
-Four tickets, one PR. Each ticket lists every existing test file it changes.
+Five tickets, one PR. Each ticket lists every existing test file it changes.
 The merger refuses any other.
 
-1. `review-by-agent-api`: the `markApproved` split; the three reads with their
-   projection queries and the widened matcher; month approval, its controller,
-   `NOTHING_TO_APPROVE` and its audit line. Tests:
-   - new `ReviewByAgentApiTest`, `ClientInvoiceMonthApproveApiTest`,
-     `ClientInvoiceMonthApproveConcurrentTest`;
-   - `ClientInvoiceMonthTestSupport` may gain an approve helper (the one
-     existing test-source file it may change).
-
-   No existing test class changes. Labels: backend. No dependency. (stories:
-   28, 29, 30, 31, 32, 33, 35)
-2. `agents-side-list-on-invoices`: the types; the page's reads and
+1. `review-by-agent-reads`: the three reads with their projection queries and
+   the widened matcher. Split from the former single backend ticket after the
+   critic (R2); runs in parallel with the next. Tests: new `ReviewByAgentApiTest`.
+   No existing test class changes. Labels: backend. No dependency. (stories: 31)
+2. `approve-a-month-api`: the `markApproved` split; month approval, its
+   controller, `NOTHING_TO_APPROVE` and its audit line. Tests: new
+   `ClientInvoiceMonthApproveApiTest`, `ClientInvoiceMonthApproveConcurrentTest`
+   (and optionally a new `ClientInvoiceMonthApproveServiceTest`);
+   `ClientInvoiceMonthTestSupport` may gain an approve helper (the one existing
+   test-source file it may change). Labels: backend. No dependency. (stories:
+   28, 29, 30, 32, 33, 35)
+3. `agents-side-list-on-invoices`: the types; the page's reads and
    `reviewMonthFor`; `ManagerInvoicesView` with the side list and the dropdown;
    `AgentMonthReview` read-only (header without the button, list, Agent Invoice
    row, select, empty and failed states); the stub's reads; the two new
@@ -780,9 +781,9 @@ The merger refuses any other.
      and month cases);
    - changed: `tests/visual/surfaces.spec.ts`, `tests/visual/stub-backend.mjs`.
 
-   Labels: frontend. Depends on `review-by-agent-api`. (stories: 1, 2, 3, 4, 5,
+   Labels: frontend. Depends on `review-by-agent-reads`. (stories: 1, 2, 3, 4, 5,
    6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 34)
-3. `approve-the-rest-of-the-month`: `ApproveClientInvoiceMonthControl` in the
+4. `approve-the-rest-of-the-month`: `ApproveClientInvoiceMonthControl` in the
    header, its BFF route, the copy and errors, and the `DESIGN.md` "Month
    review" entry. Tests:
    - new `approve-client-invoice-month-control.test.tsx`;
@@ -791,9 +792,9 @@ The merger refuses any other.
      `manager-invoices-agent-*` goldens (the pill), `stub-backend.mjs` if the
      stub needs a To review row for the pill.
 
-   Labels: frontend. Depends on `agents-side-list-on-invoices`. (stories: 17,
+   Labels: frontend. Depends on `agents-side-list-on-invoices` and `approve-a-month-api`. (stories: 17,
    18, 19, 20, 21)
-4. `next-invoice-on-the-detail-page`: the detail page's month read, the
+5. `next-invoice-on-the-detail-page`: the detail page's month read, the
    breadcrumb's Agent crumb, `ReviewMonthNext` and `nextToReview`, the stub
    month for the detail invoice, the journey proof's Manager step, and the
    `CONTEXT.md` declarations. Tests:

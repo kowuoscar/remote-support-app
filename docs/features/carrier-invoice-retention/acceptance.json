@@ -1,0 +1,92 @@
+{
+  "feature": "carrier-invoice-retention",
+  "played_at": "2026-10-18",
+  "played_on": "feature/carrier-invoice-retention @ 3d744a0",
+  "environment": "Isolated: throwaway postgres:16-alpine acc-ret-pg-77 on 63756, chrislusf/seaweedfs:4.48 acc-ret-sw-77 on 63757, backend jar on the demo profile on 63758, frontend next start on 63759; all removed; rsa-prod untouched. Extra Postpaid SIMs and billing-month moves by SQL on the throwaway DB only.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1-verify.txt",
+      "note": "verify exit 0 (backend 941, vitest 598, e2e 112); visual 161/161, no golden changed (step-1-visual.txt)"
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2-restart.txt",
+      "note": "A and B attached, sent, approved; 4 downloads byte-identical; after restart nothing deleted, no retention line (step-2-setup.txt, step-2-downloads.txt)"
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3-after.txt",
+      "note": "A at 30d1h: objects gone, rows deleted_at set, other columns unchanged; B at 29d23h kept; one INFO 'deleted 2 files' (step-3-summary.txt)"
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4.txt",
+      "note": "Jordan, Manager and Tester see 'Deleted on Oct 18, 2026', no link or focusable element; check marks kept; B downloads 200"
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": "download of A's file is 410 CARRIER_INVOICE_FILE_DELETED on both routes"
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": "draft C, sent D, sent-back E moved back 3 months: nothing deleted, no retention line"
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": "an already-missing object's row marked deleted with no error; second run changes nothing"
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8.txt",
+      "note": "store down: each run one ERROR + one WARN, nothing marked; deleted A shows no notice, live F paused; 410 not 503; after recovery one INFO 'deleted 3 files'"
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-9.txt",
+      "note": "CARRIER_INVOICE_RETENTION_ENABLED=false: G kept after 185s, no retention line"
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "not-applicable",
+      "evidence": "evidence/step-10.txt",
+      "note": "month-closes-on-the-fifth has not merged"
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-11.txt",
+      "note": "ADR 0007 note, CONTEXT.md entries; compose config has no CARRIER_INVOICE_RETENTION_* override"
+    },
+    {
+      "step": 12,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "[human] step on rsa-prod"
+    }
+  ]
+}

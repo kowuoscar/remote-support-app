@@ -1,0 +1,6 @@
+### Result
+"[{\"text\":\"Solstice Retail Group - October 2026 - AT&T - +1-202-555-0102.pdf | Deleted on Oct 18, 2026\",\"anchors\":0,\"buttons\":0,\"focusable\":0,\"deletedOn\":true},{\"text\":\"Solstice Retail Group - October 2026 - AT&T - +1-202-555-0901.pdf | Deleted on Oct 18, 2026\",\"anchors\":0,\"buttons\":0,\"focusable\":0,\"deletedOn\":true}]"
+### Ran Playwright code
+```js
+await page.evaluate('() => { const li=[...document.querySelectorAll(\'li\')].filter(l=>/Deleted on|\\.pdf/.test(l.textContent)&&l.querySelector(\'*\')); return JSON.stringify(li.map(l=>({text:l.innerText.replace(/\\n/g,\' | \'), anchors:l.querySelectorAll(\'a\').length, buttons:l.querySelectorAll(\'button\').length, focusable:l.querySelectorAll(\'a[href],button,[tabindex],input\').length, deletedOn:/Deleted on/.test(l.innerText)}))) }');
+```

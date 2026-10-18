@@ -1,0 +1,95 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - generic [ref=f1e5]: "N"
+        - generic [ref=f1e6]:
+          - paragraph [ref=f1e7]: Northwind Field Services
+          - paragraph [ref=f1e8]: Manager Console
+      - navigation [ref=f1e9]:
+        - link "Dashboard" [ref=f1e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f1e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f1e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f1e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f1e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f1e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f1e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f1e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f1e48]:
+      - banner [ref=f1e49]:
+        - generic [ref=f1e51]:
+          - heading "Solstice Retail Group — Jordan Ellis" [level=1] [ref=f1e52]
+          - paragraph [ref=f1e53]: Client Invoice
+        - generic [ref=f1e54]:
+          - button "Manager" [ref=f1e56]
+          - button "Switch to dark theme" [ref=f1e58]
+      - main [ref=f1e62]:
+        - generic [ref=f1e63]:
+          - navigation "Breadcrumb" [ref=f1e64]:
+            - link "Invoices" [ref=f1e66] [cursor=pointer]:
+              - /url: /manager/invoices
+            - generic [ref=f1e67]: Solstice Retail Group — Jordan Ellis
+          - generic [ref=f1e71]:
+            - generic [ref=f1e72]:
+              - generic [ref=f1e73]:
+                - generic [ref=f1e74]:
+                  - heading "October 2026" [level=2] [ref=f1e75]
+                  - generic [ref=f1e76]: Approved
+                - paragraph [ref=f1e78]: Approved — this is the final record for the month
+                - paragraph [ref=f1e79]: Sent Oct 18, 2026 · Approved Sep 18, 2026
+              - link "Download PDF" [ref=f1e81] [cursor=pointer]:
+                - /url: /api/client-invoices/059ae311-99e6-4624-b8b7-5bd76b58eba7/pdf
+            - generic [ref=f1e85]:
+              - generic [ref=f1e86]:
+                - term [ref=f1e87]: Base amount
+                - definition [ref=f1e88]: $131.98
+              - generic [ref=f1e89]:
+                - term [ref=f1e90]: Fees
+                - definition [ref=f1e91]: $70.00
+              - generic [ref=f1e92]:
+                - term [ref=f1e93]: Total
+                - definition [ref=f1e94]: $201.98
+            - generic [ref=f1e95]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f1e96]
+              - list "Postpaid SIM Cards" [ref=f1e97]:
+                - listitem [ref=f1e98]:
+                  - generic [ref=f1e100]:
+                    - generic [ref=f1e101]: +1-202-555-0102
+                    - generic [ref=f1e102]:
+                      - text: AT&T · Postpaid
+                      - img "Carrier invoice attached" [ref=f1e103]
+                  - generic [ref=f1e107]: $65.99
+                - listitem [ref=f1e109]:
+                  - generic [ref=f1e111]:
+                    - generic [ref=f1e112]: +1-202-555-0901
+                    - generic [ref=f1e113]:
+                      - text: AT&T · Postpaid
+                      - img "Carrier invoice attached" [ref=f1e114]
+                  - generic [ref=f1e118]: $65.99
+            - generic [ref=f1e120]:
+              - heading "Fee lines" [level=3] [ref=f1e121]
+              - list [ref=f1e122]:
+                - listitem [ref=f1e123]:
+                  - generic [ref=f1e124]: Topup
+                  - generic [ref=f1e125]: $25.00
+                - listitem [ref=f1e127]:
+                  - generic [ref=f1e128]: Other
+                  - generic [ref=f1e129]: $45.00
+            - generic [ref=f1e131]:
+              - heading "Carrier invoice files" [level=3] [ref=f1e132]
+              - list [ref=f1e135]:
+                - listitem [ref=f1e136]:
+                  - generic [ref=f1e137]: Solstice Retail Group - October 2026 - AT&T - +1-202-555-0102.pdf
+                  - generic [ref=f1e141]: Deleted on Oct 18, 2026
+                - listitem [ref=f1e143]:
+                  - generic [ref=f1e144]: Solstice Retail Group - October 2026 - AT&T - +1-202-555-0901.pdf
+                  - generic [ref=f1e148]: Deleted on Oct 18, 2026
+  - alert [ref=f1e150]

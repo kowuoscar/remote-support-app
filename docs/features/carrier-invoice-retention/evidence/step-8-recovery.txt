@@ -1,0 +1,17 @@
+--- non-retention store lines logged while pages were opened/outage (since last evidence):
+ERROR+WARN total now:       12
+store started: 2026-10-18T08:47:29Z
+2026-10-18T10:45:00.386+02:00 WARN  [:] c.r.b.web.CarrierInvoiceRetention - Carrier invoice retention stopped: object store unavailable; 0 deleted, 3 still due; next run retries
+2026-10-18T10:46:00.423+02:00 WARN  [:] c.r.b.web.CarrierInvoiceRetention - Carrier invoice retention stopped: object store unavailable; 0 deleted, 3 still due; next run retries
+2026-10-18T10:47:00.359+02:00 WARN  [:] c.r.b.web.CarrierInvoiceRetention - Carrier invoice retention stopped: object store unavailable; 0 deleted, 3 still due; next run retries
+2026-10-18T10:48:00.093+02:00 INFO  [:] c.r.b.web.CarrierInvoiceRetention - Carrier invoice retention deleted 3 files
+--- bucket F:
+0
+--- rows
+                  id                  |          deleted_at           
+--------------------------------------+-------------------------------
+ 4b880ed8-ca15-4fc5-8782-e05fde2669fe | 2026-10-18 08:48:00.004396+00
+ c020a254-4718-494b-903d-6770cbe09c9b | 2026-10-18 08:48:00.004396+00
+ 2e0480a8-1d3c-4316-b324-51ba3ea5e016 | 2026-10-18 08:48:00.004396+00
+(3 rows)
+

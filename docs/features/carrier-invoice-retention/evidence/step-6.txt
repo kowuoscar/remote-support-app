@@ -1,0 +1,32 @@
+UPDATE 1
+UPDATE 3
+UPDATE 5
+                  id                  | status | billing_month | approved_at | sent_back 
+--------------------------------------+--------+---------------+-------------+-----------
+ 52253e86-300d-435b-8380-4bc8cefe83b4 | DRAFT  | 2026-07-01    |             | f
+ 3937e5ea-ec8c-4a75-90ff-d0e636aad095 | SENT   | 2026-07-01    |             | f
+ 37762ab4-7fda-4f81-a8d8-077d15958c85 | DRAFT  | 2026-07-01    |             | t
+(3 rows)
+
+started 2026-10-18T08:36:08Z now 2026-10-18T08:37:48Z
+--- retention lines
+--- ERROR/WARN
+--- bucket
+178b0217-2fcf-459d-ada4-92dbc5fe2129/42ae13c1-0975-4a03-863a-2716e4a5ba28
+37762ab4-7fda-4f81-a8d8-077d15958c85/51bb106a-a680-4bc7-81c5-654e007e1f4f
+3937e5ea-ec8c-4a75-90ff-d0e636aad095/7035c83f-1245-4e1b-8aa7-145c9857e500
+3937e5ea-ec8c-4a75-90ff-d0e636aad095/f59bdb61-9a32-421f-93ac-6bb369cb2a6f
+47998d08-844f-4235-bab4-a11b67989802/696c18be-0933-4539-b64e-dff64730e09e
+47998d08-844f-4235-bab4-a11b67989802/d711e4c9-63cc-496f-bf59-13ffa2b1abd5
+52253e86-300d-435b-8380-4bc8cefe83b4/89d6107b-e087-4eda-a60b-daaf7b0d4a4c
+52253e86-300d-435b-8380-4bc8cefe83b4/abb375c1-70ef-46aa-b597-d52dccdcffa3
+--- rows
+                  id                  |                 file                 | deleted_at 
+--------------------------------------+--------------------------------------+------------
+ 52253e86-300d-435b-8380-4bc8cefe83b4 | 89d6107b-e087-4eda-a60b-daaf7b0d4a4c | 
+ 52253e86-300d-435b-8380-4bc8cefe83b4 | abb375c1-70ef-46aa-b597-d52dccdcffa3 | 
+ 3937e5ea-ec8c-4a75-90ff-d0e636aad095 | 7035c83f-1245-4e1b-8aa7-145c9857e500 | 
+ 3937e5ea-ec8c-4a75-90ff-d0e636aad095 | f59bdb61-9a32-421f-93ac-6bb369cb2a6f | 
+ 37762ab4-7fda-4f81-a8d8-077d15958c85 | 51bb106a-a680-4bc7-81c5-654e007e1f4f | 
+(5 rows)
+

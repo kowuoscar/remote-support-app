@@ -1,0 +1,58 @@
+== ADR 0007 dated note
+13-instance could not have read them. The human asked for object storage, works with Hetzner Object
+14:Storage, and counts file retention from the approval of this spec (the `carrier-invoice-retention`
+15-epic, which will call `CarrierInvoiceFileStorage.delete`).
+16-
+17-## Decision
+18-
+19-- **The S3 API, through the AWS SDK for Java v2** (`software.amazon.awssdk:s3`, versions managed by the
+20-  SDK's BOM, pinned to one exact release in `backend/pom.xml`), configured for non-AWS stores: endpoint
+21-  override, static credentials, request checksums and response checksum validation only "when required"
+22-  (recent SDK 2.x releases send default integrity checksums some S3-compatible servers refuse), and an
+23-  addressing style chosen by configuration.
+24-- **Hetzner Object Storage in production, configured by environment only.** No endpoint, bucket, access
+25-  key or secret of any hosted store is committed. `application.yml` carries dev-only defaults for the
+26-  local store; production sets every `OBJECT_STORE_*` variable.
+--
+39-  from the upload. The object is opaque bytes; name, type, size and owner are on the row.
+40:- **Retention is done by the app**, not by a bucket lifecycle rule (which cannot count from approval).
+41-- **The browser never reaches the store.** The backend writes and reads; no presigned URL is issued.
+42-- **Write before the row, undo on failure.** `CarrierInvoiceFileService` (not transactional) uploads, then
+43-  `ClientInvoiceService.recordAttachedFile` saves the row under the invoice's row lock, and a failure for
+44-  any reason deletes the object again. No store call happens inside a transaction holding that lock
+45-  (coding standards, Backend 8), so a slow upload never stalls a send.
+46-- **Availability is checked at startup and then on demand, and never fails startup.** `HeadBucket` runs
+47-  on `ApplicationReadyEvent`; when the bucket is absent and `OBJECT_STORE_CREATE_BUCKET` is on it is
+48-  created (compose, tests and e2e leave the flag on), and when it is off (Hetzner: the bucket is
+49-  provisioned outside the app and the app's credentials need no right to create one) or the store is
+50-  unreachable or refuses the credentials, the backend logs **one ERROR naming the endpoint and the
+51-  bucket and starts anyway**. A setting that cannot build a client (an endpoint that is not a URL, a
+52-  blank bucket or region) is one ERROR naming the setting, never a credential value. After startup the
+--
+103-
+104:Amended 2026-10-17 (`carrier-invoice-retention`): retention runs as a daily scheduled job, plus once after
+105-startup. It deletes the objects of files whose Client Invoice was approved at least 30 days earlier, keeps
+106-the row with `deleted_at`, and never probes or sets availability. A failed run stops, and the next run
+107-retries.
+108-
+109-## Licences
+110-
+111-- The AWS SDK for Java v2 is Apache-2.0 and is the only thing linked into the backend. Its Apache HTTP
+112-  client needs a newer Apache HttpComponents than Spring Boot 3.3 manages, so `backend/pom.xml` overrides
+113-  `httpclient5.version` and `httpcore5.version` to the versions the SDK release is built against (also
+114-  Apache-2.0); the S3 client is their only user in this app.
+115-- SeaweedFS is Apache-2.0 and runs as a separate, unmodified container the backend reaches over HTTP.
+116-  Nothing of it is linked or distributed with the app.
+
+== CONTEXT.md entries
+109:A mobile operator in one country, offering **Topup Options** (for a Topup Request) and **Postpaid Plans** (for a Postpaid SIM), each with a name and a price in that country's currency. Maintained by the Agents of that country, who know their local carriers' offers; archived rather than deleted o
+145:The S3-compatible service holding Carrier Invoice File bytes in one private bucket, reached only by the backend through the S3 API: Hetzner Object Storage in production, a local SeaweedFS in docker compose, tests and throwaway e2e stacks.
+147:**Carrier Invoice File**:
+151:**Carrier Invoice File retention**:
+152:A Carrier Invoice File's bytes are kept for 30 days after its Client Invoice is approved, then deleted from the **Object store** by a daily backend job; the row stays and gains `deleted_at` (shown as `deletedAt`). The 30 days count from the approval that stands.
+
+== compose config: any CARRIER_INVOICE_RETENTION override?
+0
+18:      OBJECT_STORE_ACCESS_KEY: dev-only-access-key
+19:      OBJECT_STORE_ENDPOINT: http://seaweedfs:8333
+20:      OBJECT_STORE_SECRET_KEY: dev-only-secret-key-change-me

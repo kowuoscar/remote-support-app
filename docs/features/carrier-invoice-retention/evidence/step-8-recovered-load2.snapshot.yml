@@ -1,0 +1,99 @@
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - complementary [ref=f3e3]:
+      - generic [ref=f3e4]:
+        - generic [ref=f3e5]: "N"
+        - generic [ref=f3e6]:
+          - paragraph [ref=f3e7]: Northwind Field Services
+          - paragraph [ref=f3e8]: Manager Console
+      - navigation [ref=f3e9]:
+        - link "Dashboard" [ref=f3e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f3e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f3e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f3e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f3e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f3e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f3e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f3e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f3e48]:
+      - banner [ref=f3e49]:
+        - generic [ref=f3e51]:
+          - heading "Harbor Line Logistics — Jordan Ellis" [level=1] [ref=f3e52]
+          - paragraph [ref=f3e53]: Client Invoice
+        - generic [ref=f3e54]:
+          - button "Manager" [ref=f3e56]
+          - button "Switch to dark theme" [ref=f3e58]
+      - main [ref=f3e62]:
+        - generic [ref=f3e63]:
+          - navigation "Breadcrumb" [ref=f3e64]:
+            - link "Invoices" [ref=f3e66] [cursor=pointer]:
+              - /url: /manager/invoices
+            - generic [ref=f3e67]: Harbor Line Logistics — Jordan Ellis
+          - generic [ref=f3e71]:
+            - generic [ref=f3e72]:
+              - generic [ref=f3e73]:
+                - generic [ref=f3e74]:
+                  - heading "October 2026" [level=2] [ref=f3e75]
+                  - generic [ref=f3e76]: Approved
+                - paragraph [ref=f3e78]: Approved — this is the final record for the month
+                - paragraph [ref=f3e79]: Sent Oct 18, 2026 · Approved Sep 17, 2026
+              - link "Download PDF" [ref=f3e81] [cursor=pointer]:
+                - /url: /api/client-invoices/ee627d65-3b71-4e34-9f9c-99a99d36101a/pdf
+            - generic [ref=f3e85]:
+              - generic [ref=f3e86]:
+                - term [ref=f3e87]: Base amount
+                - definition [ref=f3e88]: $197.97
+              - generic [ref=f3e89]:
+                - term [ref=f3e90]: Fees
+                - definition [ref=f3e91]: $0.00
+              - generic [ref=f3e92]:
+                - term [ref=f3e93]: Total
+                - definition [ref=f3e94]: $197.97
+            - generic [ref=f3e95]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f3e96]
+              - list "Postpaid SIM Cards" [ref=f3e97]:
+                - listitem [ref=f3e98]:
+                  - generic [ref=f3e100]:
+                    - generic [ref=f3e101]: +1-202-555-0911
+                    - generic [ref=f3e102]:
+                      - text: AT&T · Postpaid
+                      - img "Carrier invoice attached" [ref=f3e103]
+                  - generic [ref=f3e107]: $65.99
+                - listitem [ref=f3e109]:
+                  - generic [ref=f3e111]:
+                    - generic [ref=f3e112]: +1-202-555-0912
+                    - generic [ref=f3e113]:
+                      - text: AT&T · Postpaid
+                      - img "Carrier invoice attached" [ref=f3e114]
+                  - generic [ref=f3e118]: $65.99
+                - listitem [ref=f3e120]:
+                  - generic [ref=f3e122]:
+                    - generic [ref=f3e123]: +1-202-555-0913
+                    - generic [ref=f3e124]:
+                      - text: AT&T · Postpaid
+                      - img "Carrier invoice attached" [ref=f3e125]
+                  - generic [ref=f3e129]: $65.99
+            - generic [ref=f3e131]:
+              - heading "Fee lines" [level=3] [ref=f3e132]
+              - paragraph [ref=f3e133]: No Fees on this invoice.
+            - generic [ref=f3e134]:
+              - heading "Carrier invoice files" [level=3] [ref=f3e135]
+              - list [ref=f3e138]:
+                - listitem [ref=f3e139]:
+                  - generic [ref=f3e140]: Harbor Line Logistics - October 2026 - AT&T - +1-202-555-0911.pdf
+                  - generic [ref=f3e144]: Deleted on Oct 18, 2026
+                - listitem [ref=f3e146]:
+                  - generic [ref=f3e147]: Harbor Line Logistics - October 2026 - AT&T - +1-202-555-0912.pdf
+                  - generic [ref=f3e151]: Deleted on Oct 18, 2026
+                - listitem [ref=f3e153]:
+                  - generic [ref=f3e154]: Harbor Line Logistics - October 2026 - AT&T - +1-202-555-0913.pdf
+                  - generic [ref=f3e158]: Deleted on Oct 18, 2026
+  - alert [ref=f3e160]

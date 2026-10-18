@@ -1,0 +1,18 @@
+delete: s3://remote-support-files/carrier-invoices/11111111-1111-1111-1111-111111111111/47998d08-844f-4235-bab4-a11b67989802/696c18be-0933-4539-b64e-dff64730e09e
+UPDATE 1
+started 2026-10-18T08:38:05Z now 2026-10-18T08:39:45Z
+--- run5 retention lines
+2026-10-18T10:39:04.395+02:00 INFO  [:] c.r.b.web.CarrierInvoiceRetention - Carrier invoice retention deleted 2 files
+--- ERROR/WARN
+(none above = none)
+--- B bucket
+--- B rows
+                  id                  |          deleted_at           
+--------------------------------------+-------------------------------
+ 696c18be-0933-4539-b64e-dff64730e09e | 2026-10-18 08:39:04.272145+00
+ d711e4c9-63cc-496f-bf59-13ffa2b1abd5 | 2026-10-18 08:39:04.272145+00
+(2 rows)
+
+=== second restart: started 2026-10-18T08:39:55Z now 2026-10-18T08:41:35Z
+--- run6 retention lines:
+0

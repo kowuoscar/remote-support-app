@@ -1,0 +1,14 @@
+backend started 2026-10-18T08:51:14Z with CARRIER_INVOICE_RETENTION_ENABLED=false (cron every minute); now 2026-10-18T08:54:19Z
+retention lines in log: 0
+--- G bucket
+2026-10-18 10:51:05        453 carrier-invoices/11111111-1111-1111-1111-111111111111/588328cc-2d69-43d8-8e32-893095e13beb/23d225d2-8aa3-4435-802a-6998bd928eeb
+2026-10-18 10:51:05        453 carrier-invoices/11111111-1111-1111-1111-111111111111/588328cc-2d69-43d8-8e32-893095e13beb/8df41272-6999-4083-8ad4-42171b094ae2
+2026-10-18 10:51:05        453 carrier-invoices/11111111-1111-1111-1111-111111111111/588328cc-2d69-43d8-8e32-893095e13beb/f968bc0f-caf7-4f81-b8b0-a862dafd7e60
+--- G rows
+                  id                  | deleted_at 
+--------------------------------------+------------
+ 23d225d2-8aa3-4435-802a-6998bd928eeb | 
+ f968bc0f-caf7-4f81-b8b0-a862dafd7e60 | 
+ 8df41272-6999-4083-8ad4-42171b094ae2 | 
+(3 rows)
+

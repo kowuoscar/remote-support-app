@@ -1,0 +1,5 @@
+Step 4 (browser, playwright-cli accessibility snapshots). Today = 2026-10-18; "Deleted on Oct 18, 2026" shown.
+A as Jordan (/agent/client-invoices/059ae311...): step-4-jordan-A.snapshot.yml, step-4-jordan-A.png, step-4-jordan-check.txt (0 anchors/buttons/focusable per deleted row; both Postpaid SIM rows keep img "Carrier invoice attached")
+A as Manager (/manager/invoices/client/059ae311...): step-4-manager-A.snapshot.yml/.png/-check.txt (same)
+A as Tester Dana (/client/invoices): step-4-tester-A.snapshot.yml/.png/-check.txt
+B as Jordan and Manager: step-4-jordan-B.*, step-4-manager-B.*, both show Download links; in-page fetch of each: step-4-B-downloads-in-browser.txt (200, 453 bytes)

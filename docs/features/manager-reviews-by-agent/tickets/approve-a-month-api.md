@@ -1,7 +1,7 @@
 ---
 id: approve-a-month-api
 title: Approve the invoices left to review in an Agent's month in one call
-status: in-progress
+status: done
 depends_on: []
 labels: [backend]
 stories: [28, 29, 30, 32, 33, 35]

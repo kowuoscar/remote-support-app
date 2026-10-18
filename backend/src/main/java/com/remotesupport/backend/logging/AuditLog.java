@@ -404,6 +404,22 @@ public final class AuditLog {
   }
 
   /**
+   * A Manager's approval of an Agent's month: the Agent, the billing month and how many invoices
+   * were approved, after each invoice's own status-change line. No free text.
+   */
+  public static void clientInvoiceMonthApproved(
+      UUID agentId, LocalDate billingMonth, int count, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CLIENT_INVOICE_MONTH_APPROVED entity=Agent entityId={} billingMonth={} count={} "
+            + "actorUserId={} tenantId={}",
+        agentId,
+        billingMonth,
+        count,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
    * A Manager overriding one Agent Invoice's Salary or Rollout Advance (new-advance) line at
    * approval time (agent-invoice-submission-and-approval ticket Observability: "override events
    * logged with Agent Invoice id, actor, old/new value"). Distinct from {@link #statusChanged} —

@@ -24,14 +24,28 @@ import { IconAlertTriangle, IconArrowRight } from "@/components/icons";
  * <p>The send gate (carrier-invoice-per-sim): while `missingCarrierInvoices` Postpaid SIM lines
  * still lack their Carrier Invoice File the trigger is disabled and a note, linked by
  * `aria-describedby`, says how many. The server stays authoritative: a send it refuses with
- * `CARRIER_INVOICES_MISSING` (a SIM began billing after the page loaded) says so.
+ * `CARRIER_INVOICES_MISSING` (a SIM began billing after the page loaded) says so, and one it refuses
+ * with `MONTH_NOT_SENT` (agent-sends-the-month: the month was never sent) points at the month bar.
+ *
+ * <p>The card mounts this only for a draft that is `sendableOnItsOwn`: a sent-back draft (`resend`)
+ * or a late Contract's.
  */
+/** The count line shared by the control's gate and the card's month-send note. */
+export function missingCarrierInvoicesNote(missing: number): string {
+  return missing === 1
+    ? "1 Postpaid SIM still needs its carrier invoice."
+    : `${missing} Postpaid SIMs still need their carrier invoice.`;
+}
+
 export function SendClientInvoiceControl({
   invoiceId,
   missingCarrierInvoices = 0,
+  resend = false,
 }: {
   invoiceId: string;
   missingCarrierInvoices?: number;
+  /** The draft was sent back: "Resend Client Invoice" / "Confirm resend" instead of "Send" / "Confirm send". */
+  resend?: boolean;
 }) {
   const router = useRouter();
   const noteId = useId();
@@ -68,7 +82,9 @@ export function SendClientInvoiceControl({
         setError(
           code === "CARRIER_INVOICES_MISSING"
             ? "A Postpaid SIM still needs its carrier invoice. Reload to see which."
-            : "Couldn't send. Try again.",
+            : code === "MONTH_NOT_SENT"
+              ? "Send this month from the bar above. Reload to see it."
+              : "Couldn't send. Try again.",
         );
         setPending(false);
         return;
@@ -113,7 +129,7 @@ export function SendClientInvoiceControl({
             className={pending ? "cursor-not-allowed opacity-60" : undefined}
             onClick={send}
           >
-            {pending ? "Sending…" : "Confirm send"}
+            {pending ? "Sending…" : resend ? "Confirm resend" : "Confirm send"}
           </Button>
         </div>
         {errorLine}
@@ -133,13 +149,11 @@ export function SendClientInvoiceControl({
         onClick={() => setConfirming(true)}
       >
         <IconArrowRight className="h-4 w-4" />
-        Send Client Invoice
+        {resend ? "Resend Client Invoice" : "Send Client Invoice"}
       </Button>
       {missingCarrierInvoices > 0 ? (
         <p id={noteId} className="max-w-65 text-right text-label-sm text-ink-mute">
-          {missingCarrierInvoices === 1
-            ? "1 Postpaid SIM still needs its carrier invoice."
-            : `${missingCarrierInvoices} Postpaid SIMs still need their carrier invoice.`}
+          {missingCarrierInvoicesNote(missingCarrierInvoices)}
         </p>
       ) : null}
       {errorLine}

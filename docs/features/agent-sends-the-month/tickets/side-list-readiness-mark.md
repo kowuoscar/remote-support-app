@@ -1,7 +1,7 @@
 ---
 id: side-list-readiness-mark
 title: Mark each Client Invoices side list row ready or with its missing files
-status: in-progress
+status: done
 depends_on: [cards-defer-to-the-month-bar]
 labels: [frontend]
 stories: [21, 22, 23, 35]

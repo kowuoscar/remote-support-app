@@ -25,6 +25,7 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -54,6 +55,9 @@ import org.testcontainers.utility.DockerImageName;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+// No retention trigger fires during the suite; tests call CarrierInvoiceRetention.runOnce(). A
+// subclass that needs the trigger overrides this with its own @SpringBootTest(properties = ...).
+@TestPropertySource(properties = "app.carrier-invoice-retention.enabled=false")
 @Transactional
 public abstract class IntegrationTest {
 
@@ -97,8 +101,6 @@ public abstract class IntegrationTest {
   @DynamicPropertySource
   static void objectStore(DynamicPropertyRegistry registry) {
     ObjectStoreTestSupport.register(registry);
-    // No retention trigger fires during the suite; tests call CarrierInvoiceRetention.runOnce().
-    registry.add("app.carrier-invoice-retention.enabled", () -> "false");
   }
 
   @Autowired protected MockMvc mockMvc;

@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
@@ -996,37 +998,56 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .andExpect(status().isNotFound());
   }
 
-  @Test
-  void aFileRetentionDeletedDownloadsAs410WithItsCode() throws Exception {
+  @ParameterizedTest
+  @ValueSource(booleans = {false, true})
+  void aDeletedFileDownloadsAs410WithItsCodeWhetherOrNotFileStorageIsUnavailable(boolean storageUnavailable)
+      throws Exception {
     String managerToken = managerToken();
-    UUID contractId = createContract(managerToken, createClient(managerToken, "Gone Co"), SEEDED_AGENT_ID);
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Gone Co " + storageUnavailable), SEEDED_AGENT_ID);
     String agentToken = agentToken();
     UUID fileId = attachFile(agentToken, contractId, "gone.pdf", "gone".getBytes());
     markDeleted(fileId);
 
-    mockMvc
-        .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isGone())
-        .andExpect(jsonPath("$.code").value("CARRIER_INVOICE_FILE_DELETED"));
-  }
-
-  @Test
-  void aDeletedFileStillDownloadsAs410NotAs503WhileFileStorageIsUnavailable() throws Exception {
-    String managerToken = managerToken();
-    UUID contractId = createContract(managerToken, createClient(managerToken, "Gone Outage Co"), SEEDED_AGENT_ID);
-    String agentToken = agentToken();
-    UUID fileId = attachFile(agentToken, contractId, "gone.pdf", "gone".getBytes());
-    markDeleted(fileId);
-
-    objectStoreAvailability.markUnavailable();
+    if (storageUnavailable) {
+      objectStoreAvailability.markUnavailable();
+    }
     try {
       mockMvc
           .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken))
           .andExpect(status().isGone())
           .andExpect(jsonPath("$.code").value("CARRIER_INVOICE_FILE_DELETED"));
     } finally {
-      objectStoreAvailability.probe();
+      if (storageUnavailable) {
+        objectStoreAvailability.probe();
+      }
     }
+  }
+
+  @Test
+  void aSentBackInvoiceWhoseCarrierInvoiceFilesAreAllDeletedCanBeSentAgain() throws Exception {
+    String managerToken = managerToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Resend Gone Co"), SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    UUID fileId = attachFile(agentToken, contractId, "gone.pdf", "gone".getBytes());
+    MvcResult sent =
+        mockMvc
+            .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+            .andExpect(status().isOk())
+            .andReturn();
+    UUID invoiceId = UUID.fromString(objectMapper.readTree(sent.getResponse().getContentAsString()).get("id").asText());
+    mockMvc
+        .perform(
+            post("/api/client-invoices/" + invoiceId + "/send-back")
+                .header("Authorization", "Bearer " + managerToken)
+                .contentType(APPLICATION_JSON)
+                .content("{\"reason\":\"Please re-check the lines\"}"))
+        .andExpect(status().isOk());
+    markDeleted(fileId);
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"));
   }
 
   private void markDeleted(UUID fileId) {

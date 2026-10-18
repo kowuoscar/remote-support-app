@@ -67,7 +67,6 @@ public class CarrierInvoiceRetention {
     List<DueCarrierInvoiceFile> due =
         readTransaction.execute(status -> repository.findDue(cutoff, PageRequest.of(0, BATCH_SIZE)));
     if (due == null || due.isEmpty()) {
-      log.debug("Carrier invoice retention: nothing due");
       return new RetentionRun(0, 0, false);
     }
 

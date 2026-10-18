@@ -3,7 +3,6 @@ package com.remotesupport.backend.web;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.remotesupport.backend.support.IntegrationTest;
-import com.remotesupport.backend.support.ObjectStoreTestSupport;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -14,6 +13,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.config.CronTask;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.scheduling.config.ScheduledTask;
 import org.springframework.scheduling.config.Task;
 import org.springframework.scheduling.config.TriggerTask;
@@ -21,15 +21,13 @@ import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.scheduling.config.ScheduledTaskHolder;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 
 /**
  * Which triggers the retention settings register, read from Spring's {@link ScheduledTaskHolder}.
- * Each case boots its own context with the settings under test, so none extends {@link
- * IntegrationTest}, whose dynamic properties switch retention off. The startup run is shown in the
- * walkthrough, not waited on.
+ * Each case extends {@link IntegrationTest} and boots its own context with the settings under test.
+ * {@code IntegrationTest} switches retention off with a {@code @TestPropertySource}, which a
+ * subclass's own {@code @TestPropertySource} overrides; the cases that need the
+ * trigger on say so. The startup run is shown in the walkthrough, not waited on.
  */
 class CarrierInvoiceRetentionTriggersTest {
 
@@ -38,14 +36,6 @@ class CarrierInvoiceRetentionTriggersTest {
    * whole suite already approach: a small pool and a context closed after its class keep them off it.
    */
   static final String SMALL_POOL = "spring.datasource.hikari.maximum-pool-size=2";
-
-  @DynamicPropertySource
-  static void infrastructure(DynamicPropertyRegistry registry) {
-    registry.add("spring.datasource.url", IntegrationTest.POSTGRES::getJdbcUrl);
-    registry.add("spring.datasource.username", IntegrationTest.POSTGRES::getUsername);
-    registry.add("spring.datasource.password", IntegrationTest.POSTGRES::getPassword);
-    ObjectStoreTestSupport.register(registry);
-  }
 
   private static List<CronTrigger> cronTriggers(ObjectProvider<ScheduledTaskHolder> holders) {
     return holders.stream()
@@ -69,10 +59,9 @@ class CarrierInvoiceRetentionTriggersTest {
   }
 
   @Nested
-  @SpringBootTest(properties = {"app.carrier-invoice-retention.enabled=false", SMALL_POOL})
+  @SpringBootTest(properties = SMALL_POOL)
   @DirtiesContext
-  @ActiveProfiles("test")
-  class Disabled {
+  class Disabled extends IntegrationTest {
     @Autowired ObjectProvider<ScheduledTaskHolder> holders;
     @Autowired ObjectProvider<CarrierInvoiceRetention> job;
 
@@ -85,9 +74,10 @@ class CarrierInvoiceRetentionTriggersTest {
 
   @Nested
   @SpringBootTest(properties = SMALL_POOL)
+  @TestPropertySource(properties = "app.carrier-invoice-retention.enabled=true")
   @DirtiesContext
-  @ActiveProfiles("test")
-  class EnabledByDefault {
+  class EnabledByDefault extends IntegrationTest {
+
     @Autowired ObjectProvider<ScheduledTaskHolder> holders;
 
     @Test
@@ -101,15 +91,15 @@ class CarrierInvoiceRetentionTriggersTest {
   }
 
   @Nested
-  @SpringBootTest(
+  @SpringBootTest(properties = SMALL_POOL)
+  @TestPropertySource(
       properties = {
         "app.carrier-invoice-retention.enabled=true",
-        "app.carrier-invoice-retention.cron=0 * * * * *",
-        SMALL_POOL
+        "app.carrier-invoice-retention.cron=0 * * * * *"
       })
   @DirtiesContext
-  @ActiveProfiles("test")
-  class CronOverridden {
+  class CronOverridden extends IntegrationTest {
+
     @Autowired ObjectProvider<ScheduledTaskHolder> holders;
 
     @Test

@@ -3,6 +3,7 @@ import {
   SEEDED_USERS,
   addPostpaidSimCard,
   addTesterAndSubmitRequestAsAgent,
+  attachCarrierInvoice,
   createClientAndContractWithSeededAgent,
   login,
   selectClientInvoiceContract,
@@ -10,7 +11,7 @@ import {
 
 /**
  * An Agent opens a Contract's current-month draft Client Invoice, sees its live base amount and
- * Fee lines "at a glance", and attaches a carrier invoice file (client-invoice-generation ticket,
+ * Fee lines "at a glance", and attaches a carrier invoice file per Postpaid SIM (client-invoice-generation ticket,
  * user stories 22-23), driven against a real backend + Postgres (see playwright.e2e.config.ts), at
  * the accessibility-tree level per spec.md's Testing decisions. Mirrors
  * tests/e2e/fee-logging-and-provisioning.spec.ts's pattern. The seeded agent@example.com login
@@ -69,23 +70,30 @@ test.describe("client invoice generation", () => {
     await expect(page.getByText("$70.00", { exact: true })).toBeVisible();
     await expect(page.getByRole("cell", { name: "Topup" })).toBeVisible();
 
-    // Attach a carrier invoice file — no dedicated "Choose file" dialog, a visually-hidden native
-    // input behind the styled "Attach carrier invoice" button (see
-    // AttachCarrierInvoiceFileControl).
+    // Attach a carrier invoice file through the "Attach carrier invoice" form: one file per
+    // Postpaid SIM line (carrier-invoice-per-sim).
     await expect(page.getByText("No carrier invoice files attached yet.")).toBeVisible();
-    const [uploadResponse] = await Promise.all([
-      page.waitForResponse(
-        (resp) => resp.url().includes("/api/client-invoices/") && resp.url().includes("/files") && resp.request().method() === "POST",
-      ),
-      page.getByLabel("Attach carrier invoice file").setInputFiles({
-        name: "october-carrier-invoice.pdf",
-        mimeType: "application/pdf",
-        buffer: Buffer.from("not a real pdf"),
-      }),
-    ]);
-    expect(uploadResponse.status()).toBe(201);
+    // Nothing attached yet: the SIM line shows no check mark.
+    await expect(page.getByRole("img", { name: "Carrier invoice attached" })).toHaveCount(0);
+    // The send gate: Send stays disabled, with its note, until every Postpaid SIM line has its file.
+    const send = page.getByRole("button", { name: "Send Client Invoice" });
+    await expect(send).toBeDisabled();
+    await expect(page.getByText("1 Postpaid SIM still needs its carrier invoice.")).toBeVisible();
+    await attachCarrierInvoice(page, simNumber, "october-carrier-invoice.PDF");
 
-    await expect(page.getByText("october-carrier-invoice.pdf")).toBeVisible();
+    // The file is listed under its computed name, not the uploaded one
+    // (carrier-invoice-computed-name): {Client} - {Month Year} - {Carrier} - {SIM number}{.ext}.
+    const monthYear = new Date().toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+    await expect(page.getByText(`${clientName} - ${monthYear} - Verizon - ${simNumber}.pdf`)).toBeVisible();
+    await expect(page.getByText("october-carrier-invoice")).toHaveCount(0);
+    // The line's check mark appears once its file is attached (carrier-invoice-check-mark).
+    await expect(
+      page.getByTestId("client-invoice-card").getByRole("img", { name: "Carrier invoice attached" }),
+    ).toBeVisible();
+    // Every Postpaid SIM line now has its file: nothing is left to attach.
+    await expect(page.getByRole("button", { name: "Attach carrier invoice" })).toBeDisabled();
     await expect(page.getByRole("link", { name: "Download" })).toBeVisible();
+    await expect(send).toBeEnabled();
+    await expect(page.getByText(/still needs? (its|their) carrier invoice/)).toHaveCount(0);
   });
 });

@@ -25,6 +25,15 @@ const ROLES = {
   // Client Invoices page's goldens. A token of its own, because the Agent dashboard's goldens read the
   // two-Contract list below. The second token's Birch Telecom (UK) invoice read answers 500.
   "visual-agent-invoices-session": { username: "agent@example.com", role: "AGENT", country: "UNITED_STATES", invoices: true },
+  // carrier-invoice-per-sim: the same Client Invoices with file storage unavailable (the paused files
+  // section), and the Manager's by-id Client Invoice detail below.
+  "visual-agent-invoices-paused-session": {
+    username: "agent@example.com",
+    role: "AGENT",
+    country: "UNITED_STATES",
+    invoices: true,
+    filesPaused: true,
+  },
   "visual-agent-invoice-failing-session": {
     username: "agent@example.com",
     role: "AGENT",
@@ -328,15 +337,20 @@ const INVOICE_STATES = [
 // five line shapes the Agent's Client Invoice lays out: a plain, an edited and a cancelled Postpaid
 // SIM, a Fee with a description and an edited Fee with none. Base 25 + 30 + 25 = 80, Fees 10 + 8 = 18.
 const SIM_LINES = [
-  { simCardId: "66666666-0000-0000-0000-0000000000a1", number: "+44 7700 900123", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 25, computedAmount: 25, edited: false, carrierName: "Verizon" },
-  { simCardId: "66666666-0000-0000-0000-0000000000a2", number: "+44 7700 900456", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 30, computedAmount: 25, edited: true, carrierName: "Verizon" },
-  { simCardId: "66666666-0000-0000-0000-0000000000a3", number: "+44 7700 900789", monthlyFeeAmount: 25, cancellationEffectiveDate: "2026-09-03", amount: 25, computedAmount: 25, edited: false, carrierName: null },
+  { simCardId: "66666666-0000-0000-0000-0000000000a1", number: "+44 7700 900123", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 25, computedAmount: 25, edited: false, carrierName: "Verizon", carrierInvoiceFileId: "aaaaaaaa-0000-0000-0000-0000000000f1" },
+  { simCardId: "66666666-0000-0000-0000-0000000000a2", number: "+44 7700 900456", monthlyFeeAmount: 25, cancellationEffectiveDate: null, amount: 30, computedAmount: 25, edited: true, carrierName: "Verizon", carrierInvoiceFileId: null },
+  { simCardId: "66666666-0000-0000-0000-0000000000a3", number: "+44 7700 900789", monthlyFeeAmount: 25, cancellationEffectiveDate: "2026-09-03", amount: 25, computedAmount: 25, edited: false, carrierName: null, carrierInvoiceFileId: null },
+];
+// carrier-invoice-check-mark: the first line's SIM has its Carrier Invoice File (the check mark); the
+// second has none. The name is the stub's own string.
+const SIM_FILES = [
+  { id: "aaaaaaaa-0000-0000-0000-0000000000f1", clientInvoiceId: "99999999-0000-0000-0000-0000000000d1", simCardId: "66666666-0000-0000-0000-0000000000a1", filename: "Aurora - September 2026 - Verizon - +44 7700 900123.pdf", contentType: "application/pdf", sizeBytes: 48213, uploadedAt: "2026-09-15T09:30:00Z" },
 ];
 const FEE_LINES = [
   { id: "77777777-0000-0000-0000-0000000000a1", contractId: "22222222-0000-0000-0000-0000000000d1", requestId: "88888888-0000-0000-0000-0000000000a1", requestType: "TOPUP", feeType: "TOPUP", amount: 10, currency: "USD", description: "Customer asked for extra data", billingMonth: "2026-09-01", createdAt: "2026-09-12T10:00:00Z", computedAmount: 10, edited: false },
   { id: "77777777-0000-0000-0000-0000000000a2", contractId: "22222222-0000-0000-0000-0000000000d1", requestId: "88888888-0000-0000-0000-0000000000a2", requestType: "TOPUP", feeType: "OTHER", amount: 8, currency: "USD", description: null, billingMonth: "2026-09-01", createdAt: "2026-09-14T10:00:00Z", computedAmount: 12, edited: true },
 ];
-function clientInvoiceFor(contract) {
+function clientInvoiceFor(contract, filesAvailable = true) {
   const withLines = contract.index === 0;
   return {
     id: `99999999-0000-0000-0000-0000000000${contract.id.slice(-2)}`,
@@ -347,8 +361,8 @@ function clientInvoiceFor(contract) {
     basePostpaidSims: withLines ? SIM_LINES : [],
     feeLines: withLines ? FEE_LINES : [],
     totalAmount: withLines ? 98 : 120 + contract.index * 10,
-    files: [],
-    filesAvailable: true,
+    files: withLines ? SIM_FILES : [],
+    filesAvailable,
     sentAt: null,
     approvedAt: null,
     ...INVOICE_STATES[contract.index],
@@ -745,7 +759,13 @@ createServer((request, response) => {
     const contract = INVOICE_CONTRACTS.find((candidate) => candidate.id === clientInvoiceMatch[1]);
     if (!contract) return send(response, 404);
     if (caller.failingInvoiceContract === contract.id) return send(response, 500);
-    return send(response, 200, clientInvoiceFor(contract));
+    return send(response, 200, clientInvoiceFor(contract, !caller.filesPaused));
+  }
+  // carrier-invoice-per-sim: the Manager's Client Invoice detail page reads the same first draft by id.
+  const clientInvoiceByIdMatch = url.pathname.match(/^\/api\/client-invoices\/([^/]+)$/);
+  if (clientInvoiceByIdMatch && request.method === "GET" && caller.role === "MANAGER") {
+    const invoice = clientInvoiceFor({ ...AGENT_CONTRACTS[0], index: 0 });
+    return clientInvoiceByIdMatch[1] === invoice.id ? send(response, 200, invoice) : send(response, 404);
   }
   if (url.pathname === "/api/client-invoices/sent-back" && request.method === "GET" && caller.invoices) {
     const contract = INVOICE_CONTRACTS[3];

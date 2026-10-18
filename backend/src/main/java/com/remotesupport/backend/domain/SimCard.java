@@ -113,4 +113,9 @@ public class SimCard {
   public UUID installedInSmartphoneId() {
     return installedInSmartphone == null ? null : installedInSmartphone.getId();
   }
+
+  /** The Carrier's current name (archived or not), or {@code null} for a SIM Card with none. */
+  public String carrierName() {
+    return carrier == null ? null : carrier.getName();
+  }
 }

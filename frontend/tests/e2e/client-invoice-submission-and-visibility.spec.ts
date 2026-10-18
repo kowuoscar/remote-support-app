@@ -3,11 +3,13 @@ import {
   SEEDED_USERS,
   addPostpaidSimCard,
   addTester,
+  attachCarrierInvoice,
   createClientAndContractWithSeededAgent,
   login,
   logout,
   selectContractInSwitcher,
   selectClientInvoiceContract,
+  attachCarrierInvoicesForEveryPostpaidSim,
 } from "./helpers";
 
 /**
@@ -30,7 +32,8 @@ test.describe("client invoice submission and visibility", () => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
     const clientName = `Kessler & Vance ${RUN_ID}`;
     const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
-    await addPostpaidSimCard(page, contractId, `+1-555-${RUN_ID.slice(-4)}`, "30.00");
+    const simNumber = `+1-555-${RUN_ID.slice(-4)}`;
+    await addPostpaidSimCard(page, contractId, simNumber, "30.00");
     const testerEmail = `charlotte.finch+${RUN_ID}@kesslervance.example`;
     const testerPassword = await addTester(page, clientId, testerEmail);
 
@@ -52,7 +55,18 @@ test.describe("client invoice submission and visibility", () => {
     await expect(page.getByTestId("client-invoice-card").getByText("Draft")).toBeVisible();
     // The SIM line reads its number, then the Carrier and the flavor.
     await expect(page.getByTestId("client-invoice-card").getByText("Verizon · Postpaid")).toBeVisible();
+    // The send gate: with the Postpaid SIM's carrier invoice missing, Send is disabled and says why.
+    await expect(page.getByRole("button", { name: "Send Client Invoice" })).toBeDisabled();
+    await expect(page.getByText("1 Postpaid SIM still needs its carrier invoice.")).toBeVisible();
+    // The line's carrier invoice is attached; the Manager will see its check mark.
+    await attachCarrierInvoice(page, simNumber);
+    // Wait for the refreshed card (the line's check mark) so the helper below sees nothing left to attach.
+    await expect(
+      page.getByTestId("client-invoice-card").getByRole("img", { name: "Carrier invoice attached" }),
+    ).toBeVisible();
 
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
+    await expect(page.getByRole("button", { name: "Send Client Invoice" })).toBeEnabled();
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     const [sendResponse] = await Promise.all([
       page.waitForResponse(
@@ -100,6 +114,11 @@ test.describe("client invoice submission and visibility", () => {
     await expect(page).toHaveURL(/\/manager\/invoices\/client\/.+/);
     const detailUrl = page.url();
     await expect(page.getByRole("list", { name: "Postpaid SIM Cards" }).getByText("Verizon · Postpaid")).toBeVisible();
+    // Read-only check mark on the line with its file; nothing to attach or remove here.
+    await expect(
+      page.getByRole("list", { name: "Postpaid SIM Cards" }).getByRole("img", { name: "Carrier invoice attached" }),
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /Attach|Remove/ })).toHaveCount(0);
 
     const [approveResponse] = await Promise.all([
       page.waitForResponse(

@@ -12,12 +12,12 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -113,11 +113,12 @@ public class ClientInvoiceByIdController {
   public ResponseEntity<CarrierInvoiceFileResponse> uploadFile(
       @PathVariable UUID invoiceId,
       @RequestParam("file") MultipartFile file,
+      @RequestParam("simCardId") UUID simCardId,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     ClientInvoice invoice = find(invoiceId, principal);
     clientInvoiceAccessGuard.requireCanBuildOrView(invoice.getContract(), principal);
     clientInvoiceService.requireNonEmpty(file);
-    return carrierInvoiceFileService.attach(invoice, file, principal);
+    return carrierInvoiceFileService.attach(invoice, file, simCardId, principal);
   }
 
   @GetMapping("/files")
@@ -134,6 +135,21 @@ public class ClientInvoiceByIdController {
     return carrierInvoiceFileService.download(findForView(invoiceId, principal), fileId);
   }
 
+  /**
+   * The Contract's own Agent removes a file from a draft open to them: 204, the row first, the
+   * object after the commit.
+   */
+  @DeleteMapping("/files/{fileId}")
+  public ResponseEntity<Void> removeFile(
+      @PathVariable UUID invoiceId,
+      @PathVariable UUID fileId,
+      @AuthenticationPrincipal AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = find(invoiceId, principal);
+    clientInvoiceAccessGuard.requireCanSend(invoice.getContract(), principal);
+    carrierInvoiceFileService.remove(invoice, fileId, principal);
+    return ResponseEntity.noContent().build();
+  }
+
   /** A refused body (a line edit's amount, a send-back's reason) is a {@code 400} whose {@code message} names the first thing wrong. */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Map<String, String>> requestInvalid(MethodArgumentNotValidException e) {
@@ -145,11 +161,16 @@ public class ClientInvoiceByIdController {
     return ResponseEntity.badRequest().body(Map.of("message", message));
   }
 
-  /** The {@code 409} of a draft not open to its Agent carries a {@code code}, which a plain {@link ConflictException} body does not. */
+  /** The {@code 409} of a draft not open to its Agent, of a send without its carrier invoices, carries a {@code code}. */
   @ExceptionHandler(ClientInvoiceConflictException.class)
   public ResponseEntity<Map<String, String>> clientInvoiceConflict(ClientInvoiceConflictException e) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(Map.of("code", e.reason().name(), "message", e.getMessage()));
+    return ClientInvoiceErrors.conflict(e);
+  }
+
+  /** A refused request (an attach naming no Postpaid SIM line of the invoice) names what was wrong in {@code message}. */
+  @ExceptionHandler(InvalidRequestException.class)
+  public ResponseEntity<Map<String, String>> invalidRequest(InvalidRequestException e) {
+    return ClientInvoiceErrors.invalid(e);
   }
 
   private ClientInvoice findForView(UUID invoiceId, AuthenticatedPrincipal principal) {

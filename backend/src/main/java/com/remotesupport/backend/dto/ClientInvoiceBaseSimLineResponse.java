@@ -15,6 +15,8 @@ import java.util.UUID;
  * {@code cancellationEffectiveDate} is present only for a SIM Card still billing because it was
  * cancelled on or after this month's first day. {@code carrierName} is the SIM's Carrier's current
  * name (even once archived), or {@code null} for a SIM with none; always serialised.
+ * {@code carrierInvoiceFileId} is the id of the invoice's Carrier Invoice File linked to this SIM,
+ * or {@code null}; always serialised. The check mark is this field being non-null.
  */
 public record ClientInvoiceBaseSimLineResponse(
     UUID simCardId,
@@ -24,10 +26,15 @@ public record ClientInvoiceBaseSimLineResponse(
     BigDecimal amount,
     @JsonInclude(JsonInclude.Include.ALWAYS) BigDecimal computedAmount,
     @JsonInclude(JsonInclude.Include.ALWAYS) Boolean edited,
-    @JsonInclude(JsonInclude.Include.ALWAYS) String carrierName) {
+    @JsonInclude(JsonInclude.Include.ALWAYS) String carrierName,
+    @JsonInclude(JsonInclude.Include.ALWAYS) UUID carrierInvoiceFileId) {
 
   public static ClientInvoiceBaseSimLineResponse of(
-      SimCard simCard, BigDecimal amount, BigDecimal computedAmount, Boolean edited) {
+      SimCard simCard,
+      BigDecimal amount,
+      BigDecimal computedAmount,
+      Boolean edited,
+      UUID carrierInvoiceFileId) {
     return new ClientInvoiceBaseSimLineResponse(
         simCard.getId(),
         simCard.getNumber(),
@@ -36,6 +43,7 @@ public record ClientInvoiceBaseSimLineResponse(
         amount,
         computedAmount,
         edited,
-        simCard.getCarrier() == null ? null : simCard.getCarrier().getName());
+        simCard.carrierName(),
+        carrierInvoiceFileId);
   }
 }

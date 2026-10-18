@@ -1,0 +1,25 @@
+(manager send-back played in a first pass: 'manager after send back: Draft / Sent back to the Agent on Oct 18, 2026 — waiting for them to resend'; first pass then stopped at my wrong confirm-button selector, nothing removed; bucket 3 objects)
+bucket objects for invoice before: 3
+confirm UI: Harbor Line Logistics - October 2026 - AT&T - +1-303-555-0303.pdf
+Download
+Remove this file?
+Cancel
+Remove
+files left: 2 | 0303 row has check: false
+Send disabled: true
+[ '1 Postpaid SIM still needs its carrier invoice.' ]
+bucket objects for invoice after: 2
+form after remove:
+- dialog "Attach carrier invoice":
+  - heading "Attach carrier invoice" [level=2]
+  - text: Postpaid SIM
+  - combobox "Postpaid SIM":
+    - option "Choose a Postpaid SIM" [disabled]
+    - option "+1-303-555-0303 · AT&T" [selected]
+  - text: File
+  - button "File"
+  - button "Cancel"
+  - button "Attach"
+check back on 0303: true | Send disabled: false
+resent: Awaiting approval / Awaiting approval / Awaiting approval / Sent to the Manager and Client — numbers are locked to what was sent
+bucket objects for invoice final: 3

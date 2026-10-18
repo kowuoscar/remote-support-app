@@ -28,6 +28,8 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/domain/ManagerName.java` · the one rule for a valid Manager name (trim, non-blank, at most 100 chars).
 - `backend/src/main/java/com/remotesupport/backend/web/ManagerNameController.java` · `PUT /api/me/name`, Manager-only, writes the caller's own name.
 - `backend/src/main/resources/db/migration/V60__add_users_name.sql` · the migration behind a Manager's name.
+- `backend/src/main/resources/db/migration/V61__add_carrier_invoice_file_sim_card.sql` · the migration behind a Carrier Invoice File belonging to one SIM line.
+- `backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceErrors.java` · the refused-request bodies both Client Invoice controllers' `@ExceptionHandler`s return: conflicts as `{code, message}`, invalid requests as `{message}`.
 - `backend/src/main/java/com/remotesupport/backend/web/TenantTotalsController.java` · `GET /api/tenant-totals`, Manager-only.
 - `backend/src/main/java/com/remotesupport/backend/web/TenantTotalsService.java` · selects and sums this month's billed (Client Invoices SENT/APPROVED) and payout (Agent Invoices APPROVED/PAID) per currency from frozen totals.
 - `backend/src/main/java/com/remotesupport/backend/repository/AgentInvoiceTotal.java` · the single JPQL expression for an Agent Invoice's frozen total, shared by the Review Queue and Tenant totals queries.
@@ -43,6 +45,7 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileStorage.java` · key, put, read and delete of Carrier Invoice File bytes in the object-store bucket.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileService.java` · non-transactional attach (upload, record row under lock, undo on failure) and download.
 - `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreUnavailableException.java` · the 503 for a failed or unusable object store.
+- `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileName.java` · pure function building a Carrier Invoice File's computed name `{Client} - {Month Year} - {Carrier} - {SIM number}{.ext}`.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileMissingException.java` · the 404 for a row whose object is missing.
 
 ### Frontend — `frontend/app`
@@ -76,9 +79,12 @@ error, not a nitpick.
 - `frontend/components/app-shell/change-name-dialog.tsx` · the dialog behind the account menu's Change name item: edits the caller's own name, never signs out.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
 - `frontend/components/agent/agent-client-invoice-card.tsx` · the Agent's Client Invoice card.
+- `frontend/components/agent/attach-carrier-invoice-dialog.tsx` · the attach form: pick a Postpaid SIM line and one file.
+- `frontend/components/agent/remove-carrier-invoice-file-control.tsx` · the Agent's Remove on one Carrier Invoice File of an open draft, with an inline confirm.
 - `frontend/components/ui/side-list.tsx` · the shared SideList (named nav landmark of links with name, detail, badge and mark slots) and SideListLayout (page body: column at xl, dropdown and header below xl, with lead and detailRef slots).
 - `frontend/components/ui/tabs.tsx` · the shared WAI-ARIA tablist with roving tabindex, automatic activation and one rendered panel; switches between the tables of one record, never scopes a Contract.
 - `frontend/components/ui/carrier-invoice-files-section.tsx` · the shared Carrier invoice files section for the Agent card, Manager invoice detail and Tester Invoices page, including the paused state (names listed, Download disabled, one notice).
+- `frontend/components/ui/carrier-invoice-check.tsx` · the shared CarrierInvoiceCheck: a non-interactive mark showing a Postpaid SIM line's carrier invoice is attached, used by the Agent card and the Manager detail.
 - `frontend/components/agent/invoice-line-table.tsx` · the Agent Client Invoice lines as one markup: a table at xl, one-column grid rows below it, with explicit ARIA table roles; exports `LINE_AREA` for parts to name their grid area.
 - `frontend/components/manager/login-activation-dialog.tsx` · the shared confirm dialog a Manager uses to deactivate or reactivate a Login.
 - `frontend/components/manager/send-back-client-invoice-control.tsx` · inline reason form that POSTs a send-back to a given endpoint and hands the returned invoice to its caller.
@@ -129,6 +135,8 @@ Components may call the backend directly through
 ## Tests
 
 - `backend/src/test/java/com/remotesupport/backend/web` · integration tests at the HTTP seam, driven through MockMvc against a real PostgreSQL started by Testcontainers. The base class and its fixture helpers are `backend/src/test/java/com/remotesupport/backend/support/IntegrationTest.java`.
+- `backend/src/test/java/com/remotesupport/backend/support/CarrierInvoiceTestSupport.java` · attaches a file per Postpaid SIM line before a send (by invoice id and current month); no-op when not a draft, no Postpaid line, or already covered.
+- `backend/src/test/java/com/remotesupport/backend/demo/DemoDataLoaderStoreDownTest.java` · demo loader with the store refusing writes: completes, one WARN, invoice stays a draft.
 - `backend/src/test/java/com/remotesupport/backend/migration` · migration tests, each migrating a throwaway database to a fixed version and asserting what that migration did.
 - `frontend/components` · Vitest component tests, colocated with the component as `*.test.tsx`.
 - `frontend/tests/visual` · Playwright visual goldens, rendered against the stub backend named in `frontend/playwright.config.ts` — no database.

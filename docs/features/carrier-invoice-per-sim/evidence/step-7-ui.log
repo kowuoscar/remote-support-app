@@ -1,0 +1,13 @@
+MGR check marks: 3 | Attach buttons: 0 | Remove buttons: 0
+tester landed http://127.0.0.1:53000/client
+  - link "Download PDF":
+    - /url: /api/contracts/45a81f29-9425-47dd-8490-26d738040b08/client-invoice/pdf
+      - text: Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0301.pdf
+      - link "Download":
+      - text: Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0302.pdf
+      - link "Download":
+      - text: Harbor Line Logistics - October 2026 - AT&T - +1-303-555-0303.pdf
+      - link "Download":
+tester download links: 4
+tester downloaded as: client-invoice-2026-10-01.pdf
+JORDAN Remove buttons on sent invoice: 0 | checkmarks 3

@@ -28,13 +28,16 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -157,6 +160,7 @@ public class ClientInvoiceService {
       UUID fileId,
       String key,
       MultipartFile file,
+      UUID simCardId,
       AuthenticatedPrincipal principal) {
     ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
     if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
@@ -167,31 +171,97 @@ public class ClientInvoiceService {
       requireOpenToAgent(invoice);
     }
 
+    SimCard sim =
+        lines(invoice).stream()
+            .filter(l -> l.kind() == ClientInvoiceLineKind.POSTPAID_SIM && l.simCard().getId().equals(simCardId))
+            .map(ResolvedLine::simCard)
+            .findFirst()
+            .orElseThrow(() -> new InvalidRequestException("Not a Postpaid SIM line of this Client Invoice"));
+    if (carrierInvoiceFileRepository.existsByClientInvoiceIdAndSimCardId(invoice.getId(), simCardId)) {
+      throw alreadyAttached();
+    }
+
     CarrierInvoiceFile carrierFile = new CarrierInvoiceFile();
     carrierFile.setId(fileId);
     carrierFile.setTenant(invoice.getTenant());
     carrierFile.setClientInvoice(invoice);
+    carrierFile.setSimCard(sim);
     carrierFile.setFilename(
-        file.getOriginalFilename() != null && !file.getOriginalFilename().isBlank()
-            ? file.getOriginalFilename()
-            : "carrier-invoice");
+        CarrierInvoiceFileName.of(
+            invoice.getContract().getClient().getName(),
+            invoice.getBillingMonth(),
+            sim.carrierName(),
+            sim.getNumber(),
+            file.getOriginalFilename()));
     carrierFile.setContentType(
         file.getContentType() != null ? file.getContentType() : MediaType.APPLICATION_OCTET_STREAM_VALUE);
     carrierFile.setSizeBytes(file.getSize());
     carrierFile.setUploadedAt(Instant.now());
 
     carrierFile.setStoragePath(key);
-    carrierInvoiceFileRepository.save(carrierFile);
+    try {
+      carrierInvoiceFileRepository.saveAndFlush(carrierFile);
+    } catch (DataIntegrityViolationException e) {
+      if (String.valueOf(e.getMostSpecificCause().getMessage()).contains("uq_carrier_invoice_files_invoice_sim")) {
+        throw alreadyAttached();
+      }
+      throw e;
+    }
 
     AuditLog.created("CarrierInvoiceFile", carrierFile.getId(), principal.userId(), principal.tenantId());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(CarrierInvoiceFileResponse.of(carrierFile));
   }
 
+  /**
+   * Deletes the row of a Carrier Invoice File as one transaction under the invoice's row lock, and
+   * returns its object key for {@link CarrierInvoiceFileService} to delete after the commit. Only a
+   * {@code DRAFT} open to its Agent takes it (409, coded for a past month's draft never sent); a
+   * file that is not this invoice's is a 404. No store call happens here.
+   */
+  @Transactional
+  public String removeFile(ClientInvoice found, UUID fileId, AuthenticatedPrincipal principal) {
+    ClientInvoice invoice = clientInvoiceRepository.findByIdForUpdate(found.getId()).orElseThrow();
+    if (invoice.getStatus() != ClientInvoiceStatus.DRAFT) {
+      throw new ConflictException(
+          "Cannot remove a carrier invoice file from a Client Invoice that has already been sent");
+    }
+    requireOpenToAgent(invoice);
+    CarrierInvoiceFile file =
+        carrierInvoiceFileRepository
+            .findByIdAndClientInvoiceId(fileId, invoice.getId())
+            .orElseThrow(() -> new NotFoundException("No carrier invoice file with id " + fileId));
+    String key = file.getStoragePath();
+    UUID simCardId = file.getSimCard() == null ? null : file.getSimCard().getId();
+    carrierInvoiceFileRepository.delete(file);
+    carrierInvoiceFileRepository.flush();
+    AuditLog.carrierInvoiceFileRemoved(invoice.getId(), fileId, simCardId, principal.userId(), principal.tenantId());
+    return key;
+  }
+
+  private static ClientInvoiceConflictException alreadyAttached() {
+    return new ClientInvoiceConflictException(
+        ClientInvoiceConflictException.Reason.CARRIER_INVOICE_ALREADY_ATTACHED,
+        "This SIM already has its carrier invoice on this Client Invoice");
+  }
+
   public List<CarrierInvoiceFileResponse> files(ClientInvoice invoice) {
-    return carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoice.getId()).stream()
-        .map(CarrierInvoiceFileResponse::of)
-        .toList();
+    return rows(invoice).stream().map(CarrierInvoiceFileResponse::of).toList();
+  }
+
+  private List<CarrierInvoiceFile> rows(ClientInvoice invoice) {
+    return carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoice.getId());
+  }
+
+  /** The id of the invoice's file for each SIM Card that has one; a row from before the link has no entry. */
+  private static Map<UUID, UUID> fileIdBySim(List<CarrierInvoiceFile> rows) {
+    Map<UUID, UUID> byId = new HashMap<>();
+    for (CarrierInvoiceFile row : rows) {
+      if (row.getSimCard() != null) {
+        byId.put(row.getSimCard().getId(), row.getId());
+      }
+    }
+    return byId;
   }
 
   /**
@@ -212,6 +282,9 @@ public class ClientInvoiceService {
       ClientInvoice invoice, boolean includeEdits, boolean filesAvailable) {
     List<ResolvedLine> lines = lines(invoice);
     boolean perSim = lines.stream().noneMatch(l -> l.kind() == ClientInvoiceLineKind.BASE_AMOUNT);
+    List<CarrierInvoiceFile> fileRows = rows(invoice);
+    List<CarrierInvoiceFileResponse> files = fileRows.stream().map(CarrierInvoiceFileResponse::of).toList();
+    Map<UUID, UUID> fileIdBySim = fileIdBySim(fileRows);
     List<ClientInvoiceBaseSimLineResponse> basePostpaidSims =
         perSim
             ? lines.stream()
@@ -222,7 +295,8 @@ public class ClientInvoiceService {
                             l.simCard(),
                             l.amount(),
                             includeEdits ? l.computedAmount() : null,
-                            includeEdits ? l.edited() : null))
+                            includeEdits ? l.edited() : null,
+                            fileIdBySim.get(l.simCard().getId())))
                 .toList()
             : null;
     List<ClientInvoiceFeeLineResponse> feeLines =
@@ -247,7 +321,7 @@ public class ClientInvoiceService {
         basePostpaidSims,
         feeLines,
         total(lines),
-        files(invoice),
+        files,
         filesAvailable,
         invoice.getSentAt(),
         invoice.getApprovedAt(),
@@ -383,6 +457,7 @@ public class ClientInvoiceService {
       throw new ConflictException("Cannot send a Client Invoice from status " + oldStatus);
     }
     requireOpenToAgent(invoice);
+    requireEveryCarrierInvoice(invoice);
 
     boolean neverSent = !invoice.isLinesStored();
     for (ResolvedLine line : lines(invoice)) {
@@ -406,6 +481,27 @@ public class ClientInvoiceService {
         principal.tenantId());
 
     return toResponse(invoice, true);
+  }
+
+  /**
+   * The send gate: every {@code POSTPAID_SIM} line the invoice shows needs its Carrier Invoice File.
+   * Reads rows only, under the row lock the caller holds, never the object store. A file whose SIM
+   * has no line neither counts nor blocks.
+   */
+  private void requireEveryCarrierInvoice(ClientInvoice invoice) {
+    Set<UUID> attached = fileIdBySim(rows(invoice)).keySet();
+    List<String> missing =
+        lines(invoice).stream()
+            .filter(l -> l.kind() == ClientInvoiceLineKind.POSTPAID_SIM)
+            .map(ResolvedLine::simCard)
+            .filter(sim -> !attached.contains(sim.getId()))
+            .map(SimCard::getNumber)
+            .toList();
+    if (!missing.isEmpty()) {
+      throw new ClientInvoiceConflictException(
+          ClientInvoiceConflictException.Reason.CARRIER_INVOICES_MISSING,
+          missing.size() + " Postpaid SIM line(s) lack their carrier invoice: " + String.join(", ", missing));
+    }
   }
 
   private static ClientInvoiceLine newRow(ClientInvoice invoice, ResolvedLine line) {

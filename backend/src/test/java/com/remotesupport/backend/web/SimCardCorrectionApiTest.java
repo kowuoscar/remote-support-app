@@ -14,6 +14,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.remotesupport.backend.domain.Country;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import com.remotesupport.backend.domain.ClientInvoice;
@@ -366,6 +367,8 @@ class SimCardCorrectionApiTest extends IntegrationTest {
                         .contentType(APPLICATION_JSON)
                         .content(postpaidSimCardJson(managerToken, contractId, "+1-555-0700", "18.00")))
                 .andExpect(status().isCreated()));
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken());
     mockMvc
         .perform(
             post("/api/contracts/" + contractId + "/client-invoice/send")
@@ -689,6 +692,8 @@ class SimCardCorrectionApiTest extends IntegrationTest {
     correctPlan(contractId, stored.simId(), managerToken, plan).andExpect(status().isOk());
     assertThat(agentClientInvoice().get("baseAmount").asDouble()).isEqualTo(31.00);
 
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken());
     JsonNode sent =
         json(
             mockMvc

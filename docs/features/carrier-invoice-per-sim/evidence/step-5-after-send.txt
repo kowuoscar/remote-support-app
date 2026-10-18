@@ -1,0 +1,63 @@
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Beta Co Draft":
+          - /url: /agent/client-invoices?contract=204a0040-a5e7-4868-b512-af652384d94f
+      - listitem:
+        - link "Harbor Line Logistics Awaiting approval":
+          - /url: /agent/client-invoices?contract=45a81f29-9425-47dd-8490-26d738040b08
+      - listitem:
+        - link "Solstice Retail Group Awaiting approval":
+          - /url: /agent/client-invoices?contract=cd35d084-5dab-4077-ab84-c192f31e6d7d
+  - paragraph: October 2026
+  - text: Awaiting approval
+  - paragraph: Sent to the Manager and Client — numbers are locked to what was sent
+  - paragraph: Sent Oct 18, 2026
+  - link "Download PDF":
+    - /url: /api/contracts/45a81f29-9425-47dd-8490-26d738040b08/client-invoice/pdf
+  - term: Base amount
+  - definition: $195.99
+  - term: Fees this month
+  - definition: $0.00
+  - term: Total
+  - definition: $195.99
+  - heading "Postpaid SIM Cards" [level=3]
+  - table:
+    - rowgroup:
+      - row "Number Billed":
+        - columnheader "Number"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "+1-303-555-0301 Verizon · Postpaid Carrier invoice attached $65.00":
+        - cell "+1-303-555-0301 Verizon · Postpaid Carrier invoice attached":
+          - text: +1-303-555-0301 Verizon · Postpaid
+          - img "Carrier invoice attached"
+        - cell "$65.00"
+      - row "+1-303-555-0302 Verizon · Postpaid Carrier invoice attached $65.00":
+        - cell "+1-303-555-0302 Verizon · Postpaid Carrier invoice attached":
+          - text: +1-303-555-0302 Verizon · Postpaid
+          - img "Carrier invoice attached"
+        - cell "$65.00"
+      - row "+1-303-555-0303 AT&T · Postpaid Carrier invoice attached $65.99":
+        - cell "+1-303-555-0303 AT&T · Postpaid Carrier invoice attached":
+          - text: +1-303-555-0303 AT&T · Postpaid
+          - img "Carrier invoice attached"
+        - cell "$65.99"
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees logged against this Contract yet this month.
+  - heading "Carrier invoice files" [level=3]
+  - list:
+    - listitem:
+      - text: Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0301.pdf
+      - link "Download":
+        - /url: /api/client-invoices/d6308980-a678-4540-9fd3-232699d16dbf/files/e10c2d55-99af-40a6-a241-d067e21ebb8b
+    - listitem:
+      - text: Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0302.pdf
+      - link "Download":
+        - /url: /api/client-invoices/d6308980-a678-4540-9fd3-232699d16dbf/files/9df80f31-9e00-4f00-8e5a-32c46efbf23b
+    - listitem:
+      - text: Harbor Line Logistics - October 2026 - AT&T - +1-303-555-0303.pdf
+      - link "Download":
+        - /url: /api/client-invoices/d6308980-a678-4540-9fd3-232699d16dbf/files/489553cf-1095-4514-ada3-b5f480d92405

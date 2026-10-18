@@ -10,6 +10,7 @@ import {
   rollSeededAgentInvoiceIntoThePast,
   selectClientInvoiceContract,
   selectContractInSwitcher,
+  attachCarrierInvoicesForEveryPostpaidSim,
 } from "./helpers";
 
 /** The table row of the SIM Card with this number (its first 20 characters, when long). */
@@ -122,6 +123,7 @@ test.describe("edit client invoice lines", () => {
     await expect(feeRow.getByText(/Edited · computed/)).toBeHidden();
     await expect(page.getByText("$76.40", { exact: true })).toBeVisible();
 
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
@@ -310,6 +312,7 @@ test.describe("edit client invoice lines", () => {
     expect(await noSidewaysScroll()).toBe(true);
 
     // 390 after send: no Edit or Reset, the note stays.
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();

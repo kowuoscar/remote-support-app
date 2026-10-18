@@ -22,6 +22,7 @@ import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.repository.ClientInvoiceLineRepository;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import java.math.BigDecimal;
@@ -54,6 +55,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
   @Autowired private ClientInvoiceRepository clientInvoiceRepository;
   @Autowired private ClientInvoiceLineRepository clientInvoiceLineRepository;
   @Autowired private ContractRepository contractRepository;
+  @Autowired private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
   @Autowired private OtherTenantFixture otherTenantFixture;
 
   private String managerToken;
@@ -124,6 +126,8 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
   }
 
   private JsonNode send() throws Exception {
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     return objectMapper.readTree(
         mockMvc
             .perform(
@@ -554,11 +558,13 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
     return as(token, post("/api/client-invoices/" + invoiceId + "/send"));
   }
 
-  private ResultActions postFileById(String token, UUID invoiceId, String name, String content) throws Exception {
+  private ResultActions postFileById(String token, UUID invoiceId, UUID simCardId, String name, String content)
+      throws Exception {
     return as(
         token,
         multipart("/api/client-invoices/" + invoiceId + "/files")
-            .file(new MockMultipartFile("file", name, "application/pdf", content.getBytes())));
+            .file(new MockMultipartFile("file", name, "application/pdf", content.getBytes()))
+            .param("simCardId", simCardId.toString()));
   }
 
   private JsonNode body(ResultActions actions) throws Exception {
@@ -617,6 +623,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
         .perform(
             multipart("/api/contracts/" + contractId + "/client-invoice/files")
                 .file(new MockMultipartFile("file", "carrier.pdf", "application/pdf", "carrier-bytes".getBytes()))
+                .param("simCardId", simIdOf(agentRead()).toString())
                 .header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isCreated());
     editSim(simIdOf(agentRead()), "20.00");
@@ -655,7 +662,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
       getById(token, invoiceId, "").andExpect(status().isForbidden());
       getById(token, invoiceId, "/files").andExpect(status().isForbidden());
       getById(token, invoiceId, "/files/" + fileId).andExpect(status().isForbidden());
-      postFileById(token, invoiceId, "x.pdf", "x").andExpect(status().isForbidden());
+      postFileById(token, invoiceId, simId, "x.pdf", "x").andExpect(status().isForbidden());
       putLineById(token, invoiceId, "POSTPAID_SIM", simId, "99.00").andExpect(status().isForbidden());
       postSendById(token, invoiceId).andExpect(status().isForbidden());
     }
@@ -701,7 +708,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
       getById(token, other, "").andExpect(status().isNotFound());
       getById(token, other, "/files").andExpect(status().isNotFound());
       getById(token, other, "/files/" + anyFile).andExpect(status().isNotFound());
-      postFileById(token, other, "x.pdf", "x").andExpect(status().isNotFound());
+      postFileById(token, other, UUID.randomUUID(), "x.pdf", "x").andExpect(status().isNotFound());
     }
     putLineById(agentToken, other, "BASE_AMOUNT", null, "1.00").andExpect(status().isNotFound());
     postSendById(agentToken, other).andExpect(status().isNotFound());
@@ -751,15 +758,22 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
   void agentAttachesFileById() throws Exception {
     UUID invoiceId = sentInvoice();
     sendBack(invoiceId);
+    // sentInvoice() covered the line to pass the gate; this test attaches its own file for it.
+    jdbcTemplate.update("DELETE FROM carrier_invoice_files WHERE client_invoice_id = ?", invoiceId);
 
-    postFileById(agentToken, invoiceId, "extra.pdf", "more-bytes")
+    postFileById(agentToken, invoiceId, simIdOf(byId(invoiceId)), "extra.pdf", "more-bytes")
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.filename").value("extra.pdf"));
+        .andExpect(
+            jsonPath("$.filename")
+                .value(
+                    org.hamcrest.Matchers.allOf(
+                        org.hamcrest.Matchers.startsWith("Send Back "),
+                        org.hamcrest.Matchers.endsWith(" - AT&T - +1-555-0400.pdf"))));
 
     assertThat(body(getById(agentToken, invoiceId, "/files").andExpect(status().isOk()))).hasSize(1);
     // A sent invoice takes no file: the plain 409 it is today.
     send();
-    postFileById(agentToken, invoiceId, "late.pdf", "x").andExpect(status().isConflict());
+    postFileById(agentToken, invoiceId, UUID.randomUUID(), "late.pdf", "x").andExpect(status().isConflict());
   }
 
   @Test
@@ -807,11 +821,13 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
     UUID invoiceId = sentInvoice();
     moveToPastMonth(invoiceId);
     sendBack(invoiceId);
+    // sentInvoice() covered the line to pass the gate; this test attaches its own file for it.
+    jdbcTemplate.update("DELETE FROM carrier_invoice_files WHERE client_invoice_id = ?", invoiceId);
 
     JsonNode read = body(getById(agentToken, invoiceId, "").andExpect(status().isOk()));
     assertThat(read.get("sentBackReason").asText()).isEqualTo(REASON);
     putLineById(agentToken, invoiceId, "POSTPAID_SIM", simIdOf(read), "22.00").andExpect(status().isOk());
-    postFileById(agentToken, invoiceId, "past.pdf", "past-bytes").andExpect(status().isCreated());
+    postFileById(agentToken, invoiceId, simIdOf(read), "past.pdf", "past-bytes").andExpect(status().isCreated());
 
     JsonNode resent = body(postSendById(agentToken, invoiceId).andExpect(status().isOk()));
 
@@ -841,7 +857,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
         List.of(
             postSendById(agentToken, invoiceId),
             putLineById(agentToken, invoiceId, "POSTPAID_SIM", simId, "20.00"),
-            postFileById(agentToken, invoiceId, "x.pdf", "x"));
+            postFileById(agentToken, invoiceId, simId, "x.pdf", "x"));
     for (ResultActions refused : refusals) {
       refused
           .andExpect(status().isConflict())
@@ -865,10 +881,11 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
   void managerMayAttachAFileToAPastMonthNeverSentDraft() throws Exception {
     fixture("Past Manager Attach " + UUID.randomUUID());
     addPostpaidSim("+1-555-0425", "18.00");
-    UUID invoiceId = UUID.fromString(agentRead().get("id").asText());
+    JsonNode draft = agentRead();
+    UUID invoiceId = UUID.fromString(draft.get("id").asText());
     moveToPastMonth(invoiceId);
 
-    postFileById(managerToken, invoiceId, "m.pdf", "m-bytes").andExpect(status().isCreated());
+    postFileById(managerToken, invoiceId, simIdOf(draft), "m.pdf", "m-bytes").andExpect(status().isCreated());
 
     assertThat(body(getById(managerToken, invoiceId, "/files"))).hasSize(1);
     assertThat(clientInvoiceRepository.findById(invoiceId).orElseThrow().getStatus())
@@ -883,7 +900,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
     UUID invoiceId = UUID.fromString(draft.get("id").asText());
 
     putLineById(agentToken, invoiceId, "POSTPAID_SIM", simIdOf(draft), "19.00").andExpect(status().isOk());
-    postFileById(agentToken, invoiceId, "ok.pdf", "ok").andExpect(status().isCreated());
+    postFileById(agentToken, invoiceId, simIdOf(draft), "ok.pdf", "ok").andExpect(status().isCreated());
     JsonNode sent = body(postSendById(agentToken, invoiceId).andExpect(status().isOk()));
 
     assertThat(sent.get("status").asText()).isEqualTo("SENT");

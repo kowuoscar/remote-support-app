@@ -33,6 +33,7 @@ class CarrierInvoiceFileServiceTest {
   private final AuthenticatedPrincipal principal = mock(AuthenticatedPrincipal.class);
   private final UUID tenantId = UUID.randomUUID();
   private final UUID invoiceId = UUID.randomUUID();
+  private final UUID simCardId = UUID.randomUUID();
 
   @BeforeEach
   void setUp() {
@@ -53,9 +54,9 @@ class CarrierInvoiceFileServiceTest {
   @Test
   void anExceptionFromRecordAttachedFileDeletesTheKeyAndRethrows() {
     ConflictException refused = new ConflictException("sent");
-    when(clientInvoiceService.recordAttachedFile(any(), any(), any(), any(), any())).thenThrow(refused);
+    when(clientInvoiceService.recordAttachedFile(any(), any(), any(), any(), any(), any())).thenThrow(refused);
 
-    assertThatThrownBy(() -> service.attach(invoice, file, principal)).isSameAs(refused);
+    assertThatThrownBy(() -> service.attach(invoice, file, simCardId, principal)).isSameAs(refused);
 
     verify(storage).put("the/key", file);
     verify(storage).delete("the/key");
@@ -64,10 +65,10 @@ class CarrierInvoiceFileServiceTest {
   @Test
   void aFailingDeleteStillRethrowsTheOriginalException() {
     ConflictException refused = new ConflictException("sent");
-    when(clientInvoiceService.recordAttachedFile(any(), any(), any(), any(), any())).thenThrow(refused);
+    when(clientInvoiceService.recordAttachedFile(any(), any(), any(), any(), any(), any())).thenThrow(refused);
     doThrow(new ObjectStoreUnavailableException("down")).when(storage).delete("the/key");
 
-    assertThatThrownBy(() -> service.attach(invoice, file, principal)).isSameAs(refused);
+    assertThatThrownBy(() -> service.attach(invoice, file, simCardId, principal)).isSameAs(refused);
   }
 
   @Test
@@ -75,9 +76,9 @@ class CarrierInvoiceFileServiceTest {
     ObjectStoreUnavailableException down = new ObjectStoreUnavailableException("down");
     doThrow(down).when(storage).put("the/key", file);
 
-    assertThatThrownBy(() -> service.attach(invoice, file, principal)).isSameAs(down);
+    assertThatThrownBy(() -> service.attach(invoice, file, simCardId, principal)).isSameAs(down);
 
-    verify(clientInvoiceService, never()).recordAttachedFile(any(), any(), any(), any(), any());
+    verify(clientInvoiceService, never()).recordAttachedFile(any(), any(), any(), any(), any(), any());
     verify(storage, never()).delete(any());
   }
 
@@ -85,19 +86,19 @@ class CarrierInvoiceFileServiceTest {
   void attachAnswers503WithoutCallingTheStoreWhileFileStorageIsUnavailable() {
     when(availability.isAvailable()).thenReturn(false);
 
-    assertThatThrownBy(() -> service.attach(invoice, file, principal)).isInstanceOf(ObjectStoreUnavailableException.class);
+    assertThatThrownBy(() -> service.attach(invoice, file, simCardId, principal)).isInstanceOf(ObjectStoreUnavailableException.class);
 
     verify(storage, never()).put(any(), any());
-    verify(clientInvoiceService, never()).recordAttachedFile(any(), any(), any(), any(), any());
+    verify(clientInvoiceService, never()).recordAttachedFile(any(), any(), any(), any(), any(), any());
   }
 
   @Test
   void theRowIsRecordedUnderTheSameFileIdAndKeyTheObjectWasWrittenTo() {
-    service.attach(invoice, file, principal);
+    service.attach(invoice, file, simCardId, principal);
 
     ArgumentCaptor<UUID> fileId = ArgumentCaptor.forClass(UUID.class);
     verify(storage).keyFor(eq(tenantId), eq(invoiceId), fileId.capture());
-    verify(clientInvoiceService).recordAttachedFile(invoice, fileId.getValue(), "the/key", file, principal);
+    verify(clientInvoiceService).recordAttachedFile(invoice, fileId.getValue(), "the/key", file, simCardId, principal);
     assertThat(fileId.getValue()).isNotNull();
   }
 
@@ -113,5 +114,66 @@ class CarrierInvoiceFileServiceTest {
     assertThatThrownBy(() -> withRows.download(invoice, fileId)).isInstanceOf(ObjectStoreUnavailableException.class);
 
     verify(storage, never()).read(any());
+  }
+
+  // --- remove ---------------------------------------------------------------------------------
+
+  @Test
+  void removeDeletesTheObjectOnlyAfterRemoveFileReturns() {
+    UUID fileId = UUID.randomUUID();
+    when(clientInvoiceService.removeFile(invoice, fileId, principal)).thenReturn("the/key");
+    org.mockito.InOrder order = org.mockito.Mockito.inOrder(clientInvoiceService, storage);
+
+    service.remove(invoice, fileId, principal);
+
+    order.verify(clientInvoiceService).removeFile(invoice, fileId, principal);
+    order.verify(storage).delete("the/key");
+  }
+
+  @Test
+  void aFailingDeleteAfterRemoveFileLogsAWarnAndDoesNotThrow() {
+    UUID fileId = UUID.randomUUID();
+    when(clientInvoiceService.removeFile(invoice, fileId, principal)).thenReturn("the/key");
+    doThrow(new ObjectStoreUnavailableException("down")).when(storage).delete("the/key");
+    ch.qos.logback.classic.Logger logger =
+        (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(CarrierInvoiceFileService.class);
+    ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent> appender =
+        new ch.qos.logback.core.read.ListAppender<>();
+    appender.start();
+    logger.addAppender(appender);
+    try {
+      service.remove(invoice, fileId, principal);
+    } finally {
+      logger.detachAppender(appender);
+    }
+
+    assertThat(appender.list)
+        .anySatisfy(
+            e -> {
+              assertThat(e.getLevel()).isEqualTo(ch.qos.logback.classic.Level.WARN);
+              assertThat(e.getFormattedMessage()).contains("no row refers to it").contains("the/key");
+            });
+  }
+
+  @Test
+  void anExceptionFromRemoveFileDeletesNothing() {
+    UUID fileId = UUID.randomUUID();
+    ConflictException refused = new ConflictException("sent");
+    when(clientInvoiceService.removeFile(invoice, fileId, principal)).thenThrow(refused);
+
+    assertThatThrownBy(() -> service.remove(invoice, fileId, principal)).isSameAs(refused);
+
+    verify(storage, never()).delete(any());
+  }
+
+  @Test
+  void removeNeverCallsTheStorageWhileFileStorageIsUnavailable() {
+    when(availability.isAvailable()).thenReturn(false);
+
+    assertThatThrownBy(() -> service.remove(invoice, UUID.randomUUID(), principal))
+        .isInstanceOf(ObjectStoreUnavailableException.class);
+
+    verify(storage, never()).delete(any());
+    verify(clientInvoiceService, never()).removeFile(any(), any(), any());
   }
 }

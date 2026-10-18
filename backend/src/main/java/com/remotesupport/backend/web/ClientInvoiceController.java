@@ -142,6 +142,18 @@ public class ClientInvoiceController {
     return ResponseEntity.badRequest().body(Map.of("message", message));
   }
 
+  /** The coded {@code 409}: a send without its carrier invoices, a SIM already attached, a draft not open to its Agent. */
+  @ExceptionHandler(ClientInvoiceConflictException.class)
+  public ResponseEntity<Map<String, String>> clientInvoiceConflict(ClientInvoiceConflictException e) {
+    return ClientInvoiceErrors.conflict(e);
+  }
+
+  /** A refused request (an attach naming no Postpaid SIM line of the invoice) names what was wrong in {@code message}. */
+  @ExceptionHandler(InvalidRequestException.class)
+  public ResponseEntity<Map<String, String>> invalidRequest(InvalidRequestException e) {
+    return ClientInvoiceErrors.invalid(e);
+  }
+
   /**
    * Renders a fresh PDF of this Contract's current-month Client Invoice (ticket AC: "A Tester can
    * generate a PDF of the Client Invoice on demand; no PDF is stored at rest") — visible to
@@ -160,6 +172,7 @@ public class ClientInvoiceController {
   public ResponseEntity<CarrierInvoiceFileResponse> uploadFile(
       @PathVariable UUID contractId,
       @RequestParam("file") MultipartFile file,
+      @RequestParam("simCardId") UUID simCardId,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
     Contract contract = findContract(contractId, principal);
     clientInvoiceAccessGuard.requireCanBuildOrView(contract, principal);
@@ -168,7 +181,7 @@ public class ClientInvoiceController {
     clientInvoiceService.requireNonEmpty(file);
 
     ClientInvoice invoice = getOrCreateDraftForCurrentMonth(contract, principal);
-    return carrierInvoiceFileService.attach(invoice, file, principal);
+    return carrierInvoiceFileService.attach(invoice, file, simCardId, principal);
   }
 
   @GetMapping("/files")

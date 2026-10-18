@@ -593,3 +593,60 @@ export async function rollSeededAgentInvoiceIntoThePast() {
     { stdio: "pipe" },
   );
 }
+
+/**
+ * The Agent attaches a small carrier invoice file to the Postpaid SIM line with this number,
+ * through the "Attach carrier invoice" form on the open Client Invoice card (carrier-invoice-per-sim).
+ * Waits for the upload to answer 201 and the dialog to close; returns the uploaded file's name.
+ */
+export async function attachCarrierInvoice(page: Page, simNumber: string, fileName = `carrier-${simNumber}.pdf`) {
+  await page.getByRole("button", { name: "Attach carrier invoice" }).click();
+  const dialog = page.getByRole("dialog", { name: "Attach carrier invoice" });
+  const picker = dialog.getByRole("combobox", { name: "Postpaid SIM" });
+  // The option reads "{number} · {Carrier}", so the line is found by its number.
+  const option = picker.locator("option", { hasText: simNumber });
+  await picker.selectOption(await option.getAttribute("value"));
+  await dialog.getByLabel("File").setInputFiles({
+    name: fileName,
+    mimeType: "application/pdf",
+    buffer: Buffer.from("not a real pdf"),
+  });
+  const [response] = await Promise.all([
+    page.waitForResponse(
+      (resp) => resp.url().includes("/api/client-invoices/") && resp.url().includes("/files") && resp.request().method() === "POST",
+    ),
+    dialog.getByRole("button", { name: "Attach" }).click(),
+  ]);
+  expect(response.status()).toBe(201);
+  await expect(dialog).toBeHidden();
+  return fileName;
+}
+
+/**
+ * Attaches a carrier invoice to every Postpaid SIM line of the open Client Invoice that still lacks
+ * one (the send gate refuses the invoice otherwise). A no-op on an invoice with no Postpaid SIM
+ * line, or with every line covered. Waits for each line's check mark before the next.
+ */
+export async function attachCarrierInvoicesForEveryPostpaidSim(page: Page) {
+  await page.getByRole("button", { name: "Send Client Invoice" }).waitFor();
+  const attach = page.getByRole("button", { name: "Attach carrier invoice" });
+  if ((await attach.count()) === 0 || !(await attach.isEnabled())) return;
+
+  await attach.click();
+  const dialog = page.getByRole("dialog", { name: "Attach carrier invoice" });
+  const options = await dialog
+    .getByRole("combobox", { name: "Postpaid SIM" })
+    .locator("option")
+    .evaluateAll((nodes) => (nodes as HTMLOptionElement[]).map((node) => ({ value: node.value, text: node.text })));
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+  // Each option reads "{number} · {Carrier}"; the empty-valued one is the placeholder.
+  const numbers = options.filter((option) => option.value !== "").map((option) => option.text.split(" · ")[0]!.trim());
+
+  const checks = page.getByRole("img", { name: "Carrier invoice attached" });
+  let covered = await checks.count();
+  for (const number of numbers) {
+    await attachCarrierInvoice(page, number);
+    covered += 1;
+    await expect(checks).toHaveCount(covered);
+  }
+}

@@ -16,6 +16,7 @@ import com.remotesupport.backend.domain.Country;
 import com.remotesupport.backend.domain.StandingAmountType;
 import com.remotesupport.backend.repository.AgentRepository;
 import com.remotesupport.backend.repository.AgentStandingAmountRepository;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -193,6 +194,8 @@ class AgentInvoiceApiTest extends IntegrationTest {
     UUID other2 = submitRequest(tester2, contract2, "OTHER");
     logFee(agentToken, contract2, other2, "OTHER", "60.00");
     mockMvc.perform(get("/api/contracts/" + contract2 + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contract2, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contract2 + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk());
@@ -203,6 +206,8 @@ class AgentInvoiceApiTest extends IntegrationTest {
     UUID contract3 = createContract(managerToken, client3, SEEDED_AGENT_ID);
     addSimCard(managerToken, contract3, "+1-555-0300", "POSTPAID", "15.00");
     mockMvc.perform(get("/api/contracts/" + contract3 + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contract3, agentToken);
     MvcResult sent3 =
         mockMvc
             .perform(

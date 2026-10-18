@@ -1,0 +1,75 @@
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Beta Co Draft":
+          - /url: /agent/client-invoices?contract=204a0040-a5e7-4868-b512-af652384d94f
+      - listitem:
+        - link "Harbor Line Logistics Awaiting approval":
+          - /url: /agent/client-invoices?contract=45a81f29-9425-47dd-8490-26d738040b08
+      - listitem:
+        - link "Solstice Retail Group Awaiting approval":
+          - /url: /agent/client-invoices?contract=cd35d084-5dab-4077-ab84-c192f31e6d7d
+  - paragraph: October 2026
+  - text: Draft
+  - paragraph: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+  - button "Attach carrier invoice" [disabled]
+  - button "Send Client Invoice"
+  - term: Base amount
+  - definition: $195.99
+  - term: Fees this month
+  - definition: $0.00
+  - term: Total
+  - definition: $195.99
+  - paragraph: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+  - heading "Postpaid SIM Cards" [level=3]
+  - table:
+    - rowgroup:
+      - row "Number Billed":
+        - columnheader "Number"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "+1-404-555-0401 Verizon · Postpaid Carrier invoice attached $65.00 Edit":
+        - cell "+1-404-555-0401 Verizon · Postpaid Carrier invoice attached":
+          - text: +1-404-555-0401 Verizon · Postpaid
+          - img "Carrier invoice attached"
+        - cell "$65.00 Edit":
+          - text: $65.00
+          - button "Edit"
+          - status
+      - row "+1-404-555-0402 AT&T · Postpaid Carrier invoice attached $65.99 Edit":
+        - cell "+1-404-555-0402 AT&T · Postpaid Carrier invoice attached":
+          - text: +1-404-555-0402 AT&T · Postpaid
+          - img "Carrier invoice attached"
+        - cell "$65.99 Edit":
+          - text: $65.99
+          - button "Edit"
+          - status
+      - row "+1-404-555-0403 Verizon · Postpaid Carrier invoice attached $65.00 Edit":
+        - cell "+1-404-555-0403 Verizon · Postpaid Carrier invoice attached":
+          - text: +1-404-555-0403 Verizon · Postpaid
+          - img "Carrier invoice attached"
+        - cell "$65.00 Edit":
+          - text: $65.00
+          - button "Edit"
+          - status
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees logged against this Contract yet this month.
+  - heading "Carrier invoice files" [level=3]
+  - list:
+    - listitem:
+      - text: Beta Co - October 2026 - Verizon - +1-404-555-0401.pdf
+      - link "Download":
+        - /url: /api/client-invoices/0c4848a2-773b-4ecd-8a71-299c58b0d41e/files/da312d8d-9a24-4c6a-83b5-4e07e3c5cec1
+      - button "Remove Beta Co - October 2026 - Verizon - +1-404-555-0401.pdf": Remove
+    - listitem:
+      - text: Beta Co - October 2026 - AT&T - +1-404-555-0402.pdf
+      - link "Download":
+        - /url: /api/client-invoices/0c4848a2-773b-4ecd-8a71-299c58b0d41e/files/2feb2465-aefe-4192-bed5-bb4f25c0aee8
+      - button "Remove Beta Co - October 2026 - AT&T - +1-404-555-0402.pdf": Remove
+    - listitem:
+      - text: Beta Co - October 2026 - Verizon - +1-404-555-0403.pdf
+      - link "Download":
+        - /url: /api/client-invoices/0c4848a2-773b-4ecd-8a71-299c58b0d41e/files/932a2bb9-b131-43c6-9b17-d41db6750636
+      - button "Remove Beta Co - October 2026 - Verizon - +1-404-555-0403.pdf": Remove

@@ -9,8 +9,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.ObjectStoreTestSupport;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -22,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +57,7 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
           "DELETE FROM client_invoice_lines WHERE client_invoice_id IN (SELECT id FROM client_invoices WHERE contract_id = ?)",
           contractId);
       jdbcTemplate.update("DELETE FROM client_invoices WHERE contract_id = ?", contractId);
+      jdbcTemplate.update("DELETE FROM sim_cards WHERE contract_id = ?", contractId);
       jdbcTemplate.update("DELETE FROM contracts WHERE id = ?", contractId);
     }
     if (clientId != null) {
@@ -66,9 +71,17 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
     String agentToken = agentToken();
     clientId = createClient(managerToken, "Attach Race " + UUID.randomUUID());
     contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
     mockMvc
         .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk());
+    // The send gate needs the SIM covered; the slow attach below is then a second upload for it.
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
+    UUID gatedInvoiceId =
+        jdbcTemplate.queryForObject("SELECT id FROM client_invoices WHERE contract_id = ?", UUID.class, contractId);
+    List<String> keysBefore =
+        ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + gatedInvoiceId + "/");
 
     CountDownLatch uploading = new CountDownLatch(1);
     CountDownLatch release = new CountDownLatch(1);
@@ -90,6 +103,7 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
                       .perform(
                           multipart("/api/contracts/" + contractId + "/client-invoice/files")
                               .file(new MockMultipartFile("file", "slow.pdf", "application/pdf", "slow".getBytes()))
+                              .param("simCardId", simId.toString())
                               .header("Authorization", "Bearer " + agentToken))
                       .andReturn()
                       .getResponse()
@@ -116,9 +130,132 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
       assertThat(attach.get(30, TimeUnit.SECONDS)).isEqualTo(409);
       UUID invoiceId =
           jdbcTemplate.queryForObject("SELECT id FROM client_invoices WHERE contract_id = ?", UUID.class, contractId);
-      assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/")).isEmpty();
+      assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/"))
+          .as("the refused attach's object is gone; only the covering file remains")
+          .isEqualTo(keysBefore);
     } finally {
       release.countDown();
+      pool.shutdownNow();
+    }
+  }
+
+  @Test
+  void twoSimultaneousAttachesForOneSimLeaveOneRowOneObjectAnd409ForTheOther() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    clientId = createClient(managerToken, "Attach Same Sim Race " + UUID.randomUUID());
+    contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId =
+        UUID.fromString(
+            objectMapper
+                .readTree(
+                    mockMvc
+                        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+                        .andExpect(status().isOk())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString())
+                .get("id")
+                .asText());
+
+    CountDownLatch go = new CountDownLatch(1);
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    try {
+      List<Future<Integer>> attaches = new ArrayList<>();
+      for (int i = 0; i < 2; i++) {
+        String name = "race-" + i + ".pdf";
+        attaches.add(
+            pool.submit(
+                () -> {
+                  assertThat(go.await(30, TimeUnit.SECONDS)).isTrue();
+                  return mockMvc
+                      .perform(
+                          multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                              .file(new MockMultipartFile("file", name, "application/pdf", name.getBytes()))
+                              .param("simCardId", simId.toString())
+                              .header("Authorization", "Bearer " + agentToken))
+                      .andReturn()
+                      .getResponse()
+                      .getStatus();
+                }));
+      }
+      go.countDown();
+      List<Integer> statuses = List.of(attaches.get(0).get(60, TimeUnit.SECONDS), attaches.get(1).get(60, TimeUnit.SECONDS));
+
+      assertThat(statuses).containsExactlyInAnyOrder(201, 409);
+      assertThat(
+              jdbcTemplate.queryForObject(
+                  "SELECT count(*) FROM carrier_invoice_files WHERE client_invoice_id = ?", Integer.class, invoiceId))
+          .isEqualTo(1);
+      assertThat(ObjectStoreTestSupport.keysUnder("carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/")).hasSize(1);
+    } finally {
+      pool.shutdownNow();
+    }
+  }
+
+  @Test
+  void anAttachRacingASendOnTheLastMissingFileNeverLeavesASentInvoiceWithoutIt() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    clientId = createClient(managerToken, "Attach Versus Send " + UUID.randomUUID());
+    contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+
+    CountDownLatch go = new CountDownLatch(1);
+    ExecutorService pool = Executors.newFixedThreadPool(2);
+    try {
+      Future<MvcResult> attach =
+          pool.submit(
+              () -> {
+                assertThat(go.await(30, TimeUnit.SECONDS)).isTrue();
+                return mockMvc
+                    .perform(
+                        multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                            .file(new MockMultipartFile("file", "last.pdf", "application/pdf", "last".getBytes()))
+                            .param("simCardId", simId.toString())
+                            .header("Authorization", "Bearer " + agentToken))
+                    .andReturn();
+              });
+      Future<MvcResult> send =
+          pool.submit(
+              () -> {
+                assertThat(go.await(30, TimeUnit.SECONDS)).isTrue();
+                return mockMvc
+                    .perform(
+                        post("/api/contracts/" + contractId + "/client-invoice/send")
+                            .header("Authorization", "Bearer " + agentToken))
+                    .andReturn();
+              });
+      go.countDown();
+      MvcResult attached = attach.get(60, TimeUnit.SECONDS);
+      MvcResult sent = send.get(60, TimeUnit.SECONDS);
+
+      int sendStatus = sent.getResponse().getStatus();
+      assertThat(sendStatus).isIn(200, 409);
+      if (sendStatus == 409) {
+        assertThat(objectMapper.readTree(sent.getResponse().getContentAsString()).get("code").asText())
+            .isEqualTo("CARRIER_INVOICES_MISSING");
+        assertThat(attached.getResponse().getStatus()).isEqualTo(201);
+      } else {
+        // The attach took the lock first, so the file was there when the send looked.
+        assertThat(attached.getResponse().getStatus()).isEqualTo(201);
+      }
+      assertThat(
+              jdbcTemplate.queryForObject(
+                  "SELECT count(*) FROM carrier_invoice_files f JOIN client_invoices i ON i.id = f.client_invoice_id"
+                      + " WHERE i.contract_id = ? AND f.sim_card_id = ?",
+                  Integer.class,
+                  contractId,
+                  simId))
+          .isEqualTo(1);
+      String status =
+          jdbcTemplate.queryForObject("SELECT status FROM client_invoices WHERE contract_id = ?", String.class, contractId);
+      assertThat(status).isEqualTo(sendStatus == 200 ? "SENT" : "DRAFT");
+    } finally {
       pool.shutdownNow();
     }
   }

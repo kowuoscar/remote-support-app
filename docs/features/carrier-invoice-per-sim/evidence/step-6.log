@@ -1,0 +1,20 @@
+covered; Send disabled: false ; checkmarks: 4
+{"id":"bb3d24e4-d4a1-4fa0-af15-53f917a07133","contractId":"204a0040-a5e7-4868-b5
+
+A Postpaid SIM still needs its carrier invoice. Reload to see which.
+Postpaid SIM Cards
+  - paragraph: 1 Postpaid SIM still needs its carrier invoice.
+      - row "+1-404-555-0401 Verizon · Postpaid Carrier invoice attached $65.00 Edit":
+        - cell "+1-404-555-0401 Verizon · Postpaid Carrier invoice attached":
+          - text: +1-404-555-0401 Verizon · Postpaid
+      - row "+1-404-555-0402 AT&T · Postpaid Carrier invoice attached $65.99 Edit":
+        - cell "+1-404-555-0402 AT&T · Postpaid Carrier invoice attached":
+          - text: +1-404-555-0402 AT&T · Postpaid
+      - row "+1-404-555-0403 Verizon · Postpaid $65.00 Edit":
+        - cell "+1-404-555-0403 Verizon · Postpaid"
+      - text: Beta Co - October 2026 - Verizon - +1-404-555-0401.pdf
+      - button "Remove Beta Co - October 2026 - Verizon - +1-404-555-0401.pdf": Remove
+      - text: Beta Co - October 2026 - AT&T - +1-404-555-0402.pdf
+      - button "Remove Beta Co - October 2026 - AT&T - +1-404-555-0402.pdf": Remove
+Send disabled after reload: true
+[ '1 Postpaid SIM still needs its carrier invoice.' ]

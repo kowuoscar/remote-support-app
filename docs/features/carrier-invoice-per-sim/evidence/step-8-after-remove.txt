@@ -1,0 +1,94 @@
+- main:
+  - navigation "Clients":
+    - heading "Clients" [level=2]
+    - list:
+      - listitem:
+        - link "Beta Co Draft":
+          - /url: /agent/client-invoices?contract=204a0040-a5e7-4868-b512-af652384d94f
+      - listitem:
+        - link "Harbor Line Logistics Sent back":
+          - /url: /agent/client-invoices?contract=45a81f29-9425-47dd-8490-26d738040b08
+      - listitem:
+        - link "Solstice Retail Group Awaiting approval":
+          - /url: /agent/client-invoices?contract=cd35d084-5dab-4077-ab84-c192f31e6d7d
+  - region "Sent back to you":
+    - heading "Sent back to you" [level=2]
+    - table:
+      - rowgroup:
+        - row "Contract Billing month Sent back Reason Action":
+          - columnheader "Contract"
+          - columnheader "Billing month"
+          - columnheader "Sent back"
+          - columnheader "Reason"
+          - columnheader "Action"
+      - rowgroup:
+        - row "Harbor Line Logistics — United States October 2026 Oct 18, 2026 Please re-check the AT&T carrier invoice. Open Harbor Line Logistics — United States, October 2026":
+          - cell "Harbor Line Logistics — United States"
+          - cell "October 2026"
+          - cell "Oct 18, 2026"
+          - cell "Please re-check the AT&T carrier invoice.":
+            - paragraph: Please re-check the AT&T carrier invoice.
+          - cell "Open Harbor Line Logistics — United States, October 2026":
+            - link "Open Harbor Line Logistics — United States, October 2026":
+              - /url: /agent/client-invoices/d6308980-a678-4540-9fd3-232699d16dbf
+              - text: Open
+  - region "Sent back by the Manager on Oct 18, 2026":
+    - heading "Sent back by the Manager on Oct 18, 2026" [level=2]
+    - paragraph: Please re-check the AT&T carrier invoice.
+    - paragraph: Correct what is needed, then send it again.
+  - paragraph: October 2026
+  - text: Sent back
+  - paragraph: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+  - button "Attach carrier invoice"
+  - button "Send Client Invoice" [disabled]
+  - paragraph: 1 Postpaid SIM still needs its carrier invoice.
+  - term: Base amount
+  - definition: $195.99
+  - term: Fees this month
+  - definition: $0.00
+  - term: Total
+  - definition: $195.99
+  - paragraph: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+  - heading "Postpaid SIM Cards" [level=3]
+  - table:
+    - rowgroup:
+      - row "Number Billed":
+        - columnheader "Number"
+        - columnheader "Billed"
+    - rowgroup:
+      - row "+1-303-555-0301 Verizon · Postpaid Carrier invoice attached $65.00 Edit":
+        - cell "+1-303-555-0301 Verizon · Postpaid Carrier invoice attached":
+          - text: +1-303-555-0301 Verizon · Postpaid
+          - img "Carrier invoice attached"
+        - cell "$65.00 Edit":
+          - text: $65.00
+          - button "Edit"
+          - status
+      - row "+1-303-555-0302 Verizon · Postpaid Carrier invoice attached $65.00 Edit":
+        - cell "+1-303-555-0302 Verizon · Postpaid Carrier invoice attached":
+          - text: +1-303-555-0302 Verizon · Postpaid
+          - img "Carrier invoice attached"
+        - cell "$65.00 Edit":
+          - text: $65.00
+          - button "Edit"
+          - status
+      - row "+1-303-555-0303 AT&T · Postpaid $65.99 Edit":
+        - cell "+1-303-555-0303 AT&T · Postpaid"
+        - cell "$65.99 Edit":
+          - text: $65.99
+          - button "Edit"
+          - status
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees logged against this Contract yet this month.
+  - heading "Carrier invoice files" [level=3]
+  - list:
+    - listitem:
+      - text: Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0301.pdf
+      - link "Download":
+        - /url: /api/client-invoices/d6308980-a678-4540-9fd3-232699d16dbf/files/e10c2d55-99af-40a6-a241-d067e21ebb8b
+      - button "Remove Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0301.pdf": Remove
+    - listitem:
+      - text: Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0302.pdf
+      - link "Download":
+        - /url: /api/client-invoices/d6308980-a678-4540-9fd3-232699d16dbf/files/9df80f31-9e00-4f00-8e5a-32c46efbf23b
+      - button "Remove Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0302.pdf": Remove

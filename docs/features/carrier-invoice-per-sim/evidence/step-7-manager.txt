@@ -1,0 +1,52 @@
+- main:
+  - navigation "Breadcrumb":
+    - link "Invoices":
+      - /url: /manager/invoices
+    - text: Harbor Line Logistics — Jordan Ellis
+  - heading "October 2026" [level=2]
+  - text: Awaiting approval
+  - paragraph: Base amount and Fee lines are locked to what the Agent sent
+  - paragraph: Sent Oct 18, 2026
+  - link "Download PDF":
+    - /url: /api/client-invoices/d6308980-a678-4540-9fd3-232699d16dbf/pdf
+  - button "Send back"
+  - button "Approve"
+  - term: Base amount
+  - definition: $195.99
+  - term: Fees
+  - definition: $0.00
+  - term: Total
+  - definition: $195.99
+  - heading "Postpaid SIM Cards" [level=3]
+  - list "Postpaid SIM Cards":
+    - listitem:
+      - text: +1-303-555-0301Verizon · Postpaid
+      - img "Carrier invoice attached"
+      - text: $65.00
+    - listitem:
+      - text: +1-303-555-0302Verizon · Postpaid
+      - img "Carrier invoice attached"
+      - text: $65.00
+    - listitem:
+      - text: +1-303-555-0303AT&T · Postpaid
+      - img "Carrier invoice attached"
+      - text: $65.99
+  - heading "Fee lines" [level=3]
+  - paragraph: No Fees on this invoice.
+  - heading "Carrier invoice files" [level=3]
+  - list:
+    - listitem:
+      - text: Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0301.pdf
+      - link "Download Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0301.pdf":
+        - /url: /api/client-invoices/d6308980-a678-4540-9fd3-232699d16dbf/files/e10c2d55-99af-40a6-a241-d067e21ebb8b
+        - text: Download
+    - listitem:
+      - text: Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0302.pdf
+      - link "Download Harbor Line Logistics - October 2026 - Verizon - +1-303-555-0302.pdf":
+        - /url: /api/client-invoices/d6308980-a678-4540-9fd3-232699d16dbf/files/9df80f31-9e00-4f00-8e5a-32c46efbf23b
+        - text: Download
+    - listitem:
+      - text: Harbor Line Logistics - October 2026 - AT&T - +1-303-555-0303.pdf
+      - link "Download Harbor Line Logistics - October 2026 - AT&T - +1-303-555-0303.pdf":
+        - /url: /api/client-invoices/d6308980-a678-4540-9fd3-232699d16dbf/files/489553cf-1095-4514-ada3-b5f480d92405
+        - text: Download

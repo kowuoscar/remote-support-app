@@ -1,9 +1,11 @@
+import { CarrierInvoiceCheck } from "@/components/ui/carrier-invoice-check";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EditedLineNote } from "@/components/ui/billed-amount";
 import { Money } from "@/components/ui/money";
 import { IconDownload } from "@/components/icons";
 import { CarrierInvoiceFilesSection } from "@/components/ui/carrier-invoice-files-section";
+import { RemoveCarrierInvoiceFileControl } from "@/components/agent/remove-carrier-invoice-file-control";
 import { AttachCarrierInvoiceFileControl } from "@/components/agent/attach-carrier-invoice-file-control";
 import { EditClientInvoiceLineControl } from "@/components/agent/edit-client-invoice-line-control";
 import { LINE_AREA, LINE_WRAPPER, LineCell, LineRow, LineTable } from "@/components/agent/invoice-line-table";
@@ -13,6 +15,7 @@ import { clientInvoiceBadge } from "@/lib/status";
 import { formatDate, formatDateShort, formatLocalDate } from "@/lib/format";
 import {
   FEE_TYPE_LABEL,
+  missingCarrierInvoiceLines,
   simLineKind,
   type ClientInvoiceDetail,
   type EditableClientInvoiceLineKind,
@@ -133,6 +136,8 @@ export function AgentClientInvoiceCard({
   const editable = invoice.status === "DRAFT" && !readOnly;
   const badge = clientInvoiceBadge(invoice);
   const feeLabelList = feeLabels(invoice.feeLines);
+  const hasPostpaidLines = (invoice.basePostpaidSims?.length ?? 0) > 0;
+  const missingLines = missingCarrierInvoiceLines(invoice);
 
   return (
     <Card className="flex flex-col gap-6 p-5" data-testid="client-invoice-card">
@@ -159,9 +164,18 @@ export function AgentClientInvoiceCard({
           ) : null}
         </div>
         {editable ? (
-          <div className="flex flex-col items-end gap-2">
-            <AttachCarrierInvoiceFileControl invoiceId={invoice.id} disabled={!invoice.filesAvailable} />
-            <SendClientInvoiceControl invoiceId={invoice.id} />
+          <div className="ml-auto flex flex-col items-end gap-2">
+            {hasPostpaidLines ? (
+              <AttachCarrierInvoiceFileControl
+                invoiceId={invoice.id}
+                missingLines={missingLines}
+                disabled={!invoice.filesAvailable}
+              />
+            ) : null}
+            <SendClientInvoiceControl
+              invoiceId={invoice.id}
+              missingCarrierInvoices={missingLines.length}
+            />
           </div>
         ) : invoice.status === "DRAFT" || !currentMonth ? null : (
           <a
@@ -218,6 +232,7 @@ export function AgentClientInvoiceCard({
                     <span className="inline-block whitespace-nowrap text-label-sm font-normal text-ink-mute">
                       {simLineKind(sim)}
                     </span>
+                    <CarrierInvoiceCheck carrierInvoiceFileId={sim.carrierInvoiceFileId} />
                   </span>
                   {sim.cancellationEffectiveDate ? (
                     <span className={`mt-1 block text-label-sm font-normal text-ink-mute ${LINE_AREA.note}`}>
@@ -306,6 +321,18 @@ export function AgentClientInvoiceCard({
         emptyText="No carrier invoice files attached yet."
         filesAvailable={invoice.filesAvailable}
         canAttach={editable}
+        renderRemove={
+          editable
+            ? (file) => (
+                <RemoveCarrierInvoiceFileControl
+                  invoiceId={invoice.id}
+                  fileId={file.id}
+                  filename={file.filename}
+                  disabled={!invoice.filesAvailable}
+                />
+              )
+            : undefined
+        }
       />
     </Card>
   );

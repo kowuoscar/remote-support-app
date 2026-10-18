@@ -14,6 +14,7 @@ import com.remotesupport.backend.domain.SimCard;
 import com.remotesupport.backend.repository.CarrierInvoiceFileRepository;
 import com.remotesupport.backend.repository.SimCardRepository;
 import com.remotesupport.backend.repository.FeeRepository;
+import com.remotesupport.backend.support.CarrierInvoiceTestSupport;
 import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.ObjectStoreTestSupport;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -35,6 +37,8 @@ import org.springframework.test.web.servlet.MvcResult;
  * Contract, driven through the real HTTP seam.
  */
 class ClientInvoiceApiTest extends IntegrationTest {
+
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   @Autowired private CarrierInvoiceFileRepository carrierInvoiceFileRepository;
   @Autowired private FeeRepository feeRepository;
@@ -289,6 +293,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
     addPostpaidSimOnCarrier(managerToken, contractId, SEEDED_US_CARRIER_ID, "+1-555-0302", "12.00");
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
 
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
@@ -328,6 +334,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
     // A Tester sees an invoice only once it is sent.
     String agentToken = agentToken();
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk());
@@ -356,6 +364,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
     addSimCard(managerToken, contractId, "+1-555-0208", "POSTPAID", "10.00");
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
 
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
@@ -440,6 +450,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
     addSimCard(managerToken, contractId, "+1-555-0205", "POSTPAID", "12.00");
     UUID toBeCancelled = addSimCard(managerToken, contractId, "+1-555-0206", "POSTPAID", "20.00");
 
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
@@ -500,6 +512,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String agentToken = agentToken();
 
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
     MockMultipartFile file =
         new MockMultipartFile("file", "october-carrier-invoice.pdf", "application/pdf", "not a real pdf".getBytes());
 
@@ -508,9 +521,11 @@ class ClientInvoiceApiTest extends IntegrationTest {
             .perform(
                 multipart("/api/contracts/" + contractId + "/client-invoice/files")
                     .file(file)
+                    .param("simCardId", simId.toString())
                     .header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.filename").value("october-carrier-invoice.pdf"))
+            .andExpect(jsonPath("$.simCardId").value(simId.toString()))
+            .andExpect(jsonPath("$.filename").value(computedName("Kessler & Vance LLP", simId)))
             .andExpect(jsonPath("$.contentType").value("application/pdf"))
             .andExpect(jsonPath("$.sizeBytes").value("not a real pdf".getBytes().length))
             .andReturn();
@@ -529,7 +544,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.files.length()").value(1))
-        .andExpect(jsonPath("$.files[0].filename").value("october-carrier-invoice.pdf"));
+        .andExpect(jsonPath("$.files[0].filename").value(computedName("Kessler & Vance LLP", simId)));
 
     MvcResult downloadResult =
         mockMvc
@@ -548,17 +563,21 @@ class ClientInvoiceApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Solene Cosmetics");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String agentToken = agentToken();
+    UUID simOne = addUniquePostpaidSim(managerToken, contractId);
+    UUID simTwo = addUniquePostpaidSim(managerToken, contractId);
 
     mockMvc
         .perform(
             multipart("/api/contracts/" + contractId + "/client-invoice/files")
                 .file(new MockMultipartFile("file", "invoice-1.pdf", "application/pdf", "one".getBytes()))
+                .param("simCardId", simOne.toString())
                 .header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isCreated());
     mockMvc
         .perform(
             multipart("/api/contracts/" + contractId + "/client-invoice/files")
                 .file(new MockMultipartFile("file", "invoice-2.pdf", "application/pdf", "two".getBytes()))
+                .param("simCardId", simTwo.toString())
                 .header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isCreated());
 
@@ -622,6 +641,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .perform(
             multipart("/api/contracts/" + contractId + "/client-invoice/files")
                 .file(new MockMultipartFile("file", "invoice.pdf", "application/pdf", "x".getBytes()))
+                .param("simCardId", UUID.randomUUID().toString())
                 .header("Authorization", "Bearer " + testerToken))
         .andExpect(status().isForbidden());
   }
@@ -708,6 +728,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .perform(
             multipart("/api/contracts/" + contractId + "/client-invoice/files")
                 .file(new MockMultipartFile("file", "late-invoice.pdf", "application/pdf", "late".getBytes()))
+                .param("simCardId", UUID.randomUUID().toString())
                 .header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isConflict());
   }
@@ -725,6 +746,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
     UUID topupRequestId = submitRequest(testerToken, contractId, "TOPUP");
     logFee(agentToken, contractId, topupRequestId, "TOPUP", "45.00");
 
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
@@ -809,6 +832,8 @@ class ClientInvoiceApiTest extends IntegrationTest {
 
     addSimCard(managerToken, contractId, "+1-555-0177", "POSTPAID", "30.00");
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk());
@@ -893,12 +918,14 @@ class ClientInvoiceApiTest extends IntegrationTest {
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String agentToken = agentToken();
     byte[] bytes = "object store bytes".getBytes(StandardCharsets.UTF_8);
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
 
     MvcResult upload =
         mockMvc
             .perform(
                 multipart("/api/contracts/" + contractId + "/client-invoice/files")
                     .file(new MockMultipartFile("file", "keyed.pdf", "application/pdf", bytes))
+                    .param("simCardId", simId.toString())
                     .header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isCreated())
             .andReturn();
@@ -934,6 +961,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .perform(
             multipart("/api/contracts/" + contractId + "/client-invoice/files")
                 .file(new MockMultipartFile("file", "late.pdf", "application/pdf", "late".getBytes()))
+                .param("simCardId", UUID.randomUUID().toString())
                 .header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isConflict());
 
@@ -946,12 +974,14 @@ class ClientInvoiceApiTest extends IntegrationTest {
     UUID clientId = createClient(managerToken, "Lost Object Co");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String agentToken = agentToken();
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
 
     MvcResult upload =
         mockMvc
             .perform(
                 multipart("/api/contracts/" + contractId + "/client-invoice/files")
                     .file(new MockMultipartFile("file", "lost.pdf", "application/pdf", "lost".getBytes()))
+                    .param("simCardId", simId.toString())
                     .header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isCreated())
             .andReturn();
@@ -965,7 +995,23 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .andExpect(status().isNotFound());
   }
 
-  private static final String AWKWARD_NAME = "R\u00e9f \"Oct\" 2026 \u2013 Orange.pdf";
+  // Accents and an en dash survive the computed name, so the download header still has to encode them.
+  private static final String AWKWARD_CLIENT = "R\u00e9f \u2013 Orange Co";
+
+  private String storedFilename(UUID fileId) {
+    return carrierInvoiceFileRepository.findById(fileId).orElseThrow().getFilename();
+  }
+
+  /** The name an attached file takes: the Client, this month, the seeded Carrier and the SIM's number. */
+  private String computedName(String clientName, UUID simId) {
+    LocalDate month = LocalDate.now(ZoneOffset.UTC);
+    return "%s - %s %d - AT&T - %s.pdf"
+        .formatted(
+            clientName,
+            month.getMonth().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.ENGLISH),
+            month.getYear(),
+            simCardRepository.findById(simId).orElseThrow().getNumber());
+  }
 
   private static String decodedFilenameStar(String contentDisposition) {
     assertThat(contentDisposition).startsWith("attachment");
@@ -976,11 +1022,17 @@ class ClientInvoiceApiTest extends IntegrationTest {
   }
 
   private UUID attachFile(String token, UUID contractId, String name, byte[] bytes) throws Exception {
+    return attachFile(token, contractId, name, bytes, addUniquePostpaidSim(managerToken(), contractId));
+  }
+
+  private UUID attachFile(String token, UUID contractId, String name, byte[] bytes, UUID simId)
+      throws Exception {
     MvcResult upload =
         mockMvc
             .perform(
                 multipart("/api/contracts/" + contractId + "/client-invoice/files")
                     .file(new MockMultipartFile("file", name, "application/pdf", bytes))
+                    .param("simCardId", simId.toString())
                     .header("Authorization", "Bearer " + token))
             .andExpect(status().isCreated())
             .andReturn();
@@ -990,11 +1042,11 @@ class ClientInvoiceApiTest extends IntegrationTest {
   @Test
   void aFileWithAccentsAQuoteAndAnEnDashDownloadsUnderItsExactNameWithNosniff() throws Exception {
     String managerToken = managerToken();
-    UUID clientId = createClient(managerToken, "Download Name Co");
+    UUID clientId = createClient(managerToken, AWKWARD_CLIENT);
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String agentToken = agentToken();
     byte[] bytes = "not a real pdf".getBytes();
-    UUID fileId = attachFile(agentToken, contractId, AWKWARD_NAME, bytes);
+    UUID fileId = attachFile(agentToken, contractId, "upload.PDF", bytes);
     UUID invoiceId =
         UUID.fromString(
             objectMapper
@@ -1018,13 +1070,34 @@ class ClientInvoiceApiTest extends IntegrationTest {
               .andExpect(header().string("Content-Type", "application/pdf"))
               .andExpect(header().string("X-Content-Type-Options", "nosniff"))
               .andReturn();
-      assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(AWKWARD_NAME);
+      assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(storedFilename(fileId));
+      assertThat(storedFilename(fileId)).startsWith(AWKWARD_CLIENT + " - ");
       assertThat(result.getResponse().getContentAsByteArray()).isEqualTo(bytes);
     }
   }
 
   @Test
-  void aPlainAsciiFileNameDownloadsUnderTheSameName() throws Exception {
+  void theTestersInvoiceListsTheFileUnderItsComputedName() throws Exception {
+    String managerToken = managerToken();
+    UUID clientId = createClient(managerToken, "Tester Lists Co");
+    UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    attachFile(agentToken, contractId, "scan.pdf", "x".getBytes(), simId);
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk());
+    String testerToken = createTesterAndLogin(managerToken, clientId, "tester@lists-name.example");
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + testerToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.files.length()").value(1))
+        .andExpect(jsonPath("$.files[0].filename").value(computedName("Tester Lists Co", simId)));
+  }
+
+  @Test
+  void aPlainAsciiFileNameDownloadsUnderTheComputedName() throws Exception {
     String managerToken = managerToken();
     UUID clientId = createClient(managerToken, "Plain Name Co");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
@@ -1038,16 +1111,17 @@ class ClientInvoiceApiTest extends IntegrationTest {
                     .header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isOk())
             .andReturn();
-    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo("invoice.pdf");
+    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(storedFilename(fileId));
+    assertThat(storedFilename(fileId)).startsWith("Plain Name Co - ").endsWith(".pdf");
   }
 
   @Test
   void theTesterOfASentInvoiceDownloadsUnderTheSameExactNameWithNosniff() throws Exception {
     String managerToken = managerToken();
-    UUID clientId = createClient(managerToken, "Tester Download Co");
+    UUID clientId = createClient(managerToken, AWKWARD_CLIENT);
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String agentToken = agentToken();
-    UUID fileId = attachFile(agentToken, contractId, AWKWARD_NAME, "bytes".getBytes());
+    UUID fileId = attachFile(agentToken, contractId, "upload.PDF", "bytes".getBytes());
     MvcResult sent =
         mockMvc
             .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
@@ -1064,7 +1138,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
             .andExpect(status().isOk())
             .andExpect(header().string("X-Content-Type-Options", "nosniff"))
             .andReturn();
-    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(AWKWARD_NAME);
+    assertThat(decodedFilenameStar(result.getResponse().getHeader("Content-Disposition"))).isEqualTo(storedFilename(fileId));
   }
 
   @Test
@@ -1085,5 +1159,153 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .perform(get("/api/client-invoices/" + invoiceId).header("Authorization", "Bearer " + managerToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.filesAvailable").value(true));
+  }
+
+  // --- Attaching one file per Postpaid SIM line (carrier-invoice-per-sim) -----------------------
+
+  private org.springframework.test.web.servlet.ResultActions attachForSim(
+      String agentToken, UUID contractId, UUID simCardId, String name) throws Exception {
+    return mockMvc.perform(
+        multipart("/api/contracts/" + contractId + "/client-invoice/files")
+            .file(new MockMultipartFile("file", name, "application/pdf", name.getBytes()))
+            .param("simCardId", simCardId.toString())
+            .header("Authorization", "Bearer " + agentToken));
+  }
+
+  private UUID openInvoiceId(String agentToken, UUID contractId) throws Exception {
+    return UUID.fromString(
+        objectMapper
+            .readTree(
+                mockMvc
+                    .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+                    .andReturn()
+                    .getResponse()
+                    .getContentAsString())
+            .get("id")
+            .asText());
+  }
+
+  private String invoicePrefix(UUID invoiceId) {
+    return "carrier-invoices/" + SEEDED_TENANT_ID + "/" + invoiceId + "/";
+  }
+
+  @Test
+  void attachWithoutASimCardIdIs400AndLeavesNothingInTheBucket() throws Exception {
+    String managerToken = managerToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "No Sim Id Co"), SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    addUniquePostpaidSim(managerToken, contractId);
+    UUID invoiceId = openInvoiceId(agentToken, contractId);
+
+    mockMvc
+        .perform(
+            multipart("/api/contracts/" + contractId + "/client-invoice/files")
+                .file(new MockMultipartFile("file", "a.pdf", "application/pdf", "a".getBytes()))
+                .header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isBadRequest());
+
+    assertThat(ObjectStoreTestSupport.keysUnder(invoicePrefix(invoiceId))).isEmpty();
+  }
+
+  @Test
+  void attachNamingAPrepaidSimAnotherContractsSimOrANonBillingSimIs400AndLeavesNothingBehind() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Not A Line Co"), SEEDED_AGENT_ID);
+    UUID otherContract = createContract(managerToken, createClient(managerToken, "Other Line Co"), SEEDED_AGENT_ID);
+    addUniquePostpaidSim(managerToken, contractId);
+    UUID prepaid = addSimCard(managerToken, contractId, "+1-555-" + (1000 + (int) (Math.random() * 8999)), "PREPAID", null);
+    UUID otherSim = addUniquePostpaidSim(managerToken, otherContract);
+    UUID retired = addUniquePostpaidSim(managerToken, contractId);
+    retireSimCard(agentToken, contractId, retired);
+    UUID invoiceId = openInvoiceId(agentToken, contractId);
+
+    for (UUID notALine : java.util.List.of(prepaid, otherSim, retired)) {
+      attachForSim(agentToken, contractId, notALine, "x.pdf")
+          .andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.message").value("Not a Postpaid SIM line of this Client Invoice"));
+    }
+
+    assertThat(ObjectStoreTestSupport.keysUnder(invoicePrefix(invoiceId))).isEmpty();
+    assertThat(carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoiceId)).isEmpty();
+  }
+
+  @Test
+  void aSecondAttachForTheSameSimIsACoded409LeavingOneRowAndOneObject() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Twice Co"), SEEDED_AGENT_ID);
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    attachForSim(agentToken, contractId, simId, "first.pdf").andExpect(status().isCreated());
+    UUID invoiceId = openInvoiceId(agentToken, contractId);
+
+    attachForSim(agentToken, contractId, simId, "second.pdf")
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("CARRIER_INVOICE_ALREADY_ATTACHED"))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+
+    assertThat(carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoiceId)).hasSize(1);
+    assertThat(ObjectStoreTestSupport.keysUnder(invoicePrefix(invoiceId))).hasSize(1);
+  }
+
+  @Test
+  void aFileWhoseSimNoLongerHasALineStaysListed() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Left Fleet Co"), SEEDED_AGENT_ID);
+    UUID simId = addUniquePostpaidSim(managerToken, contractId);
+    attachForSim(agentToken, contractId, simId, "kept.pdf").andExpect(status().isCreated());
+    retireSimCard(agentToken, contractId, simId);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.files.length()").value(1))
+        .andExpect(jsonPath("$.files[0].simCardId").value(simId.toString()))
+        .andExpect(jsonPath("$.files[0].filename").value(computedName("Left Fleet Co", simId)));
+  }
+
+  // --- The send gate on the current-month route -------------------------------------------------
+
+  @Test
+  void aCurrentMonthSendWithAMissingLineIsACoded409LeavingTheInvoiceADraftWithNoLineRow() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Gate Current Co"), SEEDED_AGENT_ID);
+    addUniquePostpaidSim(managerToken, contractId);
+    addUniquePostpaidSim(managerToken, contractId);
+    mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.code").value("CARRIER_INVOICES_MISSING"))
+        .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("2 Postpaid SIM")));
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+        .andExpect(jsonPath("$.status").value("DRAFT"));
+    assertThat(
+            jdbcTemplate.queryForObject(
+                "SELECT count(*) FROM client_invoice_lines l JOIN client_invoices i ON i.id = l.client_invoice_id"
+                    + " WHERE i.contract_id = ?",
+                Integer.class,
+                contractId))
+        .isZero();
+  }
+
+  @Test
+  void aCurrentMonthSendWithEveryLineCoveredIs200() throws Exception {
+    String managerToken = managerToken();
+    String agentToken = agentToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Gate Current Ok Co"), SEEDED_AGENT_ID);
+    addUniquePostpaidSim(managerToken, contractId);
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
+
+    mockMvc
+        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"));
   }
 }

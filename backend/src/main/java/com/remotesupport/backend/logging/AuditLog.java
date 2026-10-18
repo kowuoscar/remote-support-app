@@ -345,6 +345,22 @@ public final class AuditLog {
   }
 
   /**
+   * An Agent removing a Carrier Invoice File from a draft Client Invoice open to them
+   * (carrier-invoice-per-sim spec, Observability): the invoice, the file and the SIM Card it covered.
+   */
+  public static void carrierInvoiceFileRemoved(
+      UUID invoiceId, UUID fileId, UUID simCardId, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CARRIER_INVOICE_FILE_REMOVED entity=CarrierInvoiceFile entityId={} invoiceId={} simCardId={} "
+            + "actorUserId={} tenantId={}",
+        fileId,
+        invoiceId,
+        simCardId,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
    * An Agent editing one line of a draft Client Invoice (edit-client-invoice-lines spec,
    * Observability): the invoice, the line's kind and source (SIM Card or Fee id, {@code null} for a
    * {@code BASE_AMOUNT} line) and the amount before and after. Saving the computed amount back (a

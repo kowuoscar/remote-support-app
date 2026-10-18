@@ -32,6 +32,7 @@ function invoice(overrides: Partial<ClientInvoiceDetail> = {}): ClientInvoiceDet
       {
         id: "file-1",
         clientInvoiceId: "invoice-1",
+        simCardId: "sim-1",
         filename: "august-carrier.pdf",
         contentType: "application/pdf",
         sizeBytes: 1200,
@@ -53,6 +54,17 @@ describe("ClientInvoiceDetailView", () => {
     expect(screen.getByText("File storage is unavailable right now. Downloading is paused.")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Download august-carrier.pdf" })).not.toBeInTheDocument();
     expect(document.querySelector('[aria-disabled="true"]')).toHaveTextContent("Download");
+  });
+
+  it("offers no Remove on a listed file, in the normal or the paused state", () => {
+    const { unmount } = render(<ClientInvoiceDetailView invoice={invoice()} />);
+    expect(screen.getByRole("link", { name: "Download august-carrier.pdf" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+    unmount();
+
+    render(<ClientInvoiceDetailView invoice={invoice({ filesAvailable: false })} />);
+    expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+    expect(screen.queryByText(/removing/)).not.toBeInTheDocument();
   });
 
   it("shows the full sent invoice with its files, PDF and the Approve action", () => {
@@ -191,6 +203,27 @@ describe("ClientInvoiceDetailView", () => {
       expect(kind.compareDocumentPosition(note) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       expect(within(rows[1]).getByText("Verizon · Postpaid")).toBeInTheDocument();
       expect(within(rows[2]).getByText("Postpaid")).toBeInTheDocument();
+    });
+
+    it("shows the read-only 'Carrier invoice attached' mark on a covered line, with no Attach and no Remove", () => {
+      render(
+        <ClientInvoiceDetailView
+          invoice={invoice({
+            basePostpaidSims: [
+              { simCardId: "s1", number: "+1-555-0401", monthlyFeeAmount: 20, cancellationEffectiveDate: null, amount: 20, carrierName: "Verizon", carrierInvoiceFileId: "file-1" },
+              { simCardId: "s2", number: "+1-555-0402", monthlyFeeAmount: 20, cancellationEffectiveDate: null, amount: 20, carrierName: "Verizon", carrierInvoiceFileId: null },
+            ],
+          })}
+        />,
+      );
+
+      const rows = within(screen.getByRole("list", { name: "Postpaid SIM Cards" })).getAllByRole("listitem");
+      const mark = within(rows[0]).getByRole("img", { name: "Carrier invoice attached" });
+      const kind = within(rows[0]).getByText("Verizon · Postpaid");
+      expect(kind.compareDocumentPosition(mark) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(within(rows[1]).queryByRole("img", { name: "Carrier invoice attached" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /attach/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
     });
 
     it("edited-line-shows-computed-amount-marker", () => {

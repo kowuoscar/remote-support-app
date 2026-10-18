@@ -198,8 +198,11 @@ Two radius steps carry the whole system: `8px` (`rounded-lg`, Tailwind) for ever
 - **Row** (inline record actions): soft-indigo tone (`primary-soft-bg`/`primary-soft-text`) at the 8px control radius — indigo used here as a low-emphasis tint, not the reserved primary-action pill.
 - **Inline corrections** (Fleet units, Client Invoice lines): the value with a `ghost` `sm` Edit beside it. Editing is the field, a `row` Save and a `ghost` Cancel on one line, with the refusal below.
 
+### Carrier invoice check mark
+A Postpaid SIM line whose carrier invoice is attached carries `IconCheckCircle` (`h-3.5`, `success`) after its Carrier label, non-interactive, named "Carrier invoice attached". A file row's Remove is a quiet `ink-mute` text action whose inline confirm is danger-toned: "Remove this file?", a `ghost` `sm` Cancel and a `danger` `sm` Remove, no modal.
+
 ### Paused files section
-When file storage is unavailable, the Carrier invoice files section keeps every file name (`ink`) with its paperclip, turns each Download into non-interactive `ink-mute` text (`aria-disabled`, no `href`, `cursor-not-allowed`), disables "Attach carrier invoice" with the secondary button's disabled look, and adds one `warning`-tone `text-label-sm` line with `IconAlertTriangle` under the heading (plain paragraph, not an alert). No banner, no card, no new token.
+When file storage is unavailable, the Carrier invoice files section keeps every file name (`ink`) with its paperclip, turns each Download into non-interactive `ink-mute` text (`aria-disabled`, no `href`, `cursor-not-allowed`), disables "Attach carrier invoice" and, where it is offered, each Remove with the secondary button's disabled look, and adds one `warning`-tone `text-label-sm` line with `IconAlertTriangle` under the heading (plain paragraph, not an alert). No banner, no card, no new token.
 
 ### Badges
 - **Style:** pill-shaped (`rounded-full`), small dot + label, `px-2.5 py-0.5`, `text-xs font-medium`. Six tones map 1:1 to semantic colors (`success`/`warning`/`danger`/`info`/`neutral`/`primary`), driven centrally by `lib/status.ts`'s status→tone maps (Request, Smartphone, SIM, Client Invoice, Agent Invoice statuses) so status color is never chosen ad hoc per screen.

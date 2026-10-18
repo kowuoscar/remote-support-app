@@ -52,13 +52,13 @@ public class CarrierInvoiceFileService {
    * hides the original exception. Callers run {@link ClientInvoiceService#requireNonEmpty} first.
    */
   public ResponseEntity<CarrierInvoiceFileResponse> attach(
-      ClientInvoice invoice, MultipartFile file, AuthenticatedPrincipal principal) {
+      ClientInvoice invoice, MultipartFile file, UUID simCardId, AuthenticatedPrincipal principal) {
     requireStore();
     UUID fileId = UUID.randomUUID();
     String key = storage.keyFor(invoice.getTenant().getId(), invoice.getId(), fileId);
     storage.put(key, file);
     try {
-      return clientInvoiceService.recordAttachedFile(invoice, fileId, key, file, principal);
+      return clientInvoiceService.recordAttachedFile(invoice, fileId, key, file, simCardId, principal);
     } catch (RuntimeException e) {
       try {
         storage.delete(key);
@@ -66,6 +66,22 @@ public class CarrierInvoiceFileService {
         log.warn("Stray object left in the store after a failed attach, no row refers to it: {}", key);
       }
       throw e;
+    }
+  }
+
+  /**
+   * Removes a file from a draft open to its Agent: 503 at once while the store is unavailable, then
+   * the row is deleted under the invoice's row lock ({@link ClientInvoiceService#removeFile}), and
+   * only after that commit the object. A failing object delete is a WARN naming the stray key; the
+   * file is gone from the invoice, so the answer stands.
+   */
+  public void remove(ClientInvoice invoice, UUID fileId, AuthenticatedPrincipal principal) {
+    requireStore();
+    String key = clientInvoiceService.removeFile(invoice, fileId, principal);
+    try {
+      storage.delete(key);
+    } catch (RuntimeException e) {
+      log.warn("Carrier invoice file object left in the store, stray object, no row refers to it: {}", key);
     }
   }
 

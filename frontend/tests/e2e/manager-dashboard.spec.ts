@@ -7,6 +7,7 @@ import {
   logout,
   readRevealedPasswordAndClose,
   selectClientInvoiceContract,
+  attachCarrierInvoicesForEveryPostpaidSim,
 } from "./helpers";
 
 const RUN_ID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
@@ -155,6 +156,7 @@ test.describe("the Manager dashboard's money cards", () => {
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto("/agent/client-invoices");
     await selectClientInvoiceContract(page, clientName);
+    await attachCarrierInvoicesForEveryPostpaidSim(page);
     await page.getByRole("button", { name: "Send Client Invoice" }).click();
     await page.getByRole("button", { name: "Confirm send" }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();

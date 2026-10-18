@@ -660,10 +660,16 @@ export async function attachCarrierInvoice(page: Page, simNumber: string, fileNa
 /**
  * Attaches a carrier invoice to every Postpaid SIM line of the open Client Invoice that still lacks
  * one (the send gate refuses the invoice otherwise). A no-op on an invoice with no Postpaid SIM
- * line, or with every line covered. Waits for each line's check mark before the next.
+ * line, or with every line covered. Waits for each line's check mark before the next. Waits for the
+ * card, not for a Send button: a never-sent card in an unsent month has none (agent-sends-the-month).
+ *
+ * Jordan's month is sent by the global setup before the specs run, so a new Contract of Jordan's
+ * is a late one (its card offers "Send Client Invoice") and a sent-back one offers
+ * "Resend Client Invoice". A fresh Agent's month starts unsent: its cards have no Send and the
+ * month bar sends them.
  */
 export async function attachCarrierInvoicesForEveryPostpaidSim(page: Page) {
-  await page.getByRole("button", { name: "Send Client Invoice" }).waitFor();
+  await page.getByTestId("client-invoice-card").waitFor();
   const attach = page.getByRole("button", { name: "Attach carrier invoice" });
   if ((await attach.count()) === 0 || !(await attach.isEnabled())) return;
 

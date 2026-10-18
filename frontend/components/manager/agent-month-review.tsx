@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Badge, type Tone } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Money } from "@/components/ui/money";
@@ -11,17 +11,17 @@ import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/ta
 import { ApproveClientInvoiceMonthControl } from "./approve-client-invoice-month-control";
 import { IconAlertTriangle, IconArrowRight, IconInbox } from "@/components/icons";
 import { formatBillingMonth, formatDate } from "@/lib/format";
+import { monthParam } from "@/lib/review-months";
 import { selectionHref } from "@/lib/selection-address";
-import { agentInvoiceStatusLabelByValue, agentInvoiceStatusToneByValue, sentBackBadge } from "@/lib/status";
-import type { ReviewMonth, ReviewMonthSummary, ReviewStatusValue } from "@/lib/api/types";
+import {
+  agentInvoiceStatusLabelByValue,
+  agentInvoiceStatusToneByValue,
+  reviewStatusLabelByValue,
+  reviewStatusToneByValue,
+} from "@/lib/status";
+import type { ReviewMonth, ReviewMonthSummary } from "@/lib/api/types";
 
 const PATH = "/manager/invoices";
-
-const REVIEW_STATUS: Record<ReviewStatusValue, { label: string; tone: Tone }> = {
-  TO_REVIEW: { label: "To review", tone: "warning" },
-  APPROVED: { label: "Approved", tone: "success" },
-  SENT_BACK: sentBackBadge,
-};
 
 /** The row-tone "Review →" link of the Review Queue, so the page's two views read as one family. */
 function ReviewLink({ href, label }: { href: string; label: string }) {
@@ -124,12 +124,12 @@ export function AgentMonthReview({
             <label className="flex items-center gap-2 text-label font-medium text-ink-secondary">
               Month
               <select
-                value={billingMonth.slice(0, 7)}
+                value={monthParam(billingMonth)}
                 onChange={(event) => pick(event.target.value)}
                 className="h-9 max-w-full rounded-lg border border-hairline-strong bg-canvas px-3 text-sm text-ink focus-visible:border-primary"
               >
                 {options.map((month) => (
-                  <option key={month.billingMonth} value={month.billingMonth.slice(0, 7)}>
+                  <option key={month.billingMonth} value={monthParam(month.billingMonth)}>
                     {formatBillingMonth(month.billingMonth)}
                     {month.waiting > 0 ? ` · ${month.waiting} waiting` : ""}
                   </option>
@@ -171,14 +171,13 @@ export function AgentMonthReview({
             </Thead>
             <Tbody>
               {invoices.map((invoice) => {
-                const status = REVIEW_STATUS[invoice.reviewStatus];
                 return (
                   <Tr key={invoice.id}>
                     <Td className="whitespace-nowrap font-medium text-ink">{invoice.clientName}</Td>
                     <Td>
-                      <Badge tone={status.tone} dot={invoice.reviewStatus !== "SENT_BACK"}>
+                      <Badge tone={reviewStatusToneByValue[invoice.reviewStatus]} dot={invoice.reviewStatus !== "SENT_BACK"}>
                         {invoice.reviewStatus === "SENT_BACK" ? <IconAlertTriangle className="h-3 w-3 shrink-0" /> : null}
-                        {status.label}
+                        {reviewStatusLabelByValue[invoice.reviewStatus]}
                       </Badge>
                     </Td>
                     <Td className="text-right">
@@ -221,7 +220,7 @@ function AgentInvoiceRow({
           <Badge tone={agentInvoiceStatusToneByValue[invoice.status]}>{agentInvoiceStatusLabelByValue[invoice.status]}</Badge>
         </div>
         <div className="ml-auto flex items-center gap-4">
-          <Money amount={invoice.totalAmount} currency={invoice.currency} />
+          <Money amount={invoice.totalAmount} currency={invoice.currency} className="text-sm" />
           <ReviewLink
             href={`/manager/invoices/agent/${invoice.id}`}
             label={`Review Agent Invoice: ${agentName}, ${monthLabel}`}

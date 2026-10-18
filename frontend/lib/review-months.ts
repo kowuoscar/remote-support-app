@@ -2,6 +2,11 @@ import type { ReviewClientInvoice, ReviewMonthSummary } from "@/lib/api/types";
 
 const MONTH_PARAM = /^\d{4}-(0[1-9]|1[0-2])$/;
 
+/** The `YYYY-MM` of a first-of-month ISO date: how a month is written in an address or an API path. */
+export function monthParam(billingMonth: string): string {
+  return billingMonth.slice(0, 7);
+}
+
 /**
  * The month the Manager's Agent view opens on (manager-reviews-by-agent spec, "The page"). `months`
  * is the Agent's sent months, newest first; `currentMonth` a first-of-month ISO date. A `?month=`

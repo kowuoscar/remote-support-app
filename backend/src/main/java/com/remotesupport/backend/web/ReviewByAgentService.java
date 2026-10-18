@@ -57,10 +57,10 @@ public class ReviewByAgentService {
         agentInvoiceRepository.countWaitingByAgent(tenantId, AGENT_INVOICE_WAITING_STATUSES)) {
       waiting.merge(row.agentId(), row.count(), Long::sum);
     }
-    return agentRepository.findByTenantIdOrderByNameAsc(tenantId).stream()
+    return agentRepository.findByTenantId(tenantId).stream()
         .sorted(
             Comparator.comparing((Agent a) -> a.getName().toLowerCase())
-                .thenComparing(a -> a.getId().toString()))
+                .thenComparing(Agent::getId))
         .map(a -> new ReviewAgentResponse(a.getId(), a.getName(), waiting.getOrDefault(a.getId(), 0L)))
         .toList();
   }

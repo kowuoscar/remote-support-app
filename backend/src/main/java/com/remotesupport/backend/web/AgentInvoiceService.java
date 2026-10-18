@@ -52,6 +52,13 @@ public class AgentInvoiceService {
     this.standingAmountService = standingAmountService;
   }
 
+  /** The Agent must be of the tenant; an unknown or other-tenant Agent is a {@link NotFoundException}. */
+  void requireAgentOfTenant(UUID tenantId, UUID agentId) {
+    agentRepository
+        .findByIdAndTenantId(agentId, tenantId)
+        .orElseThrow(() -> new NotFoundException("No agent with id " + agentId));
+  }
+
   /**
    * Sends a draft ({@code DRAFT -> SENT}), snapshotting every line in the same transaction as the
    * status change so the two can never disagree; any other status is a 409.

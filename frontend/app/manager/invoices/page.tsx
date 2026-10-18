@@ -4,7 +4,7 @@ import { backendFetch, backendFetchJsonOrNull } from "@/lib/api/backend";
 import { requireManager } from "@/lib/api/guard";
 import type { ReviewAgent, ReviewMonth, ReviewMonthSummary, ReviewQueueItem } from "@/lib/api/types";
 import { reviewQueueFilterFromParam } from "@/lib/review-queue-filter";
-import { reviewMonthFor } from "@/lib/review-months";
+import { monthParam, reviewMonthFor } from "@/lib/review-months";
 import { firstParam } from "@/lib/search-params";
 
 export const metadata = { title: "Invoices" };
@@ -23,7 +23,7 @@ export default async function ManagerInvoicesPage({
   await requireManager();
   const params = await searchParams;
   const agentParam = firstParam(params.agent);
-  const monthParam = firstParam(params.month);
+  const monthQuery = firstParam(params.month);
   const filter = reviewQueueFilterFromParam(params.type);
 
   const [queueResponse, agents] = await Promise.all([
@@ -38,10 +38,10 @@ export default async function ManagerInvoicesPage({
     const base = `/api/review-queue/agents/${agent.agentId}/months`;
     const months = await backendFetchJsonOrNull<ReviewMonthSummary[]>(base, "Manager Invoices Agent months");
     const currentMonth = `${new Date().toISOString().slice(0, 7)}-01`;
-    const billingMonth = reviewMonthFor(months ?? [], monthParam, currentMonth);
+    const billingMonth = reviewMonthFor(months ?? [], monthQuery, currentMonth);
     const review =
       months && months.length > 0
-        ? await backendFetchJsonOrNull<ReviewMonth>(`${base}/${billingMonth.slice(0, 7)}`, "Manager Invoices Agent month")
+        ? await backendFetchJsonOrNull<ReviewMonth>(`${base}/${monthParam(billingMonth)}`, "Manager Invoices Agent month")
         : null;
     selected = { agentId: agent.agentId, months, billingMonth, review };
   }

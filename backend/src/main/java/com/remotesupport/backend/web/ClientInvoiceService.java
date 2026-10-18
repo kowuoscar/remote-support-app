@@ -130,7 +130,8 @@ public class ClientInvoiceService {
 
   /**
    * A Manager's approval of the invoices left to review in an Agent's month, all or nothing, in one
-   * transaction. Locks the Agent's month through {@link ClientInvoiceRepository#findMonthForUpdate}
+   * transaction. An Agent that is not the caller's tenant's is a {@link NotFoundException} (404),
+   * checked before anything is locked. Locks the Agent's month through {@link ClientInvoiceRepository#findMonthForUpdate}
    * (in id order, the order every month lock takes); the {@code SENT} rows among them are the batch.
    * Refuses, writing nothing, with {@code NOTHING_TO_APPROVE} when none is {@code SENT}, then {@code
    * MONTH_CHANGED} when {@code expectedInvoiceIds} differs from the batch; otherwise approves every
@@ -142,6 +143,7 @@ public class ClientInvoiceService {
       LocalDate billingMonth,
       Set<UUID> expectedInvoiceIds,
       AuthenticatedPrincipal principal) {
+    agentInvoiceService.requireAgentOfTenant(principal.tenantId(), agentId);
     List<ClientInvoice> batch =
         clientInvoiceRepository.findMonthForUpdate(agentId, billingMonth).stream()
             .filter(i -> i.getStatus() == ClientInvoiceStatus.SENT)

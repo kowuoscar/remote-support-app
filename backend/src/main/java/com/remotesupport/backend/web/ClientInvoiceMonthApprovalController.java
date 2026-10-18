@@ -2,12 +2,9 @@ package com.remotesupport.backend.web;
 
 import com.remotesupport.backend.dto.ClientInvoiceMonthApproveRequest;
 import com.remotesupport.backend.dto.ClientInvoiceMonthApproveResponse;
-import com.remotesupport.backend.repository.AgentRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.format.DateTimeParseException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -32,12 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClientInvoiceMonthApprovalController {
 
   private final ClientInvoiceService clientInvoiceService;
-  private final AgentRepository agentRepository;
 
-  public ClientInvoiceMonthApprovalController(
-      ClientInvoiceService clientInvoiceService, AgentRepository agentRepository) {
+  public ClientInvoiceMonthApprovalController(ClientInvoiceService clientInvoiceService) {
     this.clientInvoiceService = clientInvoiceService;
-    this.agentRepository = agentRepository;
   }
 
   /** {@code month} is {@code YYYY-MM}, any month; the body names the invoices the Manager saw. */
@@ -47,22 +41,11 @@ public class ClientInvoiceMonthApprovalController {
       @PathVariable String month,
       @Valid @RequestBody ClientInvoiceMonthApproveRequest request,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
-    agentRepository
-        .findByIdAndTenantId(agentId, principal.tenantId())
-        .orElseThrow(() -> new NotFoundException("No agent with id " + agentId));
-    LocalDate billingMonth = parse(month);
+    LocalDate billingMonth = MonthPath.parse(month);
     Set<UUID> expected = new HashSet<>(request.invoiceIds());
     ClientInvoiceService.MonthApproval approved =
         clientInvoiceService.approveMonth(agentId, billingMonth, expected, principal);
     return new ClientInvoiceMonthApproveResponse(billingMonth, approved.approvedAt(), approved.invoiceIds());
-  }
-
-  private static LocalDate parse(String month) {
-    try {
-      return YearMonth.parse(month).atDay(1);
-    } catch (DateTimeParseException e) {
-      throw new InvalidRequestException("month must be YYYY-MM");
-    }
   }
 
   /** A refused body is a {@code 400} whose {@code message} names the first thing wrong. */

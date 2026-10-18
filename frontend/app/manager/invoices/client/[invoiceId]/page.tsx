@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { monthParam } from "@/lib/review-months";
 import { SurfacePage } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { ClientInvoiceDetailView } from "@/components/manager/client-invoice-detail-view";
@@ -38,7 +39,7 @@ export default async function ManagerClientInvoicePage({
   const contract = contracts.find((c) => c.id === invoice.contractId);
   const review = contract
     ? await backendFetchJsonOrNull<ReviewMonth>(
-        `/api/review-queue/agents/${contract.agentId}/months/${invoice.billingMonth.slice(0, 7)}`,
+        `/api/review-queue/agents/${contract.agentId}/months/${monthParam(invoice.billingMonth)}`,
         "Manager Client Invoice Agent month",
       )
     : null;
@@ -53,7 +54,7 @@ export default async function ManagerClientInvoicePage({
                 { label: "Invoices", href: "/manager/invoices" },
                 {
                   label: contract.agentName,
-                  href: `/manager/invoices?agent=${contract.agentId}&month=${invoice.billingMonth.slice(0, 7)}`,
+                  href: `/manager/invoices?agent=${contract.agentId}&month=${monthParam(invoice.billingMonth)}`,
                 },
                 { label: contract.clientName },
               ]

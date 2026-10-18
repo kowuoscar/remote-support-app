@@ -3,6 +3,7 @@ import type {
   AgentInvoiceStatusValue as RealAgentInvoiceStatusValue,
   ClientInvoiceStatusValue,
   RequestStatusValue,
+  ReviewStatusValue,
   SimCardStatusValue,
   SmartphoneStatusValue,
 } from "@/lib/api/types";
@@ -87,4 +88,18 @@ export const agentInvoiceStatusLabelByValue: Record<RealAgentInvoiceStatusValue,
   SENT: "Awaiting approval",
   APPROVED: "Approved",
   PAID: "Paid",
+};
+
+// Manager review status of a Client Invoice in an Agent's month (manager-reviews-by-agent spec):
+// derived from the invoice's status, so "Sent back" is the one shared badge.
+export const reviewStatusToneByValue: Record<ReviewStatusValue, Tone> = {
+  TO_REVIEW: "warning",
+  APPROVED: "success",
+  SENT_BACK: sentBackBadge.tone,
+};
+
+export const reviewStatusLabelByValue: Record<ReviewStatusValue, string> = {
+  TO_REVIEW: "To review",
+  APPROVED: "Approved",
+  SENT_BACK: sentBackBadge.label,
 };

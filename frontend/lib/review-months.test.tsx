@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ReviewClientInvoice, ReviewStatusValue } from "@/lib/api/types";
-import { nextToReview, reviewMonthFor } from "./review-months";
+import { monthParam, nextToReview, reviewMonthFor } from "./review-months";
 
 const CURRENT = "2026-11-01";
 
@@ -66,5 +66,11 @@ describe("nextToReview", () => {
     ["the month is empty", [], "a"],
   ])("returns null when %s", (_name, rows, currentId) => {
     expect(nextToReview(rows, currentId)).toBeNull();
+  });
+});
+
+describe("monthParam", () => {
+  it("writes a first-of-month date as YYYY-MM", () => {
+    expect(monthParam("2026-09-01")).toBe("2026-09");
   });
 });

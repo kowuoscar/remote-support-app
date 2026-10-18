@@ -4,9 +4,6 @@ import com.remotesupport.backend.dto.ReviewAgentResponse;
 import com.remotesupport.backend.dto.ReviewMonthResponse;
 import com.remotesupport.backend.dto.ReviewMonthSummaryResponse;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,14 +43,6 @@ public class ReviewByAgentController {
       @PathVariable UUID agentId,
       @PathVariable String month,
       @AuthenticationPrincipal AuthenticatedPrincipal principal) {
-    return reviewByAgentService.month(principal.tenantId(), agentId, parse(month));
-  }
-
-  private static LocalDate parse(String month) {
-    try {
-      return YearMonth.parse(month).atDay(1);
-    } catch (DateTimeParseException e) {
-      throw new InvalidRequestException("month must be YYYY-MM");
-    }
+    return reviewByAgentService.month(principal.tenantId(), agentId, MonthPath.parse(month));
   }
 }

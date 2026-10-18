@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { buttonClasses } from "@/components/ui/button";
 import { IconArrowRight } from "@/components/icons";
 import { formatBillingMonth } from "@/lib/format";
 import { nextToReview } from "@/lib/review-months";
@@ -20,7 +21,7 @@ export function ReviewMonthNext({ review, currentId }: { review: ReviewMonth | n
         <Link
           href={`/manager/invoices/client/${next.id}`}
           aria-label={`Next invoice: ${next.clientName}`}
-          className="inline-flex h-7 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-hairline-strong bg-canvas px-3 text-[13px] font-medium text-ink transition-colors hover:bg-canvas-soft active:bg-canvas-soft"
+          className={buttonClasses({ variant: "secondary", size: "sm" })}
         >
           Next invoice
           <IconArrowRight className="h-3.5 w-3.5" />

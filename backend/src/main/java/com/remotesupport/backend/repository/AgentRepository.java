@@ -14,6 +14,8 @@ public interface AgentRepository extends JpaRepository<Agent, UUID> {
 
   List<Agent> findByTenantIdOrderByNameAsc(UUID tenantId);
 
+  List<Agent> findByTenantId(UUID tenantId);
+
   Optional<Agent> findByIdAndTenantId(UUID id, UUID tenantId);
 
   /**

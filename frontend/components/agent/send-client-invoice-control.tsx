@@ -4,7 +4,7 @@ import { useId } from "react";
 import { forCount } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { IconArrowRight } from "@/components/icons";
-import { SendErrorLine, useTwoStepSend } from "./use-two-step-send";
+import { SendErrorLine, useTwoStepConfirm } from "@/components/ui/use-two-step-confirm";
 
 /**
  * Agent sends their own draft Client Invoice (client-invoice-submission-and-visibility ticket AC:
@@ -45,7 +45,7 @@ export function SendClientInvoiceControl({
   resend?: boolean;
 }) {
   const noteId = useId();
-  const { trigger, confirmButton, confirming, pending, error, open, close, submit, onKeyDown } = useTwoStepSend();
+  const { trigger, confirmButton, confirming, pending, error, open, close, submit, onKeyDown } = useTwoStepConfirm();
   const errorLine = <SendErrorLine error={error} />;
 
   if (confirming && missingCarrierInvoices === 0) {

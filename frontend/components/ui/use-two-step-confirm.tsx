@@ -28,7 +28,7 @@ const SEND_UNREACHABLE = "Couldn't reach the server. Check your connection and t
  * `copy` words the refusals of another one-way action sharing the shape (the Manager's month approval);
  * it defaults to the send's. After a successful send `pending` stays true ("Sending…") until the refreshed page replaces the control.
  */
-export function useTwoStepSend(
+export function useTwoStepConfirm(
   copy: { refusals: Record<string, string>; failed: string } = { refusals: SEND_REFUSALS, failed: SEND_FAILED },
 ) {
   const router = useRouter();

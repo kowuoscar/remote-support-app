@@ -291,38 +291,41 @@
     {
       "id": "F27",
       "type": "design-guideline",
-      "state": "open",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/tests/visual/client-invoice-files.spec.ts:55-68",
       "citation": "DESIGN.md Layout: sticky 56px top bar and sticky rail; F20 asked for a golden of 'the open inline confirm'",
       "note": "All four client-invoice-remove-confirm-open-* goldens are bad full-page captures: clicking Remove scrolls the document, so the sticky top bar and rail are drawn partway down, covering the card header; the mobile ones bake in a hover underline. Scroll to the top and move the mouse away before capture (or screenshot the files section), then retake.",
-      "status": "fixed"
+      "status": "fixed",
+      "reason": "All four remove-confirm goldens are clean: top bar at y=0, confirm fully visible, no hover underline."
     },
     {
       "id": "F28",
       "type": "design-guideline",
-      "state": "open",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/agent/agent-client-invoice-card.tsx:167",
       "citation": "spec Design direction, disabled Send: 'right-aligned like the confirm text'; F23 note",
       "note": "At 390 the wrapped action column (now max-w-65) right-aligns to x≈297, lining up with neither the title nor the card's content edge. Give the column ml-auto (or w-full items-end below sm) so it sits flush right, then retake the mobile goldens.",
-      "status": "fixed"
+      "status": "fixed",
+      "reason": "Action column ends at x≈353, the card content edge, in every mobile golden."
     },
     {
       "id": "F29",
       "type": "design-guideline",
-      "state": "open",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/manager/client-invoice-detail-view.tsx:146-148 with frontend/components/ui/carrier-invoice-check.tsx",
       "citation": "spec Design direction: 'inline after the muted Carrier label … the row layout … do not move'; DESIGN.md Components: IconCheckCircle 'after its Carrier label'",
       "note": "At 390 on the Manager detail the check mark wraps alone onto a new line under the Carrier label. Keep label and check together (whitespace-nowrap span around simLineKind + CarrierInvoiceCheck), then retake.",
-      "status": "fixed"
+      "status": "fixed",
+      "reason": "Check mark inline after \"Verizon · Postpaid\" in manager-client-invoice-check-mark-mobile-*."
     },
     {
       "id": "F30",
@@ -334,6 +337,17 @@
       "where": "frontend/components/manager/client-invoice-detail-view.tsx (Manager SIM row break-words)",
       "citation": "DESIGN.md: 'A SIM number never breaks across lines'",
       "note": "At 390 the Manager detail breaks '+44 7700 / 900456' across lines; pre-existing break-words on the Manager row, predates this branch."
+    },
+    {
+      "id": "F31",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/manager/client-invoice-detail-view.tsx:146-150",
+      "citation": "DESIGN.md:166 'A SIM number never breaks across lines.'",
+      "note": "Introduced by 37487f9 (F29 fix): the nowrap Carrier label + check no longer fits beside the number at 390, so '+44 7700 900123' now breaks ('+44 7700' / '900123'); it fit on one line before. Row 2's label also wraps alone, indented by ml-2. Fix: whitespace-nowrap on the sim.number span (also clears F30), drop ml-2 at line start, retake."
     }
   ]
 }

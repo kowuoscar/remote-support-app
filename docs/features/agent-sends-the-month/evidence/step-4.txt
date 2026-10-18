@@ -1,0 +1,1 @@
+Step 4 passed: see step-4-*.txt snapshots, step-4-3of3.png

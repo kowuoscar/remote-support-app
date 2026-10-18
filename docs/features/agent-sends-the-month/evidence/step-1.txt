@@ -1,0 +1,26 @@
+VERIFY: mvn 983 tests 0 failures BUILD SUCCESS; vitest 80 files/647 tests passed; e2e isolated 114 passed; test:visual 162 passed (visual run: VISUAL_EXIT=0)
+19952:[INFO] Tests run: 983, Failures: 0, Errors: 0, Skipped: 0
+19967:[INFO] BUILD SUCCESS
+20099: Test Files  80 passed (80)
+20335:  114 passed (8.8m)
+20336:VERIFY_EXIT=0
+20533:  162 passed (47.9s)
+20534:VISUAL_EXIT=0
+
+Goldens changed on branch vs main:
+agent-client-invoices-desktop-dark.png
+agent-client-invoices-desktop-light.png
+agent-client-invoices-mobile-dark.png
+agent-client-invoices-mobile-light.png
+client-invoice-attach-dialog-open-desktop-dark.png
+client-invoice-attach-dialog-open-desktop-light.png
+client-invoice-files-paused-desktop-dark.png
+client-invoice-files-paused-desktop-light.png
+client-invoice-files-paused-mobile-dark.png
+client-invoice-files-paused-mobile-light.png
+client-invoice-remove-confirm-open-desktop-dark.png
+client-invoice-remove-confirm-open-desktop-light.png
+client-invoice-remove-confirm-open-mobile-dark.png
+client-invoice-remove-confirm-open-mobile-light.png
+
+Containers diff before/after: none

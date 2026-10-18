@@ -1,0 +1,113 @@
+{
+  "feature": "agent-sends-the-month",
+  "played_at": "2026-10-18",
+  "played_on": "feature/agent-sends-the-month @ 03d9045 (+ records)",
+  "environment": "Isolated: throwaway postgres:16-alpine acc-asm-pg and chrislusf/seaweedfs:4.48 acc-asm-sw on free ports, backend jar on the demo profile on 57661, frontend production build on 57662; all removed; rsa-prod untouched. Setup through the Manager API.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1.txt",
+      "note": "verify green: mvn 983, vitest 647, e2e 114, visual 162; goldens as the spec lists; machine not idle (rsa-prod running), nothing failed"
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2.txt",
+      "note": "Avery's bar 1 of 3 ready, rows and cards; C at $0; Dee (no Contract) sees no bar"
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3.txt",
+      "note": "MONTH_NOT_SENT on both per-invoice routes; CARRIER_INVOICES_MISSING naming A and B; nothing written; NOT_THE_CURRENT_MONTH, 400, 403s"
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4.txt",
+      "note": "attach/remove/re-attach move the marks and the bar count"
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": "MONTH_CHANGED shown, nothing sent; 4 of 4 after reload; Blake's empty draft sent at $0"
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": "confirm, focus, sent bar, Awaiting approval rows, one shared sent_at, audit line count=4"
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": "MONTH_ALREADY_SENT; two parallel sends: one 200, one 409"
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-8.txt",
+      "note": "stale-ready message, invoice stays DRAFT; failed-load state shown by its component test"
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "pending",
+      "evidence": "evidence/step-9.txt",
+      "note": "Partly played (Testers' views and downloads verified); the Review Queue part not played: runner turn limit. Replay after the fix pass."
+    },
+    {
+      "step": 10,
+      "actor": "agent",
+      "status": "pending",
+      "evidence": "",
+      "note": "Not played yet: runner turn limit. Replay after the fix pass."
+    },
+    {
+      "step": 11,
+      "actor": "agent",
+      "status": "pending",
+      "evidence": "",
+      "note": "Not played yet: runner turn limit. Replay after the fix pass."
+    },
+    {
+      "step": 12,
+      "actor": "agent",
+      "status": "pending",
+      "evidence": "",
+      "note": "Not played yet: runner turn limit. Replay after the fix pass."
+    },
+    {
+      "step": 13,
+      "actor": "agent",
+      "status": "pending",
+      "evidence": "",
+      "note": "Not played yet: runner turn limit. Replay after the fix pass."
+    },
+    {
+      "step": 14,
+      "actor": "agent",
+      "status": "pending",
+      "evidence": "",
+      "note": "Not played yet: runner turn limit. Replay after the fix pass."
+    },
+    {
+      "step": 15,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "[human] step on rsa-prod"
+    }
+  ]
+}

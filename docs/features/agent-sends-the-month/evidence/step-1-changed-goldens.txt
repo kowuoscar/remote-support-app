@@ -1,0 +1,14 @@
+agent-client-invoices-desktop-dark.png
+agent-client-invoices-desktop-light.png
+agent-client-invoices-mobile-dark.png
+agent-client-invoices-mobile-light.png
+client-invoice-attach-dialog-open-desktop-dark.png
+client-invoice-attach-dialog-open-desktop-light.png
+client-invoice-files-paused-desktop-dark.png
+client-invoice-files-paused-desktop-light.png
+client-invoice-files-paused-mobile-dark.png
+client-invoice-files-paused-mobile-light.png
+client-invoice-remove-confirm-open-desktop-dark.png
+client-invoice-remove-confirm-open-desktop-light.png
+client-invoice-remove-confirm-open-mobile-dark.png
+client-invoice-remove-confirm-open-mobile-light.png

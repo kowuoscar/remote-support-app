@@ -1,0 +1,6 @@
+### Result
+"Download PDF /api/contracts/aac98a62-aa8c-4351-8c13-092e23b97f0c/client-invoice/pdf -> 200 application/pdf 954B\nDownload /api/contracts/aac98a62-aa8c-4351-8c13-092e23b97f0c/client-invoice/files/8e5f88a7-049f-4921-a188-c08af29bc7bf -> 200 application/pdf 71B\nDownload /api/contracts/aac98a62-aa8c-4351-8c13-092e23b97f0c/client-invoice/files/1103972c-90a5-4877-82e1-bc1d66be0fae -> 200 application/pdf 71B"
+### Ran Playwright code
+```js
+await page.evaluate('async () => { const out=[]; for (const a of document.querySelectorAll(\'a\')) { if(/Download/.test(a.textContent)) { const r=await fetch(a.href,{credentials:\'include\'}); const b=await r.arrayBuffer(); out.push(a.textContent.trim()+\' \'+a.getAttribute(\'href\')+\' -> \'+r.status+\' \'+r.headers.get(\'content-type\')+\' \'+b.byteLength+\'B\'); } } return out.join(\'\\n\'); }');
+```

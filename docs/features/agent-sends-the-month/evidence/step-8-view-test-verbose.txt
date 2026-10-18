@@ -1,0 +1,109 @@
+
+ RUN  v4.1.11 /Users/oscar/myspace/projects/remote-support-app/frontend
+
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView sent back to you > section-absent-when-list-is-empty 105ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView sent back to you > rows-show-contract-month-date-reason-and-open-link 24ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView sent back to you > current-month-card-shows-reason-and-badge-when-sent-back 6ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > lists one link per Contract in alphabetical order whatever order props arrive in, the switcher alike 29ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > orders two Contracts of one Client by Country and shows the Country only on those rows 21ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > selects the first row on arrival and shows its invoice 11ms
+Not implemented: navigation to another Document
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > a click swaps the invoice in place, moves aria-current and makes no request 28ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > each row's href names the Contract, so a modified click opens it 13ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > a modified click is not intercepted 30ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > Enter on a focused row selects it 23ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > the switcher choice moves the selected row too 29ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > a single Contract gives one selected row 5ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > no Contracts: 'No contracts yet' and no Clients landmark 1ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > a 60-character name keeps its full name as the row's title 4ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > the selected Client in the address > a valid initialContractId makes that row current 14ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > the selected Client in the address > an unknown initialContractId (nonsense) opens the first row 7ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > the selected Client in the address > an unknown initialContractId () opens the first row 6ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > the selected Client in the address > an unknown initialContractId (undefined) opens the first row 6ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > the selected Client in the address > a row click writes ?contract=<id> without a history entry, a request or a router call 16ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > the selected Client in the address > a switcher choice writes ?contract=<id> too 20ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > the selected Client in the address > scrolls the selected row into the column on arrival 3ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list (contract-side-list-on-desktop) > scrolls the document to the top when the invoice area's top is above the viewport 32ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list readiness (agent-sends-the-month) > marks a ready draft with a check and Ready, and a draft with files missing with the count 21ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list readiness (agent-sends-the-month) > puts the readiness after the Country, the badge and the Sent back mark in the accessible name 17ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list readiness (agent-sends-the-month) > shows the readiness of a sent-back draft beside its Sent back badge 9ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list readiness (agent-sends-the-month) > shows no readiness on a sent row, an approved row or a row that failed to load 8ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list readiness (agent-sends-the-month) > follows the refreshed invoice after an attach or a remove 23ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > lists a still-Active Postpaid SIM Card with no cancellation marker 10ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > reads each SIM line's number followed by its Carrier and 'Postpaid', and 'Postpaid' alone without a Carrier 6ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > shows 'Carrier invoice attached' on a covered Postpaid SIM line and nothing on an uncovered one 9ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > marks a cancelled SIM Card still billed this month with its cancellation date 5ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > shows no Postpaid SIM Cards section once the invoice is sent, with no live breakdown to show 5ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > shows no Postpaid SIM Cards section when the Contract has none 5ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > editing lines (edit-client-invoice-lines) > edited-line-shows-marker-and-reset: the SIM row shows its billed amount, not its monthly fee 11ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > editing lines (edit-client-invoice-lines) > gives each Postpaid SIM row and Fee row an Edit action on a draft 19ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > editing lines (edit-client-invoice-lines) > F23: Fees of one type logged the same day with no description get distinct names; long descriptions are cut 11ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > editing lines (edit-client-invoice-lines) > no-edit-or-reset-on-sent-invoice, yet the marker stays 14ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > editing lines (edit-client-invoice-lines) > hint-line-shown-on-draft, and not on a sent invoice 5ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > sent-back-badge-and-notice-with-correct-what-is-needed-line 8ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > a plain draft keeps its Draft badge and shows no notice 2ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > pauses-attach-and-download-with-a-notice-when-file-storage-is-unavailable 14ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > offers Attach carrier invoice while a Postpaid SIM line has no file, and disables it once every line has one 23ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > keeps a file whose SIM has no line listed, and still offers every line without its file 11ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > has no Attach carrier invoice when the invoice has no Postpaid SIM line 14ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > editor-present-on-sent-back-draft-and-calls-by-id-route 75ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > a deleted Carrier Invoice File (carrier-invoice-retention) > keeps the SIM line's 'Carrier invoice attached' check mark and lists the file as deleted 10ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > a deleted Carrier Invoice File (carrier-invoice-retention) > enables Send, with no count note, when every Postpaid SIM line's file is deleted 12ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > a deleted Carrier Invoice File (carrier-invoice-retention) > still offers Remove on the deleted file of an editable draft 11ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > Remove (remove-carrier-invoice-file) > opens an inline confirm, sends a DELETE by invoice and file id, and refreshes the page 37ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > Remove (remove-carrier-invoice-file) > Cancel closes the confirm without a request and gives the trigger its focus back 41ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > Remove (remove-carrier-invoice-file) > shows a failure and keeps the file listed 34ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > Remove (remove-carrier-invoice-file) > is disabled while file storage is unavailable, and the notice names removing 14ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > Remove (remove-carrier-invoice-file) > is absent on a sent invoice and on a past month's draft never sent 6ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > editor-attach-and-send-absent-on-past-month-draft-never-sent 11ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > offers no PDF for a past-month sent invoice, whose PDF isn't served by id 3ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > keeps the PDF link on a current-month sent invoice 3ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > a past-month sent-back draft isn't described as this month's 3ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > names the Client and country in the breadcrumb 4ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > the breadcrumb returns to the list with this invoice's Client selected 6ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > not found: the links stay plain 2ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > not found: honest copy and the breadcrumb back 2ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > a current-month draft never sent stays editable on its by-id page 6ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > the send gate (carrier-invoice-per-sim) > disables Send with a singular count note, linked by aria-describedby, while one line lacks its file 17ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > the send gate (carrier-invoice-per-sim) > counts several lines in the plural 11ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > the send gate (carrier-invoice-per-sim) > enables Send with every line covered or with no Postpaid line, and shows no note 16ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > the send gate (carrier-invoice-per-sim) > does not count a file whose SIM has no line toward a line 9ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > the send gate (carrier-invoice-per-sim) > shows the reload message for a send refused with CARRIER_INVOICES_MISSING 32ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > the send gate (carrier-invoice-per-sim) > keeps the old text for any other failed send 32ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > send-confirmation-says-only-the-manager-can-send-it-back 17ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > the current-month page shows the new confirmation copy too 11ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > by-id-page-shows-not-found-for-other-agent-unknown-and-other-tenant-id: another Agent's invoice id 1ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > by-id-page-shows-not-found-for-other-agent-unknown-and-other-tenant-id: an unknown id 1ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > by-id-page-shows-not-found-for-other-agent-unknown-and-other-tenant-id: another Tenant's id 1ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView > the by-id page (send-a-client-invoice-back) > the by-id read of an invoice of the Agent's own comes back as the invoice 0ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list row status (side-list-row-status) > each row's label names the month's status: Draft, Awaiting approval, Approved, Sent back 15ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list row status (side-list-row-status) > a Contract whose invoice failed to load stays listed with no badge; selecting it explains, others still open 28ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list Sent back mark (sent-back-in-the-side-list) > an earlier-month sent-back invoice gives the month's status plus the mark; other rows show none 15ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list Sent back mark (sent-back-in-the-side-list) > the mark carries the alert-triangle icon, not the status dot, so it differs from an Awaiting approval badge 6ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list Sent back mark (sent-back-in-the-side-list) > a this-month sent-back draft that is also in the list reads Sent back once 8ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list Sent back mark (sent-back-in-the-side-list) > with no sent-back list, a this-month sent-back draft still reads Sent back once and no row has a mark 6ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list Sent back mark (sent-back-in-the-side-list) > a failed-load row with an invoice in the list shows the mark alone 10ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list Sent back mark (sent-back-in-the-side-list) > the Sent back to you region precedes the invoice whichever row is selected 30ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list Sent back mark (sent-back-in-the-side-list) > the Contract cell titles the full Client — Country and the Open link names the Country and month 8ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView invoice lines (invoice-lines-layout) > one markup: a table per list, one row per line plus a header row, each amount and note once 24ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView invoice lines (invoice-lines-layout) > a Fee row says Logged with its date; a Fee with no description has no description text beyond the desktop dash 28ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView invoice lines (invoice-lines-layout) > a sent invoice keeps each edited line's note and has no button in any line row 10ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView invoice lines (invoice-lines-layout) > a closed past-month draft keeps each edited line's note and has no button in any line row 8ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView month bar (agent-sends-the-month) > shows the unsent bar from the loaded invoices, disabled with its note while one is not ready 5ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView month bar (agent-sends-the-month) > shows the sent bar when an invoice carries monthSentAt, even beside a sendable draft 6ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView month bar (agent-sends-the-month) > shows the incomplete bar when an invoice failed to load 5ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView month bar (agent-sends-the-month) > shows no bar with no Contracts, only the empty state 1ms
+ ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView month bar (agent-sends-the-month) > puts the bar before Sent back to you and before the Contract switcher 7ms
+ ✓ components/agent/client-invoices-view.test.tsx > the card's Send defers to the month bar (agent-sends-the-month) > shows no Send on a never-sent card while the month is unsent, only the line pointing at the bar 10ms
+ ✓ components/agent/client-invoices-view.test.tsx > the card's Send defers to the month bar (agent-sends-the-month) > keeps the missing-files note as its own line above the month line, and Attach offered 11ms
+ ✓ components/agent/client-invoices-view.test.tsx > the card's Send defers to the month bar (agent-sends-the-month) > keeps Remove on an attached file of a card that defers to the bar 9ms
+ ✓ components/agent/client-invoices-view.test.tsx > the card's Send defers to the month bar (agent-sends-the-month) > shows the same on the by-id page, which has no bar 7ms
+ ✓ components/agent/client-invoices-view.test.tsx > the card's Send defers to the month bar (agent-sends-the-month) > offers Resend Client Invoice on a sent-back card and sends it alone with Confirm resend 22ms
+ ✓ components/agent/client-invoices-view.test.tsx > the card's Send defers to the month bar (agent-sends-the-month) > gates a sent-back card's Resend on its own missing files, with the count note 10ms
+ ✓ components/agent/client-invoices-view.test.tsx > the card's Send defers to the month bar (agent-sends-the-month) > offers Send Client Invoice on a late Contract's card, gated by its own carrier invoices 29ms
+
+ Test Files  1 passed (1)
+      Tests  99 passed (99)
+   Start at  16:53:29
+   Duration  2.42s (transform 157ms, setup 163ms, import 218ms, tests 1.43s, environment 528ms)
+

@@ -1,0 +1,38 @@
+# A=c5f93e12-9431-4c13-a518-aee4e2859bee B=c631284f-64f7-4b20-b0d9-ad2ecc5e7d93 C=160a150f-6f23-4e8f-90bc-2c251f717c49
+# as Avery: per-invoice send of C (by id) and Contract route
+{"code":"MONTH_NOT_SENT","message":"Send this month's Client Invoices together, from the month send"}
+409
+{"code":"MONTH_NOT_SENT","message":"Send this month's Client Invoices together, from the month send"}
+409
+# month send as Avery (expect invoiceIds exactly A and B)
+{"code":"CARRIER_INVOICES_MISSING","message":"2 Client Invoice(s) have a Postpaid SIM line without its carrier invoice","invoiceIds":["c5f93e12-9431-4c13-a518-aee4e2859bee","c631284f-64f7-4b20-b0d9-ad2ecc5e7d93"]}
+409
+# db state
+                  id                  | status | lines_stored | first_sent_at 
+--------------------------------------+--------+--------------+---------------
+ c631284f-64f7-4b20-b0d9-ad2ecc5e7d93 | DRAFT  | f            | 
+ c5f93e12-9431-4c13-a518-aee4e2859bee | DRAFT  | f            | 
+ 160a150f-6f23-4e8f-90bc-2c251f717c49 | DRAFT  | f            | 
+(3 rows)
+
+ lines_stored         | boolean                  |           | not null | false
+    TABLE "client_invoice_lines" CONSTRAINT "client_invoice_lines_client_invoice_id_fkey" FOREIGN KEY (client_invoice_id) REFERENCES client_invoices(id)
+ public | client_invoice_lines         | table | remote_support
+# last month / next month / malformed
+{"code":"NOT_THE_CURRENT_MONTH","message":"Only the current month can be sent"}
+409
+{"code":"NOT_THE_CURRENT_MONTH","message":"Only the current month can be sent"}
+409
+{"message":"month must be YYYY-MM"}
+400
+# manager / tester
+{"timestamp":"2026-10-18T14:56:31.260+00:00","status":403,"error":"Forbidden","path":"/api/me/client-invoice-months/2026-10/send"}
+403
+{"timestamp":"2026-10-18T14:56:31.270+00:00","status":403,"error":"Forbidden","path":"/api/me/client-invoice-months/2026-10/send"}
+403
+# line rows for A,B,C:
+ count 
+-------
+     0
+(1 row)
+

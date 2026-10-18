@@ -1,0 +1,137 @@
+{
+  "feature": "agent-sends-the-month",
+  "findings": [
+    {
+      "id": "F1",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/send-client-invoice-month-control.tsx:142",
+      "citation": "",
+      "note": "With one Contract the confirm reads 'Sends all 1 Client Invoice to the Manager…'; the spec rejected 'Send all 1' for the button; use a one-Contract wording."
+    },
+    {
+      "id": "F2",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-spec",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/lib/api/client-invoice-month.ts:25",
+      "citation": "",
+      "note": "When no invoice loads at all the incomplete bar drops the '{Month Year} · ' prefix; the current UTC month could stand in. Edge case."
+    },
+    {
+      "id": "F3",
+      "type": "rule-violated",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "commit 42fac4e: frontend/tests/visual/__screenshots__/agent-client-invoices-{desktop,mobile}-{dark,light}.png",
+      "citation": "docs/agents/frontend.md: Visual goldens pass, or were updated in the same commit as the code change that moved them (conforming to DESIGN.md) or as DESIGN.md. / A screenshot golden updated on its own, with no code change behind it, is drift.",
+      "note": "Goldens recaptured in a commit with no code change; the code that moved them (card drops first Send) is in 77c9841. Fold 42fac4e into 77c9841."
+    },
+    {
+      "id": "F4",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/send-client-invoice-month-control.tsx:314",
+      "citation": "possible Duplicated Code",
+      "note": "Two-step confirm (focus effect, close, Escape, pending guard, error line) re-implemented from SendClientInvoiceControl; extract a shared hook."
+    },
+    {
+      "id": "F5",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/send-client-invoice-month-control.tsx:283",
+      "citation": "possible Repeated Switches",
+      "note": "Error code to message mapping exists as REFUSALS here and as a nested ternary in send-client-invoice-control.tsx:82."
+    },
+    {
+      "id": "F6",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/client-invoices-view.tsx:189",
+      "citation": "possible Duplicated Code",
+      "note": "Singular/plural count copy written three ways (Readiness, missingCarrierInvoicesNote, month bar notReady note)."
+    },
+    {
+      "id": "F7",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/repository/ClientInvoiceRepository.java:262",
+      "citation": "possible Duplicated Code",
+      "note": "Agent's-month subquery repeated in findMonthForUpdate and monthSentAt."
+    },
+    {
+      "id": "F8",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceService.java:897",
+      "citation": "possible Primitive Obsession",
+      "note": "Optional<Set<UUID>> as a parameter through two layers; nullable invoiceIds list in ClientInvoiceConflictException means 'names none'."
+    },
+    {
+      "id": "F9",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/web/PerInvoiceSendNarrowedApiTest.java:99",
+      "citation": "possible Duplicated Code",
+      "note": "By-id and by-contract MONTH_NOT_SENT tests are copies differing only in route; parameterize."
+    },
+    {
+      "id": "F10",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/send-client-invoice-month-control.tsx:63",
+      "citation": "DESIGN.md Month bar: \"The month and its state read on the left as one sentence\"; \"Sent: IconCheckCircle (h-3.5, success) and one sentence, 'Sent to Manager on {date}'\"",
+      "note": "The sent state wraps check + sentence in an inline-flex span that can't break: at mobile it drops to line 2 as a block, leaving 'September 2026 ·' alone on line 1 (remove-confirm-open-mobile, files-paused-mobile goldens); on desktop 'September 2026 ·' sits ~2px below the sentence's baseline (files-paused-desktop-light). Fix: icon inline aligned to text (e.g. inline align-[-2px]) so the sentence wraps as text on one baseline."
+    },
+    {
+      "id": "F11",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/ui/side-list.tsx:90",
+      "citation": "spec Design direction / DESIGN.md Side list Row: \"line 2 left reads '✓ Ready' … or '{n} files missing' (ink-mute), after the Country when shown\"",
+      "note": "Track list minmax(0,1fr)_minmax(0,auto)_auto puts readiness in track 2 after the 1fr track, so with a short Country it floats next to the badge column ('Mexico' ~25px gap '· ✓ Ready'). The visual test only checks x >= country right edge with a truncating 'United Kingdom', hiding the gap. Fix: Country and readiness in one flex span on line 2 (Country truncating, readiness shrink-0), or track 1 minmax(0,auto) plus a trailing 1fr spacer; tighten the test with a short Country."
+    },
+    {
+      "id": "F12",
+      "type": "design-guideline",
+      "state": "open",
+      "raised_by": "design-audit",
+      "after_review": false,
+      "in_changed_lines": true,
+      "where": "frontend/components/agent/send-client-invoice-month-control.tsx:137",
+      "citation": "DESIGN.md Month bar: \"The month and its state read on the left as one sentence … the action on the right\"; \"The confirm is the Client Invoice Send's two-step inline confirm\"",
+      "note": "The confirm state replaces the whole bar, so 'September 2026 · 2 of 2 ready' disappears while confirming; the card's Send confirm replaces only the trigger. Fix: keep the left text and swap only the trigger column for the confirm copy and buttons."
+    }
+  ]
+}

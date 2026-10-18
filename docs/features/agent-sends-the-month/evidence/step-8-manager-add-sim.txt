@@ -1,0 +1,7 @@
+# Manager adds second Postpaid SIM to Casey's Contract
+201
+ status | first_sent_at 
+--------+---------------
+ DRAFT  | 
+(1 row)
+

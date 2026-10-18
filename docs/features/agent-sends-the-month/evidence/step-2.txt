@@ -1,0 +1,1 @@
+Step 2 passed: see step-2-avery-snapshot.txt (bar 'October 2026 · 1 of 3 ready', 'Send all 3 to Manager' disabled, '2 invoices still need their carrier invoices.', rows 2 files missing / 1 file missing / Ready, no card Send, A card lines), step-2-avery-C-snapshot.txt (C total $0.00), step-2-dee-snapshot.txt (Dee: no bar, 'No contracts yet')

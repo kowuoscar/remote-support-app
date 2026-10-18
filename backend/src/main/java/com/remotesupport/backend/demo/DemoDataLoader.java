@@ -86,7 +86,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -499,7 +498,7 @@ public class DemoDataLoader implements ApplicationRunner {
       return;
     }
     ClientInvoiceMonthSendResponse sent =
-        clientInvoiceMonthService.send(JORDAN_AGENT_ID, BillingMonth.current(), Optional.empty(), jordan);
+        clientInvoiceMonthService.send(JORDAN_AGENT_ID, BillingMonth.current(), null, jordan);
     log.info("Jordan's month {} sent: {} Client Invoices.", sent.billingMonth(), sent.invoiceIds().size());
   }
 

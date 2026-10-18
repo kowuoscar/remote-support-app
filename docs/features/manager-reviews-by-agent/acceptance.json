@@ -42,30 +42,30 @@
     {
       "step": 6,
       "actor": "agent",
-      "status": "pending",
-      "evidence": "",
-      "note": "Not played yet: played after the fix pass by a second runner."
+      "status": "passed",
+      "evidence": "evidence/step-6.txt",
+      "note": "MONTH_CHANGED / NOTHING_TO_APPROVE / 400s / 403s / 404s, reads write nothing; parallel approvals one 200 one 409; approval reads APPROVED for the Agent and the Tester"
     },
     {
       "step": 7,
       "actor": "agent",
-      "status": "pending",
-      "evidence": "",
-      "note": "Not played yet: played after the fix pass by a second runner."
+      "status": "passed",
+      "evidence": "evidence/step-7.txt",
+      "note": "Agent Invoice row once sent with Review; older waiting month opens first; Month select; unsent month sentence; past month approves"
     },
     {
       "step": 8,
       "actor": "agent",
-      "status": "pending",
-      "evidence": "",
-      "note": "Not played yet: played after the fix pass by a second runner."
+      "status": "passed",
+      "evidence": "evidence/step-8.txt",
+      "note": "another tenant's Agent opens All Agents and its reads answer 404; failed-read states shown by their component tests (step-8-component-tests.txt)"
     },
     {
       "step": 9,
       "actor": "agent",
-      "status": "pending",
-      "evidence": "",
-      "note": "Not played yet: played after the fix pass by a second runner."
+      "status": "passed",
+      "evidence": "evidence/step-9.txt",
+      "note": "Agents dropdown with icon and count lines; the approve pill wraps; neither the page nor the detail page scrolls sideways at 390 or 1024. At 390 the month's table (720px) scrolls inside its own wrapper, so Total and Review need a swipe: passed under DESIGN.md's table rule (a table scrolls inside its wrapper; the page never scrolls sideways), the same as the Review Queue. Recorded as an (after review) decision and raised with the human."
     },
     {
       "step": 10,

@@ -587,6 +587,7 @@ leaves, and what a user sees and can do on the page.
 
 ## Decisions taken
 
+- **(after review) "No sideways scroll" in story 5 and walkthrough step 9 means the page: below `md` an Agent's month table keeps the 720px minimum and scrolls inside its own wrapper, as the Review Queue and every other table do (DESIGN.md: tables scroll horizontally inside an `overflow-x-auto` wrapper; the page never scrolls sideways).** Reason: the walkthrough found Total and Review behind a swipe at 390px; reflowing the month to cards is a design change the human can ask for as a follow-up. (Orchestrator under the human's advance approval, 2026-10-18.)
 - **(after review) The Review Queue table is `dense` and its subject cell wraps (`min-w-40`), under All Agents and alone.** Reason: beside the 256px side list at 1440px the queue clipped its Review link; its content, order, type filter and API are unchanged, only its cell padding and wrapping. Replaces "`ReviewQueueView` unchanged" for its layout only. (Orchestrator under the human's advance approval, 2026-10-18; spec review F1.)
 - **Spec approved by the human in advance** ("implements this in full without stop", epic 2026-10-18).
 - **The Review Queue stays, as the side list's first row "All Agents", selected by default.** (settled by the orchestrator under the human's advance approval) Reason: it keeps the "Work through what is waiting" journey, the dashboard's "Review all" link and every existing e2e spec working unchanged. Nothing waiting, of either type, is ever behind a pick.

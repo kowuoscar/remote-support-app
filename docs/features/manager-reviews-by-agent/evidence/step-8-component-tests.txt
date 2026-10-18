@@ -1,0 +1,39 @@
+
+ RUN  v4.1.11 /Users/oscar/myspace/projects/remote-support-app/frontend
+
+ ✓ components/manager/review-month-next.test.tsx > ReviewMonthNext > links to the next invoice still to review, named for its Client 64ms
+ ✓ components/manager/review-month-next.test.tsx > ReviewMonthNext > says nothing else is left, with the month, when no other invoice is To review 14ms
+ ✓ components/manager/review-month-next.test.tsx > ReviewMonthNext > renders nothing when the month could not be read 1ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview header > reads how many of the month are still to review 92ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview header > reads how many are approved, and how many sent back, once nothing is left to review 7ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview header > leaves out the sent-back clause when none was sent back 5ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview month approval > offers the approval of every To review row in the header, and mounts the control with their ids 34ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview month approval > holds no button when nothing is left to review 6ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview list > lists one row per Client Invoice with its status, total and a Review link naming it 37ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview Agent Invoice row > shows the sent Agent Invoice under the table with its status, total and a Review link 7ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview Agent Invoice row > has no row while the Agent Invoice is a draft 9ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview Agent Invoice row > says no Client Invoice was sent when only the Agent Invoice was 4ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview Month select > lists every sent month, newest first, with what waits in each 6ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview Month select > writes the picked month to the address 15ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview Month select > adds the shown month when the Agent never sent it 6ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview empty and failed states > says an unsent month is unsent, with the select still there 4ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview empty and failed states > says an Agent who never sent has no month, with no select 1ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview empty and failed states > says the read failed when the month read did 1ms
+ ✓ components/manager/agent-month-review.test.tsx > AgentMonthReview empty and failed states > says the read failed when the months read did 1ms
+ ✓ components/manager/manager-invoices-view.test.tsx > ManagerInvoicesView side list > lists All Agents first, then every Agent in the server's order, each with its count 106ms
+ ✓ components/manager/manager-invoices-view.test.tsx > ManagerInvoicesView side list > shows a dash, not a zero, beside an Agent with nothing waiting 25ms
+ ✓ components/manager/manager-invoices-view.test.tsx > ManagerInvoicesView side list > selects All Agents by default and shows the Review Queue 20ms
+ ✓ components/manager/manager-invoices-view.test.tsx > ManagerInvoicesView side list > writes a pick to the address with router.replace, dropping the month and the type 35ms
+ ✓ components/manager/manager-invoices-view.test.tsx > ManagerInvoicesView side list > returns to the plain address when All Agents is picked 27ms
+ ✓ components/manager/manager-invoices-view.test.tsx > ManagerInvoicesView side list > selects the picked Agent and shows their month instead of the queue 14ms
+ ✓ components/manager/manager-invoices-view.test.tsx > ManagerInvoicesView dropdown > offers the same rows with their count as the second line 18ms
+ ✓ components/manager/manager-invoices-view.test.tsx > ManagerInvoicesView dropdown > writes a pick to the address 25ms
+ ✓ components/manager/manager-invoices-view.test.tsx > ManagerInvoicesView without Agents > shows the queue alone for a tenant with no Agent 6ms
+ ✓ components/manager/manager-invoices-view.test.tsx > ManagerInvoicesView without Agents > shows the queue alone for a failed Agents read 5ms
+ ✓ components/manager/manager-invoices-view.test.tsx > ManagerInvoicesView without Agents > says the queue failed to load, with the side list still there 4ms
+
+ Test Files  3 passed (3)
+      Tests  30 passed (30)
+   Start at  22:29:16
+   Duration  1.29s (transform 231ms, setup 494ms, import 320ms, tests 600ms, environment 1.73s)
+

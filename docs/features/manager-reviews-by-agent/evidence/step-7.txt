@@ -1,0 +1,49 @@
+## Step 7a: Avery month, current month (Agent Invoice sent via API as Avery)
+                - link "All Agents 4 waiting" [ref=f1e69] [cursor=pointer]:
+                - link "Avery Quinn 1 waiting" [ref=f1e75] [cursor=pointer]:
+                  - heading "October 2026" [level=2] [ref=f1e119]
+            - region "Agent Invoice" [ref=f1e163]:
+                  - generic [ref=f1e166]: Agent Invoice
+                  - generic [ref=f1e167]: Awaiting approval
+                  - generic [ref=f1e170]: $1,125.99
+                  - 'link "Review Agent Invoice: Avery Quinn, October 2026" [ref=f1e171] [cursor=pointer]':
+## Step 7b: Review opens Agent Invoice page
+- Page URL: http://localhost:13100/manager/invoices/agent/b50e9982-e96c-44f7-ba78-df5255d04f37
+- Page Title: Agent Invoice · Remote Support Platform
+          - heading "Avery Quinn" [level=1] [ref=f1e178]
+          - paragraph [ref=f1e179]: Agent Invoice
+            - generic [ref=f1e193]: Avery Quinn
+                  - heading "October 2026" [level=2] [ref=f1e201]
+                  - generic [ref=f1e202]: Awaiting approval
+              - heading "Adjust before approving" [level=3] [ref=f1e228]
+  - alert [ref=f1e174]: Agent Invoice · Remote Support Platform
+## Step 7c: after inserting prev-month SENT invoice (Charlie Co, 2026-09)
+- Page URL: http://localhost:13100/manager/invoices?agent=6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8
+                - link "Avery Quinn 2 waiting" [ref=f2e75] [cursor=pointer]:
+                    - heading "September 2026" [level=2] [ref=f2e119]
+                    - generic [ref=f2e120]: · Sent to you on Oct 18, 2026 · 1 of 1 to review
+                      - option "October 2026 · 1 waiting"
+                      - option "September 2026 · 1 waiting" [selected]
+                  - cell "Charlie Co" [ref=f2e138]
+                    - 'link "Review Client Invoice: Charlie Co — Avery Quinn, September 2026" [ref=f2e144] [cursor=pointer]':
+## Step 7d: pick current month
+- Page URL: http://localhost:13100/manager/invoices?agent=6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8&month=2026-10
+                  - heading "October 2026" [level=2] [ref=f2e148]
+                  - generic [ref=f2e120]: · Sent to you on Oct 18, 2026 · 3 of 3 approved
+                    - option "October 2026 · 1 waiting" [selected]
+                    - option "September 2026 · 1 waiting"
+## Step 7e: ?month=2025-01
+- Page URL: http://localhost:13100/manager/invoices?agent=6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8&month=2025-01
+                  - combobox "Month" [ref=f3e121]:
+                    - option "October 2026 · 1 waiting"
+                    - option "September 2026 · 1 waiting"
+                    - option "January 2025" [selected]
+            - paragraph [ref=f3e128]: Avery Quinn hasn't sent January 2025 yet.
+## Step 7f: API approve previous month
+{"billingMonth":"2026-09-01","approvedAt":"2026-10-18T20:28:13.504933Z","invoiceIds":["ba844147-3c61-4402-bf00-70d1f4fc08b9"]}
+=> HTTP 200
+ billing_month |  status  |          approved_at          
+---------------+----------+-------------------------------
+ 2026-09-01    | APPROVED | 2026-10-18 20:28:13.504933+00
+(1 row)
+

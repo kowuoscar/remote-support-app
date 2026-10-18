@@ -49,6 +49,32 @@ async function aFreshAgentWhoSentTheMonth(page: Page, tag: string) {
   return { agentName, harlow, quiet, agent };
 }
 
+/**
+ * A fresh Agent with three empty Contracts, Alder, Birch and Cedar (the month list's order is by
+ * Client name), whose month is sent: three Client Invoices to review. Leaves the page signed in as the
+ * Agent.
+ */
+async function aFreshAgentWithThreeInvoicesSent(page: Page, tag: string) {
+  const agentName = `${tag} Okoro ${RUN_ID}`;
+  const clients = ["Alder", "Birch", "Cedar"].map((name) => `${name} ${tag} ${RUN_ID}`);
+  await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+  const agent = await createAgentWithLogin(page, agentName, `${tag.toLowerCase()}.okoro+${RUN_ID}@agents.example`);
+  const contractIds: string[] = [];
+  for (const client of clients) {
+    contractIds.push((await createClientAndContractWithAgent(page, client, agent.agentLabel)).contractId);
+  }
+  await logout(page);
+
+  await login(page, agent.email, agent.password);
+  await page.goto("/agent/client-invoices");
+  const bar = page.getByRole("region", { name: "Month" });
+  await expect(bar.getByText("3 of 3 ready")).toBeVisible();
+  await bar.getByRole("button", { name: "Send all 3 to Manager" }).click();
+  await bar.getByRole("button", { name: "Confirm send all 3" }).click();
+  await expect(bar.getByText(`Sent to Manager on ${TODAY}`)).toBeVisible();
+  return { agentName, clients, contractIds };
+}
+
 test.describe("the Manager reviews Client Invoices by Agent", () => {
   test("the side list counts what waits, All Agents is the default, a pick shows the month and survives a reload", async ({
     page,
@@ -170,5 +196,75 @@ test.describe("the Manager reviews Client Invoices by Agent", () => {
     await page.getByRole("link", { name: `Review Client Invoice: ${harlow} — ${agentName}, ${THIS_MONTH}` }).click();
     await expect(page).toHaveURL(/\/manager\/invoices\/client\/[0-9a-f-]+$/);
     await noSidewaysScroll();
+  });
+
+  test("working through the month with Next invoice, wrapping round, and back to the month by the breadcrumb", async ({
+    page,
+  }) => {
+    const { agentName, clients } = await aFreshAgentWithThreeInvoicesSent(page, "Gwen");
+    const [alder, birch, cedar] = clients;
+    await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await page.goto("/manager/invoices");
+    await selectInSideList(page, "Agents", new RegExp(`^${agentName} 3 waiting$`));
+
+    // A: the breadcrumb names the Agent, the title is unchanged, Next goes to B.
+    await page.getByRole("link", { name: new RegExp(`^Review Client Invoice: ${alder} `) }).click();
+    const crumbs = page.getByRole("navigation", { name: "Breadcrumb" });
+    await expect(crumbs).toHaveText(new RegExp(`Invoices.*${agentName}.*${alder}`));
+    await expect(crumbs.getByRole("link", { name: "Invoices", exact: true })).toHaveAttribute("href", "/manager/invoices");
+    await expect(crumbs.getByRole("link", { name: agentName })).toHaveAttribute(
+      "href",
+      /^\/manager\/invoices\?agent=[0-9a-f-]+&month=\d{4}-\d{2}$/,
+    );
+    await expect(page.getByRole("heading", { name: `${alder} — ${agentName}` })).toBeVisible();
+    await page.getByRole("link", { name: `Next invoice: ${birch}` }).click();
+
+    // B: send it back; Next now goes to C.
+    await expect(page.getByRole("heading", { name: `${birch} — ${agentName}` })).toBeVisible();
+    await page.getByRole("button", { name: "Send back" }).click();
+    await page.getByRole("textbox", { name: "Reason for sending back" }).fill("Please check the fees.");
+    await page.getByRole("button", { name: "Confirm send back" }).click();
+    await expect(page.getByText(/Sent back to the Agent on/)).toBeVisible();
+    await page.reload();
+    await page.getByRole("link", { name: `Next invoice: ${cedar}` }).click();
+
+    // C: approve it; reloaded, Next wraps round to A.
+    await expect(page.getByRole("heading", { name: `${cedar} — ${agentName}` })).toBeVisible();
+    await page.getByRole("button", { name: "Approve", exact: true }).click();
+    await expect(page.getByText("Approved", { exact: true })).toBeVisible();
+    await page.reload();
+    await page.getByRole("link", { name: `Next invoice: ${alder}` }).click();
+
+    // A again: nothing else is left to review.
+    await expect(page.getByRole("heading", { name: `${alder} — ${agentName}` })).toBeVisible();
+    await expect(page.getByText(`Nothing else to review in ${THIS_MONTH}.`)).toBeVisible();
+    await expect(page.getByRole("link", { name: /^Next invoice/ })).toHaveCount(0);
+
+    // The Agent crumb opens the month with A To review, B Sent back, C Approved.
+    await crumbs.getByRole("link", { name: agentName }).click();
+    await expect(page.getByRole("region", { name: "Month" })).toContainText("1 of 3 to review");
+    const rows = page.getByRole("row").filter({ has: page.getByRole("link", { name: /^Review Client Invoice:/ }) });
+    await expect(rows.filter({ hasText: alder })).toContainText("To review");
+    await expect(rows.filter({ hasText: birch })).toContainText("Sent back");
+    await expect(rows.filter({ hasText: cedar })).toContainText("Approved");
+  });
+
+  test("the same breadcrumb and Next invoice from the Review Queue and from the Contract page", async ({ page }) => {
+    const { agentName, clients, contractIds } = await aFreshAgentWithThreeInvoicesSent(page, "Hana");
+    const [alder, birch] = clients;
+    await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+
+    await page.goto("/manager/invoices");
+    await page.getByRole("link", { name: new RegExp(`^Review Client Invoice: ${birch} — `) }).click();
+    const crumbs = page.getByRole("navigation", { name: "Breadcrumb" });
+    await expect(crumbs.getByRole("link", { name: agentName })).toBeVisible();
+    await expect(page.getByRole("link", { name: /^Next invoice: / })).toBeVisible();
+
+    await page.goto(`/manager/contracts?contract=${contractIds[0]}`);
+    await page.getByRole("region", { name: "Client Invoice" }).getByRole("link", { name: "Open invoice" }).click();
+    await expect(crumbs).toHaveText(new RegExp(`Invoices.*${agentName}.*${alder}`));
+    await expect(page.getByRole("link", { name: `Next invoice: ${birch}` })).toBeVisible();
   });
 });

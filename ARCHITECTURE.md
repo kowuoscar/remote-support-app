@@ -123,7 +123,8 @@ error, not a nitpick.
 - `auth` · session and token handling.
 - `demo` · demo data generation for development and the visual goldens.
 - `frontend/lib/manager-contracts.ts` · groups the Manager's Contracts by Client and resolves the selected Contract from `?contract=`.
-- `frontend/lib/review-months.ts` · reviewMonthFor: picks the month the Manager's Agent view opens on (valid `?month=`, else oldest month with something waiting, else newest listed, else current).
+- `frontend/lib/review-months.ts` · Pure helpers: reviewMonthFor (month the Agent view opens on) and nextToReview (next To review row, wrapping, never the current).
+- `frontend/components/manager/review-month-next.tsx` · ReviewMonthNext: "Next invoice" link or "Nothing else to review" above the Manager's Client Invoice detail; nothing when the Agent's month read failed.
 - `frontend/lib/api/client-invoice.ts` · the Agent's by-id Client Invoice read.
 - `frontend/lib/api/client-invoice-month.ts` · clientInvoiceMonth: derives the month bar's state from the page's loaded invoices.
 

@@ -9,6 +9,7 @@ import {
   login,
   logout,
   selectContractInSwitcher,
+  selectInSideList,
   selectClientInvoiceContract,
 } from "./helpers";
 
@@ -153,5 +154,17 @@ test.describe("client invoice submission and visibility", () => {
     await expect(summary.getByText("Approved", { exact: true })).toBeVisible();
     await summary.getByRole("link", { name: "Open invoice" }).click();
     await expect(page).toHaveURL(detailUrl);
+
+    // The Manager's step through the Agents side list (manager-reviews-by-agent): the fresh Agent's
+    // month has the empty Contract's invoice left, which the month's own button approves.
+    const agentName = agent.agentLabel.split(" · ")[0];
+    await page.goto("/manager/invoices");
+    await selectInSideList(page, "Agents", new RegExp(`^${agentName} 1 waiting$`));
+    const monthHeader = page.getByRole("region", { name: "Month" });
+    await expect(monthHeader).toContainText("1 of 2 to review");
+    await monthHeader.getByRole("button", { name: "Approve the 1 left to review" }).click();
+    await monthHeader.getByRole("button", { name: "Confirm approve" }).click();
+    await expect(monthHeader).toContainText("2 of 2 approved");
+    await expect(page.getByRole("row").filter({ hasText: emptyClientName })).toContainText("Approved");
   });
 });

@@ -136,7 +136,7 @@ A Manager's `sent` → `draft` transition of a Client Invoice with a required re
 A Client Invoice draft that is sent back or of the current billing month (UTC). The one predicate in `ClientInvoiceService` gating every Agent write by id; a draft not open to its Agent (a past month never sent) is refused 409 `PAST_MONTH_DRAFT_NOT_SENDABLE`.
 
 **Side list**:
-A shared column of links beside the detail it selects, shown at xl (1280px) and wider; below xl the Contract Switcher, with a per-page icon, replaces it. Users: Client Invoices, Fleet, the Manager's Contracts and Carriers.
+A shared column of links beside the detail it selects, shown at xl (1280px) and wider; below xl the Contract Switcher, with a per-page icon, replaces it. Users: Client Invoices, Fleet, the Manager's Contracts and Carriers, and the Manager's Invoices "Agents" list (All Agents first, then each Agent with a waiting count).
 
 **Month bar**:
 The Agent's Client Invoices page's top row, showing where the Agent's month stands (unsent with a count, sent with a date, or incomplete) and the one control that sends every invoice of the month together.
@@ -176,8 +176,14 @@ The monthly invoice an Agent sends to the Company Manager: full reimbursement of
 _Avoid_: Payroll, payout.
 
 **Review Queue**:
-The invoices currently waiting on a Company Manager action, across every Contract and Agent and any billing month: each Client Invoice in `sent` (awaiting approval) and each Agent Invoice in `sent` (awaiting review/approval) or `approved` (awaiting mark paid). Ordered longest-waiting first — by when the invoice entered the status it is waiting in. An invoice leaves the Review Queue when it reaches its final status (Client Invoice `approved`, Agent Invoice `paid`).
+The longest-waiting-first list of everything waiting on the Manager; it is the "All Agents" view of the Manager's Invoices page, which also has a per-Agent month view. The invoices currently waiting on a Company Manager action, across every Contract and Agent and any billing month: each Client Invoice in `sent` (awaiting approval) and each Agent Invoice in `sent` (awaiting review/approval) or `approved` (awaiting mark paid). Ordered longest-waiting first — by when the invoice entered the status it is waiting in. An invoice leaves the Review Queue when it reaches its final status (Client Invoice `approved`, Agent Invoice `paid`).
 _Avoid_: Pending approvals (marking an Agent Invoice paid is not an approval), inbox.
+
+**Month approval**:
+The Manager's single act approving every Client Invoice of one Agent's billing month that is To review, all or nothing, behind a two-step confirm; refused with MONTH_CHANGED when the set the Manager saw is no longer the month's To review set.
+
+**To review**:
+The Manager-facing label of a Client Invoice that is `sent` and neither approved nor sent back; served by the month read, never derived in the browser.
 
 **Rollout Advance**:
 A standing per-Agent cash-flow advance set by the Company Manager to cover an Agent's fee fronting (see Standing amount). Appears on the Agent Invoice as two lines — repayment of the previous month's advance (negative, resolved for the month before the invoice's own) and the new advance for this month (positive, resolved for the invoice's own month) — netting to zero except in the one invoice cycle right after a standing-amount change takes effect (the month whose resolved amount differs from the month before it). Before a Manager has ever set one for a given Agent, both lines resolve to 0 rather than being omitted, so an Agent's very first invoice (or one before any advance was ever set) still shows both lines, just at zero.

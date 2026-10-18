@@ -35,6 +35,18 @@ const ROLES = {
     invoices: true,
     unsentMonth: true,
   },
+  // side-list-readiness-mark: the unsent month over all four Contracts (two share a Client name) with
+  // the earlier-month sent-back invoices listed, so a draft row can carry a Country, its readiness and
+  // the "Sent back" mark together. Bounding-box cases only, no goldens.
+  "visual-agent-invoices-unsent-marked-session": {
+    username: "agent@example.com",
+    role: "AGENT",
+    country: "UNITED_STATES",
+    invoices: true,
+    unsentMonth: true,
+    allContracts: true,
+    listSentBack: true,
+  },
   // carrier-invoice-per-sim: the same Client Invoices with file storage unavailable (the paused files
   // section), and the Manager's by-id Client Invoice detail below.
   "visual-agent-invoices-paused-session": {
@@ -713,7 +725,7 @@ createServer((request, response) => {
     return known ? send(response, 200, { password: RESET_PASSWORD }) : send(response, 404);
   }
   if (url.pathname === "/api/contracts" && request.method === "GET") {
-    if (caller.invoices) return send(response, 200, caller.unsentMonth ? INVOICE_CONTRACTS.slice(0, 2) : INVOICE_CONTRACTS);
+    if (caller.invoices) return send(response, 200, caller.unsentMonth && !caller.allContracts ? INVOICE_CONTRACTS.slice(0, 2) : INVOICE_CONTRACTS);
     if (caller.role === "TESTER") {
       return caller.contractsFailing ? send(response, 500) : send(response, 200, TESTER_CONTRACTS);
     }
@@ -789,7 +801,7 @@ createServer((request, response) => {
     return clientInvoiceByIdMatch[1] === invoice.id ? send(response, 200, invoice) : send(response, 404);
   }
   if (url.pathname === "/api/client-invoices/sent-back" && request.method === "GET" && caller.invoices) {
-    if (caller.unsentMonth) return send(response, 200, []);
+    if (caller.unsentMonth && !caller.listSentBack) return send(response, 200, []);
     const contract = INVOICE_CONTRACTS[3];
     const invoice = clientInvoiceFor(contract);
     // sent-back-in-the-side-list: an earlier month's invoice of the SENT Contract, so its row reads

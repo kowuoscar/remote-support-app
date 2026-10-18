@@ -303,7 +303,7 @@ test.describe("the Agent Client Invoices page when one invoice fails to load", (
     await expect(page.getByText("Couldn't load this Contract's Client Invoice")).toBeVisible();
     await expect(page.getByText("Pick another Client or reload the page to try again.")).toBeVisible();
 
-    await clients.getByRole("link", { name: "Aurora Retail Group Draft", exact: true }).click();
+    await clients.getByRole("link", { name: "Aurora Retail Group Draft 2 files missing", exact: true }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Draft")).toBeVisible();
   });
 });

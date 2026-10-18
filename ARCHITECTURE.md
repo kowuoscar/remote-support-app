@@ -47,6 +47,12 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/web/ObjectStoreUnavailableException.java` · the 503 for a failed or unusable object store.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileName.java` · pure function building a Carrier Invoice File's computed name `{Client} - {Month Year} - {Carrier} - {SIM number}{.ext}`.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileMissingException.java` · the 404 for a row whose object is missing.
+- `backend/src/main/resources/db/migration/V62__add_carrier_invoice_file_deleted_at.sql` · the migration behind retention marking a Carrier Invoice File's bytes deleted.
+- `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceRetention.java` · deletes due Carrier Invoice File bytes 30 days after approval and marks the rows `deleted_at`, stopping at the first object-store failure.
+- `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceRetentionProperties.java` · typed `app.carrier-invoice-retention` settings (enabled, cron).
+- `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceRetentionScheduling.java` · the app's only scheduling configuration: the UTC cron and the startup run of retention.
+- `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileDeletedException.java` · the 410 for downloading a file retention deleted.
+- `backend/src/main/java/com/remotesupport/backend/repository/DueCarrierInvoiceFile.java` · projection of a Carrier Invoice File due for retention (id, storage path).
 
 ### Frontend — `frontend/app`
 

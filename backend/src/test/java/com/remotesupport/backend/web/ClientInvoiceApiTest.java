@@ -42,6 +42,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
 
   @Autowired private CarrierInvoiceFileRepository carrierInvoiceFileRepository;
   @Autowired private FeeRepository feeRepository;
+  @Autowired private ObjectStoreAvailability objectStoreAvailability;
   @Autowired private SimCardRepository simCardRepository;
 
   /** A Postpaid SIM on the given Carrier, with a Plan of it at {@code price}. */
@@ -993,6 +994,45 @@ class ClientInvoiceApiTest extends IntegrationTest {
     mockMvc
         .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  void aFileRetentionDeletedDownloadsAs410WithItsCode() throws Exception {
+    String managerToken = managerToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Gone Co"), SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    UUID fileId = attachFile(agentToken, contractId, "gone.pdf", "gone".getBytes());
+    markDeleted(fileId);
+
+    mockMvc
+        .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken))
+        .andExpect(status().isGone())
+        .andExpect(jsonPath("$.code").value("CARRIER_INVOICE_FILE_DELETED"));
+  }
+
+  @Test
+  void aDeletedFileStillDownloadsAs410NotAs503WhileFileStorageIsUnavailable() throws Exception {
+    String managerToken = managerToken();
+    UUID contractId = createContract(managerToken, createClient(managerToken, "Gone Outage Co"), SEEDED_AGENT_ID);
+    String agentToken = agentToken();
+    UUID fileId = attachFile(agentToken, contractId, "gone.pdf", "gone".getBytes());
+    markDeleted(fileId);
+
+    objectStoreAvailability.markUnavailable();
+    try {
+      mockMvc
+          .perform(get("/api/contracts/" + contractId + "/client-invoice/files/" + fileId).header("Authorization", "Bearer " + agentToken))
+          .andExpect(status().isGone())
+          .andExpect(jsonPath("$.code").value("CARRIER_INVOICE_FILE_DELETED"));
+    } finally {
+      objectStoreAvailability.probe();
+    }
+  }
+
+  private void markDeleted(UUID fileId) {
+    var file = carrierInvoiceFileRepository.findById(fileId).orElseThrow();
+    file.setDeletedAt(java.time.Instant.now());
+    carrierInvoiceFileRepository.saveAndFlush(file);
   }
 
   // Accents and an en dash survive the computed name, so the download header still has to encode them.

@@ -11,7 +11,8 @@ public record CarrierInvoiceFileResponse(
     String filename,
     String contentType,
     long sizeBytes,
-    Instant uploadedAt) {
+    Instant uploadedAt,
+    Instant deletedAt) {
 
   public static CarrierInvoiceFileResponse of(CarrierInvoiceFile file) {
     return new CarrierInvoiceFileResponse(
@@ -21,6 +22,7 @@ public record CarrierInvoiceFileResponse(
         file.getFilename(),
         file.getContentType(),
         file.getSizeBytes(),
-        file.getUploadedAt());
+        file.getUploadedAt(),
+        file.getDeletedAt());
   }
 }

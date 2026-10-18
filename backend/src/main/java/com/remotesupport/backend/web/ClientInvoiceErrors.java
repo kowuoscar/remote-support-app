@@ -19,6 +19,12 @@ final class ClientInvoiceErrors {
         .body(Map.of("code", e.reason().name(), "message", e.getMessage()));
   }
 
+  /** The {@code 410} of a deleted Carrier Invoice File: {@code {code, message}}. */
+  static ResponseEntity<Map<String, String>> gone(CarrierInvoiceFileDeletedException e) {
+    return ResponseEntity.status(HttpStatus.GONE)
+        .body(Map.of("code", CarrierInvoiceFileDeletedException.CODE, "message", e.getMessage()));
+  }
+
   /** A refused request names what was wrong in {@code message}. */
   static ResponseEntity<Map<String, String>> invalid(InvalidRequestException e) {
     return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));

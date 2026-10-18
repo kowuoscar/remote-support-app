@@ -1,7 +1,7 @@
 ---
 id: first-send-only-through-the-month
 title: Refuse a first Client Invoice send outside the month send and move the demo and tests to it
-status: ready-for-agent
+status: in-progress
 depends_on: [send-the-month-api]
 labels: [backend]
 stories: [25, 30, 31, 33, 34]

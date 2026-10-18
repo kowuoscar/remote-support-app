@@ -1,7 +1,7 @@
 ---
 id: send-the-month-api
 title: Send an Agent's whole month of Client Invoices in one call
-status: in-progress
+status: done
 depends_on: []
 labels: [backend]
 stories: [4, 5, 6, 26, 27, 28, 29, 32]

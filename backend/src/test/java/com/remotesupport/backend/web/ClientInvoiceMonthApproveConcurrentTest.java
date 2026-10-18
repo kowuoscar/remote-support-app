@@ -148,7 +148,10 @@ class ClientInvoiceMonthApproveConcurrentTest extends IntegrationTest {
 
       MockHttpServletResponse approval = responses.get(0);
       MockHttpServletResponse sentBack = responses.get(1);
-      long approved = count("SELECT COUNT(*) FROM client_invoices WHERE id = ANY (?::uuid[]) AND status = 'APPROVED'", uuidArray(ids));
+      long approved =
+          count(
+              "SELECT COUNT(*) FROM client_invoices WHERE id = ANY (?::uuid[]) AND status = 'APPROVED'",
+              uuidArray(ids));
       if (approval.getStatus() == 200) {
         assertThat(sentBack.getStatus()).as("the send-back lost the race").isEqualTo(409);
         assertThat(approved).isEqualTo(3L);

@@ -4,13 +4,14 @@
     {
       "id": "F1",
       "type": "out-of-scope",
-      "state": "open",
+      "state": "dismissed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/review-queue-view.tsx:105",
       "citation": "Non-goals: \"No removal or change of the Review Queue. `GET /api/review-queue`, its response, its order, its type filter and `ReviewQueueView` are unchanged.\" Story 3: \"showing today's Review Queue unchanged\".",
-      "note": "<Table> -> <Table dense> and the subject cell wraps (min-w-40): the queue looks different under All Agents and alone. Revert, or record an (after review) decision if the layout beside the side list needs it."
+      "note": "<Table> -> <Table dense> and the subject cell wraps (min-w-40): the queue looks different under All Agents and alone. Revert, or record an (after review) decision if the layout beside the side list needs it.",
+      "reason": "Answered by the (after review) decision in Decisions taken: the queue clipped its Review link beside the side list at 1440; layout only."
     },
     {
       "id": "F2",
@@ -61,110 +62,141 @@
     {
       "id": "F6",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/review-month-next.tsx:23",
       "citation": "docs/agents/coding-standards.md: Frontend 8 — \"The two small type sizes are the tokens `text-label-sm` and `text-label`: a new or changed line uses them, never `text-[12px]`/`text-[13px]`\"",
       "note": "New 'Next invoice' link className uses text-[13px]; use text-label.",
-      "fixed_in": "2cc9cc2"
+      "fixed_in": "2cc9cc2",
+      "reason": "buttonClasses sm with text-label; no text-[13px]."
     },
     {
       "id": "F7",
       "type": "smell",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/review-month-next.tsx:23",
       "citation": "possible Duplicated Code",
       "note": "Hand-copied secondary sm button style instead of the shared Button styles.",
-      "fixed_in": "2cc9cc2"
+      "fixed_in": "2cc9cc2",
+      "reason": "Shared buttonClasses."
     },
     {
       "id": "F8",
       "type": "smell",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceMonthApprovalController.java:60",
       "citation": "possible Duplicated Code",
       "note": "parse(String month) copied in ReviewByAgentController:52 and ClientInvoiceMonthController:61; extract one helper.",
-      "fixed_in": "2cc9cc2"
+      "fixed_in": "2cc9cc2",
+      "reason": "One MonthPath.parse."
     },
     {
       "id": "F9",
       "type": "smell",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceMonthApprovalController.java:51",
       "citation": "possible split responsibility",
       "note": "Tenant-scoped Agent check runs in the controller outside approveMonth's transaction; findMonthForUpdate is not tenant-scoped. Move the check into the service.",
-      "fixed_in": "2cc9cc2"
+      "fixed_in": "2cc9cc2",
+      "reason": "Tenant check first in @Transactional approveMonth."
     },
     {
       "id": "F10",
       "type": "smell",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/use-two-step-send.tsx:31",
       "citation": "possible Mysterious Name",
       "note": "Agent 'send' hook now also drives the Manager month approval via a copy param; name and folder no longer describe it.",
-      "fixed_in": "2cc9cc2"
+      "fixed_in": "2cc9cc2",
+      "reason": "useTwoStepConfirm in components/ui."
     },
     {
       "id": "F11",
       "type": "smell",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/app/manager/invoices/client/[invoiceId]/page.tsx:41",
       "citation": "possible Primitive Obsession",
       "note": "YYYY-MM month built by repeated billingMonth.slice(0, 7) and string concatenation; a lib/review-months helper would name it.",
-      "fixed_in": "2cc9cc2"
+      "fixed_in": "2cc9cc2",
+      "reason": "monthParam helper."
     },
     {
       "id": "F12",
       "type": "smell",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ReviewByAgentService.java:61",
       "citation": "judgement call (redundant work)",
       "note": "findByTenantIdOrderByNameAsc result sorted again in Java by lower(name) then id.",
-      "fixed_in": "2cc9cc2"
+      "fixed_in": "2cc9cc2",
+      "reason": "One Java sort."
     },
     {
       "id": "F13",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/agent-month-review.tsx:20",
       "citation": "DESIGN.md Badge: \"Six tones map 1:1 to semantic colors ..., driven centrally by `lib/status.ts`'s status→tone maps ... so status color is never chosen ad hoc per screen.\"",
       "note": "REVIEW_STATUS (To review / Approved / Sent back labels and tones) is defined inside the component instead of lib/status.ts. Move it there (e.g. reviewStatusToneByValue, reviewStatusLabelByValue) and import it.",
-      "fixed_in": "2cc9cc2"
+      "fixed_in": "2cc9cc2",
+      "reason": "Review status maps in lib/status.ts; badges unchanged in goldens."
     },
     {
       "id": "F14",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/agent-month-review.tsx:224",
       "citation": "DESIGN.md Typography: \"Body (400–500, 14px, 1.5 line-height): table cells, form values, page copy.\"; Tabular Everywhere Rule: \"so columns of numbers always align\"",
       "note": "The Agent Invoice row's <Money> has no size class and renders at 16px; in manager-invoices-agent-desktop goldens $3,200.00 is larger than the 14px Client totals and doesn't align with the Total column. Add text-sm (and align it with the column).",
-      "fixed_in": "2cc9cc2"
+      "fixed_in": "2cc9cc2",
+      "reason": "Agent Invoice amount 14px tnum; a separate card, not a member of the Total column, so not aligning is not a breach."
+    },
+    {
+      "id": "F15",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "backend/src/main/java/com/remotesupport/backend/web/AgentInvoiceService.java:56",
+      "citation": "possible Feature Envy / Mysterious Name",
+      "note": "requireAgentOfTenant is an Agent lookup living in AgentInvoiceService only so ClientInvoiceService.approveMonth can call it; it belongs with the Agent lookup."
+    },
+    {
+      "id": "F16",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "frontend/components/ui/use-two-step-confirm.tsx:13",
+      "citation": "possible Feature Envy / Mysterious Name",
+      "note": "Generic useTwoStepConfirm still carries send-specific SEND_* defaults and exports SendErrorLine."
     }
   ]
 }

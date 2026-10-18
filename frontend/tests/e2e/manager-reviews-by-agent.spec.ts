@@ -257,7 +257,7 @@ test.describe("the Manager reviews Client Invoices by Agent", () => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
 
     await page.goto("/manager/invoices");
-    await page.getByRole("link", { name: new RegExp(`^Review Client Invoice: ${birch},`) }).click();
+    await page.getByRole("link", { name: new RegExp(`^Review Client Invoice: ${birch} — `) }).click();
     const crumbs = page.getByRole("navigation", { name: "Breadcrumb" });
     await expect(crumbs.getByRole("link", { name: agentName })).toBeVisible();
     await expect(page.getByRole("link", { name: /^Next invoice: / })).toBeVisible();

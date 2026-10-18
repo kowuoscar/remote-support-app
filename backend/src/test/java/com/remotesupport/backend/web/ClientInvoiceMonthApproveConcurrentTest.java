@@ -119,9 +119,10 @@ class ClientInvoiceMonthApproveConcurrentTest extends IntegrationTest {
     MockHttpServletResponse refused = responses.stream().filter(r -> r.getStatus() == 409).findFirst().orElseThrow();
     assertThat(objectMapper.readTree(refused.getContentAsString()).get("code").asText())
         .isEqualTo("NOTHING_TO_APPROVE");
-    assertThat(count("SELECT COUNT(*) FROM client_invoices WHERE id IN (?, ?, ?) AND status = 'APPROVED'", ids.get(0), ids.get(1), ids.get(2)))
+    String inIds = "id = ANY (?::uuid[])";
+    assertThat(count("SELECT COUNT(*) FROM client_invoices WHERE " + inIds + " AND status = 'APPROVED'", uuidArray(ids)))
         .isEqualTo(3L);
-    assertThat(count("SELECT COUNT(DISTINCT approved_at) FROM client_invoices WHERE id IN (?, ?, ?)", ids.get(0), ids.get(1), ids.get(2)))
+    assertThat(count("SELECT COUNT(DISTINCT approved_at) FROM client_invoices WHERE " + inIds, uuidArray(ids)))
         .as("one instant for the whole month")
         .isEqualTo(1L);
   }

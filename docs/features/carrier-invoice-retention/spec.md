@@ -77,8 +77,8 @@ Non-goals. Each is something a reasonable agent would otherwise build:
 - **No deleting the row**, the file name, its type, its size or its object key.
   Only the bytes go.
 - **No "Kept until {date}" or countdown before the deletion**, and no
-  notification, email or banner about an upcoming deletion. This is the open
-  question below. The draft follows its recommendation.
+  notification, email or banner about an upcoming deletion (settled by the
+  human, 2026-10-18).
 - **No restoring a deleted file**, no bucket versioning, no trash or grace
   period, no backup before deletion.
 - **No Manager action to delete now, keep longer, or exempt a file**, and no
@@ -137,8 +137,8 @@ Living with the other features:
 ### Schema
 
 One additive Flyway migration, numbered at the next free version when this
-feature merges (V61 on today's `main`; `carrier-invoice-per-sim` may take it
-first):
+feature merges (V62 on today's `main`, since `carrier-invoice-per-sim` took
+V61):
 
 - `carrier_invoice_files.deleted_at timestamptz NULL`. It is null while the
   bytes are kept. It is set once, when retention deleted them, and never

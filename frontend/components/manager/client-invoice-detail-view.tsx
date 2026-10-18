@@ -144,8 +144,10 @@ export function ClientInvoiceDetailView({ invoice: initial }: { invoice: ClientI
               >
                 <span className="min-w-0 break-words text-ink">
                   <span className="tnum font-medium">{sim.number}</span>
-                  <span className="ml-2 text-label-sm font-normal text-ink-mute">{simLineKind(sim)}</span>
-                  <CarrierInvoiceCheck carrierInvoiceFileId={sim.carrierInvoiceFileId} />
+                  <span className="whitespace-nowrap">
+                    <span className="ml-2 text-label-sm font-normal text-ink-mute">{simLineKind(sim)}</span>
+                    <CarrierInvoiceCheck carrierInvoiceFileId={sim.carrierInvoiceFileId} />
+                  </span>
                   {sim.cancellationEffectiveDate ? (
                     <span className="block text-label-sm text-ink-mute">
                       Cancelled {formatLocalDate(sim.cancellationEffectiveDate)} — still billed through this month

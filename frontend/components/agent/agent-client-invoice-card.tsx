@@ -164,7 +164,7 @@ export function AgentClientInvoiceCard({
           ) : null}
         </div>
         {editable ? (
-          <div className="flex flex-col items-end gap-2">
+          <div className="ml-auto flex flex-col items-end gap-2">
             {hasPostpaidLines ? (
               <AttachCarrierInvoiceFileControl
                 invoiceId={invoice.id}

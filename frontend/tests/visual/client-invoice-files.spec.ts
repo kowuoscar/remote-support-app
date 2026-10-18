@@ -63,6 +63,10 @@ for (const breakpoint of breakpoints) {
         expect(clipped).toBe(false);
         await expectNoSidewaysScroll(page);
 
+        // Clicking scrolled the page; capture from the top with no hover state baked in.
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await page.mouse.move(0, 0);
+
         await expect(page).toHaveScreenshot(`client-invoice-remove-confirm-open-${suffix}.png`, {
           fullPage: true,
         });

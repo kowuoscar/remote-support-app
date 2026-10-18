@@ -1,0 +1,11 @@
+invoice C = 52253e86-300d-435b-8380-4bc8cefe83b4
+attach C sim a916ccb8-d8a9-4f98-b914-11c34522d013 -> 201
+attach C sim 5227653c-edac-4449-b8c3-ac88dd549d6f -> 201
+invoice D = 3937e5ea-ec8c-4a75-90ff-d0e636aad095
+attach D sim acb5a777-16f8-4bd5-b4f4-67d6ca5878f2 -> 201
+attach D sim b1b2c28f-d903-4469-9b06-0b3a71cec50e -> 201
+send -> 200
+invoice E = 37762ab4-7fda-4f81-a8d8-077d15958c85
+attach E sim 02f2b087-b6d7-4e90-aee7-a1af530a2f5b -> 201
+send -> 200
+send-back E -> 200

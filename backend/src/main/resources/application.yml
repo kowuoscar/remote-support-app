@@ -24,6 +24,11 @@ app:
     # Dev-only default secret. Override with JWT_SECRET in every real environment.
     secret: ${JWT_SECRET:dev-only-secret-key-change-me-0123456789abcdef}
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+  carrier-invoice-retention:
+    # Carrier Invoice File bytes are deleted 30 days after their Client Invoice is approved (ADR 0007).
+    # The 30 days and the batch of 500 are constants in the code. The cron is always read in UTC.
+    enabled: ${CARRIER_INVOICE_RETENTION_ENABLED:true}
+    cron: ${CARRIER_INVOICE_RETENTION_CRON:0 0 3 * * *}
   object-store:
     # Carrier Invoice File bytes live in an S3-compatible object store (ADR 0007). These defaults
     # are dev-only and serve the local SeaweedFS (docker compose, tests, e2e) and nothing else.

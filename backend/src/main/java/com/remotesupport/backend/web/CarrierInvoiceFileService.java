@@ -85,12 +85,18 @@ public class CarrierInvoiceFileService {
     }
   }
 
-  /** One of this invoice's Carrier Invoice Files; a file of any other invoice is 404. */
+  /**
+   * One of this invoice's Carrier Invoice Files; a file of any other invoice is 404, and a file
+   * whose bytes retention deleted is 410, answered before the availability gate with no store call.
+   */
   public ResponseEntity<byte[]> download(ClientInvoice invoice, UUID fileId) {
     CarrierInvoiceFile file =
         carrierInvoiceFileRepository
             .findByIdAndClientInvoiceId(fileId, invoice.getId())
             .orElseThrow(() -> new NotFoundException("No carrier invoice file with id " + fileId));
+    if (file.getDeletedAt() != null) {
+      throw new CarrierInvoiceFileDeletedException(fileId);
+    }
     requireStore();
     byte[] content = storage.read(file.getStoragePath());
     return ResponseEntity.ok()

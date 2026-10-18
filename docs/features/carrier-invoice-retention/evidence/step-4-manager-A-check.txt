@@ -1,0 +1,2 @@
+### Result
+"[{\"text\":\"Solstice Retail Group - October 2026 - AT&T - +1-202-555-0102.pdf | Deleted on Oct 18, 2026\",\"anchors\":0,\"buttons\":0,\"focusable\":0,\"deletedOn\":true},{\"text\":\"Solstice Retail Group - October 2026 - AT&T - +1-202-555-0901.pdf | Deleted on Oct 18, 2026\",\"anchors\":0,\"buttons\":0,\"focusable\":0,\"deletedOn\":true}]"

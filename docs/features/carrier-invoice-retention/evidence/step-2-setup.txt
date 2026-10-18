@@ -1,0 +1,10 @@
+invoice A = 059ae311-99e6-4624-b8b7-5bd76b58eba7
+attach A sim a916ccb8-d8a9-4f98-b914-11c34522d013 -> 201
+attach A sim 5227653c-edac-4449-b8c3-ac88dd549d6f -> 201
+send -> 200
+approve -> 200
+invoice B = 47998d08-844f-4235-bab4-a11b67989802
+attach B sim acb5a777-16f8-4bd5-b4f4-67d6ca5878f2 -> 201
+attach B sim b1b2c28f-d903-4469-9b06-0b3a71cec50e -> 201
+send -> 200
+approve -> 200

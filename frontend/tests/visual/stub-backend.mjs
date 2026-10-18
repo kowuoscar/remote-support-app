@@ -344,7 +344,7 @@ const SIM_LINES = [
 // carrier-invoice-check-mark: the first line's SIM has its Carrier Invoice File (the check mark); the
 // second has none. The name is the stub's own string.
 const SIM_FILES = [
-  { id: "aaaaaaaa-0000-0000-0000-0000000000f1", clientInvoiceId: "99999999-0000-0000-0000-0000000000d1", simCardId: "66666666-0000-0000-0000-0000000000a1", filename: "Aurora - September 2026 - Verizon - +44 7700 900123.pdf", contentType: "application/pdf", sizeBytes: 48213, uploadedAt: "2026-09-15T09:30:00Z" },
+  { id: "aaaaaaaa-0000-0000-0000-0000000000f1", clientInvoiceId: "99999999-0000-0000-0000-0000000000d1", simCardId: "66666666-0000-0000-0000-0000000000a1", filename: "Aurora - September 2026 - Verizon - +44 7700 900123.pdf", contentType: "application/pdf", sizeBytes: 48213, uploadedAt: "2026-09-15T09:30:00Z", deletedAt: null },
 ];
 const FEE_LINES = [
   { id: "77777777-0000-0000-0000-0000000000a1", contractId: "22222222-0000-0000-0000-0000000000d1", requestId: "88888888-0000-0000-0000-0000000000a1", requestType: "TOPUP", feeType: "TOPUP", amount: 10, currency: "USD", description: "Customer asked for extra data", billingMonth: "2026-09-01", createdAt: "2026-09-12T10:00:00Z", computedAmount: 10, edited: false },

@@ -1,0 +1,7 @@
+Step 8 evidence index (all in this directory):
+ step-8-setup.txt         F approved with 3 files, backdated 31 days, objects in bucket
+ step-8-outage-runs.txt   store stopped before startup run; 5 runs (cron 10:43:00, startup 10:43:03, 10:44, 10:45, 10:46): each 1 ERROR (DeleteObject, no credentials) + 1 WARN; no other store line; F rows deleted_at null; no browser open
+ step-8-outage-manager-A / -F (.snapshot.yml/.png): A "Deleted on", no notice; F Downloads paused (non-link) + notice "File storage is unavailable right now. Downloading is paused."
+ step-8-outage-download-A.txt  A file via API during outage: 410 (not 503)
+ step-8-recovery.txt      store restarted; 10:48:00 INFO "deleted 3 files"; bucket has 0 F objects; 3 rows marked
+ step-8-recovered.txt     F reloaded twice (35s apart) plus a third: Deleted on, no notice

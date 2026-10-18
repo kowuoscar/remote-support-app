@@ -1,0 +1,2 @@
+HTTP/1.1 410 
+{"code":"CARRIER_INVOICE_FILE_DELETED","message":"The carrier invoice file 75151cbe-d5cb-460b-82a9-7c315ae6c3d5 was deleted after the retention period"}

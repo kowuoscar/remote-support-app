@@ -661,6 +661,7 @@ describe("AgentClientInvoicesView", () => {
               contentType: "application/pdf",
               sizeBytes: 10,
               uploadedAt: "2026-09-02T10:00:00Z",
+              deletedAt: null,
             },
           ],
         }),
@@ -682,6 +683,7 @@ describe("AgentClientInvoicesView", () => {
       contentType: "application/pdf",
       sizeBytes: 10,
       uploadedAt: "2026-09-02T10:00:00Z",
+      deletedAt: null,
     };
 
     it("offers Attach carrier invoice while a Postpaid SIM line has no file, and disables it once every line has one", () => {
@@ -730,6 +732,33 @@ describe("AgentClientInvoicesView", () => {
         ),
       );
       expect(screen.getAllByRole("button", { name: "Edit" })).toHaveLength(2);
+    });
+
+    describe("a deleted Carrier Invoice File (carrier-invoice-retention)", () => {
+      const DELETED_FILE = { ...FILE_OF_SIM_1, deletedAt: "2026-10-02T12:00:00Z" };
+
+      it("keeps the SIM line's 'Carrier invoice attached' check mark and lists the file as deleted", () => {
+        renderPage(sentBack({ basePostpaidSims: [SIM_COVERED], files: [DELETED_FILE] }));
+
+        const line = screen.getByText(SIM_COVERED.number).closest("tr") as HTMLElement;
+        expect(within(line).getByRole("img", { name: "Carrier invoice attached" })).toBeInTheDocument();
+        expect(screen.getByText("carrier.pdf")).toBeInTheDocument();
+        expect(screen.getByText("Deleted on Oct 2, 2026")).toBeInTheDocument();
+        expect(screen.queryByRole("link", { name: "Download" })).not.toBeInTheDocument();
+      });
+
+      it("enables Send, with no count note, when every Postpaid SIM line's file is deleted", () => {
+        renderPage(sentBack({ basePostpaidSims: [SIM_COVERED], files: [DELETED_FILE] }));
+
+        expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeEnabled();
+        expect(screen.queryByText(/still needs? (its|their) carrier invoice/)).not.toBeInTheDocument();
+      });
+
+      it("still offers Remove on the deleted file of an editable draft", () => {
+        renderPage(sentBack({ basePostpaidSims: [SIM_COVERED], files: [DELETED_FILE] }));
+
+        expect(screen.getByRole("button", { name: "Remove carrier.pdf" })).toBeInTheDocument();
+      });
     });
 
     describe("Remove (remove-carrier-invoice-file)", () => {

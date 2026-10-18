@@ -1,0 +1,10 @@
+== C reloaded
+          - 'link "Next invoice: Alpha Co" [ref=f12e76] [cursor=pointer]':
+            - text: Next invoice
+                - paragraph [ref=f12e86]: Approved — this is the final record for the month
+== A
+- Page URL: http://127.0.0.1:13100/manager/invoices/client/9903d964-7014-4adc-9656-ba5684eb67bf
+          - heading "Alpha Co — Avery Quinn" [level=1] [ref=f12e115]
+          - navigation "Breadcrumb" [ref=f12e127]:
+            - link "Avery Quinn" [ref=f12e133] [cursor=pointer]:
+          - paragraph [ref=f12e139]: Nothing else to review in October 2026.

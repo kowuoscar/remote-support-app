@@ -1,0 +1,6 @@
+                    - heading "October 2026" [level=2] [ref=f9e113]
+                    - generic [ref=f9e114]: · Sent to you on Oct 18, 2026 · 3 of 3 to review
+                - button "Approve the 3 left to review" [ref=f9e117]
+                  - cell "Alpha Co" [ref=f9e132]
+                  - cell "Bravo Co" [ref=f9e142]
+                  - cell "Charlie Co" [ref=f9e152]

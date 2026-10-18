@@ -1,0 +1,78 @@
+{
+  "feature": "manager-reviews-by-agent",
+  "played_at": "2026-10-18",
+  "played_on": "feature/manager-reviews-by-agent @ 035e0ed",
+  "environment": "Isolated: throwaway postgres accept-mra-pg and seaweedfs accept-mra-s3 on free ports, backend on the demo profile, frontend production build; all removed; rsa-prod untouched. Setup notes: evidence/setup-1-5.md.",
+  "steps": [
+    {
+      "step": 1,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-1-verify.txt",
+      "note": "verify green: backend 1011, e2e 120, visual 172; only the new manager-invoices goldens and the moved check-mark goldens differ from main"
+    },
+    {
+      "step": 2,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-2.txt",
+      "note": "All Agents first, count = queue rows; Avery 3, Blake '—'; pick via ?agent= without history entry; reload, cmd-click, unknown uuid, dashboard Review all"
+    },
+    {
+      "step": 3,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-3-avery.txt",
+      "note": "Avery's month header and rows by Client name; a late draft absent; Blake 'hasn't sent a month yet'"
+    },
+    {
+      "step": 4,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-4-A.txt",
+      "note": "breadcrumb with the Agent crumb; Next invoice walks B, C, wraps to A; 'Nothing else to review'; Agent crumb shows A/B/C states; from the dashboard too"
+    },
+    {
+      "step": 5,
+      "actor": "agent",
+      "status": "passed",
+      "evidence": "evidence/step-5.txt",
+      "note": "stale page refused with MONTH_CHANGED, nothing approved; after reload approves the 2 left at one instant; audit lines"
+    },
+    {
+      "step": 6,
+      "actor": "agent",
+      "status": "pending",
+      "evidence": "",
+      "note": "Not played yet: played after the fix pass by a second runner."
+    },
+    {
+      "step": 7,
+      "actor": "agent",
+      "status": "pending",
+      "evidence": "",
+      "note": "Not played yet: played after the fix pass by a second runner."
+    },
+    {
+      "step": 8,
+      "actor": "agent",
+      "status": "pending",
+      "evidence": "",
+      "note": "Not played yet: played after the fix pass by a second runner."
+    },
+    {
+      "step": 9,
+      "actor": "agent",
+      "status": "pending",
+      "evidence": "",
+      "note": "Not played yet: played after the fix pass by a second runner."
+    },
+    {
+      "step": 10,
+      "actor": "human",
+      "status": "pending",
+      "evidence": "",
+      "note": "[human] step on rsa-prod"
+    }
+  ]
+}

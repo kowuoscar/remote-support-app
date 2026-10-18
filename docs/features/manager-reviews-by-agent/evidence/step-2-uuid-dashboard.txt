@@ -1,0 +1,29 @@
+== random uuid
+- Page URL: http://127.0.0.1:13100/manager/invoices?agent=c9ac63c3-9a4c-4f45-af9b-267f65da44df
+          - heading "Invoices" [level=1] [ref=f4e52]
+            - heading "Agents" [level=2] [ref=f4e66]
+                - link "All Agents 6 waiting" [ref=f4e69] [cursor=pointer]:
+                  - generic "All Agents" [ref=f4e70]
+              - tab "All" [selected] [ref=f4e110]
+== dashboard
+                - paragraph [ref=f5e103]: Longest waiting first
+              - link "Review all" [ref=f5e104] [cursor=pointer]:
+                - /url: /manager/invoices
+            - list "Pending approvals" [ref=f5e107]:
+              - listitem [ref=f5e108]:
+== random uuid
+{
+  "url": "http://127.0.0.1:13100/manager/invoices?agent=21b1ca31-8d3e-441b-8524-da478e5ecfa7",
+  "current": [
+    "Invoices",
+    "All Agents 6 waiting"
+  ]
+}
+== Review all
+{
+  "url": "http://127.0.0.1:13100/manager/invoices",
+  "current": [
+    "Invoices",
+    "All Agents 6 waiting"
+  ]
+}

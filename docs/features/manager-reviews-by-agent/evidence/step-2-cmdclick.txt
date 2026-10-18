@@ -1,0 +1,17 @@
+### Ran Playwright code
+```js
+await page.getByRole('link', { name: 'Blake Rowan nothing waiting' }).click({
+  modifiers: ['ControlOrMeta']
+});
+```
+### Open tabs
+- 0: (current) [Invoices · Remote Support Platform](http://127.0.0.1:13100/manager/invoices?agent=f4c4189a-de2c-4ae3-8de4-1476ec33a617)
+- 1: [Invoices · Remote Support Platform](http://127.0.0.1:13100/manager/invoices?agent=9c0fadc8-4e90-4e86-9cd0-36eea965dd9f)
+### Page
+- Page URL: http://127.0.0.1:13100/manager/invoices?agent=f4c4189a-de2c-4ae3-8de4-1476ec33a617
+- Page Title: Invoices · Remote Support Platform
+### Snapshot
+- [Snapshot](.playwright-cli/page-2026-10-18T20-00-20-122Z.yml)
+### Result
+- 0: (current) [Invoices · Remote Support Platform](http://127.0.0.1:13100/manager/invoices?agent=f4c4189a-de2c-4ae3-8de4-1476ec33a617)
+- 1: [Invoices · Remote Support Platform](http://127.0.0.1:13100/manager/invoices?agent=9c0fadc8-4e90-4e86-9cd0-36eea965dd9f)

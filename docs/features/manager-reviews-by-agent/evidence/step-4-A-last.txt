@@ -1,0 +1,93 @@
+### Page
+- Page URL: http://127.0.0.1:13100/manager/invoices/client/9903d964-7014-4adc-9656-ba5684eb67bf
+- Page Title: Client Invoice · Remote Support Platform
+### Snapshot
+```yaml
+- generic [active] [ref=f12e1]:
+  - generic [ref=f12e2]:
+    - complementary [ref=f12e3]:
+      - generic [ref=f12e4]:
+        - generic [ref=f12e5]: "N"
+        - generic [ref=f12e6]:
+          - paragraph [ref=f12e7]: Northwind Field Services
+          - paragraph [ref=f12e8]: Manager Console
+      - navigation [ref=f12e9]:
+        - link "Dashboard" [ref=f12e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f12e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f12e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f12e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f12e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f12e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f12e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f12e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f12e48]:
+      - banner [ref=f12e112]:
+        - generic [ref=f12e114]:
+          - heading "Alpha Co — Avery Quinn" [level=1] [ref=f12e115]
+          - paragraph [ref=f12e116]: Client Invoice
+        - generic [ref=f12e117]:
+          - button "Manager" [ref=f12e119]
+          - button "Switch to dark theme" [ref=f12e121]
+      - main [ref=f12e125]:
+        - generic [ref=f12e126]:
+          - navigation "Breadcrumb" [ref=f12e127]:
+            - link "Invoices" [ref=f12e129] [cursor=pointer]:
+              - /url: /manager/invoices
+            - link "Avery Quinn" [ref=f12e133] [cursor=pointer]:
+              - /url: /manager/invoices?agent=f4c4189a-de2c-4ae3-8de4-1476ec33a617&month=2026-10
+            - generic [ref=f12e134]: Alpha Co
+          - paragraph [ref=f12e139]: Nothing else to review in October 2026.
+          - generic [ref=f12e140]:
+            - generic [ref=f12e141]:
+              - generic [ref=f12e142]:
+                - generic [ref=f12e143]:
+                  - heading "October 2026" [level=2] [ref=f12e144]
+                  - generic [ref=f12e145]: Awaiting approval
+                - paragraph [ref=f12e147]: Base amount and Fee lines are locked to what the Agent sent
+                - paragraph [ref=f12e148]: Sent Oct 18, 2026
+              - generic [ref=f12e149]:
+                - link "Download PDF" [ref=f12e150] [cursor=pointer]:
+                  - /url: /api/client-invoices/9903d964-7014-4adc-9656-ba5684eb67bf/pdf
+                - button "Send back" [ref=f12e154]
+                - button "Approve" [ref=f12e156]
+            - generic [ref=f12e160]:
+              - generic [ref=f12e161]:
+                - term [ref=f12e162]: Base amount
+                - definition [ref=f12e163]: $65.99
+              - generic [ref=f12e164]:
+                - term [ref=f12e165]: Fees
+                - definition [ref=f12e166]: $0.00
+              - generic [ref=f12e167]:
+                - term [ref=f12e168]: Total
+                - definition [ref=f12e169]: $65.99
+            - generic [ref=f12e170]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f12e171]
+              - list "Postpaid SIM Cards" [ref=f12e172]:
+                - listitem [ref=f12e173]:
+                  - generic [ref=f12e175]:
+                    - generic [ref=f12e176]: "+15550100001"
+                    - generic [ref=f12e177]:
+                      - text: AT&T · Postpaid
+                      - img "Carrier invoice attached" [ref=f12e178]
+                  - generic [ref=f12e182]: $65.99
+            - generic [ref=f12e184]:
+              - heading "Fee lines" [level=3] [ref=f12e185]
+              - paragraph [ref=f12e186]: No Fees on this invoice.
+            - generic [ref=f12e187]:
+              - heading "Carrier invoice files" [level=3] [ref=f12e188]
+              - list [ref=f12e191]:
+                - listitem [ref=f12e192]:
+                  - generic [ref=f12e193]: Alpha Co - October 2026 - AT&T - +15550100001.pdf
+                  - link "Download Alpha Co - October 2026 - AT&T - +15550100001.pdf" [ref=f12e198] [cursor=pointer]:
+                    - /url: /api/client-invoices/9903d964-7014-4adc-9656-ba5684eb67bf/files/40500a6d-a350-47ba-b54a-78fabf9aed5a
+                    - text: Download
+  - alert [ref=f12e111]
+```

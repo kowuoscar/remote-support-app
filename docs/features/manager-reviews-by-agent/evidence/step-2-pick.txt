@@ -1,0 +1,20 @@
+before pick:
+{
+  "url": "http://127.0.0.1:13100/manager/invoices",
+  "hist": 5
+}
+link "Avery Quinn 3 waiting" [ref=f2e75
+after picking Avery:
+{
+  "url": "http://127.0.0.1:13100/manager/invoices?agent=f4c4189a-de2c-4ae3-8de4-1476ec33a617",
+  "hist": 5
+}
+after reload:
+{
+  "url": "http://127.0.0.1:13100/manager/invoices?agent=f4c4189a-de2c-4ae3-8de4-1476ec33a617",
+  "hist": 5,
+  "selected": [
+    "Invoices",
+    "Avery Quinn 3 waiting"
+  ]
+}

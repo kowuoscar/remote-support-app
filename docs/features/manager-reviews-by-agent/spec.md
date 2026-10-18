@@ -587,6 +587,7 @@ leaves, and what a user sees and can do on the page.
 
 ## Decisions taken
 
+- **(after review) The Review Queue table is `dense` and its subject cell wraps (`min-w-40`), under All Agents and alone.** Reason: beside the 256px side list at 1440px the queue clipped its Review link; its content, order, type filter and API are unchanged, only its cell padding and wrapping. Replaces "`ReviewQueueView` unchanged" for its layout only. (Orchestrator under the human's advance approval, 2026-10-18; spec review F1.)
 - **Spec approved by the human in advance** ("implements this in full without stop", epic 2026-10-18).
 - **The Review Queue stays, as the side list's first row "All Agents", selected by default.** (settled by the orchestrator under the human's advance approval) Reason: it keeps the "Work through what is waiting" journey, the dashboard's "Review all" link and every existing e2e spec working unchanged. Nothing waiting, of either type, is ever behind a pick.
 - **The Agent Invoice keeps two homes: unchanged in the Review Queue, and as its own row under its Agent's month once sent.** (settled by the orchestrator under the human's advance approval) Reason: the human asked to "pick an agent > then see a list of all the invoices he needs to review", and the Agent's pay invoice is one of them. It is reviewed on its own page (override, approve, mark paid), so it is a row with Review →, never part of month approval.

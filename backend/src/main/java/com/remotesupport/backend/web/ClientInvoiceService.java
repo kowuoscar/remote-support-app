@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import com.remotesupport.backend.domain.BillingMonth;
 import com.remotesupport.backend.domain.CarrierInvoiceFile;
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.domain.ClientInvoiceLine;
@@ -24,7 +25,6 @@ import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumSet;
@@ -311,6 +311,13 @@ public class ClientInvoiceService {
                         includeEdits ? l.edited() : null))
             .toList();
 
+    Instant monthSentAt = includeEdits ? monthSentAt(invoice) : null;
+    boolean sendableOnItsOwn =
+        includeEdits
+            && invoice.getStatus() == ClientInvoiceStatus.DRAFT
+            && isOpenToAgent(invoice)
+            && (invoice.getSentBackAt() != null || monthSentAt != null);
+
     return new ClientInvoiceResponse(
         invoice.getId(),
         invoice.getContract().getId(),
@@ -326,7 +333,15 @@ public class ClientInvoiceService {
         invoice.getSentAt(),
         invoice.getApprovedAt(),
         includeEdits ? invoice.getSentBackAt() : null,
-        includeEdits ? invoice.getSentBackReason() : null);
+        includeEdits ? invoice.getSentBackReason() : null,
+        monthSentAt,
+        sendableOnItsOwn);
+  }
+
+  /** When the invoice's Agent's month for its billing month was first sent, or {@code null}. */
+  private Instant monthSentAt(ClientInvoice invoice) {
+    return clientInvoiceRepository.monthSentAt(
+        invoice.getContract().getAgent().getId(), invoice.getBillingMonth());
   }
 
   /**
@@ -424,14 +439,15 @@ public class ClientInvoiceService {
    * Fleet and Fees, so a month would be billed for the first time late: a coded 409.
    */
   private void requireOpenToAgent(ClientInvoice invoice) {
-    boolean open =
-        invoice.getSentBackAt() != null
-            || invoice.getBillingMonth().equals(LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1));
-    if (!open) {
+    if (!isOpenToAgent(invoice)) {
       throw new ClientInvoiceConflictException(
           ClientInvoiceConflictException.Reason.PAST_MONTH_DRAFT_NOT_SENDABLE,
           "A past month's draft that was never sent cannot be sent or changed");
     }
+  }
+
+  private static boolean isOpenToAgent(ClientInvoice invoice) {
+    return invoice.getSentBackAt() != null || invoice.getBillingMonth().equals(BillingMonth.current());
   }
 
   private static UUID sourceOf(ResolvedLine line) {
@@ -459,6 +475,19 @@ public class ClientInvoiceService {
     requireOpenToAgent(invoice);
     requireEveryCarrierInvoice(invoice);
 
+    markSent(invoice, Instant.now(), principal);
+
+    return toResponse(invoice, true);
+  }
+
+  /**
+   * The one send step, shared by the per-invoice send and the month send so the two can never
+   * store lines differently: stores a row for every line the invoice shows that has none and sets
+   * {@code linesStored}, sets {@code SENT} and {@code sentAt}, {@code firstSentAt} when it has none,
+   * and logs the status change. The caller holds the invoice's row lock and has checked every guard.
+   */
+  void markSent(ClientInvoice invoice, Instant now, AuthenticatedPrincipal principal) {
+    ClientInvoiceStatus oldStatus = invoice.getStatus();
     boolean neverSent = !invoice.isLinesStored();
     for (ResolvedLine line : lines(invoice)) {
       if (line.stored() == null) {
@@ -469,7 +498,10 @@ public class ClientInvoiceService {
     }
     invoice.setLinesStored(true);
     invoice.setStatus(ClientInvoiceStatus.SENT);
-    invoice.setSentAt(Instant.now());
+    invoice.setSentAt(now);
+    if (invoice.getFirstSentAt() == null) {
+      invoice.setFirstSentAt(now);
+    }
     clientInvoiceRepository.save(invoice);
 
     AuditLog.statusChanged(
@@ -479,9 +511,54 @@ public class ClientInvoiceService {
         ClientInvoiceStatus.SENT.name(),
         principal.userId(),
         principal.tenantId());
-
-    return toResponse(invoice, true);
   }
+
+  /**
+   * The Agent's whole month sent in one transaction (agent-sends-the-month spec, "The month send"),
+   * after {@link ClientInvoiceMonthService} has completed the month's drafts outside any
+   * transaction. Locks the Agent's month ({@link ClientInvoiceRepository#findMonthForUpdate}, in id
+   * order): the locked rows are the batch. Refuses, writing nothing, with {@code MONTH_ALREADY_SENT}
+   * when any of them was ever sent, {@code MONTH_CHANGED} when {@code expectedInvoiceIds} is given
+   * and differs from the batch, and {@code CARRIER_INVOICES_MISSING} (naming every invoice not
+   * ready) when any lacks a Carrier Invoice File; otherwise sends every invoice at one instant.
+   * Reads rows only: no store call, no Agent Invoice lock.
+   */
+  @Transactional
+  public MonthSend sendMonth(
+      UUID agentId,
+      LocalDate billingMonth,
+      Optional<Set<UUID>> expectedInvoiceIds,
+      AuthenticatedPrincipal principal) {
+    List<ClientInvoice> batch = clientInvoiceRepository.findMonthForUpdate(agentId, billingMonth);
+    if (batch.stream().anyMatch(i -> i.getFirstSentAt() != null)) {
+      throw new ClientInvoiceConflictException(
+          ClientInvoiceConflictException.Reason.MONTH_ALREADY_SENT, "This month was already sent");
+    }
+    List<UUID> batchIds = batch.stream().map(ClientInvoice::getId).toList();
+    if (expectedInvoiceIds.isPresent() && !expectedInvoiceIds.get().equals(Set.copyOf(batchIds))) {
+      throw new ClientInvoiceConflictException(
+          ClientInvoiceConflictException.Reason.MONTH_CHANGED,
+          "The Agent's invoices for this month are not the ones that were expected");
+    }
+    List<UUID> notReady =
+        batch.stream().filter(i -> !missingCarrierInvoices(i).isEmpty()).map(ClientInvoice::getId).toList();
+    if (!notReady.isEmpty()) {
+      throw new ClientInvoiceConflictException(
+          ClientInvoiceConflictException.Reason.CARRIER_INVOICES_MISSING,
+          notReady.size() + " Client Invoice(s) have a Postpaid SIM line without its carrier invoice",
+          notReady);
+    }
+
+    Instant now = Instant.now();
+    for (ClientInvoice invoice : batch) {
+      markSent(invoice, now, principal);
+    }
+    AuditLog.clientInvoiceMonthSent(agentId, billingMonth, batch.size(), principal.userId(), principal.tenantId());
+    return new MonthSend(now, batchIds);
+  }
+
+  /** What a month send answers: the one instant every invoice was sent at, and their ids. */
+  public record MonthSend(Instant sentAt, List<UUID> invoiceIds) {}
 
   /**
    * The send gate: every {@code POSTPAID_SIM} line the invoice shows needs its Carrier Invoice File.
@@ -489,19 +566,23 @@ public class ClientInvoiceService {
    * has no line neither counts nor blocks.
    */
   private void requireEveryCarrierInvoice(ClientInvoice invoice) {
-    Set<UUID> attached = fileIdBySim(rows(invoice)).keySet();
-    List<String> missing =
-        lines(invoice).stream()
-            .filter(l -> l.kind() == ClientInvoiceLineKind.POSTPAID_SIM)
-            .map(ResolvedLine::simCard)
-            .filter(sim -> !attached.contains(sim.getId()))
-            .map(SimCard::getNumber)
-            .toList();
+    List<String> missing = missingCarrierInvoices(invoice);
     if (!missing.isEmpty()) {
       throw new ClientInvoiceConflictException(
           ClientInvoiceConflictException.Reason.CARRIER_INVOICES_MISSING,
           missing.size() + " Postpaid SIM line(s) lack their carrier invoice: " + String.join(", ", missing));
     }
+  }
+
+  /** The numbers of the Postpaid SIMs whose line on the invoice has no Carrier Invoice File yet. */
+  private List<String> missingCarrierInvoices(ClientInvoice invoice) {
+    Set<UUID> attached = fileIdBySim(rows(invoice)).keySet();
+    return lines(invoice).stream()
+        .filter(l -> l.kind() == ClientInvoiceLineKind.POSTPAID_SIM)
+        .map(ResolvedLine::simCard)
+        .filter(sim -> !attached.contains(sim.getId()))
+        .map(SimCard::getNumber)
+        .toList();
   }
 
   private static ClientInvoiceLine newRow(ClientInvoice invoice, ResolvedLine line) {

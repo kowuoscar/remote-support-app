@@ -30,6 +30,11 @@ import java.util.UUID;
  * <p>{@code sentBackAt}/{@code sentBackReason} (send-a-client-invoice-back) are the latest
  * send-back; {@code null} if never sent back, and always {@code null} for a Tester caller, to whom
  * the reason (a note from the Manager to the Agent) is not part of the statement.
+ *
+ * <p>{@code monthSentAt} (agent-sends-the-month) is when the invoice's Agent's month was first
+ * sent, kept through a send-back and resend; {@code sendableOnItsOwn} says whether the invoice's
+ * own Send applies (a {@code DRAFT} open to its Agent that was sent back or whose month is sent),
+ * so a client never re-derives the rule. {@code null} and {@code false} for a Tester caller.
  */
 public record ClientInvoiceResponse(
     UUID id,
@@ -46,4 +51,6 @@ public record ClientInvoiceResponse(
     Instant sentAt,
     Instant approvedAt,
     Instant sentBackAt,
-    String sentBackReason) {}
+    String sentBackReason,
+    Instant monthSentAt,
+    boolean sendableOnItsOwn) {}

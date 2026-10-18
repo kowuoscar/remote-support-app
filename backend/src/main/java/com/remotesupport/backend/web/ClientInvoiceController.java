@@ -1,25 +1,21 @@
 package com.remotesupport.backend.web;
 
+import com.remotesupport.backend.domain.BillingMonth;
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
 import com.remotesupport.backend.domain.Contract;
 import com.remotesupport.backend.dto.CarrierInvoiceFileResponse;
 import com.remotesupport.backend.dto.ClientInvoiceLineEditRequest;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
-import com.remotesupport.backend.logging.AuditLog;
 import com.remotesupport.backend.repository.ClientInvoiceRepository;
 import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.security.ClientInvoiceAccessGuard;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.FieldError;
@@ -52,7 +48,7 @@ import org.springframework.web.multipart.MultipartFile;
  * never conjures a draft into existence for a Contract nobody has built one for yet. A second,
  * concurrent first-view racing to create the same month's draft is resolved by the unique {@code
  * (contract_id, billing_month)} constraint (V11 migration), not by application-level locking —
- * see {@link #createDraft}.
+ * see {@link ClientInvoiceDrafts}.
  *
  * <p><b>Lines stored at send.</b> A draft never sent is computed on every {@code GET} (the Fleet
  * and Fees); {@link #send} hands the invoice to {@link ClientInvoiceService#send}, which stores its
@@ -70,13 +66,16 @@ public class ClientInvoiceController {
   private final ClientInvoiceAccessGuard clientInvoiceAccessGuard;
   private final ClientInvoiceService clientInvoiceService;
   private final CarrierInvoiceFileService carrierInvoiceFileService;
+  private final ClientInvoiceDrafts clientInvoiceDrafts;
 
   public ClientInvoiceController(
       ContractRepository contractRepository,
       ClientInvoiceRepository clientInvoiceRepository,
       ClientInvoiceAccessGuard clientInvoiceAccessGuard,
       ClientInvoiceService clientInvoiceService,
-      CarrierInvoiceFileService carrierInvoiceFileService) {
+      CarrierInvoiceFileService carrierInvoiceFileService,
+      ClientInvoiceDrafts clientInvoiceDrafts) {
+    this.clientInvoiceDrafts = clientInvoiceDrafts;
     this.contractRepository = contractRepository;
     this.clientInvoiceRepository = clientInvoiceRepository;
     this.clientInvoiceAccessGuard = clientInvoiceAccessGuard;
@@ -144,7 +143,7 @@ public class ClientInvoiceController {
 
   /** The coded {@code 409}: a send without its carrier invoices, a SIM already attached, a draft not open to its Agent. */
   @ExceptionHandler(ClientInvoiceConflictException.class)
-  public ResponseEntity<Map<String, String>> clientInvoiceConflict(ClientInvoiceConflictException e) {
+  public ResponseEntity<Map<String, Object>> clientInvoiceConflict(ClientInvoiceConflictException e) {
     return ClientInvoiceErrors.conflict(e);
   }
 
@@ -232,45 +231,11 @@ public class ClientInvoiceController {
   }
 
   private Optional<ClientInvoice> findCurrentMonthInvoice(Contract contract) {
-    return clientInvoiceRepository.findByContractIdAndBillingMonth(contract.getId(), currentBillingMonth());
+    return clientInvoiceRepository.findByContractIdAndBillingMonth(contract.getId(), BillingMonth.current());
   }
 
   private ClientInvoice getOrCreateDraftForCurrentMonth(Contract contract, AuthenticatedPrincipal principal) {
-    LocalDate billingMonth = currentBillingMonth();
-    return clientInvoiceRepository
-        .findByContractIdAndBillingMonth(contract.getId(), billingMonth)
-        .orElseGet(() -> createDraft(contract, billingMonth, principal));
-  }
-
-  private LocalDate currentBillingMonth() {
-    return LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1);
-  }
-
-  private ClientInvoice createDraft(Contract contract, LocalDate billingMonth, AuthenticatedPrincipal principal) {
-    ClientInvoice invoice = new ClientInvoice();
-    invoice.setId(UUID.randomUUID());
-    invoice.setTenant(contract.getTenant());
-    invoice.setContract(contract);
-    invoice.setBillingMonth(billingMonth);
-    invoice.setStatus(ClientInvoiceStatus.DRAFT);
-    invoice.setCurrency(contract.getCurrency());
-    invoice.setCreatedAt(Instant.now());
-
-    try {
-      clientInvoiceRepository.saveAndFlush(invoice);
-    } catch (DataIntegrityViolationException raceLost) {
-      // Another request racing to view this same Contract/month for the first time already won
-      // (V11's unique (contract_id, billing_month) constraint) — fall back to the row it created
-      // instead of failing this request. Each repository call here runs in its own transaction
-      // (no @Transactional wraps this controller), so the loser's transaction is the only one
-      // that aborts; this fallback query runs cleanly in a fresh one.
-      return clientInvoiceRepository
-          .findByContractIdAndBillingMonth(contract.getId(), billingMonth)
-          .orElseThrow(() -> raceLost);
-    }
-
-    AuditLog.created("ClientInvoice", invoice.getId(), principal.userId(), principal.tenantId());
-    return invoice;
+    return clientInvoiceDrafts.getOrCreate(contract, BillingMonth.current(), principal);
   }
 
   private Contract findContract(UUID contractId, AuthenticatedPrincipal principal) {

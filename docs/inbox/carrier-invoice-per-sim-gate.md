@@ -54,3 +54,7 @@ Authorize a third, one-line fix (keep the SIM number on one line; also clears
 the pre-existing F30), with the affected screenshots retaken?
 
 Recommendation: yes.
+
+## Follow-up answer
+
+Yes: one more fix pass for F31 (human, 2026-10-18).

@@ -143,10 +143,12 @@ export function ClientInvoiceDetailView({ invoice: initial }: { invoice: ClientI
                 className="flex items-start justify-between gap-3 rounded-lg border border-hairline bg-canvas px-3.5 py-2.5 text-label"
               >
                 <span className="min-w-0 break-words text-ink">
-                  <span className="tnum font-medium">{sim.number}</span>
-                  <span className="whitespace-nowrap">
-                    <span className="ml-2 text-label-sm font-normal text-ink-mute">{simLineKind(sim)}</span>
-                    <CarrierInvoiceCheck carrierInvoiceFileId={sim.carrierInvoiceFileId} />
+                  <span className="flex flex-wrap items-baseline gap-x-2">
+                    <span className="tnum whitespace-nowrap font-medium">{sim.number}</span>
+                    <span className="whitespace-nowrap">
+                      <span className="text-label-sm font-normal text-ink-mute">{simLineKind(sim)}</span>
+                      <CarrierInvoiceCheck carrierInvoiceFileId={sim.carrierInvoiceFileId} />
+                    </span>
                   </span>
                   {sim.cancellationEffectiveDate ? (
                     <span className="block text-label-sm text-ink-mute">

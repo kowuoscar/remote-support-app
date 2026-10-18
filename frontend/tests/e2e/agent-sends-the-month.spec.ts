@@ -128,12 +128,13 @@ test.describe("the side list marks each draft ready or with its missing files", 
     await expect(row(emptyName, "Ready")).toBeVisible();
 
     await selectClientInvoiceContract(page, twoName);
-    const fileA = await attachCarrierInvoice(page, simA);
+    await attachCarrierInvoice(page, simA);
     await expect(row(twoName, "1 file missing")).toBeVisible();
     await attachCarrierInvoice(page, simB);
     await expect(row(twoName, "Ready")).toBeVisible();
 
-    await page.getByRole("button", { name: `Remove ${fileA}` }).click();
+    // The file is listed under its computed name, which ends with the SIM's number.
+    await page.getByRole("button", { name: `${simA}.pdf` }).click();
     await page.getByRole("button", { name: "Remove", exact: true }).click();
     await expect(row(twoName, "1 file missing")).toBeVisible();
     await attachCarrierInvoice(page, simA);

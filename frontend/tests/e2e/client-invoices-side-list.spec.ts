@@ -50,7 +50,7 @@ test.describe("client invoices side list", () => {
     await expect.poll(async () => (await clients.boundingBox())?.width).toBe(256);
 
     // A click swaps the invoice in place: no document, no backend request.
-    const alpha = clients.getByRole("link", { name: `${ALPHA} Draft Ready`, exact: true });
+    const alpha = clients.getByRole("link", { name: `${ALPHA} Draft 1 file missing`, exact: true });
     const zulu = clients.getByRole("link", { name: `${ZULU} Draft Ready`, exact: true });
     await alpha.click();
     await expect(alpha).toHaveAttribute("aria-current", "true");

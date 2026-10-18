@@ -164,3 +164,12 @@ Components may call the backend directly through
 - Access control goes through a guard class in `security` (`FleetAccessGuard`, `ContractAccessGuard`, and their siblings), never inline in a controller.
 - The browser reaches the backend only through `frontend/app/api`; a client component never calls the backend host directly.
 - Migrations are forward-only Flyway scripts in `backend/src/main/resources/db/migration`, one per change, never edited once applied — every file there is `V<n>__*.sql`, with no undo or repeatable scripts.
+- `backend/src/main/java/com/remotesupport/backend/web/ReviewByAgentController.java` · Manager-only GET /api/review-queue/agents, /agents/{id}/months and /agents/{id}/months/{YYYY-MM}; 400 on a malformed month.
+- `backend/src/main/java/com/remotesupport/backend/web/ReviewByAgentService.java` · Read-only derivation of per-Agent waiting counts, an Agent's months and an Agent's month; 404 on an unknown or other-tenant Agent.
+- `backend/src/main/java/com/remotesupport/backend/dto/ReviewAgentResponse.java` · An Agent with its count waiting for review.
+- `backend/src/main/java/com/remotesupport/backend/dto/ReviewMonthSummaryResponse.java` · One of an Agent's months with its count waiting.
+- `backend/src/main/java/com/remotesupport/backend/dto/ReviewMonthResponse.java` · An Agent's month for review: monthSentAt, Client Invoices with reviewStatus, the Agent Invoice once sent.
+- `backend/src/main/java/com/remotesupport/backend/repository/AgentWaitingRow.java` · Projection: an Agent's waiting count.
+- `backend/src/main/java/com/remotesupport/backend/repository/ClientInvoiceReviewMonthRow.java` · Projection: an Agent's Client Invoice month and its waiting count.
+- `backend/src/main/java/com/remotesupport/backend/repository/ClientInvoiceReviewRow.java` · Projection: a Client Invoice row of an Agent's month with its stored total.
+- `backend/src/main/java/com/remotesupport/backend/repository/AgentInvoiceReviewRow.java` · Projection: a non-draft Agent Invoice of an Agent's month.

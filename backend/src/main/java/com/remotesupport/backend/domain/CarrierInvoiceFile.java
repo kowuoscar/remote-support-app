@@ -58,4 +58,11 @@ public class CarrierInvoiceFile {
 
   @Column(name = "uploaded_at", nullable = false, updatable = false)
   private Instant uploadedAt;
+
+  /**
+   * When retention deleted the bytes from the object store; {@code null} while they are kept. Set
+   * once and never cleared; {@code storagePath} still names the (gone) object.
+   */
+  @Column(name = "deleted_at")
+  private Instant deletedAt;
 }

@@ -101,6 +101,11 @@ Production variables, for example Falkenstein: `OBJECT_STORE_ENDPOINT=https://fs
 `OBJECT_STORE_ACCESS_KEY` / `OBJECT_STORE_SECRET_KEY` from the deployment's secrets,
 `OBJECT_STORE_PATH_STYLE=false`, `OBJECT_STORE_CREATE_BUCKET=false`.
 
+Amended 2026-10-17 (`carrier-invoice-retention`): retention runs as a daily scheduled job, plus once after
+startup. It deletes the objects of files whose Client Invoice was approved at least 30 days earlier, keeps
+the row with `deleted_at`, and never probes or sets availability. A failed run stops, and the next run
+retries.
+
 ## Licences
 
 - The AWS SDK for Java v2 is Apache-2.0 and is the only thing linked into the backend. Its Apache HTTP

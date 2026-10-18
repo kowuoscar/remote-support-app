@@ -97,6 +97,8 @@ public abstract class IntegrationTest {
   @DynamicPropertySource
   static void objectStore(DynamicPropertyRegistry registry) {
     ObjectStoreTestSupport.register(registry);
+    // No retention trigger fires during the suite; tests call CarrierInvoiceRetention.runOnce().
+    registry.add("app.carrier-invoice-retention.enabled", () -> "false");
   }
 
   @Autowired protected MockMvc mockMvc;

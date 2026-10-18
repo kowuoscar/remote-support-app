@@ -148,6 +148,12 @@ public class ClientInvoiceController {
     return ClientInvoiceErrors.conflict(e);
   }
 
+  /** The {@code 410} of a file retention deleted carries a {@code code}. */
+  @ExceptionHandler(CarrierInvoiceFileDeletedException.class)
+  public ResponseEntity<Map<String, String>> carrierInvoiceFileDeleted(CarrierInvoiceFileDeletedException e) {
+    return ClientInvoiceErrors.gone(e);
+  }
+
   /** A refused request (an attach naming no Postpaid SIM line of the invoice) names what was wrong in {@code message}. */
   @ExceptionHandler(InvalidRequestException.class)
   public ResponseEntity<Map<String, String>> invalidRequest(InvalidRequestException e) {

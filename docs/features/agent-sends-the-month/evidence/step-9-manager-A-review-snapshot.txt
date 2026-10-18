@@ -1,0 +1,96 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - complementary [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - generic [ref=f2e5]: "N"
+        - generic [ref=f2e6]:
+          - paragraph [ref=f2e7]: Northwind Field Services
+          - paragraph [ref=f2e8]: Manager Console
+      - navigation [ref=f2e9]:
+        - link "Dashboard" [ref=f2e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f2e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f2e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f2e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f2e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f2e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f2e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f2e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f2e48]:
+      - banner [ref=f2e181]:
+        - generic [ref=f2e183]:
+          - heading "Client A — Avery" [level=1] [ref=f2e184]
+          - paragraph [ref=f2e185]: Client Invoice
+        - generic [ref=f2e186]:
+          - button "Manager" [ref=f2e188]
+          - button "Switch to dark theme" [ref=f2e190]
+      - main [ref=f2e194]:
+        - generic [ref=f2e195]:
+          - navigation "Breadcrumb" [ref=f2e196]:
+            - link "Invoices" [ref=f2e198] [cursor=pointer]:
+              - /url: /manager/invoices
+            - generic [ref=f2e199]: Client A — Avery
+          - generic [ref=f2e203]:
+            - generic [ref=f2e204]:
+              - generic [ref=f2e205]:
+                - generic [ref=f2e206]:
+                  - heading "October 2026" [level=2] [ref=f2e207]
+                  - generic [ref=f2e208]: Awaiting approval
+                - paragraph [ref=f2e210]: Base amount and Fee lines are locked to what the Agent sent
+                - paragraph [ref=f2e211]: Sent Oct 18, 2026
+              - generic [ref=f2e212]:
+                - link "Download PDF" [ref=f2e213] [cursor=pointer]:
+                  - /url: /api/client-invoices/9fa47286-b283-4927-b380-9c0c8dfc14bc/pdf
+                - button "Send back" [ref=f2e217]
+                - button "Approve" [ref=f2e219]
+            - generic [ref=f2e223]:
+              - generic [ref=f2e224]:
+                - term [ref=f2e225]: Base amount
+                - definition [ref=f2e226]: $131.98
+              - generic [ref=f2e227]:
+                - term [ref=f2e228]: Fees
+                - definition [ref=f2e229]: $0.00
+              - generic [ref=f2e230]:
+                - term [ref=f2e231]: Total
+                - definition [ref=f2e232]: $131.98
+            - generic [ref=f2e233]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f2e234]
+              - list "Postpaid SIM Cards" [ref=f2e235]:
+                - listitem [ref=f2e236]:
+                  - generic [ref=f2e238]:
+                    - generic [ref=f2e239]: "+15552499894"
+                    - generic [ref=f2e240]:
+                      - text: AT&T · Postpaid
+                      - img "Carrier invoice attached" [ref=f2e241]
+                  - generic [ref=f2e245]: $65.99
+                - listitem [ref=f2e247]:
+                  - generic [ref=f2e249]:
+                    - generic [ref=f2e250]: "+15553487204"
+                    - generic [ref=f2e251]:
+                      - text: AT&T · Postpaid
+                      - img "Carrier invoice attached" [ref=f2e252]
+                  - generic [ref=f2e256]: $65.99
+            - generic [ref=f2e258]:
+              - heading "Fee lines" [level=3] [ref=f2e259]
+              - paragraph [ref=f2e260]: No Fees on this invoice.
+            - generic [ref=f2e261]:
+              - heading "Carrier invoice files" [level=3] [ref=f2e262]
+              - list [ref=f2e265]:
+                - listitem [ref=f2e266]:
+                  - generic [ref=f2e267]: Client A - October 2026 - AT&T - +15552499894.pdf
+                  - link "Download Client A - October 2026 - AT&T - +15552499894.pdf" [ref=f2e272] [cursor=pointer]:
+                    - /url: /api/client-invoices/9fa47286-b283-4927-b380-9c0c8dfc14bc/files/5fc16ea6-523a-44f8-b707-78cfd37705c3
+                    - text: Download
+                - listitem [ref=f2e276]:
+                  - generic [ref=f2e277]: Client A - October 2026 - AT&T - +15553487204.pdf
+                  - link "Download Client A - October 2026 - AT&T - +15553487204.pdf" [ref=f2e282] [cursor=pointer]:
+                    - /url: /api/client-invoices/9fa47286-b283-4927-b380-9c0c8dfc14bc/files/1379c177-ef85-4ffc-8a1a-da71a8fdd4f0
+                    - text: Download
+  - alert [ref=f2e180]: Client Invoice · Remote Support Platform

@@ -1,0 +1,100 @@
+- generic [active] [ref=f4e1]:
+  - generic [ref=f4e2]:
+    - complementary [ref=f4e3]:
+      - generic [ref=f4e4]:
+        - generic [ref=f4e5]: "N"
+        - generic [ref=f4e6]:
+          - paragraph [ref=f4e7]: Northwind Field Services
+          - paragraph [ref=f4e8]: Agent Console
+        - button "Close navigation" [ref=f4e9]
+      - navigation [ref=f4e12]:
+        - link "Dashboard" [ref=f4e13] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f4e19] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f4e23] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f4e26] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f4e30] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f4e36] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f4e41] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f4e46]:
+      - banner [ref=f4e47]:
+        - generic [ref=f4e48]:
+          - button "Open navigation" [ref=f4e49]
+          - generic [ref=f4e52]:
+            - heading "Client Invoices" [level=1] [ref=f4e53]
+            - paragraph [ref=f4e54]: One per Contract per month
+        - generic [ref=f4e55]:
+          - button "avery@acc.example · Agent" [ref=f4e57]:
+            - generic [ref=f4e58]: avery@acc.example
+            - generic [ref=f4e59]: · Agent
+          - button "Switch to dark theme" [ref=f4e60]
+      - main [ref=f4e64]:
+        - generic [ref=f4e68]:
+          - region "Month" [ref=f4e69]:
+            - paragraph [ref=f4e71]:
+              - text: October 2026 ·
+              - generic [ref=f4e72]: Sent to Manager on Oct 18, 2026
+          - button "Client A — United States" [ref=f4e78]
+          - generic [ref=f4e87]:
+            - generic [ref=f4e88]:
+              - generic [ref=f4e89]:
+                - generic [ref=f4e90]:
+                  - paragraph [ref=f4e91]: October 2026
+                  - generic [ref=f4e92]: Approved
+                - paragraph [ref=f4e94]: Sent to the Manager and Client — numbers are locked to what was sent
+                - paragraph [ref=f4e95]: Sent Oct 18, 2026 · Approved Oct 18, 2026
+              - link "Download PDF" [ref=f4e96] [cursor=pointer]:
+                - /url: /api/contracts/548becf4-27ac-48c3-8f20-6f654481c337/client-invoice/pdf
+            - generic [ref=f4e100]:
+              - generic [ref=f4e101]:
+                - term [ref=f4e102]: Base amount
+                - definition [ref=f4e103]: $131.98
+              - generic [ref=f4e104]:
+                - term [ref=f4e105]: Fees this month
+                - definition [ref=f4e106]: $0.00
+              - generic [ref=f4e107]:
+                - term [ref=f4e108]: Total
+                - definition [ref=f4e109]: $131.98
+            - generic [ref=f4e110]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f4e111]
+              - table [ref=f4e113]:
+                - rowgroup [ref=f4e114]:
+                  - row [ref=f4e115]:
+                    - columnheader "Number" [ref=f4e116]
+                    - columnheader "Billed" [ref=f4e117]
+                - rowgroup [ref=f4e118]:
+                  - row [ref=f4e119]:
+                    - cell "+15552499894 AT&T · Postpaid Carrier invoice attached" [ref=f4e120]:
+                      - generic [ref=f4e121]:
+                        - text: "+15552499894"
+                        - generic [ref=f4e122]: AT&T · Postpaid
+                        - img "Carrier invoice attached" [ref=f4e123]
+                    - cell "$65.99" [ref=f4e127]
+                  - row [ref=f4e130]:
+                    - cell "+15553487204 AT&T · Postpaid Carrier invoice attached" [ref=f4e131]:
+                      - generic [ref=f4e132]:
+                        - text: "+15553487204"
+                        - generic [ref=f4e133]: AT&T · Postpaid
+                        - img "Carrier invoice attached" [ref=f4e134]
+                    - cell "$65.99" [ref=f4e138]
+            - generic [ref=f4e141]:
+              - heading "Fee lines" [level=3] [ref=f4e142]
+              - paragraph [ref=f4e143]: No Fees logged against this Contract yet this month.
+            - generic [ref=f4e144]:
+              - heading "Carrier invoice files" [level=3] [ref=f4e145]
+              - list [ref=f4e148]:
+                - listitem [ref=f4e149]:
+                  - generic [ref=f4e150]: Client A - October 2026 - AT&T - +15552499894.pdf
+                  - link "Download" [ref=f4e155] [cursor=pointer]:
+                    - /url: /api/client-invoices/9fa47286-b283-4927-b380-9c0c8dfc14bc/files/5fc16ea6-523a-44f8-b707-78cfd37705c3
+                - listitem [ref=f4e159]:
+                  - generic [ref=f4e160]: Client A - October 2026 - AT&T - +15553487204.pdf
+                  - link "Download" [ref=f4e165] [cursor=pointer]:
+                    - /url: /api/client-invoices/9fa47286-b283-4927-b380-9c0c8dfc14bc/files/1379c177-ef85-4ffc-8a1a-da71a8fdd4f0
+  - alert [ref=f4e169]

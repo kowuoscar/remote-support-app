@@ -1,1 +1,6 @@
-Step 9 PARTIAL: Tester A and Tester C views captured (step-9-tester-a*.txt/png incl. downloads 200 application/pdf; step-9-tester-c.txt/png). Manager Review Queue not played.
+Step 9: tester A (step-9-tester-a-snapshot.txt/.png, downloads 200 pdf in step-9-tester-a-downloads.txt), tester C $0.00 (step-9-tester-c-snapshot.txt/.png), Manager invoices list lists Avery's four (step-9-manager-queue-snapshot.txt/.png)
+A:                 - button "Send back"                - button "Approve"
+B:                 - button "Send back"                - button "Approve"
+C:                 - button "Send back"                - button "Approve"
+D:                 - button "Send back"                - button "Approve"
+Note: Review Queue is the 'Invoices' page at /manager/invoices

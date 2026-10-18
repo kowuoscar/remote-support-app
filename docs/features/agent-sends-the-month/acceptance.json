@@ -63,44 +63,44 @@
     {
       "step": 9,
       "actor": "agent",
-      "status": "pending",
+      "status": "passed",
       "evidence": "evidence/step-9.txt",
-      "note": "Partly played (Testers' views and downloads verified); the Review Queue part not played: runner turn limit. Replay after the fix pass."
+      "note": "Testers see A (PDF and files 200) and C at $0; the Manager's Invoices list shows Avery's four invoices as four rows, each with Approve and Send back (replayed after the fix pass)"
     },
     {
       "step": 10,
       "actor": "agent",
-      "status": "pending",
-      "evidence": "",
-      "note": "Not played yet: runner turn limit. Replay after the fix pass."
+      "status": "passed",
+      "evidence": "evidence/step-10.txt",
+      "note": "B sent back: Sent back + Ready row, Resend on its card, bar date unchanged; Resend disabled while a file is missing; resend leaves A approved, C and D untouched, first_sent_at unchanged (replayed after the fix pass)"
     },
     {
       "step": 11,
       "actor": "agent",
-      "status": "pending",
-      "evidence": "",
-      "note": "Not played yet: runner turn limit. Replay after the fix pass."
+      "status": "passed",
+      "evidence": "evidence/step-11.txt",
+      "note": "late Contract E: Send disabled until its file is attached; per-invoice send is CARRIER_INVOICES_MISSING not MONTH_NOT_SENT; then SENT alone (replayed after the fix pass)"
     },
     {
       "step": 12,
       "actor": "agent",
-      "status": "pending",
-      "evidence": "",
-      "note": "Not played yet: runner turn limit. Replay after the fix pass."
+      "status": "passed",
+      "evidence": "evidence/step-12.txt",
+      "note": "bar above the Contract Switcher at 390 and 1024, wraps, no horizontal scroll (replayed after the fix pass)"
     },
     {
       "step": 13,
       "actor": "agent",
-      "status": "pending",
-      "evidence": "",
-      "note": "Not played yet: runner turn limit. Replay after the fix pass."
+      "status": "passed",
+      "evidence": "evidence/step-13.txt",
+      "note": "fresh demo: Jordan's US-1 and US-2 SENT with one first_sent_at, Priya 0 of 1 ready; SeaweedFS down at start: one WARN, Jordan's stay DRAFT (replayed after the fix pass)"
     },
     {
       "step": 14,
       "actor": "agent",
-      "status": "pending",
-      "evidence": "",
-      "note": "Not played yet: runner turn limit. Replay after the fix pass."
+      "status": "passed",
+      "evidence": "evidence/step-14.txt",
+      "note": "FirstSentAtMigrationTest 4 green; CONTEXT.md and DESIGN.md entries (replayed after the fix pass)"
     },
     {
       "step": 15,

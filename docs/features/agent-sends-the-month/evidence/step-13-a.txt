@@ -1,0 +1,36 @@
+# Part A: fresh demo DB, SeaweedFS up
+    agent     |        client         |  status  |         first_sent_at         |            sent_at            | lines_stored | files | pp_lines 
+--------------+-----------------------+----------+-------------------------------+-------------------------------+--------------+-------+----------
+ Jordan Ellis | Harbor Line Logistics | APPROVED |                               | 2026-08-29 00:00:00+00        | t            |     0 |        0
+ Jordan Ellis | Harbor Line Logistics | APPROVED |                               | 2026-09-29 00:00:00+00        | t            |     0 |        0
+ Jordan Ellis | Harbor Line Logistics | SENT     | 2026-10-18 15:43:36.705474+00 | 2026-10-18 15:43:36.705474+00 | t            |     0 |        0
+ Jordan Ellis | Solstice Retail Group | SENT     | 2026-10-18 15:43:36.705474+00 | 2026-10-18 15:43:36.705474+00 | t            |     1 |        1
+ Jordan Ellis | Solstice Retail Group | APPROVED |                               | 2026-09-29 00:00:00+00        | t            |     0 |        1
+ Jordan Ellis | Solstice Retail Group | APPROVED |                               | 2026-08-29 00:00:00+00        | t            |     0 |        1
+ Priya Shah   | Solstice Retail Group | APPROVED |                               | 2026-08-29 00:00:00+00        | t            |     0 |        1
+ Priya Shah   | Solstice Retail Group | APPROVED |                               | 2026-09-29 00:00:00+00        | t            |     0 |        1
+ Priya Shah   | Solstice Retail Group | DRAFT    |                               |                               | f            |     0 |        0
+(9 rows)
+
+WARN count in startup log: 0
+== J /api/client-invoices month view
+== P /api/client-invoices month view
+== agent@example.com AgentDemo123! j
+== priya.shah@example.com PriyaDemo123! p
+== agent@example.com
+40:                - link "Harbor Line Logistics Awaiting approval" [ref=f1e65] [cursor=pointer]:
+43:                  - generic [ref=f1e67]: Awaiting approval
+45:                - link "Solstice Retail Group Awaiting approval" [ref=f1e71] [cursor=pointer]:
+48:                  - generic [ref=f1e73]: Awaiting approval
+52:                - text: October 2026 ·
+53:                - generic [ref=f1e82]: Sent to Manager on Oct 18, 2026
+59:                    - generic [ref=f1e91]: Awaiting approval
+== priya.shah@example.com
+40:                - link "Solstice Retail Group Draft 1 file missing" [ref=f1e65] [cursor=pointer]:
+43:                  - generic [ref=f1e67]: Draft
+44:                  - generic [ref=f1e70]: 1 file missing
+50:                    - text: October 2026 ·
+51:                    - generic [ref=f1e79]: 0 of 1 ready
+53:                - button "Send 1 to Manager" [disabled] [ref=f1e81]
+59:                    - generic [ref=f1e89]: Draft
+76:              - paragraph [ref=f1e109]: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.

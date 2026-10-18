@@ -1,0 +1,114 @@
+- generic [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - complementary [ref=f3e3]:
+      - generic [ref=f3e4]:
+        - generic [ref=f3e5]: "N"
+        - generic [ref=f3e6]:
+          - paragraph [ref=f3e7]: Northwind Field Services
+          - paragraph [ref=f3e8]: Agent Console
+      - navigation [ref=f3e9]:
+        - link "Dashboard" [ref=f3e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f3e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f3e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f3e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f3e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f3e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f3e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f3e43]:
+      - banner [ref=f3e44]:
+        - generic [ref=f3e46]:
+          - heading "Client Invoices" [level=1] [ref=f3e47]
+          - paragraph [ref=f3e48]: One per Contract per month
+        - generic [ref=f3e49]:
+          - button "avery@acc.example · Agent" [ref=f3e51]:
+            - generic [ref=f3e52]: avery@acc.example
+            - generic [ref=f3e53]: · Agent
+          - button "Switch to dark theme" [ref=f3e54]
+      - main [ref=f3e58]:
+        - generic [ref=f3e59]:
+          - navigation [ref=f3e61]:
+            - heading "Clients" [level=2] [ref=f3e62]
+            - list [ref=f3e63]:
+              - listitem [ref=f3e64]:
+                - link "Client A Approved" [ref=f3e65] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=548becf4-27ac-48c3-8f20-6f654481c337
+                  - generic "Client A" [ref=f3e66]
+                  - generic [ref=f3e67]: Approved
+              - listitem [ref=f3e70]:
+                - link "Client B Awaiting approval" [ref=f3e71] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=9903e062-cd25-4268-98ae-230250c022d6
+                  - generic "Client B" [ref=f3e72]
+                  - generic [ref=f3e73]: Awaiting approval
+              - listitem [ref=f3e76]:
+                - link "Client C Awaiting approval" [ref=f3e77] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=c921e057-625f-493a-84b8-aa0a03892670
+                  - generic "Client C" [ref=f3e78]
+                  - generic [ref=f3e79]: Awaiting approval
+              - listitem [ref=f3e82]:
+                - link "Client D Awaiting approval" [ref=f3e83] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=2b8f961c-a0df-4f6d-b3f1-a6786278718b
+                  - generic "Client D" [ref=f3e84]
+                  - generic [ref=f3e85]: Awaiting approval
+              - listitem [ref=f3e88]:
+                - link "Client E Awaiting approval" [ref=f3e201] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=2fafd9af-3949-4bbf-b80b-7323513801be
+                  - generic "Client E" [ref=f3e90]
+                  - generic [ref=f3e91]: Awaiting approval
+          - generic [ref=f3e98]:
+            - region "Month" [ref=f3e99]:
+              - paragraph [ref=f3e101]:
+                - text: October 2026 ·
+                - generic [ref=f3e102]: Sent to Manager on Oct 18, 2026
+            - generic [ref=f3e106]:
+              - generic [ref=f3e107]:
+                - generic [ref=f3e108]:
+                  - generic [ref=f3e109]:
+                    - paragraph [ref=f3e110]: October 2026
+                    - generic [ref=f3e111]: Awaiting approval
+                  - paragraph [active] [ref=f3e113]: Sent to the Manager and Client — numbers are locked to what was sent
+                  - paragraph [ref=f3e202]: Sent Oct 18, 2026
+                - link "Download PDF" [ref=f3e203] [cursor=pointer]:
+                  - /url: /api/contracts/2fafd9af-3949-4bbf-b80b-7323513801be/client-invoice/pdf
+              - generic [ref=f3e123]:
+                - generic [ref=f3e124]:
+                  - term [ref=f3e125]: Base amount
+                  - definition [ref=f3e126]: $65.99
+                - generic [ref=f3e127]:
+                  - term [ref=f3e128]: Fees this month
+                  - definition [ref=f3e129]: $0.00
+                - generic [ref=f3e130]:
+                  - term [ref=f3e131]: Total
+                  - definition [ref=f3e132]: $65.99
+              - generic [ref=f3e134]:
+                - heading "Postpaid SIM Cards" [level=3] [ref=f3e135]
+                - table [ref=f3e137]:
+                  - rowgroup [ref=f3e138]:
+                    - row [ref=f3e139]:
+                      - columnheader "Number" [ref=f3e140]
+                      - columnheader "Billed" [ref=f3e141]
+                  - rowgroup [ref=f3e142]:
+                    - row [ref=f3e207]:
+                      - cell "+15559990001 AT&T · Postpaid Carrier invoice attached" [ref=f3e179]:
+                        - generic [ref=f3e145]:
+                          - text: "+15559990001"
+                          - generic [ref=f3e146]: AT&T · Postpaid
+                          - img "Carrier invoice attached" [ref=f3e180]
+                      - cell "$65.99" [ref=f3e208]
+              - generic [ref=f3e154]:
+                - heading "Fee lines" [level=3] [ref=f3e155]
+                - paragraph [ref=f3e156]: No Fees logged against this Contract yet this month.
+              - generic [ref=f3e157]:
+                - heading "Carrier invoice files" [level=3] [ref=f3e158]
+                - list [ref=f3e184]:
+                  - listitem [ref=f3e185]:
+                    - generic [ref=f3e186]: Client E - October 2026 - AT&T - +15559990001.pdf
+                    - link "Download" [ref=f3e191] [cursor=pointer]:
+                      - /url: /api/client-invoices/748043fd-a048-4393-9f49-c5f79277bcfa/files/7a0ff9c1-47c1-4e71-8c84-d674bf73a4f3
+  - alert [ref=f3e162]

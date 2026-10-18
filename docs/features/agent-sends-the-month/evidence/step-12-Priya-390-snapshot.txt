@@ -1,0 +1,97 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - complementary [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - generic [ref=f2e5]: "N"
+        - generic [ref=f2e6]:
+          - paragraph [ref=f2e7]: Northwind Field Services
+          - paragraph [ref=f2e8]: Agent Console
+        - button "Close navigation" [ref=f2e9]
+      - navigation [ref=f2e12]:
+        - link "Dashboard" [ref=f2e13] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f2e19] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f2e23] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f2e26] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f2e30] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f2e36] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f2e41] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f2e46]:
+      - banner [ref=f2e47]:
+        - generic [ref=f2e48]:
+          - button "Open navigation" [ref=f2e49]
+          - generic [ref=f2e52]:
+            - heading "Client Invoices" [level=1] [ref=f2e53]
+            - paragraph [ref=f2e54]: One per Contract per month
+        - generic [ref=f2e55]:
+          - button "priya.shah@example.com · Agent" [ref=f2e57]:
+            - generic [ref=f2e58]: priya.shah@example.com
+            - generic [ref=f2e59]: · Agent
+          - button "Switch to dark theme" [ref=f2e60]
+      - main [ref=f2e64]:
+        - generic [ref=f2e68]:
+          - region "Month" [ref=f2e69]:
+            - generic [ref=f2e70]:
+              - generic [ref=f2e71]:
+                - paragraph [ref=f2e72]:
+                  - text: October 2026 ·
+                  - generic [ref=f2e73]: 0 of 1 ready
+                - paragraph [ref=f2e74]: 1 invoice still needs its carrier invoices.
+              - button "Send 1 to Manager" [disabled] [ref=f2e75]
+          - generic "Solstice Retail Group — United Kingdom" [ref=f2e84]
+          - generic [ref=f2e85]:
+            - generic [ref=f2e86]:
+              - generic [ref=f2e87]:
+                - generic [ref=f2e88]:
+                  - paragraph [ref=f2e89]: October 2026
+                  - generic [ref=f2e90]: Draft
+                - paragraph [ref=f2e92]: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+              - generic [ref=f2e93]:
+                - button "Attach carrier invoice" [ref=f2e94]
+                - generic [ref=f2e97]:
+                  - paragraph [ref=f2e98]: 1 Postpaid SIM still needs its carrier invoice.
+                  - paragraph [ref=f2e99]: Sent with the month, from the bar above.
+            - generic [ref=f2e100]:
+              - generic [ref=f2e101]:
+                - term [ref=f2e102]: Base amount
+                - definition [ref=f2e103]: £20.00
+              - generic [ref=f2e104]:
+                - term [ref=f2e105]: Fees this month
+                - definition [ref=f2e106]: £0.00
+              - generic [ref=f2e107]:
+                - term [ref=f2e108]: Total
+                - definition [ref=f2e109]: £20.00
+            - paragraph [ref=f2e110]: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+            - generic [ref=f2e111]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f2e112]
+              - table [ref=f2e114]:
+                - rowgroup [ref=f2e115]:
+                  - row [ref=f2e116]:
+                    - columnheader "Number" [ref=f2e117]
+                    - columnheader "Billed" [ref=f2e118]
+                - rowgroup [ref=f2e119]:
+                  - row [ref=f2e120]:
+                    - cell "+44-7700-900101 EE · Postpaid Cancelled Oct 18, 2026 — still billed through this month" [ref=f2e121]:
+                      - generic [ref=f2e122]:
+                        - text: +44-7700-900101
+                        - generic [ref=f2e123]: EE · Postpaid
+                      - generic [ref=f2e124]: Cancelled Oct 18, 2026 — still billed through this month
+                    - cell "£20.00 Edit" [ref=f2e125]:
+                      - generic [ref=f2e126]:
+                        - generic [ref=f2e127]:
+                          - generic [ref=f2e128]: £20.00
+                          - button "Edit" [ref=f2e130]
+                        - status [ref=f2e131]
+            - generic [ref=f2e132]:
+              - heading "Fee lines" [level=3] [ref=f2e133]
+              - paragraph [ref=f2e134]: No Fees logged against this Contract yet this month.
+            - generic [ref=f2e135]:
+              - heading "Carrier invoice files" [level=3] [ref=f2e136]
+              - paragraph [ref=f2e139]: No carrier invoice files attached yet.
+  - alert [ref=f2e140]

@@ -1,7 +1,7 @@
 ---
 id: carrier-invoice-files-deleted-after-retention
 title: Delete a Carrier Invoice File's bytes 30 days after its Client Invoice is approved
-status: in-progress
+status: done
 depends_on: []
 labels: [backend]
 stories: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20]
@@ -49,3 +49,5 @@ Existing tests expected to change, each with the reason:
 ## Observability
 
 Per run: nothing when nothing is due; one INFO "Carrier invoice retention deleted {n} files" when n > 0; each deleted file a DEBUG line with its id and key; on a store failure the storage's one ERROR plus one WARN from the job. Never the store's credentials. Each row's `deleted_at` is the durable record.
+
+Accepted by the orchestrator at merge: `sdlc-test-guard` flagged `enabled = false` in the new `CarrierInvoiceRetentionScheduling.java` and the new `CarrierInvoiceRetentionTriggersTest.java`. Both are the feature flag `app.carrier-invoice-retention.enabled`, not a skip marker, in new files whose tests run.

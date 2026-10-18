@@ -1,7 +1,7 @@
 ---
 id: carrier-invoice-files-show-deleted-on
 title: Show "Deleted on {date}" where a deleted Carrier Invoice File's Download was
-status: ready-for-agent
+status: in-progress
 depends_on: [carrier-invoice-files-deleted-after-retention]
 labels: [frontend]
 stories: [1, 2, 3, 4, 5, 6, 18]

@@ -28,14 +28,15 @@
     {
       "id": "F3",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "commit 42fac4e: frontend/tests/visual/__screenshots__/agent-client-invoices-{desktop,mobile}-{dark,light}.png",
       "citation": "docs/agents/frontend.md: Visual goldens pass, or were updated in the same commit as the code change that moved them (conforming to DESIGN.md) or as DESIGN.md. / A screenshot golden updated on its own, with no code change behind it, is drift.",
       "note": "Goldens recaptured in a commit with no code change; the code that moved them (card drops first Send) is in 77c9841. Fold 42fac4e into 77c9841. Re-review: 9dd1232 complies going forward, but 42fac4e stays on the pushed branch; not fixable without rewriting history. Second fix pass authorized under the human's standing \"implements this in full without stop\" (2026-10-18).",
-      "fixed_in": "a2a5c9a"
+      "fixed_in": "a2a5c9a",
+      "reason": "a2a5c9a names 77c9841 as the code behind the four goldens of 42fac4e, per the real-manager-dashboard F30 precedent; pushed history cannot be rewritten."
     },
     {
       "id": "F4",
@@ -157,14 +158,15 @@
     {
       "id": "F13",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/lib/format.test.ts:1",
       "citation": "docs/agents/coding-standards.md: Frontend 9. Unit and component tests (Vitest + Testing Library) sit next to the file as `*.test.tsx`",
       "note": "Named *.test.ts; frontend/vitest.config.mts includes only *.test.tsx, so the forCount test never runs under verify. Rename to format.test.tsx.",
-      "fixed_in": "fb2de67"
+      "fixed_in": "fb2de67",
+      "reason": "Pure rename to format.test.tsx; vitest collects it."
     }
   ]
 }

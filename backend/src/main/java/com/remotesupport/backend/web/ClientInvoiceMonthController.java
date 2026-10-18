@@ -10,7 +10,6 @@ import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
@@ -52,10 +51,8 @@ public class ClientInvoiceMonthController {
         callerIdentityResolver
             .resolveAgentId(principal)
             .orElseThrow(() -> new AccessDeniedException("Not an Agent"));
-    Optional<Set<UUID>> expected =
-        request == null || request.invoiceIds() == null
-            ? Optional.empty()
-            : Optional.of(new HashSet<>(request.invoiceIds()));
+    Set<UUID> expected =
+        request == null || request.invoiceIds() == null ? null : new HashSet<>(request.invoiceIds());
     return clientInvoiceMonthService.send(agentId, parse(month), expected, principal);
   }
 

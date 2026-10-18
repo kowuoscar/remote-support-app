@@ -532,7 +532,7 @@ public class ClientInvoiceService {
    * after {@link ClientInvoiceMonthService} has completed the month's drafts outside any
    * transaction. Locks the Agent's month ({@link ClientInvoiceRepository#findMonthForUpdate}, in id
    * order): the locked rows are the batch. Refuses, writing nothing, with {@code MONTH_ALREADY_SENT}
-   * when any of them was ever sent, {@code MONTH_CHANGED} when {@code expectedInvoiceIds} is given
+   * when any of them was ever sent, {@code MONTH_CHANGED} when {@code expectedInvoiceIds} is non-null
    * and differs from the batch, and {@code CARRIER_INVOICES_MISSING} (naming every invoice not
    * ready) when any lacks a Carrier Invoice File; otherwise sends every invoice at one instant.
    * Reads rows only: no store call, no Agent Invoice lock.
@@ -541,7 +541,7 @@ public class ClientInvoiceService {
   public MonthSend sendMonth(
       UUID agentId,
       LocalDate billingMonth,
-      Optional<Set<UUID>> expectedInvoiceIds,
+      Set<UUID> expectedInvoiceIds,
       AuthenticatedPrincipal principal) {
     List<ClientInvoice> batch = clientInvoiceRepository.findMonthForUpdate(agentId, billingMonth);
     if (batch.stream().anyMatch(i -> i.getFirstSentAt() != null)) {
@@ -549,7 +549,7 @@ public class ClientInvoiceService {
           ClientInvoiceConflictException.Reason.MONTH_ALREADY_SENT, "This month was already sent");
     }
     List<UUID> batchIds = batch.stream().map(ClientInvoice::getId).toList();
-    if (expectedInvoiceIds.isPresent() && !expectedInvoiceIds.get().equals(Set.copyOf(batchIds))) {
+    if (expectedInvoiceIds != null && !expectedInvoiceIds.equals(Set.copyOf(batchIds))) {
       throw new ClientInvoiceConflictException(
           ClientInvoiceConflictException.Reason.MONTH_CHANGED,
           "The Agent's invoices for this month are not the ones that were expected");

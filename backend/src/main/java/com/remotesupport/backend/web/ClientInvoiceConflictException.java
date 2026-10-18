@@ -35,17 +35,17 @@ public class ClientInvoiceConflictException extends ConflictException {
   private final List<UUID> invoiceIds;
 
   public ClientInvoiceConflictException(Reason reason, String message) {
-    this(reason, message, null);
+    this(reason, message, List.of());
   }
 
   /** A refusal that names the invoices it is about ({@code invoiceIds} in the body). */
   public ClientInvoiceConflictException(Reason reason, String message, List<UUID> invoiceIds) {
     super(message);
     this.reason = reason;
-    this.invoiceIds = invoiceIds == null ? null : List.copyOf(invoiceIds);
+    this.invoiceIds = List.copyOf(invoiceIds);
   }
 
-  /** The invoices the refusal names, or {@code null} when it names none. */
+  /** The invoices the refusal names, empty when it names none. */
   public List<UUID> invoiceIds() {
     return invoiceIds;
   }

@@ -7,7 +7,6 @@ import com.remotesupport.backend.repository.ContractRepository;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
@@ -47,7 +46,7 @@ public class ClientInvoiceMonthService {
   public ClientInvoiceMonthSendResponse send(
       UUID agentId,
       LocalDate billingMonth,
-      Optional<Set<UUID>> expectedInvoiceIds,
+      Set<UUID> expectedInvoiceIds,
       AuthenticatedPrincipal principal) {
     if (!billingMonth.equals(BillingMonth.current())) {
       throw new ClientInvoiceConflictException(

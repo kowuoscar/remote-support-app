@@ -22,7 +22,7 @@ final class ClientInvoiceErrors {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("code", e.reason().name());
     body.put("message", e.getMessage());
-    if (e.invoiceIds() != null) {
+    if (!e.invoiceIds().isEmpty()) {
       body.put("invoiceIds", e.invoiceIds());
     }
     return ResponseEntity.status(HttpStatus.CONFLICT).body(body);

@@ -29,7 +29,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -120,11 +119,11 @@ class ClientInvoiceMonthServiceTest {
 
   @Test
   void anotherMonthIsRefusedBeforeAnythingIsReadOrWritten() {
-    assertThatThrownBy(() -> monthService.send(agentId, MONTH.minusMonths(1), Optional.empty(), principal))
+    assertThatThrownBy(() -> monthService.send(agentId, MONTH.minusMonths(1), null, principal))
         .isInstanceOfSatisfying(
             ClientInvoiceConflictException.class,
             e -> assertThat(e.reason()).isEqualTo(ClientInvoiceConflictException.Reason.NOT_THE_CURRENT_MONTH));
-    assertThatThrownBy(() -> monthService.send(agentId, MONTH.plusMonths(1), Optional.empty(), principal))
+    assertThatThrownBy(() -> monthService.send(agentId, MONTH.plusMonths(1), null, principal))
         .isInstanceOf(ClientInvoiceConflictException.class);
 
     verifyNoInteractions(contractRepository, drafts, invoiceRepository);
@@ -134,7 +133,7 @@ class ClientInvoiceMonthServiceTest {
   void anAgentWithNoContractIsNothingToSendAndNoDraftIsCreated() {
     when(contractRepository.findByTenantIdAndAgentIdOrderByCreatedAtAsc(tenantId, agentId)).thenReturn(List.of());
 
-    assertThatThrownBy(() -> monthService.send(agentId, MONTH, Optional.empty(), principal))
+    assertThatThrownBy(() -> monthService.send(agentId, MONTH, null, principal))
         .isInstanceOfSatisfying(
             ClientInvoiceConflictException.class,
             e -> assertThat(e.reason()).isEqualTo(ClientInvoiceConflictException.Reason.NOTHING_TO_SEND));
@@ -153,7 +152,7 @@ class ClientInvoiceMonthServiceTest {
     lockedMonthHolds(first, second);
     doNothing().when(invoiceService).markSent(any(), any(), any());
 
-    ClientInvoiceMonthSendResponse sent = monthService.send(agentId, MONTH, Optional.empty(), principal);
+    ClientInvoiceMonthSendResponse sent = monthService.send(agentId, MONTH, null, principal);
 
     org.mockito.InOrder order = org.mockito.Mockito.inOrder(drafts, invoiceRepository);
     order.verify(drafts).getOrCreate(one, MONTH, principal);
@@ -172,7 +171,7 @@ class ClientInvoiceMonthServiceTest {
     doNothing().when(invoiceService).markSent(any(), any(), any());
 
     ClientInvoiceMonthSendResponse sent =
-        monthService.send(agentId, MONTH, Optional.of(Set.of(first.getId(), second.getId())), principal);
+        monthService.send(agentId, MONTH, Set.of(first.getId(), second.getId()), principal);
 
     org.mockito.ArgumentCaptor<Instant> instants = org.mockito.ArgumentCaptor.forClass(Instant.class);
     verify(invoiceService).markSent(eq(first), instants.capture(), eq(principal));
@@ -193,8 +192,8 @@ class ClientInvoiceMonthServiceTest {
     ClientInvoice first = invoice(someInvoiceWasSent, !someInvoiceNotReady);
     ClientInvoice second = invoice(false, true);
     lockedMonthHolds(first, second);
-    Optional<Set<UUID>> expectedIds =
-        expectedDiffers ? Optional.of(Set.of(first.getId())) : Optional.of(Set.of(first.getId(), second.getId()));
+    Set<UUID> expectedIds =
+        expectedDiffers ? Set.of(first.getId()) : Set.of(first.getId(), second.getId());
 
     assertThatThrownBy(() -> monthService.send(agentId, MONTH, expectedIds, principal))
         .isInstanceOfSatisfying(
@@ -233,7 +232,7 @@ class ClientInvoiceMonthServiceTest {
     ClientInvoice notReadyTwo = invoice(false, false);
     lockedMonthHolds(notReadyOne, ready, notReadyTwo);
 
-    assertThatThrownBy(() -> monthService.send(agentId, MONTH, Optional.empty(), principal))
+    assertThatThrownBy(() -> monthService.send(agentId, MONTH, null, principal))
         .isInstanceOfSatisfying(
             ClientInvoiceConflictException.class,
             e -> assertThat(e.invoiceIds()).containsExactly(notReadyOne.getId(), notReadyTwo.getId()));

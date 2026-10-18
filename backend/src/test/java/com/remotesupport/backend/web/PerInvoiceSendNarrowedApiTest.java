@@ -17,6 +17,8 @@ import com.remotesupport.backend.support.IntegrationTest;
 import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -96,30 +98,15 @@ class PerInvoiceSendNarrowedApiTest extends IntegrationTest {
     return clientInvoiceRepository.findByContractIdAndBillingMonth(contractId, BillingMonth.current()).orElseThrow();
   }
 
-  @Test
-  void aNeverSentInvoiceIsMonthNotSentOnTheByIdRouteWithExactlyCodeAndMessage() throws Exception {
+  @ParameterizedTest
+  @ValueSource(strings = {"byId", "byContract"})
+  void aNeverSentInvoiceIsMonthNotSentOnEitherRouteWithExactlyCodeAndMessage(String route) throws Exception {
     NewAgent agent = newAgent();
     UUID contractId = contract(agent, 0);
     UUID invoiceId = openDraft(agent, contractId);
 
     MvcResult refused =
-        sendById(agent, invoiceId)
-            .andExpect(status().isConflict())
-            .andExpect(jsonPath("$.code").value("MONTH_NOT_SENT"))
-            .andReturn();
-
-    JsonNode body = objectMapper.readTree(refused.getResponse().getContentAsString());
-    assertThat(body.fieldNames()).toIterable().containsExactlyInAnyOrder("code", "message");
-    assertThat(invoiceOf(contractId).getStatus()).isEqualTo(ClientInvoiceStatus.DRAFT);
-  }
-
-  @Test
-  void aNeverSentInvoiceIsMonthNotSentOnTheContractRouteWithExactlyCodeAndMessage() throws Exception {
-    NewAgent agent = newAgent();
-    UUID contractId = contract(agent, 0);
-
-    MvcResult refused =
-        sendByContract(agent, contractId)
+        ("byId".equals(route) ? sendById(agent, invoiceId) : sendByContract(agent, contractId))
             .andExpect(status().isConflict())
             .andExpect(jsonPath("$.code").value("MONTH_NOT_SENT"))
             .andReturn();

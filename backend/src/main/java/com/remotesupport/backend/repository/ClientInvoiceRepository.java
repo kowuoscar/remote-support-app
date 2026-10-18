@@ -119,4 +119,60 @@ public interface ClientInvoiceRepository extends JpaRepository<ClientInvoice, UU
    */
   @Query("select min(ci.firstSentAt) from ClientInvoice ci where " + AGENTS_MONTH)
   Instant monthSentAt(@Param("agentId") UUID agentId, @Param("billingMonth") LocalDate billingMonth);
+
+  /**
+   * Per Agent of a tenant, how many Client Invoices are {@code SENT} (any month), by the Contract's
+   * Agent. An Agent with none is absent.
+   */
+  @Query(
+      """
+      select new com.remotesupport.backend.repository.AgentWaitingRow(a.id, count(ci))
+      from ClientInvoice ci
+      join ci.contract c
+      join c.agent a
+      where ci.tenant.id = :tenantId
+        and ci.status = com.remotesupport.backend.domain.ClientInvoiceStatus.SENT
+      group by a.id
+      """)
+  List<AgentWaitingRow> countSentByAgent(@Param("tenantId") UUID tenantId);
+
+  /**
+   * Every billing month in which an Agent has a Client Invoice that reached the Manager (it has a
+   * {@code firstSentAt}), with how many of that month are still {@code SENT}.
+   */
+  @Query(
+      """
+      select new com.remotesupport.backend.repository.ClientInvoiceReviewMonthRow(
+          ci.billingMonth,
+          count(case when ci.status = com.remotesupport.backend.domain.ClientInvoiceStatus.SENT then 1 end))
+      from ClientInvoice ci
+      join ci.contract c
+      where ci.tenant.id = :tenantId and c.agent.id = :agentId and ci.firstSentAt is not null
+      group by ci.billingMonth
+      """)
+  List<ClientInvoiceReviewMonthRow> findReviewMonthRows(
+      @Param("tenantId") UUID tenantId, @Param("agentId") UUID agentId);
+
+  /**
+   * The Client Invoices of an Agent's month that reached the Manager, in the order the Manager
+   * works through them (Client name, then id), each with its total summed from its stored lines.
+   */
+  @Query(
+      """
+      select new com.remotesupport.backend.repository.ClientInvoiceReviewRow(
+          ci.id, c.id, cl.name, ci.status, ci.currency, coalesce(sum(l.amount), 0),
+          ci.sentAt, ci.approvedAt, ci.sentBackAt)
+      from ClientInvoice ci
+      join ci.contract c
+      join c.client cl
+      left join ClientInvoiceLine l on l.clientInvoice = ci
+      where ci.tenant.id = :tenantId and c.agent.id = :agentId
+        and ci.billingMonth = :billingMonth and ci.firstSentAt is not null
+      group by ci.id, c.id, cl.name, ci.status, ci.currency, ci.sentAt, ci.approvedAt, ci.sentBackAt
+      order by lower(cl.name), ci.id
+      """)
+  List<ClientInvoiceReviewRow> findReviewRows(
+      @Param("tenantId") UUID tenantId,
+      @Param("agentId") UUID agentId,
+      @Param("billingMonth") LocalDate billingMonth);
 }

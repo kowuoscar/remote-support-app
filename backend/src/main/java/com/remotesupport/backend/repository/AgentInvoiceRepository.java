@@ -71,4 +71,52 @@ public interface AgentInvoiceRepository extends JpaRepository<AgentInvoice, UUID
       @Param("tenantId") UUID tenantId,
       @Param("billingMonth") LocalDate billingMonth,
       @Param("statuses") Collection<AgentInvoiceStatus> statuses);
+
+  /**
+   * Per Agent of a tenant, how many Agent Invoices are in one of {@code statuses}. An Agent with
+   * none is absent.
+   */
+  @Query(
+      """
+      select new com.remotesupport.backend.repository.AgentWaitingRow(ai.agent.id, count(ai))
+      from AgentInvoice ai
+      where ai.tenant.id = :tenantId and ai.status in :statuses
+      group by ai.agent.id
+      """)
+  List<AgentWaitingRow> countWaitingByAgent(
+      @Param("tenantId") UUID tenantId, @Param("statuses") Collection<AgentInvoiceStatus> statuses);
+
+  /** Every Agent Invoice of an Agent past {@code DRAFT}, any month, with its frozen total. */
+  @Query(
+      """
+      select new com.remotesupport.backend.repository.AgentInvoiceReviewRow(
+          ai.id, ai.status, ai.billingMonth, ai.currency,
+          """
+          + AgentInvoiceTotal.SNAPSHOT
+          + """
+          )
+      from AgentInvoice ai
+      where ai.tenant.id = :tenantId and ai.agent.id = :agentId
+        and ai.status <> com.remotesupport.backend.domain.AgentInvoiceStatus.DRAFT
+      """)
+  List<AgentInvoiceReviewRow> findNonDraftRows(
+      @Param("tenantId") UUID tenantId, @Param("agentId") UUID agentId);
+
+  /** The Agent's Agent Invoice of one month if it is past {@code DRAFT}, with its frozen total. */
+  @Query(
+      """
+      select new com.remotesupport.backend.repository.AgentInvoiceReviewRow(
+          ai.id, ai.status, ai.billingMonth, ai.currency,
+          """
+          + AgentInvoiceTotal.SNAPSHOT
+          + """
+          )
+      from AgentInvoice ai
+      where ai.tenant.id = :tenantId and ai.agent.id = :agentId and ai.billingMonth = :billingMonth
+        and ai.status <> com.remotesupport.backend.domain.AgentInvoiceStatus.DRAFT
+      """)
+  Optional<AgentInvoiceReviewRow> findNonDraftRow(
+      @Param("tenantId") UUID tenantId,
+      @Param("agentId") UUID agentId,
+      @Param("billingMonth") LocalDate billingMonth);
 }

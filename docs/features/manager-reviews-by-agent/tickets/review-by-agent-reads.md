@@ -1,7 +1,7 @@
 ---
 id: review-by-agent-reads
 title: Read the Agents with their waiting counts and an Agent's month for review
-status: in-progress
+status: done
 depends_on: []
 labels: [backend]
 stories: [31]

@@ -3,12 +3,12 @@ import { missingCarrierInvoiceLines, type ClientInvoiceDetail } from "@/lib/api/
 /**
  * The Agent's month as the Client Invoices page can see it (agent-sends-the-month): derived from
  * the invoices the page already loaded, with no read of its own. `billingMonth` is the first-of-month
- * ISO date of the loaded invoices, `null` only when no invoice loaded at all.
+ * ISO date of the loaded invoices; when no invoice loaded at all it is the current UTC month's.
  */
 export type ClientInvoiceMonthState =
   | { kind: "unsent"; billingMonth: string; total: number; ready: number; invoiceIds: string[] }
   | { kind: "sent"; billingMonth: string; sentAt: string }
-  | { kind: "incomplete"; billingMonth: string | null };
+  | { kind: "incomplete"; billingMonth: string };
 
 /**
  * `sent` when any loaded invoice carries `monthSentAt`; `incomplete` when a Contract's invoice
@@ -16,13 +16,16 @@ export type ClientInvoiceMonthState =
  * with `ready` counting the `DRAFT` invoices holding no Postpaid line without its carrier invoice.
  * `null` when the Agent holds no Contract: there is no month to show.
  */
-export function clientInvoiceMonth(invoices: (ClientInvoiceDetail | null)[]): ClientInvoiceMonthState | null {
+export function clientInvoiceMonth(
+  invoices: (ClientInvoiceDetail | null)[],
+  now: Date = new Date(),
+): ClientInvoiceMonthState | null {
   if (invoices.length === 0) return null;
   const loaded = invoices.filter((invoice): invoice is ClientInvoiceDetail => invoice !== null);
-  const billingMonth = loaded[0]?.billingMonth ?? null;
+  const billingMonth = loaded[0]?.billingMonth ?? currentUtcMonth(now);
   const sentAt = loaded.find((invoice) => invoice.monthSentAt)?.monthSentAt;
-  if (billingMonth && sentAt) return { kind: "sent", billingMonth, sentAt };
-  if (!billingMonth || loaded.length < invoices.length) return { kind: "incomplete", billingMonth };
+  if (sentAt) return { kind: "sent", billingMonth, sentAt };
+  if (loaded.length < invoices.length) return { kind: "incomplete", billingMonth };
   return {
     kind: "unsent",
     billingMonth,
@@ -31,4 +34,8 @@ export function clientInvoiceMonth(invoices: (ClientInvoiceDetail | null)[]): Cl
       .length,
     invoiceIds: loaded.map((invoice) => invoice.id),
   };
+}
+
+function currentUtcMonth(now: Date): string {
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-01`;
 }

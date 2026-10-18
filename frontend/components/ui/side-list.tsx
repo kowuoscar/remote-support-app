@@ -84,16 +84,17 @@ export function SideList({
                 aria-current={selected ? "true" : undefined}
                 onClick={(event) => onClick(event, item.id)}
                 className={cn(
-                  // Three columns: the detail takes the free width (cut with "…" before anything else), the status
-                  // and the badges size to themselves (the name spans the first two, the status sits in the second). DOM order stays
+                  // Four columns: the detail and the status size to their text (cut with "…" only when the row is
+                  // too narrow), so the status sits right after the detail; a 1fr spacer takes the free width and
+                  // the badges size to themselves in the last. The name spans the first three. DOM order stays
                   // name, detail, badge, mark, status (the link's accessible name); the grid places them.
-                  "grid grid-cols-[minmax(0,1fr)_minmax(0,auto)_auto] items-center gap-x-2 gap-y-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  "grid grid-cols-[minmax(0,auto)_auto_minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   selected
                     ? "bg-primary-soft-bg text-primary-soft-text"
                     : cn("hover:bg-canvas-soft", item.muted ? "text-ink-mute" : "text-ink-secondary"),
                 )}
               >
-                <span className="col-span-2 col-start-1 row-start-1 truncate" title={item.name}>
+                <span className="col-span-3 col-start-1 row-start-1 truncate" title={item.name}>
                   {item.name}
                 </span>
                 {item.detail ? (
@@ -105,13 +106,13 @@ export function SideList({
                 {item.badge ? (
                   <>
                     {" "}
-                    <span className="col-start-3 row-start-1 flex justify-end">{item.badge}</span>
+                    <span className="col-start-4 row-start-1 flex justify-end">{item.badge}</span>
                   </>
                 ) : null}
                 {item.mark ? (
                   <>
                     {" "}
-                    <span className={cn("col-start-3 flex justify-end", item.badge ? "row-start-2" : "row-start-1")}>
+                    <span className={cn("col-start-4 flex justify-end", item.badge ? "row-start-2" : "row-start-1")}>
                       {item.mark}
                     </span>
                   </>
@@ -121,8 +122,8 @@ export function SideList({
                     {" "}
                     <span
                       className={cn(
-                        "row-start-2 flex min-w-0 items-center gap-1 text-label-sm text-ink-mute",
-                        item.detail ? "col-start-2 -ml-1" : "col-span-2 col-start-1",
+                        "row-start-2 flex min-w-max items-center gap-1 text-label-sm text-ink-mute",
+                        item.detail ? "col-start-2 -ml-1" : "col-span-3 col-start-1",
                       )}
                     >
                       {item.detail ? (

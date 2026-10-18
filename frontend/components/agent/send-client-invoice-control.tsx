@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
-import { useRouter } from "next/navigation";
-import { readErrorCode } from "@/lib/api/errors";
-import { refreshPage } from "@/lib/selection-address";
+import { useId } from "react";
+import { forCount } from "@/lib/format";
 import { Button } from "@/components/ui/button";
-import { IconAlertTriangle, IconArrowRight } from "@/components/icons";
+import { IconArrowRight } from "@/components/icons";
+import { SendErrorLine, useTwoStepSend } from "./use-two-step-send";
 
 /**
  * Agent sends their own draft Client Invoice (client-invoice-submission-and-visibility ticket AC:
@@ -32,9 +31,7 @@ import { IconAlertTriangle, IconArrowRight } from "@/components/icons";
  */
 /** The count line shared by the control's gate and the card's month-send note. */
 export function missingCarrierInvoicesNote(missing: number): string {
-  return missing === 1
-    ? "1 Postpaid SIM still needs its carrier invoice."
-    : `${missing} Postpaid SIMs still need their carrier invoice.`;
+  return forCount(missing, "1 Postpaid SIM still needs its carrier invoice.", "{n} Postpaid SIMs still need their carrier invoice.");
 }
 
 export function SendClientInvoiceControl({
@@ -47,71 +44,13 @@ export function SendClientInvoiceControl({
   /** The draft was sent back: "Resend Client Invoice" / "Confirm resend" instead of "Send" / "Confirm send". */
   resend?: boolean;
 }) {
-  const router = useRouter();
   const noteId = useId();
-  const trigger = useRef<HTMLButtonElement>(null);
-  const confirmButton = useRef<HTMLButtonElement>(null);
-  const refocusTrigger = useRef(false);
-  const [confirming, setConfirming] = useState(false);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (confirming) {
-      confirmButton.current?.focus();
-    } else if (refocusTrigger.current) {
-      refocusTrigger.current = false;
-      trigger.current?.focus();
-    }
-  }, [confirming]);
-
-  function close() {
-    refocusTrigger.current = true;
-    setConfirming(false);
-    setError(null);
-  }
-
-  async function send() {
-    if (pending) return;
-    setPending(true);
-    setError(null);
-    try {
-      const response = await fetch(`/api/client-invoices/${invoiceId}/send`, { method: "POST" });
-      if (!response.ok) {
-        const code = response.status === 409 ? await readErrorCode(response) : null;
-        setError(
-          code === "CARRIER_INVOICES_MISSING"
-            ? "A Postpaid SIM still needs its carrier invoice. Reload to see which."
-            : code === "MONTH_NOT_SENT"
-              ? "Send this month from the bar above. Reload to see it."
-              : "Couldn't send. Try again.",
-        );
-        setPending(false);
-        return;
-      }
-      // Stays pending ("Sending…") until the refreshed page replaces this control; the card's
-      // status note then takes focus (ClientInvoiceStatusNote).
-      refreshPage(router);
-    } catch {
-      setError("Couldn't reach the server. Check your connection and try again.");
-      setPending(false);
-    }
-  }
-
-  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key === "Escape" && !pending) close();
-  }
-
-  const errorLine = error ? (
-    <p role="alert" className="flex items-center gap-1.5 text-label-sm text-danger">
-      <IconAlertTriangle className="h-3.5 w-3.5 shrink-0" />
-      {error}
-    </p>
-  ) : null;
+  const { trigger, confirmButton, confirming, pending, error, open, close, submit, onKeyDown } = useTwoStepSend();
+  const errorLine = <SendErrorLine error={error} />;
 
   if (confirming && missingCarrierInvoices === 0) {
     return (
-      <div className="flex flex-col items-end gap-1.5" onKeyDown={handleKeyDown}>
+      <div className="flex flex-col items-end gap-1.5" onKeyDown={onKeyDown}>
         <p className="max-w-65 text-right text-label-sm text-ink-mute">
           Sends to the Manager and Client, and locks the numbers. Only the Manager can send it back to you.
         </p>
@@ -127,7 +66,7 @@ export function SendClientInvoiceControl({
             aria-disabled={pending || undefined}
             aria-busy={pending || undefined}
             className={pending ? "cursor-not-allowed opacity-60" : undefined}
-            onClick={send}
+            onClick={() => submit(() => fetch(`/api/client-invoices/${invoiceId}/send`, { method: "POST" }))}
           >
             {pending ? "Sending…" : resend ? "Confirm resend" : "Confirm send"}
           </Button>
@@ -146,7 +85,7 @@ export function SendClientInvoiceControl({
         size="sm"
         disabled={missingCarrierInvoices > 0}
         aria-describedby={missingCarrierInvoices > 0 ? noteId : undefined}
-        onClick={() => setConfirming(true)}
+        onClick={open}
       >
         <IconArrowRight className="h-4 w-4" />
         {resend ? "Resend Client Invoice" : "Send Client Invoice"}

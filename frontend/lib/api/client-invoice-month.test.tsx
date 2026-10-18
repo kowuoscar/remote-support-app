@@ -66,12 +66,12 @@ describe("clientInvoiceMonth", () => {
       expected: { kind: "sent", billingMonth: "2026-10-01", sentAt: "2026-10-02T09:00:00Z" },
     },
     {
-      name: "every invoice null",
+      name: "every invoice null: the current UTC month stands in",
       invoices: [null, null],
-      expected: { kind: "incomplete", billingMonth: null },
+      expected: { kind: "incomplete", billingMonth: "2026-10-01" },
     },
   ])("$name", ({ invoices, expected }) => {
-    expect(clientInvoiceMonth(invoices)).toEqual(expected);
+    expect(clientInvoiceMonth(invoices, new Date("2026-10-18T10:00:00Z"))).toEqual(expected);
   });
 
   it("is null with no Contracts", () => {

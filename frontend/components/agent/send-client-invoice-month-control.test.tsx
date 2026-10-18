@@ -63,11 +63,20 @@ describe("SendClientInvoiceMonthControl", () => {
     expect(screen.getByRole("button", { name: "Send all 3 to Manager" })).toHaveFocus();
   });
 
+  it("keeps the month and the count on the left while the confirm is open", async () => {
+    render(<SendClientInvoiceMonthControl month={unsent()} />);
+    await openConfirm();
+    expect(screen.getByText(/October 2026/)).toBeInTheDocument();
+    expect(screen.getByText("3 of 3 ready")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Send all 3 to Manager" })).not.toBeInTheDocument();
+  });
+
   it("words the confirm for one Contract", async () => {
     render(<SendClientInvoiceMonthControl month={unsent({ total: 1, ready: 1, invoiceIds: ["a"] })} />);
     await openConfirm("Send 1 to Manager");
     expect(screen.getByRole("button", { name: "Confirm send" })).toBeInTheDocument();
-    expect(screen.getByText(/^Sends all 1 Client Invoice to the Manager/)).toBeInTheDocument();
+    expect(screen.getByText(/^Sends this Client Invoice to the Manager/)).toBeInTheDocument();
+    expect(screen.queryByText(/Sends all 1/)).not.toBeInTheDocument();
   });
 
   it("posts the loaded invoice ids to the month's route, then refreshes", async () => {
@@ -103,7 +112,7 @@ describe("SendClientInvoiceMonthControl", () => {
   });
 
   it.each([
-    ["CARRIER_INVOICES_MISSING", "An invoice is no longer ready. Reload to see which."],
+    ["CARRIER_INVOICES_MISSING", "A Postpaid SIM still needs its carrier invoice. Reload to see which."],
     ["MONTH_CHANGED", "Your Contracts changed since this page loaded. Reload and try again."],
     ["MONTH_ALREADY_SENT", "This month was already sent. Reload to see it."],
     ["NOT_THE_CURRENT_MONTH", "The month has changed. Reload to see this month's invoices."],

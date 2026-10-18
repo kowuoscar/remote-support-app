@@ -92,4 +92,50 @@ test.describe("the Agent's Clients column rows", () => {
     // The row is two lines high, whatever sits on line 2.
     expect(rowBox.height).toBeLessThanOrEqual(statusBox.height + 4 + markBox.height + 16 + 1);
   });
+
+  test("a readiness mark follows a short Country directly, not the badge column", async ({ page }) => {
+    await gotoWithSession(page, "/agent/client-invoices", "visual-agent-invoices-unsent-marked-session");
+    const clients = page.getByRole("navigation", { name: "Clients" });
+    const row = clients.getByRole("link", { name: "Birch Telecom Mexico Draft Ready", exact: true });
+    const [countryBox, readinessBox] = await Promise.all([
+      // The Country's text, not its grid cell (the cell can be wider than the word).
+      row.getByText("Mexico", { exact: true }).evaluate((el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const { x, y, width, height } = range.getBoundingClientRect();
+        return { x, y, width, height };
+      }),
+      // The dot that opens the readiness.
+      box(row.locator('span[aria-hidden="true"]', { hasText: "·" })),
+    ]);
+    expect(overlapsVertically(countryBox, readinessBox)).toBe(true);
+    // Right after the Country (one column gap, less the dot's pull-in), not out by the badge column (about 40px).
+    const gap = readinessBox.x - (countryBox.x + countryBox.width);
+    expect(gap).toBeGreaterThanOrEqual(0);
+    expect(gap).toBeLessThanOrEqual(8);
+  });
+});
+
+test.describe("the Agent's month bar", () => {
+  test("the sent bar's check sits on the heading's line and baseline, at mobile and desktop", async ({ page }) => {
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await gotoWithSession(page, "/agent/client-invoices", "visual-agent-invoices-session");
+      const bar = page.getByRole("region", { name: "Month" });
+      const sentence = bar.getByText(/Sent to Manager on/);
+      await expect(sentence).toBeVisible();
+      const check = await box(sentence.locator("svg"));
+      // The heading's text run ("September 2026 · "), measured with a Range over the bar's first text node.
+      const heading = await bar.locator("p").evaluate((p) => {
+        const node = p.firstChild as Text;
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        const rect = range.getClientRects()[0];
+        return { y: rect.y, height: rect.height };
+      });
+      // On the heading's line, not dropped below it as a block.
+      expect(overlapsVertically(heading, check)).toBe(true);
+      expect(Math.abs(heading.y + heading.height / 2 - (check.y + check.height / 2))).toBeLessThanOrEqual(3);
+    }
+  });
 });

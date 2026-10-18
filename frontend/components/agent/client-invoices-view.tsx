@@ -17,7 +17,7 @@ import { clientInvoiceMonth } from "@/lib/api/client-invoice-month";
 import { AgentClientInvoiceCard } from "@/components/agent/agent-client-invoice-card";
 import { PAGE_PADDING, PAGE_WIDTH } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
-import { formatBillingMonth, formatDate } from "@/lib/format";
+import { forCount, formatBillingMonth, formatDate } from "@/lib/format";
 import { countryLabel, missingCarrierInvoiceLines, type ClientInvoiceDetail, type SentBackClientInvoice } from "@/lib/api/types";
 
 /** What the page passes per Contract; the view derives the switcher's options and the side list's rows. */
@@ -165,7 +165,7 @@ function Readiness({ missing }: { missing: number }) {
       </>
     );
   }
-  return <span className="truncate">{missing === 1 ? "1 file missing" : `${missing} files missing`}</span>;
+  return <span className="truncate">{forCount(missing, "1 file missing", "{n} files missing")}</span>;
 }
 
 /**

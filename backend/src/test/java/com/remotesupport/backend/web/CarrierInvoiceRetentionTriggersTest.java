@@ -20,6 +20,7 @@ import org.springframework.scheduling.config.TriggerTask;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.scheduling.support.SimpleTriggerContext;
 import org.springframework.scheduling.config.ScheduledTaskHolder;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -31,6 +32,12 @@ import org.springframework.test.context.DynamicPropertySource;
  * walkthrough, not waited on.
  */
 class CarrierInvoiceRetentionTriggersTest {
+
+  /**
+   * These contexts share the suite's Postgres, whose connection limit the cached contexts of the
+   * whole suite already approach: a small pool and a context closed after its class keep them off it.
+   */
+  static final String SMALL_POOL = "spring.datasource.hikari.maximum-pool-size=2";
 
   @DynamicPropertySource
   static void infrastructure(DynamicPropertyRegistry registry) {
@@ -62,7 +69,8 @@ class CarrierInvoiceRetentionTriggersTest {
   }
 
   @Nested
-  @SpringBootTest(properties = "app.carrier-invoice-retention.enabled=false")
+  @SpringBootTest(properties = {"app.carrier-invoice-retention.enabled=false", SMALL_POOL})
+  @DirtiesContext
   @ActiveProfiles("test")
   class Disabled {
     @Autowired ObjectProvider<ScheduledTaskHolder> holders;
@@ -76,7 +84,8 @@ class CarrierInvoiceRetentionTriggersTest {
   }
 
   @Nested
-  @SpringBootTest
+  @SpringBootTest(properties = SMALL_POOL)
+  @DirtiesContext
   @ActiveProfiles("test")
   class EnabledByDefault {
     @Autowired ObjectProvider<ScheduledTaskHolder> holders;
@@ -92,7 +101,13 @@ class CarrierInvoiceRetentionTriggersTest {
   }
 
   @Nested
-  @SpringBootTest(properties = {"app.carrier-invoice-retention.enabled=true", "app.carrier-invoice-retention.cron=0 * * * * *"})
+  @SpringBootTest(
+      properties = {
+        "app.carrier-invoice-retention.enabled=true",
+        "app.carrier-invoice-retention.cron=0 * * * * *",
+        SMALL_POOL
+      })
+  @DirtiesContext
   @ActiveProfiles("test")
   class CronOverridden {
     @Autowired ObjectProvider<ScheduledTaskHolder> holders;

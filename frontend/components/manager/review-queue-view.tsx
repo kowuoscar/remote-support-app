@@ -101,7 +101,8 @@ export function ReviewQueueView({
         />
       ) : (
         <TableScroll>
-          <Table>
+          {/* dense: beside the Agents side list the table narrows to its area from `xl` instead of scrolling. */}
+          <Table dense>
             <Thead>
               <Tr>
                 <Th>Waiting</Th>
@@ -130,7 +131,7 @@ export function ReviewQueueView({
                   <Td>
                     <Badge tone="info">{KIND_LABEL[item.kind]}</Badge>
                   </Td>
-                  <Td className="whitespace-nowrap font-medium text-ink">{subject(item)}</Td>
+                  <Td className="min-w-40 font-medium text-ink">{subject(item)}</Td>
                   <Td className="whitespace-nowrap text-ink-secondary">{awaiting(item).label}</Td>
                   <Td className="whitespace-nowrap text-ink-mute">{formatBillingMonth(item.billingMonth)}</Td>
                   <Td className="text-right">

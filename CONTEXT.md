@@ -138,6 +138,9 @@ A Client Invoice draft that is sent back or of the current billing month (UTC). 
 **Side list**:
 A shared column of links beside the detail it selects, shown at xl (1280px) and wider; below xl the Contract Switcher, with a per-page icon, replaces it. Users: Client Invoices, Fleet, the Manager's Contracts and Carriers.
 
+**Month bar**:
+The Agent's Client Invoices page's top row, showing where the Agent's month stands (unsent with a count, sent with a date, or incomplete) and the one control that sends every invoice of the month together.
+
 **Payable amount** (of a Contract for a month):
 What a Contract adds to the Agent's Local Support Fees: every line its Client Invoice bills at its billed amount, plus anything of that month the invoice does not bill at its computed amount; with no Client Invoice, the computation.
 

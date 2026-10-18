@@ -24,6 +24,8 @@ function invoice(overrides: Partial<ClientInvoiceDetail> = {}): ClientInvoiceDet
     filesAvailable: true,
     sentAt: null,
     approvedAt: null,
+    monthSentAt: null,
+    sendableOnItsOwn: false,
     ...overrides,
   };
 }
@@ -1272,5 +1274,75 @@ describe("AgentClientInvoicesView invoice lines (invoice-lines-layout)", () => {
       expect(within(row).queryByRole("button")).not.toBeInTheDocument();
     }
     expect(screen.getAllByText(/Edited · computed/)).toHaveLength(2);
+  });
+});
+
+describe("AgentClientInvoicesView month bar (agent-sends-the-month)", () => {
+  const BIRCH = { id: "contract-2", clientName: "Birch Telecom", countryLabel: "Kenya", currency: "USD" };
+  const MISSING = [{ simCardId: "sim-1", carrierInvoiceFileId: null }] as unknown as ClientInvoiceDetail["basePostpaidSims"];
+
+  it("shows the unsent bar from the loaded invoices, disabled with its note while one is not ready", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, BIRCH]}
+        invoicesByContract={{
+          "contract-1": invoice(),
+          "contract-2": invoice({ id: "invoice-2", contractId: "contract-2", basePostpaidSims: MISSING }),
+        }}
+      />,
+    );
+    const bar = screen.getByRole("region", { name: "Month" });
+    expect(within(bar).getByText(/September 2026 ·/)).toBeInTheDocument();
+    expect(within(bar).getByText("1 of 2 ready")).toBeInTheDocument();
+    expect(within(bar).getByRole("button", { name: "Send all 2 to Manager" })).toBeDisabled();
+    expect(within(bar).getByText("1 invoice still needs its carrier invoices.")).toBeInTheDocument();
+  });
+
+  it("shows the sent bar when an invoice carries monthSentAt, even beside a sendable draft", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT]}
+        invoicesByContract={{
+          "contract-1": invoice({ monthSentAt: "2026-09-02T09:00:00Z", sendableOnItsOwn: true }),
+        }}
+      />,
+    );
+    const bar = screen.getByRole("region", { name: "Month" });
+    expect(within(bar).getByText(/Sent to Manager on Sep 2, 2026/)).toBeInTheDocument();
+    expect(within(bar).queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("shows the incomplete bar when an invoice failed to load", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, BIRCH]}
+        invoicesByContract={{ "contract-1": invoice(), "contract-2": null }}
+      />,
+    );
+    const bar = screen.getByRole("region", { name: "Month" });
+    expect(within(bar).getByText("Couldn't load every invoice.")).toBeInTheDocument();
+    expect(within(bar).getByRole("button")).toBeDisabled();
+    expect(within(bar).getByText("Reload the page to send the month.")).toBeInTheDocument();
+  });
+
+  it("shows no bar with no Contracts, only the empty state", () => {
+    render(<AgentClientInvoicesView contracts={[]} invoicesByContract={{}} />);
+    expect(screen.queryByRole("region", { name: "Month" })).not.toBeInTheDocument();
+    expect(screen.getByText("No contracts yet")).toBeInTheDocument();
+  });
+
+  it("puts the bar before Sent back to you and before the Contract switcher", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT]}
+        invoicesByContract={{ "contract-1": invoice() }}
+        sentBack={[SENT_BACK_ROW]}
+      />,
+    );
+    const bar = screen.getByRole("region", { name: "Month" });
+    const sentBack = screen.getByRole("region", { name: "Sent back to you" });
+    expect(bar.compareDocumentPosition(sentBack) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const switcher = screen.getByText("Aurora Retail Group — Kenya");
+    expect(bar.compareDocumentPosition(switcher) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

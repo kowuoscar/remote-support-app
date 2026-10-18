@@ -77,6 +77,7 @@ error, not a nitpick.
 - `frontend/app/api/contracts/[contractId]/sim-cards/[simCardId]/number/route.ts` · BFF PATCH proxy for a SIM Card's number Correction, via `forwardJson`.
 - `frontend/app/api/contracts/[contractId]/sim-cards/[simCardId]/postpaid-plan/route.ts` · BFF PATCH proxy for a Postpaid SIM Card's plan Correction, via `forwardJson`.
 - `frontend/app/client/(dashboard)` · the /client dashboard page and its error.tsx.
+- `frontend/app/api/me/client-invoice-months/[month]/send/route.ts` · BFF proxy for the whole-month send through forwardJson.
 - `frontend/app/agent/client-invoices/[invoiceId]` · the Agent's by-id Client Invoice page, guarded by `requireAgent`.
 
 ### Frontend — `frontend/components`
@@ -91,6 +92,7 @@ error, not a nitpick.
 - `frontend/components/app-shell/change-name-dialog.tsx` · the dialog behind the account menu's Change name item: edits the caller's own name, never signs out.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
 - `frontend/components/agent/agent-client-invoice-card.tsx` · the Agent's Client Invoice card.
+- `frontend/components/agent/send-client-invoice-month-control.tsx` · the Agent's month bar: unsent, sent and incomplete states and the confirm-and-send flow.
 - `frontend/components/agent/attach-carrier-invoice-dialog.tsx` · the attach form: pick a Postpaid SIM line and one file.
 - `frontend/components/agent/remove-carrier-invoice-file-control.tsx` · the Agent's Remove on one Carrier Invoice File of an open draft, with an inline confirm.
 - `frontend/components/ui/side-list.tsx` · the shared SideList (named nav landmark of links with name, detail, badge and mark slots) and SideListLayout (page body: column at xl, dropdown and header below xl, with lead and detailRef slots).
@@ -118,6 +120,7 @@ error, not a nitpick.
 - `demo` · demo data generation for development and the visual goldens.
 - `frontend/lib/manager-contracts.ts` · groups the Manager's Contracts by Client and resolves the selected Contract from `?contract=`.
 - `frontend/lib/api/client-invoice.ts` · the Agent's by-id Client Invoice read.
+- `frontend/lib/api/client-invoice-month.ts` · clientInvoiceMonth: derives the month bar's state from the page's loaded invoices.
 
 ## Dependency direction
 

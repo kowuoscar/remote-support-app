@@ -12,6 +12,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconAlertTriangle, IconArrowRight, IconInvoices } from "@/components/icons";
 import { Card } from "@/components/ui/card";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
+import { SendClientInvoiceMonthControl } from "@/components/agent/send-client-invoice-month-control";
+import { clientInvoiceMonth } from "@/lib/api/client-invoice-month";
 import { AgentClientInvoiceCard } from "@/components/agent/agent-client-invoice-card";
 import { PAGE_PADDING, PAGE_WIDTH } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
@@ -80,6 +82,9 @@ export function AgentClientInvoicesView({
     );
   }
 
+  // The Agent's month, derived from the invoices this page loaded; ordered.length > 0 here, so never null.
+  const month = clientInvoiceMonth(ordered.map((c) => invoicesByContract[c.id] ?? null));
+
   const switcherOptions: ContractOption[] = ordered.map((c) => ({
     id: c.id,
     label: `${c.clientName} — ${c.countryLabel}`,
@@ -119,7 +124,12 @@ export function AgentClientInvoicesView({
           onSelect={select}
         />
       }
-      lead={<SentBackSection rows={sentBack} />}
+      lead={
+        <>
+          {month ? <SendClientInvoiceMonthControl month={month} /> : null}
+          <SentBackSection rows={sentBack} />
+        </>
+      }
       dropdown={<ContractSwitcher contracts={switcherOptions} value={contractId} onChange={select} />}
       detailRef={invoiceAreaRef}
     >

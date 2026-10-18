@@ -747,6 +747,13 @@ describe("AgentClientInvoicesView", () => {
         expect(screen.queryByRole("link", { name: "Download" })).not.toBeInTheDocument();
       });
 
+      it("enables Send, with no count note, when every Postpaid SIM line's file is deleted", () => {
+        renderPage(sentBack({ basePostpaidSims: [SIM_COVERED], files: [DELETED_FILE] }));
+
+        expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeEnabled();
+        expect(screen.queryByText(/still needs? (its|their) carrier invoice/)).not.toBeInTheDocument();
+      });
+
       it("still offers Remove on the deleted file of an editable draft", () => {
         renderPage(sentBack({ basePostpaidSims: [SIM_COVERED], files: [DELETED_FILE] }));
 

@@ -165,7 +165,27 @@ describe("CarrierInvoiceFilesSection", () => {
     it("still shows the notice when attaching is offered", () => {
       renderSection({ files: [DELETED], filesAvailable: false, canAttach: true });
 
-      expect(screen.getByText(ATTACH_NOTICE)).toBeInTheDocument();
+      expect(screen.getByText(/File storage is unavailable/)).toBeInTheDocument();
+    });
+
+    it("names attaching, and not downloading, when attaching is offered and every file is deleted", () => {
+      renderSection({ files: [DELETED], filesAvailable: false, canAttach: true });
+
+      expect(screen.getByText("File storage is unavailable right now. Attaching is paused.")).toBeInTheDocument();
+      expect(screen.queryByText(/downloading/i)).not.toBeInTheDocument();
+    });
+
+    it("names removing but not downloading when a Remove is offered and every file is deleted", () => {
+      renderSection({
+        files: [DELETED],
+        filesAvailable: false,
+        canAttach: true,
+        renderRemove: () => <button type="button">Remove</button>,
+      });
+
+      expect(
+        screen.getByText("File storage is unavailable right now. Attaching and removing are paused."),
+      ).toBeInTheDocument();
     });
 
     it("shows the notice with one deleted and one live file while paused, and pauses only the live Download", () => {

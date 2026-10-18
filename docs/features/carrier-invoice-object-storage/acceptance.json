@@ -63,9 +63,9 @@
     {
       "step": 9,
       "actor": "human",
-      "status": "pending",
+      "status": "passed",
       "evidence": "",
-      "note": ""
+      "note": "Accepted by the human, 2026-10-18: \"I approved the implementation\"."
     }
   ],
   "replayed_on": "feature/carrier-invoice-object-storage @ 34eced1 (steps 2, 4, 7)"

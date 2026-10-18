@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -149,7 +150,16 @@ class ClientInvoiceLineEditApiTest extends IntegrationTest {
             .andExpect(status().isOk()));
   }
 
+  /** The first send goes through the month send; returns the sent invoice's id. */
   private UUID send() throws Exception {
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
+    sendTheMonth(mockMvc, agentToken);
+    return UUID.fromString(agentRead().get("id").asText());
+  }
+
+  /** The resend of a sent-back invoice keeps the per-invoice route. */
+  private UUID resend() throws Exception {
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
     return UUID.fromString(
@@ -406,6 +416,7 @@ class ClientInvoiceLineEditApiTest extends IntegrationTest {
     invoice.setCurrency(contract.getCurrency());
     invoice.setCreatedAt(Instant.now());
     invoice.setSentAt(Instant.now());
+    invoice.setFirstSentAt(Instant.now());
     invoice.setLinesStored(true);
     clientInvoiceRepository.saveAndFlush(invoice);
     ClientInvoiceLine base = new ClientInvoiceLine();
@@ -511,7 +522,7 @@ class ClientInvoiceLineEditApiTest extends IntegrationTest {
     edit("FEE", lateFee, "4.00").andExpect(status().isOk());
     edit("POSTPAID_SIM", sim, "21.00").andExpect(status().isOk());
 
-    send();
+    resend();
     logFee("11.00");
 
     JsonNode read = agentRead();

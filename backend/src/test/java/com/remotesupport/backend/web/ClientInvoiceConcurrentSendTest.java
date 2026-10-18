@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -38,9 +39,21 @@ class ClientInvoiceConcurrentSendTest extends IntegrationTest {
   private UUID clientId;
   private UUID contractId;
   private UUID planId;
+  private UUID anchorClientId;
+  private UUID anchorContractId;
 
   @AfterEach
   void deleteWhatThisTestCommitted() {
+    if (anchorContractId != null) {
+      jdbcTemplate.update(
+          "DELETE FROM client_invoice_lines WHERE client_invoice_id IN (SELECT id FROM client_invoices WHERE contract_id = ?)",
+          anchorContractId);
+      jdbcTemplate.update("DELETE FROM client_invoices WHERE contract_id = ?", anchorContractId);
+      jdbcTemplate.update("DELETE FROM contracts WHERE id = ?", anchorContractId);
+    }
+    if (anchorClientId != null) {
+      jdbcTemplate.update("DELETE FROM clients WHERE id = ?", anchorClientId);
+    }
     if (contractId != null) {
       jdbcTemplate.update(
           "DELETE FROM carrier_invoice_files WHERE client_invoice_id IN (SELECT id FROM client_invoices WHERE contract_id = ?)",
@@ -64,6 +77,11 @@ class ClientInvoiceConcurrentSendTest extends IntegrationTest {
   void concurrentSendsStoreLinesOnceAndOneGets409() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
+    // The seeded Agent's month goes first, through the month send, with a Contract that bills
+    // nothing; the raced Contract below is then a late one, sent on its own.
+    anchorClientId = createClient(managerToken, "Month Anchor " + UUID.randomUUID());
+    anchorContractId = createContract(managerToken, anchorClientId, SEEDED_AGENT_ID);
+    sendTheMonth(mockMvc, agentToken);
     clientId = createClient(managerToken, "Concurrent Send " + UUID.randomUUID());
     contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     UUID carrierId = carrierFor(managerToken, contractId);

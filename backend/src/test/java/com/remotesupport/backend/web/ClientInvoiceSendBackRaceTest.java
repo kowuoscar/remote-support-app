@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -65,10 +66,22 @@ class ClientInvoiceSendBackRaceTest extends IntegrationTest {
     }
   }
 
+  /**
+   * The seeded Agent's month goes first, through the month send, with a Contract that bills
+   * nothing; every round's Contract is then a late one, sent on its own as the rule allows.
+   */
+  private void sendTheSeededAgentsMonthFirst(String managerToken, String agentToken) throws Exception {
+    UUID anchorClientId = createClient(managerToken, "Month Anchor " + UUID.randomUUID());
+    clientIds.add(anchorClientId);
+    contractIds.add(createContract(managerToken, anchorClientId, SEEDED_AGENT_ID));
+    sendTheMonth(mockMvc, agentToken);
+  }
+
   @Test
   void sendBackVersusApproveLeavesOneConsistentFinalState() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
+    sendTheSeededAgentsMonthFirst(managerToken, agentToken);
 
     for (int round = 0; round < ROUNDS; round++) {
       UUID clientId = createClient(managerToken, "SendBack Race " + UUID.randomUUID());

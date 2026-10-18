@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -178,11 +179,12 @@ class PostpaidSimPlanApiTest extends IntegrationTest {
 
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
+    sendTheMonth(mockMvc, agentToken);
     mockMvc
         .perform(
-            post("/api/contracts/" + contractId + "/client-invoice/send")
-                .header("Authorization", "Bearer " + agentToken))
+            get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("SENT"))
         .andExpect(jsonPath("$.totalAmount").value(30.00));
 
     mockMvc

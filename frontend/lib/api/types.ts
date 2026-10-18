@@ -490,6 +490,8 @@ export interface CarrierInvoiceFileListItem {
   contentType: string;
   sizeBytes: number;
   uploadedAt: string;
+  // When retention deleted the file's object (carrier-invoice-retention); null while it is kept.
+  deletedAt: string | null;
 }
 
 // Mirrors backend/.../dto/ClientInvoiceBaseSimLineResponse.java — one Postpaid SIM Card counted

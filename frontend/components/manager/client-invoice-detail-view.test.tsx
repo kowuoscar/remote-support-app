@@ -37,6 +37,7 @@ function invoice(overrides: Partial<ClientInvoiceDetail> = {}): ClientInvoiceDet
         contentType: "application/pdf",
         sizeBytes: 1200,
         uploadedAt: "2026-08-30T10:00:00Z",
+        deletedAt: null,
       },
     ],
     filesAvailable: true,
@@ -224,6 +225,26 @@ describe("ClientInvoiceDetailView", () => {
       expect(within(rows[1]).queryByRole("img", { name: "Carrier invoice attached" })).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: /attach/i })).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: /remove/i })).not.toBeInTheDocument();
+    });
+
+    it("keeps the 'Carrier invoice attached' mark and shows 'Deleted on' in place of Download for a deleted file", () => {
+      const base = invoice();
+      render(
+        <ClientInvoiceDetailView
+          invoice={invoice({
+            basePostpaidSims: [
+              { simCardId: "s1", number: "+1-555-0401", monthlyFeeAmount: 20, cancellationEffectiveDate: null, amount: 20, carrierName: "Verizon", carrierInvoiceFileId: "file-1" },
+            ],
+            files: [{ ...base.files[0], deletedAt: "2026-10-02T12:00:00Z" }],
+          })}
+        />,
+      );
+
+      const rows = within(screen.getByRole("list", { name: "Postpaid SIM Cards" })).getAllByRole("listitem");
+      expect(within(rows[0]).getByRole("img", { name: "Carrier invoice attached" })).toBeInTheDocument();
+      expect(screen.getByText("august-carrier.pdf")).toBeInTheDocument();
+      expect(screen.getByText("Deleted on Oct 2, 2026")).toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "Download august-carrier.pdf" })).not.toBeInTheDocument();
     });
 
     it("edited-line-shows-computed-amount-marker", () => {

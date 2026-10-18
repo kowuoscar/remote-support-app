@@ -4,17 +4,17 @@ import {
   addPostpaidSimCard,
   addTester,
   attachCarrierInvoice,
-  createClientAndContractWithSeededAgent,
+  createAgentWithLogin,
+  createClientAndContractWithAgent,
   login,
   logout,
   selectContractInSwitcher,
   selectClientInvoiceContract,
-  attachCarrierInvoicesForEveryPostpaidSim,
 } from "./helpers";
 
 /**
  * The Client Invoice's send/approve lifecycle end to end (client-invoice-submission-and-visibility
- * ticket): an Agent sends their Contract's draft, a Tester at that Client sees it read-only and
+ * ticket; agent-sends-the-month): an Agent sends their month's Client Invoices from the month bar, a Tester at that Client sees it read-only and
  * downloads a PDF, and a Manager opens it from the Contract page's invoice summary and approves it on
  * the invoice's detail page (manager-invoice-review-queue spec) — driven against a real backend + Postgres (see
  * playwright.e2e.config.ts), at the accessibility-tree level per spec.md's Testing decisions.
@@ -30,8 +30,13 @@ test.describe("client invoice submission and visibility", () => {
     page,
   }) => {
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    // A fresh Agent with a login and two Contracts, one with a Postpaid SIM and one with nothing: its
+    // month is its own, so the bar starts unsent whatever the other specs did to Jordan's.
+    const agent = await createAgentWithLogin(page, `Marta Voss ${RUN_ID}`, `marta.voss+${RUN_ID}@agents.example`);
     const clientName = `Kessler & Vance ${RUN_ID}`;
-    const { clientId, contractId } = await createClientAndContractWithSeededAgent(page, clientName);
+    const { clientId, contractId } = await createClientAndContractWithAgent(page, clientName, agent.agentLabel);
+    const emptyClientName = `Quiet Harbour ${RUN_ID}`;
+    await createClientAndContractWithAgent(page, emptyClientName, agent.agentLabel);
     const simNumber = `+1-555-${RUN_ID.slice(-4)}`;
     await addPostpaidSimCard(page, contractId, simNumber, "30.00");
     const testerEmail = `charlotte.finch+${RUN_ID}@kesslervance.example`;
@@ -44,40 +49,46 @@ test.describe("client invoice submission and visibility", () => {
     await expect(draftSummary.getByText("Draft")).toBeVisible();
     await draftSummary.getByRole("link", { name: "Open invoice" }).click();
     await expect(page).toHaveURL(/\/manager\/invoices\/client\/.+/);
-    await expect(page.getByRole("heading", { name: `${clientName} — Jordan Ellis` })).toBeVisible();
+    await expect(page.getByRole("heading", { name: `${clientName} — ${agent.agentLabel.split(" · ")[0]}` })).toBeVisible();
     await expect(page.getByText("Draft", { exact: true })).toBeVisible();
     await expect(page.getByRole("button", { name: "Approve" })).toHaveCount(0);
 
-    // Agent opens the draft (creating it as a side effect), then sends it.
-    await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
+    // Agent opens the page (creating both drafts as a side effect): the month bar counts them.
+    await login(page, agent.email, agent.password);
     await page.goto("/agent/client-invoices");
+    const bar = page.getByRole("region", { name: "Month" });
+    await expect(bar.getByText("1 of 2 ready")).toBeVisible();
+    // The send gate: with the Postpaid SIM's carrier invoice missing, the bar's button is disabled and says why.
+    await expect(bar.getByRole("button", { name: "Send all 2 to Manager" })).toBeDisabled();
+    await expect(bar.getByText("1 invoice still needs its carrier invoices.")).toBeVisible();
+
     await selectClientInvoiceContract(page, clientName);
     await expect(page.getByTestId("client-invoice-card").getByText("Draft")).toBeVisible();
     // The SIM line reads its number, then the Carrier and the flavor.
     await expect(page.getByTestId("client-invoice-card").getByText("Verizon · Postpaid")).toBeVisible();
-    // The send gate: with the Postpaid SIM's carrier invoice missing, Send is disabled and says why.
-    await expect(page.getByRole("button", { name: "Send Client Invoice" })).toBeDisabled();
-    await expect(page.getByText("1 Postpaid SIM still needs its carrier invoice.")).toBeVisible();
     // The line's carrier invoice is attached; the Manager will see its check mark.
     await attachCarrierInvoice(page, simNumber);
-    // Wait for the refreshed card (the line's check mark) so the helper below sees nothing left to attach.
     await expect(
       page.getByTestId("client-invoice-card").getByRole("img", { name: "Carrier invoice attached" }),
     ).toBeVisible();
 
-    await attachCarrierInvoicesForEveryPostpaidSim(page);
-    await expect(page.getByRole("button", { name: "Send Client Invoice" })).toBeEnabled();
-    await page.getByRole("button", { name: "Send Client Invoice" }).click();
+    // Every invoice is ready: the Agent sends the whole month through the bar.
+    await expect(bar.getByText("2 of 2 ready")).toBeVisible();
+    await expect(bar.getByRole("button", { name: "Send all 2 to Manager" })).toBeEnabled();
+    await bar.getByRole("button", { name: "Send all 2 to Manager" }).click();
     const [sendResponse] = await Promise.all([
       page.waitForResponse(
-        (resp) => resp.url().includes("/api/client-invoices/") && resp.url().includes("/send") && resp.request().method() === "POST",
+        (resp) => resp.url().includes("/api/me/client-invoice-months/") && resp.url().endsWith("/send") && resp.request().method() === "POST",
       ),
-      page.getByRole("button", { name: "Confirm send" }).click(),
+      bar.getByRole("button", { name: "Confirm send all 2" }).click(),
     ]);
     expect(sendResponse.status()).toBe(200);
 
-    // Sent — no longer editable: the Attach/Send controls are gone, a PDF download appears
-    // instead (ticket AC: "a sent invoice is no longer editable by the Agent").
+    // Sent — the bar says when and has no button; the invoice is no longer editable by the Agent
+    // (ticket AC), and a PDF download appears instead.
+    const today = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    await expect(bar.getByText(`Sent to Manager on ${today}`)).toBeVisible();
+    await expect(bar.getByRole("button")).toHaveCount(0);
     await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
     await expect(page.getByRole("button", { name: "Attach carrier invoice" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Send Client Invoice" })).toHaveCount(0);

@@ -25,6 +25,16 @@ const ROLES = {
   // Client Invoices page's goldens. A token of its own, because the Agent dashboard's goldens read the
   // two-Contract list below. The second token's Birch Telecom (UK) invoice read answers 500.
   "visual-agent-invoices-session": { username: "agent@example.com", role: "AGENT", country: "UNITED_STATES", invoices: true },
+  // agent-sends-the-month: under the feature the token above is a SENT month (every invoice carries
+  // monthSentAt). This one is the same Agent's month before it is sent: two Contracts, two DRAFT
+  // invoices (Aurora's missing a carrier invoice file, Birch's ready), monthSentAt null.
+  "visual-agent-invoices-unsent-session": {
+    username: "agent@example.com",
+    role: "AGENT",
+    country: "UNITED_STATES",
+    invoices: true,
+    unsentMonth: true,
+  },
   // carrier-invoice-per-sim: the same Client Invoices with file storage unavailable (the paused files
   // section), and the Manager's by-id Client Invoice detail below.
   "visual-agent-invoices-paused-session": {
@@ -350,8 +360,19 @@ const FEE_LINES = [
   { id: "77777777-0000-0000-0000-0000000000a1", contractId: "22222222-0000-0000-0000-0000000000d1", requestId: "88888888-0000-0000-0000-0000000000a1", requestType: "TOPUP", feeType: "TOPUP", amount: 10, currency: "USD", description: "Customer asked for extra data", billingMonth: "2026-09-01", createdAt: "2026-09-12T10:00:00Z", computedAmount: 10, edited: false },
   { id: "77777777-0000-0000-0000-0000000000a2", contractId: "22222222-0000-0000-0000-0000000000d1", requestId: "88888888-0000-0000-0000-0000000000a2", requestType: "TOPUP", feeType: "OTHER", amount: 8, currency: "USD", description: null, billingMonth: "2026-09-01", createdAt: "2026-09-14T10:00:00Z", computedAmount: 12, edited: true },
 ];
-function clientInvoiceFor(contract, filesAvailable = true) {
+// agent-sends-the-month: the four-state month is SENT, so every invoice carries monthSentAt; Aurora's
+// DRAFT (a late Contract's draft in a sent month) and the sent-back draft send on their own.
+const MONTH_SENT_AT = "2026-09-10T10:00:00Z";
+const SENDABLE_ON_ITS_OWN = new Set([0, 3]);
+function clientInvoiceFor(contract, filesAvailable = true, unsentMonth = false) {
   const withLines = contract.index === 0;
+  const month = unsentMonth
+    ? { status: "DRAFT", monthSentAt: null, sendableOnItsOwn: false }
+    : {
+        ...INVOICE_STATES[contract.index],
+        monthSentAt: MONTH_SENT_AT,
+        sendableOnItsOwn: SENDABLE_ON_ITS_OWN.has(contract.index),
+      };
   return {
     id: `99999999-0000-0000-0000-0000000000${contract.id.slice(-2)}`,
     contractId: contract.id,
@@ -365,7 +386,7 @@ function clientInvoiceFor(contract, filesAvailable = true) {
     filesAvailable,
     sentAt: null,
     approvedAt: null,
-    ...INVOICE_STATES[contract.index],
+    ...month,
   };
 }
 
@@ -692,7 +713,7 @@ createServer((request, response) => {
     return known ? send(response, 200, { password: RESET_PASSWORD }) : send(response, 404);
   }
   if (url.pathname === "/api/contracts" && request.method === "GET") {
-    if (caller.invoices) return send(response, 200, INVOICE_CONTRACTS);
+    if (caller.invoices) return send(response, 200, caller.unsentMonth ? INVOICE_CONTRACTS.slice(0, 2) : INVOICE_CONTRACTS);
     if (caller.role === "TESTER") {
       return caller.contractsFailing ? send(response, 500) : send(response, 200, TESTER_CONTRACTS);
     }
@@ -759,7 +780,7 @@ createServer((request, response) => {
     const contract = INVOICE_CONTRACTS.find((candidate) => candidate.id === clientInvoiceMatch[1]);
     if (!contract) return send(response, 404);
     if (caller.failingInvoiceContract === contract.id) return send(response, 500);
-    return send(response, 200, clientInvoiceFor(contract, !caller.filesPaused));
+    return send(response, 200, clientInvoiceFor(contract, !caller.filesPaused, caller.unsentMonth));
   }
   // carrier-invoice-per-sim: the Manager's Client Invoice detail page reads the same first draft by id.
   const clientInvoiceByIdMatch = url.pathname.match(/^\/api\/client-invoices\/([^/]+)$/);
@@ -768,6 +789,7 @@ createServer((request, response) => {
     return clientInvoiceByIdMatch[1] === invoice.id ? send(response, 200, invoice) : send(response, 404);
   }
   if (url.pathname === "/api/client-invoices/sent-back" && request.method === "GET" && caller.invoices) {
+    if (caller.unsentMonth) return send(response, 200, []);
     const contract = INVOICE_CONTRACTS[3];
     const invoice = clientInvoiceFor(contract);
     // sent-back-in-the-side-list: an earlier month's invoice of the SENT Contract, so its row reads

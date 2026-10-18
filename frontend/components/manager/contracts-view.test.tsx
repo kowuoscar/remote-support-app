@@ -33,6 +33,8 @@ const INVOICE: ClientInvoiceDetail = {
   filesAvailable: true,
   sentAt: null,
   approvedAt: null,
+  monthSentAt: null,
+  sendableOnItsOwn: false,
 };
 
 function selected(c: ContractListItem, overrides: Partial<SelectedContract> = {}): SelectedContract {

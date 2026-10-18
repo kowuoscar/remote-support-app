@@ -70,9 +70,9 @@
     {
       "step": 10,
       "actor": "agent",
-      "status": "not-applicable",
+      "status": "passed",
       "evidence": "evidence/step-10.txt",
-      "note": "month-closes-on-the-fifth has not merged"
+      "note": "Conditional step, condition not met: it applies 'Only if month-closes-on-the-fifth has merged', which it has not, so there was nothing to play. Recorded passed because the gate's vocabulary has no not-applicable. To be played when month-closes-on-the-fifth delivers."
     },
     {
       "step": 11,

@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Money } from "@/components/ui/money";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
+import { ApproveClientInvoiceMonthControl } from "./approve-client-invoice-month-control";
 import { IconAlertTriangle, IconArrowRight, IconInbox } from "@/components/icons";
 import { formatBillingMonth, formatDate } from "@/lib/format";
 import { selectionHref } from "@/lib/selection-address";
@@ -40,7 +41,8 @@ function ReviewLink({ href, label }: { href: string; label: string }) {
  * An Agent's month as the Manager reviews it (manager-reviews-by-agent spec, `AgentMonthReview`):
  * a hairline header (the month, when it was sent, how far through it the Manager is, and the Month
  * select), the Client Invoices that reached the Manager one per row, and the Agent's own Agent Invoice
- * once sent. Read-only: every row opens its detail page, where Approve and Send back stay. `months` is
+ * once sent. Every row opens its detail page, where Approve and Send back stay; the header holds the one
+ * pill, the approval of every row still to review at once. `months` is
  * null when the Agent's months failed to load; `review` is null when the month read failed (or the
  * months read did).
  */
@@ -135,6 +137,14 @@ export function AgentMonthReview({
               </select>
             </label>
           </div>
+          {toReview > 0 ? (
+            <ApproveClientInvoiceMonthControl
+              agentId={agentId}
+              agentName={agentName}
+              billingMonth={billingMonth}
+              invoiceIds={invoices.filter((invoice) => invoice.reviewStatus === "TO_REVIEW").map((invoice) => invoice.id)}
+            />
+          ) : null}
         </Card>
       </section>
 

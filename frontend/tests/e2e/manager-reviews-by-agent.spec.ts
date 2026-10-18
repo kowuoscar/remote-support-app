@@ -93,6 +93,46 @@ test.describe("the Manager reviews Client Invoices by Agent", () => {
     await expect(agents.getByRole("link", { name: /^All Agents/ })).toHaveAttribute("aria-current", "true");
   });
 
+  test("approving the rest of the month refuses a stale page, then succeeds after a reload", async ({ page, context }) => {
+    const { agentName, harlow, quiet } = await aFreshAgentWhoSentTheMonth(page, "Odette");
+    await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await page.goto("/manager/invoices");
+    await selectInSideList(page, "Agents", new RegExp(`^${agentName} 2 waiting$`));
+    const header = page.getByRole("region", { name: "Month" });
+    await expect(header).toContainText("2 of 2 to review");
+
+    // The month changes elsewhere: another page approves one invoice on its own.
+    const other = await context.newPage();
+    await other.goto(page.url());
+    await other.getByRole("link", { name: `Review Client Invoice: ${harlow} — ${agentName}, ${THIS_MONTH}` }).click();
+    await other.getByRole("button", { name: "Approve", exact: true }).click();
+    await expect(other.getByText("Approved", { exact: true })).toBeVisible();
+    await other.close();
+
+    // The stale page still offers two; confirming is refused and approves nothing.
+    await header.getByRole("button", { name: "Approve the 2 left to review" }).click();
+    await header.getByRole("button", { name: "Confirm approve 2" }).click();
+    await expect(header.getByRole("alert")).toHaveText(
+      "This month changed since the page loaded. Reload and try again.",
+    );
+    await expect(header).toContainText("2 of 2 to review");
+
+    // After a reload the new count is offered, and confirming succeeds.
+    await page.reload();
+    await expect(header).toContainText("1 of 2 to review");
+    await header.getByRole("button", { name: "Approve the 1 left to review" }).click();
+    await header.getByRole("button", { name: "Confirm approve" }).click();
+    await expect(header).toContainText("2 of 2 approved");
+    await expect(header.getByRole("button")).toHaveCount(0);
+    const rows = page.getByRole("row").filter({ has: page.getByRole("link", { name: /^Review Client Invoice:/ }) });
+    await expect(rows.filter({ hasText: harlow })).toContainText("Approved");
+    await expect(rows.filter({ hasText: quiet })).toContainText("Approved");
+    await expect(
+      page.getByRole("navigation", { name: "Agents", exact: true }).getByRole("link", { name: `${agentName} nothing waiting`, exact: true }),
+    ).toBeVisible();
+  });
+
   test("the Agent Invoice is its own row under the month once sent", async ({ page }) => {
     const { agentName } = await aFreshAgentWhoSentTheMonth(page, "Tessa");
     await page.goto("/agent/my-invoice");

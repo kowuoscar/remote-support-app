@@ -69,6 +69,7 @@ error, not a nitpick.
 - `api` · the BFF route handlers; the only place the browser's data reaches the backend.
 - `fonts` · font assets served by the app.
 - `frontend/app/api/agents/[agentId]/login/password/route.ts` · BFF pass-through for the Manager's password reset of an Agent, forwarding `Cache-Control: no-store`.
+- `frontend/app/api/agents/[agentId]/client-invoice-months/[month]/approve/route.ts` · BFF proxy for the Manager's month approval POST through forwardJson.
 - `frontend/app/api/clients/[clientId]/testers/[testerId]/password/route.ts` · BFF pass-through for the Manager's password reset of a Tester, forwarding `Cache-Control: no-store`.
 - `frontend/app/api/me/route.ts` · BFF GET proxy for the caller's own read, so the browser can read the caller's own name.
 - `frontend/app/api/me/name/route.ts` · BFF PUT proxy for the caller's own-name write.
@@ -105,7 +106,8 @@ error, not a nitpick.
 - `frontend/components/fleet/fleet-tabs-card.tsx` · the Fleet card whose header row is the "Fleet" tablist (SIM Cards, Smartphones) with per-tab action and empty state, and the `?tab=` parser; used by the Agent and Tester Fleet.
 - `frontend/components/manager/contracts-view.tsx` · the Manager's one-page Contracts view: Clients side list, Agent select, invoice summary and tabbed Fleet; a pick is router.replace in a transition.
 - `frontend/components/manager/manager-invoices-view.tsx` · the Manager's Invoices page body: Agents SideList / dropdown with All Agents (Review Queue) first, swapping in AgentMonthReview on a pick.
-- `frontend/components/manager/agent-month-review.tsx` · an Agent's month as the Manager reviews it, read-only: header, Month select, Client Invoice table, Agent Invoice row, empty and failed states.
+- `frontend/components/manager/agent-month-review.tsx` · an Agent's month as the Manager reviews it: header, Month select, Client Invoice table, Agent Invoice row, empty and failed states.
+- `frontend/components/manager/approve-client-invoice-month-control.tsx` · the month header's approval pill with two-step inline confirm and coded refusal lines; posts the month's To review ids to the BFF approve route.
 - `frontend/components/fleet/smartphone-model-control.tsx` · the inline control that corrects a Smartphone's model.
 - `frontend/components/fleet/smartphone-owner-control.tsx` · the inline control that corrects a Smartphone's owner.
 - `frontend/components/fleet/sim-card-number-control.tsx` · the inline control that corrects a SIM Card's number.

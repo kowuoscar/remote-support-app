@@ -36,7 +36,7 @@ At risk: the month header from `agents-side-list-on-invoices`, `ApproveClientInv
 
 Existing tests expected to change, each with the reason:
 
-- `frontend/components/manager/agent-month-review.test.tsx`: gains the cases for the button's presence ({k} > 0) and absence ({k} = 0) and the control's mount; every pre-existing case keeps passing unmodified.
+- `frontend/components/manager/agent-month-review.test.tsx`: gains the cases for the button's presence ({k} > 0) and absence ({k} = 0) and the control's mount; every pre-existing case keeps passing unmodified. Accepted by the orchestrator at merge: the pre-existing assertion "no button in the header with 1 of 3 to review" now asserts the "Approve the 1 left to review" pill, the behaviour this ticket adds.
 - `frontend/tests/e2e/manager-reviews-by-agent.spec.ts`: gains the approval cases; every pre-existing case keeps passing unmodified.
 - `frontend/tests/visual/stub-backend.mjs`: only if the stub's Jordan month has no To review row for the pill (it should; it is additive).
 - Goldens `manager-invoices-agent-{desktop,mobile}-{light,dark}.png`: recaptured with the pill; no other golden moves.

@@ -25,9 +25,12 @@ const SEND_UNREACHABLE = "Couldn't reach the server. Check your connection and t
  * for the whole month): `open` / `close`, Confirm taking focus when the confirm opens and the
  * trigger getting it back on Back or Escape, a pending Confirm that stays focusable (the caller sets
  * aria-disabled + aria-busy from `pending`; repeat activation is ignored), and the coded refusal line.
- * After a successful send `pending` stays true ("Sending…") until the refreshed page replaces the control.
+ * `copy` words the refusals of another one-way action sharing the shape (the Manager's month approval);
+ * it defaults to the send's. After a successful send `pending` stays true ("Sending…") until the refreshed page replaces the control.
  */
-export function useTwoStepSend() {
+export function useTwoStepSend(
+  copy: { refusals: Record<string, string>; failed: string } = { refusals: SEND_REFUSALS, failed: SEND_FAILED },
+) {
   const router = useRouter();
   const trigger = useRef<HTMLButtonElement>(null);
   const confirmButton = useRef<HTMLButtonElement>(null);
@@ -59,7 +62,7 @@ export function useTwoStepSend() {
       const response = await request();
       if (!response.ok) {
         const code = response.status === 409 ? await readErrorCode(response) : null;
-        setError((code && SEND_REFUSALS[code]) || SEND_FAILED);
+        setError((code && copy.refusals[code]) || copy.failed);
         setPending(false);
         return;
       }

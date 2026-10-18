@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { ReviewClientInvoice, ReviewMonth, ReviewMonthSummary } from "@/lib/api/types";
+import { stubFetch } from "@/tests/component/fetch";
 import { mockRouter } from "@/tests/component/next-navigation";
 import { AgentMonthReview } from "./agent-month-review";
 
@@ -62,7 +63,8 @@ describe("AgentMonthReview header", () => {
     const header = screen.getByRole("region", { name: "Month" });
     expect(within(header).getByRole("heading", { name: "October 2026" })).toBeInTheDocument();
     expect(header).toHaveTextContent("October 2026 · Sent to you on Oct 12, 2026 · 1 of 3 to review");
-    expect(within(header).queryByRole("button")).not.toBeInTheDocument();
+    // The read-only header of agents-side-list-on-invoices held no button; with one left to review it now holds the approval.
+    expect(within(header).getByRole("button", { name: "Approve the 1 left to review" })).toBeInTheDocument();
   });
 
   it("reads how many are approved, and how many sent back, once nothing is left to review", () => {
@@ -87,6 +89,35 @@ describe("AgentMonthReview header", () => {
     const header = screen.getByRole("region", { name: "Month" });
     expect(header).toHaveTextContent("1 of 1 approved");
     expect(header).not.toHaveTextContent("sent back");
+  });
+});
+
+describe("AgentMonthReview month approval", () => {
+  it("offers the approval of every To review row in the header, and mounts the control with their ids", async () => {
+    const fetchMock = stubFetch(200, {});
+    renderReview(
+      month({
+        clientInvoices: [
+          row({ id: "a" }),
+          row({ id: "b", clientName: "Birch Telecom", reviewStatus: "APPROVED" }),
+          row({ id: "c", clientName: "Cedar Mobile" }),
+          row({ id: "d", clientName: "Dune Wireless", reviewStatus: "SENT_BACK" }),
+        ],
+      }),
+    );
+    const header = screen.getByRole("region", { name: "Month" });
+
+    await userEvent.click(within(header).getByRole("button", { name: "Approve the 2 left to review" }));
+    await userEvent.click(within(header).getByRole("button", { name: "Confirm approve 2" }));
+
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("/api/agents/agent-1/client-invoice-months/2026-10/approve");
+    expect(JSON.parse(init.body as string)).toEqual({ invoiceIds: ["a", "c"] });
+  });
+
+  it("holds no button when nothing is left to review", () => {
+    renderReview(month({ clientInvoices: [row({ reviewStatus: "APPROVED" }), row({ id: "b", reviewStatus: "SENT_BACK" })] }));
+    expect(within(screen.getByRole("region", { name: "Month" })).queryByRole("button")).not.toBeInTheDocument();
   });
 });
 

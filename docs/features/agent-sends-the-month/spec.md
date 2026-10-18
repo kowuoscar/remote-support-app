@@ -562,6 +562,7 @@ leaves, and what a user sees and can do on the page.
 ## Decisions taken
 
 - **Spec approved by the human in advance** ("implements this in full without stop", epic 2026-10-18).
+- **(at ticket cut) The isolated e2e backend runs without the `demo` profile, so `frontend/tests/e2e/global-setup.ts` gives Jordan a no-bill Contract and sends his month once** (tolerating `MONTH_ALREADY_SENT` on a reused database, failing loudly otherwise). Reason: every existing e2e spec then sends its own Contract as a late one, unchanged; only the journey proof and the new month spec use a fresh Agent. (Orchestrator, 2026-10-18.)
 
 - **"The month is sent" is derived from a new `first_sent_at` on each Client Invoice, not a month entity.** Reason: one nullable column gives an exact, send-back-proof "sent" and date; a month row would duplicate what the invoices already say, and `sentAt` alone is cleared by a send-back.
 - **The month counts as sent as soon as any of its invoices has been sent, including one sent before this feature.** (settled by the orchestrator under the human's advance approval) Reason: one rule covers the late Contract and the transition; on the human's stack an October with invoices already sent one by one finishes one by one, rather than having two rules for one month.
@@ -727,29 +728,37 @@ starts unsent.
 
 ## Execution order
 
-Three tickets, one PR.
+Five tickets, one PR. The first draft of this section proposed three; two were
+split after grepping the existing tests (the first-send rule and the ~19 test
+classes it moves are a ticket of their own, and the bar and the cards are two
+slices).
 
 1. `send-the-month-api`: the prefactoring (`ClientInvoiceDrafts`,
    `BillingMonth.current()` in the cluster, the shared `markSent`), the
    `first_sent_at` migration and its test, `ClientInvoiceMonthService` and
-   `ClientInvoiceMonthController` with the matcher and the coded 409s, the
-   `MONTH_NOT_SENT` gate on the per-invoice send, `monthSentAt` and
-   `sendableOnItsOwn` on the response, the audit line, the demo loader's
-   month send, the `sendTheMonth` helper and every backend test moved to it,
-   the concurrency tests. Labels: backend. No dependency. (stories: 4, 5, 6,
-   25, 26, 27, 28, 29, 30, 31, 32, 33)
-2. `month-bar-and-cards`: the BFF route, the types and `clientInvoiceMonth`
-   helper, `SendClientInvoiceControl`'s Resend/late wording and
-   `MONTH_NOT_SENT` text, `SendClientInvoiceMonthControl` in the lead, the
-   card without Send and its two lines, the stub, the Agent page goldens, the
-   `DESIGN.md` month bar entry, the e2e `createAgentWithLogin` helper, the
-   journey proof on a fresh Agent, the other specs' Resend wording and the
-   `attachCarrierInvoicesForEveryPostpaidSim` wait. Labels: frontend.
-   Depends on `send-the-month-api`. (stories: 1, 2, 3, 7, 8, 9, 10, 11, 12,
-   13, 14, 15, 16, 17, 18, 19, 20, 24, 34)
-3. `side-list-readiness-mark`: the `SideListItem` line-2 slot, the readiness
-   on the Client Invoices rows, the side-list-rows visual case and the
-   goldens it moves, `clientInvoiceRowName`, the `DESIGN.md` side list line,
-   `agent-sends-the-month.spec.ts`, the `CONTEXT.md` declarations. Labels:
-   frontend. Depends on `month-bar-and-cards` (shared goldens and stub).
+   `ClientInvoiceMonthController` with the matcher and the coded 409s,
+   `monthSentAt` and `sendableOnItsOwn` on the response, the audit line, the
+   `sendTheMonth` helper, the concurrency tests. Labels: backend. No
+   dependency. (stories: 4, 5, 6, 26, 27, 28, 29, 32)
+2. `first-send-only-through-the-month`: the `MONTH_NOT_SENT` gate on the
+   per-invoice send, the demo loader's month send, every backend test moved to
+   the helper, the e2e global setup that sends Jordan's month. Labels: backend.
+   Depends on `send-the-month-api`. (stories: 25, 30, 31, 33, 34)
+3. `month-bar-sends-the-month`: the BFF route, the types and
+   `clientInvoiceMonth` helper, `SendClientInvoiceMonthControl` in the lead,
+   the stub, the Agent page goldens, the `DESIGN.md` month bar entry,
+   `createAgentWithLogin`, the journey proof on a fresh Agent. Labels:
+   frontend. Depends on `send-the-month-api`. (stories: 1, 2, 3, 7, 8, 9, 10,
+   11, 12, 13, 14, 24, 34)
+4. `cards-defer-to-the-month-bar`: the card without Send and its two lines,
+   Resend and the late Contract's Send, the `MONTH_NOT_SENT` text, the other
+   specs' Resend wording, the `attachCarrierInvoicesForEveryPostpaidSim` wait,
+   `agent-sends-the-month.spec.ts`. Labels: frontend. Depends on
+   `month-bar-sends-the-month` and `first-send-only-through-the-month`.
+   (stories: 15, 16, 17, 18, 19, 20, 34)
+5. `side-list-readiness-mark`: the `SideListItem` line-2 slot, the readiness on
+   the Client Invoices rows, the side-list-rows visual case and the goldens it
+   moves, `clientInvoiceRowName`, the `DESIGN.md` side list line, the
+   `CONTEXT.md` declarations. Labels: frontend. Depends on
+   `cards-defer-to-the-month-bar` (shared view, stub, goldens and helpers).
    (stories: 21, 22, 23, 35)

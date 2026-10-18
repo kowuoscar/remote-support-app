@@ -1,7 +1,7 @@
 ---
 id: approve-the-rest-of-the-month
 title: Approve the invoices left to review in an Agent's month at once
-status: ready-for-agent
+status: in-progress
 depends_on: [agents-side-list-on-invoices, approve-a-month-api]
 labels: [frontend]
 stories: [17, 18, 19, 20, 21]

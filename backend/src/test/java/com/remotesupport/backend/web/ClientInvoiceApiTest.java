@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -298,8 +299,9 @@ class ClientInvoiceApiTest extends IntegrationTest {
 
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
+    sendTheMonth(mockMvc, agentToken);
     mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("SENT"))
         .andExpect(jsonPath("$.basePostpaidSims[0].carrierName").value("Verizon"));
@@ -339,9 +341,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
-    mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
+    sendTheMonth(mockMvc, agentToken);
 
     for (String token : new String[] {agentToken, testerToken}) {
       MvcResult result =
@@ -369,8 +369,9 @@ class ClientInvoiceApiTest extends IntegrationTest {
 
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
+    sendTheMonth(mockMvc, agentToken);
     mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("SENT"))
         .andExpect(jsonPath("$.basePostpaidSims.length()").value(1))
@@ -455,8 +456,9 @@ class ClientInvoiceApiTest extends IntegrationTest {
 
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
+    sendTheMonth(mockMvc, agentToken);
     mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("SENT"))
         .andExpect(jsonPath("$.baseAmount").value(32.00));
@@ -662,8 +664,9 @@ class ClientInvoiceApiTest extends IntegrationTest {
         .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk());
 
+    sendTheMonth(mockMvc, agentToken);
     mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("SENT"))
         .andExpect(jsonPath("$.sentAt").isNotEmpty());
@@ -677,9 +680,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
     String agentToken = agentToken();
 
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
+    sendTheMonth(mockMvc, agentToken);
 
     mockMvc
         .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
@@ -723,9 +724,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
     String agentToken = agentToken();
 
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
+    sendTheMonth(mockMvc, agentToken);
 
     mockMvc
         .perform(
@@ -751,8 +750,9 @@ class ClientInvoiceApiTest extends IntegrationTest {
 
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
+    sendTheMonth(mockMvc, agentToken);
     mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.baseAmount").value(25.00))
         .andExpect(jsonPath("$.totalAmount").value(70.00))
@@ -792,9 +792,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
     String agentToken = agentToken();
 
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
+    sendTheMonth(mockMvc, agentToken);
 
     mockMvc
         .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + testerToken))
@@ -809,9 +807,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String agentToken = agentToken();
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
-    mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
+    sendTheMonth(mockMvc, agentToken);
 
     UUID otherClientId = createClient(managerToken, "Meridian Logistics");
     String otherTesterToken =
@@ -837,9 +833,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
-    mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
+    sendTheMonth(mockMvc, agentToken);
 
     MvcResult pdfResult =
         mockMvc
@@ -887,11 +881,10 @@ class ClientInvoiceApiTest extends IntegrationTest {
     String agentToken = agentToken();
 
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    sendTheMonth(mockMvc, agentToken);
     MvcResult sent =
         mockMvc
-            .perform(
-                post("/api/contracts/" + contractId + "/client-invoice/send")
-                    .header("Authorization", "Bearer " + agentToken))
+            .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isOk())
             .andReturn();
     UUID invoiceId = UUID.fromString(objectMapper.readTree(sent.getResponse().getContentAsString()).get("id").asText());
@@ -953,9 +946,10 @@ class ClientInvoiceApiTest extends IntegrationTest {
     String agentToken = agentToken();
 
     mockMvc.perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    sendTheMonth(mockMvc, agentToken);
     MvcResult sent =
         mockMvc
-            .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+            .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isOk())
             .andReturn();
     UUID invoiceId = UUID.fromString(objectMapper.readTree(sent.getResponse().getContentAsString()).get("id").asText());
@@ -1029,9 +1023,10 @@ class ClientInvoiceApiTest extends IntegrationTest {
     UUID contractId = createContract(managerToken, createClient(managerToken, "Resend Gone Co"), SEEDED_AGENT_ID);
     String agentToken = agentToken();
     UUID fileId = attachFile(agentToken, contractId, "gone.pdf", "gone".getBytes());
+    sendTheMonth(mockMvc, agentToken);
     MvcResult sent =
         mockMvc
-            .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+            .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isOk())
             .andReturn();
     UUID invoiceId = UUID.fromString(objectMapper.readTree(sent.getResponse().getContentAsString()).get("id").asText());
@@ -1145,9 +1140,7 @@ class ClientInvoiceApiTest extends IntegrationTest {
     String agentToken = agentToken();
     UUID simId = addUniquePostpaidSim(managerToken, contractId);
     attachFile(agentToken, contractId, "scan.pdf", "x".getBytes(), simId);
-    mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
+    sendTheMonth(mockMvc, agentToken);
     String testerToken = createTesterAndLogin(managerToken, clientId, "tester@lists-name.example");
 
     mockMvc
@@ -1183,9 +1176,10 @@ class ClientInvoiceApiTest extends IntegrationTest {
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String agentToken = agentToken();
     UUID fileId = attachFile(agentToken, contractId, "upload.PDF", "bytes".getBytes());
+    sendTheMonth(mockMvc, agentToken);
     MvcResult sent =
         mockMvc
-            .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+            .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isOk())
             .andReturn();
     UUID invoiceId = UUID.fromString(objectMapper.readTree(sent.getResponse().getContentAsString()).get("id").asText());
@@ -1332,6 +1326,9 @@ class ClientInvoiceApiTest extends IntegrationTest {
   void aCurrentMonthSendWithAMissingLineIsACoded409LeavingTheInvoiceADraftWithNoLineRow() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
+    // The Agent's month goes first, so this Contract is a late one and its send reaches the carrier gate.
+    createContract(managerToken, createClient(managerToken, "Gate Current Anchor Co"), SEEDED_AGENT_ID);
+    sendTheMonth(mockMvc, agentToken);
     UUID contractId = createContract(managerToken, createClient(managerToken, "Gate Current Co"), SEEDED_AGENT_ID);
     addUniquePostpaidSim(managerToken, contractId);
     addUniquePostpaidSim(managerToken, contractId);
@@ -1364,8 +1361,9 @@ class ClientInvoiceApiTest extends IntegrationTest {
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
 
+    sendTheMonth(mockMvc, agentToken);
     mockMvc
-        .perform(post("/api/contracts/" + contractId + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
+        .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("SENT"));
   }

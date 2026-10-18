@@ -44,3 +44,13 @@ PR #33 stays draft.
 2. Yes, one more fix pass for F27–F29.
 
 (Human, 2026-10-18: "ok" to both recommendations.)
+
+## Follow-up question (2026-10-18)
+
+The second pass fixed F27–F29 (confirmed), but the F29 fix caused F31: at
+phone width on the Manager's page, "+44 7700 900123" now breaks across two
+lines (it fit before). Gate: verify and harness pass; only F31 blocks.
+Authorize a third, one-line fix (keep the SIM number on one line; also clears
+the pre-existing F30), with the affected screenshots retaken?
+
+Recommendation: yes.

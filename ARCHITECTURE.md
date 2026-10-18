@@ -48,6 +48,12 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileName.java` · pure function building a Carrier Invoice File's computed name `{Client} - {Month Year} - {Carrier} - {SIM number}{.ext}`.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileMissingException.java` · the 404 for a row whose object is missing.
 - `backend/src/main/resources/db/migration/V62__add_carrier_invoice_file_deleted_at.sql` · the migration behind retention marking a Carrier Invoice File's bytes deleted.
+- `backend/src/main/resources/db/migration/V63__add_client_invoice_first_sent_at.sql` · the migration behind a Client Invoice remembering when it was first sent, kept through a send-back.
+- `backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceDrafts.java` · the one get-or-create of a Contract's DRAFT Client Invoice for a billing month, shared by the invoice controller and the month send.
+- `backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceMonthService.java` · the non-transactional half of the month send: month check, completing each Contract's current-month draft, then handing to `ClientInvoiceService`.
+- `backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceMonthController.java` · the Agent-only `POST /api/me/client-invoice-months/{YYYY-MM}/send`.
+- `backend/src/main/java/com/remotesupport/backend/dto/ClientInvoiceMonthSendResponse.java` · the month send's answer: billing month, sent time, invoice ids.
+- `backend/src/main/java/com/remotesupport/backend/dto/ClientInvoiceMonthSendRequest.java` · the month send's optional body naming the invoice ids.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceRetention.java` · deletes due Carrier Invoice File bytes 30 days after approval and marks the rows `deleted_at`, stopping at the first object-store failure.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceRetentionProperties.java` · typed `app.carrier-invoice-retention` settings (enabled, cron).
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceRetentionScheduling.java` · the app's only scheduling configuration: the UTC cron and the startup run of retention.

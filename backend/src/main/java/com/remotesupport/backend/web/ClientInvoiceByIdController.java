@@ -163,7 +163,7 @@ public class ClientInvoiceByIdController {
 
   /** The {@code 409} of a draft not open to its Agent, of a send without its carrier invoices, carries a {@code code}. */
   @ExceptionHandler(ClientInvoiceConflictException.class)
-  public ResponseEntity<Map<String, String>> clientInvoiceConflict(ClientInvoiceConflictException e) {
+  public ResponseEntity<Map<String, Object>> clientInvoiceConflict(ClientInvoiceConflictException e) {
     return ClientInvoiceErrors.conflict(e);
   }
 

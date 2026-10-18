@@ -52,6 +52,9 @@ the `check` goal), Flyway, Testcontainers.
    mocked; a test that needs a Spring context is an integration test: it
    extends `IntegrationTest`, keeps the `*Test` name and sits beside the unit
    tests of its package. (Convention written down by the human, 2026-10-02.)
+   Exception: a test that boots the `demo` profile (the demo data) runs its
+   own `@SpringBootTest` and Postgres container, never the shared one.
+   (Carve-out by the human, 2026-10-18.)
 7. Exceptions crossing the service→controller boundary are domain
    exceptions carrying `@ResponseStatus`, translated to a response body by a
    per-controller `@ExceptionHandler` when the body needs a machine-readable

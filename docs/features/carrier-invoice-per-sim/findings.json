@@ -114,13 +114,14 @@
     {
       "id": "F11",
       "type": "rule-violated",
-      "state": "open",
+      "state": "dismissed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/test/java/com/remotesupport/backend/demo/DemoDataLoaderStoreDownTest.java:39",
       "citation": "docs/agents/coding-standards.md (Backend 6): a test that needs a Spring context is an integration test: it extends `IntegrationTest`, keeps the `*Test` name and sits beside the unit tests of its package.",
-      "note": "New @SpringBootTest with its own PostgreSQLContainer, not extending IntegrationTest (follows DemoDataLoaderApiTest on main: IntegrationTest is pinned to the test profile, this needs demo). No exception in the rule; human carve-out or conform."
+      "note": "New @SpringBootTest with its own PostgreSQLContainer, not extending IntegrationTest (follows DemoDataLoaderApiTest on main: IntegrationTest is pinned to the test profile, this needs demo). No exception in the rule; human carve-out or conform.",
+      "reason": "human: tests that boot the demo data are exempt from Backend 6 (they need the demo profile and their own database); the carve-out is written into coding-standards.md. Settled 2026-10-18."
     },
     {
       "id": "F12",

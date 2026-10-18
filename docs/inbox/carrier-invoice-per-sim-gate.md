@@ -39,3 +39,8 @@ confirmed; walkthrough steps 1–14 passed.
 PR #33 stays draft.
 
 ## Answer
+
+1. Yes, exempt: carve-out added to Backend 6, F11 dismissed.
+2. Yes, one more fix pass for F27–F29.
+
+(Human, 2026-10-18: "ok" to both recommendations.)

@@ -37,123 +37,134 @@
     {
       "id": "F4",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "DESIGN.md:243",
       "citation": "",
-      "note": "Side list entry still calls the Agent's month 'read-only', but its header now holds the approval pill."
+      "note": "Side list entry still calls the Agent's month 'read-only', but its header now holds the approval pill.",
+      "fixed_in": "2cc9cc2"
     },
     {
       "id": "F5",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ReviewByAgentService.java:70",
       "citation": "",
-      "note": "Tie-break on UUID.toString(), not the UUID; matches Postgres order for lowercase hex."
+      "note": "Tie-break on UUID.toString(), not the UUID; matches Postgres order for lowercase hex.",
+      "fixed_in": "2cc9cc2"
     },
     {
       "id": "F6",
       "type": "rule-violated",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/review-month-next.tsx:23",
       "citation": "docs/agents/coding-standards.md: Frontend 8 — \"The two small type sizes are the tokens `text-label-sm` and `text-label`: a new or changed line uses them, never `text-[12px]`/`text-[13px]`\"",
-      "note": "New 'Next invoice' link className uses text-[13px]; use text-label."
+      "note": "New 'Next invoice' link className uses text-[13px]; use text-label.",
+      "fixed_in": "2cc9cc2"
     },
     {
       "id": "F7",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/review-month-next.tsx:23",
       "citation": "possible Duplicated Code",
-      "note": "Hand-copied secondary sm button style instead of the shared Button styles."
+      "note": "Hand-copied secondary sm button style instead of the shared Button styles.",
+      "fixed_in": "2cc9cc2"
     },
     {
       "id": "F8",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceMonthApprovalController.java:60",
       "citation": "possible Duplicated Code",
-      "note": "parse(String month) copied in ReviewByAgentController:52 and ClientInvoiceMonthController:61; extract one helper."
+      "note": "parse(String month) copied in ReviewByAgentController:52 and ClientInvoiceMonthController:61; extract one helper.",
+      "fixed_in": "2cc9cc2"
     },
     {
       "id": "F9",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceMonthApprovalController.java:51",
       "citation": "possible split responsibility",
-      "note": "Tenant-scoped Agent check runs in the controller outside approveMonth's transaction; findMonthForUpdate is not tenant-scoped. Move the check into the service."
+      "note": "Tenant-scoped Agent check runs in the controller outside approveMonth's transaction; findMonthForUpdate is not tenant-scoped. Move the check into the service.",
+      "fixed_in": "2cc9cc2"
     },
     {
       "id": "F10",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/use-two-step-send.tsx:31",
       "citation": "possible Mysterious Name",
-      "note": "Agent 'send' hook now also drives the Manager month approval via a copy param; name and folder no longer describe it."
+      "note": "Agent 'send' hook now also drives the Manager month approval via a copy param; name and folder no longer describe it.",
+      "fixed_in": "2cc9cc2"
     },
     {
       "id": "F11",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/app/manager/invoices/client/[invoiceId]/page.tsx:41",
       "citation": "possible Primitive Obsession",
-      "note": "YYYY-MM month built by repeated billingMonth.slice(0, 7) and string concatenation; a lib/review-months helper would name it."
+      "note": "YYYY-MM month built by repeated billingMonth.slice(0, 7) and string concatenation; a lib/review-months helper would name it.",
+      "fixed_in": "2cc9cc2"
     },
     {
       "id": "F12",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ReviewByAgentService.java:61",
       "citation": "judgement call (redundant work)",
-      "note": "findByTenantIdOrderByNameAsc result sorted again in Java by lower(name) then id."
+      "note": "findByTenantIdOrderByNameAsc result sorted again in Java by lower(name) then id.",
+      "fixed_in": "2cc9cc2"
     },
     {
       "id": "F13",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/agent-month-review.tsx:20",
       "citation": "DESIGN.md Badge: \"Six tones map 1:1 to semantic colors ..., driven centrally by `lib/status.ts`'s status→tone maps ... so status color is never chosen ad hoc per screen.\"",
-      "note": "REVIEW_STATUS (To review / Approved / Sent back labels and tones) is defined inside the component instead of lib/status.ts. Move it there (e.g. reviewStatusToneByValue, reviewStatusLabelByValue) and import it."
+      "note": "REVIEW_STATUS (To review / Approved / Sent back labels and tones) is defined inside the component instead of lib/status.ts. Move it there (e.g. reviewStatusToneByValue, reviewStatusLabelByValue) and import it.",
+      "fixed_in": "2cc9cc2"
     },
     {
       "id": "F14",
       "type": "design-guideline",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/manager/agent-month-review.tsx:224",
       "citation": "DESIGN.md Typography: \"Body (400–500, 14px, 1.5 line-height): table cells, form values, page copy.\"; Tabular Everywhere Rule: \"so columns of numbers always align\"",
-      "note": "The Agent Invoice row's <Money> has no size class and renders at 16px; in manager-invoices-agent-desktop goldens $3,200.00 is larger than the 14px Client totals and doesn't align with the Total column. Add text-sm (and align it with the column)."
+      "note": "The Agent Invoice row's <Money> has no size class and renders at 16px; in manager-invoices-agent-desktop goldens $3,200.00 is larger than the 14px Client totals and doesn't align with the Total column. Add text-sm (and align it with the column).",
+      "fixed_in": "2cc9cc2"
     }
   ]
 }

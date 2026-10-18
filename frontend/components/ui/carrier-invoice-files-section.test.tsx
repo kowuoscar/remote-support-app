@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import { CarrierInvoiceFilesSection } from "./carrier-invoice-files-section";
 
 const FILES = [
-  { id: "f1", filename: "a.pdf" },
-  { id: "f2", filename: "b.pdf" },
+  { id: "f1", filename: "a.pdf", deletedAt: null },
+  { id: "f2", filename: "b.pdf", deletedAt: null },
 ];
 
 function renderSection(props: Partial<React.ComponentProps<typeof CarrierInvoiceFilesSection>> = {}) {
@@ -135,5 +135,63 @@ describe("CarrierInvoiceFilesSection", () => {
     renderSection({ filesAvailable: false, canAttach: true });
     expect(screen.getByText(ATTACH_NOTICE)).toBeInTheDocument();
     expect(screen.queryByText(REMOVE_NOTICE)).not.toBeInTheDocument();
+  });
+
+  describe("a file deleted by retention", () => {
+    const DELETED = { id: "f1", filename: "a.pdf", deletedAt: "2026-10-02T12:00:00Z" };
+    const LIVE = { id: "f2", filename: "b.pdf", deletedAt: null };
+
+    it.each([true, false])("keeps its name and shows 'Deleted on {date}' as plain text, filesAvailable %s", (filesAvailable) => {
+      const { container } = renderSection({ files: [DELETED], filesAvailable });
+
+      expect(screen.getByText("a.pdf")).toBeInTheDocument();
+      const text = screen.getByText("Deleted on Oct 2, 2026");
+      expect(text).toHaveClass("text-label-sm", "text-ink-mute");
+      expect(text).not.toHaveAttribute("aria-disabled");
+      expect(text).not.toHaveAttribute("tabindex");
+      expect(text.closest("a")).toBeNull();
+      expect(screen.queryByRole("link")).not.toBeInTheDocument();
+      expect(screen.queryByText("Download")).not.toBeInTheDocument();
+      expect(container.querySelector('[aria-disabled="true"]')).toBeNull();
+      expect(text.querySelector("svg")).toBeNull();
+    });
+
+    it("shows no notice during an outage when every file is deleted and nothing can be attached", () => {
+      renderSection({ files: [DELETED], filesAvailable: false });
+
+      expect(screen.queryByText(/File storage is unavailable/)).not.toBeInTheDocument();
+    });
+
+    it("still shows the notice when attaching is offered", () => {
+      renderSection({ files: [DELETED], filesAvailable: false, canAttach: true });
+
+      expect(screen.getByText(ATTACH_NOTICE)).toBeInTheDocument();
+    });
+
+    it("shows the notice with one deleted and one live file while paused, and pauses only the live Download", () => {
+      const { container } = renderSection({ files: [DELETED, LIVE], filesAvailable: false });
+
+      expect(screen.getByText(DOWNLOAD_NOTICE)).toBeInTheDocument();
+      expect(screen.getByText("Deleted on Oct 2, 2026")).toBeInTheDocument();
+      const disabled = container.querySelectorAll('[aria-disabled="true"]');
+      expect(disabled).toHaveLength(1);
+      expect(disabled[0]).toHaveTextContent("Download");
+    });
+
+    it("keeps a live file's Download link beside a deleted one while storage is up", () => {
+      renderSection({ files: [DELETED, LIVE] });
+
+      expect(screen.getAllByRole("link", { name: "Download" }).map((l) => l.getAttribute("href"))).toEqual(["/files/f2"]);
+      expect(screen.getByText("Deleted on Oct 2, 2026")).toBeInTheDocument();
+    });
+
+    it("still renders the Remove slot for a deleted file", () => {
+      renderSection({
+        files: [DELETED],
+        renderRemove: (file) => <button type="button">Remove {file.filename}</button>,
+      });
+
+      expect(screen.getByRole("button", { name: "Remove a.pdf" })).toBeInTheDocument();
+    });
   });
 });

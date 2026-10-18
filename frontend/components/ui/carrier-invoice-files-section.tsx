@@ -4,12 +4,17 @@ import {
   IconDownload,
   IconPaperclip,
 } from "@/components/icons";
+import { formatDate } from "@/lib/format";
 
 /**
  * The "Carrier invoice files" section of a Client Invoice, shared by the Agent's card, the
  * Manager's invoice detail and the Tester's Invoices page. While file storage is unavailable
  * (`filesAvailable` false, carrier-invoice-object-storage spec) the names stay listed, each
  * Download turns into non-interactive text, and one notice says what is paused. The Attach
+
+ * A file retention deleted (`deletedAt` set, carrier-invoice-retention spec) keeps its row and name and
+ * shows plain "Deleted on {date}" where Download was, whether or not storage is up; the notice shows
+ * only when something is really paused (the attach control, or a file that is not deleted). The Attach
  * control itself stays with the caller (it sits in the card header); `canAttach` only tells this
  * section whether the notice should mention attaching.
  */
@@ -22,7 +27,7 @@ export function CarrierInvoiceFilesSection({
   labelledDownloads = false,
   renderRemove,
 }: {
-  files: { id: string; filename: string }[];
+  files: { id: string; filename: string; deletedAt: string | null }[];
   downloadHref: (fileId: string) => string;
   emptyText: string;
   filesAvailable: boolean;
@@ -33,10 +38,10 @@ export function CarrierInvoiceFilesSection({
    * The Agent's Remove for one file, beside its Download (an editable draft only). When given and
    * there is a file to remove, the paused notice names removing too: it says what the section offers.
    */
-  renderRemove?: (file: { id: string; filename: string }) => ReactNode;
+  renderRemove?: (file: { id: string; filename: string; deletedAt: string | null }) => ReactNode;
 }) {
   const paused = !filesAvailable;
-  const showNotice = paused && (canAttach || files.length > 0);
+  const showNotice = paused && (canAttach || files.some((file) => file.deletedAt === null));
 
   return (
     <div>
@@ -72,7 +77,11 @@ export function CarrierInvoiceFilesSection({
                 </span>
               </div>
               <div className="ml-auto flex flex-wrap items-center justify-end gap-x-3 gap-y-1.5">
-                {paused ? (
+                {file.deletedAt !== null ? (
+                  <span className="shrink-0 text-label-sm text-ink-mute">
+                    Deleted on {formatDate(file.deletedAt)}
+                  </span>
+                ) : paused ? (
                   <span
                     aria-disabled="true"
                     aria-label={

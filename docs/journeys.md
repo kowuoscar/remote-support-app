@@ -79,7 +79,8 @@ unit being bought. Proof: `frontend/tests/e2e/agent-stock.spec.ts`,
 
 An Agent opens a Contract's Client Invoice for the month, which drafts itself
 from the postpaid base amount and that month's Fees, attaches the carrier
-invoice files, and sends it. Its numbers freeze at send (ADR 0001). The
+invoice files, and sends it with the rest of their month once every invoice
+is ready. Its numbers freeze at send (ADR 0001). The
 Client's Testers see and download it; the Manager approves it, and its carrier
 invoice files are kept for 30 days after approval. Proof:
 `frontend/tests/e2e/client-invoice-submission-and-visibility.spec.ts`.

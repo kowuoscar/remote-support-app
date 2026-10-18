@@ -1,7 +1,7 @@
 ---
 feature: agent-sends-the-month
 epic: client-invoices-sent-by-the-month
-status: approved
+status: delivered
 date: 2026-10-18
 ---
 

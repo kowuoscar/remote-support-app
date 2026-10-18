@@ -29,8 +29,25 @@ const variantClasses: Record<ButtonVariant, string> = {
 
 const sizeClasses: Record<ButtonSize, string> = {
   md: "h-9 px-4 text-sm",
-  sm: "h-7 px-3 text-[13px]",
+  sm: "h-7 px-3 text-label",
 };
+
+/**
+ * The classes of a button, for a control that must be a link (an `<a>`) yet read as one of the
+ * shared buttons.
+ */
+export function buttonClasses({
+  variant = "secondary",
+  size = "md",
+  className,
+}: { variant?: ButtonVariant; size?: ButtonSize; className?: string } = {}): string {
+  return cn(
+    "inline-flex items-center justify-center gap-1.5 whitespace-nowrap font-medium transition-colors",
+    variantClasses[variant],
+    sizeClasses[size],
+    className,
+  );
+}
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { variant = "secondary", size = "md", loading, className, children, disabled, ...props },
@@ -40,12 +57,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     <button
       ref={ref}
       disabled={disabled || loading}
-      className={cn(
-        "inline-flex items-center justify-center gap-1.5 whitespace-nowrap font-medium transition-colors disabled:cursor-not-allowed",
-        variantClasses[variant],
-        sizeClasses[size],
-        className,
-      )}
+      className={buttonClasses({ variant, size, className: cn("disabled:cursor-not-allowed", className) })}
       {...props}
     >
       {loading ? (

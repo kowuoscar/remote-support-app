@@ -1,0 +1,38 @@
+                    - heading "October 2026" [level=2] [ref=f12e266]
+                    - generic [ref=f12e267]: · Sent to you on Oct 18, 2026 · 1 of 3 to review
+                  - generic [ref=f12e268]:
+                    - text: Month
+                    - combobox "Month" [ref=f12e269]:
+                      - option "October 2026 · 1 waiting" [selected]
+                - button "Approve the 1 left to review" [ref=f12e270]
+            - table [ref=f12e275]:
+              - rowgroup [ref=f12e276]:
+                - row [ref=f12e277]:
+                  - columnheader "Client" [ref=f12e278]
+                  - columnheader "Status" [ref=f12e279]
+                  - columnheader "Total" [ref=f12e280]
+                  - columnheader "Action" [ref=f12e281]
+              - rowgroup [ref=f12e283]:
+                - row [ref=f12e284]:
+                  - cell "Alpha Co" [ref=f12e285]
+                  - cell "To review" [ref=f12e286]
+                  - cell "$65.99" [ref=f12e289]
+                  - cell [ref=f12e290]:
+                    - 'link "Review Client Invoice: Alpha Co — Avery Quinn, October 2026" [ref=f12e291] [cursor=pointer]':
+                      - text: Review
+                - row [ref=f12e294]:
+                  - cell "Bravo Co" [ref=f12e295]
+                  - cell "Sent back" [ref=f12e296]
+                  - cell "$60.00" [ref=f12e301]
+                  - cell [ref=f12e302]:
+                    - 'link "Review Client Invoice: Bravo Co — Avery Quinn, October 2026" [ref=f12e303] [cursor=pointer]':
+                      - text: Review
+                - row [ref=f12e306]:
+                  - cell "Charlie Co" [ref=f12e307]
+                  - cell "Approved" [ref=f12e308]
+                  - cell "$0.00" [ref=f12e311]
+                  - cell [ref=f12e312]:
+                    - 'link "Review Client Invoice: Charlie Co — Avery Quinn, October 2026" [ref=f12e313] [cursor=pointer]':
+                      - text: Review
+  - alert [ref=f12e111]: Invoices · Remote Support Platform
+```

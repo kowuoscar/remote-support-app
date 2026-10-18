@@ -1,0 +1,82 @@
+# Step 6 (API). month=2026-10 avery=6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8
+zed send: {"billingMonth":"2026-10-01","sentAt":"2026-10-18T20:27:08.168583Z","invoiceIds":["d42b33ac-296e-42d5-b887-2110bba3484c"]}
+--- stale ids
+{"code":"MONTH_CHANGED","message":"The invoices left to review in this month are not the ones that were expected"}
+=> HTTP 409
+statuses after stale:
+SENT
+SENT
+SENT
+--- no body
+{"timestamp":"2026-10-18T20:27:08.367+00:00","status":400,"error":"Bad Request","path":"/api/agents/6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8/client-invoice-months/2026-10/approve"}
+=> HTTP 400
+--- empty list []
+{"timestamp":"2026-10-18T20:27:08.385+00:00","status":400,"error":"Bad Request","path":"/api/agents/6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8/client-invoice-months/2026-10/approve"}
+=> HTTP 400
+--- empty invoiceIds
+{"message":"invoiceIds must name the invoices to approve"}
+=> HTTP 400
+--- month 2026-13
+{"message":"month must be YYYY-MM"}
+=> HTTP 400
+=== 403 as Agent and Tester (approve + three reads)
+--- agent approve
+{"timestamp":"2026-10-18T20:27:08.429+00:00","status":403,"error":"Forbidden","path":"/api/agents/6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8/client-invoice-months/2026-10/approve"}
+=> HTTP 403
+--- agent read agents
+{"timestamp":"2026-10-18T20:27:08.440+00:00","status":403,"error":"Forbidden","path":"/api/review-queue/agents"}
+=> HTTP 403
+--- agent read months
+{"timestamp":"2026-10-18T20:27:08.450+00:00","status":403,"error":"Forbidden","path":"/api/review-queue/agents/6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8/months"}
+=> HTTP 403
+--- agent read month
+{"timestamp":"2026-10-18T20:27:08.460+00:00","status":403,"error":"Forbidden","path":"/api/review-queue/agents/6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8/months/2026-10"}
+=> HTTP 403
+--- tester approve
+{"timestamp":"2026-10-18T20:27:08.471+00:00","status":403,"error":"Forbidden","path":"/api/agents/6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8/client-invoice-months/2026-10/approve"}
+=> HTTP 403
+--- tester read agents
+{"timestamp":"2026-10-18T20:27:08.482+00:00","status":403,"error":"Forbidden","path":"/api/review-queue/agents"}
+=> HTTP 403
+--- tester read months
+{"timestamp":"2026-10-18T20:27:08.496+00:00","status":403,"error":"Forbidden","path":"/api/review-queue/agents/6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8/months"}
+=> HTTP 403
+--- tester read month
+{"timestamp":"2026-10-18T20:27:08.507+00:00","status":403,"error":"Forbidden","path":"/api/review-queue/agents/6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8/months/2026-10"}
+=> HTTP 403
+=== 404 unknown agent
+--- approve unknown
+{"timestamp":"2026-10-18T20:27:08.521+00:00","status":404,"error":"Not Found","path":"/api/agents/e859fb48-1ac2-4d2c-8a88-473f922e0f15/client-invoice-months/2026-10/approve"}
+=> HTTP 404
+--- months unknown
+{"timestamp":"2026-10-18T20:27:08.535+00:00","status":404,"error":"Not Found","path":"/api/review-queue/agents/e859fb48-1ac2-4d2c-8a88-473f922e0f15/months"}
+=> HTTP 404
+--- month unknown
+{"timestamp":"2026-10-18T20:27:08.548+00:00","status":404,"error":"Not Found","path":"/api/review-queue/agents/e859fb48-1ac2-4d2c-8a88-473f922e0f15/months/2026-10"}
+=> HTTP 404
+=== reads leave row count unchanged
+before=13
+GET /api/review-queue/agents 200
+GET /api/review-queue/agents/6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8/months 200
+GET /api/review-queue/agents/6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8/months/2026-10 200
+after=13
+=== parallel approvals for Zed (fresh agent, sent month)
+{"invoiceIds":["d42b33ac-296e-42d5-b887-2110bba3484c"]}
+{"code":"NOTHING_TO_APPROVE","message":"This month has no Client Invoice left to approve"} => HTTP 409
+{"billingMonth":"2026-10-01","approvedAt":"2026-10-18T20:27:08.723560Z","invoiceIds":["d42b33ac-296e-42d5-b887-2110bba3484c"]} => HTTP 200
+APPROVED
+=== real approval of Avery's month with real ids
+--- approve real
+{"billingMonth":"2026-10-01","approvedAt":"2026-10-18T20:27:08.846008Z","invoiceIds":["4256d0dc-1a23-4153-9136-023741d6a45e","8185a006-2e06-4f93-b9ed-5f978774a566","c094f33d-577d-45e1-931e-c37fadfee674"]}
+=> HTTP 200
+--- nothing SENT
+{"code":"NOTHING_TO_APPROVE","message":"This month has no Client Invoice left to approve"}
+=> HTTP 409
+APPROVED
+APPROVED
+APPROVED
+=== as Avery: A reads Approved on Agent page
+status: APPROVED approvedAt: 2026-10-18T20:27:08.846008Z
+=== as A's Tester: A visible as before
+[{"contractId":"169ffed1-c1bf-47f7-949d-e069c698be0c","invoiceId":"8185a006-2e06-4f93-b9ed-5f978774a566","billingMonth":"2026-10-01","status":"APPROVED","currency":"USD","totalAmount":65.99}]
+=> HTTP 200

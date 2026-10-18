@@ -1,0 +1,5 @@
+create D:
+{"id":"8d0ce2a1-5635-492d-b7e1-bd44dd6a88d5","clientId":"2a834972-13a5-4aec-b38a-a6c8de56ef6d","clientName":"Delta Co","agentId":"f4c4189a-de2c-4ae3-8de4-1476ec33a617","agentName":"Avery Quinn","count
+
+Avery opens D card:
+{"id":"61d70068-dba2-419d-8a55-80f65ceec277","contractId":"8d0ce2a1-5635-492d-b7e1-bd44dd6a88d5","billingMonth":"2026-10-01","status":"DRAFT","currency":"USD","baseAmount":0,"basePostpaidSims":[],"feeLines":[],"totalAmount":0,"files":[],"filesAvailab

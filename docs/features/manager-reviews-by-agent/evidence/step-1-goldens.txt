@@ -1,0 +1,41 @@
+== golden changes vs main
+M frontend/tests/visual/__screenshots__/manager-client-invoice-check-mark-desktop-dark.png
+M frontend/tests/visual/__screenshots__/manager-client-invoice-check-mark-desktop-light.png
+M frontend/tests/visual/__screenshots__/manager-client-invoice-check-mark-mobile-dark.png
+M frontend/tests/visual/__screenshots__/manager-client-invoice-check-mark-mobile-light.png
+A frontend/tests/visual/__screenshots__/manager-invoices-agent-desktop-dark.png
+A frontend/tests/visual/__screenshots__/manager-invoices-agent-desktop-light.png
+A frontend/tests/visual/__screenshots__/manager-invoices-agent-mobile-dark.png
+A frontend/tests/visual/__screenshots__/manager-invoices-agent-mobile-light.png
+A frontend/tests/visual/__screenshots__/manager-invoices-desktop-dark.png
+A frontend/tests/visual/__screenshots__/manager-invoices-desktop-light.png
+A frontend/tests/visual/__screenshots__/manager-invoices-mobile-dark.png
+A frontend/tests/visual/__screenshots__/manager-invoices-mobile-light.png
+== existing
+docs/features/real-manager-dashboard/evidence/step-3-manager-invoices-menu.png
+frontend/components/manager/manager-invoices-view.test.tsx
+frontend/components/manager/manager-invoices-view.tsx
+frontend/tests/visual/__screenshots__/manager-invoices-agent-desktop-dark.png
+frontend/tests/visual/__screenshots__/manager-invoices-agent-desktop-light.png
+frontend/tests/visual/__screenshots__/manager-invoices-agent-mobile-dark.png
+frontend/tests/visual/__screenshots__/manager-invoices-agent-mobile-light.png
+frontend/tests/visual/__screenshots__/manager-invoices-desktop-dark.png
+frontend/tests/visual/__screenshots__/manager-invoices-desktop-light.png
+frontend/tests/visual/__screenshots__/manager-invoices-mobile-dark.png
+frontend/tests/visual/__screenshots__/manager-invoices-mobile-light.png
+== containers after verify
+rsa-prod-frontend-1 Up 3 hours
+rsa-prod-backend-1 Up 4 hours (healthy)
+rsa-prod-seaweedfs-1 Up 35 hours (healthy)
+rsa-prod-postgres-demo-1 Up 4 days (healthy)
+remote-support-app-frontend-1 Exited (143) 4 days ago
+remote-support-app-backend-1 Exited (143) 4 days ago
+remote-support-app-postgres-1 Exited (0) 4 days ago
+remote-support-app-postgres-demo-1 Exited (0) 4 days ago
+== git status
+== component tests failed-read
+309:21:46:09.543 ERROR [:] c.r.backend.web.ObjectStoreAvailability - Object store is unavailable: bucket check failed for endpoint http://127.0.0.1:1 bucket remote-support-files (SdkClientException). File storage answers 503 until the store is reachable and the bucket exists.
+756:21:46:22.190 WARN  [:] c.r.backend.web.AuthController - login failed username=fresh-manager-6078e929-11f2-4dc7-b0fa-46e00c129446@example.com
+769:21:46:22.834 WARN  [:] c.r.backend.web.AuthController - login failed username=fresh-agent-f54dcf66-d2d6-4ccc-8393-dbfd00ed5fa5@agents.example
+783:21:46:23.475 WARN  [:] c.r.backend.web.AuthController - login failed username=fresh-tester-17a0be7d-d806-4c5b-a58d-a21fb96a7752@example.com
+1609:21:46:37.813 ERROR [:] c.r.b.web.CarrierInvoiceFileStorage - Object store PutObject failed for key k/1 at endpoint http://localhost:1 bucket the-bucket (SdkClientException)

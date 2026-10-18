@@ -1,0 +1,13 @@
+## Step 9 measurements (doc=[scrollWidth,innerWidth]; tables = width, wrapper clientWidth, wrapper overflow-x, wrapper scrollWidth)
+[390] /manager/invoices
+"{\"doc\":[390,390],\"tables\":[{\"w\":757,\"wrap\":356,\"ox\":\"auto\",\"wrapSW\":757}]}"
+[390] /manager/invoices?agent=6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8
+"{\"doc\":[390,390],\"tables\":[{\"w\":720,\"wrap\":356,\"ox\":\"auto\",\"wrapSW\":720}]}"
+[390] /manager/invoices/client/8185a006-2e06-4f93-b9ed-5f978774a566
+"{\"doc\":[390,390],\"tables\":[]}"
+[1024] /manager/invoices
+"{\"doc\":[1024,1024],\"tables\":[{\"w\":757,\"wrap\":734,\"ox\":\"auto\",\"wrapSW\":757}]}"
+[1024] /manager/invoices?agent=6faba1c8-f9c9-4e9c-ae3f-7e8ead37d4e8
+"{\"doc\":[1024,1024],\"tables\":[{\"w\":734,\"wrap\":734,\"ox\":\"auto\",\"wrapSW\":734}]}"
+[1024] /manager/invoices/client/8185a006-2e06-4f93-b9ed-5f978774a566
+"{\"doc\":[1024,1024],\"tables\":[]}"

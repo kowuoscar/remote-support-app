@@ -69,6 +69,7 @@ error, not a nitpick.
 - `api` · the BFF route handlers; the only place the browser's data reaches the backend.
 - `fonts` · font assets served by the app.
 - `frontend/app/api/agents/[agentId]/login/password/route.ts` · BFF pass-through for the Manager's password reset of an Agent, forwarding `Cache-Control: no-store`.
+- `frontend/app/api/agents/[agentId]/client-invoice-months/[month]/approve/route.ts` · BFF proxy for the Manager's month approval POST through forwardJson.
 - `frontend/app/api/clients/[clientId]/testers/[testerId]/password/route.ts` · BFF pass-through for the Manager's password reset of a Tester, forwarding `Cache-Control: no-store`.
 - `frontend/app/api/me/route.ts` · BFF GET proxy for the caller's own read, so the browser can read the caller's own name.
 - `frontend/app/api/me/name/route.ts` · BFF PUT proxy for the caller's own-name write.
@@ -104,6 +105,9 @@ error, not a nitpick.
 - `frontend/components/manager/send-back-client-invoice-control.tsx` · inline reason form that POSTs a send-back to a given endpoint and hands the returned invoice to its caller.
 - `frontend/components/fleet/fleet-tabs-card.tsx` · the Fleet card whose header row is the "Fleet" tablist (SIM Cards, Smartphones) with per-tab action and empty state, and the `?tab=` parser; used by the Agent and Tester Fleet.
 - `frontend/components/manager/contracts-view.tsx` · the Manager's one-page Contracts view: Clients side list, Agent select, invoice summary and tabbed Fleet; a pick is router.replace in a transition.
+- `frontend/components/manager/manager-invoices-view.tsx` · the Manager's Invoices page body: Agents SideList / dropdown with All Agents (Review Queue) first, swapping in AgentMonthReview on a pick.
+- `frontend/components/manager/agent-month-review.tsx` · an Agent's month as the Manager reviews it: header, Month select, Client Invoice table, Agent Invoice row, empty and failed states.
+- `frontend/components/manager/approve-client-invoice-month-control.tsx` · the month header's approval pill with two-step inline confirm and coded refusal lines; posts the month's To review ids to the BFF approve route.
 - `frontend/components/fleet/smartphone-model-control.tsx` · the inline control that corrects a Smartphone's model.
 - `frontend/components/fleet/smartphone-owner-control.tsx` · the inline control that corrects a Smartphone's owner.
 - `frontend/components/fleet/sim-card-number-control.tsx` · the inline control that corrects a SIM Card's number.
@@ -119,6 +123,8 @@ error, not a nitpick.
 - `auth` · session and token handling.
 - `demo` · demo data generation for development and the visual goldens.
 - `frontend/lib/manager-contracts.ts` · groups the Manager's Contracts by Client and resolves the selected Contract from `?contract=`.
+- `frontend/lib/review-months.ts` · Pure helpers: reviewMonthFor (month the Agent view opens on) and nextToReview (next To review row, wrapping, never the current).
+- `frontend/components/manager/review-month-next.tsx` · ReviewMonthNext: "Next invoice" link or "Nothing else to review" above the Manager's Client Invoice detail; nothing when the Agent's month read failed.
 - `frontend/lib/api/client-invoice.ts` · the Agent's by-id Client Invoice read.
 - `frontend/lib/api/client-invoice-month.ts` · clientInvoiceMonth: derives the month bar's state from the page's loaded invoices.
 
@@ -164,3 +170,15 @@ Components may call the backend directly through
 - Access control goes through a guard class in `security` (`FleetAccessGuard`, `ContractAccessGuard`, and their siblings), never inline in a controller.
 - The browser reaches the backend only through `frontend/app/api`; a client component never calls the backend host directly.
 - Migrations are forward-only Flyway scripts in `backend/src/main/resources/db/migration`, one per change, never edited once applied — every file there is `V<n>__*.sql`, with no undo or repeatable scripts.
+- `backend/src/main/java/com/remotesupport/backend/web/ReviewByAgentController.java` · Manager-only GET /api/review-queue/agents, /agents/{id}/months and /agents/{id}/months/{YYYY-MM}; 400 on a malformed month.
+- `backend/src/main/java/com/remotesupport/backend/web/ReviewByAgentService.java` · Read-only derivation of per-Agent waiting counts, an Agent's months and an Agent's month; 404 on an unknown or other-tenant Agent.
+- `backend/src/main/java/com/remotesupport/backend/dto/ReviewAgentResponse.java` · An Agent with its count waiting for review.
+- `backend/src/main/java/com/remotesupport/backend/dto/ReviewMonthSummaryResponse.java` · One of an Agent's months with its count waiting.
+- `backend/src/main/java/com/remotesupport/backend/dto/ReviewMonthResponse.java` · An Agent's month for review: monthSentAt, Client Invoices with reviewStatus, the Agent Invoice once sent.
+- `backend/src/main/java/com/remotesupport/backend/repository/AgentWaitingRow.java` · Projection: an Agent's waiting count.
+- `backend/src/main/java/com/remotesupport/backend/repository/ClientInvoiceReviewMonthRow.java` · Projection: an Agent's Client Invoice month and its waiting count.
+- `backend/src/main/java/com/remotesupport/backend/repository/ClientInvoiceReviewRow.java` · Projection: a Client Invoice row of an Agent's month with its stored total.
+- `backend/src/main/java/com/remotesupport/backend/repository/AgentInvoiceReviewRow.java` · Projection: a non-draft Agent Invoice of an Agent's month.
+- `backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceMonthApprovalController.java` · Manager-only POST /api/agents/{agentId}/client-invoice-months/{month}/approve; tenant check, coded 409s.
+- `backend/src/main/java/com/remotesupport/backend/dto/ClientInvoiceMonthApproveRequest.java` · Month approval body: required non-empty invoiceIds.
+- `backend/src/main/java/com/remotesupport/backend/dto/ClientInvoiceMonthApproveResponse.java` · Month approval answer: billingMonth, approvedAt, invoiceIds.

@@ -14,6 +14,8 @@ interface Surface {
     | "agent-client-invoices"
     | "manager-stock"
     | "manager-contracts"
+    | "manager-invoices"
+    | "manager-invoices-agent"
     | "client-fleet"
     | "agent-fleet";
   path: string;
@@ -69,6 +71,16 @@ const surfaces: Surface[] = [
     ready: "stock",
   },
   { slug: "client-fleet", path: "/client/fleet", session: "visual-tester-session", ready: "stock" },
+  // manager-reviews-by-agent: the Manager's Invoices page, All Agents (the Review Queue beside the
+  // Agents side list) and Jordan Ellis' stub month (one To review, one Approved, one Sent back and a
+  // sent Agent Invoice). Both wait for a table.
+  { slug: "manager-invoices", path: "/manager/invoices", session: "visual-manager-session", ready: "stock" },
+  {
+    slug: "manager-invoices-agent",
+    path: "/manager/invoices?agent=a0000000-0000-0000-0000-000000000001",
+    session: "visual-manager-session",
+    ready: "stock",
+  },
   // agent-corrects-own-fleet ticket: the Agent's Fleet, the widest tables in the product (status,
   // serial, Installed in, Monthly fee and the four correction Edits), on the stub's fixture Fleet.
   { slug: "agent-fleet", path: "/agent/fleet", session: "visual-agent-session", ready: "stock" },
@@ -122,7 +134,8 @@ async function gotoAndSettle(page: Page, surface: Surface) {
  * rather than an availability one.
  */
 function timeDrivenRegions(page: Page, surface: Surface) {
-  if (surface.slug !== "manager-requests") return [];
+  // The Review Queue's "Waiting" column does the same against the stub queue's relative times.
+  if (surface.slug !== "manager-requests" && surface.slug !== "manager-invoices") return [];
   return [page.locator("time")];
 }
 

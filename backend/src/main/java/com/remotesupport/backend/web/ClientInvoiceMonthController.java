@@ -5,9 +5,6 @@ import com.remotesupport.backend.dto.ClientInvoiceMonthSendResponse;
 import com.remotesupport.backend.security.CallerIdentityResolver;
 import com.remotesupport.backend.security.JwtService.AuthenticatedPrincipal;
 import jakarta.validation.Valid;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.format.DateTimeParseException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -53,15 +50,7 @@ public class ClientInvoiceMonthController {
             .orElseThrow(() -> new AccessDeniedException("Not an Agent"));
     Set<UUID> expected =
         request == null || request.invoiceIds() == null ? null : new HashSet<>(request.invoiceIds());
-    return clientInvoiceMonthService.send(agentId, parse(month), expected, principal);
-  }
-
-  private static LocalDate parse(String month) {
-    try {
-      return YearMonth.parse(month).atDay(1);
-    } catch (DateTimeParseException e) {
-      throw new InvalidRequestException("month must be YYYY-MM");
-    }
+    return clientInvoiceMonthService.send(agentId, MonthPath.parse(month), expected, principal);
   }
 
   /** A refused body is a {@code 400} whose {@code message} names the first thing wrong. */

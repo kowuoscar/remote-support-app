@@ -6,7 +6,7 @@ import { forCount, formatBillingMonth, formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { IconArrowRight, IconCheckCircle } from "@/components/icons";
-import { SendErrorLine, useTwoStepSend } from "./use-two-step-send";
+import { SendErrorLine, useTwoStepConfirm } from "@/components/ui/use-two-step-confirm";
 
 /**
  * The Agent's month bar (agent-sends-the-month): one hairline row above the Client Invoices page
@@ -15,7 +15,7 @@ import { SendErrorLine, useTwoStepSend } from "./use-two-step-send";
  * unsent (a count and the send), sent (the date, no button) and incomplete (an invoice failed to
  * load, so the month cannot be sent from this page).
  *
- * <p>The send is the two-step inline confirm of {@link useTwoStepSend}, shared with the per-invoice send,
+ * <p>The send is the two-step inline confirm of {@link useTwoStepConfirm}, shared with the per-invoice send,
  * because it is the same one-way door for every invoice at once. The confirm swaps only the action
  * column; the month and its count stay on the left. The request carries the ids of the invoices the page
  * loaded, so the server refuses (`MONTH_CHANGED`) rather than send a different set than the Agent
@@ -23,7 +23,7 @@ import { SendErrorLine, useTwoStepSend } from "./use-two-step-send";
  */
 export function SendClientInvoiceMonthControl({ month }: { month: ClientInvoiceMonthState }) {
   const noteId = useId();
-  const { trigger, confirmButton, confirming, pending, error, open, close, submit, onKeyDown } = useTwoStepSend();
+  const { trigger, confirmButton, confirming, pending, error, open, close, submit, onKeyDown } = useTwoStepConfirm();
 
   const label = formatBillingMonth(month.billingMonth);
   // Bare text, not its own element: the month shares one text run with its dot, so it never stands

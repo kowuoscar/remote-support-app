@@ -234,7 +234,12 @@ public class SecurityConfig {
                     .hasAnyRole("MANAGER", "AGENT")
                     .requestMatchers(HttpMethod.DELETE, "/api/client-invoices/*/files/*")
                     .hasRole("AGENT")
-                    .requestMatchers("/api/review-queue", "/api/tenant-totals", "/api/client-invoices/**", "/api/agent-invoices/**")
+                    .requestMatchers(
+                        "/api/review-queue",
+                        "/api/review-queue/**",
+                        "/api/tenant-totals",
+                        "/api/client-invoices/**",
+                        "/api/agent-invoices/**")
                     .hasRole("MANAGER")
                     // manager-approves-requests ticket: the Pending Requests list and a Request's
                     // own approve/reject are Manager-only (spec.md Constraints: "An Agent or

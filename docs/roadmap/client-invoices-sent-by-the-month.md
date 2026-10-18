@@ -48,7 +48,7 @@ What the code does today (explorer, 2026-10-18):
 
 Ordered by dependency; cut and sized at spec time.
 
-- [ ] `agent-sends-the-month` — on the Agent's Client Invoices page a month bar ("October 2026 · 4 of 6 ready · Send all 6 to Manager") replaces each invoice's own Send; it is enabled only when every one of the Agent's Client Invoices for the month is ready (every Postpaid SIM line has its carrier invoice); the side list marks each invoice ready or the files it is missing; sending creates any missing draft so the month is complete and sends them all; a sent-back invoice, or the invoice of a Contract added after the month was sent, is resent on its own.
+- [x] `agent-sends-the-month` — on the Agent's Client Invoices page a month bar ("October 2026 · 4 of 6 ready · Send all 6 to Manager") replaces each invoice's own Send; it is enabled only when every one of the Agent's Client Invoices for the month is ready (every Postpaid SIM line has its carrier invoice); the side list marks each invoice ready or the files it is missing; sending creates any missing draft so the month is complete and sends them all; a sent-back invoice, or the invoice of a Contract added after the month was sent, is resent on its own.
 - [ ] `manager-reviews-by-agent` — the Manager's Invoices page gains an Agents side list (count waiting for review); picking an Agent shows that Agent's month of Client Invoices (Client, total, status) with "Approve the N left to review"; each row opens today's detail page, which gains "Next invoice →"; Approve and Send back stay per invoice.
 
 ## Settled with the human (2026-10-18)

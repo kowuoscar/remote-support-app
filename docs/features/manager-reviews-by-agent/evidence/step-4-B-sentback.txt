@@ -1,0 +1,90 @@
+### Page
+- Page URL: http://127.0.0.1:13100/manager/invoices/client/a0179ee3-e14f-4384-bf2b-6287fc4d15d5
+- Page Title: Client Invoice · Remote Support Platform
+### Snapshot
+```yaml
+- generic [ref=f11e1]:
+  - generic [ref=f11e2]:
+    - complementary [ref=f11e3]:
+      - generic [ref=f11e4]:
+        - generic [ref=f11e5]: "N"
+        - generic [ref=f11e6]:
+          - paragraph [ref=f11e7]: Northwind Field Services
+          - paragraph [ref=f11e8]: Manager Console
+      - navigation [ref=f11e9]:
+        - link "Dashboard" [ref=f11e10] [cursor=pointer]:
+          - /url: /manager
+        - link "Requests" [ref=f11e16] [cursor=pointer]:
+          - /url: /manager/requests
+        - link "Clients" [ref=f11e20] [cursor=pointer]:
+          - /url: /manager/clients
+        - link "Agents" [ref=f11e24] [cursor=pointer]:
+          - /url: /manager/agents
+        - link "Contracts" [ref=f11e28] [cursor=pointer]:
+          - /url: /manager/contracts
+        - link "Stock" [ref=f11e33] [cursor=pointer]:
+          - /url: /manager/stock
+        - link "Carriers" [ref=f11e37] [cursor=pointer]:
+          - /url: /manager/carriers
+        - link "Invoices" [ref=f11e43] [cursor=pointer]:
+          - /url: /manager/invoices
+    - generic [ref=f11e48]:
+      - banner [ref=f11e254]:
+        - generic [ref=f11e256]:
+          - heading "Bravo Co — Avery Quinn" [level=1] [ref=f11e257]
+          - paragraph [ref=f11e258]: Client Invoice
+        - generic [ref=f11e259]:
+          - button "Manager" [ref=f11e261]
+          - button "Switch to dark theme" [ref=f11e263]
+      - main [ref=f11e267]:
+        - generic [ref=f11e268]:
+          - navigation "Breadcrumb" [ref=f11e269]:
+            - link "Invoices" [ref=f11e271] [cursor=pointer]:
+              - /url: /manager/invoices
+            - link "Avery Quinn" [ref=f11e275] [cursor=pointer]:
+              - /url: /manager/invoices?agent=f4c4189a-de2c-4ae3-8de4-1476ec33a617&month=2026-10
+            - generic [ref=f11e276]: Bravo Co
+          - 'link "Next invoice: Charlie Co" [ref=f11e281] [cursor=pointer]':
+            - /url: /manager/invoices/client/0a742af3-2f0e-48bf-9cec-4ea25f48baca
+            - text: Next invoice
+          - generic [ref=f11e284]:
+            - generic [ref=f11e286]:
+              - generic [ref=f11e287]:
+                - heading "October 2026" [level=2] [ref=f11e288]
+                - generic [ref=f11e289]: Draft
+              - paragraph [active] [ref=f11e291]: Sent back to the Agent on Oct 18, 2026 — waiting for them to resend
+            - blockquote [ref=f11e353]:
+              - paragraph [ref=f11e354]: Please recheck the T-Mobile bill
+            - generic [ref=f11e304]:
+              - generic [ref=f11e305]:
+                - term [ref=f11e306]: Base amount
+                - definition [ref=f11e307]: $60.00
+              - generic [ref=f11e308]:
+                - term [ref=f11e309]: Fees
+                - definition [ref=f11e310]: $0.00
+              - generic [ref=f11e311]:
+                - term [ref=f11e312]: Total
+                - definition [ref=f11e313]: $60.00
+            - generic [ref=f11e314]:
+              - heading "Postpaid SIM Cards" [level=3] [ref=f11e315]
+              - list "Postpaid SIM Cards" [ref=f11e316]:
+                - listitem [ref=f11e317]:
+                  - generic [ref=f11e319]:
+                    - generic [ref=f11e320]: "+15550100002"
+                    - generic [ref=f11e321]:
+                      - text: T-Mobile · Postpaid
+                      - img "Carrier invoice attached" [ref=f11e322]
+                  - generic [ref=f11e326]: $60.00
+            - generic [ref=f11e328]:
+              - heading "Fee lines" [level=3] [ref=f11e329]
+              - paragraph [ref=f11e330]: No Fees on this invoice.
+            - generic [ref=f11e331]:
+              - heading "Carrier invoice files" [level=3] [ref=f11e332]
+              - list [ref=f11e335]:
+                - listitem [ref=f11e336]:
+                  - generic [ref=f11e337]: Bravo Co - October 2026 - T-Mobile - +15550100002.pdf
+                  - link "Download Bravo Co - October 2026 - T-Mobile - +15550100002.pdf" [ref=f11e342] [cursor=pointer]:
+                    - /url: /api/client-invoices/a0179ee3-e14f-4384-bf2b-6287fc4d15d5/files/79aa210a-7c38-4efe-ad23-ada40668ccd4
+                    - text: Download
+  - alert [ref=f11e161]: Client Invoice · Remote Support Platform
+```

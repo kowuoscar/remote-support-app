@@ -1,0 +1,10 @@
+                - link "Priya Shah nothing waiting" [ref=f10e99] [cursor=pointer]:
+                  - generic "Priya Shah" [ref=f10e100]
+                  - generic [ref=f10e102]:
+                    - text: —
+                    - generic [ref=f10e103]: nothing waiting
+          - generic [ref=f10e113]:
+            - paragraph [ref=f10e114]: Blake Rowan hasn't sent a month yet.
+            - paragraph [ref=f10e115]: Their Client Invoices appear here once they send their month.
+  - alert [ref=f10e116]
+```

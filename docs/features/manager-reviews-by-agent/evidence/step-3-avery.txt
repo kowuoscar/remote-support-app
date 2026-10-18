@@ -1,0 +1,93 @@
+      - main [ref=f8e62]:
+        - generic [ref=f8e63]:
+          - navigation [ref=f8e65]:
+            - heading "Agents" [level=2] [ref=f8e66]
+            - list [ref=f8e67]:
+              - listitem [ref=f8e68]:
+                - link "All Agents 6 waiting" [ref=f8e69] [cursor=pointer]:
+                  - /url: /manager/invoices
+                  - generic "All Agents" [ref=f8e70]
+                  - generic [ref=f8e72]:
+                    - text: "6"
+                    - generic [ref=f8e73]: waiting
+              - listitem [ref=f8e74]:
+                - link "Avery Quinn 3 waiting" [ref=f8e75] [cursor=pointer]:
+                  - /url: /manager/invoices?agent=f4c4189a-de2c-4ae3-8de4-1476ec33a617
+                  - generic "Avery Quinn" [ref=f8e76]
+                  - generic [ref=f8e78]:
+                    - text: "3"
+                    - generic [ref=f8e79]: waiting
+              - listitem [ref=f8e80]:
+                - link "Blake Rowan nothing waiting" [ref=f8e81] [cursor=pointer]:
+                  - /url: /manager/invoices?agent=9c0fadc8-4e90-4e86-9cd0-36eea965dd9f
+                  - generic "Blake Rowan" [ref=f8e82]
+                  - generic [ref=f8e84]:
+                    - text: —
+                    - generic [ref=f8e85]: nothing waiting
+              - listitem [ref=f8e86]:
+                - link "Jordan Ellis 3 waiting" [ref=f8e87] [cursor=pointer]:
+                  - /url: /manager/invoices?agent=55555555-5555-5555-5555-555555555555
+                  - generic "Jordan Ellis" [ref=f8e88]
+                  - generic [ref=f8e90]:
+                    - text: "3"
+                    - generic [ref=f8e91]: waiting
+              - listitem [ref=f8e92]:
+                - link "Marcus Webb nothing waiting" [ref=f8e93] [cursor=pointer]:
+                  - /url: /manager/invoices?agent=b7dcf8c8-a652-442e-9464-a697cde819fa
+                  - generic "Marcus Webb" [ref=f8e94]
+                  - generic [ref=f8e96]:
+                    - text: —
+                    - generic [ref=f8e97]: nothing waiting
+              - listitem [ref=f8e98]:
+                - link "Priya Shah nothing waiting" [ref=f8e99] [cursor=pointer]:
+                  - /url: /manager/invoices?agent=7d529d0e-8711-4c02-ab83-e0d7c29078f5
+                  - generic "Priya Shah" [ref=f8e100]
+                  - generic [ref=f8e102]:
+                    - text: —
+                    - generic [ref=f8e103]: nothing waiting
+          - generic [ref=f8e108]:
+            - region "Month" [ref=f8e109]:
+              - generic [ref=f8e110]:
+                - generic [ref=f8e111]:
+                  - generic [ref=f8e112]:
+                    - heading "October 2026" [level=2] [ref=f8e113]
+                    - generic [ref=f8e114]: · Sent to you on Oct 18, 2026 · 3 of 3 to review
+                  - generic [ref=f8e115]:
+                    - text: Month
+                    - combobox "Month" [ref=f8e116]:
+                      - option "October 2026 · 3 waiting" [selected]
+                - button "Approve the 3 left to review" [ref=f8e117]
+            - table [ref=f8e122]:
+              - rowgroup [ref=f8e123]:
+                - row [ref=f8e124]:
+                  - columnheader "Client" [ref=f8e125]
+                  - columnheader "Status" [ref=f8e126]
+                  - columnheader "Total" [ref=f8e127]
+                  - columnheader "Action" [ref=f8e128]
+              - rowgroup [ref=f8e130]:
+                - row [ref=f8e131]:
+                  - cell "Alpha Co" [ref=f8e132]
+                  - cell "To review" [ref=f8e133]
+                  - cell "$65.99" [ref=f8e136]
+                  - cell [ref=f8e137]:
+                    - 'link "Review Client Invoice: Alpha Co — Avery Quinn, October 2026" [ref=f8e138] [cursor=pointer]':
+                      - /url: /manager/invoices/client/9903d964-7014-4adc-9656-ba5684eb67bf
+                      - text: Review
+                - row [ref=f8e141]:
+                  - cell "Bravo Co" [ref=f8e142]
+                  - cell "To review" [ref=f8e143]
+                  - cell "$60.00" [ref=f8e146]
+                  - cell [ref=f8e147]:
+                    - 'link "Review Client Invoice: Bravo Co — Avery Quinn, October 2026" [ref=f8e148] [cursor=pointer]':
+                      - /url: /manager/invoices/client/a0179ee3-e14f-4384-bf2b-6287fc4d15d5
+                      - text: Review
+                - row [ref=f8e151]:
+                  - cell "Charlie Co" [ref=f8e152]
+                  - cell "To review" [ref=f8e153]
+                  - cell "$0.00" [ref=f8e156]
+                  - cell [ref=f8e157]:
+                    - 'link "Review Client Invoice: Charlie Co — Avery Quinn, October 2026" [ref=f8e158] [cursor=pointer]':
+                      - /url: /manager/invoices/client/0a742af3-2f0e-48bf-9cec-4ea25f48baca
+                      - text: Review
+  - alert [ref=f8e161]
+```

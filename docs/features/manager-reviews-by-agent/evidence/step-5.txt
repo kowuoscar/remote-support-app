@@ -1,0 +1,53 @@
+                    - generic [ref=f14e114]: · Sent to you on Oct 18, 2026 · 1 of 3 to review
+                - button "Approve the 1 left to review" [ref=f14e117]
+{"id":"a0179ee3-e14f-4384-bf2b-6287fc4d15d5","contractId":"9b29efbf-772d-4f00-8524-6c661e40158b","billingMonth":"2026-10-01","status":"SENT","currency":"USD","baseAmount":60.00,"basePostpaidSims":[{"s
+200
+                    - generic [ref=f14e114]: · Sent to you on Oct 18, 2026 · 1 of 3 to review
+                - button "Approve the 1 left to review" [ref=f14e117]
+                  - paragraph [ref=f14e165]: Approves the Client Invoice of Avery Quinn for October 2026 still to review. An approved invoice is final.
+-- Back
+"Approve the 1 left to review"
+-- approve again + confirm
+                    - generic [ref=f14e114]: · Sent to you on Oct 18, 2026 · 1 of 3 to review
+                  - paragraph [ref=f14e174]: Approves the Client Invoice of Avery Quinn for October 2026 still to review. An approved invoice is final.
+                  - alert [ref=f14e178]: This month changed since the page loaded. Reload and try again.
+                  - cell "To review" [ref=f14e133]
+  - alert [ref=f14e163]
+-- after stale approve
+   client   |  status  |         approved_at          
+------------+----------+------------------------------
+ Alpha Co   | SENT     | 
+ Bravo Co   | SENT     | 
+ Charlie Co | APPROVED | 2026-10-18 20:01:38.55791+00
+ Delta Co   | DRAFT    | 
+(4 rows)
+
+-- reload
+                    - generic [ref=f15e114]: · Sent to you on Oct 18, 2026 · 2 of 3 to review
+                - button "Approve the 2 left to review" [ref=f15e117]
+                  - cell "To review" [ref=f15e133]
+                  - cell "To review" [ref=f15e143]
+                  - cell "Approved" [ref=f15e153]
+-- after confirm
+                - link "All Agents 3 waiting" [ref=f15e167] [cursor=pointer]:
+                - link "Avery Quinn nothing waiting" [ref=f15e168] [cursor=pointer]:
+                    - generic [ref=f15e169]: nothing waiting
+                - link "Blake Rowan nothing waiting" [ref=f15e81] [cursor=pointer]:
+                    - generic [ref=f15e85]: nothing waiting
+                - link "Jordan Ellis 3 waiting" [ref=f15e87] [cursor=pointer]:
+                - link "Marcus Webb nothing waiting" [ref=f15e93] [cursor=pointer]:
+                    - generic [ref=f15e97]: nothing waiting
+                - link "Priya Shah nothing waiting" [ref=f15e99] [cursor=pointer]:
+                    - generic [ref=f15e103]: nothing waiting
+                  - generic [ref=f15e114]: · Sent to you on Oct 18, 2026 · 3 of 3 approved
+                  - cell "Approved" [ref=f15e171]
+                  - cell "Approved" [ref=f15e173]
+                  - cell "Approved" [ref=f15e153]
+   client   |  status  |          approved_at          
+------------+----------+-------------------------------
+ Alpha Co   | APPROVED | 2026-10-18 20:02:47.364314+00
+ Bravo Co   | APPROVED | 2026-10-18 20:02:47.364314+00
+ Charlie Co | APPROVED | 2026-10-18 20:01:38.55791+00
+ Delta Co   | DRAFT    | 
+(4 rows)
+

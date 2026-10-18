@@ -1,7 +1,7 @@
 ---
 id: month-bar-sends-the-month
 title: Show the Agent's month bar and send the whole month from it
-status: in-progress
+status: done
 depends_on: [send-the-month-api]
 labels: [frontend]
 stories: [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 14, 24, 34]

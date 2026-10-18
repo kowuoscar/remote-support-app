@@ -1,7 +1,7 @@
 ---
 id: cards-defer-to-the-month-bar
 title: Take the first Send off the Client Invoice cards and keep Resend and the late Contract's Send
-status: in-progress
+status: done
 depends_on: [month-bar-sends-the-month, first-send-only-through-the-month]
 labels: [frontend]
 stories: [15, 16, 17, 18, 19, 20, 34]

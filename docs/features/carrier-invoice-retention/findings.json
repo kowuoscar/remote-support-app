@@ -17,13 +17,14 @@
     {
       "id": "F2",
       "type": "smell",
-      "state": "open",
+      "state": "fixed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": false,
       "where": "docs/journeys.md (not in diff)",
       "citation": "spec.md:50-52: at delivery, the journey's sentence gains 'its carrier invoice files are kept for 30 days after approval'",
-      "note": "Belongs to the delivery record step; orchestrator to do at delivery."
+      "note": "Belongs to the delivery record step; orchestrator to do at delivery.",
+      "fixed_in": "delivery record on main"
     },
     {
       "id": "F3",

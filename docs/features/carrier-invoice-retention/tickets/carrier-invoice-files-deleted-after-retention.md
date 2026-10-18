@@ -1,7 +1,7 @@
 ---
 id: carrier-invoice-files-deleted-after-retention
 title: Delete a Carrier Invoice File's bytes 30 days after its Client Invoice is approved
-status: ready-for-agent
+status: in-progress
 depends_on: []
 labels: [backend]
 stories: [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20]

@@ -173,3 +173,6 @@ Components may call the backend directly through
 - `backend/src/main/java/com/remotesupport/backend/repository/ClientInvoiceReviewMonthRow.java` · Projection: an Agent's Client Invoice month and its waiting count.
 - `backend/src/main/java/com/remotesupport/backend/repository/ClientInvoiceReviewRow.java` · Projection: a Client Invoice row of an Agent's month with its stored total.
 - `backend/src/main/java/com/remotesupport/backend/repository/AgentInvoiceReviewRow.java` · Projection: a non-draft Agent Invoice of an Agent's month.
+- `backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceMonthApprovalController.java` · Manager-only POST /api/agents/{agentId}/client-invoice-months/{month}/approve; tenant check, coded 409s.
+- `backend/src/main/java/com/remotesupport/backend/dto/ClientInvoiceMonthApproveRequest.java` · Month approval body: required non-empty invoiceIds.
+- `backend/src/main/java/com/remotesupport/backend/dto/ClientInvoiceMonthApproveResponse.java` · Month approval answer: billingMonth, approvedAt, invoiceIds.

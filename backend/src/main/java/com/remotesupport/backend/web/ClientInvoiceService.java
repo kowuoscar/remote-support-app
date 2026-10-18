@@ -103,8 +103,20 @@ public class ClientInvoiceService {
       throw new ConflictException("Cannot approve a Client Invoice from status " + oldStatus);
     }
 
+    markApproved(invoice, Instant.now(), principal);
+
+    return toResponse(invoice, true);
+  }
+
+  /**
+   * The one approve step, shared by the per-invoice approve and the month approval so the two can
+   * never approve differently: sets {@code APPROVED} and {@code approvedAt}, saves, and logs the
+   * status change. The caller holds the invoice's row lock and has checked it is {@code SENT}.
+   */
+  void markApproved(ClientInvoice invoice, Instant now, AuthenticatedPrincipal principal) {
+    ClientInvoiceStatus oldStatus = invoice.getStatus();
     invoice.setStatus(ClientInvoiceStatus.APPROVED);
-    invoice.setApprovedAt(Instant.now());
+    invoice.setApprovedAt(now);
     clientInvoiceRepository.save(invoice);
 
     AuditLog.statusChanged(
@@ -114,9 +126,49 @@ public class ClientInvoiceService {
         ClientInvoiceStatus.APPROVED.name(),
         principal.userId(),
         principal.tenantId());
-
-    return toResponse(invoice, true);
   }
+
+  /**
+   * A Manager's approval of the invoices left to review in an Agent's month, all or nothing, in one
+   * transaction. Locks the Agent's month through {@link ClientInvoiceRepository#findMonthForUpdate}
+   * (in id order, the order every month lock takes); the {@code SENT} rows among them are the batch.
+   * Refuses, writing nothing, with {@code NOTHING_TO_APPROVE} when none is {@code SENT}, then {@code
+   * MONTH_CHANGED} when {@code expectedInvoiceIds} differs from the batch; otherwise approves every
+   * batch invoice at one instant. An Approved or sent-back invoice of the month is left as it is.
+   */
+  @Transactional
+  public MonthApproval approveMonth(
+      UUID agentId,
+      LocalDate billingMonth,
+      Set<UUID> expectedInvoiceIds,
+      AuthenticatedPrincipal principal) {
+    List<ClientInvoice> batch =
+        clientInvoiceRepository.findMonthForUpdate(agentId, billingMonth).stream()
+            .filter(i -> i.getStatus() == ClientInvoiceStatus.SENT)
+            .toList();
+    if (batch.isEmpty()) {
+      throw new ClientInvoiceConflictException(
+          ClientInvoiceConflictException.Reason.NOTHING_TO_APPROVE,
+          "This month has no Client Invoice left to approve");
+    }
+    List<UUID> batchIds = batch.stream().map(ClientInvoice::getId).toList();
+    if (!expectedInvoiceIds.equals(Set.copyOf(batchIds))) {
+      throw new ClientInvoiceConflictException(
+          ClientInvoiceConflictException.Reason.MONTH_CHANGED,
+          "The invoices left to review in this month are not the ones that were expected");
+    }
+
+    Instant now = Instant.now();
+    for (ClientInvoice invoice : batch) {
+      markApproved(invoice, now, principal);
+    }
+    AuditLog.clientInvoiceMonthApproved(
+        agentId, billingMonth, batch.size(), principal.userId(), principal.tenantId());
+    return new MonthApproval(now, batchIds);
+  }
+
+  /** What a month approval answers: the one instant every invoice was approved at, and their ids. */
+  public record MonthApproval(Instant approvedAt, List<UUID> invoiceIds) {}
 
   /**
    * A fresh PDF of a {@code SENT}/{@code APPROVED} invoice; a draft is still being assembled, so

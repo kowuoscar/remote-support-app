@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.remotesupport.backend.domain.BillingMonth;
 import java.time.YearMonth;
+import java.util.UUID;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -43,6 +44,22 @@ public final class ClientInvoiceMonthTestSupport {
       throws Exception {
     MockHttpServletRequestBuilder request =
         post("/api/me/client-invoice-months/" + month + "/send").header("Authorization", "Bearer " + token);
+    if (jsonBody != null) {
+      request = request.contentType(APPLICATION_JSON).content(jsonBody);
+    }
+    return mockMvc.perform(request);
+  }
+
+  /**
+   * A Manager's approval of the Agent's month ({@code POST
+   * /api/agents/{agentId}/client-invoice-months/{month}/approve}), whatever it answers. {@code
+   * jsonBody} is the raw body ({@code null} for none).
+   */
+  public static ResultActions approveTheMonth(
+      MockMvc mockMvc, String token, UUID agentId, String month, String jsonBody) throws Exception {
+    MockHttpServletRequestBuilder request =
+        post("/api/agents/" + agentId + "/client-invoice-months/" + month + "/approve")
+            .header("Authorization", "Bearer " + token);
     if (jsonBody != null) {
       request = request.contentType(APPLICATION_JSON).content(jsonBody);
     }

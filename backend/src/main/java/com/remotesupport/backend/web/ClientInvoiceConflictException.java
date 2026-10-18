@@ -28,7 +28,9 @@ public class ClientInvoiceConflictException extends ConflictException {
     /** The month send is for the current UTC month only. */
     NOT_THE_CURRENT_MONTH,
     /** The Agent holds no Contract, so there is no month to send. */
-    NOTHING_TO_SEND
+    NOTHING_TO_SEND,
+    /** No invoice of the Agent's month is waiting for review ({@code SENT}), so there is nothing to approve. */
+    NOTHING_TO_APPROVE
   }
 
   private final Reason reason;

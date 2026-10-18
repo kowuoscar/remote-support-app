@@ -1,7 +1,7 @@
 ---
 id: next-invoice-on-the-detail-page
 title: Go to the next invoice to review from a Client Invoice's detail page
-status: in-progress
+status: done
 depends_on: [approve-the-rest-of-the-month]
 labels: [frontend]
 stories: [22, 23, 24, 25, 26, 27, 36, 37]

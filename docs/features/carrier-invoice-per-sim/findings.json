@@ -336,7 +336,8 @@
       "in_changed_lines": false,
       "where": "frontend/components/manager/client-invoice-detail-view.tsx (Manager SIM row break-words)",
       "citation": "DESIGN.md: 'A SIM number never breaks across lines'",
-      "note": "At 390 the Manager detail breaks '+44 7700 / 900456' across lines; pre-existing break-words on the Manager row, predates this branch."
+      "note": "At 390 the Manager detail breaks '+44 7700 / 900456' across lines; pre-existing break-words on the Manager row, predates this branch.",
+      "status": "fixed"
     },
     {
       "id": "F31",
@@ -347,7 +348,8 @@
       "in_changed_lines": true,
       "where": "frontend/components/manager/client-invoice-detail-view.tsx:146-150",
       "citation": "DESIGN.md:166 'A SIM number never breaks across lines.'",
-      "note": "Introduced by 37487f9 (F29 fix): the nowrap Carrier label + check no longer fits beside the number at 390, so '+44 7700 900123' now breaks ('+44 7700' / '900123'); it fit on one line before. Row 2's label also wraps alone, indented by ml-2. Fix: whitespace-nowrap on the sim.number span (also clears F30), drop ml-2 at line start, retake."
+      "note": "Introduced by 37487f9 (F29 fix): the nowrap Carrier label + check no longer fits beside the number at 390, so '+44 7700 900123' now breaks ('+44 7700' / '900123'); it fit on one line before. Row 2's label also wraps alone, indented by ml-2. Fix: whitespace-nowrap on the sim.number span (also clears F30), drop ml-2 at line start, retake.",
+      "status": "fixed"
     }
   ]
 }

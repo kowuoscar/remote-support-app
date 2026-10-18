@@ -1,7 +1,7 @@
 ---
 feature: carrier-invoice-retention
 epic: carrier-invoices-per-sim
-status: draft
+status: approved
 date: 2026-10-17
 ---
 
@@ -405,6 +405,7 @@ SDK calls in an integration test (Backend 5).
 
 ## Decisions taken
 
+- **Spec approved by the human, 2026-10-18** (`approve-carrier-invoice-retention`, "ok"), including counting the 30 days from the approval that stands.
 - **No "Kept until {date}" before the 30 days are up** (settled by the human, 2026-10-18, `retention-kept-until`: "ok" to the recommendation). Reason: the human asked for "Deleted on" once the file is gone, not a warning before it; it can be added later.
 - **The 30 days are evaluated each run from the invoice's current status and
   `approvedAt`, and nothing is stored.** Reason: it is the literal reading of

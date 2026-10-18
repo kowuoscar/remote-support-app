@@ -28,6 +28,7 @@ import com.remotesupport.backend.dto.AgentCreateRequest;
 import com.remotesupport.backend.dto.CarrierCreateRequest;
 import com.remotesupport.backend.dto.CarrierOfferRequest;
 import com.remotesupport.backend.dto.CarrierResponse;
+import com.remotesupport.backend.domain.BillingMonth;
 import com.remotesupport.backend.dto.ClientCreateRequest;
 import com.remotesupport.backend.dto.ContractCreateRequest;
 import com.remotesupport.backend.dto.FeeCreateRequest;
@@ -64,6 +65,7 @@ import com.remotesupport.backend.web.CarrierInvoiceFileService;
 import com.remotesupport.backend.web.CarrierOfferController;
 import com.remotesupport.backend.web.ClientController;
 import com.remotesupport.backend.web.ClientInvoiceController;
+import com.remotesupport.backend.web.ClientInvoiceMonthService;
 import com.remotesupport.backend.web.ContractAmountService;
 import com.remotesupport.backend.web.ObjectStoreAvailability;
 import com.remotesupport.backend.web.ObjectStoreUnavailableException;
@@ -77,12 +79,14 @@ import com.remotesupport.backend.web.StandingAmountService;
 import com.remotesupport.backend.web.TesterController;
 import java.math.BigDecimal;
 import com.remotesupport.backend.dto.ClientInvoiceBaseSimLineResponse;
+import com.remotesupport.backend.dto.ClientInvoiceMonthSendResponse;
 import com.remotesupport.backend.dto.ClientInvoiceResponse;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,6 +182,7 @@ public class DemoDataLoader implements ApplicationRunner {
   private final RequestByIdController requestByIdController;
   private final FeeController feeController;
   private final ClientInvoiceController clientInvoiceController;
+  private final ClientInvoiceMonthService clientInvoiceMonthService;
   private final AgentInvoiceController agentInvoiceController;
   private final AgentInvoiceService agentInvoiceService;
   private final CarrierInvoiceFileService carrierInvoiceFileService;
@@ -210,6 +215,7 @@ public class DemoDataLoader implements ApplicationRunner {
       RequestByIdController requestByIdController,
       FeeController feeController,
       ClientInvoiceController clientInvoiceController,
+      ClientInvoiceMonthService clientInvoiceMonthService,
       AgentInvoiceController agentInvoiceController,
       AgentInvoiceService agentInvoiceService,
       CarrierInvoiceFileService carrierInvoiceFileService,
@@ -242,6 +248,7 @@ public class DemoDataLoader implements ApplicationRunner {
     this.requestByIdController = requestByIdController;
     this.feeController = feeController;
     this.clientInvoiceController = clientInvoiceController;
+    this.clientInvoiceMonthService = clientInvoiceMonthService;
     this.agentInvoiceController = agentInvoiceController;
     this.agentInvoiceService = agentInvoiceService;
     this.carrierInvoiceFileService = carrierInvoiceFileService;
@@ -264,7 +271,7 @@ public class DemoDataLoader implements ApplicationRunner {
     log.info("Building the demo story...");
     Counts counts = new Counts();
     Story story = transaction.execute(status -> buildUntilThisMonthsInvoices(counts));
-    sendUs1InvoiceWithItsCarrierInvoices(story.contractUs1(), story.jordan());
+    sendJordansMonthWithItsCarrierInvoices(story.contractUs1(), story.contractUs2(), story.jordan());
     transaction.executeWithoutResult(status -> finishThisMonthsInvoices(story, counts));
     log.info("Demo story built: {}", counts);
   }
@@ -367,8 +374,9 @@ public class DemoDataLoader implements ApplicationRunner {
     return new Story(contractUs1, contractUk1, contractUs2, priyaAgent.getId(), jordan, priya);
   }
 
-  /** The rest of this month's invoices; contract US-1's was sent (or left a draft) in between. */
+  /** The rest of this month's invoices; Jordan's month was sent (or left drafts) in between. */
   private void finishThisMonthsInvoices(Story story, Counts counts) {
+    clientInvoiceController.get(story.contractUs1(), story.jordan());
     clientInvoiceController.get(story.contractUk1(), story.priya());
     clientInvoiceController.get(story.contractUs2(), story.jordan());
     counts.clientInvoicesSentOrDraft = 3;
@@ -460,32 +468,39 @@ public class DemoDataLoader implements ApplicationRunner {
   // ---------------------------------------------------------------------------------------------
 
   /**
-   * Sends contract US-1's current-month invoice, which the send gate refuses until every Postpaid
-   * SIM line has its Carrier Invoice File. One small generated PDF per line goes through {@link
-   * CarrierInvoiceFileService#attach}, the way an Agent's attach does, each in its own call and
-   * outside any transaction of the loader's. The store is probed first, because the startup probe
-   * has not run yet; if it is down, one WARN is logged and the invoice stays a draft, so the demo
-   * always starts. A refusal part way leaves the files already attached in place (each attach undoes
-   * only its own object): the draft is simply unfinished.
+   * Sends Jordan's month (contracts US-1 and US-2), which the month send refuses until every Postpaid
+   * SIM line of both current-month invoices has its Carrier Invoice File. One small generated PDF per
+   * line goes through {@link CarrierInvoiceFileService#attach}, the way an Agent's attach does, each
+   * in its own call and outside any transaction of the loader's, then {@link
+   * ClientInvoiceMonthService#send} sends both invoices together. The store is probed first, because
+   * the startup probe has not run yet; if it is down, one WARN is logged and both invoices stay
+   * drafts, with no write attempted, so the demo always starts. A refusal part way leaves the files
+   * already attached in place (each attach undoes only its own object): the month is simply unsent.
    */
-  private void sendUs1InvoiceWithItsCarrierInvoices(UUID contractUs1, AuthenticatedPrincipal jordan) {
+  private void sendJordansMonthWithItsCarrierInvoices(
+      UUID contractUs1, UUID contractUs2, AuthenticatedPrincipal jordan) {
     objectStoreAvailability.probe();
     if (!objectStoreAvailability.isAvailable()) {
       log.warn(
-          "The object store is unavailable; the demo's current-month invoice of contract US-1 stays a draft without carrier invoices.");
+          "The object store is unavailable; the demo's current-month invoices of contracts US-1 and US-2 "
+              + "stay drafts without carrier invoices.");
       return;
     }
-    Draft draft = transaction.execute(status -> currentMonthDraft(contractUs1, jordan));
     try {
-      for (UUID simId : draft.simIds()) {
-        carrierInvoiceFileService.attach(draft.invoice(), new DemoCarrierInvoice(), simId, jordan);
+      for (UUID contractId : List.of(contractUs1, contractUs2)) {
+        Draft draft = transaction.execute(status -> currentMonthDraft(contractId, jordan));
+        for (UUID simId : draft.simIds()) {
+          carrierInvoiceFileService.attach(draft.invoice(), new DemoCarrierInvoice(), simId, jordan);
+        }
       }
     } catch (ObjectStoreUnavailableException e) {
       log.warn(
-          "The object store refused the demo's carrier invoices; the current-month invoice of contract US-1 stays a draft.");
+          "The object store refused the demo's carrier invoices; the current-month invoices of contracts US-1 and US-2 stay drafts.");
       return;
     }
-    transaction.executeWithoutResult(status -> clientInvoiceController.send(contractUs1, jordan));
+    ClientInvoiceMonthSendResponse sent =
+        clientInvoiceMonthService.send(JORDAN_AGENT_ID, BillingMonth.current(), Optional.empty(), jordan);
+    log.info("Jordan's month {} sent: {} Client Invoices.", sent.billingMonth(), sent.invoiceIds().size());
   }
 
   /** The invoice and its Postpaid SIM lines' SIM ids. */

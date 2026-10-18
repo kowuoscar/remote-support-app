@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -119,11 +120,13 @@ class LocalSupportFeesFollowClientInvoiceApiTest extends IntegrationTest {
   private UUID sendClientInvoice(Cx c) throws Exception {
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, c.contractId(), agentToken);
+    // A first send goes through the month send: every Contract the seeded Agent holds is sent.
+    sendTheMonth(mockMvc, agentToken);
     return UUID.fromString(
         json(
                 mockMvc
                     .perform(
-                        post("/api/contracts/" + c.contractId() + "/client-invoice/send")
+                        get("/api/contracts/" + c.contractId() + "/client-invoice")
                             .header("Authorization", "Bearer " + agentToken))
                     .andExpect(status().isOk()))
             .get("id")
@@ -212,17 +215,18 @@ class LocalSupportFeesFollowClientInvoiceApiTest extends IntegrationTest {
 
   @Test
   void noEditsEqualsTodaysFigureForNoInvoiceDraftAndSent() throws Exception {
+    Cx sent = contract("LSF Sent");
+    addSim(sent, "+1-555-0502", "30.00");
+    logFee(sent, "2.00");
+    openClientInvoice(sent);
+    sendClientInvoice(sent);
+    // The others are Contracts added after the month was sent, so they stay unsent.
     Cx none = contract("LSF No Invoice");
     addSim(none, "+1-555-0500", "10.00");
     Cx draft = contract("LSF Draft");
     addSim(draft, "+1-555-0501", "20.00");
     logFee(draft, "5.00");
     openClientInvoice(draft);
-    Cx sent = contract("LSF Sent");
-    addSim(sent, "+1-555-0502", "30.00");
-    logFee(sent, "2.00");
-    openClientInvoice(sent);
-    sendClientInvoice(sent);
 
     // 10 (no invoice) + 25 (never-sent draft) + 32 (sent) — the computation, as before.
     assertFees("67.00");
@@ -362,6 +366,7 @@ class LocalSupportFeesFollowClientInvoiceApiTest extends IntegrationTest {
     invoice.setCurrency(contract.getCurrency());
     invoice.setCreatedAt(Instant.now());
     invoice.setSentAt(Instant.now());
+    invoice.setFirstSentAt(Instant.now());
     invoice.setSnapshotBaseAmount(new BigDecimal("30.00"));
     invoice.setLinesStored(true);
     clientInvoiceRepository.saveAndFlush(invoice);

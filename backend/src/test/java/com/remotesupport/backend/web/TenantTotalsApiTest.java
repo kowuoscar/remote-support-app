@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,6 +29,8 @@ import com.remotesupport.backend.support.IntegrationTest;
 import com.remotesupport.backend.support.OtherTenantFixture;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,17 +61,29 @@ class TenantTotalsApiTest extends IntegrationTest {
         .andExpect(jsonPath("$.payout.length()").value(0));
   }
 
+  /**
+   * Sends the seeded Agent's month (a first send goes through the month send), after covering each
+   * given Contract's Postpaid lines; returns each Contract's invoice id, in order. The month can be
+   * sent once, so a test with several invoices creates all their Contracts first.
+   */
+  private List<UUID> sendClientInvoices(String agentToken, UUID... contractIds) throws Exception {
+    List<UUID> invoiceIds = new ArrayList<>();
+    for (UUID contractId : contractIds) {
+      CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+          mockMvc, objectMapper, contractId, agentToken);
+      MvcResult draft =
+          mockMvc
+              .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+              .andExpect(status().isOk())
+              .andReturn();
+      invoiceIds.add(UUID.fromString(objectMapper.readTree(draft.getResponse().getContentAsString()).get("id").asText()));
+    }
+    sendTheMonth(mockMvc, agentToken);
+    return invoiceIds;
+  }
+
   private UUID sendClientInvoice(String agentToken, UUID contractId) throws Exception {
-    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
-        mockMvc, objectMapper, contractId, agentToken);
-    MvcResult result =
-        mockMvc
-            .perform(
-                post("/api/contracts/" + contractId + "/client-invoice/send")
-                    .header("Authorization", "Bearer " + agentToken))
-            .andExpect(status().isOk())
-            .andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    return sendClientInvoices(agentToken, contractId).get(0);
   }
 
   private UUID sendAgentInvoice(String agentToken) throws Exception {
@@ -146,6 +161,7 @@ class TenantTotalsApiTest extends IntegrationTest {
     invoice.setCurrency(contract.getCurrency());
     invoice.setCreatedAt(now);
     invoice.setSentAt(now);
+    invoice.setFirstSentAt(now);
     clientInvoiceRepository.saveAndFlush(invoice);
     storedLine(invoice, amount);
     return invoice;
@@ -183,8 +199,9 @@ class TenantTotalsApiTest extends IntegrationTest {
     String agentToken = agentToken();
     UUID sentContract = contractWithTotal(managerToken, agentToken, "Solene Cosmetics", "ines@solene.example");
     UUID approvedContract = createContract(managerToken, createClient(managerToken, "Bright Path"), SEEDED_AGENT_ID);
-    UUID sentId = sendClientInvoice(agentToken, sentContract);
-    UUID approvedId = sendClientInvoice(agentToken, approvedContract);
+    List<UUID> sent = sendClientInvoices(agentToken, sentContract, approvedContract);
+    UUID sentId = sent.get(0);
+    UUID approvedId = sent.get(1);
     managerPosts(managerToken, "/api/client-invoices/" + approvedId + "/approve");
 
     mockMvc
@@ -205,12 +222,14 @@ class TenantTotalsApiTest extends IntegrationTest {
     String managerToken = managerToken();
     String agentToken = agentToken();
 
+    UUID sentBackContract = contractWithTotal(managerToken, agentToken, "Kessler", "k@kessler.example");
+    UUID sentBackId = sendClientInvoice(agentToken, sentBackContract);
+
+    // Added after the month was sent: its invoice stays a draft.
     UUID draftContract = createContract(managerToken, createClient(managerToken, "Meridian"), SEEDED_AGENT_ID);
     mockMvc.perform(
         get("/api/contracts/" + draftContract + "/client-invoice").header("Authorization", "Bearer " + agentToken));
 
-    UUID sentBackContract = contractWithTotal(managerToken, agentToken, "Kessler", "k@kessler.example");
-    UUID sentBackId = sendClientInvoice(agentToken, sentBackContract);
     mockMvc
         .perform(
             post("/api/client-invoices/" + sentBackId + "/send-back")

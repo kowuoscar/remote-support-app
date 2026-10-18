@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -53,15 +54,14 @@ class CarrierInvoiceRetentionTest extends IntegrationTest {
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
   }
 
-  private void send(UUID invoiceId) throws Exception {
-    mockMvc
-        .perform(post("/api/client-invoices/" + invoiceId + "/send").header("Authorization", "Bearer " + agentToken()))
-        .andExpect(status().isOk());
+  /** The first send of the seeded Agent's Contracts goes through the month send. */
+  private void send() throws Exception {
+    sendTheMonth(mockMvc, agentToken());
   }
 
   private UUID approvedInvoiceWithFiles() throws Exception {
     UUID invoiceId = draftWithFiles();
-    send(invoiceId);
+    send();
     mockMvc
         .perform(post("/api/client-invoices/" + invoiceId + "/approve").header("Authorization", "Bearer " + managerToken()))
         .andExpect(status().isOk());
@@ -172,11 +172,11 @@ class CarrierInvoiceRetentionTest extends IntegrationTest {
 
   @Test
   void filesOnDraftSentAndSentBackInvoicesAreNeverDeletedHoweverOldTheyAre() throws Exception {
-    UUID draft = draftWithFiles();
     UUID sent = draftWithFiles();
-    send(sent);
     UUID sentBack = draftWithFiles();
-    send(sentBack);
+    send();
+    // Created after the month was sent, so it is a late Contract's draft and stays unsent.
+    UUID draft = draftWithFiles();
     mockMvc
         .perform(
             post("/api/client-invoices/" + sentBack + "/send-back")

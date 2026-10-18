@@ -473,11 +473,25 @@ public class ClientInvoiceService {
       throw new ConflictException("Cannot send a Client Invoice from status " + oldStatus);
     }
     requireOpenToAgent(invoice);
+    requireMonthSentForAFirstSend(invoice);
     requireEveryCarrierInvoice(invoice);
 
     markSent(invoice, Instant.now(), principal);
 
     return toResponse(invoice, true);
+  }
+
+  /**
+   * A never-sent invoice ({@code firstSentAt} null) cannot go on its own while its Agent's month is
+   * not sent: its first send is the month send's. A resend (it has {@code firstSentAt}) and a
+   * Contract's first send once the month was sent pass. Checked before the carrier gate.
+   */
+  private void requireMonthSentForAFirstSend(ClientInvoice invoice) {
+    if (invoice.getFirstSentAt() == null && monthSentAt(invoice) == null) {
+      throw new ClientInvoiceConflictException(
+          ClientInvoiceConflictException.Reason.MONTH_NOT_SENT,
+          "Send this month's Client Invoices together, from the month send");
+    }
   }
 
   /**

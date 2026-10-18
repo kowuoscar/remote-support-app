@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -67,16 +68,11 @@ class MeClientApiTest extends IntegrationTest {
   }
 
   private UUID sendCurrent(UUID contractId) throws Exception {
-    openDraft(contractId);
+    UUID invoiceId = openDraft(contractId);
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken());
-    return idOf(
-        mockMvc
-            .perform(
-                post("/api/contracts/" + contractId + "/client-invoice/send")
-                    .header("Authorization", "Bearer " + agentToken()))
-            .andExpect(status().isOk())
-            .andReturn());
+    sendTheMonth(mockMvc, agentToken());
+    return invoiceId;
   }
 
   private void approve(UUID invoiceId) throws Exception {
@@ -250,10 +246,11 @@ class MeClientApiTest extends IntegrationTest {
   void neverReturnsAnotherClientsContract() throws Exception {
     TesterOfClient mine = testerOfNewClient("Mine Co");
     TesterOfClient other = testerOfNewClient("Not Mine Co");
-    UUID myContract = newContract(mine.clientId());
+    // The seeded Agent's month is sent once per current month, so the past one goes first.
     UUID otherContract = newContract(other.clientId());
-    sentInvoice(myContract, 0, false);
     sentInvoice(otherContract, 1, false);
+    UUID myContract = newContract(mine.clientId());
+    sentInvoice(myContract, 0, false);
 
     JsonNode result = latest(mine.token());
 

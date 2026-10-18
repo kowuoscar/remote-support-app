@@ -405,6 +405,7 @@ SDK calls in an integration test (Backend 5).
 
 ## Decisions taken
 
+- **No "Kept until {date}" before the 30 days are up** (settled by the human, 2026-10-18, `retention-kept-until`: "ok" to the recommendation). Reason: the human asked for "Deleted on" once the file is gone, not a warning before it; it can be added later.
 - **The 30 days are evaluated each run from the invoice's current status and
   `approvedAt`, and nothing is stored.** Reason: it is the literal reading of
   "30 days after being approved". It needs no write at approval. It handles
@@ -495,14 +496,7 @@ SDK calls in an integration test (Backend 5).
 
 ## Open questions
 
-1. **Before the 30 days are up, should an approved invoice say when its files
-   will be deleted (e.g. "Kept until Nov 16, 2026" beside each Download)?**
-   Recommendation: **no**. You asked for "Deleted on" once the file is gone,
-   not for a warning before it. The Agent keeps the carrier's original, and the
-   Manager has already approved what the file supported. One more date on
-   every approved invoice is noise for a rule that holds for every file. It is
-   an additive line, so it can be added later. Blocks: the frontend ticket's
-   copy only. The backend ticket can go on meanwhile. (Case 1.)
+None.
 
 ## Acceptance walkthrough
 

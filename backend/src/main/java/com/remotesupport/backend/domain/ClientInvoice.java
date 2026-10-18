@@ -76,6 +76,14 @@ public class ClientInvoice {
   @Column(name = "sent_at")
   private Instant sentAt;
 
+  /**
+   * When this invoice was first sent; set at its first send, never changed and never cleared by a
+   * send-back ({@link #sentAt} is). {@code null} for an invoice never sent. The Agent's month is
+   * "sent" when any of its invoices has one (agent-sends-the-month spec, "The model").
+   */
+  @Column(name = "first_sent_at")
+  private Instant firstSentAt;
+
   /** Set once, at {@code SENT -> APPROVED}; {@code null} before then. */
   @Column(name = "approved_at")
   private Instant approvedAt;

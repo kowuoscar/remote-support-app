@@ -43,6 +43,8 @@ function invoice(overrides: Partial<ClientInvoiceDetail> = {}): ClientInvoiceDet
     filesAvailable: true,
     sentAt: "2026-08-31T18:00:00Z",
     approvedAt: null,
+    monthSentAt: null,
+    sendableOnItsOwn: false,
     ...overrides,
   };
 }

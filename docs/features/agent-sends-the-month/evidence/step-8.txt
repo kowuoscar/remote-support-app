@@ -1,0 +1,7 @@
+Step 8 passed: Casey 1 of 1 ready / Send 1 to Manager / Confirm send; after Manager added a 2nd Postpaid SIM, confirm -> alert 'An invoice is no longer ready. Reload to see which.'; invoice still DRAFT. Files: step-8-casey-*.txt step-8-manager-add-sim.txt
+Couldn't-load state shown by test (verbose run of client-invoices-view.test.tsx; the verify run's reporter is not verbose):
+30: ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list readiness (agent-sends-the-month) > shows no readiness on a sent row, an approved row or a row that failed to load 8ms
+80: ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView side list row status (side-list-row-status) > a Contract whose invoice failed to load stays listed with no badge; selecting it explains, others still o
+94: ✓ components/agent/client-invoices-view.test.tsx > AgentClientInvoicesView month bar (agent-sends-the-month) > shows the incomplete bar when an invoice failed to load 5ms
+/Users/oscar/myspace/projects/remote-support-app/frontend/components/agent/client-invoices-view.test.tsx:1419:    expect(within(bar).getByText("Couldn't load every invoice.")).toBeInTheDocument();
+/Users/oscar/myspace/projects/remote-support-app/frontend/components/agent/send-client-invoice-month-control.test.tsx:154:    expect(screen.getByText("Couldn't load every invoice.")).toBeInTheDocument();

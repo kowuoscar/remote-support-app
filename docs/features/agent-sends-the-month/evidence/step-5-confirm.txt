@@ -1,0 +1,123 @@
+### Page
+- Page URL: http://127.0.0.1:57662/agent/client-invoices?contract=e1109cb9-3607-4229-90f5-3f81383cb955
+- Page Title: Client Invoices · Remote Support Platform
+### Snapshot
+```yaml
+- generic [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - complementary [ref=f2e3]:
+      - generic [ref=f2e4]:
+        - generic [ref=f2e5]: "N"
+        - generic [ref=f2e6]:
+          - paragraph [ref=f2e7]: Northwind Field Services
+          - paragraph [ref=f2e8]: Agent Console
+      - navigation [ref=f2e9]:
+        - link "Dashboard" [ref=f2e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f2e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f2e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f2e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f2e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f2e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f2e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f2e43]:
+      - banner [ref=f2e44]:
+        - generic [ref=f2e46]:
+          - heading "Client Invoices" [level=1] [ref=f2e47]
+          - paragraph [ref=f2e48]: One per Contract per month
+        - generic [ref=f2e49]:
+          - button "avery@acc.example · Agent" [ref=f2e51]:
+            - generic [ref=f2e52]: avery@acc.example
+            - generic [ref=f2e53]: · Agent
+          - button "Switch to dark theme" [ref=f2e54]
+      - main [ref=f2e58]:
+        - generic [ref=f2e59]:
+          - navigation [ref=f2e61]:
+            - heading "Clients" [level=2] [ref=f2e62]
+            - list [ref=f2e63]:
+              - listitem [ref=f2e64]:
+                - link "Acme A Draft Ready" [ref=f2e208] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=aac98a62-aa8c-4351-8c13-092e23b97f0c
+                  - generic "Acme A" [ref=f2e66]
+                  - generic [ref=f2e67]: Draft
+                  - generic [ref=f2e70]: Ready
+              - listitem [ref=f2e72]:
+                - link "Bolt B Draft Ready" [ref=f2e297] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=e1109cb9-3607-4229-90f5-3f81383cb955
+                  - generic "Bolt B" [ref=f2e74]
+                  - generic [ref=f2e75]: Draft
+                  - generic [ref=f2e78]: Ready
+              - listitem [ref=f2e80]:
+                - link "Cobalt C Draft Ready" [ref=f2e81] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=45d9fceb-95d5-4d08-b06a-0a3007e1c956
+                  - generic "Cobalt C" [ref=f2e82]
+                  - generic [ref=f2e83]: Draft
+                  - generic [ref=f2e86]: Ready
+          - generic [ref=f2e93]:
+            - region "Month" [ref=f2e94]:
+              - generic [ref=f2e96]:
+                - paragraph [ref=f2e97]: Sends all 3 Client Invoices to the Manager and the Clients, and locks their numbers. Only the Manager can send one back to you.
+                - generic [ref=f2e321]:
+                  - button "Back" [ref=f2e322]
+                  - button "Confirm send all 3" [active] [ref=f2e323]
+            - generic [ref=f2e103]:
+              - generic [ref=f2e104]:
+                - generic [ref=f2e105]:
+                  - generic [ref=f2e106]:
+                    - paragraph [ref=f2e107]: October 2026
+                    - generic [ref=f2e108]: Draft
+                  - paragraph [ref=f2e110]: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+                - generic [ref=f2e111]:
+                  - button "Attach carrier invoice" [disabled] [ref=f2e112]
+                  - paragraph [ref=f2e117]: Sent with the month, from the bar above.
+              - generic [ref=f2e118]:
+                - generic [ref=f2e119]:
+                  - term [ref=f2e120]: Base amount
+                  - definition [ref=f2e121]: $65.99
+                - generic [ref=f2e122]:
+                  - term [ref=f2e123]: Fees this month
+                  - definition [ref=f2e124]: $0.00
+                - generic [ref=f2e125]:
+                  - term [ref=f2e126]: Total
+                  - definition [ref=f2e127]: $65.99
+              - paragraph [ref=f2e128]: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+              - generic [ref=f2e129]:
+                - heading "Postpaid SIM Cards" [level=3] [ref=f2e130]
+                - table [ref=f2e132]:
+                  - rowgroup [ref=f2e133]:
+                    - row [ref=f2e134]:
+                      - columnheader "Number" [ref=f2e135]
+                      - columnheader "Billed" [ref=f2e136]
+                  - rowgroup [ref=f2e137]:
+                    - row [ref=f2e302]:
+                      - cell "+15550100003 AT&T · Postpaid Carrier invoice attached" [ref=f2e303]:
+                        - generic [ref=f2e234]:
+                          - text: "+15550100003"
+                          - generic [ref=f2e235]: AT&T · Postpaid
+                          - img "Carrier invoice attached" [ref=f2e304]
+                      - cell "$65.99 Edit" [ref=f2e236]:
+                        - generic [ref=f2e237]:
+                          - generic [ref=f2e238]:
+                            - generic [ref=f2e239]: $65.99
+                            - button "Edit" [ref=f2e241]
+                          - status [ref=f2e242]
+              - generic [ref=f2e160]:
+                - heading "Fee lines" [level=3] [ref=f2e161]
+                - paragraph [ref=f2e162]: No Fees logged against this Contract yet this month.
+              - generic [ref=f2e163]:
+                - heading "Carrier invoice files" [level=3] [ref=f2e164]
+                - list [ref=f2e308]:
+                  - listitem [ref=f2e309]:
+                    - generic [ref=f2e310]: Bolt B - October 2026 - AT&T - +15550100003.pdf
+                    - generic [ref=f2e314]:
+                      - link "Download" [ref=f2e315] [cursor=pointer]:
+                        - /url: /api/client-invoices/c631284f-64f7-4b20-b0d9-ad2ecc5e7d93/files/e8f6255c-9e15-47d2-b7aa-1d26cfe434b6
+                      - button "Remove Bolt B - October 2026 - AT&T - +15550100003.pdf" [ref=f2e320]: Remove
+  - alert [ref=f2e168]: Client Invoices · Remote Support Platform
+```

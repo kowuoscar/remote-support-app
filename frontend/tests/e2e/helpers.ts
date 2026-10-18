@@ -105,6 +105,41 @@ export async function readRevealedPasswordAndClose(page: Page): Promise<string> 
 }
 
 /**
+ * The Manager creates an Agent together with its login (from the Agents page) and the Agent's
+ * one-time password is read off the reveal. Returns what a caller needs to give that Agent
+ * Contracts (`agentLabel`, the Contract dialog's option text) and to sign in as it. A fresh Agent
+ * has a month of its own, which no other spec touches: the seeded Agent Jordan's month is sent
+ * once by the e2e setup, so every spec using him sends its Contracts as late ones.
+ */
+export async function createAgentWithLogin(
+  page: Page,
+  agentName: string,
+  email: string,
+): Promise<{ agentLabel: string; email: string; password: string }> {
+  await page.goto("/manager/agents");
+  await page.getByRole("button", { name: "Add agent" }).first().click();
+  await page.getByLabel("Agent name").fill(agentName);
+  // The United States, like the seeded Agent: the Carrier catalog the Fleet dialogs offer ("Verizon") is the Country's.
+  await page.getByLabel("Country").selectOption("UNITED_STATES");
+  await page.getByLabel("Standing monthly salary").fill("2400");
+  await page.getByLabel("Email").fill(email);
+  await page.getByRole("dialog").getByRole("button", { name: "Add agent" }).click();
+  const password = await readRevealedPasswordAndClose(page);
+  return { agentLabel: `${agentName} · USD`, email, password };
+}
+
+/** Creates a fresh Client, then a Contract linking it to the Agent with this option label. Returns both ids. */
+export async function createClientAndContractWithAgent(
+  page: Page,
+  clientName: string,
+  agentLabel: string,
+): Promise<{ clientId: string; contractId: string }> {
+  const clientId = await createClient(page, clientName);
+  const contractId = await createContractViaDialog(page, clientName, agentLabel);
+  return { clientId, contractId };
+}
+
+/**
  * Adds a Tester under an existing Client (from its manager detail page), reads the generated
  * password from the reveal and returns it.
  */
@@ -401,11 +436,12 @@ export async function selectContractInSwitcher(page: Page, clientName: string) {
 
 /**
  * The row's accessible name: the Client name, then the month's status label when its invoice loaded,
- * then the "Sent back" mark when the "Sent back to you" list holds an earlier month's invoice of it.
+ * then the "Sent back" mark when the "Sent back to you" list holds an earlier month's invoice of it,
+ * then the readiness of a draft ("Ready", "1 file missing", "{n} files missing").
  */
 function clientInvoiceRowName(clientName: string): RegExp {
   const escaped = clientName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`^${escaped}(?: (?:Draft|Awaiting approval|Approved|Sent back))?(?: Sent back)?$`);
+  return new RegExp(`^${escaped}(?: (?:Draft|Awaiting approval|Approved|Sent back))?(?: Sent back)?(?: (?:Ready|\\d+ files? missing))?$`);
 }
 
 /**
@@ -625,10 +661,16 @@ export async function attachCarrierInvoice(page: Page, simNumber: string, fileNa
 /**
  * Attaches a carrier invoice to every Postpaid SIM line of the open Client Invoice that still lacks
  * one (the send gate refuses the invoice otherwise). A no-op on an invoice with no Postpaid SIM
- * line, or with every line covered. Waits for each line's check mark before the next.
+ * line, or with every line covered. Waits for each line's check mark before the next. Waits for the
+ * card, not for a Send button: a never-sent card in an unsent month has none (agent-sends-the-month).
+ *
+ * Jordan's month is sent by the global setup before the specs run, so a new Contract of Jordan's
+ * is a late one (its card offers "Send Client Invoice") and a sent-back one offers
+ * "Resend Client Invoice". A fresh Agent's month starts unsent: its cards have no Send and the
+ * month bar sends them.
  */
 export async function attachCarrierInvoicesForEveryPostpaidSim(page: Page) {
-  await page.getByRole("button", { name: "Send Client Invoice" }).waitFor();
+  await page.getByTestId("client-invoice-card").waitFor();
   const attach = page.getByRole("button", { name: "Attach carrier invoice" });
   if ((await attach.count()) === 0 || !(await attach.isEnabled())) return;
 

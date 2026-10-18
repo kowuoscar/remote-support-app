@@ -9,14 +9,16 @@ import { selectionHref, useSelectionAddress } from "@/lib/selection-address";
 import { Badge } from "@/components/ui/badge";
 import { clientInvoiceBadge, isSentBackBadge, sentBackBadge } from "@/lib/status";
 import { EmptyState } from "@/components/ui/empty-state";
-import { IconAlertTriangle, IconArrowRight, IconInvoices } from "@/components/icons";
+import { IconAlertTriangle, IconArrowRight, IconCheckCircle, IconInvoices } from "@/components/icons";
 import { Card } from "@/components/ui/card";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
+import { SendClientInvoiceMonthControl } from "@/components/agent/send-client-invoice-month-control";
+import { clientInvoiceMonth } from "@/lib/api/client-invoice-month";
 import { AgentClientInvoiceCard } from "@/components/agent/agent-client-invoice-card";
 import { PAGE_PADDING, PAGE_WIDTH } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
-import { formatBillingMonth, formatDate } from "@/lib/format";
-import { countryLabel, type ClientInvoiceDetail, type SentBackClientInvoice } from "@/lib/api/types";
+import { forCount, formatBillingMonth, formatDate } from "@/lib/format";
+import { countryLabel, missingCarrierInvoiceLines, type ClientInvoiceDetail, type SentBackClientInvoice } from "@/lib/api/types";
 
 /** What the page passes per Contract; the view derives the switcher's options and the side list's rows. */
 export type ClientInvoicesContract = {
@@ -80,6 +82,9 @@ export function AgentClientInvoicesView({
     );
   }
 
+  // The Agent's month, derived from the invoices this page loaded; ordered.length > 0 here, so never null.
+  const month = clientInvoiceMonth(ordered.map((c) => invoicesByContract[c.id] ?? null));
+
   const switcherOptions: ContractOption[] = ordered.map((c) => ({
     id: c.id,
     label: `${c.clientName} — ${c.countryLabel}`,
@@ -105,6 +110,7 @@ export function AgentClientInvoicesView({
           {sentBackBadge.label}
         </Badge>
       ) : undefined,
+      status: current?.status === "DRAFT" ? <Readiness missing={missingCarrierInvoiceLines(current).length} /> : undefined,
     };
   });
 
@@ -119,7 +125,12 @@ export function AgentClientInvoicesView({
           onSelect={select}
         />
       }
-      lead={<SentBackSection rows={sentBack} />}
+      lead={
+        <>
+          {month ? <SendClientInvoiceMonthControl month={month} /> : null}
+          <SentBackSection rows={sentBack} />
+        </>
+      }
       dropdown={<ContractSwitcher contracts={switcherOptions} value={contractId} onChange={select} />}
       detailRef={invoiceAreaRef}
     >
@@ -139,6 +150,22 @@ export function AgentClientInvoicesView({
       )}
     </SideListLayout>
   );
+}
+
+/**
+ * The side list row's readiness (agent-sends-the-month): on a draft still to send, a check and
+ * "Ready" when no Postpaid SIM line lacks its carrier invoice, else how many files are missing.
+ */
+function Readiness({ missing }: { missing: number }) {
+  if (missing === 0) {
+    return (
+      <>
+        <IconCheckCircle className="h-3 w-3 shrink-0 text-success" />
+        <span className="truncate">Ready</span>
+      </>
+    );
+  }
+  return <span className="truncate">{forCount(missing, "1 file missing", "{n} files missing")}</span>;
 }
 
 /**

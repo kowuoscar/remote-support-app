@@ -1,0 +1,56 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - generic [ref=f1e5]: "N"
+        - generic [ref=f1e6]:
+          - paragraph [ref=f1e7]: Northwind Field Services
+          - paragraph [ref=f1e8]: Client Portal
+      - navigation [ref=f1e9]:
+        - link "Dashboard" [ref=f1e10] [cursor=pointer]:
+          - /url: /client
+        - link "Fleet" [ref=f1e16] [cursor=pointer]:
+          - /url: /client/fleet
+        - link "Requests" [ref=f1e19] [cursor=pointer]:
+          - /url: /client/requests
+        - link "Invoices" [ref=f1e23] [cursor=pointer]:
+          - /url: /client/invoices
+    - generic [ref=f1e28]:
+      - banner [ref=f1e29]:
+        - generic [ref=f1e31]:
+          - heading "Invoices" [level=1] [ref=f1e32]
+          - paragraph [ref=f1e33]: Sent by your Agent, one per Contract per month
+        - generic [ref=f1e34]:
+          - button "tester-c@acc.example · Tester" [ref=f1e36]:
+            - generic [ref=f1e37]: tester-c@acc.example
+            - generic [ref=f1e38]: · Tester
+          - button "Switch to dark theme" [ref=f1e39]
+      - main [ref=f1e43]:
+        - generic [ref=f1e45]:
+          - generic "Client C — United States" [ref=f1e51]
+          - generic [ref=f1e52]:
+            - generic [ref=f1e53]:
+              - generic [ref=f1e54]:
+                - generic [ref=f1e55]:
+                  - paragraph [ref=f1e56]: October 2026
+                  - generic [ref=f1e57]: Awaiting approval
+                - paragraph [ref=f1e59]: Sent Oct 18, 2026
+              - link "Download PDF" [ref=f1e60] [cursor=pointer]:
+                - /url: /api/contracts/c921e057-625f-493a-84b8-aa0a03892670/client-invoice/pdf
+            - generic [ref=f1e64]:
+              - generic [ref=f1e65]:
+                - term [ref=f1e66]: Base amount
+                - definition [ref=f1e67]: $0.00
+              - generic [ref=f1e68]:
+                - term [ref=f1e69]: Fees this month
+                - definition [ref=f1e70]: $0.00
+              - generic [ref=f1e71]:
+                - term [ref=f1e72]: Total
+                - definition [ref=f1e73]: $0.00
+            - generic [ref=f1e74]:
+              - heading "Fee lines" [level=3] [ref=f1e75]
+              - paragraph [ref=f1e76]: No Fees this month.
+            - generic [ref=f1e77]:
+              - heading "Carrier invoice files" [level=3] [ref=f1e78]
+              - paragraph [ref=f1e81]: No carrier invoice files attached.
+  - alert [ref=f1e82]

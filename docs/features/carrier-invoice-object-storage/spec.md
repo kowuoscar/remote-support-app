@@ -1,7 +1,7 @@
 ---
 feature: carrier-invoice-object-storage
 epic: carrier-invoices-per-sim
-status: delivered
+status: accepted
 date: 2026-10-17
 ---
 

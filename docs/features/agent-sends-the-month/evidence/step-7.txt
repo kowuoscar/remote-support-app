@@ -1,0 +1,19 @@
+# Avery second month send
+{"code":"MONTH_ALREADY_SENT","message":"This month was already sent"}
+409
+# Finn: attach files
+201
+201
+# two parallel month sends
+{"code":"MONTH_ALREADY_SENT","message":"This month was already sent"} HTTP 409
+{"billingMonth":"2026-10-01","sentAt":"2026-10-18T15:00:17.753093Z","invoiceIds":["a59a0307-f289-447b-b78b-3b9eae0d5403"]} HTTP 200
+                  id                  | status | lines_stored |         first_sent_at         
+--------------------------------------+--------+--------------+-------------------------------
+ a59a0307-f289-447b-b78b-3b9eae0d5403 | SENT   | t            | 2026-10-18 15:00:17.753093+00
+(1 row)
+
+ line_rows 
+-----------
+         2
+(1 row)
+

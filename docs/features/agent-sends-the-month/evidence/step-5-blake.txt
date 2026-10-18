@@ -1,0 +1,14 @@
+# Blake: invoices for the contract before the month send:
+     0
+
+# month send, no body
+{"billingMonth":"2026-10-01","sentAt":"2026-10-18T14:58:53.709927Z","invoiceIds":["e1976a1a-c532-4c7c-9e5a-28c04de9b7e9"]}
+200
+ snapshot_base_amount | numeric(12,2)            |           |          | 
+                  id                  | status | snapshot_base_amount |         first_sent_at         
+--------------------------------------+--------+----------------------+-------------------------------
+ e1976a1a-c532-4c7c-9e5a-28c04de9b7e9 | SENT   |                      | 2026-10-18 14:58:53.709927+00
+(1 row)
+
+{"id":"e1976a1a-c532-4c7c-9e5a-28c04de9b7e9","contractId":"1ace5aba-f59d-4e28-8754-30d0d6b8a74f","billingMonth":"2026-10-01","status":"SENT","currency":"USD","baseAmount":0,"basePostpaidSims":[],"feeLines":[],"totalAmount":0,"files":[],"filesAvailable":true,"sentAt":"2026-10-18T14:58:53.709927Z","approvedAt":null,"sentBackAt":null,"sentBackReason":null,"monthSentAt":"2026-10-18T14:58:53.709927Z","sendableOnItsOwn":false}
+200

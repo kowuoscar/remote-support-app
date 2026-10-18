@@ -1,0 +1,111 @@
+### Page
+- Page URL: http://127.0.0.1:57662/agent/client-invoices
+- Page Title: Client Invoices · Remote Support Platform
+### Snapshot
+```yaml
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - generic [ref=f1e5]: "N"
+        - generic [ref=f1e6]:
+          - paragraph [ref=f1e7]: Northwind Field Services
+          - paragraph [ref=f1e8]: Agent Console
+      - navigation [ref=f1e9]:
+        - link "Dashboard" [ref=f1e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f1e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f1e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f1e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f1e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f1e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f1e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f1e43]:
+      - banner [ref=f1e44]:
+        - generic [ref=f1e46]:
+          - heading "Client Invoices" [level=1] [ref=f1e47]
+          - paragraph [ref=f1e48]: One per Contract per month
+        - generic [ref=f1e49]:
+          - button "casey@acc.example · Agent" [ref=f1e51]:
+            - generic [ref=f1e52]: casey@acc.example
+            - generic [ref=f1e53]: · Agent
+          - button "Switch to dark theme" [ref=f1e54]
+      - main [ref=f1e58]:
+        - generic [ref=f1e59]:
+          - navigation [ref=f1e61]:
+            - heading "Clients" [level=2] [ref=f1e62]
+            - list [ref=f1e63]:
+              - listitem [ref=f1e64]:
+                - link "Client of Casey Acc Draft Ready" [ref=f1e65] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=d342b7ed-195c-4c40-b89e-b5726a39e1d8
+                  - generic "Client of Casey Acc" [ref=f1e66]
+                  - generic [ref=f1e67]: Draft
+                  - generic [ref=f1e70]: Ready
+          - generic [ref=f1e77]:
+            - region "Month" [ref=f1e78]:
+              - generic [ref=f1e79]:
+                - paragraph [ref=f1e81]:
+                  - text: October 2026 ·
+                  - generic [ref=f1e82]: 1 of 1 ready
+                - button "Send 1 to Manager" [ref=f1e83]
+            - generic [ref=f1e86]:
+              - generic [ref=f1e87]:
+                - generic [ref=f1e88]:
+                  - generic [ref=f1e89]:
+                    - paragraph [ref=f1e90]: October 2026
+                    - generic [ref=f1e91]: Draft
+                  - paragraph [ref=f1e93]: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+                - generic [ref=f1e94]:
+                  - button "Attach carrier invoice" [disabled] [ref=f1e95]
+                  - paragraph [ref=f1e99]: Sent with the month, from the bar above.
+              - generic [ref=f1e100]:
+                - generic [ref=f1e101]:
+                  - term [ref=f1e102]: Base amount
+                  - definition [ref=f1e103]: $65.99
+                - generic [ref=f1e104]:
+                  - term [ref=f1e105]: Fees this month
+                  - definition [ref=f1e106]: $0.00
+                - generic [ref=f1e107]:
+                  - term [ref=f1e108]: Total
+                  - definition [ref=f1e109]: $65.99
+              - paragraph [ref=f1e110]: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+              - generic [ref=f1e111]:
+                - heading "Postpaid SIM Cards" [level=3] [ref=f1e112]
+                - table [ref=f1e114]:
+                  - rowgroup [ref=f1e115]:
+                    - row [ref=f1e116]:
+                      - columnheader "Number" [ref=f1e117]
+                      - columnheader "Billed" [ref=f1e118]
+                  - rowgroup [ref=f1e119]:
+                    - row [ref=f1e120]:
+                      - cell "+15552045990 AT&T · Postpaid Carrier invoice attached" [ref=f1e121]:
+                        - generic [ref=f1e122]:
+                          - text: "+15552045990"
+                          - generic [ref=f1e123]: AT&T · Postpaid
+                          - img "Carrier invoice attached" [ref=f1e124]
+                      - cell "$65.99 Edit" [ref=f1e128]:
+                        - generic [ref=f1e129]:
+                          - generic [ref=f1e130]:
+                            - generic [ref=f1e131]: $65.99
+                            - button "Edit" [ref=f1e133]
+                          - status [ref=f1e134]
+              - generic [ref=f1e135]:
+                - heading "Fee lines" [level=3] [ref=f1e136]
+                - paragraph [ref=f1e137]: No Fees logged against this Contract yet this month.
+              - generic [ref=f1e138]:
+                - heading "Carrier invoice files" [level=3] [ref=f1e139]
+                - list [ref=f1e142]:
+                  - listitem [ref=f1e143]:
+                    - generic [ref=f1e144]: Client of Casey Acc - October 2026 - AT&T - +15552045990.pdf
+                    - generic [ref=f1e148]:
+                      - link "Download" [ref=f1e149] [cursor=pointer]:
+                        - /url: /api/client-invoices/92ae3f72-da52-4625-87dd-a3c819eee28e/files/138f1983-b5cf-4c48-a360-00e0a8179f63
+                      - button "Remove Client of Casey Acc - October 2026 - AT&T - +15552045990.pdf" [ref=f1e154]: Remove
+  - alert [ref=f1e155]
+```

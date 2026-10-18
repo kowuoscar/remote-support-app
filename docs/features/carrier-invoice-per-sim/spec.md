@@ -1,7 +1,7 @@
 ---
 feature: carrier-invoice-per-sim
 epic: carrier-invoices-per-sim
-status: delivered
+status: accepted
 date: 2026-10-17
 ---
 

@@ -74,12 +74,12 @@ class DemoDataLoaderStoreDownTest {
   @Autowired private CarrierInvoiceFileRepository carrierInvoiceFileRepository;
 
   @Test
-  void whenTheStoreRefusesTheLoaderCompletesWarnsOnceAndLeavesTheCurrentMonthInvoiceADraft() {
+  void whenTheStoreRefusesTheLoaderCompletesWarnsOnceAndLeavesJordansTwoCurrentMonthInvoicesDrafts() {
     LocalDate thisMonth = LocalDate.now(ZoneOffset.UTC).withDayOfMonth(1);
     List<ClientInvoice> current =
         clientInvoiceRepository.findAll().stream().filter(i -> thisMonth.equals(i.getBillingMonth())).toList();
 
-    assertThat(current).as("the loader built this month's invoices").isNotEmpty();
+    assertThat(current).as("Jordan's US-1 and US-2 and Priya's UK-1 invoices").hasSize(3);
     assertThat(current).allMatch(i -> i.getStatus() == ClientInvoiceStatus.DRAFT);
     assertThat(carrierInvoiceFileRepository.count()).isZero();
     assertThat(clientInvoiceRepository.findAll()).anyMatch(i -> i.getStatus() == ClientInvoiceStatus.APPROVED);

@@ -24,6 +24,8 @@ function invoice(overrides: Partial<ClientInvoiceDetail> = {}): ClientInvoiceDet
     filesAvailable: true,
     sentAt: null,
     approvedAt: null,
+    monthSentAt: null,
+    sendableOnItsOwn: false,
     ...overrides,
   };
 }
@@ -107,7 +109,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
     render(<AgentClientInvoicesView contracts={[ZEPHYR, BIRCH, CONTRACT]} invoicesByContract={byContract} />);
 
     const links = within(clientsNav()).getAllByRole("link");
-    expect(links.map((l) => l.textContent)).toEqual(["Aurora Retail Group Draft", "Birch Telecom Draft", "zephyr Mobile Draft"]);
+    expect(links.map((l) => l.textContent)).toEqual(["Aurora Retail Group Draft Ready", "Birch Telecom Draft Ready", "zephyr Mobile Draft Ready"]);
 
     await userEvent.click(switcherTrigger());
     const options = within(screen.getByRole("listbox")).getAllByRole("option");
@@ -128,8 +130,8 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
     );
 
     const links = within(clientsNav()).getAllByRole("link");
-    expect(links.map((l) => l.textContent)).toEqual(["Aurora Retail Group Draft", "Birch Telecom Ghana Draft", "Birch Telecom Kenya Draft"]);
-    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Ghana Draft" })).toBeInTheDocument();
+    expect(links.map((l) => l.textContent)).toEqual(["Aurora Retail Group Draft Ready", "Birch Telecom Ghana Draft · Ready", "Birch Telecom Kenya Draft · Ready"]);
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Ghana Draft Ready" })).toBeInTheDocument();
     expect(within(links[0]).queryByText("Kenya")).not.toBeInTheDocument();
   });
 
@@ -147,7 +149,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
     const fetchMock = stubFetch(200, {});
     render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
 
-    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" }));
+    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft Ready" }));
 
     const links = within(clientsNav()).getAllByRole("link");
     expect(links[1]).toHaveAttribute("aria-current", "true");
@@ -161,7 +163,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
   it("each row's href names the Contract, so a modified click opens it", () => {
     render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
 
-    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" })).toHaveAttribute(
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft Ready" })).toHaveAttribute(
       "href",
       "/agent/client-invoices?contract=contract-2",
     );
@@ -169,7 +171,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
 
   it("a modified click is not intercepted", async () => {
     render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
-    const row = within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" });
+    const row = within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft Ready" });
     // jsdom does not navigate; what matters is that the view did not take the click for itself.
     let seen: MouseEvent | null = null;
     row.addEventListener("click", (e) => (seen = e));
@@ -187,10 +189,10 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
   it("Enter on a focused row selects it", async () => {
     render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
 
-    within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" }).focus();
+    within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft Ready" }).focus();
     await userEvent.keyboard("{Enter}");
 
-    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" })).toHaveAttribute("aria-current", "true");
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft Ready" })).toHaveAttribute("aria-current", "true");
   });
 
   it("the switcher choice moves the selected row too", async () => {
@@ -199,7 +201,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
     await userEvent.click(switcherTrigger());
     await userEvent.click(screen.getByRole("option", { name: /Birch Telecom/ }));
 
-    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" })).toHaveAttribute("aria-current", "true");
+    expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft Ready" })).toHaveAttribute("aria-current", "true");
   });
 
   it("a single Contract gives one selected row", () => {
@@ -242,7 +244,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
         />,
       );
 
-      expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" })).toHaveAttribute("aria-current", "true");
+      expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft Ready" })).toHaveAttribute("aria-current", "true");
       expect(screen.getAllByText("$22.00").length).toBeGreaterThan(0);
     });
 
@@ -266,7 +268,7 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
       const lengthBefore = window.history.length;
       render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
 
-      await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" }));
+      await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft Ready" }));
 
       expect(window.location.search).toBe("?contract=contract-2");
       expect(window.history.length).toBe(lengthBefore);
@@ -322,13 +324,102 @@ describe("AgentClientInvoicesView side list (contract-side-list-on-desktop)", ()
     render(<AgentClientInvoicesView contracts={[CONTRACT, BIRCH]} invoicesByContract={byContract} />);
 
     rect.mockReturnValue({ top: 120 } as DOMRect);
-    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft" }));
+    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Birch Telecom Draft Ready" }));
     expect(scrollTo).not.toHaveBeenCalled();
 
     rect.mockReturnValue({ top: -300 } as DOMRect);
-    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft" }));
+    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft Ready" }));
     expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 0 }));
     rect.mockRestore();
+  });
+});
+
+describe("AgentClientInvoicesView side list readiness (agent-sends-the-month)", () => {
+  const sim = (id: string, fileId: string | null) => ({
+    simCardId: id,
+    number: `+1-555-${id}`,
+    monthlyFeeAmount: 25,
+    cancellationEffectiveDate: null,
+    carrierInvoiceFileId: fileId,
+  });
+  const link = (name: string | RegExp) => within(clientsNav()).getByRole("link", { name });
+
+  it("marks a ready draft with a check and Ready, and a draft with files missing with the count", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, BIRCH, ZEPHYR]}
+        invoicesByContract={{
+          "contract-1": invoice({ basePostpaidSims: [sim("1", "file-1")] }),
+          "contract-2": invoice({ contractId: "contract-2", basePostpaidSims: [sim("2", null)] }),
+          "contract-3": invoice({ contractId: "contract-3", basePostpaidSims: [sim("3", null), sim("4", "f"), sim("5", null)] }),
+        }}
+      />,
+    );
+
+    expect(link("Aurora Retail Group Draft Ready")).toBeInTheDocument();
+    expect(link("Birch Telecom Draft 1 file missing")).toBeInTheDocument();
+    expect(link("zephyr Mobile Draft 2 files missing")).toBeInTheDocument();
+    const ready = link("Aurora Retail Group Draft Ready");
+    expect(ready.querySelector("svg")).toHaveClass("h-3", "text-success");
+  });
+
+  it("puts the readiness after the Country, the badge and the Sent back mark in the accessible name", () => {
+    const twin = { id: "contract-4", clientName: "Birch Telecom", countryLabel: "Ghana", currency: "USD" };
+    render(
+      <AgentClientInvoicesView
+        contracts={[BIRCH, twin]}
+        invoicesByContract={{
+          "contract-2": invoice({ contractId: "contract-2", basePostpaidSims: [sim("2", null)] }),
+          "contract-4": invoice({ contractId: "contract-4", basePostpaidSims: [sim("4", "f")] }),
+        }}
+        sentBack={[{ ...SENT_BACK_ROW, contractId: "contract-4" }]}
+      />,
+    );
+
+    expect(link("Birch Telecom Ghana Draft Sent back Ready")).toBeInTheDocument();
+    expect(link("Birch Telecom Kenya Draft 1 file missing")).toBeInTheDocument();
+  });
+
+  it("shows the readiness of a sent-back draft beside its Sent back badge", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT]}
+        invoicesByContract={{
+          "contract-1": invoice({ sentBackAt: "2026-09-03T10:00:00Z", basePostpaidSims: [sim("1", null)] }),
+        }}
+      />,
+    );
+
+    expect(link("Aurora Retail Group Sent back 1 file missing")).toBeInTheDocument();
+  });
+
+  it("shows no readiness on a sent row, an approved row or a row that failed to load", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, BIRCH, ZEPHYR]}
+        invoicesByContract={{
+          "contract-1": invoice({ status: "SENT", sentAt: "2026-09-10T10:00:00Z", basePostpaidSims: [sim("1", null)] }),
+          "contract-2": invoice({ contractId: "contract-2", status: "APPROVED", approvedAt: "2026-09-11T10:00:00Z" }),
+          "contract-3": null,
+        }}
+      />,
+    );
+
+    const texts = within(clientsNav()).getAllByRole("link").map((l) => l.textContent);
+    expect(texts).toEqual(["Aurora Retail Group Awaiting approval", "Birch Telecom Approved", "zephyr Mobile"]);
+  });
+
+  it("follows the refreshed invoice after an attach or a remove", () => {
+    const withFile = { "contract-1": invoice({ basePostpaidSims: [sim("1", "file-1")] }) };
+    const without = { "contract-1": invoice({ basePostpaidSims: [sim("1", null)] }) };
+    const { rerender } = render(<AgentClientInvoicesView contracts={[CONTRACT]} invoicesByContract={without} />);
+    expect(link("Aurora Retail Group Draft 1 file missing")).toBeInTheDocument();
+
+    rerender(<AgentClientInvoicesView contracts={[CONTRACT]} invoicesByContract={withFile} />);
+    expect(link("Aurora Retail Group Draft Ready")).toBeInTheDocument();
+
+    rerender(<AgentClientInvoicesView contracts={[CONTRACT]} invoicesByContract={without} />);
+    expect(link("Aurora Retail Group Draft 1 file missing")).toBeInTheDocument();
   });
 });
 
@@ -619,6 +710,8 @@ describe("AgentClientInvoicesView", () => {
         sentAt: "2026-09-10T10:00:00Z",
         sentBackAt: "2026-09-12T10:00:00Z",
         sentBackReason: "The top-up Fee is missing its receipt.",
+        // Served true for a sent-back draft (agent-sends-the-month): it is resent on its own.
+        sendableOnItsOwn: true,
         ...overrides,
       });
     const renderPage = (inv: ClientInvoiceDetail | null) =>
@@ -718,7 +811,7 @@ describe("AgentClientInvoicesView", () => {
       renderPage(sentBack());
 
       expect(screen.getByRole("button", { name: /Attach carrier invoice/ })).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Resend Client Invoice" })).toBeInTheDocument();
       const row = screen.getByRole("row", { name: /\+1-555-0100/ });
       await userEvent.click(within(row).getByRole("button", { name: "Edit" }));
       await userEvent.clear(within(row).getByRole("textbox"));
@@ -750,7 +843,7 @@ describe("AgentClientInvoicesView", () => {
       it("enables Send, with no count note, when every Postpaid SIM line's file is deleted", () => {
         renderPage(sentBack({ basePostpaidSims: [SIM_COVERED], files: [DELETED_FILE] }));
 
-        expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeEnabled();
+        expect(screen.getByRole("button", { name: "Resend Client Invoice" })).toBeEnabled();
         expect(screen.queryByText(/still needs? (its|their) carrier invoice/)).not.toBeInTheDocument();
       });
 
@@ -898,7 +991,7 @@ describe("AgentClientInvoicesView", () => {
     });
 
     it("a current-month draft never sent stays editable on its by-id page", () => {
-      renderPage(invoice({ billingMonth: CURRENT_MONTH, basePostpaidSims: [SIM] }));
+      renderPage(invoice({ billingMonth: CURRENT_MONTH, basePostpaidSims: [SIM], sendableOnItsOwn: true }));
 
       expect(screen.getByRole("button", { name: "Edit" })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeInTheDocument();
@@ -908,7 +1001,7 @@ describe("AgentClientInvoicesView", () => {
       it("disables Send with a singular count note, linked by aria-describedby, while one line lacks its file", () => {
         renderPage(sentBack({ basePostpaidSims: [SIM_COVERED, SIM_TWO], files: [FILE_OF_SIM_1] }));
 
-        const send = screen.getByRole("button", { name: "Send Client Invoice" });
+        const send = screen.getByRole("button", { name: "Resend Client Invoice" });
         expect(send).toBeDisabled();
         const note = screen.getByText("1 Postpaid SIM still needs its carrier invoice.");
         expect(note).toHaveClass("max-w-65", "text-right", "text-label-sm", "text-ink-mute");
@@ -919,32 +1012,32 @@ describe("AgentClientInvoicesView", () => {
       it("counts several lines in the plural", () => {
         renderPage(sentBack({ basePostpaidSims: [SIM, SIM_TWO], files: [] }));
 
-        expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeDisabled();
+        expect(screen.getByRole("button", { name: "Resend Client Invoice" })).toBeDisabled();
         expect(screen.getByText("2 Postpaid SIMs still need their carrier invoice.")).toBeInTheDocument();
       });
 
       it("enables Send with every line covered or with no Postpaid line, and shows no note", () => {
         const { unmount } = renderPage(sentBack({ basePostpaidSims: [SIM_COVERED], files: [FILE_OF_SIM_1] }));
-        expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeEnabled();
+        expect(screen.getByRole("button", { name: "Resend Client Invoice" })).toBeEnabled();
         expect(screen.queryByText(/still needs? (its|their) carrier invoice/)).not.toBeInTheDocument();
         unmount();
 
         renderPage(sentBack({ basePostpaidSims: [], files: [] }));
-        expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeEnabled();
+        expect(screen.getByRole("button", { name: "Resend Client Invoice" })).toBeEnabled();
       });
 
       it("does not count a file whose SIM has no line toward a line", () => {
         renderPage(sentBack({ basePostpaidSims: [SIM], files: [{ ...FILE_OF_SIM_1, simCardId: "sim-gone" }] }));
 
-        expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeDisabled();
+        expect(screen.getByRole("button", { name: "Resend Client Invoice" })).toBeDisabled();
       });
 
       it("shows the reload message for a send refused with CARRIER_INVOICES_MISSING", async () => {
         stubFetch(409, { code: "CARRIER_INVOICES_MISSING", message: "1 Postpaid SIM line(s) lack their carrier invoice" });
         renderPage(sentBack());
 
-        await userEvent.click(screen.getByRole("button", { name: "Send Client Invoice" }));
-        await userEvent.click(screen.getByRole("button", { name: "Confirm send" }));
+        await userEvent.click(screen.getByRole("button", { name: "Resend Client Invoice" }));
+        await userEvent.click(screen.getByRole("button", { name: "Confirm resend" }));
 
         expect(await screen.findByRole("alert")).toHaveTextContent(
           "A Postpaid SIM still needs its carrier invoice. Reload to see which.",
@@ -955,8 +1048,8 @@ describe("AgentClientInvoicesView", () => {
         stubFetch(409, { message: "Cannot send a Client Invoice from status SENT" });
         renderPage(sentBack());
 
-        await userEvent.click(screen.getByRole("button", { name: "Send Client Invoice" }));
-        await userEvent.click(screen.getByRole("button", { name: "Confirm send" }));
+        await userEvent.click(screen.getByRole("button", { name: "Resend Client Invoice" }));
+        await userEvent.click(screen.getByRole("button", { name: "Confirm resend" }));
 
         expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't send. Try again.");
       });
@@ -965,7 +1058,7 @@ describe("AgentClientInvoicesView", () => {
     it("send-confirmation-says-only-the-manager-can-send-it-back", async () => {
       renderPage(sentBack());
 
-      await userEvent.click(screen.getByRole("button", { name: "Send Client Invoice" }));
+      await userEvent.click(screen.getByRole("button", { name: "Resend Client Invoice" }));
 
       expect(
         screen.getByText("Sends to the Manager and Client, and locks the numbers. Only the Manager can send it back to you."),
@@ -974,7 +1067,12 @@ describe("AgentClientInvoicesView", () => {
     });
 
     it("the current-month page shows the new confirmation copy too", async () => {
-      render(<AgentClientInvoicesView contracts={[CONTRACT]} invoicesByContract={{ "contract-1": invoice() }} />);
+      render(
+        <AgentClientInvoicesView
+          contracts={[CONTRACT]}
+          invoicesByContract={{ "contract-1": invoice({ sendableOnItsOwn: true }) }}
+        />,
+      );
 
       await userEvent.click(screen.getByRole("button", { name: "Send Client Invoice" }));
 
@@ -1020,10 +1118,10 @@ describe("AgentClientInvoicesView side list row status (side-list-row-status)", 
       />,
     );
     const nav = clientsNav();
-    expect(within(nav).getByRole("link", { name: "Aurora Retail Group Draft" })).toBeInTheDocument();
+    expect(within(nav).getByRole("link", { name: "Aurora Retail Group Draft Ready" })).toBeInTheDocument();
     expect(within(nav).getByRole("link", { name: "Birch Telecom Awaiting approval" })).toBeInTheDocument();
     expect(within(nav).getByRole("link", { name: "Zephyr Mobile Approved" })).toBeInTheDocument();
-    expect(within(nav).getByRole("link", { name: "Yarrow Labs Sent back" })).toBeInTheDocument();
+    expect(within(nav).getByRole("link", { name: "Yarrow Labs Sent back Ready" })).toBeInTheDocument();
   });
 
   it("a Contract whose invoice failed to load stays listed with no badge; selecting it explains, others still open", async () => {
@@ -1040,7 +1138,7 @@ describe("AgentClientInvoicesView side list row status (side-list-row-status)", 
     expect(screen.getByText("Couldn't load this Contract's Client Invoice")).toBeInTheDocument();
     expect(screen.getByText("Pick another Client or reload the page to try again.")).toBeInTheDocument();
 
-    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft" }));
+    await userEvent.click(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft Ready" }));
     expect(screen.getAllByText("$11.00").length).toBeGreaterThan(0);
   });
 });
@@ -1067,8 +1165,8 @@ describe("AgentClientInvoicesView side list Sent back mark (sent-back-in-the-sid
     );
     expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Awaiting approval Sent back" })).toBeInTheDocument();
     expect(within(clientsNav()).getAllByText("Sent back")).toHaveLength(1);
-    expect(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft" })).toBeInTheDocument();
-    expect(within(clientsNav()).getByRole("link", { name: "Zephyr Mobile Draft" })).toBeInTheDocument();
+    expect(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft Ready" })).toBeInTheDocument();
+    expect(within(clientsNav()).getByRole("link", { name: "Zephyr Mobile Draft Ready" })).toBeInTheDocument();
   });
 
   it("the mark carries the alert-triangle icon, not the status dot, so it differs from an Awaiting approval badge", () => {
@@ -1095,7 +1193,7 @@ describe("AgentClientInvoicesView side list Sent back mark (sent-back-in-the-sid
       />,
     );
     expect(within(clientsNav()).getAllByText("Sent back")).toHaveLength(1);
-    expect(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Sent back" })).toBeInTheDocument();
+    expect(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Sent back Ready" })).toBeInTheDocument();
   });
 
   it("with no sent-back list, a this-month sent-back draft still reads Sent back once and no row has a mark", () => {
@@ -1110,7 +1208,7 @@ describe("AgentClientInvoicesView side list Sent back mark (sent-back-in-the-sid
       />,
     );
     expect(within(clientsNav()).getAllByText("Sent back")).toHaveLength(1);
-    expect(rowNames()).toEqual(["Aurora Retail Group Sent back", "Birch Telecom Awaiting approval"]);
+    expect(rowNames()).toEqual(["Aurora Retail Group Sent back Ready", "Birch Telecom Awaiting approval"]);
   });
 
   it("a failed-load row with an invoice in the list shows the mark alone", () => {
@@ -1122,7 +1220,7 @@ describe("AgentClientInvoicesView side list Sent back mark (sent-back-in-the-sid
       />,
     );
     expect(within(clientsNav()).getByRole("link", { name: "Birch Telecom Sent back" })).toBeInTheDocument();
-    expect(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft" })).toBeInTheDocument();
+    expect(within(clientsNav()).getByRole("link", { name: "Aurora Retail Group Draft Ready" })).toBeInTheDocument();
   });
 
   it("the Sent back to you region precedes the invoice whichever row is selected", async () => {
@@ -1272,5 +1370,202 @@ describe("AgentClientInvoicesView invoice lines (invoice-lines-layout)", () => {
       expect(within(row).queryByRole("button")).not.toBeInTheDocument();
     }
     expect(screen.getAllByText(/Edited · computed/)).toHaveLength(2);
+  });
+});
+
+describe("AgentClientInvoicesView month bar (agent-sends-the-month)", () => {
+  const BIRCH = { id: "contract-2", clientName: "Birch Telecom", countryLabel: "Kenya", currency: "USD" };
+  const MISSING = [{ simCardId: "sim-1", carrierInvoiceFileId: null }] as unknown as ClientInvoiceDetail["basePostpaidSims"];
+
+  it("shows the unsent bar from the loaded invoices, disabled with its note while one is not ready", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, BIRCH]}
+        invoicesByContract={{
+          "contract-1": invoice(),
+          "contract-2": invoice({ id: "invoice-2", contractId: "contract-2", basePostpaidSims: MISSING }),
+        }}
+      />,
+    );
+    const bar = screen.getByRole("region", { name: "Month" });
+    expect(within(bar).getByText(/September 2026 ·/)).toBeInTheDocument();
+    expect(within(bar).getByText("1 of 2 ready")).toBeInTheDocument();
+    expect(within(bar).getByRole("button", { name: "Send all 2 to Manager" })).toBeDisabled();
+    expect(within(bar).getByText("1 invoice still needs its carrier invoices.")).toBeInTheDocument();
+  });
+
+  it("shows the sent bar when an invoice carries monthSentAt, even beside a sendable draft", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT]}
+        invoicesByContract={{
+          "contract-1": invoice({ monthSentAt: "2026-09-02T09:00:00Z", sendableOnItsOwn: true }),
+        }}
+      />,
+    );
+    const bar = screen.getByRole("region", { name: "Month" });
+    expect(within(bar).getByText(/Sent to Manager on Sep 2, 2026/)).toBeInTheDocument();
+    expect(within(bar).queryByRole("button")).not.toBeInTheDocument();
+  });
+
+  it("shows the incomplete bar when an invoice failed to load", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT, BIRCH]}
+        invoicesByContract={{ "contract-1": invoice(), "contract-2": null }}
+      />,
+    );
+    const bar = screen.getByRole("region", { name: "Month" });
+    expect(within(bar).getByText("Couldn't load every invoice.")).toBeInTheDocument();
+    expect(within(bar).getByRole("button")).toBeDisabled();
+    expect(within(bar).getByText("Reload the page to send the month.")).toBeInTheDocument();
+  });
+
+  it("shows no bar with no Contracts, only the empty state", () => {
+    render(<AgentClientInvoicesView contracts={[]} invoicesByContract={{}} />);
+    expect(screen.queryByRole("region", { name: "Month" })).not.toBeInTheDocument();
+    expect(screen.getByText("No contracts yet")).toBeInTheDocument();
+  });
+
+  it("puts the bar before Sent back to you and before the Contract switcher", () => {
+    render(
+      <AgentClientInvoicesView
+        contracts={[CONTRACT]}
+        invoicesByContract={{ "contract-1": invoice() }}
+        sentBack={[SENT_BACK_ROW]}
+      />,
+    );
+    const bar = screen.getByRole("region", { name: "Month" });
+    const sentBack = screen.getByRole("region", { name: "Sent back to you" });
+    expect(bar.compareDocumentPosition(sentBack) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const switcher = screen.getByText("Aurora Retail Group — Kenya");
+    expect(bar.compareDocumentPosition(switcher) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+});
+
+describe("the card's Send defers to the month bar (agent-sends-the-month)", () => {
+  const SIM_A = {
+    simCardId: "sim-1",
+    number: "+1-555-0100",
+    monthlyFeeAmount: 25,
+    cancellationEffectiveDate: null,
+    amount: 25,
+    computedAmount: 25,
+    edited: false,
+  };
+  const SIM_B = { ...SIM_A, simCardId: "sim-2", number: "+1-555-0200" };
+  const FILE_A = {
+    id: "file-1",
+    clientInvoiceId: "invoice-1",
+    simCardId: "sim-1",
+    filename: "carrier.pdf",
+    contentType: "application/pdf",
+    sizeBytes: 100,
+    uploadedAt: "2026-09-12T10:00:00Z",
+    deletedAt: null,
+  };
+  const SIM_A_COVERED = { ...SIM_A, carrierInvoiceFileId: "file-1" };
+  const renderList = (inv: ClientInvoiceDetail) =>
+    render(<AgentClientInvoicesView contracts={[CONTRACT]} invoicesByContract={{ "contract-1": inv }} />);
+
+  beforeEach(() => {
+    mockRouter.refresh.mockReset();
+  });
+
+  it("shows no Send on a never-sent card while the month is unsent, only the line pointing at the bar", () => {
+    renderList(invoice({ basePostpaidSims: [SIM_A_COVERED], files: [FILE_A] }));
+
+    const card = screen.getByTestId("client-invoice-card");
+    expect(within(card).queryByRole("button", { name: /Send/ })).not.toBeInTheDocument();
+    const line = within(card).getByText("Sent with the month, from the bar above.");
+    expect(line).toHaveClass("text-label-sm", "text-ink-mute");
+    expect(within(card).queryByText(/still needs? (its|their) carrier invoice/)).not.toBeInTheDocument();
+  });
+
+  it("keeps the missing-files note as its own line above the month line, and Attach offered", () => {
+    renderList(invoice({ basePostpaidSims: [SIM_A, SIM_B], files: [] }));
+
+    const note = screen.getByText("2 Postpaid SIMs still need their carrier invoice.");
+    const line = screen.getByText("Sent with the month, from the bar above.");
+    expect(note).not.toBe(line);
+    expect(note.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Attach carrier invoice/ })).toBeEnabled();
+    const card = screen.getByTestId("client-invoice-card");
+    expect(within(card).queryByRole("button", { name: /Send/ })).not.toBeInTheDocument();
+  });
+
+  it("keeps Remove on an attached file of a card that defers to the bar", () => {
+    renderList(invoice({ basePostpaidSims: [SIM_A_COVERED], files: [FILE_A] }));
+
+    expect(screen.getByRole("button", { name: /Remove/ })).toBeInTheDocument();
+  });
+
+  it("shows the same on the by-id page, which has no bar", () => {
+    render(
+      <AgentClientInvoicePageView
+        invoice={invoice({ billingMonth: "2026-10-01", basePostpaidSims: [SIM_A], files: [] })}
+        currentBillingMonth="2026-10-01"
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: /Send/ })).not.toBeInTheDocument();
+    expect(screen.getByText("1 Postpaid SIM still needs its carrier invoice.")).toBeInTheDocument();
+    expect(screen.getByText("Sent with the month, from the bar above.")).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: /Month/ })).not.toBeInTheDocument();
+  });
+
+  it("offers Resend Client Invoice on a sent-back card and sends it alone with Confirm resend", async () => {
+    const fetchMock = stubFetch(200, {});
+    renderList(
+      invoice({
+        monthSentAt: "2026-09-02T09:00:00Z",
+        sendableOnItsOwn: true,
+        sentAt: "2026-09-02T09:00:00Z",
+        sentBackAt: "2026-09-05T10:00:00Z",
+        sentBackReason: "Fix it.",
+      }),
+    );
+
+    expect(screen.queryByText("Sent with the month, from the bar above.")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Resend Client Invoice" }));
+    await userEvent.click(screen.getByRole("button", { name: "Confirm resend" }));
+
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith("/api/client-invoices/invoice-1/send", { method: "POST" }),
+    );
+  });
+
+  it("gates a sent-back card's Resend on its own missing files, with the count note", () => {
+    renderList(
+      invoice({
+        sendableOnItsOwn: true,
+        sentBackAt: "2026-09-05T10:00:00Z",
+        basePostpaidSims: [SIM_A],
+        files: [],
+      }),
+    );
+
+    expect(screen.getByRole("button", { name: "Resend Client Invoice" })).toBeDisabled();
+    expect(screen.getByText("1 Postpaid SIM still needs its carrier invoice.")).toBeInTheDocument();
+  });
+
+  it("offers Send Client Invoice on a late Contract's card, gated by its own carrier invoices", async () => {
+    renderList(
+      invoice({ monthSentAt: "2026-09-02T09:00:00Z", sendableOnItsOwn: true, basePostpaidSims: [SIM_A], files: [] }),
+    );
+    expect(screen.getByRole("button", { name: "Send Client Invoice" })).toBeDisabled();
+    cleanup();
+
+    renderList(
+      invoice({
+        monthSentAt: "2026-09-02T09:00:00Z",
+        sendableOnItsOwn: true,
+        basePostpaidSims: [SIM_A_COVERED],
+        files: [FILE_A],
+      }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Send Client Invoice" }));
+    expect(screen.getByRole("button", { name: "Confirm send" })).toBeInTheDocument();
+    expect(screen.queryByText("Sent with the month, from the bar above.")).not.toBeInTheDocument();
   });
 });

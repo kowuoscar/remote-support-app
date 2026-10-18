@@ -1,0 +1,147 @@
+### Page
+- Page URL: http://127.0.0.1:57662/agent/client-invoices
+- Page Title: Client Invoices · Remote Support Platform
+### Snapshot
+```yaml
+- generic [active] [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - complementary [ref=f3e3]:
+      - generic [ref=f3e4]:
+        - generic [ref=f3e5]: "N"
+        - generic [ref=f3e6]:
+          - paragraph [ref=f3e7]: Northwind Field Services
+          - paragraph [ref=f3e8]: Agent Console
+      - navigation [ref=f3e9]:
+        - link "Dashboard" [ref=f3e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f3e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f3e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f3e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f3e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f3e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f3e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f3e43]:
+      - banner [ref=f3e44]:
+        - generic [ref=f3e46]:
+          - heading "Client Invoices" [level=1] [ref=f3e47]
+          - paragraph [ref=f3e48]: One per Contract per month
+        - generic [ref=f3e49]:
+          - button "avery@acc.example · Agent" [ref=f3e51]:
+            - generic [ref=f3e52]: avery@acc.example
+            - generic [ref=f3e53]: · Agent
+          - button "Switch to dark theme" [ref=f3e54]
+      - main [ref=f3e58]:
+        - generic [ref=f3e59]:
+          - navigation [ref=f3e61]:
+            - heading "Clients" [level=2] [ref=f3e62]
+            - list [ref=f3e63]:
+              - listitem [ref=f3e64]:
+                - link "Acme A Draft Ready" [ref=f3e65] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=aac98a62-aa8c-4351-8c13-092e23b97f0c
+                  - generic "Acme A" [ref=f3e66]
+                  - generic [ref=f3e67]: Draft
+                  - generic [ref=f3e70]: Ready
+              - listitem [ref=f3e75]:
+                - link "Bolt B Draft Ready" [ref=f3e76] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=e1109cb9-3607-4229-90f5-3f81383cb955
+                  - generic "Bolt B" [ref=f3e77]
+                  - generic [ref=f3e78]: Draft
+                  - generic [ref=f3e81]: Ready
+              - listitem [ref=f3e86]:
+                - link "Cobalt C Draft Ready" [ref=f3e87] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=45d9fceb-95d5-4d08-b06a-0a3007e1c956
+                  - generic "Cobalt C" [ref=f3e88]
+                  - generic [ref=f3e89]: Draft
+                  - generic [ref=f3e92]: Ready
+              - listitem [ref=f3e97]:
+                - link "Delta D Draft Ready" [ref=f3e98] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=3cc02cc5-9b26-4dd9-a2b5-943311541de1
+                  - generic "Delta D" [ref=f3e99]
+                  - generic [ref=f3e100]: Draft
+                  - generic [ref=f3e103]: Ready
+          - generic [ref=f3e110]:
+            - region "Month" [ref=f3e111]:
+              - generic [ref=f3e112]:
+                - paragraph [ref=f3e114]:
+                  - text: October 2026 ·
+                  - generic [ref=f3e115]: 4 of 4 ready
+                - button "Send all 4 to Manager" [ref=f3e116]
+            - generic [ref=f3e119]:
+              - generic [ref=f3e120]:
+                - generic [ref=f3e121]:
+                  - generic [ref=f3e122]:
+                    - paragraph [ref=f3e123]: October 2026
+                    - generic [ref=f3e124]: Draft
+                  - paragraph [ref=f3e126]: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+                - generic [ref=f3e127]:
+                  - button "Attach carrier invoice" [disabled] [ref=f3e128]
+                  - paragraph [ref=f3e132]: Sent with the month, from the bar above.
+              - generic [ref=f3e133]:
+                - generic [ref=f3e134]:
+                  - term [ref=f3e135]: Base amount
+                  - definition [ref=f3e136]: $131.98
+                - generic [ref=f3e137]:
+                  - term [ref=f3e138]: Fees this month
+                  - definition [ref=f3e139]: $0.00
+                - generic [ref=f3e140]:
+                  - term [ref=f3e141]: Total
+                  - definition [ref=f3e142]: $131.98
+              - paragraph [ref=f3e143]: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+              - generic [ref=f3e144]:
+                - heading "Postpaid SIM Cards" [level=3] [ref=f3e145]
+                - table [ref=f3e147]:
+                  - rowgroup [ref=f3e148]:
+                    - row [ref=f3e149]:
+                      - columnheader "Number" [ref=f3e150]
+                      - columnheader "Billed" [ref=f3e151]
+                  - rowgroup [ref=f3e152]:
+                    - row [ref=f3e153]:
+                      - cell "+15550100001 AT&T · Postpaid Carrier invoice attached" [ref=f3e154]:
+                        - generic [ref=f3e155]:
+                          - text: "+15550100001"
+                          - generic [ref=f3e156]: AT&T · Postpaid
+                          - img "Carrier invoice attached" [ref=f3e157]
+                      - cell "$65.99 Edit" [ref=f3e161]:
+                        - generic [ref=f3e162]:
+                          - generic [ref=f3e163]:
+                            - generic [ref=f3e164]: $65.99
+                            - button "Edit" [ref=f3e166]
+                          - status [ref=f3e167]
+                    - row [ref=f3e168]:
+                      - cell "+15550100002 AT&T · Postpaid Carrier invoice attached" [ref=f3e169]:
+                        - generic [ref=f3e170]:
+                          - text: "+15550100002"
+                          - generic [ref=f3e171]: AT&T · Postpaid
+                          - img "Carrier invoice attached" [ref=f3e172]
+                      - cell "$65.99 Edit" [ref=f3e176]:
+                        - generic [ref=f3e177]:
+                          - generic [ref=f3e178]:
+                            - generic [ref=f3e179]: $65.99
+                            - button "Edit" [ref=f3e181]
+                          - status [ref=f3e182]
+              - generic [ref=f3e183]:
+                - heading "Fee lines" [level=3] [ref=f3e184]
+                - paragraph [ref=f3e185]: No Fees logged against this Contract yet this month.
+              - generic [ref=f3e186]:
+                - heading "Carrier invoice files" [level=3] [ref=f3e187]
+                - list [ref=f3e190]:
+                  - listitem [ref=f3e191]:
+                    - generic [ref=f3e192]: Acme A - October 2026 - AT&T - +15550100001.pdf
+                    - generic [ref=f3e196]:
+                      - link "Download" [ref=f3e197] [cursor=pointer]:
+                        - /url: /api/client-invoices/c5f93e12-9431-4c13-a518-aee4e2859bee/files/8e5f88a7-049f-4921-a188-c08af29bc7bf
+                      - button "Remove Acme A - October 2026 - AT&T - +15550100001.pdf" [ref=f3e202]: Remove
+                  - listitem [ref=f3e203]:
+                    - generic [ref=f3e204]: Acme A - October 2026 - AT&T - +15550100002.pdf
+                    - generic [ref=f3e208]:
+                      - link "Download" [ref=f3e209] [cursor=pointer]:
+                        - /url: /api/client-invoices/c5f93e12-9431-4c13-a518-aee4e2859bee/files/1103972c-90a5-4877-82e1-bc1d66be0fae
+                      - button "Remove Acme A - October 2026 - AT&T - +15550100002.pdf" [ref=f3e214]: Remove
+  - alert [ref=f3e215]
+```

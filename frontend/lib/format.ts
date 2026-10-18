@@ -120,3 +120,11 @@ export function formatWaitingTime(sinceIso: string, nowIso: string): string {
   if (days <= 0) return "Today";
   return days === 1 ? "1 day" : `${days} days`;
 }
+
+/**
+ * Count copy in the singular or the plural: `one` for exactly 1, else `many` with `{n}` replaced by
+ * the count (`forCount(2, "1 file missing", "{n} files missing")` is "2 files missing").
+ */
+export function forCount(count: number, one: string, many: string): string {
+  return count === 1 ? one : many.replace("{n}", String(count));
+}

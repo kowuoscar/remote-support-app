@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +14,18 @@ final class ClientInvoiceErrors {
 
   private ClientInvoiceErrors() {}
 
-  /** The coded {@code 409}: {@code {code, message}}. */
-  static ResponseEntity<Map<String, String>> conflict(ClientInvoiceConflictException e) {
-    return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body(Map.of("code", e.reason().name(), "message", e.getMessage()));
+  /**
+   * The coded {@code 409}: {@code {code, message}}, plus {@code invoiceIds} when the refusal names
+   * invoices (the month send's {@code CARRIER_INVOICES_MISSING}); every other body stays two keys.
+   */
+  static ResponseEntity<Map<String, Object>> conflict(ClientInvoiceConflictException e) {
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("code", e.reason().name());
+    body.put("message", e.getMessage());
+    if (!e.invoiceIds().isEmpty()) {
+      body.put("invoiceIds", e.invoiceIds());
+    }
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
   }
 
   /** The {@code 410} of a deleted Carrier Invoice File: {@code {code, message}}. */

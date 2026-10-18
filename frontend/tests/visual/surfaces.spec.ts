@@ -50,13 +50,13 @@ const surfaces: Surface[] = [
   // backed by tests/visual/stub-backend.mjs's fixture units — both non-empty, so both tables
   // (Smartphones, SIM Cards) and the Manager's own Agent column are covered.
   { slug: "agent-stock", path: "/agent/stock", session: "visual-agent-session", ready: "stock" },
-  // side-list-row-status ticket: the Agent's Client Invoices page, four Contracts (two sharing a Client
-  // name) showing Draft, Awaiting approval, Approved and Sent back. Its own session token, because the
-  // Agent dashboard's goldens read the stub's two-Contract list.
+  // The Agent's Client Invoices page with an unsent month (agent-sends-the-month): two Contracts, two
+  // drafts, the month bar "1 of 2 ready" disabled with its note. Its own session token, because the
+  // Agent dashboard's goldens read the stub's two-Contract list; the four-state session is a sent month.
   {
     slug: "agent-client-invoices",
     path: "/agent/client-invoices",
-    session: "visual-agent-invoices-session",
+    session: "visual-agent-invoices-unsent-session",
     ready: "invoices",
   },
   { slug: "manager-stock", path: "/manager/stock", session: "visual-manager-session", ready: "stock" },
@@ -303,7 +303,7 @@ test.describe("the Agent Client Invoices page when one invoice fails to load", (
     await expect(page.getByText("Couldn't load this Contract's Client Invoice")).toBeVisible();
     await expect(page.getByText("Pick another Client or reload the page to try again.")).toBeVisible();
 
-    await clients.getByRole("link", { name: "Aurora Retail Group Draft", exact: true }).click();
+    await clients.getByRole("link", { name: "Aurora Retail Group Draft 2 files missing", exact: true }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Draft")).toBeVisible();
   });
 });

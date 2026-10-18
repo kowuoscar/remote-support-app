@@ -100,6 +100,10 @@ public class SecurityConfig {
                     // `.anyRequest().authenticated()` fall-through that /api/me/** otherwise hits.
                     .requestMatchers(HttpMethod.PUT, "/api/me/name")
                     .hasRole("MANAGER")
+                    // agent-sends-the-month spec: the Agent's own month send; same reason, it must
+                    // precede the `.anyRequest().authenticated()` fall-through /api/me/** hits.
+                    .requestMatchers(HttpMethod.POST, "/api/me/client-invoice-months/*/send")
+                    .hasRole("AGENT")
                     .requestMatchers(HttpMethod.POST, "/api/contracts/*/smartphones", "/api/contracts/*/sim-cards")
                     .hasRole("MANAGER")
                     .requestMatchers("/api/contracts/*/smartphones/**", "/api/contracts/*/sim-cards/**")

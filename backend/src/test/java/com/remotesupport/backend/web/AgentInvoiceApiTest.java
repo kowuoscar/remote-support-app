@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -176,16 +177,6 @@ class AgentInvoiceApiTest extends IntegrationTest {
     String managerToken = managerToken();
     String agentToken = agentToken();
 
-    // Contract 1: Client Invoice left in draft.
-    UUID client1 = createClient(managerToken, "Aurora Retail Group");
-    UUID contract1 = createContract(managerToken, client1, SEEDED_AGENT_ID);
-    addSimCard(managerToken, contract1, "+1-555-0100", "POSTPAID", "25.00");
-    String tester1 = createTesterAndLogin(managerToken, client1, "priya.raman@aurora.example");
-    UUID topup1 = submitRequest(tester1, contract1, "TOPUP");
-    logFee(agentToken, contract1, topup1, "TOPUP", "10.00");
-    mockMvc.perform(get("/api/contracts/" + contract1 + "/client-invoice").header("Authorization", "Bearer " + agentToken));
-    // Contract 1's Client Invoice stays DRAFT — total so far: 25 + 10 = 35.
-
     // Contract 2: Client Invoice sent (but not approved).
     UUID client2 = createClient(managerToken, "Meridian Logistics");
     UUID contract2 = createContract(managerToken, client2, SEEDED_AGENT_ID);
@@ -196,10 +187,7 @@ class AgentInvoiceApiTest extends IntegrationTest {
     mockMvc.perform(get("/api/contracts/" + contract2 + "/client-invoice").header("Authorization", "Bearer " + agentToken));
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contract2, agentToken);
-    mockMvc
-        .perform(post("/api/contracts/" + contract2 + "/client-invoice/send").header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().isOk());
-    // Contract 2's Client Invoice is SENT — total: 40 + 60 = 100.
+    // Contract 2's Client Invoice is SENT (with the month, below) — total: 40 + 60 = 100.
 
     // Contract 3: Client Invoice sent AND approved.
     UUID client3 = createClient(managerToken, "Solene Cosmetics");
@@ -208,18 +196,28 @@ class AgentInvoiceApiTest extends IntegrationTest {
     mockMvc.perform(get("/api/contracts/" + contract3 + "/client-invoice").header("Authorization", "Bearer " + agentToken));
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contract3, agentToken);
-    MvcResult sent3 =
+    sendTheMonth(mockMvc, agentToken);
+    MvcResult read3 =
         mockMvc
-            .perform(
-                post("/api/contracts/" + contract3 + "/client-invoice/send")
-                    .header("Authorization", "Bearer " + agentToken))
+            .perform(get("/api/contracts/" + contract3 + "/client-invoice").header("Authorization", "Bearer " + agentToken))
             .andExpect(status().isOk())
             .andReturn();
-    UUID invoice3 = UUID.fromString(objectMapper.readTree(sent3.getResponse().getContentAsString()).get("id").asText());
+    UUID invoice3 = UUID.fromString(objectMapper.readTree(read3.getResponse().getContentAsString()).get("id").asText());
     mockMvc
         .perform(post("/api/client-invoices/" + invoice3 + "/approve").header("Authorization", "Bearer " + managerToken))
         .andExpect(status().isOk());
     // Contract 3's Client Invoice is APPROVED — total: 15 + 0 = 15.
+
+    // Contract 1: added after the month was sent, so its Client Invoice stays a DRAFT.
+    UUID client1 = createClient(managerToken, "Aurora Retail Group");
+    UUID contract1 = createContract(managerToken, client1, SEEDED_AGENT_ID);
+    addSimCard(managerToken, contract1, "+1-555-0100", "POSTPAID", "25.00");
+    String tester1 = createTesterAndLogin(managerToken, client1, "priya.raman@aurora.example");
+    UUID topup1 = submitRequest(tester1, contract1, "TOPUP");
+    logFee(agentToken, contract1, topup1, "TOPUP", "10.00");
+    mockMvc.perform(get("/api/contracts/" + contract1 + "/client-invoice").header("Authorization", "Bearer " + agentToken));
+    // Contract 1's Client Invoice stays DRAFT — total so far: 25 + 10 = 35.
+
 
     // A Fee logged against Contract 2 *after* it was already sent must still count here (it's
     // real money the Agent fronted), even though it never made it into that Client Invoice's

@@ -1,0 +1,6 @@
+### Result
+"BUTTON | Send all 4 to Manager"
+### Ran Playwright code
+```js
+await page.evaluate('() => { const a=document.activeElement; return a.tagName+\' | \'+(a.textContent||\'\').trim() }');
+```

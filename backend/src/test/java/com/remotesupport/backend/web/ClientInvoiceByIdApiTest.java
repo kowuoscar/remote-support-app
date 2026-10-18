@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -74,17 +75,24 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
     return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
   }
 
+  /**
+   * The first send goes through the month send (it sends every Contract the seeded Agent holds);
+   * returns the Contract's invoice id.
+   */
   private UUID send(String agentToken, UUID contractId) throws Exception {
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
-    MvcResult result =
-        mockMvc
-            .perform(
-                post("/api/contracts/" + contractId + "/client-invoice/send")
-                    .header("Authorization", "Bearer " + agentToken))
-            .andExpect(status().isOk())
-            .andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    sendTheMonth(mockMvc, agentToken);
+    return openDraft(agentToken, contractId);
+  }
+
+  /**
+   * Sends the seeded Agent's month first, with a Contract that bills nothing, so the Contract a
+   * test creates next is a late one: its per-invoice send is allowed and reaches the carrier gate.
+   */
+  private void theAgentsMonthIsSent(String managerToken, String agentToken) throws Exception {
+    newContract(managerToken, "Month Anchor " + UUID.randomUUID());
+    sendTheMonth(mockMvc, agentToken);
   }
 
   // reboot-and-topup-details ticket: a Topup Request now requires its own target SIM Card.
@@ -857,6 +865,7 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
   void sendByIdWithAMissingLineIsACoded409NamingTheCountAndNumberAndWritesNothing() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
+    theAgentsMonthIsSent(managerToken, agentToken);
     UUID contractId = newContract(managerToken, "Gate Missing Co");
     UUID covered = addUniquePostpaidSim(managerToken, contractId);
     UUID bare = addUniquePostpaidSim(managerToken, contractId);
@@ -879,6 +888,7 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
   void sendByIdWithEveryLineCoveredIs200() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
+    theAgentsMonthIsSent(managerToken, agentToken);
     UUID contractId = newContract(managerToken, "Gate Covered Co");
     addUniquePostpaidSim(managerToken, contractId);
     addUniquePostpaidSim(managerToken, contractId);
@@ -891,6 +901,7 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
   @Test
   void sendByIdWithNoPostpaidSimIs200() throws Exception {
     String agentToken = agentToken();
+    theAgentsMonthIsSent(managerToken(), agentToken);
     UUID contractId = newContract(managerToken(), "Gate No Postpaid Co");
     UUID invoiceId = openDraft(agentToken, contractId);
 
@@ -912,6 +923,7 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
     invoice.setCurrency(contract.getCurrency());
     invoice.setCreatedAt(Instant.now());
     invoice.setSentAt(Instant.now());
+    invoice.setFirstSentAt(Instant.now());
     invoice.setSnapshotBaseAmount(new BigDecimal("42.00"));
     invoice.setLinesStored(true);
     clientInvoiceRepository.saveAndFlush(invoice);
@@ -933,6 +945,7 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
   void aResendAfterASendBackIsGatedOnTheStoredLines() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
+    theAgentsMonthIsSent(managerToken, agentToken);
     UUID contractId = newContract(managerToken, "Gate Resend Co");
     addUniquePostpaidSim(managerToken, contractId);
     UUID invoiceId = openDraft(agentToken, contractId);
@@ -954,6 +967,7 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
   void aFileWhoseSimStoppedBillingNeitherCountsNorBlocksTheSend() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
+    theAgentsMonthIsSent(managerToken, agentToken);
     UUID clientId = createClient(managerToken, "Gate Orphan Co");
     UUID contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     String testerToken = createTesterAndLogin(managerToken, clientId, "gate.orphan@example.com");
@@ -973,6 +987,7 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
   void sendByIdSucceedsWhileFileStorageIsUnavailableWhenEveryLineHasItsFile() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
+    theAgentsMonthIsSent(managerToken, agentToken);
     UUID contractId = newContract(managerToken, "Gate Outage Co");
     addUniquePostpaidSim(managerToken, contractId);
     UUID invoiceId = openDraft(agentToken, contractId);
@@ -990,6 +1005,7 @@ class ClientInvoiceByIdApiTest extends IntegrationTest {
   void sendByIdWhileFileStorageIsUnavailableIsStillRefusedWhenAFileIsMissing() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
+    theAgentsMonthIsSent(managerToken, agentToken);
     UUID contractId = newContract(managerToken, "Gate Outage Missing Co");
     addUniquePostpaidSim(managerToken, contractId);
     UUID invoiceId = openDraft(agentToken, contractId);

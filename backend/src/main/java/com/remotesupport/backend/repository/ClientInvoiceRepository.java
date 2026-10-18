@@ -2,6 +2,7 @@ package com.remotesupport.backend.repository;
 
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.domain.ClientInvoiceStatus;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
@@ -93,4 +94,29 @@ public interface ClientInvoiceRepository extends JpaRepository<ClientInvoice, UU
       """)
   List<ClientInvoiceSentBackRow> findSentBackRows(
       @Param("tenantId") UUID tenantId, @Param("agentId") UUID agentId);
+
+  /**
+   * The Agent's month, as a JPQL predicate over alias {@code ci} (params {@code agentId},
+   * {@code billingMonth}): one definition for the month send's locked read and its sent date.
+   */
+  String AGENTS_MONTH =
+      "ci.billingMonth = :billingMonth"
+          + " and ci.contract.id in (select c.id from Contract c where c.agent.id = :agentId)";
+
+  /**
+   * Every Client Invoice of an Agent's Contracts for one billing month, re-read under a row lock
+   * and ordered by id, so every month send locks in one order: the locked rows are the month
+   * send's batch. The Agent's Contracts are a subquery, so no Contract row is locked.
+   */
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select ci from ClientInvoice ci where " + AGENTS_MONTH + " order by ci.id")
+  List<ClientInvoice> findMonthForUpdate(
+      @Param("agentId") UUID agentId, @Param("billingMonth") LocalDate billingMonth);
+
+  /**
+   * When an Agent's month was first sent: the earliest {@code firstSentAt} over the month's
+   * invoices, or {@code null} while none has been sent.
+   */
+  @Query("select min(ci.firstSentAt) from ClientInvoice ci where " + AGENTS_MONTH)
+  Instant monthSentAt(@Param("agentId") UUID agentId, @Param("billingMonth") LocalDate billingMonth);
 }

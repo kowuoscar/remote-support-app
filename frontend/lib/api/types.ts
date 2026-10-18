@@ -573,6 +573,10 @@ export interface ClientInvoiceDetail {
   /** The most recent send-back's time and Manager's reason; null (or absent) if never sent back. Never sent to a Tester. */
   sentBackAt?: string | null;
   sentBackReason?: string | null;
+  /** When the Agent's month was first sent (kept through a send-back and resend); null while unsent. Mirrors ClientInvoiceResponse.monthSentAt. */
+  monthSentAt: string | null;
+  /** True when this invoice may be sent on its own: sent back, or its month already sent. Served, not derived. */
+  sendableOnItsOwn: boolean;
 }
 
 /** One row of GET /api/client-invoices/sent-back (Agent only): an invoice the Manager sent back, no amounts. */

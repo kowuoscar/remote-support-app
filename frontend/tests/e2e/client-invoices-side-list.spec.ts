@@ -43,15 +43,15 @@ test.describe("client invoices side list", () => {
     await expect(page.locator('[aria-haspopup="listbox"]')).toBeHidden();
 
     // Both rows, in alphabetical order; the first row in the column is the selected one.
-    const names = (await clients.getByRole("link").allTextContents()).map((text) => text.replace(/\s*Draft$/, ""));
+    const names = (await clients.getByRole("link").allTextContents()).map((text) => text.replace(/\s*Draft(?: Ready| \d+ files? missing)$/, ""));
     expect(names.indexOf(ALPHA)).toBeGreaterThanOrEqual(0);
     expect(names.indexOf(ALPHA)).toBeLessThan(names.indexOf(ZULU));
     await expect(clients.getByRole("link").first()).toHaveAttribute("aria-current", "true");
     await expect.poll(async () => (await clients.boundingBox())?.width).toBe(256);
 
     // A click swaps the invoice in place: no document, no backend request.
-    const alpha = clients.getByRole("link", { name: `${ALPHA} Draft`, exact: true });
-    const zulu = clients.getByRole("link", { name: `${ZULU} Draft`, exact: true });
+    const alpha = clients.getByRole("link", { name: `${ALPHA} Draft 1 file missing`, exact: true });
+    const zulu = clients.getByRole("link", { name: `${ZULU} Draft Ready`, exact: true });
     await alpha.click();
     await expect(alpha).toHaveAttribute("aria-current", "true");
     await expect(page.getByRole("cell", { name: SIM_NUMBER })).toBeVisible();
@@ -139,7 +139,7 @@ test.describe("client invoices side list", () => {
     await page.setViewportSize({ width: 1440, height: 500 });
     await page.goto("/agent/client-invoices");
     const clients = page.getByRole("navigation", { name: "Clients" });
-    const row = (name: string) => clients.getByRole("link", { name: `${name} Draft`, exact: true });
+    const row = (name: string) => clients.getByRole("link", { name: `${name} Draft Ready`, exact: true });
 
     // A pick writes ?contract=<id> with no request and no history entry; a reload reopens it.
     const requests: string[] = [];
@@ -226,13 +226,13 @@ test.describe("client invoices side list", () => {
     await page.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Client Invoices" }).click();
     await expect(page).toHaveURL(new RegExp(`/agent/client-invoices\\?contract=${contractId}$`));
     await expect(
-      page.getByRole("navigation", { name: "Clients" }).getByRole("link", { name: `${name} Sent back`, exact: true }),
+      page.getByRole("navigation", { name: "Clients" }).getByRole("link", { name: `${name} Sent back Ready`, exact: true }),
     ).toHaveAttribute("aria-current", "true");
 
     // Leave nothing behind: a sent-back invoice would show in later specs' "Sent back to you".
     await attachCarrierInvoicesForEveryPostpaidSim(page);
-    await page.getByRole("button", { name: "Send Client Invoice" }).click();
-    await page.getByRole("button", { name: "Confirm send" }).click();
+    await page.getByRole("button", { name: "Resend Client Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm resend" }).click();
     await expect(page.getByTestId("client-invoice-card").getByText("Awaiting approval")).toBeVisible();
     await logout(page);
     await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
@@ -272,15 +272,18 @@ test.describe("client invoices side list row layout", () => {
       expect(badgeBox!.x + badgeBox!.width).toBeLessThanOrEqual(rowBox!.x + rowBox!.width - 8);
     }
 
-    const longRow = clients.getByRole("link", { name: `${longName} Draft`, exact: true });
+    const longRow = clients.getByRole("link", { name: `${longName} Draft Ready`, exact: true });
     const longNameEl = longRow.locator("span[title]");
     await expect(longNameEl).toHaveAttribute("title", longName);
     expect(await longNameEl.evaluate((el) => el.scrollWidth > el.clientWidth)).toBe(true);
     const longBox = await longRow.boundingBox();
     const nameBox = await longNameEl.boundingBox();
     const badgeBox = await longRow.getByText("Draft", { exact: true }).boundingBox();
-    // One line high: the badge's line plus the row's vertical padding (py-2), no more.
-    expect(longBox!.height).toBeLessThanOrEqual(badgeBox!.height + 16 + 1);
+    // Two lines high: the badge's line, the readiness line (gap-y-1) and the row's vertical padding
+    // (py-2), no more; the long name stays on its one truncated line beside its badge.
+    const readyBox = await longRow.getByText("Ready", { exact: true }).boundingBox();
+    expect(readyBox!.y).toBeGreaterThanOrEqual(nameBox!.y + nameBox!.height);
+    expect(longBox!.height).toBeLessThanOrEqual(badgeBox!.height + 4 + readyBox!.height + 16 + 1);
     expect(nameBox!.height).toBeLessThanOrEqual(badgeBox!.height);
     expect(badgeBox!.x + badgeBox!.width).toBeLessThanOrEqual(longBox!.x + longBox!.width - 8);
     expect(badgeBox!.x).toBeGreaterThanOrEqual(longBox!.x);
@@ -301,7 +304,7 @@ test.describe("client invoices side list row status", () => {
     const clients = page.getByRole("navigation", { name: "Clients" });
     for (const name of [first, second]) {
       // The link's accessible name is the Client name followed by the status label.
-      const row = clients.getByRole("link", { name: `${name} Draft`, exact: true });
+      const row = clients.getByRole("link", { name: `${name} Draft Ready`, exact: true });
       await expect(row).toBeVisible();
       await expect(row.getByText("Draft", { exact: true })).toBeVisible();
     }
@@ -339,7 +342,7 @@ test.describe("client invoices side list sent back", () => {
     await login(page, SEEDED_USERS.agent.username, SEEDED_USERS.agent.password);
     await page.goto(`/agent/client-invoices?contract=${contractId}`);
     // The row reads "Sent back" once (its own badge, no second mark); no other row carries it.
-    const row = clients.getByRole("link", { name: `${sentBackName} Sent back`, exact: true });
+    const row = clients.getByRole("link", { name: `${sentBackName} Sent back Ready`, exact: true });
     await expect(row).toBeVisible();
     await expect(row.getByText("Sent back")).toHaveCount(1);
     await expect(clients.getByText("Sent back")).toHaveCount(1);
@@ -358,8 +361,8 @@ test.describe("client invoices side list sent back", () => {
     // row and the region is gone, with the same Client still selected.
     await row.click();
     await attachCarrierInvoicesForEveryPostpaidSim(page);
-    await page.getByRole("button", { name: "Send Client Invoice" }).click();
-    await page.getByRole("button", { name: "Confirm send" }).click();
+    await page.getByRole("button", { name: "Resend Client Invoice" }).click();
+    await page.getByRole("button", { name: "Confirm resend" }).click();
     const resent = clients.getByRole("link", { name: `${sentBackName} Awaiting approval`, exact: true });
     await expect(resent).toBeVisible();
     await expect(resent).toHaveAttribute("aria-current", "true");

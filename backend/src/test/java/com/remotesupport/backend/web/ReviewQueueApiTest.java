@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,6 +18,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,17 +38,34 @@ class ReviewQueueApiTest extends IntegrationTest {
   @Autowired private AgentInvoiceRepository agentInvoiceRepository;
   @Autowired private OtherTenantFixture otherTenantFixture;
 
+  /**
+   * Sends the seeded Agent's month, which sends every Contract he holds together (a first send goes
+   * through the month send), after covering each given Contract's Postpaid lines; returns each
+   * Contract's invoice id, in order. The month can be sent once, so a test with several invoices
+   * creates all their Contracts first and sends them in one call.
+   */
+  private List<UUID> sendClientInvoices(String agentToken, UUID... contractIds) throws Exception {
+    List<UUID> invoiceIds = new ArrayList<>();
+    for (UUID contractId : contractIds) {
+      CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+          mockMvc, objectMapper, contractId, agentToken);
+      MvcResult draft =
+          mockMvc
+              .perform(get("/api/contracts/" + contractId + "/client-invoice").header("Authorization", "Bearer " + agentToken))
+              .andExpect(status().isOk())
+              .andReturn();
+      invoiceIds.add(UUID.fromString(objectMapper.readTree(draft.getResponse().getContentAsString()).get("id").asText()));
+    }
+    sendTheMonth(mockMvc, agentToken);
+    return invoiceIds;
+  }
+
   private UUID sendClientInvoice(String agentToken, UUID contractId) throws Exception {
-    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
-        mockMvc, objectMapper, contractId, agentToken);
-    MvcResult result =
-        mockMvc
-            .perform(
-                post("/api/contracts/" + contractId + "/client-invoice/send")
-                    .header("Authorization", "Bearer " + agentToken))
-            .andExpect(status().isOk())
-            .andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    return sendClientInvoices(agentToken, contractId).get(0);
+  }
+
+  private UUID newContract(String managerToken, String clientName) throws Exception {
+    return createContract(managerToken, createClient(managerToken, clientName), SEEDED_AGENT_ID);
   }
 
   // reboot-and-topup-details ticket: a Topup Request now requires its own target SIM Card.
@@ -123,16 +143,16 @@ class ReviewQueueApiTest extends IntegrationTest {
     String managerToken = managerToken();
     String agentToken = agentToken();
 
-    UUID sentContract = createContract(managerToken, createClient(managerToken, "Aurora Retail Group"), SEEDED_AGENT_ID);
-    UUID sentInvoiceId = sendClientInvoice(agentToken, sentContract);
+    UUID sentContract = newContract(managerToken, "Aurora Retail Group");
+    UUID approvedContract = newContract(managerToken, "Bright Path Clinics");
+    List<UUID> sentInvoices = sendClientInvoices(agentToken, sentContract, approvedContract);
+    UUID sentInvoiceId = sentInvoices.get(0);
+    UUID approvedInvoiceId = sentInvoices.get(1);
 
-    UUID draftContract = createContract(managerToken, createClient(managerToken, "Meridian Logistics"), SEEDED_AGENT_ID);
+    // Added after the month was sent: its invoice stays a draft.
+    UUID draftContract = newContract(managerToken, "Meridian Logistics");
     mockMvc.perform(
         get("/api/contracts/" + draftContract + "/client-invoice").header("Authorization", "Bearer " + agentToken));
-
-    UUID approvedContract =
-        createContract(managerToken, createClient(managerToken, "Bright Path Clinics"), SEEDED_AGENT_ID);
-    UUID approvedInvoiceId = sendClientInvoice(agentToken, approvedContract);
     mockMvc
         .perform(
             post("/api/client-invoices/" + approvedInvoiceId + "/approve")
@@ -239,14 +259,17 @@ class ReviewQueueApiTest extends IntegrationTest {
     String agentToken = agentToken();
     Instant now = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 
-    UUID sentTwoDaysAgo =
-        sendClientInvoice(agentToken, createContract(managerToken, createClient(managerToken, "A Co"), SEEDED_AGENT_ID));
-    UUID sentFiveDaysAgo =
-        sendClientInvoice(agentToken, createContract(managerToken, createClient(managerToken, "B Co"), SEEDED_AGENT_ID));
-    UUID tieOne =
-        sendClientInvoice(agentToken, createContract(managerToken, createClient(managerToken, "C Co"), SEEDED_AGENT_ID));
-    UUID tieTwo =
-        sendClientInvoice(agentToken, createContract(managerToken, createClient(managerToken, "D Co"), SEEDED_AGENT_ID));
+    List<UUID> sent =
+        sendClientInvoices(
+            agentToken,
+            newContract(managerToken, "A Co"),
+            newContract(managerToken, "B Co"),
+            newContract(managerToken, "C Co"),
+            newContract(managerToken, "D Co"));
+    UUID sentTwoDaysAgo = sent.get(0);
+    UUID sentFiveDaysAgo = sent.get(1);
+    UUID tieOne = sent.get(2);
+    UUID tieTwo = sent.get(3);
     backdate(sentTwoDaysAgo, now.minus(2, ChronoUnit.DAYS), 0);
     backdate(sentFiveDaysAgo, now.minus(5, ChronoUnit.DAYS), 0);
     backdate(tieOne, now.minus(1, ChronoUnit.DAYS), 0);
@@ -280,12 +303,15 @@ class ReviewQueueApiTest extends IntegrationTest {
     UUID sentAgentInvoice = sendAgentInvoice(agentToken);
     backdateAgentInvoice(sentAgentInvoice, now.minus(4, ChronoUnit.DAYS), null, 0);
 
-    UUID clientSentFiveDaysAgo =
-        sendClientInvoice(agentToken, createContract(managerToken, createClient(managerToken, "A Co"), SEEDED_AGENT_ID));
-    UUID clientSentThreeDaysAgo =
-        sendClientInvoice(agentToken, createContract(managerToken, createClient(managerToken, "B Co"), SEEDED_AGENT_ID));
-    UUID clientSentOneDayAgo =
-        sendClientInvoice(agentToken, createContract(managerToken, createClient(managerToken, "C Co"), SEEDED_AGENT_ID));
+    List<UUID> clientSent =
+        sendClientInvoices(
+            agentToken,
+            newContract(managerToken, "A Co"),
+            newContract(managerToken, "B Co"),
+            newContract(managerToken, "C Co"));
+    UUID clientSentFiveDaysAgo = clientSent.get(0);
+    UUID clientSentThreeDaysAgo = clientSent.get(1);
+    UUID clientSentOneDayAgo = clientSent.get(2);
     backdate(clientSentFiveDaysAgo, now.minus(5, ChronoUnit.DAYS), 0);
     backdate(clientSentThreeDaysAgo, now.minus(3, ChronoUnit.DAYS), 0);
     backdate(clientSentOneDayAgo, now.minus(1, ChronoUnit.DAYS), 0);

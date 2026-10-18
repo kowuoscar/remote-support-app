@@ -1,0 +1,97 @@
+### Page
+- Page URL: http://127.0.0.1:57662/agent/client-invoices?contract=45d9fceb-95d5-4d08-b06a-0a3007e1c956
+- Page Title: Client Invoices · Remote Support Platform
+### Snapshot
+```yaml
+- generic [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - generic [ref=f1e4]:
+        - generic [ref=f1e5]: "N"
+        - generic [ref=f1e6]:
+          - paragraph [ref=f1e7]: Northwind Field Services
+          - paragraph [ref=f1e8]: Agent Console
+      - navigation [ref=f1e9]:
+        - link "Dashboard" [ref=f1e10] [cursor=pointer]:
+          - /url: /agent
+        - link "Requests" [ref=f1e16] [cursor=pointer]:
+          - /url: /agent/requests
+        - link "Fleet" [ref=f1e20] [cursor=pointer]:
+          - /url: /agent/fleet
+        - link "Stock" [ref=f1e23] [cursor=pointer]:
+          - /url: /agent/stock
+        - link "Carriers" [ref=f1e27] [cursor=pointer]:
+          - /url: /agent/carriers
+        - link "Client Invoices" [ref=f1e33] [cursor=pointer]:
+          - /url: /agent/client-invoices
+        - link "My Invoice" [ref=f1e38] [cursor=pointer]:
+          - /url: /agent/my-invoice
+    - generic [ref=f1e43]:
+      - banner [ref=f1e44]:
+        - generic [ref=f1e46]:
+          - heading "Client Invoices" [level=1] [ref=f1e47]
+          - paragraph [ref=f1e48]: One per Contract per month
+        - generic [ref=f1e49]:
+          - button "avery@acc.example · Agent" [ref=f1e51]:
+            - generic [ref=f1e52]: avery@acc.example
+            - generic [ref=f1e53]: · Agent
+          - button "Switch to dark theme" [ref=f1e54]
+      - main [ref=f1e58]:
+        - generic [ref=f1e59]:
+          - navigation [ref=f1e61]:
+            - heading "Clients" [level=2] [ref=f1e62]
+            - list [ref=f1e63]:
+              - listitem [ref=f1e64]:
+                - link "Acme A Draft 2 files missing" [ref=f1e65] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=aac98a62-aa8c-4351-8c13-092e23b97f0c
+                  - generic "Acme A" [ref=f1e66]
+                  - generic [ref=f1e67]: Draft
+                  - generic [ref=f1e70]: 2 files missing
+              - listitem [ref=f1e72]:
+                - link "Bolt B Draft 1 file missing" [ref=f1e73] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=e1109cb9-3607-4229-90f5-3f81383cb955
+                  - generic "Bolt B" [ref=f1e74]
+                  - generic [ref=f1e75]: Draft
+                  - generic [ref=f1e78]: 1 file missing
+              - listitem [ref=f1e80]:
+                - link "Cobalt C Draft Ready" [active] [ref=f1e81] [cursor=pointer]:
+                  - /url: /agent/client-invoices?contract=45d9fceb-95d5-4d08-b06a-0a3007e1c956
+                  - generic "Cobalt C" [ref=f1e82]
+                  - generic [ref=f1e83]: Draft
+                  - generic [ref=f1e86]: Ready
+          - generic [ref=f1e93]:
+            - region "Month" [ref=f1e94]:
+              - generic [ref=f1e95]:
+                - generic [ref=f1e96]:
+                  - paragraph [ref=f1e97]:
+                    - text: October 2026 ·
+                    - generic [ref=f1e98]: 1 of 3 ready
+                  - paragraph [ref=f1e99]: 2 invoices still need their carrier invoices.
+                - button "Send all 3 to Manager" [disabled] [ref=f1e100]
+            - generic [ref=f1e103]:
+              - generic [ref=f1e104]:
+                - generic [ref=f1e105]:
+                  - generic [ref=f1e106]:
+                    - paragraph [ref=f1e107]: October 2026
+                    - generic [ref=f1e108]: Draft
+                  - paragraph [ref=f1e110]: This Contract’s postpaid base amount plus this month’s Fees — still being assembled
+                - paragraph [ref=f1e117]: Sent with the month, from the bar above.
+              - generic [ref=f1e118]:
+                - generic [ref=f1e119]:
+                  - term [ref=f1e120]: Base amount
+                  - definition [ref=f1e121]: $0.00
+                - generic [ref=f1e122]:
+                  - term [ref=f1e123]: Fees this month
+                  - definition [ref=f1e124]: $0.00
+                - generic [ref=f1e125]:
+                  - term [ref=f1e126]: Total
+                  - definition [ref=f1e127]: $0.00
+              - paragraph [ref=f1e128]: You can adjust any line to what was actually billed. Your Agent Invoice for this month follows these amounts, unless it is already approved.
+              - generic [ref=f1e160]:
+                - heading "Fee lines" [level=3] [ref=f1e161]
+                - paragraph [ref=f1e162]: No Fees logged against this Contract yet this month.
+              - generic [ref=f1e163]:
+                - heading "Carrier invoice files" [level=3] [ref=f1e164]
+                - paragraph [ref=f1e167]: No carrier invoice files attached yet.
+  - alert [ref=f1e168]
+```

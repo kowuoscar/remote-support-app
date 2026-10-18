@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -125,7 +126,16 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
             .getContentAsString());
   }
 
+  /** The first send goes through the month send; returns the sent invoice as the Agent reads it. */
   private JsonNode send() throws Exception {
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
+    sendTheMonth(mockMvc, agentToken);
+    return agentRead();
+  }
+
+  /** The resend of a sent-back invoice keeps the per-invoice route. */
+  private JsonNode resend() throws Exception {
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
     return objectMapper.readTree(
@@ -238,6 +248,19 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
     return UUID.fromString(send().get("id").asText());
   }
 
+  /**
+   * Like {@link #sentInvoice} for a Contract added after the Agent's month was sent: it is sent on
+   * its own, through the per-invoice route.
+   */
+  private UUID lateSentInvoice() throws Exception {
+    fixture("Send Back " + UUID.randomUUID());
+    addPostpaidSim("+1-555-0400", "18.00");
+    logFee("5.00");
+    UUID simId = UUID.fromString(agentRead().get("basePostpaidSims").get(0).get("simCardId").asText());
+    editSim(simId, "20.00");
+    return UUID.fromString(resend().get("id").asText());
+  }
+
   @Test
   void sendBackCurrentMonthInvoiceReturnsDraftWithLinesAmountsAndComputedAsSent() throws Exception {
     UUID invoiceId = sentInvoice();
@@ -293,6 +316,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
     invoice.setCurrency(contract.getCurrency());
     invoice.setCreatedAt(Instant.now());
     invoice.setSentAt(Instant.now());
+    invoice.setFirstSentAt(Instant.now());
     invoice.setSnapshotBaseAmount(new BigDecimal("42.00"));
     invoice.setLinesStored(true);
     clientInvoiceRepository.saveAndFlush(invoice);
@@ -325,7 +349,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
 
     UUID simId = UUID.fromString(agentRead().get("basePostpaidSims").get(0).get("simCardId").asText());
     editSim(simId, "30.00");
-    JsonNode resent = send();
+    JsonNode resent = resend();
 
     JsonNode row = queueRow(invoiceId);
     assertThat(row).isNotNull();
@@ -338,7 +362,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
   void sendBackTwiceWithResendBetweenSucceeds() throws Exception {
     UUID invoiceId = sentInvoice();
     sendBack(invoiceId);
-    assertThat(send().get("status").asText()).isEqualTo("SENT");
+    assertThat(resend().get("status").asText()).isEqualTo("SENT");
 
     JsonNode second = sendBack(invoiceId);
 
@@ -421,7 +445,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
                 .header("Authorization", "Bearer " + testerToken))
         .andExpect(status().isForbidden());
 
-    send();
+    resend();
     JsonNode read =
         objectMapper.readTree(
             mockMvc
@@ -442,7 +466,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
   void managerReadsResentInvoiceWithSentBackReasonAndPdfCarriesNone() throws Exception {
     UUID invoiceId = sentInvoice();
     sendBack(invoiceId);
-    send();
+    resend();
 
     JsonNode read = byId(invoiceId);
     assertThat(read.get("status").asText()).isEqualTo("SENT");
@@ -772,7 +796,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
 
     assertThat(body(getById(agentToken, invoiceId, "/files").andExpect(status().isOk()))).hasSize(1);
     // A sent invoice takes no file: the plain 409 it is today.
-    send();
+    resend();
     postFileById(agentToken, invoiceId, UUID.randomUUID(), "late.pdf", "x").andExpect(status().isConflict());
   }
 
@@ -901,7 +925,8 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
 
     putLineById(agentToken, invoiceId, "POSTPAID_SIM", simIdOf(draft), "19.00").andExpect(status().isOk());
     postFileById(agentToken, invoiceId, simIdOf(draft), "ok.pdf", "ok").andExpect(status().isCreated());
-    JsonNode sent = body(postSendById(agentToken, invoiceId).andExpect(status().isOk()));
+    sendTheMonth(mockMvc, agentToken);
+    JsonNode sent = body(getById(agentToken, invoiceId, "").andExpect(status().isOk()));
 
     assertThat(sent.get("status").asText()).isEqualTo("SENT");
     assertThat(sent.get("basePostpaidSims").get(0).get("amount").decimalValue()).isEqualByComparingTo("19.00");
@@ -1016,9 +1041,9 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
   void agentListsOwnSentBackInvoicesOldestFirstWithFieldsAndNoAmounts() throws Exception {
     UUID first = sentInvoice();
     UUID firstContractId = contractId;
-    UUID second = sentInvoice();
+    UUID second = lateSentInvoice();
     moveToPastMonth(second);
-    UUID neverSentBack = sentInvoice();
+    UUID neverSentBack = lateSentInvoice();
     sendBack(second);
     Thread.sleep(5);
     sendBack(first);
@@ -1081,6 +1106,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
     invoice.setStatus(ClientInvoiceStatus.DRAFT);
     invoice.setCurrency(contract.getCurrency());
     invoice.setCreatedAt(Instant.now());
+    invoice.setFirstSentAt(Instant.now());
     invoice.setSentBackAt(Instant.now());
     invoice.setSentBackReason("not yours");
     return clientInvoiceRepository.saveAndFlush(invoice).getId();
@@ -1093,7 +1119,7 @@ class ClientInvoiceSendBackApiTest extends IntegrationTest {
     JsonNode firstRow = listed(sentBackList(agentToken), invoiceId);
     assertThat(firstRow).isNotNull();
 
-    send();
+    resend();
     assertThat(listed(sentBackList(agentToken), invoiceId)).isNull();
 
     Thread.sleep(5);

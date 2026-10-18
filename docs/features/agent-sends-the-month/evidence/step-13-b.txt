@@ -1,0 +1,19 @@
+# Part B: fresh demo DB, SeaweedFS stopped at startup
+WARN lines:
+2026-10-18T17:45:32.485+02:00 WARN  [:] c.r.backend.demo.DemoDataLoader - The object store is unavailable; the demo's current-month invoices of contracts US-1 and US-2 stay drafts without carrier invoices.
+WARN count: 1
+ERROR count: 1
+health: {"status":"UP"}
+    agent     |        client         |  status  | first_sent_at |        sent_at         | lines_stored | files | pp_lines 
+--------------+-----------------------+----------+---------------+------------------------+--------------+-------+----------
+ Jordan Ellis | Harbor Line Logistics | APPROVED |               | 2026-08-29 00:00:00+00 | t            |     0 |        0
+ Jordan Ellis | Harbor Line Logistics | APPROVED |               | 2026-09-29 00:00:00+00 | t            |     0 |        0
+ Jordan Ellis | Harbor Line Logistics | DRAFT    |               |                        | f            |     0 |        0
+ Jordan Ellis | Solstice Retail Group | DRAFT    |               |                        | f            |     0 |        0
+ Jordan Ellis | Solstice Retail Group | APPROVED |               | 2026-09-29 00:00:00+00 | t            |     0 |        1
+ Jordan Ellis | Solstice Retail Group | APPROVED |               | 2026-08-29 00:00:00+00 | t            |     0 |        1
+ Priya Shah   | Solstice Retail Group | APPROVED |               | 2026-08-29 00:00:00+00 | t            |     0 |        1
+ Priya Shah   | Solstice Retail Group | APPROVED |               | 2026-09-29 00:00:00+00 | t            |     0 |        1
+ Priya Shah   | Solstice Retail Group | DRAFT    |               |                        | f            |     0 |        0
+(9 rows)
+

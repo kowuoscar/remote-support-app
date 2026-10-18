@@ -48,6 +48,12 @@ error, not a nitpick.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileName.java` · pure function building a Carrier Invoice File's computed name `{Client} - {Month Year} - {Carrier} - {SIM number}{.ext}`.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceFileMissingException.java` · the 404 for a row whose object is missing.
 - `backend/src/main/resources/db/migration/V62__add_carrier_invoice_file_deleted_at.sql` · the migration behind retention marking a Carrier Invoice File's bytes deleted.
+- `backend/src/main/resources/db/migration/V63__add_client_invoice_first_sent_at.sql` · the migration behind a Client Invoice remembering when it was first sent, kept through a send-back.
+- `backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceDrafts.java` · the one get-or-create of a Contract's DRAFT Client Invoice for a billing month, shared by the invoice controller and the month send.
+- `backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceMonthService.java` · the non-transactional half of the month send: month check, completing each Contract's current-month draft, then handing to `ClientInvoiceService`.
+- `backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceMonthController.java` · the Agent-only `POST /api/me/client-invoice-months/{YYYY-MM}/send`.
+- `backend/src/main/java/com/remotesupport/backend/dto/ClientInvoiceMonthSendResponse.java` · the month send's answer: billing month, sent time, invoice ids.
+- `backend/src/main/java/com/remotesupport/backend/dto/ClientInvoiceMonthSendRequest.java` · the month send's optional body naming the invoice ids.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceRetention.java` · deletes due Carrier Invoice File bytes 30 days after approval and marks the rows `deleted_at`, stopping at the first object-store failure.
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceRetentionProperties.java` · typed `app.carrier-invoice-retention` settings (enabled, cron).
 - `backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceRetentionScheduling.java` · the app's only scheduling configuration: the UTC cron and the startup run of retention.
@@ -71,6 +77,7 @@ error, not a nitpick.
 - `frontend/app/api/contracts/[contractId]/sim-cards/[simCardId]/number/route.ts` · BFF PATCH proxy for a SIM Card's number Correction, via `forwardJson`.
 - `frontend/app/api/contracts/[contractId]/sim-cards/[simCardId]/postpaid-plan/route.ts` · BFF PATCH proxy for a Postpaid SIM Card's plan Correction, via `forwardJson`.
 - `frontend/app/client/(dashboard)` · the /client dashboard page and its error.tsx.
+- `frontend/app/api/me/client-invoice-months/[month]/send/route.ts` · BFF proxy for the whole-month send through forwardJson.
 - `frontend/app/agent/client-invoices/[invoiceId]` · the Agent's by-id Client Invoice page, guarded by `requireAgent`.
 
 ### Frontend — `frontend/components`
@@ -85,9 +92,10 @@ error, not a nitpick.
 - `frontend/components/app-shell/change-name-dialog.tsx` · the dialog behind the account menu's Change name item: edits the caller's own name, never signs out.
 - `frontend/components/manager/reset-password-dialog.tsx` · the two-step (confirm, then one-time reveal) dialog a Manager uses to reset an Agent's or Tester's password.
 - `frontend/components/agent/agent-client-invoice-card.tsx` · the Agent's Client Invoice card.
+- `frontend/components/agent/send-client-invoice-month-control.tsx` · the Agent's month bar: unsent, sent and incomplete states and the confirm-and-send flow.
 - `frontend/components/agent/attach-carrier-invoice-dialog.tsx` · the attach form: pick a Postpaid SIM line and one file.
 - `frontend/components/agent/remove-carrier-invoice-file-control.tsx` · the Agent's Remove on one Carrier Invoice File of an open draft, with an inline confirm.
-- `frontend/components/ui/side-list.tsx` · the shared SideList (named nav landmark of links with name, detail, badge and mark slots) and SideListLayout (page body: column at xl, dropdown and header below xl, with lead and detailRef slots).
+- `frontend/components/ui/side-list.tsx` · the shared SideList (named nav landmark of links with name, detail, badge, mark and status slots) and SideListLayout (page body: column at xl, dropdown and header below xl, with lead and detailRef slots).
 - `frontend/components/ui/tabs.tsx` · the shared WAI-ARIA tablist with roving tabindex, automatic activation and one rendered panel; switches between the tables of one record, never scopes a Contract.
 - `frontend/components/ui/carrier-invoice-files-section.tsx` · the shared Carrier invoice files section for the Agent card, Manager invoice detail and Tester Invoices page, including the paused state (names listed, Download disabled, one notice).
 - `frontend/components/ui/carrier-invoice-check.tsx` · the shared CarrierInvoiceCheck: a non-interactive mark showing a Postpaid SIM line's carrier invoice is attached, used by the Agent card and the Manager detail.
@@ -112,6 +120,7 @@ error, not a nitpick.
 - `demo` · demo data generation for development and the visual goldens.
 - `frontend/lib/manager-contracts.ts` · groups the Manager's Contracts by Client and resolves the selected Contract from `?contract=`.
 - `frontend/lib/api/client-invoice.ts` · the Agent's by-id Client Invoice read.
+- `frontend/lib/api/client-invoice-month.ts` · clientInvoiceMonth: derives the month bar's state from the page's loaded invoices.
 
 ## Dependency direction
 

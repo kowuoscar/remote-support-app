@@ -1,0 +1,9 @@
+== Priya @ 390
+"{\"vw\":390,\"scrollW\":390,\"clientW\":390,\"hscroll\":false,\"barText\":\"October 2026 · 0 of 1 ready1 invoice still needs its carrier invoices.\",\"barTop\":89,\"barBottom\":131}"
+== Avery @ 390
+"{\"vw\":390,\"scrollW\":390,\"clientW\":390,\"hscroll\":false,\"barText\":\"October 2026 · Sent to Manager on Oct 18, 2026\",\"barTop\":76,\"barBottom\":142}"
+== Priya @ 1024
+"{\"vw\":1024,\"scrollW\":1024,\"clientW\":1024,\"hscroll\":false,\"barText\":\"October 2026 · 0 of 1 ready1 invoice still needs its carrier invoices.\",\"barTop\":93,\"barBottom\":135}"
+== Avery @ 1024
+"{\"vw\":1024,\"scrollW\":1024,\"clientW\":1024,\"hscroll\":false,\"barText\":\"October 2026 · Sent to Manager on Oct 18, 2026\",\"barTop\":80,\"barBottom\":126}"
+Step 12 passed: bar above the Contract Switcher at 390 and 1024 for Priya (unsent: 'October 2026 · 0 of 1 ready', demo has one Contract) and Avery (sent); no horizontal scroll (scrollWidth==clientWidth in the metrics above); screenshots step-12-<Agent>-<width>.png and snapshots.

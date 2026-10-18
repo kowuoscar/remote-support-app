@@ -387,6 +387,23 @@ public final class AuditLog {
   }
 
   /**
+   * An Agent sending a whole month of Client Invoices at once (agent-sends-the-month spec,
+   * Observability): the Agent, the billing month and how many invoices went, after each invoice's
+   * own status-change line. No free text.
+   */
+  public static void clientInvoiceMonthSent(
+      UUID agentId, LocalDate billingMonth, int count, UUID actorUserId, UUID tenantId) {
+    log.info(
+        "audit action=CLIENT_INVOICE_MONTH_SENT entity=Agent entityId={} billingMonth={} count={} "
+            + "actorUserId={} tenantId={}",
+        agentId,
+        billingMonth,
+        count,
+        actorUserId,
+        tenantId);
+  }
+
+  /**
    * A Manager overriding one Agent Invoice's Salary or Rollout Advance (new-advance) line at
    * approval time (agent-invoice-submission-and-approval ticket Observability: "override events
    * logged with Agent Invoice id, actor, old/new value"). Distinct from {@link #statusChanged} —

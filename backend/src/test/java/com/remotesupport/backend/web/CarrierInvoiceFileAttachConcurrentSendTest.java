@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,9 +47,26 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
 
   private UUID clientId;
   private UUID contractId;
+  private UUID anchorClientId;
+  private UUID anchorContractId;
+
+  /**
+   * Sends the seeded Agent's month first, through the month send, with a Contract that bills
+   * nothing; the Contract the race then uses is a late one, sent on its own as the rule allows.
+   */
+  private void sendTheMonthBeforeTheRaceContractExists(String managerToken, String agentToken) throws Exception {
+    anchorClientId = createClient(managerToken, "Month Anchor " + UUID.randomUUID());
+    anchorContractId = createContract(managerToken, anchorClientId, SEEDED_AGENT_ID);
+    sendTheMonth(mockMvc, agentToken);
+  }
 
   @AfterEach
   void deleteWhatThisTestCommitted() {
+    deleteContractAndClient(anchorContractId, anchorClientId);
+    deleteContractAndClient(contractId, clientId);
+  }
+
+  private void deleteContractAndClient(UUID contractId, UUID clientId) {
     if (contractId != null) {
       jdbcTemplate.update(
           "DELETE FROM carrier_invoice_files WHERE client_invoice_id IN (SELECT id FROM client_invoices WHERE contract_id = ?)",
@@ -69,6 +87,7 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
   void aSendIsAnsweredWhileAnAttachUploadIsStillTransferring() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
+    sendTheMonthBeforeTheRaceContractExists(managerToken, agentToken);
     clientId = createClient(managerToken, "Attach Race " + UUID.randomUUID());
     contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     UUID simId = addUniquePostpaidSim(managerToken, contractId);
@@ -198,6 +217,7 @@ class CarrierInvoiceFileAttachConcurrentSendTest extends IntegrationTest {
   void anAttachRacingASendOnTheLastMissingFileNeverLeavesASentInvoiceWithoutIt() throws Exception {
     String managerToken = managerToken();
     String agentToken = agentToken();
+    sendTheMonthBeforeTheRaceContractExists(managerToken, agentToken);
     clientId = createClient(managerToken, "Attach Versus Send " + UUID.randomUUID());
     contractId = createContract(managerToken, clientId, SEEDED_AGENT_ID);
     UUID simId = addUniquePostpaidSim(managerToken, contractId);

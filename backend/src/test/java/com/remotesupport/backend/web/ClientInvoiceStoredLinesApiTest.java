@@ -1,5 +1,8 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.currentMonth;
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.postTheMonth;
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -109,25 +112,27 @@ class ClientInvoiceStoredLinesApiTest extends IntegrationTest {
         .getContentAsString();
   }
 
+  /** The first send goes through the month send; returns the sent invoice's id. */
   private UUID send() throws Exception {
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken);
-    MvcResult result =
-        mockMvc
-            .perform(
-                post("/api/contracts/" + contractId + "/client-invoice/send")
-                    .header("Authorization", "Bearer " + agentToken))
-            .andExpect(status().isOk())
-            .andReturn();
-    return UUID.fromString(objectMapper.readTree(result.getResponse().getContentAsString()).get("id").asText());
+    sendTheMonth(mockMvc, agentToken);
+    return UUID.fromString(objectMapper.readTree(agentRead()).get("id").asText());
   }
 
-  private void sendExpecting(int httpStatus) throws Exception {
+  /** The resend of a sent-back invoice keeps the per-invoice route. */
+  private void resend() throws Exception {
+    CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
+        mockMvc, objectMapper, contractId, agentToken);
     mockMvc
         .perform(
             post("/api/contracts/" + contractId + "/client-invoice/send")
                 .header("Authorization", "Bearer " + agentToken))
-        .andExpect(status().is(httpStatus));
+        .andExpect(status().isOk());
+  }
+
+  private void sendExpecting(int httpStatus) throws Exception {
+    postTheMonth(mockMvc, agentToken, currentMonth(), null).andExpect(status().is(httpStatus));
   }
 
   private void setBackToDraft(UUID invoiceId) {
@@ -149,6 +154,7 @@ class ClientInvoiceStoredLinesApiTest extends IntegrationTest {
     invoice.setCurrency(contract.getCurrency());
     invoice.setCreatedAt(Instant.now());
     invoice.setSentAt(Instant.now());
+    invoice.setFirstSentAt(Instant.now());
     invoice.setSnapshotBaseAmount(new BigDecimal(baseAmount));
     invoice.setLinesStored(true);
     clientInvoiceRepository.saveAndFlush(invoice);
@@ -290,7 +296,7 @@ class ClientInvoiceStoredLinesApiTest extends IntegrationTest {
     setBackToDraft(invoiceId);
     UUID lateFee = logFee("3.25");
 
-    send();
+    resend();
 
     List<ClientInvoiceLine> after = clientInvoiceLineRepository.findByClientInvoiceId(invoiceId);
     assertThat(after).hasSize(before.size() + 1);
@@ -319,7 +325,7 @@ class ClientInvoiceStoredLinesApiTest extends IntegrationTest {
     UUID invoiceId = send();
     setBackToDraft(invoiceId);
     logFee("3.25");
-    send();
+    resend();
 
     logFee("11.00");
 

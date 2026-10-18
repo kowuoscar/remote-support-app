@@ -1,5 +1,6 @@
 package com.remotesupport.backend.web;
 
+import static com.remotesupport.backend.support.ClientInvoiceMonthTestSupport.sendTheMonth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -369,11 +370,7 @@ class SimCardCorrectionApiTest extends IntegrationTest {
                 .andExpect(status().isCreated()));
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken());
-    mockMvc
-        .perform(
-            post("/api/contracts/" + contractId + "/client-invoice/send")
-                .header("Authorization", "Bearer " + agentToken()))
-        .andExpect(status().isOk());
+    sendTheMonth(mockMvc, agentToken());
 
     correct(contractId, postpaidId, managerToken, "+1-555-0799").andExpect(status().isOk());
 
@@ -694,14 +691,8 @@ class SimCardCorrectionApiTest extends IntegrationTest {
 
     CarrierInvoiceTestSupport.attachCarrierInvoicesForEveryPostpaidLineOfCurrentMonth(
         mockMvc, objectMapper, contractId, agentToken());
-    JsonNode sent =
-        json(
-            mockMvc
-                .perform(
-                    post("/api/contracts/" + contractId + "/client-invoice/send")
-                        .header("Authorization", "Bearer " + agentToken()))
-                .andExpect(status().isOk()));
-    UUID invoiceId = UUID.fromString(sent.get("id").asText());
+    sendTheMonth(mockMvc, agentToken());
+    UUID invoiceId = UUID.fromString(agentClientInvoice().get("id").asText());
     UUID other = createPostpaidPlan(managerToken, stored.carrierId(), "After send", "70.00");
     correctPlan(contractId, stored.simId(), managerToken, other).andExpect(status().isOk());
     assertThat(agentClientInvoice().get("baseAmount").asDouble()).isEqualTo(31.00);

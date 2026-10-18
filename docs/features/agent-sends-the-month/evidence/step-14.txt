@@ -1,0 +1,1 @@
+Step 14 passed: FirstSentAtMigrationTest 4 tests green (step-14-migration-test.txt): sent/approved/sent-back rows take first_sent_at from old columns, never-sent stays null, fallback to created_at, other columns untouched. CONTEXT.md entries Agent's month, Month bar, Month send, Ready, Sent back/open-to-Agent predicate; DESIGN.md Month bar + Side list (step-14-docs.txt).

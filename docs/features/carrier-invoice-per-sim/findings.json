@@ -108,7 +108,7 @@
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/ClientInvoiceConflictAdvice.java:16",
-      "citation": "docs/agents/coding-standards.md (Backend 7): Exceptions crossing the service\u2192controller boundary are domain exceptions carrying `@ResponseStatus`, translated to a response body by a per-controller `@ExceptionHandler` when the body needs a machine-readable `code`",
+      "citation": "docs/agents/coding-standards.md (Backend 7): Exceptions crossing the service→controller boundary are domain exceptions carrying `@ResponseStatus`, translated to a response body by a per-controller `@ExceptionHandler` when the body needs a machine-readable `code`",
       "note": "New @RestControllerAdvice(assignableTypes = {ClientInvoiceByIdController, ClientInvoiceController}) replaces the per-controller handler; the only ControllerAdvice in backend/src/main. Spec Prefactoring allowed '(or is repeated identically in the second one)'. Fix: one @ExceptionHandler per controller, or the human amends Backend 7."
     },
     {
@@ -309,7 +309,7 @@
       "in_changed_lines": true,
       "where": "frontend/components/agent/agent-client-invoice-card.tsx:167",
       "citation": "spec Design direction, disabled Send: 'right-aligned like the confirm text'; F23 note",
-      "note": "At 390 the wrapped action column (now max-w-65) right-aligns to x\u2248297, lining up with neither the title nor the card's content edge. Give the column ml-auto (or w-full items-end below sm) so it sits flush right, then retake the mobile goldens.",
+      "note": "At 390 the wrapped action column (now max-w-65) right-aligns to x≈297, lining up with neither the title nor the card's content edge. Give the column ml-auto (or w-full items-end below sm) so it sits flush right, then retake the mobile goldens.",
       "status": "fixed"
     },
     {
@@ -320,7 +320,7 @@
       "after_review": true,
       "in_changed_lines": true,
       "where": "frontend/components/manager/client-invoice-detail-view.tsx:146-148 with frontend/components/ui/carrier-invoice-check.tsx",
-      "citation": "spec Design direction: 'inline after the muted Carrier label \u2026 the row layout \u2026 do not move'; DESIGN.md Components: IconCheckCircle 'after its Carrier label'",
+      "citation": "spec Design direction: 'inline after the muted Carrier label … the row layout … do not move'; DESIGN.md Components: IconCheckCircle 'after its Carrier label'",
       "note": "At 390 on the Manager detail the check mark wraps alone onto a new line under the Carrier label. Keep label and check together (whitespace-nowrap span around simLineKind + CarrierInvoiceCheck), then retake.",
       "status": "fixed"
     },

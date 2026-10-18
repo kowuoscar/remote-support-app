@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.remotesupport.backend.domain.AgentInvoice;
 import com.remotesupport.backend.domain.AgentInvoiceStatus;
+import com.remotesupport.backend.domain.BillingMonth;
 import com.remotesupport.backend.domain.CarrierInvoiceFile;
 import com.remotesupport.backend.domain.ClientInvoice;
 import com.remotesupport.backend.domain.ClientInvoiceLineKind;
@@ -30,6 +31,7 @@ import com.remotesupport.backend.web.ContractAmountService;
 import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.UUID;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
@@ -156,6 +158,7 @@ class DemoDataLoaderApiTest {
     List<ClientInvoice> sent =
         clientInvoiceRepository.findAll().stream().filter(i -> i.getStatus() == ClientInvoiceStatus.SENT).toList();
     assertThat(sent).isNotEmpty();
+    long totalPostpaidLines = 0;
     for (ClientInvoice invoice : sent) {
       long postpaidLines =
           clientInvoiceLineRepository.findByClientInvoiceId(invoice.getId()).stream()
@@ -163,14 +166,48 @@ class DemoDataLoaderApiTest {
               .count();
       List<CarrierInvoiceFile> files =
           carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoice.getId());
-      assertThat(postpaidLines).isPositive();
+      totalPostpaidLines += postpaidLines;
       assertThat(files).hasSize((int) postpaidLines);
       assertThat(files.stream().map(f -> f.getSimCard().getId()).distinct()).hasSize((int) postpaidLines);
     }
+    assertThat(totalPostpaidLines).as("contract US-1 bills Postpaid SIMs").isPositive();
     for (ClientInvoice approved :
         clientInvoiceRepository.findAll().stream().filter(i -> i.getStatus() == ClientInvoiceStatus.APPROVED).toList()) {
       assertThat(carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(approved.getId())).isEmpty();
     }
+  }
+
+  @Test
+  void jordansTwoCurrentMonthInvoicesAreSentTogetherWithOneFilePerPostpaidSimLineAndPriyasStaysADraft() {
+    UUID jordan = UUID.fromString("55555555-5555-5555-5555-555555555555");
+    List<ClientInvoice> current =
+        clientInvoiceRepository.findAll().stream()
+            .filter(i -> BillingMonth.current().equals(i.getBillingMonth()))
+            .toList();
+    List<ClientInvoice> jordans =
+        current.stream().filter(i -> jordan.equals(i.getContract().getAgent().getId())).toList();
+    List<ClientInvoice> others =
+        current.stream().filter(i -> !jordan.equals(i.getContract().getAgent().getId())).toList();
+
+    assertThat(jordans).as("Jordan's contracts US-1 and US-2").hasSize(2);
+    assertThat(jordans).allMatch(i -> i.getStatus() == ClientInvoiceStatus.SENT);
+    assertThat(jordans.stream().map(ClientInvoice::getFirstSentAt).distinct())
+        .as("the month went at one instant")
+        .hasSize(1)
+        .doesNotContainNull();
+    long totalPostpaidLines = 0;
+    for (ClientInvoice invoice : jordans) {
+      long postpaidLines =
+          clientInvoiceLineRepository.findByClientInvoiceId(invoice.getId()).stream()
+              .filter(l -> l.getKind() == ClientInvoiceLineKind.POSTPAID_SIM)
+              .count();
+      totalPostpaidLines += postpaidLines;
+      assertThat(carrierInvoiceFileRepository.findByClientInvoiceIdOrderByUploadedAtAsc(invoice.getId()))
+          .hasSize((int) postpaidLines);
+    }
+    assertThat(totalPostpaidLines).as("contract US-1 bills Postpaid SIMs").isPositive();
+    assertThat(others).as("Priya's UK-1 invoice").hasSize(1);
+    assertThat(others).allMatch(i -> i.getStatus() == ClientInvoiceStatus.DRAFT);
   }
 
   @Test

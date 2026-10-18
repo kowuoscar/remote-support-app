@@ -4,14 +4,15 @@
     {
       "id": "F1",
       "type": "spec-partial",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/agent/client-invoices-view.test.tsx:737",
       "citation": "spec.md:556-559 (Execution order, ticket 2): the check-mark and send-gate cases for a deleted file; Decisions taken: 'The check mark and the send gate treat a deleted file as attached.'",
       "note": "No send-gate case for a deleted file was added (frontend or backend). Behaviour is right today (ClientInvoiceService.java:491 keys on the row) but nothing pins that a sent-back invoice whose files are all deleted can still be sent (story 18).",
-      "fixed_in": "f549224, 0421b1b"
+      "fixed_in": "f549224, 0421b1b",
+      "reason": "Resend of a sent-back invoice whose only file is deleted returns SENT (ClientInvoiceApiTest); frontend Send enabled with no count note."
     },
     {
       "id": "F2",
@@ -27,38 +28,41 @@
     {
       "id": "F3",
       "type": "smell",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-spec",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/main/java/com/remotesupport/backend/web/CarrierInvoiceRetention.java:70",
       "citation": "spec.md:70-71, 203: 'A run with nothing due logs nothing.'",
       "note": "runOnce() logs a DEBUG 'nothing due'. Testing decisions 2 allows nothing above DEBUG; cleanest is to drop the line.",
-      "fixed_in": "f549224"
+      "fixed_in": "f549224",
+      "reason": "DEBUG \"nothing due\" line removed; nothing-due path logs nothing."
     },
     {
       "id": "F4",
       "type": "rule-violated",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/test/java/com/remotesupport/backend/web/CarrierInvoiceRetentionTriggersTest.java:34",
       "citation": "docs/agents/coding-standards.md (Backend 6): a test that needs a Spring context is an integration test: it extends `IntegrationTest`... Exception: a test that boots the `demo` profile...",
       "note": "Three nested @SpringBootTest contexts (:72, :87, :104) not extending IntegrationTest; not demo-profile. Cause: IntegrationTest's @DynamicPropertySource pins app.carrier-invoice-retention.enabled=false, which inline properties cannot override. Fix the test (e.g. a hook on IntegrationTest) or get a written carve-out.",
-      "fixed_in": "f549224"
+      "fixed_in": "f549224",
+      "reason": "Nested cases extend IntegrationTest; base @TestPropertySource pin overridden by subclass @TestPropertySource; no other test changed."
     },
     {
       "id": "F5",
       "type": "smell",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "backend/src/test/java/com/remotesupport/backend/web/ClientInvoiceApiTest.java:1000",
       "citation": "possible Duplicated Code",
       "note": "The two 410 tests (:1000, :1014) repeat setup and assertion, differ only in storage availability; one parameterised test.",
-      "fixed_in": "f549224"
+      "fixed_in": "f549224",
+      "reason": "Merged into one @ParameterizedTest over storage availability."
     },
     {
       "id": "F6",
@@ -74,26 +78,39 @@
     {
       "id": "F7",
       "type": "smell",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "reviewer-standards",
       "after_review": false,
       "in_changed_lines": true,
       "where": "frontend/components/ui/carrier-invoice-files-section.tsx:12",
       "citation": "judgement call: garbled doc comment",
       "note": "New JSDoc paragraph spliced mid-sentence ('...The Attach' / bare blank line / new text / 'The Attach control itself...'). Rejoin.",
-      "fixed_in": "0421b1b"
+      "fixed_in": "0421b1b",
+      "reason": "JSDoc rejoined and coherent."
     },
     {
       "id": "F8",
       "type": "design-guideline",
-      "state": "fixed",
+      "state": "confirmed",
       "raised_by": "design-audit",
       "after_review": false,
       "in_changed_lines": false,
       "where": "frontend/components/ui/carrier-invoice-files-section.tsx:55",
       "citation": "DESIGN.md Paused files section: \"the notice appears only when something is really paused (the attach control, or a file not deleted)\"",
       "note": "When the notice shows only because Attach is offered and every file is deleted (an Agent's sent-back draft during an outage, story 18), the copy at 55-59 still says \"Attaching and downloading are paused\" (or \"Attaching, removing and downloading...\"); nothing is downloadable. The wording should follow the same count line 44 uses: name downloading only when a file is not deleted. Untested narrow case.",
-      "fixed_in": "0421b1b"
+      "fixed_in": "0421b1b",
+      "reason": "Notice names downloading only when a listed file is not deleted (or the section is empty); new tests pin both all-deleted wordings."
+    },
+    {
+      "id": "F9",
+      "type": "smell",
+      "state": "open",
+      "raised_by": "reviewer-standards",
+      "after_review": true,
+      "in_changed_lines": true,
+      "where": "backend/src/test/java/com/remotesupport/backend/support/IntegrationTest.java:58",
+      "citation": "judgement call: misleading comment",
+      "note": "Says a subclass overrides the retention pin with @SpringBootTest(properties=...), which ranks below the inherited @TestPropertySource and would not override; should say @TestPropertySource."
     }
   ]
 }

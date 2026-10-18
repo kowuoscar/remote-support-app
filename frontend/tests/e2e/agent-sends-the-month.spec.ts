@@ -103,3 +103,66 @@ test.describe("the card's Send defers to the month bar", () => {
     await expect(sentOn).toBeVisible();
   });
 });
+
+test.describe("the side list marks each draft ready or with its missing files", () => {
+  test("a fresh Agent's rows follow an attach and a remove, and a sent-back row reads Sent back with its readiness", async ({
+    page,
+  }) => {
+    const agentName = `Tessa Wren ${RUN_ID}`;
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    const agent = await createAgentWithLogin(page, agentName, `tessa.wren+${RUN_ID}@agents.example`);
+    const twoName = `Marlow Two ${RUN_ID}`;
+    const { contractId: twoContractId } = await createClientAndContractWithAgent(page, twoName, agent.agentLabel);
+    const simA = `+1-555-${RUN_ID.slice(-4)}`;
+    const simB = `+1-555-${RUN_ID.slice(-3)}8`;
+    await addPostpaidSimCard(page, twoContractId, simA, "30.00");
+    await addPostpaidSimCard(page, twoContractId, simB, "31.00");
+    const emptyName = `Marlow Empty ${RUN_ID}`;
+    await createClientAndContractWithAgent(page, emptyName, agent.agentLabel);
+
+    await login(page, agent.email, agent.password);
+    await page.goto("/agent/client-invoices");
+    const clients = page.getByRole("navigation", { name: "Clients" });
+    const row = (name: string, text: string) => clients.getByRole("link", { name: `${name} Draft ${text}`, exact: true });
+    await expect(row(twoName, "2 files missing")).toBeVisible();
+    await expect(row(emptyName, "Ready")).toBeVisible();
+
+    await selectClientInvoiceContract(page, twoName);
+    await attachCarrierInvoice(page, simA);
+    await expect(row(twoName, "1 file missing")).toBeVisible();
+    await attachCarrierInvoice(page, simB);
+    await expect(row(twoName, "Ready")).toBeVisible();
+
+    // The file is listed under its computed name, which ends with the SIM's number.
+    await page.getByRole("button", { name: `${simA}.pdf` }).click();
+    await page.getByRole("button", { name: "Remove", exact: true }).click();
+    await expect(row(twoName, "1 file missing")).toBeVisible();
+    await attachCarrierInvoice(page, simA);
+    await expect(row(twoName, "Ready")).toBeVisible();
+
+    // Send the month, then the Manager sends one back: that row reads Sent back with its readiness,
+    // the other reads Awaiting approval and no readiness.
+    const bar = page.getByRole("region", { name: "Month" });
+    await bar.getByRole("button", { name: "Send all 2 to Manager" }).click();
+    await bar.getByRole("button", { name: "Confirm send all 2" }).click();
+    await expect(clients.getByRole("link", { name: `${twoName} Awaiting approval`, exact: true })).toBeVisible();
+    await expect(clients.getByRole("link", { name: `${emptyName} Awaiting approval`, exact: true })).toBeVisible();
+
+    await logout(page);
+    await login(page, SEEDED_USERS.manager.username, SEEDED_USERS.manager.password);
+    await page.goto("/manager/invoices");
+    await page
+      .getByRole("link", { name: new RegExp(`^Review Client Invoice: ${twoName} — ${agentName},`) })
+      .click();
+    await page.getByRole("button", { name: "Send back" }).click();
+    await page.getByRole("textbox", { name: "Reason for sending back" }).fill(`Recheck. ${RUN_ID}`);
+    await page.getByRole("button", { name: "Confirm send back" }).click();
+    await expect(page.getByText(/Sent back to the Agent on/)).toBeVisible();
+
+    await logout(page);
+    await login(page, agent.email, agent.password);
+    await page.goto("/agent/client-invoices");
+    await expect(clients.getByRole("link", { name: `${twoName} Sent back Ready`, exact: true })).toBeVisible();
+    await expect(clients.getByRole("link", { name: `${emptyName} Awaiting approval`, exact: true })).toBeVisible();
+  });
+});

@@ -48,6 +48,8 @@ Existing tests expected to change, each with the reason:
 - `frontend/tests/visual/stub-backend.mjs` is expected to stay unchanged (the previous ticket serves a ready and a missing-file invoice); name any forced edit.
 - Goldens `agent-client-invoices-{desktop,mobile}-{light,dark}.png` recaptured. The Carriers goldens and `carriers-view` tests must stay unchanged.
 
+- Accepted by the orchestrator at merge: `frontend/tests/visual/stub-backend.mjs` gains the session `visual-agent-invoices-unsent-marked-session` (needed for the Country + readiness + Sent back bounding-box case; existing sessions unaffected), and the desktop goldens `client-invoice-attach-dialog-open-desktop-*`, `client-invoice-files-paused-desktop-*`, `client-invoice-remove-confirm-open-desktop-*` are retaken because their captures include the side list.
+
 ## Observability
 
 N/A: a presentational mark derived from data the page already loads; nothing is logged.

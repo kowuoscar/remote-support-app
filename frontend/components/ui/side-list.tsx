@@ -15,6 +15,8 @@ export type SideListItem = {
   badge?: ReactNode;
   /** Line 2, right, or line 1 when there is no badge. */
   mark?: ReactNode;
+  /** Line 2, left, after `detail` and last in DOM order (Client Invoices' readiness). */
+  status?: ReactNode;
   /** The name in `ink-mute` (an archived Carrier). */
   muted?: boolean;
 };
@@ -24,8 +26,8 @@ export type SideListItem = {
  * shared"; first built for Client Invoices). Presentational: the page owns the selection. A plain
  * click is taken for `onSelect`; a modified click (Cmd/Ctrl/Shift/Alt) and the middle button fall
  * through to the link's `href`, so "open in a new tab" works. `items` arrives in column order.
- * The link's accessible name is its DOM text in the order name, detail, badge, mark; the grid
- * places each part.
+ * The link's accessible name is its DOM text in the order name, detail, badge, mark, status; the
+ * grid places each part.
  */
 export function SideList({
   label,
@@ -82,15 +84,16 @@ export function SideList({
                 aria-current={selected ? "true" : undefined}
                 onClick={(event) => onClick(event, item.id)}
                 className={cn(
-                  // Two columns: the name takes the free width, the badges size to themselves. DOM order
-                  // stays name, detail, badge, mark (the link's accessible name); the grid places them.
-                  "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                  // Three columns: the detail takes the free width (cut with "…" before anything else), the status
+                  // and the badges size to themselves (the name spans the first two, the status sits in the second). DOM order stays
+                  // name, detail, badge, mark, status (the link's accessible name); the grid places them.
+                  "grid grid-cols-[minmax(0,1fr)_minmax(0,auto)_auto] items-center gap-x-2 gap-y-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                   selected
                     ? "bg-primary-soft-bg text-primary-soft-text"
                     : cn("hover:bg-canvas-soft", item.muted ? "text-ink-mute" : "text-ink-secondary"),
                 )}
               >
-                <span className="col-start-1 row-start-1 truncate" title={item.name}>
+                <span className="col-span-2 col-start-1 row-start-1 truncate" title={item.name}>
                   {item.name}
                 </span>
                 {item.detail ? (
@@ -102,14 +105,32 @@ export function SideList({
                 {item.badge ? (
                   <>
                     {" "}
-                    <span className="col-start-2 row-start-1 flex justify-end">{item.badge}</span>
+                    <span className="col-start-3 row-start-1 flex justify-end">{item.badge}</span>
                   </>
                 ) : null}
                 {item.mark ? (
                   <>
                     {" "}
-                    <span className={cn("col-start-2 flex justify-end", item.badge ? "row-start-2" : "row-start-1")}>
+                    <span className={cn("col-start-3 flex justify-end", item.badge ? "row-start-2" : "row-start-1")}>
                       {item.mark}
+                    </span>
+                  </>
+                ) : null}
+                {item.status ? (
+                  <>
+                    {" "}
+                    <span
+                      className={cn(
+                        "row-start-2 flex min-w-0 items-center gap-1 text-label-sm text-ink-mute",
+                        item.detail ? "col-start-2 -ml-1" : "col-span-2 col-start-1",
+                      )}
+                    >
+                      {item.detail ? (
+                        <>
+                          <span aria-hidden="true">·</span>{" "}
+                        </>
+                      ) : null}
+                      {item.status}
                     </span>
                   </>
                 ) : null}

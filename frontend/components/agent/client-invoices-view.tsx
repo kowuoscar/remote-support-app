@@ -9,7 +9,7 @@ import { selectionHref, useSelectionAddress } from "@/lib/selection-address";
 import { Badge } from "@/components/ui/badge";
 import { clientInvoiceBadge, isSentBackBadge, sentBackBadge } from "@/lib/status";
 import { EmptyState } from "@/components/ui/empty-state";
-import { IconAlertTriangle, IconArrowRight, IconInvoices } from "@/components/icons";
+import { IconAlertTriangle, IconArrowRight, IconCheckCircle, IconInvoices } from "@/components/icons";
 import { Card } from "@/components/ui/card";
 import { Table, TableScroll, Tbody, Td, Th, Thead, Tr } from "@/components/ui/table";
 import { SendClientInvoiceMonthControl } from "@/components/agent/send-client-invoice-month-control";
@@ -18,7 +18,7 @@ import { AgentClientInvoiceCard } from "@/components/agent/agent-client-invoice-
 import { PAGE_PADDING, PAGE_WIDTH } from "@/components/app-shell/surface-page";
 import { Breadcrumb } from "@/components/app-shell/top-bar";
 import { formatBillingMonth, formatDate } from "@/lib/format";
-import { countryLabel, type ClientInvoiceDetail, type SentBackClientInvoice } from "@/lib/api/types";
+import { countryLabel, missingCarrierInvoiceLines, type ClientInvoiceDetail, type SentBackClientInvoice } from "@/lib/api/types";
 
 /** What the page passes per Contract; the view derives the switcher's options and the side list's rows. */
 export type ClientInvoicesContract = {
@@ -110,6 +110,7 @@ export function AgentClientInvoicesView({
           {sentBackBadge.label}
         </Badge>
       ) : undefined,
+      status: current?.status === "DRAFT" ? <Readiness missing={missingCarrierInvoiceLines(current).length} /> : undefined,
     };
   });
 
@@ -149,6 +150,22 @@ export function AgentClientInvoicesView({
       )}
     </SideListLayout>
   );
+}
+
+/**
+ * The side list row's readiness (agent-sends-the-month): on a draft still to send, a check and
+ * "Ready" when no Postpaid SIM line lacks its carrier invoice, else how many files are missing.
+ */
+function Readiness({ missing }: { missing: number }) {
+  if (missing === 0) {
+    return (
+      <>
+        <IconCheckCircle className="h-3 w-3 shrink-0 text-success" />
+        <span className="truncate">Ready</span>
+      </>
+    );
+  }
+  return <span className="truncate">{missing === 1 ? "1 file missing" : `${missing} files missing`}</span>;
 }
 
 /**

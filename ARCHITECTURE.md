@@ -95,7 +95,7 @@ error, not a nitpick.
 - `frontend/components/agent/send-client-invoice-month-control.tsx` · the Agent's month bar: unsent, sent and incomplete states and the confirm-and-send flow.
 - `frontend/components/agent/attach-carrier-invoice-dialog.tsx` · the attach form: pick a Postpaid SIM line and one file.
 - `frontend/components/agent/remove-carrier-invoice-file-control.tsx` · the Agent's Remove on one Carrier Invoice File of an open draft, with an inline confirm.
-- `frontend/components/ui/side-list.tsx` · the shared SideList (named nav landmark of links with name, detail, badge and mark slots) and SideListLayout (page body: column at xl, dropdown and header below xl, with lead and detailRef slots).
+- `frontend/components/ui/side-list.tsx` · the shared SideList (named nav landmark of links with name, detail, badge, mark and status slots) and SideListLayout (page body: column at xl, dropdown and header below xl, with lead and detailRef slots).
 - `frontend/components/ui/tabs.tsx` · the shared WAI-ARIA tablist with roving tabindex, automatic activation and one rendered panel; switches between the tables of one record, never scopes a Contract.
 - `frontend/components/ui/carrier-invoice-files-section.tsx` · the shared Carrier invoice files section for the Agent card, Manager invoice detail and Tester Invoices page, including the paused state (names listed, Download disabled, one notice).
 - `frontend/components/ui/carrier-invoice-check.tsx` · the shared CarrierInvoiceCheck: a non-interactive mark showing a Postpaid SIM line's carrier invoice is attached, used by the Agent card and the Manager detail.

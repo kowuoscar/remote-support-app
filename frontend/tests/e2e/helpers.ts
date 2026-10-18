@@ -436,11 +436,12 @@ export async function selectContractInSwitcher(page: Page, clientName: string) {
 
 /**
  * The row's accessible name: the Client name, then the month's status label when its invoice loaded,
- * then the "Sent back" mark when the "Sent back to you" list holds an earlier month's invoice of it.
+ * then the "Sent back" mark when the "Sent back to you" list holds an earlier month's invoice of it,
+ * then the readiness of a draft ("Ready", "1 file missing", "{n} files missing").
  */
 function clientInvoiceRowName(clientName: string): RegExp {
   const escaped = clientName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`^${escaped}(?: (?:Draft|Awaiting approval|Approved|Sent back))?(?: Sent back)?$`);
+  return new RegExp(`^${escaped}(?: (?:Draft|Awaiting approval|Approved|Sent back))?(?: Sent back)?(?: (?:Ready|\\d+ files? missing))?$`);
 }
 
 /**

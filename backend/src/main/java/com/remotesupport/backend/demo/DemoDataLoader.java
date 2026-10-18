@@ -482,7 +482,8 @@ public class DemoDataLoader implements ApplicationRunner {
     objectStoreAvailability.probe();
     if (!objectStoreAvailability.isAvailable()) {
       log.warn(
-          "The object store is unavailable; the demo's current-month invoices of contracts US-1 and US-2 stay drafts without carrier invoices.");
+          "The object store is unavailable; the demo's current-month invoices of contracts US-1 and US-2 "
+              + "stay drafts without carrier invoices.");
       return;
     }
     try {
